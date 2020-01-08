@@ -1,0 +1,219 @@
+buildscript {
+  repositories {
+    jcenter()
+    mavenCentral()
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+    //mavenLocal()
+  }
+  dependencies {
+    classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+    classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.10.1'
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE'
+    classpath 'io.github.swagger2markup:swagger2markup-spring-restdocs-ext:1.3.3'
+    classpath 'io.github.swagger2markup:swagger2markup-gradle-plugin:1.3.3'
+    classpath "org.ajoberstar:gradle-git:1.5.1"
+  }
+}
+
+plugins {
+  id "org.springframework.boot" version "1.5.8.RELEASE"
+  id "org.sonarqube" version "2.6.2"  
+}
+
+apply plugin: 'java'
+def targetJavaVersion = JavaVersion.VERSION_1_8;
+sourceCompatibility = "${targetJavaVersion}"
+targetCompatibility = "${targetJavaVersion}"
+
+apply plugin: 'maven-publish'
+apply plugin: 'jacoco'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'idea'
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'io.github.swagger2markup'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.ajoberstar.github-pages'
+apply plugin: 'checkstyle'
+
+ext {
+  asciiDocOutputDir = file("${buildDir}/asciidoc/generated")
+  swaggerOutputDir = file("${buildDir}/swagger")
+  snippetsOutputDir = file("${buildDir}/asciidoc/snippets")
+}
+
+
+group = 'org.sitmun'
+if (project.hasProperty("customVersion")) {
+  version = project.customVersion
+} else {
+  version = "${sitmun_version}"
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+bootRepackage {
+  enabled = false
+}
+
+dependencies {
+  implementation "org.springframework.boot:spring-boot-starter-web"
+  implementation "org.springframework.boot:spring-boot-starter-data-rest"
+  implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+  implementation "org.springframework.boot:spring-boot-starter-security"
+  implementation "org.springframework.security:spring-security-data"
+
+  implementation "io.springfox:springfox-swagger2:${springfox_swagger_version}"
+  implementation "io.springfox:springfox-data-rest:${springfox_swagger_version}"
+
+  implementation "org.webjars:webjars-locator"
+  implementation "org.webjars:bootstrap:${bootstrap_version}"
+  implementation "org.webjars:requirejs:${requirejs_version}"
+  implementation "info.picocli:picocli:${picocli_version}"
+
+  implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
+
+  testImplementation "com.h2database:h2"
+  testImplementation "org.springframework.boot:spring-boot-starter-test"
+  testImplementation "org.springframework.security:spring-security-test"
+  testImplementation "org.assertj:assertj-core:${assertj_core_version}"
+}
+
+task checkJavaVersion {
+    if (JavaVersion.current() < targetJavaVersion) {
+        String message = """
+ERROR: Java ${targetJavaVersion} JDK required but ${JavaVersion.current()} found. 
+SOLUTION: 
+  a) Point JAVA_HOME to a ${targetJavaVersion} JDK and then run gradle, or
+  b) Run ./gradlew -Dorg.gradle.java.home=/path_to_jdk_${targetJavaVersion}_directory"""
+        throw new GradleException(message)
+    }
+}
+
+compileJava.dependsOn checkJavaVersion
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId group
+      artifactId 'sitmun-backend-core'
+      version version
+
+      from components.java
+    }
+  }
+}
+
+sonarqube {
+  properties {
+    property 'sonar.host.url', 'https://sonarcloud.io'
+    property 'sonar.organization', 'sitmun'    
+  }
+}
+
+
+def cacheDir = project.hasProperty("cacheDir")? project.properties.cacheDir : "${project.buildDir}" 
+
+task install(dependsOn: 'publishToMavenLocal')
+
+clean {
+  delete "dist"
+  delete "${cacheDir}"
+}
+
+//
+// Documentation
+//
+
+convertSwagger2markup {
+  dependsOn test
+  swaggerInput "${swaggerOutputDir}/swagger.json"
+  swaggerInput "swagger.json"
+  outputDir asciiDocOutputDir
+  config = [
+    'swagger2markup.pathsGroupedBy' : 'TAGS',
+    'swagger2markup.extensions.springRestDocs.snippetBaseUri': snippetsOutputDir.getAbsolutePath()]
+}
+
+asciidoctor {
+  dependsOn convertSwagger2markup
+  sourceDir = file('src/main/docs/asciidoc')
+  sources {
+    include 'index.adoc'
+  }
+  backends = ['html5']
+  attributes = [
+    doctype: 'book',
+    toc: 'left',
+    toclevels: '2',
+    numbered: '',
+    sectlinks: '',
+    sectanchors: '',
+    hardbreaks: '',
+    generated: asciiDocOutputDir
+  ]
+}
+
+javadoc {
+  source = sourceSets.main.allJava
+  classpath = configurations.compile
+}
+
+//
+// Code quality tasks
+//
+
+checkstyle {
+  toolVersion = "8.24"
+  configFile = file("${project.rootDir}/checkstyle.xml")
+}
+
+//
+// SQL tasks
+//
+
+task oracle8iSchemaExport(type: JavaExec) {
+  mkdir 'src/main/sql/'
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
+  args '-d', 'org.hibernate.dialect.Oracle8iDialect', '-f', 'src/main/sql/oracle8i.sql'
+}
+
+task oracle9iSchemaExport(type: JavaExec) {
+  mkdir 'src/main/sql/'
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
+  args '-d', 'org.hibernate.dialect.Oracle9iDialect', '-f', 'src/main/sql/oracle9i.sql'
+}
+
+task oracle10gSchemaExport(type: JavaExec) {
+  mkdir 'src/main/sql/'
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
+  args '-d', 'org.hibernate.dialect.Oracle10gDialect', '-f', 'src/main/sql/oracle10g.sql'
+}
+
+
+task postgreSQLSchemaExport(type: JavaExec) {
+  mkdir 'src/main/sql/'
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
+  args '-d', 'org.hibernate.dialect.PostgreSQLDialect', '-f', 'src/main/sql/postgresql.sql'
+}
+
+task h2SchemaExport(type: JavaExec) {
+  mkdir 'src/main/sql/'
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
+  args '-d', 'org.hibernate.dialect.H2Dialect', '-f', 'src/main/sql/h2.sql'
+}
+
+task exportSchemas(dependsOn: [
+        oracle8iSchemaExport,
+        oracle9iSchemaExport,
+        oracle10gSchemaExport,
+        postgreSQLSchemaExport,
+        h2SchemaExport])

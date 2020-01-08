@@ -1,0 +1,28 @@
+# Ignore Gradle files
+.gradle/
+build/
+
+# Ignore IntelliJ files
+.idea/
+out/
+*.iml
+*.iws
+*.ipr
+
+# Ignore Eclipse files
+.classpath
+.project
+.settings/
+bin/
+
+# Other dirs
+database/
+/src.zip
+/update_db.sql
+/dist/
+.vscode/
+/out-tsc/
+/authorization-service-ad.txt
+/todo.txt
+/docs-build
+swagger.json
