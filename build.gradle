@@ -113,6 +113,12 @@ compileJava.dependsOn checkJavaVersion
   }
 }*/
 
+// Uses UTC time so the builds have the same reference for versioning both in local
+// and in the CI servers, wherever they are
+def generateDateTimeUTC() {
+  return new Date().format("yyyyMMdd'T'HHmmss", TimeZone.getTimeZone('UTC'))    
+}
+
 
 publishing {
   repositories {
@@ -131,7 +137,7 @@ publishing {
     gpr(MavenPublication) {
       groupId group
       artifactId 'sitmun-backend-core'
-      version version + "-" + new Date().format("yyyyMMdd'T'HHmmss")
+      version version + "-" + generateDateTimeUTC()
       from components.java
     }
   }
