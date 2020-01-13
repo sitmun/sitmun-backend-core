@@ -95,13 +95,43 @@ SOLUTION:
 
 compileJava.dependsOn checkJavaVersion
 
-publishing {
+
+
+/*publishing {
+  repositories {
+    mavenLocal()
+  }
+
   publications {
     mavenJava(MavenPublication) {
       groupId group
       artifactId 'sitmun-backend-core'
       version version
 
+      from components.java
+    }
+  }
+}*/
+
+
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/sitmun/sitmun-backend-core")
+      credentials {
+        //username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+        username = "rbejar"
+        password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_API_KEY")
+      }
+    }
+  }
+
+  publications {
+    gpr(MavenPublication) {
+      groupId group
+      artifactId 'sitmun-backend-core'
+      version version + "-" + new Date().format("yyyyMMdd'T'HHmmss")
       from components.java
     }
   }
