@@ -13,7 +13,6 @@ script: ./build-scripts/script.sh
 after_success: 
   - ./build-scripts/after_success.sh
   - ./build-scripts/deploy_docs.sh
-  - ./gradlew publish
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -27,6 +26,11 @@ cache:
     - $HOME/.m2/repository
     - .gradle
     - node_modules
+    
+deploy:
+  - ./build-scripts/deploy.sh
+  on:
+    tags: true
 
 # Safelist
 branches:
