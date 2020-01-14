@@ -33,7 +33,8 @@ deploy:
   on:
     tags: true
 
-# Safelist
+# Safelist. The regular expression allows for tagged commits that match it to be built
 branches:
   only:
-  - master
+    - master
+    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
