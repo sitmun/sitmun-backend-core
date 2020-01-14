@@ -56,8 +56,7 @@ def generateDateTimeUTC() {
   return new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))    
 }
 
-// A unique id for each build if you need it
-versionDateTime = version + "-" + generateDateTimeUTC()
+// A unique id for each build if you need it would be version + "-" + generateDateTimeUTC()
 
 repositories {
   mavenLocal()
