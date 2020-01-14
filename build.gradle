@@ -50,6 +50,15 @@ if (project.hasProperty("customVersion")) {
   version = "${sitmun_version}"
 }
 
+// Uses UTC time so the builds have the same reference for versioning both in local
+// and in the CI servers, wherever they are
+def generateDateTimeUTC() {
+  return new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))    
+}
+
+// A unique id for each build if you need it
+versionDateTime = version + "-" + generateDateTimeUTC()
+
 repositories {
   mavenLocal()
   mavenCentral()
@@ -97,29 +106,6 @@ compileJava.dependsOn checkJavaVersion
 
 
 
-/*publishing {
-  repositories {
-    mavenLocal()
-  }
-
-  publications {
-    mavenJava(MavenPublication) {
-      groupId group
-      artifactId 'sitmun-backend-core'
-      version version
-
-      from components.java
-    }
-  }
-}*/
-
-// Uses UTC time so the builds have the same reference for versioning both in local
-// and in the CI servers, wherever they are
-def generateDateTimeUTC() {
-  return new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))    
-}
-
-
 publishing {
   repositories {
     maven {
@@ -136,7 +122,7 @@ publishing {
     gpr(MavenPublication) {
       groupId group
       artifactId 'sitmun-backend-core'
-      version version + "-" + generateDateTimeUTC()
+      version version
       from components.java
     }
   }
