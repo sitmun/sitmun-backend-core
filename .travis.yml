@@ -28,7 +28,8 @@ cache:
     - node_modules
     
 deploy:
-  - ./build-scripts/deploy.sh
+  provider: script
+  script: bash ./build-scripts/deploy.sh
   on:
     tags: true
 
