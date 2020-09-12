@@ -61,9 +61,6 @@ dependencies {
   implementation "io.springfox:springfox-swagger2:${springfox_swagger_version}"
   implementation "io.springfox:springfox-data-rest:${springfox_swagger_version}"
 
-  implementation 'org.webjars:webjars-locator'
-  implementation "org.webjars:bootstrap:${bootstrap_version}"
-  implementation "org.webjars:requirejs:${requirejs_version}"
   implementation "info.picocli:picocli:${picocli_version}"
 
   implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
