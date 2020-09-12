@@ -2,7 +2,7 @@ buildscript {
   repositories {
     jcenter()
     mavenCentral()
-    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }    
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
   }
   dependencies {
     classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
@@ -15,23 +15,22 @@ buildscript {
 }
 
 plugins {
-  id "org.springframework.boot" version "1.5.8.RELEASE"
-  id "org.sonarqube" version "2.6.2"  
+  id("org.springframework.boot") version "1.5.8.RELEASE"
+  id("org.sonarqube") version "2.6.2"
+  id("java")
+  id("maven-publish")
 }
 
-apply plugin: 'java'
-def targetJavaVersion = JavaVersion.VERSION_1_8;
+def targetJavaVersion = JavaVersion.VERSION_1_8
 sourceCompatibility = "${targetJavaVersion}"
 targetCompatibility = "${targetJavaVersion}"
 
-apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'idea'
 apply plugin: 'org.asciidoctor.convert'
 apply plugin: 'io.github.swagger2markup'
-apply plugin: 'io.spring.dependency-management'
 apply plugin: 'org.ajoberstar.github-pages'
 apply plugin: 'checkstyle'
 
@@ -41,21 +40,12 @@ ext {
   snippetsOutputDir = file("${buildDir}/asciidoc/snippets")
 }
 
-
 group = 'org.sitmun'
 if (project.hasProperty("customVersion")) {
   version = project.customVersion
 } else {
   version = "${sitmun_version}"
 }
-
-// Uses UTC time so the builds have the same reference for versioning both in local
-// and in the CI servers, wherever they are
-def generateDateTimeUTC() {
-  return new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))    
-}
-
-// A unique id for each build if you need it would be version + "-" + generateDateTimeUTC()
 
 repositories {
   mavenLocal()
@@ -90,19 +80,17 @@ dependencies {
 }
 
 task checkJavaVersion {
-    if (JavaVersion.current() < targetJavaVersion) {
-        String message = """
+  if (JavaVersion.current() < targetJavaVersion) {
+    String message = """
 ERROR: Java ${targetJavaVersion} JDK required but ${JavaVersion.current()} found. 
 SOLUTION: 
   a) Point JAVA_HOME to a ${targetJavaVersion} JDK and then run gradle, or
   b) Run ./gradlew -Dorg.gradle.java.home=/path_to_jdk_${targetJavaVersion}_directory"""
-        throw new GradleException(message)
-    }
+    throw new GradleException(message)
+  }
 }
 
 compileJava.dependsOn checkJavaVersion
-
-
 
 publishing {
   repositories {
@@ -110,18 +98,14 @@ publishing {
       name = "GitHubPackages"
       url = uri("https://maven.pkg.github.com/sitmun/sitmun-backend-core")
       credentials {
-        username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")        
+        username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
         password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_API_KEY")
       }
     }
   }
-
   publications {
     gpr(MavenPublication) {
-      groupId group
-      artifactId 'sitmun-backend-core'
-      version version
-      from components.java
+      from(components.java)
     }
   }
 }
@@ -129,12 +113,12 @@ publishing {
 sonarqube {
   properties {
     property 'sonar.host.url', 'https://sonarcloud.io'
-    property 'sonar.organization', 'sitmun'    
+    property 'sonar.organization', 'sitmun'
   }
 }
 
 
-def cacheDir = project.hasProperty("cacheDir")? project.properties.cacheDir : "${project.buildDir}" 
+def cacheDir = project.hasProperty("cacheDir") ? project.properties.cacheDir : "${project.buildDir}"
 
 task install(dependsOn: 'publishToMavenLocal')
 
@@ -153,7 +137,7 @@ convertSwagger2markup {
   swaggerInput "swagger.json"
   outputDir asciiDocOutputDir
   config = [
-    'swagger2markup.pathsGroupedBy' : 'TAGS',
+    'swagger2markup.pathsGroupedBy'                          : 'TAGS',
     'swagger2markup.extensions.springRestDocs.snippetBaseUri': snippetsOutputDir.getAbsolutePath()]
 }
 
@@ -165,14 +149,14 @@ asciidoctor {
   }
   backends = ['html5']
   attributes = [
-    doctype: 'book',
-    toc: 'left',
-    toclevels: '2',
-    numbered: '',
-    sectlinks: '',
+    doctype    : 'book',
+    toc        : 'left',
+    toclevels  : '2',
+    numbered   : '',
+    sectlinks  : '',
     sectanchors: '',
-    hardbreaks: '',
-    generated: asciiDocOutputDir
+    hardbreaks : '',
+    generated  : asciiDocOutputDir
   ]
 }
 
@@ -231,8 +215,8 @@ task h2SchemaExport(type: JavaExec) {
 }
 
 task exportSchemas(dependsOn: [
-        oracle8iSchemaExport,
-        oracle9iSchemaExport,
-        oracle10gSchemaExport,
-        postgreSQLSchemaExport,
-        h2SchemaExport])
+  oracle8iSchemaExport,
+  oracle9iSchemaExport,
+  oracle10gSchemaExport,
+  postgreSQLSchemaExport,
+  h2SchemaExport])
