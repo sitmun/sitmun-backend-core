@@ -1,38 +1,33 @@
 buildscript {
   repositories {
     jcenter()
-    mavenCentral()
-    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
   }
   dependencies {
-    classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
-    classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.10.1'
-    classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE'
     classpath 'io.github.swagger2markup:swagger2markup-spring-restdocs-ext:1.3.3'
     classpath 'io.github.swagger2markup:swagger2markup-gradle-plugin:1.3.3'
-    classpath "org.ajoberstar:gradle-git:1.5.1"
   }
 }
 
 plugins {
-  id("org.springframework.boot") version "1.5.8.RELEASE"
-  id("org.sonarqube") version "2.6.2"
-  id("java")
-  id("maven-publish")
+  id('java')
+  id('org.springframework.boot') version '1.5.8.RELEASE'
+  id('io.spring.dependency-management') version '1.0.10.RELEASE'
+
+  id('maven-publish')
+  id('jacoco')
+  id('checkstyle')
+
+  id('org.sonarqube') version '3.0'
+  id('org.ajoberstar.git-publish') version '2.1.3'
+  id('org.asciidoctor.jvm.convert') version '3.1.0'
+  id('org.asciidoctor.jvm.pdf') version '3.1.0'
 }
 
 def targetJavaVersion = JavaVersion.VERSION_1_8
 sourceCompatibility = "${targetJavaVersion}"
 targetCompatibility = "${targetJavaVersion}"
 
-apply plugin: 'jacoco'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'idea'
-apply plugin: 'org.asciidoctor.convert'
 apply plugin: 'io.github.swagger2markup'
-apply plugin: 'org.ajoberstar.github-pages'
-apply plugin: 'checkstyle'
 
 ext {
   asciiDocOutputDir = file("${buildDir}/asciidoc/generated")
@@ -41,7 +36,7 @@ ext {
 }
 
 group = 'org.sitmun'
-if (project.hasProperty("customVersion")) {
+if (project.hasProperty('customVersion')) {
   version = project.customVersion
 } else {
   version = "${sitmun_version}"
@@ -57,25 +52,25 @@ bootRepackage {
 }
 
 dependencies {
-  implementation "org.springframework.boot:spring-boot-starter-web"
-  implementation "org.springframework.boot:spring-boot-starter-data-rest"
-  implementation "org.springframework.boot:spring-boot-starter-data-jpa"
-  implementation "org.springframework.boot:spring-boot-starter-security"
-  implementation "org.springframework.security:spring-security-data"
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security:spring-security-data'
 
   implementation "io.springfox:springfox-swagger2:${springfox_swagger_version}"
   implementation "io.springfox:springfox-data-rest:${springfox_swagger_version}"
 
-  implementation "org.webjars:webjars-locator"
+  implementation 'org.webjars:webjars-locator'
   implementation "org.webjars:bootstrap:${bootstrap_version}"
   implementation "org.webjars:requirejs:${requirejs_version}"
   implementation "info.picocli:picocli:${picocli_version}"
 
   implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
 
-  testImplementation "com.h2database:h2"
-  testImplementation "org.springframework.boot:spring-boot-starter-test"
-  testImplementation "org.springframework.security:spring-security-test"
+  testImplementation 'com.h2database:h2'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.security:spring-security-test'
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
 }
 
@@ -95,11 +90,11 @@ compileJava.dependsOn checkJavaVersion
 publishing {
   repositories {
     maven {
-      name = "GitHubPackages"
-      url = uri("https://maven.pkg.github.com/sitmun/sitmun-backend-core")
+      name = 'GitHubPackages'
+      url = uri('https://maven.pkg.github.com/sitmun/sitmun-backend-core')
       credentials {
-        username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-        password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_API_KEY")
+        username = project.findProperty('gpr.user') ?: System.getenv('USERNAME')
+        password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_API_KEY')
       }
     }
   }
@@ -118,12 +113,12 @@ sonarqube {
 }
 
 
-def cacheDir = project.hasProperty("cacheDir") ? project.properties.cacheDir : "${project.buildDir}"
+def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
 
 task install(dependsOn: 'publishToMavenLocal')
 
 clean {
-  delete "dist"
+  delete 'dist'
   delete "${cacheDir}"
 }
 
@@ -134,7 +129,7 @@ clean {
 convertSwagger2markup {
   dependsOn test
   swaggerInput "${swaggerOutputDir}/swagger.json"
-  swaggerInput "swagger.json"
+  swaggerInput 'swagger.json'
   outputDir asciiDocOutputDir
   config = [
     'swagger2markup.pathsGroupedBy'                          : 'TAGS',
@@ -147,7 +142,6 @@ asciidoctor {
   sources {
     include 'index.adoc'
   }
-  backends = ['html5']
   attributes = [
     doctype    : 'book',
     toc        : 'left',
@@ -170,7 +164,7 @@ javadoc {
 //
 
 checkstyle {
-  toolVersion = "8.24"
+  toolVersion = '8.24'
   configFile = file("${project.rootDir}/checkstyle.xml")
 }
 
