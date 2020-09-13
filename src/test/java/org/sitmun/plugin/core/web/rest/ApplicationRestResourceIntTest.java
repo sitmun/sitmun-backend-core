@@ -125,7 +125,7 @@ public class ApplicationRestResourceIntTest {
     publicTree.setName(PUBLIC_TREE_NAME);
     publicTree.setAvailableRoles(availableRoles);
     treesToCreate.add(publicTree);
-    this.treeRepository.save(treesToCreate);
+    this.treeRepository.saveAll(treesToCreate);
     Set<Tree> trees = new HashSet<Tree>();
     trees.add(publicTree);
 
@@ -135,7 +135,7 @@ public class ApplicationRestResourceIntTest {
     //publicService.setLayers(cartographies);
     Set<Service> services = new HashSet<Service>();
     services.add(publicService);
-    this.serviceRepository.save(services);
+    this.serviceRepository.saveAll(services);
 
 
     //Cartographies
@@ -144,7 +144,7 @@ public class ApplicationRestResourceIntTest {
     publicCartography.setService(publicService);
     Set<Cartography> cartographies = new HashSet<Cartography>();
     cartographies.add(publicCartography);
-    this.cartographyRepository.save(cartographies);
+    this.cartographyRepository.saveAll(cartographies);
     publicCartography = cartographies.iterator().next();
 
     //Cartography availabilities
@@ -153,7 +153,7 @@ public class ApplicationRestResourceIntTest {
     publicCartographyAvailability.setTerritory(this.territory);
     Set<CartographyAvailability> cartographyAvailabilities = new HashSet<CartographyAvailability>();
     cartographyAvailabilities.add(publicCartographyAvailability);
-    this.cartographyAvailabilityRepository.save(cartographyAvailabilities);
+    this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
     publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
 
@@ -163,7 +163,7 @@ public class ApplicationRestResourceIntTest {
     publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
     publicTreeNode.setCartography(publicCartography);
     treeNodes.add(publicTreeNode);
-    this.treeNodeRepository.save(treeNodes);
+    this.treeNodeRepository.saveAll(treeNodes);
     publicTreeNode = treeNodes.iterator().next();
 
 
@@ -174,7 +174,7 @@ public class ApplicationRestResourceIntTest {
     publicCartographyGroup.setRoles(availableRoles);
     publicCartographyGroup.setMembers(cartographies);
     cartographyGroups.add(publicCartographyGroup);
-    cartographyGroupRepository.save(cartographyGroups);
+    cartographyGroupRepository.saveAll(cartographyGroups);
     publicCartographyGroup = cartographyGroups.iterator().next();
 
     //backgrounds
@@ -183,7 +183,7 @@ public class ApplicationRestResourceIntTest {
     publicBackground.setName(PUBLIC_BACKGROUND_NAME);
     publicBackground.setCartographyGroup(publicCartographyGroup);
     backgrounds.add(publicBackground);
-    backgroundRepository.save(backgrounds);
+    backgroundRepository.saveAll(backgrounds);
     publicBackground = backgrounds.iterator().next();
 
 
@@ -205,7 +205,7 @@ public class ApplicationRestResourceIntTest {
     publicApplication.setSituationMap(publicCartographyGroup);
 
     appsToCreate.add(publicApplication);
-    applicationRepository.save(appsToCreate);
+    applicationRepository.saveAll(appsToCreate);
 
     appId = appsToCreate.get(0).getId();
 
@@ -216,7 +216,7 @@ public class ApplicationRestResourceIntTest {
     publicApplicationBackground.setApplication(publicApplication);
     publicApplicationBackground.setOrder(BigInteger.ONE);
     applicationBackgrounds.add(publicApplicationBackground);
-    applicationBackgroundRepository.save(applicationBackgrounds);
+    applicationBackgroundRepository.saveAll(applicationBackgrounds);
 
 
     backAppId = publicApplicationBackground.getId();
@@ -229,7 +229,7 @@ public class ApplicationRestResourceIntTest {
     applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
     applicationParam2.setApplication(publicApplication);
     parametersToCreate.add(applicationParam2);
-    applicationParameterRepository.save(parametersToCreate);
+    applicationParameterRepository.saveAll(parametersToCreate);
     // Create user
     // Create territory
     // Create role
@@ -255,7 +255,8 @@ public class ApplicationRestResourceIntTest {
   public void getPublicApplicationsAsPublic() throws Exception {
     // TO DO
     // ok is expected
-    mvc.perform(get(APP_URI)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$._embedded.applications", hasSize(1)));
+    mvc.perform(get(APP_URI)).andDo(print()).andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.applications", hasSize(1)));
   }
 	/*
 	@Test
@@ -280,9 +281,9 @@ public class ApplicationRestResourceIntTest {
   @WithMockUser(username = ADMIN_USERNAME)
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId))
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.order").value(1));
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.order").value(1));
   }
 
 
@@ -312,7 +313,8 @@ public class ApplicationRestResourceIntTest {
   public void getCartographyGroupMembersAsPublic() throws Exception {
     // TO DO
     // ok is expected
-    mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members")).andDo(print())
+      .andExpect(status().isOk());
   }
 	
 	/*
@@ -342,9 +344,9 @@ public class ApplicationRestResourceIntTest {
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(APP_URI))
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.applications", hasSize(2)));
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.applications", hasSize(2)));
 
   }
 

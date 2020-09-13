@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
 public interface UserRepository extends CrudRepository<User, BigInteger> {
@@ -18,10 +18,9 @@ public interface UserRepository extends CrudRepository<User, BigInteger> {
   @RestResource(exported = false)
   Optional<User> findOneByUsername(String username);
 
-  @SuppressWarnings("unchecked")
   @Override
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  User save(@P("entity") User entity);
+  <S extends User> S save(@P("entity") S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
@@ -29,7 +28,7 @@ public interface UserRepository extends CrudRepository<User, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.User', 'delete')")
-  void delete(@P("entityId") BigInteger entityId);
+  void deleteById(@P("entityId") BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
@@ -37,7 +36,7 @@ public interface UserRepository extends CrudRepository<User, BigInteger> {
 
   @Override
   @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
-  User findOne(BigInteger id);
+  Optional<User> findById(BigInteger id);
 
   @RestResource(exported = false)
   @EntityGraph(attributePaths = "permissions")

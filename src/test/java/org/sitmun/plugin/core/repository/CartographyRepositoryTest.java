@@ -68,7 +68,7 @@ public class CartographyRepositoryTest {
     cartographyRepository.save(cartography);
     assertThat(cartography.getId()).isNotZero();
 
-    assertThat(cartographyRepository.findOne(cartography.getId())).isNotNull();
+    assertThat(cartographyRepository.findById(cartography.getId())).isNotNull();
   }
 }
 

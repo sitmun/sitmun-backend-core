@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.tools;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.concurrent.Callable;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
@@ -12,6 +13,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
 import org.reflections.Reflections;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -20,7 +22,7 @@ import picocli.CommandLine.Option;
 @Command(name = "schema")
 public class SitmunSchemaExport implements Callable<Void> {
 
-  private final String[] ENTITY_PACKAGES = {"org.sitmun.plugin.core.domain"};
+  private static final String[] ENTITY_PACKAGES = {"org.sitmun.plugin.core.domain"};
   @Option(names = {"-d", "--dialect"}, description = "Hibernate Dialect", required = true)
   private Class<Dialect> dialect;
   @Option(names = {"-f", "--file"}, description = "Schema file", required = true)
@@ -33,18 +35,18 @@ public class SitmunSchemaExport implements Callable<Void> {
   @Override
   public Void call() {
     ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                                          .applySetting(AvailableSettings.DIALECT, dialect)
-                                          .build();
+      .applySetting(AvailableSettings.DIALECT, dialect)
+      .build();
 
     MetadataSources source = mapAnnotatedClasses(serviceRegistry);
 
     MetadataImplementor metadata = (MetadataImplementor) source.buildMetadata();
 
-    SchemaExport schemaExport = new SchemaExport(metadata);
+    SchemaExport schemaExport = new SchemaExport();
     schemaExport.setOutputFile(target.getAbsolutePath());
     schemaExport.setDelimiter(";");
     schemaExport.setFormat(true);
-    schemaExport.create(true, false);
+    schemaExport.create(EnumSet.of(TargetType.SCRIPT), metadata);
     ((StandardServiceRegistryImpl) serviceRegistry).destroy();
     return null;
   }
@@ -52,8 +54,9 @@ public class SitmunSchemaExport implements Callable<Void> {
   private MetadataSources mapAnnotatedClasses(ServiceRegistry serviceRegistry) {
     MetadataSources sources = new MetadataSources(serviceRegistry);
 
-    final Reflections reflections = new Reflections(ENTITY_PACKAGES);
-    for (final Class<?> mappedSuperClass : reflections.getTypesAnnotatedWith(MappedSuperclass.class)) {
+    final Reflections reflections = new Reflections((Object[]) ENTITY_PACKAGES);
+    for (final Class<?> mappedSuperClass : reflections
+      .getTypesAnnotatedWith(MappedSuperclass.class)) {
       sources.addAnnotatedClass(mappedSuperClass);
       System.out.println("Mapped = " + mappedSuperClass.getName());
     }

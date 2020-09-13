@@ -82,6 +82,6 @@ public class UserPositionRepositoryTest {
     userPositionRepository.save(userPosition);
     assertThat(userPosition.getId()).isNotZero();
 
-    assertThat(userPositionRepository.findOne(userPosition.getId())).isNotNull();
+    assertThat(userPositionRepository.findById(userPosition.getId())).isNotNull();
   }
 }

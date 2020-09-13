@@ -38,7 +38,7 @@ public class TreeNodeRepositoryTest {
     treeNodeRepository.save(treeNode);
     assertThat(treeNode.getId()).isNotZero();
 
-    assertThat(treeNodeRepository.findOne(treeNode.getId())).isNotNull();
+    assertThat(treeNodeRepository.findById(treeNode.getId())).isNotNull();
   }
 
 }

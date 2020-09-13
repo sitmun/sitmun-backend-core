@@ -21,12 +21,12 @@ import javax.validation.constraints.NotNull;
 public class UserPosition {
 
   @TableGenerator(
-      name = "STM_CARGO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "CGO_CODIGO",
-      allocationSize = 1)
+    name = "STM_CARGO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "CGO_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARGO_GEN")
   @Column(name = "CGO_CODIGO", precision = 11)

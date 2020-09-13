@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.autoconfigure;
+package org.sitmun.plugin.core.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-public class CoreAutoConfiguration {
+public class CoreConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {

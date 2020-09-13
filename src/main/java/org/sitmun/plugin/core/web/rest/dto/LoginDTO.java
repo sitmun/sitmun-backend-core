@@ -15,7 +15,6 @@ public class LoginDTO {
   @NotNull
   private String password;
 
-
   public String getUsername() {
     return username;
   }
@@ -34,8 +33,6 @@ public class LoginDTO {
 
   @Override
   public String toString() {
-    return "LoginDTO{" +
-               "username='" + username + '\'' +
-               '}';
+    return "LoginDTO{username='" + username + "}";
   }
 }

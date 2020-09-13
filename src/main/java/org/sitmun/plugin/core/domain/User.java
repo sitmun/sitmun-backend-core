@@ -14,19 +14,20 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import org.springframework.hateoas.Identifiable;
+// import org.springframework.hateoas.Identifiable;
 
 @Entity
-@Table(name = "STM_USUARIO", uniqueConstraints = {@UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USU_USUARIO"})})
-public class User implements Identifiable<BigInteger> {
+@Table(name = "STM_USUARIO", uniqueConstraints = {
+  @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USU_USUARIO"})})
+public class User { //implements Identifiable<BigInteger> {
 
   @TableGenerator(
-      name = "STM_USUARIO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "USU_CODIGO",
-      allocationSize = 1)
+    name = "STM_USUARIO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "USU_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUARIO_GEN")
   @Column(name = "USU_CODIGO", precision = 11)

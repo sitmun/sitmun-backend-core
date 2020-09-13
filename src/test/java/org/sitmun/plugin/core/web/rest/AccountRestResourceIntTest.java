@@ -14,9 +14,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,19 +75,20 @@ public class AccountRestResourceIntTest {
 
   @Before
   public void init() {
-    ArrayList authorities = new ArrayList<>();
-    authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
+    List<SimpleGrantedAuthority> authorities =
+      Collections.singletonList(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
 
-    UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken("system", "system",
+    UsernamePasswordAuthenticationToken authReq =
+      new UsernamePasswordAuthenticationToken("system", "system",
         authorities);
 
     SecurityContext sc = SecurityContextHolder.getContext();
     sc.setAuthentication(authReq);
-    Date expiratedDate = new Date();
-    expiratedDate.setYear(1900);
+    Date expiratedDate = Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
     expiredToken = Jwts.builder().setSubject(USER_USERNAME)
-                       .signWith(SignatureAlgorithm.HS512, tokenProvider.getSecretKey().getBytes()).setExpiration(expiratedDate)
-                       .compact();
+      .signWith(SignatureAlgorithm.HS512, tokenProvider.getSecretKey().getBytes())
+      .setExpiration(expiratedDate)
+      .compact();
     token = tokenProvider.createToken(USER_USERNAME);
     admintoken = tokenProvider.createToken("admin");
     user = new User();
@@ -102,9 +107,9 @@ public class AccountRestResourceIntTest {
 
   @After
   public void cleanup() {
-    ArrayList<User> userToDelete = new ArrayList<User>();
+    ArrayList<User> userToDelete = new ArrayList<>();
     userToDelete.add(user);
-    userRepository.delete(userToDelete);
+    userRepository.deleteAll(userToDelete);
   }
 
   @Test
@@ -112,24 +117,24 @@ public class AccountRestResourceIntTest {
     LoginDTO login = new LoginDTO();
     login.setUsername(USER_USERNAME);
     login.setPassword(USER_PASSWORD);
-    mvc.perform(post(AUTHENTICATION_URI).contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(Util.convertObjectToJsonBytes(login))).andExpect(status().isOk())
-        .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
+    mvc.perform(post(AUTHENTICATION_URI).contentType(MediaType.APPLICATION_JSON)
+      .content(Util.convertObjectToJsonBytes(login))).andExpect(status().isOk())
+      .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
   }
 
   @Test
   public void recoverAccount() throws Exception {
     mvc.perform(get(ACCOUNT_URI).header(HEADER_STRING, TOKEN_PREFIX + token)).andDo(print())
-        .andExpect(status().isOk())
-        //.andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));
+      .andExpect(status().isOk())
+      //.andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));
   }
 
   @Test
   public void recoverAccountExpiredToken() throws Exception {
     mvc.perform(get(ACCOUNT_URI).header(HEADER_STRING, TOKEN_PREFIX + expiredToken))
-        .andExpect(status().isUnauthorized());
+      .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -137,13 +142,15 @@ public class AccountRestResourceIntTest {
     user.setFirstName(USER_CHANGEDFIRSTNAME);
     user.setLastName(USER_CHANGEDLASTNAME);
     mvc.perform(post(ACCOUNT_URI).header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(new UserDTO(user))))
-        .andExpect(status().isOk());
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(Util.convertObjectToJsonBytes(new UserDTO(user))))
+      .andExpect(status().isOk());
 
-    mvc.perform(get(ACCOUNT_URI).header(HEADER_STRING, TOKEN_PREFIX + token)).andExpect(status().isOk())
-        //.andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+    mvc.perform(get(ACCOUNT_URI).header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      //.andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
   }
 
   @Test
@@ -151,15 +158,15 @@ public class AccountRestResourceIntTest {
     PasswordDTO password = new PasswordDTO();
     password.setPassword(USER_CHANGEDPASSWORD);
     mvc.perform(post(ACCOUNT_URI + "/change-password").header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(password)))
-        .andExpect(status().isOk());
+      .contentType(MediaType.APPLICATION_JSON).content(Util.convertObjectToJsonBytes(password)))
+      .andExpect(status().isOk());
 
     HashMap<String, String> login = new HashMap<>();
     login.put("username", USER_USERNAME);
     login.put("password", USER_CHANGEDPASSWORD);
-    mvc.perform(post(AUTHENTICATION_URI).contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(Util.convertObjectToJsonBytes(login))).andExpect(status().isOk())
-        .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
+    mvc.perform(post(AUTHENTICATION_URI).contentType(MediaType.APPLICATION_JSON)
+      .content(Util.convertObjectToJsonBytes(login))).andExpect(status().isOk())
+      .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
   }
 
 }

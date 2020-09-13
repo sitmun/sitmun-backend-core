@@ -8,12 +8,7 @@ import org.sitmun.plugin.core.security.SecurityUtils;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,12 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/api/account")
 public class AccountResource {
 
-  private UserService userService;
+  private final UserService userService;
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired
-  private RepositoryEntityLinks links;
+  //@Autowired
+  //private RepositoryEntityLinks links;
 
   public AccountResource(UserService userService, UserRepository userRepository) {
     super();
@@ -58,28 +53,24 @@ public class AccountResource {
 
   @GetMapping("")
   @ResponseBody
-  public ResponseEntity<ResourceSupport> getAccount() {
+  public ResponseEntity<User> getAccount() {
     Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
     if (optLogin.isPresent()) {
       Optional<User> user = userRepository.findOneWithPermissionsByUsername(optLogin.get());
-      if (user.isPresent()) {
-        return ResponseEntity.ok(
-            toResource(user.get()));
-      } else {
-        return ResponseEntity.notFound().build();
-      }
+      //            toResource(user.get()));
+      return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
     } else {
       return ResponseEntity.notFound().build();
     }
   }
 
-  private ResourceSupport toResource(User user) {
-    UserDTO dto = new UserDTO(user);
-    Link selfLink = links.linkForSingleResource(user).withSelfRel();
-
-    return new Resource<>(dto);
-  }
+  //  private ResourceSupport toResource(User user) {
+  //    UserDTO dto = new UserDTO(user);
+  //    Link selfLink = links.linkForSingleResource(user).withSelfRel();
+  //
+  //    return new Resource<>(dto);
+  //  }
 
   @PostMapping(path = "/change-password")
   @ResponseBody

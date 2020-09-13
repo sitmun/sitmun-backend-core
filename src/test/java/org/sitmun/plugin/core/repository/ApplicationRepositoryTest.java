@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class ApplicationRepositoryTest {
@@ -99,7 +98,7 @@ public class ApplicationRepositoryTest {
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
 
-    application = applicationRepository.findOne(application.getId());
+    application = applicationRepository.findById(application.getId()).get();
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(application.getAvailableRoles()).isNotEmpty();
     softly.assertThat(application.getBackgrounds()).isNotEmpty();
@@ -115,6 +114,6 @@ public class ApplicationRepositoryTest {
 
     BigInteger id = application.getId();
     applicationRepository.delete(application);
-    assertThat(applicationRepository.findOne(id)).isNull();
+    assertThat(applicationRepository.findById(id)).isEmpty();
   }
 }

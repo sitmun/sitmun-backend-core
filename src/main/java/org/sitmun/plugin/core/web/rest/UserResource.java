@@ -8,10 +8,8 @@ import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,10 +24,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RepositoryRestController
 public class UserResource {
 
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private RepositoryEntityLinks links;
+  //@Autowired
+  //private RepositoryEntityLinks links;
 
   //@Autowired
   //private ResourceAssemblerSupport<User,ResourceSupport> assembler;
@@ -46,7 +44,7 @@ public class UserResource {
   }
 
   /**
-   * TODO: Replace User (persistent entity) with a simple POJO or DTO object (squid:S4684)
+   * TODO: Replace User (persistent entity) with a simple POJO or DTO object (squid:S4684).
    *
    * @param user a user
    * @return a response
@@ -57,14 +55,15 @@ public class UserResource {
   public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
     User result = userService.createUser(user);
     URI location = ServletUriComponentsBuilder
-                       .fromCurrentRequest().path("/{id}")
-                       .buildAndExpand(result.getId()).toUri();
+      .fromCurrentRequest().path("/{id}")
+      .buildAndExpand(result.getId()).toUri();
 
     return ResponseEntity.created(location).build();
   }
 
   @PutMapping("/users/{id}")
-  public ResponseEntity<User> updateUser(@PathVariable BigInteger id, @Valid @RequestBody UserDTO userDTO) {
+  public ResponseEntity<User> updateUser(@PathVariable BigInteger id,
+                                         @Valid @RequestBody UserDTO userDTO) {
     Optional<User> optUser = userService.findUser(id);
     if (optUser.isPresent()) {
       userDTO.setId(optUser.get().getId());
@@ -80,8 +79,8 @@ public class UserResource {
 
   }
 
-  /*	
-	@GetMapping("/users")
+  /*
+  @GetMapping("/users")
     public ResponseEntity<?> getPagedUsers(Pageable pageable) {
         Page<User> users = userService.findAllUsers(pageable);
     
@@ -97,7 +96,7 @@ public class UserResource {
     
   @GetMapping("/users")
   public ResponseEntity<?> getUsers() {
-	  UserResourceAssembler assembler = new UserResourceAssembler(UserRepository.class, ResourceSupport.class,links);
+    UserResourceAssembler assembler = new UserResourceAssembler(UserRepository.class, ResourceSupport.class,links);
       List<User> users = userService.findAllUsers();
       return ResponseEntity.ok(assembler.toResources(users ));
   }
@@ -105,7 +104,8 @@ public class UserResource {
 
 
   @PostMapping(path = "/users/{id}/change-password")
-  public ResponseEntity<Void> changePassword(@PathVariable BigInteger id, @RequestBody PasswordDTO password) {
+  public ResponseEntity<Void> changePassword(@PathVariable BigInteger id,
+                                             @RequestBody PasswordDTO password) {
     Optional<User> optUser = userService.findUser(id);
     if (optUser.isPresent()) {
       userService.changeUserPassword(id, password.getPassword());

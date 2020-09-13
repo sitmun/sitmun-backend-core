@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
   id('java')
-  id('org.springframework.boot') version '1.5.8.RELEASE'
+  id('org.springframework.boot') version '2.3.3.RELEASE'
   id('io.spring.dependency-management') version '1.0.10.RELEASE'
 
   id('maven-publish')
@@ -47,28 +47,28 @@ repositories {
   mavenCentral()
 }
 
-bootRepackage {
-  enabled = false
-}
-
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-data-rest'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.springframework.security:spring-security-data'
 
-  implementation "io.springfox:springfox-swagger2:${springfox_swagger_version}"
-  implementation "io.springfox:springfox-data-rest:${springfox_swagger_version}"
+  implementation "io.springfox:springfox-boot-starter:${springfox_swagger_version}"
 
   implementation "info.picocli:picocli:${picocli_version}"
 
   implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
 
+  implementation 'org.reflections:reflections:0.9.12'
+  implementation 'com.h2database:h2'
+
   testImplementation 'com.h2database:h2'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.springframework.security:spring-security-test'
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
+  testImplementation 'com.google.guava:guava:28.0-jre'
 }
 
 task checkJavaVersion {

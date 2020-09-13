@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.sitmun.plugin.core.domain.User;
-import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.core.Relation;
+//import org.springframework.hateoas.Identifiable;
+//import org.springframework.hateoas.core.Relation;
 
-@Relation(value = "user", collectionRelation = "users")
-public class UserDTO implements Identifiable<BigInteger> {
+//@Relation(value = "user", collectionRelation = "users")
+public class UserDTO { //implements Identifiable<BigInteger> {
 
   private BigInteger id;
   private String username;
@@ -45,11 +45,8 @@ public class UserDTO implements Identifiable<BigInteger> {
     territories = new HashSet<>();
     authoritiesPerTerritory = new HashMap<>();
     if (!user.getPermissions().isEmpty()) {
-      user.getPermissions().stream().forEach(p -> {
-        Set<String> territoryAuths = authoritiesPerTerritory.get(p.getTerritory().getName());
-        if (territoryAuths == null) {
-          authoritiesPerTerritory.put(p.getTerritory().getName(), new HashSet<>());
-        }
+      user.getPermissions().forEach(p -> {
+        authoritiesPerTerritory.computeIfAbsent(p.getTerritory().getName(), k -> new HashSet<>());
         authoritiesPerTerritory.get(p.getTerritory().getName()).add(p.getRole().getName());
         authorities.add(p.getRole().getName());
         territories.add(p.getTerritory().getName());

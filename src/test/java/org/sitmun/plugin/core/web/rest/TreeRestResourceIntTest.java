@@ -79,7 +79,7 @@ public class TreeRestResourceIntTest {
     tree = new Tree();
     tree.setName(NON_PUBLIC_TREE_NAME);
     treesToCreate.add(tree);
-    this.treeRepository.save(treesToCreate);
+    this.treeRepository.saveAll(treesToCreate);
 
     TreeNode treeNode1 = new TreeNode();
     treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
@@ -89,7 +89,7 @@ public class TreeRestResourceIntTest {
     treeNode2.setName(PUBLIC_TREENODE_NAME);
     treeNode2.setTree(publicTree);
     nodesToCreate.add(treeNode2);
-    treeNodeRepository.save(nodesToCreate);
+    treeNodeRepository.saveAll(nodesToCreate);
 
   }
 
@@ -103,7 +103,8 @@ public class TreeRestResourceIntTest {
   public void getPublicTreesAsPublic() throws Exception {
     // TO DO
     // ok is expected
-    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$._embedded.trees", hasSize(1)));
+    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.trees", hasSize(1)));
   }
 	
 	/*
@@ -126,7 +127,8 @@ public class TreeRestResourceIntTest {
   @WithMockUser(username = ADMIN_USERNAME)
   public void getTreesAsSitmunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$._embedded.trees", hasSize(2)));
+    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.trees", hasSize(2)));
 
   }
 

@@ -15,18 +15,19 @@ public class BackgroundPermissionResolver implements PermissionResolver<Backgrou
   public boolean resolvePermission(User authUser, Background entity, String permission) {
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
-                                .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+      .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
     if (isAdminSitmun) {
       return true;
     }
     if (permission.equalsIgnoreCase(SecurityConstants.CREATE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
+      || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
+      || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
+      || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
 
       return false;
     } else if (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)) {
-      return (permissions.stream().map(p -> p.getRole()).filter(entity.getCartographyGroup().getRoles()::contains).count() > 0);
+      return (permissions.stream().map(UserConfiguration::getRole)
+        .anyMatch(entity.getCartographyGroup().getRoles()::contains));
     }
 
     return false;

@@ -39,7 +39,7 @@ public class TaskRepositoryTest {
     taskRepository.save(task);
     assertThat(task.getId()).isNotZero();
 
-    assertThat(taskRepository.findOne(task.getId())).isNotNull();
+    assertThat(taskRepository.findById(task.getId())).isNotNull();
   }
 
 }

@@ -20,12 +20,12 @@ import org.hibernate.annotations.OnDeleteAction;
 public class ApplicationParameter {
 
   @TableGenerator(
-      name = "STM_PARAMAPP_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "PAP_CODIGO",
-      allocationSize = 1)
+    name = "STM_PARAMAPP_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "PAP_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMAPP_GEN")
   @Column(name = "PAP_CODIGO", precision = 11)

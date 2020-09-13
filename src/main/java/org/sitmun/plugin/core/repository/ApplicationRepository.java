@@ -13,19 +13,18 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 
 
 //@Api(tags = "Applications")
 @RepositoryRestResource(collectionResourceRel = "applications", path = "applications"/*, excerptProjection = ApplicationProjection.class*/)
 public interface ApplicationRepository extends CrudRepository<Application, BigInteger> {
 
-  @SuppressWarnings("unchecked")
   @Override
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  Application save(@P("entity") Application entity);
+  <S extends Application> S save(@P("entity") S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
@@ -33,7 +32,7 @@ public interface ApplicationRepository extends CrudRepository<Application, BigIn
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application', 'delete')")
-  void delete(@P("entityId") BigInteger entityId);
+  void deleteById(@P("entityId") BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -41,7 +40,7 @@ public interface ApplicationRepository extends CrudRepository<Application, BigIn
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application', 'read')")
-  Application findOne(@P("entityId") BigInteger entityId);
+  Optional<Application> findById(@P("entityId") BigInteger entityId);
 
   @RestResource(exported = false)
   Optional<Application> findOneByName(String name);

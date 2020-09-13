@@ -77,7 +77,7 @@ public class UserRepositoryTest {
     userRepository.save(user);
     assertThat(user.getId()).isNotZero();
 
-    assertThat(userRepository.findOne(user.getId())).isNotNull();
+    assertThat(userRepository.findById(user.getId())).isNotNull();
   }
 
 }

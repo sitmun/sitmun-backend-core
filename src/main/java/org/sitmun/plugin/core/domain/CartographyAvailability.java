@@ -20,16 +20,17 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "STM_DISPCARTO", uniqueConstraints = {@UniqueConstraint(name = "STM_DCA_UK", columnNames = {"DCA_CODTER", "DCA_CODCAR"})})
+@Table(name = "STM_DISPCARTO", uniqueConstraints = {
+  @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"DCA_CODTER", "DCA_CODCAR"})})
 public class CartographyAvailability {
 
   @TableGenerator(
-      name = "STM_DISPCARTO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "DCA_CODIGO",
-      allocationSize = 1)
+    name = "STM_DISPCARTO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "DCA_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPCARTO_GEN")
   @Column(name = "DCA_CODIGO", precision = 11)
@@ -86,8 +87,9 @@ public class CartographyAvailability {
   }
 
   public String toString() {
-    return "Cartography=" + this.cartography.getId() + ",Territorio=" + this.territory.getId() + "fechaAlta="
-               + this.createdDate;
+    return "Cartography=" + this.cartography.getId() + ",Territorio=" + this.territory.getId() +
+      "fechaAlta="
+      + this.createdDate;
   }
 
 }

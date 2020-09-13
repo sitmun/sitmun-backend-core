@@ -20,23 +20,23 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
+//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+//import org.springframework.hateoas.Identifiable;
+//import org.springframework.hateoas.Link;
+//import org.springframework.hateoas.Resource;
+//import org.springframework.hateoas.ResourceSupport;
 
 @Entity
 @Table(name = "STM_TAREA")
-public class Task implements Identifiable {
+public class Task { //implements Identifiable {
 
   @TableGenerator(
-      name = "STM_TAREA_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TAR_CODIGO",
-      allocationSize = 1)
+    name = "STM_TAREA_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "TAR_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
   @Column(name = "TAR_CODIGO", precision = 11)
@@ -160,17 +160,17 @@ public class Task implements Identifiable {
     this.type = type;
   }
 
-  public ResourceSupport toResource(RepositoryEntityLinks links) {
-    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-    ResourceSupport res = new Resource<>(this, selfLink);
-    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
-    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-    res.add(links.linkForSingleResource(this).slash("group").withRel("group"));
-    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
-    res.add(links.linkForSingleResource(this).slash("type").withRel("type"));
-    res.add(links.linkForSingleResource(this).slash("ui").withRel("ui"));
-    return res;
-  }
+//  public ResourceSupport toResource(RepositoryEntityLinks links) {
+//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+//    ResourceSupport res = new Resource<>(this, selfLink);
+//    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
+//    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
+//    res.add(links.linkForSingleResource(this).slash("group").withRel("group"));
+//    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
+//    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
+//    res.add(links.linkForSingleResource(this).slash("type").withRel("type"));
+//    res.add(links.linkForSingleResource(this).slash("ui").withRel("ui"));
+//    return res;
+//  }
 
 }

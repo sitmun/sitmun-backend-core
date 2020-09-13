@@ -40,6 +40,6 @@ public class TreeRepositoryTest {
     treeRepository.save(tree);
     assertThat(tree.getId()).isNotZero();
 
-    assertThat(treeRepository.findOne(tree.getId())).isNotNull();
+    assertThat(treeRepository.findById(tree.getId())).isNotNull();
   }
 }

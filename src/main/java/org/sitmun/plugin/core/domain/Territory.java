@@ -23,16 +23,17 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "STM_ETERRIT", uniqueConstraints = {@UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NOMBRE"})})
+@Table(name = "STM_ETERRIT", uniqueConstraints = {
+  @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NOMBRE"})})
 public class Territory {
 
   @TableGenerator(
-      name = "STM_ETERRIT_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TER_CODIGO",
-      allocationSize = 1)
+    name = "STM_ETERRIT_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "TER_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")
   @Column(name = "TER_CODIGO", precision = 11)
@@ -196,8 +197,8 @@ public class Territory {
 
   @Override
   public boolean equals(Object o) {
-    if ((o != null) && (o instanceof Territory)) {
-      return ((Territory) o).getId() == this.getId();
+    if (o instanceof Territory) {
+      return ((Territory) o).getId().equals(this.getId());
     }
     return false;
   }

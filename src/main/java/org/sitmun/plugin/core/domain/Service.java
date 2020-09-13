@@ -24,12 +24,12 @@ import javax.persistence.TemporalType;
 public class Service {
 
   @TableGenerator(
-      name = "STM_SERVICIO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "SER_CODIGO",
-      allocationSize = 1)
+    name = "STM_SERVICIO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "SER_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICIO_GEN")
   @Column(name = "SER_CODIGO", precision = 11)

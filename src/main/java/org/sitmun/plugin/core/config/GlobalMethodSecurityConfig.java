@@ -1,6 +1,6 @@
-package org.sitmun.plugin.core.security;
+package org.sitmun.plugin.core.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.sitmun.plugin.core.security.CustomPermissionEvaluator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -9,18 +9,19 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
-public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+public class GlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
-  @Autowired
-  CustomPermissionEvaluator customPermissionEvaluator;
+  final CustomPermissionEvaluator customPermissionEvaluator;
+
+  public GlobalMethodSecurityConfig(CustomPermissionEvaluator customPermissionEvaluator) {
+    this.customPermissionEvaluator = customPermissionEvaluator;
+  }
 
   @Override
   protected MethodSecurityExpressionHandler createExpressionHandler() {
     DefaultMethodSecurityExpressionHandler expressionHandler =
-        new DefaultMethodSecurityExpressionHandler();
+      new DefaultMethodSecurityExpressionHandler();
     expressionHandler.setPermissionEvaluator(customPermissionEvaluator);
     return expressionHandler;
   }
-
-
 }

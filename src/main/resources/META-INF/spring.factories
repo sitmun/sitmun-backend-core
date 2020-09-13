@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.sitmun.plugin.core.autoconfigure.CoreAutoConfiguration
+org.sitmun.plugin.core.config.CoreConfig

@@ -2,8 +2,8 @@ package org.sitmun.plugin.core.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.Valid;
-import org.sitmun.plugin.core.security.JWTConfigurer;
 import org.sitmun.plugin.core.security.TokenProvider;
+import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
 import org.sitmun.plugin.core.web.rest.dto.LoginDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,8 @@ public class UserJWTController {
 
   private final AuthenticationManager authenticationManager;
 
-  public UserJWTController(TokenProvider tokenProvider, AuthenticationManager authenticationManager) {
+  public UserJWTController(TokenProvider tokenProvider,
+                           AuthenticationManager authenticationManager) {
     this.tokenProvider = tokenProvider;
     this.authenticationManager = authenticationManager;
   }
@@ -37,7 +38,7 @@ public class UserJWTController {
   public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDTO loginVM) {
 
     UsernamePasswordAuthenticationToken authenticationToken =
-        new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
+      new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
 
     Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);

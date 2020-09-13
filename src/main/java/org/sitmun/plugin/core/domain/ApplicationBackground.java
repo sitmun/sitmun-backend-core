@@ -13,24 +13,25 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
+//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+//import org.springframework.hateoas.Identifiable;
+//import org.springframework.hateoas.Link;
+//import org.springframework.hateoas.Resource;
+//import org.springframework.hateoas.ResourceSupport;
 
 @Entity
-@Table(name = "STM_APPFON", uniqueConstraints = {@UniqueConstraint(name = "STM_APF_UK", columnNames = {"APF_CODAPP", "APF_CODFON"})})
-public class ApplicationBackground implements Identifiable {
+@Table(name = "STM_APPFON", uniqueConstraints = {
+  @UniqueConstraint(name = "STM_APF_UK", columnNames = {"APF_CODAPP", "APF_CODFON"})})
+public class ApplicationBackground { //implements Identifiable {
 
 
   @TableGenerator(
-      name = "STM_APPFON_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "APF_CODIGO",
-      allocationSize = 1)
+    name = "STM_APPFON_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "APF_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPFON_GEN")
   @Column(name = "APF_CODIGO", precision = 11)
@@ -83,12 +84,12 @@ public class ApplicationBackground implements Identifiable {
     this.background = background;
   }
 
-  public ResourceSupport toResource(RepositoryEntityLinks links) {
-    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-    ResourceSupport res = new Resource<>(this, selfLink);
-    res.add(links.linkForSingleResource(this).slash("application").withRel("application"));
-    res.add(links.linkForSingleResource(this).slash("background").withRel("background"));
-    return res;
-  }
+//  public ResourceSupport toResource(RepositoryEntityLinks links) {
+//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+//    ResourceSupport res = new Resource<>(this, selfLink);
+//    res.add(links.linkForSingleResource(this).slash("application").withRel("application"));
+//    res.add(links.linkForSingleResource(this).slash("background").withRel("background"));
+//    return res;
+//  }
 
 }

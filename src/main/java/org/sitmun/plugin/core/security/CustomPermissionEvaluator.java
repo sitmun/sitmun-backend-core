@@ -11,7 +11,6 @@ import org.sitmun.plugin.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -26,29 +25,37 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CustomPermissionEvaluator.class);
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private ApplicationContext context;
+  private final ApplicationContext context;
 
   @PersistenceContext
   private EntityManager em;
 
-  @Override
-  public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+  public CustomPermissionEvaluator(UserService userService, ApplicationContext context) {
+    this.userService = userService;
+    this.context = context;
+  }
 
-    if ((authentication == null) || (targetDomainObject == null) || !(permission instanceof String)) {
+  @Override
+  public boolean hasPermission(Authentication authentication, Object targetDomainObject,
+                               Object permission) {
+
+    if ((authentication == null) || (targetDomainObject == null) ||
+      !(permission instanceof String)) {
       return false;
     }
 
-    Optional<User> currentUser = null;
-    if ((authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.User)) {
+    Optional<User> currentUser;
+    if ((authentication
+      .getPrincipal() instanceof org.springframework.security.core.userdetails.User)) {
       currentUser = this.userService.getUserWithPermissionsByUsername(
-          ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername());
+        ((org.springframework.security.core.userdetails.User) authentication.getPrincipal())
+          .getUsername());
 
     } else {
-      currentUser = this.userService.getUserWithPermissionsByUsername(authentication.getPrincipal().toString());
+      currentUser =
+        this.userService.getUserWithPermissionsByUsername(authentication.getPrincipal().toString());
 
     }
 
@@ -57,13 +64,11 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
       User user = currentUser.get();
       try {
         String[] beanNamesForType = context.getBeanNamesForType(
-            ResolvableType.forClassWithGenerics(PermissionResolver.class, targetDomainObject.getClass()));
+          ResolvableType
+            .forClassWithGenerics(PermissionResolver.class, targetDomainObject.getClass()));
         if (beanNamesForType.length > 0) {
-          PermissionResolver rc;
-          rc = (PermissionResolver) context.getBean(beanNamesForType[0]);
-          if (rc != null) {
-            return rc.resolvePermission(user, targetDomainObject, (String) permission);
-          }
+          PermissionResolver rc = (PermissionResolver) context.getBean(beanNamesForType[0]);
+          return rc.resolvePermission(user, targetDomainObject, (String) permission);
         }
       } catch (BeansException e) {
         LOGGER.error("Can't resolve bean for class " + targetDomainObject.getClass(), e);
@@ -71,7 +76,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
       //return true;
       Set<UserConfiguration> permissions = user.getPermissions();
       boolean isAdminSitmun = permissions.stream()
-                                  .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+        .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
       if (isAdminSitmun) {
         return true;
       }
@@ -83,13 +88,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
   }
 
   @Override
-  public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+  public boolean hasPermission(Authentication authentication, Serializable targetId,
+                               String targetType,
                                Object permission) {
     if ((authentication == null) || (targetType == null) || !(permission instanceof String)) {
       return false;
     }
 
-    Optional<User> currentUser = this.userService.getUserWithPermissionsByUsername(authentication.getName());
+    Optional<User> currentUser =
+      this.userService.getUserWithPermissionsByUsername(authentication.getName());
 
     LOGGER.info("Checking permission of {}", authentication.getName());
 
@@ -98,13 +105,12 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
       try {
         String[] beanNamesForType = context.getBeanNamesForType(
-            ResolvableType.forClassWithGenerics(PermissionResolver.class, Class.forName(targetType)));
+          ResolvableType.forClassWithGenerics(PermissionResolver.class, Class.forName(targetType)));
         if (beanNamesForType.length > 0) {
-          PermissionResolver rc;
-          rc = (PermissionResolver) context.getBean(beanNamesForType[0]);
-          if (rc != null) {
-            return rc.resolvePermission(user, em.find(Class.forName(targetType), targetId), (String) permission);
-          }
+          PermissionResolver<Object> rc =
+            (PermissionResolver<Object>) context.getBean(beanNamesForType[0]);
+          return rc.resolvePermission(user, em.find(Class.forName(targetType), targetId),
+            (String) permission);
         }
       } catch (BeansException e) {
         LOGGER.error("Can't resolve bean for class " + targetType, e);

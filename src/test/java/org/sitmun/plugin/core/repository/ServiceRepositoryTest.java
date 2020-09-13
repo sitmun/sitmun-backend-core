@@ -39,7 +39,7 @@ public class ServiceRepositoryTest {
     serviceRepository.save(service);
     assertThat(service.getId()).isNotZero();
 
-    assertThat(serviceRepository.findOne(service.getId())).isNotNull();
+    assertThat(serviceRepository.findById(service.getId())).isNotNull();
   }
 
 }

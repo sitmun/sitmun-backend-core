@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.service;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sitmun.plugin.core.domain.Cartography;
+import org.sitmun.plugin.core.domain.CartographyAvailability;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
@@ -16,18 +17,20 @@ public class CartographyPermissionResolver implements PermissionResolver<Cartogr
   public boolean resolvePermission(User authUser, Cartography entity, String permission) {
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
-                                .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+      .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
     if (isAdminSitmun) {
       return true;
     }
     if (permission.equalsIgnoreCase(SecurityConstants.CREATE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
-            || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
+      || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
+      || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
+      || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
 
       return false;
     } else if (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)) {
-      return (permissions.stream().map(p -> p.getTerritory()).filter(entity.getAvailabilities().stream().map(a -> a.getTerritory()).collect(Collectors.toList())::contains).count() > 0);
+      return (permissions.stream().map(UserConfiguration::getTerritory).anyMatch(
+        entity.getAvailabilities().stream().map(CartographyAvailability::getTerritory)
+          .collect(Collectors.toList())::contains));
     }
 
     return false;

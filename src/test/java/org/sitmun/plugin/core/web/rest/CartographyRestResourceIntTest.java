@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -61,21 +62,22 @@ public class CartographyRestResourceIntTest {
   public void init() {
     territory = territoryRepository.findOneByName(defaultTerritoryName).get();
     ArrayList<Cartography> cartosToCreate = new ArrayList<Cartography>();
-    ArrayList<CartographyAvailability> availabilitesToCreate = new ArrayList<CartographyAvailability>();
+    ArrayList<CartographyAvailability> availabilitesToCreate =
+      new ArrayList<CartographyAvailability>();
     cartography = new Cartography();
     cartography.setName(CARTOGRAPHY_NAME);
     cartosToCreate.add(cartography);
     cartographyWithAvailabilities = new Cartography();
     cartographyWithAvailabilities.setName("Cartography with availabilities");
     cartosToCreate.add(cartographyWithAvailabilities);
-    cartographyRepository.save(cartosToCreate);
+    cartographyRepository.saveAll(cartosToCreate);
     CartographyAvailability cartographyAvailability1 = new CartographyAvailability();
     cartographyAvailability1.setCartography(cartographyWithAvailabilities);
     cartographyAvailability1.setTerritory(territory);
     cartographyAvailability1.setCreatedDate(new Date());
     availabilitesToCreate.add(cartographyAvailability1);
 
-    cartographyAvailabilityRepository.save(availabilitesToCreate);
+    cartographyAvailabilityRepository.saveAll(availabilitesToCreate);
   }
 
   @Test
@@ -83,14 +85,15 @@ public class CartographyRestResourceIntTest {
   public void postCartography() throws Exception {
 
     String uri = mvc.perform(post(CARTOGRAPHY_URI)
-                                 // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                                 .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(cartography)))
-                     .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8)
+      .content(Util.convertObjectToJsonBytes(cartography)))
+      .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
 
     mvc.perform(get(uri)
-        // .header(HEADER_STRING, TOKEN_PREFIX + token)
-    ).andExpect(status().isOk()).andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+    ).andExpect(status().isOk()).andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
   }
 
   @Test
@@ -102,9 +105,10 @@ public class CartographyRestResourceIntTest {
   public void postCartographyAsPublicUserFails() throws Exception {
 
     mvc.perform(post(CARTOGRAPHY_URI)
-                    // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(cartography)))
-        .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8)
+      .content(Util.convertObjectToJsonBytes(cartography)))
+      .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
   }
 
   @After

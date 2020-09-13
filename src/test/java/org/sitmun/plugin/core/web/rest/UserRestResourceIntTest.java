@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -117,9 +118,11 @@ public class UserRestResourceIntTest {
     token = tokenProvider.createToken(USER_USERNAME);
     sitmunAdminRole = this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_SITMUN).get();
 
-    organizacionAdminRole = this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+    organizacionAdminRole =
+      this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
 
-    territorialRole = this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+    territorialRole =
+      this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
 
     defaultTerritory = territoryRepository.findOneByName(this.defaultTerritoryName).get();
     ArrayList<Territory> territoriesToCreate = new ArrayList<Territory>();
@@ -134,7 +137,7 @@ public class UserRestResourceIntTest {
     territoriesToCreate.add(territory1);
     territoriesToCreate.add(territory2);
 
-    territoryRepository.save(territoriesToCreate);
+    territoryRepository.saveAll(territoriesToCreate);
 
     // Sitmun Admin
     sitmunAdmin = this.userRepository.findOneWithPermissionsByUsername(USER_USERNAME).get();
@@ -172,7 +175,7 @@ public class UserRestResourceIntTest {
     //territory2User = userService.createUser(territory2User);
     usersToCreate.add(territory2User);
 
-    userRepository.save(usersToCreate);
+    userRepository.saveAll(usersToCreate);
 
     UserConfiguration userConf = new UserConfiguration();
     userConf.setTerritory(territory1);
@@ -207,8 +210,8 @@ public class UserRestResourceIntTest {
     ArrayList<Territory> territoriesToDelete = new ArrayList<Territory>();
     territoriesToDelete.add(territory1);
     territoriesToDelete.add(territory2);
-    territoryRepository.delete(territoriesToDelete);
-    userRepository.delete(usersToDelete);
+    territoryRepository.deleteAll(territoriesToDelete);
+    userRepository.deleteAll(usersToDelete);
 
   }
 
@@ -220,15 +223,16 @@ public class UserRestResourceIntTest {
     newUser.setUsername(NEW_USER_USERNAME);
 
     String uri = mvc.perform(post("/api/users")
-                                 // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                                 .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
-                     .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
+      .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
 
     mvc.perform(get(uri).header(HEADER_STRING, TOKEN_PREFIX + token)).andExpect(status().isOk())
-        .andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
 
-    mvc.perform(delete(uri).header(HEADER_STRING, TOKEN_PREFIX + token)).andExpect(status().isNoContent())
+    mvc.perform(delete(uri).header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isNoContent())
 
     ;
   }
@@ -240,9 +244,9 @@ public class UserRestResourceIntTest {
     newUser.setId(null);
 
     mvc.perform(post("/api/users")
-                    // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
-        .andExpect(status().isConflict());
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
+      .andExpect(status().isConflict());
   }
 
   /*
@@ -270,23 +274,23 @@ public class UserRestResourceIntTest {
     userDTO.setLastName(USER_CHANGEDLASTNAME);
 
     mvc.perform(put(USER_URI + "/" + sitmunAdmin.getId())
-                    // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(userDTO)))
-        .andExpect(status().isNoContent());
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(userDTO)))
+      .andExpect(status().isNoContent());
 
     mvc.perform(get(USER_URI + "/" + sitmunAdmin.getId())
-        // .header(HEADER_STRING, TOKEN_PREFIX + token)
-    ).andExpect(status().isOk()).andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+    ).andExpect(status().isOk()).andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
   }
 
   @Test
   @WithMockUser(username = USER_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
     mvc.perform(get(USER_URI)).andDo(print()).andExpect(status().isOk())
-        .andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$._embedded.users", hasSize(5)));
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$._embedded.users", hasSize(5)));
   }
 
   @Test
@@ -294,8 +298,9 @@ public class UserRestResourceIntTest {
   public void getUsersAsOrganizationAdmin() throws Exception {
     mvc.perform(get(USER_URI)
 
-    ).andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(Util.APPLICATION_HAL_JSON_UTF8))
-        .andExpect(jsonPath("$._embedded.users", hasSize(2)));
+    ).andDo(print()).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$._embedded.users", hasSize(2)));
   }
 
   @Test
@@ -305,9 +310,10 @@ public class UserRestResourceIntTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
-                    // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(passwordDTO)))
-        .andExpect(status().isOk());
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8)
+      .content(Util.convertObjectToJsonBytes(passwordDTO)))
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -317,9 +323,10 @@ public class UserRestResourceIntTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
-                    // .header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(passwordDTO)))
-        .andExpect(status().isOk());
+      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8)
+      .content(Util.convertObjectToJsonBytes(passwordDTO)))
+      .andExpect(status().isOk());
   }
 
 

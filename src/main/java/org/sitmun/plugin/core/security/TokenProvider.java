@@ -59,19 +59,19 @@ public class TokenProvider {
       return true;
     } catch (SignatureException e) {
       log.info("Invalid JWT signature.");
-      log.trace("Invalid JWT signature trace: {}", e);
+      log.trace("Invalid JWT signature trace:", e);
     } catch (MalformedJwtException e) {
       log.info("Invalid JWT token.");
-      log.trace("Invalid JWT token trace: {}", e);
+      log.trace("Invalid JWT token trace:", e);
     } catch (ExpiredJwtException e) {
       log.info("Expired JWT token.");
-      log.trace("Expired JWT token trace: {}", e);
+      log.trace("Expired JWT token trace:", e);
     } catch (UnsupportedJwtException e) {
       log.info("Unsupported JWT token.");
-      log.trace("Unsupported JWT token trace: {}", e);
+      log.trace("Unsupported JWT token trace:", e);
     } catch (IllegalArgumentException e) {
       log.info("JWT token compact of handler are invalid.");
-      log.trace("JWT token compact of handler are invalid trace: {}", e);
+      log.trace("JWT token compact of handler are invalid trace:", e);
     }
     return false;
   }
@@ -87,8 +87,8 @@ public class TokenProvider {
     validity = new Date(now + this.tokenValidityInMilliseconds);
 
     return Jwts.builder().setSubject(authentication.getName())
-               // .claim(AUTHORITIES_KEY, authorities)
-               .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
+      // .claim(AUTHORITIES_KEY, authorities)
+      .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
   }
 
   public String createToken(String username) {
@@ -100,14 +100,15 @@ public class TokenProvider {
 
     return Jwts.builder().setSubject(username)
 
-               // .claim(AUTHORITIES_KEY, "")
-               .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
+      // .claim(AUTHORITIES_KEY, "")
+      .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
   }
 
   public String getUserFromToken(String token) {
     try {
-      return Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                 .getBody().getSubject();
+      return Jwts.parser().setSigningKey(secretKey.getBytes())
+        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+        .getBody().getSubject();
     } catch (Exception ex) {
       return null;
     }

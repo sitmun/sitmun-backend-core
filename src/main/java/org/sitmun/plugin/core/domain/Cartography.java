@@ -18,23 +18,23 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
+//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+//import org.springframework.hateoas.Identifiable;
+//import org.springframework.hateoas.Link;
+//import org.springframework.hateoas.Resource;
+//import org.springframework.hateoas.ResourceSupport;
 
 @Entity
 @Table(name = "STM_CARTO")
-public class Cartography implements Identifiable {
+public class Cartography { //implements Identifiable {
 
   @TableGenerator(
-      name = "STM_CARTO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "CAR_CODIGO",
-      allocationSize = 1)
+    name = "STM_CARTO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "CAR_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARTO_GEN")
   @Column(name = "CAR_CODIGO", precision = 11)
@@ -326,14 +326,14 @@ public class Cartography implements Identifiable {
     this.geometryType = geometryType;
   }
 
-  public ResourceSupport toResource(RepositoryEntityLinks links) {
-    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-    ResourceSupport res = new Resource<>(this, selfLink);
-    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
-    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-    res.add(links.linkForSingleResource(this).slash("selectionService").withRel("selectionService"));
-    res.add(links.linkForSingleResource(this).slash("service").withRel("service"));
-    return res;
-  }
+//  public ResourceSupport toResource(RepositoryEntityLinks links) {
+//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+//    ResourceSupport res = new Resource<>(this, selfLink);
+//    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
+//    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
+//    res.add(links.linkForSingleResource(this).slash("selectionService").withRel("selectionService"));
+//    res.add(links.linkForSingleResource(this).slash("service").withRel("service"));
+//    return res;
+//  }
 
 }

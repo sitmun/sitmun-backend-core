@@ -20,23 +20,23 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
+//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+//import org.springframework.hateoas.Identifiable;
+//import org.springframework.hateoas.Link;
+//import org.springframework.hateoas.Resource;
+//import org.springframework.hateoas.ResourceSupport;
 
 @Entity
 @Table(name = "STM_APPS")
-public class Application implements Identifiable {
+public class Application { //implements Identifiable {
 
   @TableGenerator(
-      name = "STM_APPS_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "APP_CODIGO",
-      allocationSize = 1)
+    name = "STM_APPS_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "APP_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
   @Column(name = "APP_CODIGO", precision = 11)
@@ -199,15 +199,15 @@ public class Application implements Identifiable {
     this.situationMap = situationMap;
   }
 
-  public ResourceSupport toResource(RepositoryEntityLinks links) {
-    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-    ResourceSupport res = new Resource<>(this, selfLink);
-    res.add(links.linkForSingleResource(this).slash("availableRoles").withRel("availableRoles"));
-    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
-    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));
-    res.add(links.linkForSingleResource(this).slash("situationMap").withRel("situationMap"));
-    return res;
-  }
+//  public ResourceSupport toResource(RepositoryEntityLinks links) {
+//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+//    ResourceSupport res = new Resource<>(this, selfLink);
+//    res.add(links.linkForSingleResource(this).slash("availableRoles").withRel("availableRoles"));
+//    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
+//    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
+//    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));
+//    res.add(links.linkForSingleResource(this).slash("situationMap").withRel("situationMap"));
+//    return res;
+//  }
 
 }

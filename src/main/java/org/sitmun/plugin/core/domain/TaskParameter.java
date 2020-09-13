@@ -18,12 +18,12 @@ import javax.validation.constraints.NotNull;
 public class TaskParameter {
 
   @TableGenerator(
-      name = "STM_PARAMTTA_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "PTT_CODIGO",
-      allocationSize = 1)
+    name = "STM_PARAMTTA_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "PTT_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")
   @Column(name = "PTT_CODIGO", precision = 11)

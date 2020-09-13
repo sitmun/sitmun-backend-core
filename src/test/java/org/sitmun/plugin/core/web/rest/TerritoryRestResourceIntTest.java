@@ -77,11 +77,11 @@ public class TerritoryRestResourceIntTest {
     // fail is expected
 
     mvc.perform(post(TERRITORY_URI)
-                    //.header(HEADER_STRING, TOKEN_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(Util.convertObjectToJsonBytes(territory))
+      //.header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON_UTF8)
+      .content(Util.convertObjectToJsonBytes(territory))
     ).andDo(print())
-        .andExpect(status().is4xxClientError()).andReturn();
+      .andExpect(status().is4xxClientError()).andReturn();
 
   }
 

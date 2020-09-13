@@ -1,9 +1,14 @@
-package org.sitmun.plugin.core.security;
+package org.sitmun.plugin.core.config;
 
 import javax.annotation.PostConstruct;
+import org.sitmun.plugin.core.security.AuthoritiesConstants;
+import org.sitmun.plugin.core.security.SecurityConstants;
+import org.sitmun.plugin.core.security.TokenProvider;
+import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,56 +27,55 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
-public class WebSecurity extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
   private final TokenProvider tokenProvider;
-  private UserDetailsService userDetailsService;
-  private PasswordEncoder passwordEncoder;
-  private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+  private final UserDetailsService userDetailsService;
+  private final PasswordEncoder passwordEncoder;
+  private final AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-
-  public WebSecurity(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
-                     TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+  public WebSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
+                           TokenProvider tokenProvider,
+                           AuthenticationManagerBuilder authenticationManagerBuilder) {
     super();
     this.authenticationManagerBuilder = authenticationManagerBuilder;
     this.userDetailsService = userDetailsService;
     this.passwordEncoder = passwordEncoder;
     this.tokenProvider = tokenProvider;
-    anonymousAuthenticationFilter = new AnonymousAuthenticationFilter("anonymous", SecurityConstants.SITMUN_PUBLIC_USERNAME, AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
+    anonymousAuthenticationFilter = new AnonymousAuthenticationFilter(
+      "anonymous",
+      SecurityConstants.SITMUN_PUBLIC_USERNAME,
+      AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
   }
 
   @Override
   @SuppressWarnings("squid:S4502")
   protected void configure(HttpSecurity http) throws Exception {
-    //COnfigurar acceso anńimo
-    //https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
-
+    // Configuration for anonymous access
+    // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     http
-        .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling()
-        .authenticationEntryPoint(getRestAuthenticationEntryPoint())
-        //.accessDeniedHandler(problemSupport)
-        .and()
-
-        .csrf()
-        .disable()
-        .headers()
-        .frameOptions()
-        .disable()
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authorizeRequests()
-        .antMatchers("/api/users").authenticated()
-        .antMatchers("/api/account").authenticated()
-        .antMatchers("/api/**").permitAll()
-
-        .and()
-        .apply(securityConfigurerAdapter())
-        .and()
-        .anonymous().authenticationFilter(anonymousAuthenticationFilter);
-
+      .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
+      .exceptionHandling()
+      .authenticationEntryPoint(getRestAuthenticationEntryPoint())
+      //.accessDeniedHandler(problemSupport)
+      .and()
+      .csrf()
+      .disable()
+      .headers()
+      .frameOptions()
+      .disable()
+      .and()
+      .sessionManagement()
+      .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .and()
+      .authorizeRequests()
+      .antMatchers("/api/users").authenticated()
+      .antMatchers("/api/account").authenticated()
+      .antMatchers("/api/**").permitAll()
+      .and()
+      .apply(securityConfigurerAdapter())
+      .and()
+      .anonymous().authenticationFilter(anonymousAuthenticationFilter);
   }
 
   @Bean
@@ -105,10 +109,15 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   @PostConstruct
   public void init() {
     try {
-      authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+      authenticationManagerBuilder.userDetailsService(userDetailsService)
+        .passwordEncoder(passwordEncoder);
     } catch (Exception e) {
       throw new BeanInitializationException("Security configuration failed", e);
     }
   }
 
+  @Bean
+  public AuthenticationManager authenticationManager() throws Exception {
+    return super.authenticationManager();
+  }
 }

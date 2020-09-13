@@ -17,12 +17,12 @@ import javax.persistence.TemporalType;
 public class Log {
 
   @TableGenerator(
-      name = "STM_LOG_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "LOG_CODIGO",
-      allocationSize = 1)
+    name = "STM_LOG_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "LOG_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_LOG_GEN")
   @Column(name = "LOG_CODIGO", precision = 11)

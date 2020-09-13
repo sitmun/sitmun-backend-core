@@ -59,6 +59,6 @@ public class TerritoryRepositoryTest {
     territoryRepository.save(territory);
     assertThat(territory.getId()).isNotZero();
 
-    assertThat(territoryRepository.findOne(territory.getId())).isNotNull();
+    assertThat(territoryRepository.findById(territory.getId())).isNotNull();
   }
 }

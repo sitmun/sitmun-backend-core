@@ -14,12 +14,12 @@ import javax.persistence.TableGenerator;
 public class TaskGroup {
 
   @TableGenerator(
-      name = "GTA_CODIGO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
-      pkColumnValue = "GTA_CODIGO",
-      allocationSize = 1)
+    name = "GTA_CODIGO_GEN",
+    table = "STM_CODIGOS",
+    pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR",
+    pkColumnValue = "GTA_CODIGO",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "GTA_CODIGO_GEN")
   @Column(name = "GTA_CODIGO", precision = 11)
