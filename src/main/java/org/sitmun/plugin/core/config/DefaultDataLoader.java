@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core;
+package org.sitmun.plugin.core.config;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -13,10 +13,10 @@ import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("dev")
 public class DefaultDataLoader implements ApplicationRunner {
 
   final UserRepository userRepository;
@@ -35,6 +36,14 @@ public class DefaultDataLoader implements ApplicationRunner {
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
 
+  /**
+   * Default data loader.
+   * @param userRepository user repository
+   * @param userConfigurationRepository user configuration repository
+   * @param roleRepository role repository
+   * @param territoryRepository territory repository
+   * @param userService user service
+   */
   public DefaultDataLoader(UserRepository userRepository,
                            UserConfigurationRepository userConfigurationRepository,
                            RoleRepository roleRepository,
@@ -53,9 +62,8 @@ public class DefaultDataLoader implements ApplicationRunner {
     ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
     authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
 
-    UsernamePasswordAuthenticationToken authReq =
-      new UsernamePasswordAuthenticationToken("system", "system",
-        authorities);
+    UsernamePasswordAuthenticationToken authReq;
+    authReq = new UsernamePasswordAuthenticationToken("system", "system", authorities);
 
     SecurityContext sc = SecurityContextHolder.getContext();
     sc.setAuthentication(authReq);
@@ -109,8 +117,8 @@ public class DefaultDataLoader implements ApplicationRunner {
 
     // Sitmun Admin
     User sitmunAdmin;
-    Optional<User> optUser =
-      userRepository.findOneByUsername(SecurityConstants.SITMUN_ADMIN_USERNAME);
+    Optional<User> optUser;
+    optUser = userRepository.findOneByUsername(SecurityConstants.SITMUN_ADMIN_USERNAME);
     if (!optUser.isPresent()) {
       sitmunAdmin = new User();
       sitmunAdmin.setAdministrator(true);

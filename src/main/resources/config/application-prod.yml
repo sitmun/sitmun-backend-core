@@ -1,0 +1,29 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "prod" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# Database properties for production (spring.datasource) are defined elsewhere.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+logging:
+  level:
+    ROOT: INFO
+    org.sitmun.plugin.core: INFO
+
+spring:
+  jackson:
+    serialization:
+      indent-output: true
+  jpa:
+    show-sql: false
+
+server:
+  port: 8080
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================

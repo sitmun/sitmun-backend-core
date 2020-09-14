@@ -12,3 +12,11 @@ REST API, back-end business logic and access to DB.
 
 
 ## Developer documentation
+
+The application will run with the `dev` profile.
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
+```
+
+The API Documentation is available at http://localhost:8080/swagger-ui/index.html.

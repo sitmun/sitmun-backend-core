@@ -1,0 +1,52 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+logging:
+  level:
+    ROOT: DEBUG
+    org.sitmun.plugin.core: DEBUG
+
+spring:
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      indent-output: true
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:sample;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sample
+    password:
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  h2:
+    console:
+      enabled: false
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+security:
+  authentication:
+    jwt:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+      token-validity-in-miliseconds: 36000000
+
+server:
+  port: 8080
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
+
+default:
+  territory:
+    name: Diputació de Barcelona

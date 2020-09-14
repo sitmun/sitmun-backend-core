@@ -57,6 +57,8 @@ dependencies {
 
   implementation "io.springfox:springfox-boot-starter:${springfox_swagger_version}"
 
+  implementation 'com.zaxxer:HikariCP'
+
   implementation "info.picocli:picocli:${picocli_version}"
 
   implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
