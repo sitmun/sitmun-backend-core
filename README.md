@@ -13,10 +13,20 @@ REST API, back-end business logic and access to DB.
 
 ## Developer documentation
 
-The application will run with the `dev` profile.
+The development profile (`dev`) should be active via the environment variable `SPRING_PROFILES_ACTIVE` before:
+
+- Building locally the application:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev build-scripts/build-local.sh
+```
+
+- Running locally the application:
 
 ```bash
 SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
 ```
 
-The API Documentation is available at http://localhost:8080/swagger-ui/index.html.
+Travis-CI runs the tests with the development profile active.
+
+When the application runs in local the API Documentation is available at http://localhost:8080/swagger-ui/index.html.

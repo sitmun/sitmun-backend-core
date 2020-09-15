@@ -7,6 +7,8 @@ addons:
   sonarcloud:
     organization: sitmun
 
+env:
+  - SPRING_PROFILES_ACTIVE=dev
 
 script: ./build-scripts/script.sh
 
