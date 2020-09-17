@@ -26,66 +26,134 @@ import javax.persistence.TemporalType;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * An application.
+ */
 @Entity
 @Table(name = "STM_APPS")
 public class Application { //implements Identifiable {
 
-  @TableGenerator(
-    name = "STM_APPS_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "APP_CODIGO",
-    allocationSize = 1)
+  /**
+   * Application unique identifier.
+   */
+  @SuppressWarnings("checkstyle:Indentation")
   @Id
+  @Column(name = "APP_ID", precision = 11)
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
-  @Column(name = "APP_CODIGO", precision = 11)
+  @TableGenerator(name = "STM_APPS_GEN", table = "STM_CODIGOS", pkColumnName = "GEN_CODIGO",
+    valueColumnName = "GEN_VALOR", pkColumnValue = "APP_ID", allocationSize = 1)
   private BigInteger id;
 
-  @Column(name = "APP_NOMBRE", length = 80)
+  /**
+   * Application name.
+   */
+  @Column(name = "APP_NAME", length = 80)
   private String name;
 
-  @Column(name = "APP_TIPO", length = 250)
+  /**
+   * Application type (external or internal).
+   */
+  @Column(name = "APP_TYPE", length = 250)
   private String type;
 
-  @Column(name = "APP_TITULO", length = 250)
+  /**
+   * Title to be shown in the browser and in the application.
+   */
+  @Column(name = "APP_TITLE", length = 250)
   private String title;
 
-  @Column(name = "APP_TEMA", length = 30)
+  /**
+   * CSS to use in this application.
+   */
+  @Column(name = "APP_THEME", length = 30)
   private String theme;
 
-  @Column(name = "APP_F_ALTA")
+  /**
+   * Scales to be used in this application.
+   */
+  @Column(name = "APP_SCALES", length = 250)
+  private String scales;
+
+  /**
+   * Projection to be used in this application.
+   */
+  @Column(name = "APP_PROJECT", length = 250)
+  private String srs;
+
+  /**
+   * The JSP viewer to be loaded in this application.
+   * If and Only if the application is a SITMUN 2 application.
+   */
+  @Column(name = "APP_TEMPLATE")
+  private Boolean jspTemplate;
+
+  /**
+   * True if the application refreshes automatically; False if an "update map" button is required.
+   */
+  @Column(name = "APP_REFRESH")
+  private Boolean treeAutoRefresh;
+
+  /**
+   * Can access a "parent" territory.
+   */
+  @Column(name = "APP_ENTRYS")
+  private Boolean accessParentTerritory;
+
+  /**
+   * Can access a "children" territory.
+   */
+  @Column(name = "APP_ENTRYM")
+  private Boolean accessChildrenTerritory;
+
+  /**
+   * Situation map.
+   */
+  @ManyToOne
+  @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
+  private CartographyGroup situationMap;
+
+  /**
+   * Date created.
+   */
+  @Column(name = "APP_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
-  private Date createdDate;
+  private Date dateCreated;
 
-  @ManyToMany
-  @JoinTable(name = "STM_APPROL", joinColumns = @JoinColumn(name = "APR_CODAPP", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")), inverseJoinColumns = @JoinColumn(name = "APR_CODROL", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
-  private Set<Role> availableRoles = new HashSet<>();
-
+  /**
+   * application parameters
+   */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ApplicationParameter> parameters = new HashSet<>();
 
+  /**
+   * Roles granted in this application.
+   */
   @ManyToMany
-  @JoinTable(name = "STM_APPARB", joinColumns = @JoinColumn(name = "APA_CODAPP", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")), inverseJoinColumns = @JoinColumn(name = "APA_CODARB", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
+  @JoinTable(
+    name = "STM_APPROL",
+    joinColumns = @JoinColumn(
+      name = "APR_CODAPP", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
+    inverseJoinColumns = @JoinColumn(
+      name = "APR_CODROL", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
+  private Set<Role> availableRoles = new HashSet<>();
+
+  /**
+   * Trees assigned to this application.
+   */
+  @ManyToMany
+  @JoinTable(
+    name = "STM_APPARB",
+    joinColumns = @JoinColumn(
+      name = "APA_CODAPP", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
+    inverseJoinColumns = @JoinColumn(
+      name = "APA_CODARB", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
   private Set<Tree> trees;
 
-  // comma-separated values
-  @Column(name = "APP_ESCALAS", length = 250)
-  private String scales;
-
-  // comma-separated EPSG codes
-  @Column(name = "APP_PROJECT", length = 250)
-  private String projections;
-
-  @Column(name = "APP_AUTOREFR")
-  private Boolean treeAutoRefresh;
-
+  /**
+   * Backgrounds maps.
+   */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
-
-  @ManyToOne
-  @JoinColumn(name = "APP_CODGCA", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
-  private CartographyGroup situationMap;
 
   public BigInteger getId() {
     return id;
@@ -127,38 +195,6 @@ public class Application { //implements Identifiable {
     this.theme = theme;
   }
 
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public Set<Role> getAvailableRoles() {
-    return availableRoles;
-  }
-
-  public void setAvailableRoles(Set<Role> availableRoles) {
-    this.availableRoles = availableRoles;
-  }
-
-  public Set<ApplicationParameter> getParameters() {
-    return parameters;
-  }
-
-  public void setParameters(Set<ApplicationParameter> parameters) {
-    this.parameters = parameters;
-  }
-
-  public Set<Tree> getTrees() {
-    return trees;
-  }
-
-  public void setTrees(Set<Tree> trees) {
-    this.trees = trees;
-  }
-
   public String getScales() {
     return scales;
   }
@@ -167,12 +203,20 @@ public class Application { //implements Identifiable {
     this.scales = scales;
   }
 
-  public String getProjections() {
-    return projections;
+  public String getSrs() {
+    return srs;
   }
 
-  public void setProjections(String projections) {
-    this.projections = projections;
+  public void setSrs(String srs) {
+    this.srs = srs;
+  }
+
+  public Boolean getJspTemplate() {
+    return jspTemplate;
+  }
+
+  public void setJspTemplate(Boolean jspTemplate) {
+    this.jspTemplate = jspTemplate;
   }
 
   public Boolean getTreeAutoRefresh() {
@@ -183,12 +227,20 @@ public class Application { //implements Identifiable {
     this.treeAutoRefresh = treeAutoRefresh;
   }
 
-  public Set<ApplicationBackground> getBackgrounds() {
-    return backgrounds;
+  public Boolean getAccessParentTerritory() {
+    return accessParentTerritory;
   }
 
-  public void setBackgrounds(Set<ApplicationBackground> backgrounds) {
-    this.backgrounds = backgrounds;
+  public void setAccessParentTerritory(Boolean accessParentTerritory) {
+    this.accessParentTerritory = accessParentTerritory;
+  }
+
+  public Boolean getAccessChildrenTerritory() {
+    return accessChildrenTerritory;
+  }
+
+  public void setAccessChildrenTerritory(Boolean accessChildrenTerritory) {
+    this.accessChildrenTerritory = accessChildrenTerritory;
   }
 
   public CartographyGroup getSituationMap() {
@@ -199,15 +251,55 @@ public class Application { //implements Identifiable {
     this.situationMap = situationMap;
   }
 
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("availableRoles").withRel("availableRoles"));
-//    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-//    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
-//    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));
-//    res.add(links.linkForSingleResource(this).slash("situationMap").withRel("situationMap"));
-//    return res;
-//  }
+  public Date getDateCreated() {
+    return dateCreated;
+  }
 
+  public void setDateCreated(Date dateCreated) {
+    this.dateCreated = dateCreated;
+  }
+
+  public Set<ApplicationParameter> getParameters() {
+    return parameters;
+  }
+
+  public void setParameters(Set<ApplicationParameter> parameters) {
+    this.parameters = parameters;
+  }
+
+  public Set<Role> getAvailableRoles() {
+    return availableRoles;
+  }
+
+  public void setAvailableRoles(Set<Role> availableRoles) {
+    this.availableRoles = availableRoles;
+  }
+
+  public Set<Tree> getTrees() {
+    return trees;
+  }
+
+  public void setTrees(Set<Tree> trees) {
+    this.trees = trees;
+  }
+
+  public Set<ApplicationBackground> getBackgrounds() {
+    return backgrounds;
+  }
+
+  public void setBackgrounds(
+    Set<ApplicationBackground> backgrounds) {
+    this.backgrounds = backgrounds;
+  }
+
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("availableRoles").withRel("availableRoles"));
+  //    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
+  //    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
+  //    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));
+  //    res.add(links.linkForSingleResource(this).slash("situationMap").withRel("situationMap"));
+  //    return res;
+  //  }
 }

@@ -42,13 +42,13 @@ public class ApplicationRepositoryTest {
 
     application = new Application();
     application.setName("Test");
-    application.setCreatedDate(new Date());
+    application.setDateCreated(new Date());
     application.setTrees(null);
     application.setTreeAutoRefresh(true);
     application.setScales(null);
     application.setSituationMap(null);
     application.setParameters(null);
-    application.setProjections(null);
+    application.setSrs(null);
     application.setParameters(new HashSet<>());
     application.setTheme(null);
     application.setType(null);
