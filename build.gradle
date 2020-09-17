@@ -163,7 +163,7 @@ javadoc {
 //
 
 checkstyle {
-  toolVersion = '8.24'
+  toolVersion = '8.36'
   configFile = file("${project.rootDir}/checkstyle.xml")
 }
 
