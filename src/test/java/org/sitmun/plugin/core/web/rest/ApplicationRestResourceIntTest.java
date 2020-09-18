@@ -192,7 +192,7 @@ public class ApplicationRestResourceIntTest {
     SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
     String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
     try {
-      application.setDateCreated(formatter.parse(dateInString));
+      application.setCreatedDate(formatter.parse(dateInString));
     } catch (Exception e) {
       e.printStackTrace();
     }

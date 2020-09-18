@@ -36,12 +36,11 @@ public class Application { //implements Identifiable {
   /**
    * Application unique identifier.
    */
-  @SuppressWarnings("checkstyle:Indentation")
   @Id
   @Column(name = "APP_ID", precision = 11)
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
   @TableGenerator(name = "STM_APPS_GEN", table = "STM_CODIGOS", pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR", pkColumnValue = "APP_ID", allocationSize = 1)
+      valueColumnName = "GEN_VALOR", pkColumnValue = "APP_ID", allocationSize = 1)
   private BigInteger id;
 
   /**
@@ -113,14 +112,14 @@ public class Application { //implements Identifiable {
   private CartographyGroup situationMap;
 
   /**
-   * Date created.
+   * Created date.
    */
   @Column(name = "APP_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
-  private Date dateCreated;
+  private Date createdDate;
 
   /**
-   * application parameters
+   * Application parameters.
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ApplicationParameter> parameters = new HashSet<>();
@@ -130,11 +129,11 @@ public class Application { //implements Identifiable {
    */
   @ManyToMany
   @JoinTable(
-    name = "STM_APPROL",
-    joinColumns = @JoinColumn(
-      name = "APR_CODAPP", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
-    inverseJoinColumns = @JoinColumn(
-      name = "APR_CODROL", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
+      name = "STM_APPROL",
+      joinColumns = @JoinColumn(
+          name = "APR_CODAPP", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
+      inverseJoinColumns = @JoinColumn(
+          name = "APR_CODROL", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
   private Set<Role> availableRoles = new HashSet<>();
 
   /**
@@ -142,11 +141,11 @@ public class Application { //implements Identifiable {
    */
   @ManyToMany
   @JoinTable(
-    name = "STM_APPARB",
-    joinColumns = @JoinColumn(
-      name = "APA_CODAPP", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
-    inverseJoinColumns = @JoinColumn(
-      name = "APA_CODARB", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
+      name = "STM_APPARB",
+      joinColumns = @JoinColumn(
+          name = "APA_CODAPP", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
+      inverseJoinColumns = @JoinColumn(
+          name = "APA_CODARB", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
   private Set<Tree> trees;
 
   /**
@@ -251,12 +250,12 @@ public class Application { //implements Identifiable {
     this.situationMap = situationMap;
   }
 
-  public Date getDateCreated() {
-    return dateCreated;
+  public Date getCreatedDate() {
+    return createdDate;
   }
 
-  public void setDateCreated(Date dateCreated) {
-    this.dateCreated = dateCreated;
+  public void setCreatedDate(Date dateCreated) {
+    this.createdDate = dateCreated;
   }
 
   public Set<ApplicationParameter> getParameters() {
@@ -288,7 +287,7 @@ public class Application { //implements Identifiable {
   }
 
   public void setBackgrounds(
-    Set<ApplicationBackground> backgrounds) {
+      Set<ApplicationBackground> backgrounds) {
     this.backgrounds = backgrounds;
   }
 

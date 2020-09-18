@@ -21,37 +21,58 @@ import javax.validation.constraints.NotNull;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * Background.
+ */
 @Entity
-@Table(name = "STM_FONDO")
+@Table(name = "STM_BACKGRD")
 public class Background { //implements Identifiable {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_FONDO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "FON_CODIGO",
-    allocationSize = 1)
+      name = "STM_FONDO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "FON_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_FONDO_GEN")
-  @Column(name = "FON_CODIGO", precision = 11)
+  @Column(name = "BAC_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "FON_NOMBRE", length = 30)
+  /**
+   * Name.
+   */
+  @Column(name = "BAC_NAME", length = 30)
   private String name;
 
-  @Column(name = "FON_DESC", length = 250)
+  /**
+   * Description.
+   */
+  @Column(name = "BAC_DESC", length = 250)
   private String description;
 
-  @Column(name = "FON_ACTIVO")
+  /**
+   * True if it should be considered active by default in applications.
+   */
+  @Column(name = "BAC_ACTIVE")
   private Boolean active;
 
-  @Column(name = "FON_F_ALTA")
+  /**
+   * Created date.
+   */
+  @Column(name = "BAC_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
+  /**
+   * Cartography group used as background.
+   */
   @ManyToOne
-  @JoinColumn(name = "FON_CODGCA", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
+  @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
   @NotNull
   private CartographyGroup cartographyGroup;
 
@@ -103,11 +124,12 @@ public class Background { //implements Identifiable {
     this.cartographyGroup = cartographyGroup;
   }
 
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("cartographyGroup").withRel("cartographyGroup"));
-//    return res;
-//  }
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("cartographyGroup").
+  //    withRel("cartographyGroup"));
+  //    return res;
+  //  }
 
 }

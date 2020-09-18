@@ -19,40 +19,70 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+/**
+ * Grants availability of a Geographic Information in a Territory.
+ */
 @Entity
-@Table(name = "STM_DISPCARTO", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"DCA_CODTER", "DCA_CODCAR"})})
+@Table(name = "STM_AVAIL_GI", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
 public class CartographyAvailability {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_DISPCARTO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "DCA_CODIGO",
-    allocationSize = 1)
+      name = "STM_DISPCARTO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "DCA_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPCARTO_GEN")
-  @Column(name = "DCA_CODIGO", precision = 11)
+  @Column(name = "AGI_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "DCA_F_ALTA")
+  /**
+   * Creation date.
+   */
+  @Column(name = "AGI_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
+  /**
+   * Owner of the Geographic Information.
+   * Keeps the owner's name when ownership is not obvious or is an exception.
+   */
+  @Column(name = "AGI_PROPRIETA")
+  private String owner;
+
+  /**
+   * Territory allowed to access to the cartography.
+   */
   @ManyToOne
-  // @MapsId("territorioId")
-  @JoinColumn(name = "DCA_CODTER", foreignKey = @ForeignKey(name = "STM_DCA_FK_TER"))
+  @JoinColumn(name = "AGI_TERID", foreignKey = @ForeignKey(name = "STM_DCA_FK_TER"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Territory territory;
 
+  /**
+   * Cartography allowed to the territory.
+   */
   @ManyToOne
-  // @MapsId("cartografiaId")
-  @JoinColumn(name = "DCA_CODCAR", foreignKey = @ForeignKey(name = "STM_DCA_FK_CAR"))
+  @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_DCA_FK_CAR"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Cartography cartography;
+
+  /**
+   * Provides a human readable description of the grant.
+   * @return a short description of the grant
+   */
+  public String toString() {
+    return "Cartography=" + this.cartography.getId()
+        + ",Territorio=" + this.territory.getId()
+        + "fechaAlta=" + this.createdDate;
+  }
 
   public BigInteger getId() {
     return id;
@@ -70,6 +100,14 @@ public class CartographyAvailability {
     this.createdDate = createdDate;
   }
 
+  public String getOwner() {
+    return owner;
+  }
+
+  public void setOwner(String owner) {
+    this.owner = owner;
+  }
+
   public Territory getTerritory() {
     return territory;
   }
@@ -85,11 +123,4 @@ public class CartographyAvailability {
   public void setCartography(Cartography cartography) {
     this.cartography = cartography;
   }
-
-  public String toString() {
-    return "Cartography=" + this.cartography.getId() + ",Territorio=" + this.territory.getId() +
-      "fechaAlta="
-      + this.createdDate;
-  }
-
 }

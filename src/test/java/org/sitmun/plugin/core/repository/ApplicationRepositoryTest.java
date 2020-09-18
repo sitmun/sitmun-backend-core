@@ -42,7 +42,7 @@ public class ApplicationRepositoryTest {
 
     application = new Application();
     application.setName("Test");
-    application.setDateCreated(new Date());
+    application.setCreatedDate(new Date());
     application.setTrees(null);
     application.setTreeAutoRefresh(true);
     application.setScales(null);

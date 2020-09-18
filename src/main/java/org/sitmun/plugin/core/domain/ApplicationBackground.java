@@ -19,38 +19,52 @@ import javax.validation.constraints.NotNull;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * Relationship between applications and backgrounds.
+ */
 @Entity
-@Table(name = "STM_APPFON", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_APF_UK", columnNames = {"APF_CODAPP", "APF_CODFON"})})
+@Table(name = "STM_APP_BCKG", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
 public class ApplicationBackground { //implements Identifiable {
 
-
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_APPFON_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "APF_CODIGO",
-    allocationSize = 1)
+      name = "STM_APPFON_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "APF_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPFON_GEN")
-  @Column(name = "APF_CODIGO", precision = 11)
+  @Column(name = "ABC_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "APF_ORDEN", precision = 6)
-  private BigInteger order;
-
+  /**
+   * Application.
+   */
   @ManyToOne
-  @JoinColumn(name = "APF_CODAPP", foreignKey = @ForeignKey(name = "STM_APF_FK_APP"))
-  // @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ABC_APPID", foreignKey = @ForeignKey(name = "STM_APF_FK_APP"))
   @NotNull
   private Application application;
 
+  /**
+   * Background.
+   */
   @ManyToOne
-  @JoinColumn(name = "APF_CODFON", foreignKey = @ForeignKey(name = "STM_APF_FK_FON"))
-  // @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_APF_FK_FON"))
   @NotNull
   private Background background;
+
+  /**
+   * Order of preference.
+   * It can be used for sorting the list of backgrounds in a view.
+   */
+  @Column(name = "ABC_ORDER", precision = 6)
+  private BigInteger order;
+
 
   public BigInteger getId() {
     return id;
@@ -84,12 +98,12 @@ public class ApplicationBackground { //implements Identifiable {
     this.background = background;
   }
 
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("application").withRel("application"));
-//    res.add(links.linkForSingleResource(this).slash("background").withRel("background"));
-//    return res;
-//  }
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("application").withRel("application"));
+  //    res.add(links.linkForSingleResource(this).slash("background").withRel("background"));
+  //    return res;
+  //  }
 
 }
