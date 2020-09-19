@@ -19,36 +19,66 @@ import javax.persistence.TableGenerator;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * Geographic Information Group.
+ */
 @Entity
-@Table(name = "STM_GRPCARTO")
+@Table(name = "STM_GRP_GI")
 public class CartographyGroup { //implements Identifiable {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_GRPCARTO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "GCA_CODIGO",
-    allocationSize = 1)
+      name = "STM_GRPCARTO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "GCA_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRPCARTO_GEN")
-  @Column(name = "GCA_CODIGO", precision = 11)
+  @Column(name = "GGI_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "GCA_NOMBRE", length = 80)
+  /**
+   * Group name.
+   */
+  @Column(name = "GGI_NAME", length = 80)
   private String name;
 
-  @Column(name = "GCA_TIPO", length = 30)
+  /**
+   * Group type.
+   */
+  @Column(name = "GGI_TYPE", length = 30)
   private String type;
 
+  /**
+   * The set that contains all members in the group.
+   */
   @ManyToMany
-  @JoinTable(name = "STM_GCACAR", joinColumns = @JoinColumn(name = "GCC_CODGCA", foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")), inverseJoinColumns = @JoinColumn(name = "GCC_CODCAR", foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")))
+  @JoinTable(
+      name = "STM_GGI_GI",
+      joinColumns = @JoinColumn(
+          name = "GGG_GGIID",
+          foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")),
+      inverseJoinColumns = @JoinColumn(
+          name = "GGG_GIID",
+          foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")))
   private Set<Cartography> members;
 
-  // roles para los que estará disponible este grupo de cartografía se gestiona
-  // desde aquí
+  /**
+   * The set that contains the roles for which this group is available.
+   */
   @ManyToMany
-  @JoinTable(name = "STM_ROLGCA", joinColumns = @JoinColumn(name = "RGC_CODROL", foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")), inverseJoinColumns = @JoinColumn(name = "RGC_CODGCA", foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
+  @JoinTable(
+      name = "STM_ROL_GGI",
+      joinColumns = @JoinColumn(
+          name = "RGG_ROLEID",
+          foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")),
+      inverseJoinColumns = @JoinColumn(
+          name = "RGG_GGIID",
+          foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
   private Set<Role> roles;
 
   public BigInteger getId() {
@@ -91,12 +121,12 @@ public class CartographyGroup { //implements Identifiable {
     this.roles = roles;
   }
 
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("members").withRel("members"));
-//    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
-//    return res;
-//  }
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("members").withRel("members"));
+  //    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
+  //    return res;
+  //  }
 
 }

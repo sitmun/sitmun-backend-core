@@ -9,35 +9,56 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+/**
+ * Represents a JDBC database connection.
+ */
 @Entity
-@Table(name = "STM_CONEXION")
+@Table(name = "STM_CONNECT")
 public class Connection {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_CONEXION_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "CON_CODIGO",
-    allocationSize = 1)
+      name = "STM_CONEXION_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "CON_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CONEXION_GEN")
-  @Column(name = "CON_CODIGO", precision = 11)
+  @Column(name = "CON_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "CON_NOMBRE", length = 80)
+  /**
+   * Connection name.
+   */
+  @Column(name = "CON_NAME", length = 80)
   private String name;
 
+  /**
+   * JDBC driver.
+   */
   @Column(name = "CON_DRIVER", length = 50)
   private String type;
 
-  @Column(name = "CON_USUARIO", length = 50)
+  /**
+   * User.
+   */
+  @Column(name = "CON_USER", length = 50)
   private String user;
 
-  @Column(name = "CON_PASSWORD", length = 50)
+  /**
+   * Password.
+   */
+  @Column(name = "CON_PWD", length = 50)
   private String password;
 
-  @Column(name = "CON_CONSTRING", length = 250)
+  /**
+   * JDBC connection string.
+   */
+  @Column(name = "CON_CONNECTION", length = 250)
   private String connectionString;
 
   public BigInteger getId() {

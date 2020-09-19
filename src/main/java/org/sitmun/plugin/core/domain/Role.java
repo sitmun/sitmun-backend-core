@@ -25,7 +25,7 @@ public class Role {
     allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")
-  @Column(name = "ROL_CODIGO", precision = 11)
+  @Column(name = "RGG_ROLEID", precision = 11)
   private BigInteger id;
 
   @NotNull

@@ -7,155 +7,271 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+/**
+ * Log.
+ */
 @Entity
 @Table(name = "STM_LOG")
 public class Log {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_LOG_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "LOG_CODIGO",
-    allocationSize = 1)
+      name = "STM_LOG_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "LOG_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_LOG_GEN")
-  @Column(name = "LOG_CODIGO", precision = 11)
+  @Column(name = "LOG_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "LOG_TIPO", length = 50)
-  private String nombre;
-
-  @Column(name = "LOG_CODUSU", precision = 11)
-  private BigInteger codigoUsuario;
-
-  @Column(name = "LOG_CODAPP", precision = 11)
-  private BigInteger codigoAplicacion;
-
-  @Column(name = "LOG_CODTER", precision = 11)
-  private BigInteger codigoTerritorio;
-
-  @Column(name = "LOG_CODTAR", precision = 11)
-  private BigInteger codigoTarea;
-
-  @Column(name = "LOG_FECHA")
+  /**
+   * Action date.
+   */
+  @Column(name = "LOG_DATE")
   @Temporal(TemporalType.TIMESTAMP)
-  private Date fecha;
-
-  //TODO log_cont es el identificador del log?
-  @Column(name = "LOG_CONT", precision = 11)
-  private BigInteger cont;
-
+  private Date date;
 
   /**
-   * @return the id
+   * Action type.
    */
+  @Column(name = "LOG_TYPE", length = 50)
+  private String type;
+
+  /**
+   * Originated by this user.
+   */
+  @ManyToOne
+  @JoinColumn(name = "LOG_USERID")
+  private User user;
+
+  /**
+   * Originated by this application.
+   */
+  @ManyToOne
+  @JoinColumn(name = "LOG_APPID")
+  private Application application;
+
+  /**
+   * Originated in this application.
+   */
+  @ManyToOne
+  @JoinColumn(name = "LOG_TERID")
+  private Territory territory;
+
+  /**
+   * Originated by this task.
+   */
+  @ManyToOne
+  @JoinColumn(name = "LOG_TASKID")
+  private Task task;
+
+  /**
+   * Originated by this cartography.
+   */
+  @ManyToOne
+  @JoinColumn(name = "LOG_GIID")
+  private Cartography cartography;
+
+  /**
+   * Counter (to add up).
+   */
+  @Column(name = "LOG_CONT", precision = 11)
+  private BigInteger counter;
+
+  /**
+   * Territory code.
+   */
+  @Column(name = "LOG_TER", length = 250)
+  private String territoryCode;
+
+  /**
+   * If the log entry involves more than one territory, this field must contain a list of all the
+   * territories involved..
+   */
+  @Column(name = "LOG_TEREXT", length = 250)
+  private String territoryExtent;
+
+  /**
+   * Data (or process) requested.
+   */
+  @Column(name = "LOG_DATA", length = 250)
+  private String data;
+
+  /**
+   * SRS requested.
+   */
+  @Column(name = "LOG_SRS", length = 250)
+  private String srs;
+
+  /**
+   * Format requested.
+   */
+  @Column(name = "LOG_FORMAT", length = 250)
+  private String format;
+
+  /**
+   * True if the user used the add buffer option.
+   */
+  @Column(name = "LOG_BUFFER")
+  private Boolean buffer;
+
+  /**
+   * Email where the results have been sent.
+   */
+  @Column(name = "LOG_EMAIL", length = 250)
+  private String email;
+
+  /**
+   * Other information.
+   */
+  @Column(name = "LOG_OTHER", length = 4000)
+  private String other;
+
   public BigInteger getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
   public void setId(BigInteger id) {
     this.id = id;
   }
 
-  /**
-   * @return the nombre
-   */
-  public String getNombre() {
-    return nombre;
+  public Date getDate() {
+    return date;
   }
 
-  /**
-   * @param nombre the nombre to set
-   */
-  public void setNombre(String nombre) {
-    this.nombre = nombre;
+  public void setDate(Date date) {
+    this.date = date;
   }
 
-  /**
-   * @return the codigoUsuario
-   */
-  public BigInteger getCodigoUsuario() {
-    return codigoUsuario;
+  public String getType() {
+    return type;
   }
 
-  /**
-   * @param codigoUsuario the codigoUsuario to set
-   */
-  public void setCodigoUsuario(BigInteger codigoUsuario) {
-    this.codigoUsuario = codigoUsuario;
+  public void setType(String type) {
+    this.type = type;
   }
 
-  /**
-   * @return the codigoAplicacion
-   */
-  public BigInteger getCodigoAplicacion() {
-    return codigoAplicacion;
+  public User getUser() {
+    return user;
   }
 
-  /**
-   * @param codigoAplicacion the codigoAplicacion to set
-   */
-  public void setCodigoAplicacion(BigInteger codigoAplicacion) {
-    this.codigoAplicacion = codigoAplicacion;
+  public void setUser(User user) {
+    this.user = user;
   }
 
-  /**
-   * @return the codigoTerritorio
-   */
-  public BigInteger getCodigoTerritorio() {
-    return codigoTerritorio;
+  public Application getApplication() {
+    return application;
   }
 
-  /**
-   * @param codigoTerritorio the codigoTerritorio to set
-   */
-  public void setCodigoTerritorio(BigInteger codigoTerritorio) {
-    this.codigoTerritorio = codigoTerritorio;
+  public void setApplication(Application application) {
+    this.application = application;
   }
 
-  /**
-   * @return the codigoTarea
-   */
-  public BigInteger getCodigoTarea() {
-    return codigoTarea;
+  public Territory getTerritory() {
+    return territory;
   }
 
-  /**
-   * @param codigoTarea the codigoTarea to set
-   */
-  public void setCodigoTarea(BigInteger codigoTarea) {
-    this.codigoTarea = codigoTarea;
+  public void setTerritory(Territory territory) {
+    this.territory = territory;
   }
 
-  /**
-   * @return the fecha
-   */
-  public Date getFecha() {
-    return fecha;
+  public Task getTask() {
+    return task;
   }
 
-  /**
-   * @param fecha the fecha to set
-   */
-  public void setFecha(Date fecha) {
-    this.fecha = fecha;
+  public void setTask(Task task) {
+    this.task = task;
   }
 
-  public BigInteger getCont() {
-    return cont;
+  public Cartography getCartography() {
+    return cartography;
   }
 
-  public void setCont(BigInteger cont) {
-    this.cont = cont;
+  public void setCartography(Cartography cartography) {
+    this.cartography = cartography;
   }
 
+  public BigInteger getCounter() {
+    return counter;
+  }
+
+  public void setCounter(BigInteger counter) {
+    this.counter = counter;
+  }
+
+  public String getTerritoryCode() {
+    return territoryCode;
+  }
+
+  public void setTerritoryCode(String territoryCode) {
+    this.territoryCode = territoryCode;
+  }
+
+  public String getTerritoryExtent() {
+    return territoryExtent;
+  }
+
+  public void setTerritoryExtent(String territoryExtent) {
+    this.territoryExtent = territoryExtent;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
+  public String getSrs() {
+    return srs;
+  }
+
+  public void setSrs(String srs) {
+    this.srs = srs;
+  }
+
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  public Boolean getBuffer() {
+    return buffer;
+  }
+
+  public void setBuffer(Boolean buffer) {
+    this.buffer = buffer;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getOther() {
+    return other;
+  }
+
+  public void setOther(String other) {
+    this.other = other;
+  }
 }
