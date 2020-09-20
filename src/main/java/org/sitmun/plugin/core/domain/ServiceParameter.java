@@ -12,36 +12,53 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+/**
+ * Service parameter.
+ */
 @Entity
-@Table(name = "STM_PARAMSER")
+@Table(name = "STM_PAR_SER")
 public class ServiceParameter {
 
   @TableGenerator(
-    name = "STM_PARAMSER_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "PSE_CODIGO",
-    allocationSize = 1)
+      name = "STM_PARAMSER_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "PSE_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMSER_GEN")
-  @Column(name = "PSE_CODIGO", precision = 11)
+  @Column(name = "PSE_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "PSE_NOMBRE", length = 30)
+  /**
+   * Parameter name.
+   */
+  @Column(name = "PSE_NAME", length = 30)
   private String name;
 
-  @Column(name = "PSE_VALOR", length = 250)
+  /**
+   * Parameter value.
+   */
+  @Column(name = "PSE_VALUE", length = 250)
   private String value;
 
-  @Column(name = "PSE_TIPO", length = 250)
+  /**
+   * Parameter type.
+   */
+  @Column(name = "PSE_TYPE", length = 250)
   private String type;
 
+  /**
+   * Service that applies this parameter.
+   */
   @ManyToOne
   @NotNull
-  // @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinColumn(name = "PSE_CODSER", foreignKey = @ForeignKey(name = "STM_PSE_FK_SER"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "PSE_SERID", foreignKey = @ForeignKey(name = "STM_PSE_FK_SER"))
   private Service service;
 
   public BigInteger getId() {

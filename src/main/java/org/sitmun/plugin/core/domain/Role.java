@@ -11,29 +11,42 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Role.
+ */
 @Entity
-@Table(name = "STM_ROLES", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NOMBRE"})})
+@Table(name = "STM_ROLE", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
 public class Role {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_ROLES_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "ROL_CODIGO",
-    allocationSize = 1)
+      name = "STM_ROLES_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "ROL_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")
-  @Column(name = "RGG_ROLEID", precision = 11)
+  @Column(name = "ROL_ID", precision = 11)
   private BigInteger id;
 
+  /**
+   * Role name.
+   * Role names are unique and cannot be shared across applications.
+   */
   @NotNull
-  @Column(name = "ROL_NOMBRE", nullable = false, length = 250)
+  @Column(name = "ROL_NAME", nullable = false, length = 250)
   private String name;
 
-  @Column(name = "ROL_OBSERV", length = 500)
-  private String comments;
+  /**
+   * Role description.
+   */
+  @Column(name = "ROL_NOTE", length = 500)
+  private String description;
 
   public BigInteger getId() {
     return id;
@@ -51,12 +64,12 @@ public class Role {
     this.name = name;
   }
 
-  public String getComments() {
-    return comments;
+  public String getDescription() {
+    return description;
   }
 
-  public void setComments(String comments) {
-    this.comments = comments;
+  public void setDescription(String comments) {
+    this.description = comments;
   }
 
   @Override

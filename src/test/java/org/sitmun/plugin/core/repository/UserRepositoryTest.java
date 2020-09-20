@@ -56,7 +56,7 @@ public class UserRepositoryTest {
 
     Role role = new Role();
     role.setName("rol-admin");
-    role.setComments("rol de administrador");
+    role.setDescription("rol de administrador");
     UserConfiguration conf = new UserConfiguration();
     conf.setUser(user);
     conf.setRole(role);

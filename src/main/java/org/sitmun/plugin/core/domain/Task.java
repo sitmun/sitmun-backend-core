@@ -26,67 +26,130 @@ import javax.persistence.TemporalType;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * Task.
+ */
 @Entity
-@Table(name = "STM_TAREA")
+@Table(name = "STM_TASK")
 public class Task { //implements Identifiable {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_TAREA_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "TAR_CODIGO",
-    allocationSize = 1)
+      name = "STM_TAREA_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "TAR_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
-  @Column(name = "TAR_CODIGO", precision = 11)
+  @Column(name = "TAS_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "TAR_NOMBRE", length = 250)
+  // There is a bug in SpringFox 3.0.0 that breaks the creation of documentation
+  // when a parent-child relationship is present.
+  // see https://github.com/springfox/springfox/issues/3469
+  // This is planned to be fixed in SpringFox 3.0.1
+  // see https://github.com/springfox/springfox/milestone/45
+  //
+  // FIXME Enable again Task.parent field
+  //
+  // /**
+  //  * Parent task.
+  //  */
+  // @ManyToOne
+  // @JoinColumn(name = "TAS_PARENTID")
+  // private Task parent;
+
+  /**
+   * Name.
+   */
+  @Column(name = "TAS_NAME", length = 250)
   private String name;
 
-  @Column(name = "TAR_ORDEN", precision = 6)
-  private BigInteger order;
-
-  @Column(name = "TAR_F_ALTA")
+  /**
+   * Created date.
+   */
+  @Column(name = "TAS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
+  /**
+   * Order of preference.
+   * It can be used for sorting the list of backgrounds in a view.
+   */
+  @Column(name = "TAS_ORDER", precision = 6)
+  private BigInteger order;
+
+  /**
+   * Associated cartography.
+   */
   @ManyToOne
-  @JoinColumn(name = "TAR_CODCON", foreignKey = @ForeignKey(name = "STM_TAR_FK_CON"))
-  private Connection connection;
-  @ManyToMany
-  @JoinTable(name = "STM_ROLTAR", joinColumns = @JoinColumn(name = "RTA_CODROL", foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")), inverseJoinColumns = @JoinColumn(name = "RTA_CODTAR", foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
-  private Set<Role> roles;
-  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<TaskAvailability> availabilities = new HashSet<>();
-  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<TaskParameter> parameters = new HashSet<>();
+  @JoinColumn(name = "TAS_PARENTID", insertable = false, updatable = false)
+  private Cartography cartography;
+
+  /**
+   * Associated service.
+   */
   @ManyToOne
-  @JoinColumn(name = "TAR_CODGTA", foreignKey = @ForeignKey(name = "STM_TAR_FK_GTA"))
+  @JoinColumn(name = "TAS_SERID")
+  private Cartography service;
+
+  /**
+   * Task group.
+   */
+  @ManyToOne
+  @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAR_FK_GTA"))
   private TaskGroup group;
+
+  /**
+   * Task type.
+   */
   @ManyToOne
-  @JoinColumn(name = "TAR_CODTTA", foreignKey = @ForeignKey(name = "STM_TAR_FK_TTA"))
+  @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TTA"))
   private TaskType type;
+
+  /**
+   * Task UI.
+   */
   @ManyToOne
-  @JoinColumn(name = "TAR_CODTUI", foreignKey = @ForeignKey(name = "STM_TAR_FK_TUI"))
+  @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TUI"))
   private TaskUI ui;
 
-  public Set<TaskParameter> getParameters() {
-    return parameters;
-  }
+  /**
+   * Associated connection.
+   */
+  @ManyToOne
+  @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAR_FK_CON"))
+  private Connection connection;
 
-  public void setParameters(Set<TaskParameter> parameters) {
-    this.parameters = parameters;
-  }
+  /**
+   * Roles allowed to access to this task.
+   */
+  @ManyToMany
+  @JoinTable(
+      name = "STM_ROL_TSK",
+      joinColumns = @JoinColumn(
+          name = "RST_ROLEID",
+          foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")),
+      inverseJoinColumns = @JoinColumn(
+          name = "RST_TASKID",
+          foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
+  private Set<Role> roles;
 
-  public TaskUI getUi() {
-    return ui;
-  }
+  /**
+   * Territorial availability of this task.
+   */
+  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<TaskAvailability> availabilities = new HashSet<>();
 
-  public void setUi(TaskUI ui) {
-    this.ui = ui;
-  }
+  /**
+   * Task parameters.
+   */
+  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<TaskParameter> parameters = new HashSet<>();
 
   public BigInteger getId() {
     return id;
@@ -96,12 +159,28 @@ public class Task { //implements Identifiable {
     this.id = id;
   }
 
+  //public Task getParent() {
+  //  return parent;
+  //}
+
+  //public void setParent(Task parent) {
+  //  this.parent = parent;
+  //}
+
   public String getName() {
     return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 
   public BigInteger getOrder() {
@@ -112,12 +191,44 @@ public class Task { //implements Identifiable {
     this.order = order;
   }
 
-  public Date getCreatedDate() {
-    return createdDate;
+  public Cartography getCartography() {
+    return cartography;
   }
 
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
+  public void setCartography(Cartography cartography) {
+    this.cartography = cartography;
+  }
+
+  public Cartography getService() {
+    return service;
+  }
+
+  public void setService(Cartography service) {
+    this.service = service;
+  }
+
+  public TaskGroup getGroup() {
+    return group;
+  }
+
+  public void setGroup(TaskGroup group) {
+    this.group = group;
+  }
+
+  public TaskType getType() {
+    return type;
+  }
+
+  public void setType(TaskType type) {
+    this.type = type;
+  }
+
+  public TaskUI getUi() {
+    return ui;
+  }
+
+  public void setUi(TaskUI ui) {
+    this.ui = ui;
   }
 
   public Connection getConnection() {
@@ -140,37 +251,31 @@ public class Task { //implements Identifiable {
     return availabilities;
   }
 
-  public void setAvailabilities(Set<TaskAvailability> availabilities) {
+  public void setAvailabilities(
+      Set<TaskAvailability> availabilities) {
     this.availabilities = availabilities;
   }
 
-  public TaskGroup getGroup() {
-    return group;
+  public Set<TaskParameter> getParameters() {
+    return parameters;
   }
 
-  public void setGroup(TaskGroup group) {
-    this.group = group;
+  public void setParameters(Set<TaskParameter> parameters) {
+    this.parameters = parameters;
   }
 
-  public TaskType getType() {
-    return type;
-  }
-
-  public void setType(TaskType type) {
-    this.type = type;
-  }
-
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
-//    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-//    res.add(links.linkForSingleResource(this).slash("group").withRel("group"));
-//    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-//    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
-//    res.add(links.linkForSingleResource(this).slash("type").withRel("type"));
-//    res.add(links.linkForSingleResource(this).slash("ui").withRel("ui"));
-//    return res;
-//  }
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("availabilities")
+  //      .withRel("availabilities"));
+  //    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
+  //    res.add(links.linkForSingleResource(this).slash("group").withRel("group"));
+  //    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
+  //    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
+  //    res.add(links.linkForSingleResource(this).slash("type").withRel("type"));
+  //    res.add(links.linkForSingleResource(this).slash("ui").withRel("ui"));
+  //    return res;
+  //  }
 
 }
