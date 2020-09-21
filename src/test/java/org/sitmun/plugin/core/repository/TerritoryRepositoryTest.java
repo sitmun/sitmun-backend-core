@@ -35,14 +35,14 @@ public class TerritoryRepositoryTest {
     territory.setName("Admin");
     territory.setScope(null);
     territory.setBlocked(false);
-    territory.setAddress(null);
-    territory.setEmail("email@email.org");
-    territory.setExt(null);
+    territory.setTerritorialAuthorityAddress(null);
+    territory.setTerritorialAuthorityEmail("email@email.org");
+    territory.setExtent(null);
     territory.setCreatedDate(new Date());
-    territory.setLogo(null);
+    territory.setTerritorialAuthorityLogo(null);
     territory.setMembers(null);
-    territory.setOrganizationName("Test");
-    territory.setComments(null);
+    territory.setTerritorialAuthorityName("Test");
+    territory.setNote(null);
     territory.setType(type);
   }
 

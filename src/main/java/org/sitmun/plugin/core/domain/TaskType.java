@@ -9,23 +9,32 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+/**
+ * Task type.
+ */
 @Entity
-@Table(name = "STM_TIPOTAREA")
+@Table(name = "STM_TSK_TYP")
 public class TaskType {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_TIPOTAREA_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "TTA_CODIGO",
-    allocationSize = 1)
+      name = "STM_TIPOTAREA_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "TTA_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOTAREA_GEN")
-  @Column(name = "TTA_CODIGO", precision = 11)
+  @Column(name = "TTY_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "TTA_NOMBRE", length = 30)
+  /**
+   * Task type name.
+   */
+  @Column(name = "TTY_NAME", length = 30)
   private String name;
 
   public BigInteger getId() {

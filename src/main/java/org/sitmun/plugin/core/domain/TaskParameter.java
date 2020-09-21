@@ -13,39 +13,120 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Task parameter.
+ */
 @Entity
-@Table(name = "STM_PARAMTTA")
+@Table(name = "STM_PAR_TSK")
 public class TaskParameter {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_PARAMTTA_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "PTT_CODIGO",
-    allocationSize = 1)
+      name = "STM_PARAMTTA_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "PTT_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")
-  @Column(name = "PTT_CODIGO", precision = 11)
+  @Column(name = "PTT_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "PTT_NOMBRE", length = 50)
+  /**
+   * Parameter name.
+   */
+  @Column(name = "PTT_NAME", length = 50)
   private String name;
 
-  @Column(name = "PTT_VALOR", length = 512)
+  /**
+   * Parameter value.
+   */
+  @Column(name = "PTT_VALUE", length = 512)
   private String value;
 
-  @Column(name = "PTT_TIPO", length = 30)
+  /**
+   * Parameter type.
+   */
+  @Column(name = "PTT_TYPE", length = 30)
   private String type;
 
+  /**
+   * Parameter position.
+   */
+  @Column(name = "PTT_ORDER", precision = 6)
+  private BigInteger order;
+
+  /**
+   * Attribute format (when editing).
+   */
+  @Column(name = "PTT_FORMAT", length = 250)
+  private String format;
+
+  /**
+   * Description of the meaning of this parameter.
+   * Intended to be used in help text and tooltips for final users..
+   */
+  @Column(name = "PTT_HELP", length = 250)
+  private String help;
+
+  /**
+   * Content dependent of the parameter format..
+   */
+  @Column(name = "PTT_SELECT", length = 1500)
+  private String select;
+
+  /**
+   * If <code>true</code>, this parameter can be used for select content.
+   */
+  @Column(name = "PTT_SELECTABL")
+  private Boolean selectable;
+
+  /**
+   * If <code>true</code>, this parameter can be used for select content.
+   */
+  @Column(name = "PTT_EDITABLE")
+  private Boolean editable;
+
+  /**
+   * If <code>true</code>, this parameter can be used for select content.
+   */
+  @Column(name = "PTT_REQUIRED")
+  private Boolean required;
+
+  /**
+   * Default literal value (for some formats).
+   */
+  @Column(name = "PTT_DEFAULT", length = 250)
+  private String defaultValue;
+
+  /**
+   * Maximum length of the value (for some formats).
+   */
+  @Column(name = "PTT_MAXLEN")
+  private Integer maxLength;
+
+  /**
+   * Specifies which fields participate in a join to another table (for some formats).
+   */
+  @Column(name = "PTT_VALUEREL", length = 512)
+  private String relationAttributes;
+
+  /**
+   * Specifies which join fields participate also in the where (for some formats).
+   */
+  @Column(name = "PTT_FILTERREL", length = 512)
+  private String relationAttributesRole;
+
+  /**
+   * Tasks that applies this parameter.
+   */
   @ManyToOne
   @NotNull
-  // @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinColumn(name = "PTT_CODTAR", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAR"))
+  @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAR"))
   private Task task;
-
-  @Column(name = "PTT_ORDEN", precision = 6)
-  private BigInteger order;
 
   public BigInteger getId() {
     return id;
@@ -79,14 +160,6 @@ public class TaskParameter {
     this.type = type;
   }
 
-  public Task getTask() {
-    return task;
-  }
-
-  public void setTask(Task task) {
-    this.task = task;
-  }
-
   public BigInteger getOrder() {
     return order;
   }
@@ -95,4 +168,91 @@ public class TaskParameter {
     this.order = order;
   }
 
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  public String getHelp() {
+    return help;
+  }
+
+  public void setHelp(String help) {
+    this.help = help;
+  }
+
+  public String getSelect() {
+    return select;
+  }
+
+  public void setSelect(String select) {
+    this.select = select;
+  }
+
+  public Boolean getSelectable() {
+    return selectable;
+  }
+
+  public void setSelectable(Boolean selectable) {
+    this.selectable = selectable;
+  }
+
+  public Boolean getEditable() {
+    return editable;
+  }
+
+  public void setEditable(Boolean editable) {
+    this.editable = editable;
+  }
+
+  public Boolean getRequired() {
+    return required;
+  }
+
+  public void setRequired(Boolean required) {
+    this.required = required;
+  }
+
+  public String getDefaultValue() {
+    return defaultValue;
+  }
+
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
+  public Integer getMaxLength() {
+    return maxLength;
+  }
+
+  public void setMaxLength(Integer maxLength) {
+    this.maxLength = maxLength;
+  }
+
+  public String getRelationAttributes() {
+    return relationAttributes;
+  }
+
+  public void setRelationAttributes(String relationAttributes) {
+    this.relationAttributes = relationAttributes;
+  }
+
+  public String getRelationAttributesRole() {
+    return relationAttributesRole;
+  }
+
+  public void setRelationAttributesRole(String relationAttributesRole) {
+    this.relationAttributesRole = relationAttributesRole;
+  }
+
+  public Task getTask() {
+    return task;
+  }
+
+  public void setTask(Task task) {
+    this.task = task;
+  }
 }

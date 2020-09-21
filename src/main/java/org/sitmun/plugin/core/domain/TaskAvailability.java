@@ -17,35 +17,49 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Availability of Tasks in a Territory.
+ */
 @Entity
-@Table(name = "STM_DISPTAREA", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"DTA_CODTER", "DTA_CODTAR"})})
+@Table(name = "STM_AVAIL_TSK", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"ATS_TERID", "ATS_TASKID"})})
 public class TaskAvailability {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_DISPTAREA_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "DTA_CODIGO",
-    allocationSize = 1)
+      name = "STM_DISPTAREA_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "DTA_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPTAREA_GEN")
-  @Column(name = "DTA_CODIGO", precision = 11)
+  @Column(name = "ATS_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "DTA_F_ALTA")
+  /**
+   * Created date.
+   */
+  @Column(name = "ATS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
+  /**
+   * Territory allowed to access to the task.
+   */
   @ManyToOne
-  @JoinColumn(name = "DTA_CODTER", foreignKey = @ForeignKey(name = "STM_DTA_FK_TER"))
-  // @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ATS_TERID", foreignKey = @ForeignKey(name = "STM_DTA_FK_TER"))
   @NotNull
   private Territory territory;
+
+  /**
+   * Task allowed to the territory.
+   */
   @ManyToOne
-  @JoinColumn(name = "DTA_CODTAR", foreignKey = @ForeignKey(name = "STM_DTA_FK_TAR"))
-  // @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ATS_TASKID", foreignKey = @ForeignKey(name = "STM_DTA_FK_TAR"))
   @NotNull
   private Task task;
 

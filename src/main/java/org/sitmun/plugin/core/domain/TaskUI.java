@@ -9,34 +9,45 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+/**
+ * Task UI.
+ */
 @Entity
-@Table(name = "STM_TAREA_UI")
+@Table(name = "STM_TSK_UI")
 public class TaskUI {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_TAREA_UI_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "TUI_CODIGO",
-    allocationSize = 1)
+      name = "STM_TAREA_UI_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "TUI_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_UI_GEN")
-  @Column(name = "TUI_CODIGO", precision = 11)
+  @Column(name = "TUI_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "TUI_NOMBRE", length = 30)
+  /**
+   * Task name.
+   */
+  @Column(name = "TUI_NAME", length = 30)
   private String name;
 
+  /**
+   * Tooltip.
+   */
   @Column(name = "TUI_TOOLTIP", length = 100)
   private String tooltip;
 
-  @Column(name = "TUI_ORDEN", precision = 6)
+  /**
+   * Task order.
+   */
+  @Column(name = "TUI_ORDER", precision = 6)
   private BigInteger order;
-
-  @Column(name = "TUI_TIPO", length = 30)
-  private String type;
-
 
   public String getTooltip() {
     return tooltip;
@@ -53,15 +64,6 @@ public class TaskUI {
   public void setOrder(BigInteger order) {
     this.order = order;
   }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
 
   public BigInteger getId() {
     return id;

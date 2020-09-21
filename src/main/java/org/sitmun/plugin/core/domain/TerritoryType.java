@@ -11,25 +11,34 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Type of territorial entities.
+ */
 @Entity
-@Table(name = "STM_TIPOGRP", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_TGR_NOM_UK", columnNames = {"TGR_NOMBRE"})})
+@Table(name = "STM_TER_TYP", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_TET_NOM_UK", columnNames = {"TET_NAME"})})
 public class TerritoryType {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_TIPOGRP_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "TGR_CODIGO",
-    allocationSize = 1)
+      name = "STM_TIPOGRP_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "TGR_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOGRP_GEN")
-  @Column(name = "TGR_CODIGO", precision = 11)
+  @Column(name = "TET_ID", precision = 11)
   private BigInteger id;
 
+  /**
+   * Name.
+   */
   @NotNull
-  @Column(name = "TGR_NOMBRE", nullable = false, length = 250)
+  @Column(name = "TET_NAME", nullable = false, length = 250)
   private String name;
 
   public BigInteger getId() {

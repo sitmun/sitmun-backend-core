@@ -9,35 +9,38 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+/**
+ * Task group.
+ */
 @Entity
-@Table(name = "GTA_CODIGO")
+@Table(name = "STM_GRP_TASK")
 public class TaskGroup {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "GTA_CODIGO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "GTA_CODIGO",
-    allocationSize = 1)
+      name = "GTA_CODIGO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "GTA_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "GTA_CODIGO_GEN")
-  @Column(name = "GTA_CODIGO", precision = 11)
+  @Column(name = "GTS_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "GTA_NOMBRE", length = 80)
+  /**
+   * Task group name.
+   */
+  @Column(name = "GTS_NAME", length = 80)
   private String name;
 
-  /**
-   * @return the id
-   */
   public BigInteger getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
   public void setId(BigInteger id) {
     this.id = id;
   }

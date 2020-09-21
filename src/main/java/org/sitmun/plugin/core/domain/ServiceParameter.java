@@ -22,6 +22,9 @@ import org.hibernate.annotations.OnDeleteAction;
 @Table(name = "STM_PAR_SER")
 public class ServiceParameter {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
       name = "STM_PARAMSER_GEN",
       table = "STM_CODIGOS",

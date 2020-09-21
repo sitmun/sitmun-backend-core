@@ -22,66 +22,138 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Territorial entity.
+ */
 @Entity
-@Table(name = "STM_ETERRIT", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NOMBRE"})})
+@Table(name = "STM_TERRITORY", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
 public class Territory {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_ETERRIT_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "TER_CODIGO",
-    allocationSize = 1)
+      name = "STM_ETERRIT_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "TER_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")
-  @Column(name = "TER_CODIGO", precision = 11)
+  @Column(name = "TER_ID", precision = 11)
   private BigInteger id;
 
+  /**
+   * Geographic code.
+   */
+  @Column(name = "TER_CODMUN", length = 250)
+  private String code;
+
+  /**
+   * Territory name.
+   */
   @NotNull
-  @Column(name = "TER_NOMBRE", nullable = false, length = 250)
+  @Column(name = "TER_NAME", nullable = false, length = 250)
   private String name;
 
-  @Column(name = "TER_CORREO", length = 250)
-  private String email;
+  /**
+   * Territorial authority name.
+   */
+  @Column(name = "TER_ADMNAME", length = 250)
+  private String territorialAuthorityName;
 
-  @Column(name = "TER_DIRECC", length = 250)
-  private String address;
+  /**
+   * Territorial authority address.
+   */
+  @Column(name = "TER_ADDRESS", length = 250)
+  private String territorialAuthorityAddress;
 
-  @Column(name = "TER_NADMIN", length = 250)
-  private String organizationName;
+  /**
+   * Territorial authority email.
+   */
+  @Column(name = "TER_EMAIL", length = 250)
+  private String territorialAuthorityEmail;
 
-  @Column(name = "TER_AMBITO", length = 250)
+  /**
+   * Territory scope.
+   */
+  @Column(name = "TER_SCOPE", length = 250)
   private String scope;
 
+  /**
+   * Link to the territorial authority logo.
+   */
   @Column(name = "TER_LOGO", length = 250)
-  private String logo;
+  private String territorialAuthorityLogo;
 
-  @Column(name = "TER_EXT", length = 250)
-  private String ext;
+  /**
+   * Bounding box of the territory.
+   */
+  @Column(name = "TER_EXTENT", length = 250)
+  private String extent;
 
-  @Column(name = "TER_BLOQ")
+  /**
+   * <code>true</code> if the territory is blocked.
+   */
+  @Column(name = "TER_BLOCKED")
   private Boolean blocked;
 
-  @Column(name = "TER_OBSERV", length = 250)
-  private String comments;
+  /**
+   * Territory typology.
+   */
+  @ManyToOne
+  @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
+  private TerritoryType type;
 
-  @Column(name = "TER_F_ALTA")
+  /**
+   * Notes.
+   */
+  @Column(name = "TER_NOTE", length = 250)
+  private String note;
+
+  /**
+   * Creation date.
+   */
+  @Column(name = "TER_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
+  /**
+   * Territory typology.
+   */
+  @ManyToOne
+  @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
+  private TerritoryGroupType groupType;
+
+  /**
+   * Territories that are part of this territory.
+   */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  @JoinTable(name = "STM_GRPTER", joinColumns = @JoinColumn(name = "GRT_CODTER", foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")), inverseJoinColumns = @JoinColumn(name = "GRT_CODTERM", foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
+  @JoinTable(
+      name = "STM_GRP_TER",
+      joinColumns = @JoinColumn(
+          name = "GTE_TERID",
+          foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")),
+      inverseJoinColumns = @JoinColumn(
+          name = "GTE_TERMID",
+          foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
   private Set<Territory> members = new HashSet<>();
 
+  /**
+   * Territories of which this territory is part of.
+   */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  @JoinTable(name = "STM_GRPTER", joinColumns = @JoinColumn(name = "GRT_CODTERM", foreignKey = @ForeignKey(name = "STM_GRT_FK_TERM")), inverseJoinColumns = @JoinColumn(name = "GRT_CODTER", foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
+  @JoinTable(
+      name = "STM_GRP_TER",
+      joinColumns = @JoinColumn(
+          name = "GTE_TERMID",
+          foreignKey = @ForeignKey(name = "STM_GRT_FK_TERM")),
+      inverseJoinColumns = @JoinColumn(
+          name = "GTE_TERID",
+          foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
   private Set<Territory> memberOf = new HashSet<>();
-
-  @ManyToOne
-  @JoinColumn(name = "TER_CODTGR", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
-  private TerritoryType type;
 
   public BigInteger getId() {
     return id;
@@ -89,6 +161,14 @@ public class Territory {
 
   public void setId(BigInteger id) {
     this.id = id;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
   }
 
   public String getName() {
@@ -99,28 +179,28 @@ public class Territory {
     this.name = name;
   }
 
-  public String getEmail() {
-    return email;
+  public String getTerritorialAuthorityName() {
+    return territorialAuthorityName;
   }
 
-  public void setEmail(String email) {
-    this.email = email;
+  public void setTerritorialAuthorityName(String territorialAuthorityName) {
+    this.territorialAuthorityName = territorialAuthorityName;
   }
 
-  public String getAddress() {
-    return address;
+  public String getTerritorialAuthorityAddress() {
+    return territorialAuthorityAddress;
   }
 
-  public void setAddress(String address) {
-    this.address = address;
+  public void setTerritorialAuthorityAddress(String territorialAuthorityAddress) {
+    this.territorialAuthorityAddress = territorialAuthorityAddress;
   }
 
-  public String getOrganizationName() {
-    return organizationName;
+  public String getTerritorialAuthorityEmail() {
+    return territorialAuthorityEmail;
   }
 
-  public void setOrganizationName(String organizationName) {
-    this.organizationName = organizationName;
+  public void setTerritorialAuthorityEmail(String territorialAuthorityEmail) {
+    this.territorialAuthorityEmail = territorialAuthorityEmail;
   }
 
   public String getScope() {
@@ -131,20 +211,20 @@ public class Territory {
     this.scope = scope;
   }
 
-  public String getLogo() {
-    return logo;
+  public String getTerritorialAuthorityLogo() {
+    return territorialAuthorityLogo;
   }
 
-  public void setLogo(String logo) {
-    this.logo = logo;
+  public void setTerritorialAuthorityLogo(String territorialAuthorityLogo) {
+    this.territorialAuthorityLogo = territorialAuthorityLogo;
   }
 
-  public String getExt() {
-    return ext;
+  public String getExtent() {
+    return extent;
   }
 
-  public void setExt(String ext) {
-    this.ext = ext;
+  public void setExtent(String extent) {
+    this.extent = extent;
   }
 
   public Boolean getBlocked() {
@@ -155,12 +235,20 @@ public class Territory {
     this.blocked = blocked;
   }
 
-  public String getComments() {
-    return comments;
+  public TerritoryType getType() {
+    return type;
   }
 
-  public void setComments(String comments) {
-    this.comments = comments;
+  public void setType(TerritoryType type) {
+    this.type = type;
+  }
+
+  public String getNote() {
+    return note;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
   }
 
   public Date getCreatedDate() {
@@ -169,6 +257,14 @@ public class Territory {
 
   public void setCreatedDate(Date createdDate) {
     this.createdDate = createdDate;
+  }
+
+  public TerritoryGroupType getGroupType() {
+    return groupType;
+  }
+
+  public void setGroupType(TerritoryGroupType groupType) {
+    this.groupType = groupType;
   }
 
   public Set<Territory> getMembers() {
@@ -185,14 +281,6 @@ public class Territory {
 
   public void setMemberOf(Set<Territory> memberOf) {
     this.memberOf = memberOf;
-  }
-
-  public TerritoryType getType() {
-    return type;
-  }
-
-  public void setType(TerritoryType type) {
-    this.type = type;
   }
 
   @Override
