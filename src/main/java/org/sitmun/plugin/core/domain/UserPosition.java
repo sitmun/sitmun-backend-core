@@ -14,48 +14,83 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+/**
+ * User position in a territory.
+ */
 @Entity
-@Table(name = "STM_CARGO")
+@Table(name = "STM_POST", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
 public class UserPosition {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_CARGO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "CGO_CODIGO",
-    allocationSize = 1)
+      name = "STM_CARGO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "CGO_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARGO_GEN")
-  @Column(name = "CGO_CODIGO", precision = 11)
+  @Column(name = "POS_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "CGO_CARGO", length = 250)
+  /**
+   * Position description.
+   */
+  @Column(name = "POS_POST", length = 250)
   private String name;
 
-  @Column(name = "CGO_ORG", length = 250)
+  /**
+   * Organization.
+   */
+  @Column(name = "POS_ORG", length = 250)
   private String organization;
 
-  @Column(name = "CGO_CORREO", length = 250)
+  /**
+   * Email.
+   */
+  @Column(name = "POS_EMAIL", length = 250)
   private String email;
 
-  @Column(name = "CGO_F_ALTA")
+  /**
+   * Creation date.
+   */
+  @Column(name = "POS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
-  @Column(name = "CGO_F_CADUC")
+  /**
+   * Expiration date.
+   */
+  @Column(name = "POS_EXPIRATION")
   @Temporal(TemporalType.TIMESTAMP)
-  private Date datedDate;
+  private Date expirationDate;
 
+  /**
+   * Type of user (only used in some cases).
+   */
+  @Column(name = "POS_TYPE", length = 2)
+  private String type;
+
+  /**
+   * User.
+   */
   @ManyToOne
-  @JoinColumn(name = "CGO_CODUSU", foreignKey = @ForeignKey(name = "STM_CGO_FK_USU"))
+  @JoinColumn(name = "POS_USERID", foreignKey = @ForeignKey(name = "STM_CGO_FK_USU"))
   @NotNull
   private User user;
 
+  /**
+   * Territory.
+   */
   @ManyToOne
-  @JoinColumn(name = "CGO_CODTER", foreignKey = @ForeignKey(name = "STM_CGO_FK_TER"))
+  @JoinColumn(name = "POS_TERID", foreignKey = @ForeignKey(name = "STM_CGO_FK_TER"))
   @NotNull
   private Territory territory;
 
@@ -99,12 +134,20 @@ public class UserPosition {
     this.createdDate = createdDate;
   }
 
-  public Date getDatedDate() {
-    return datedDate;
+  public Date getExpirationDate() {
+    return expirationDate;
   }
 
-  public void setDatedDate(Date datedDate) {
-    this.datedDate = datedDate;
+  public void setExpirationDate(Date datedDate) {
+    this.expirationDate = datedDate;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
   public User getUser() {

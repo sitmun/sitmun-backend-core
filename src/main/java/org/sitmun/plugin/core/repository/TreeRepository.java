@@ -29,7 +29,7 @@ public interface TreeRepository extends CrudRepository<Tree, BigInteger> {
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
   Iterable<Tree> findAll();
 
-  @Query("select tree from Tree tree left join fetch tree.nodes where tree.id =:id")
+  @Query("select tree from Tree tree left join fetch tree.allNodes where tree.id =:id")
   Tree findOneWithEagerRelationships(long id);
 
 }

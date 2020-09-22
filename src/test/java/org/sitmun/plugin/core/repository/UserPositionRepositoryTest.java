@@ -62,7 +62,7 @@ public class UserPositionRepositoryTest {
     userPosition.setName("Test");
     userPosition.setEmail(null);
     userPosition.setCreatedDate(new Date());
-    userPosition.setDatedDate(null);
+    userPosition.setExpirationDate(null);
     userPosition.setOrganization("Test");
     userPosition.setTerritory(territory);
     userPosition.setUser(user);

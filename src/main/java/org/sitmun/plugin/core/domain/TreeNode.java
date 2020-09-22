@@ -13,44 +13,119 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+/**
+ * Tree node.
+ */
 @Entity
-@Table(name = "STM_ARBOLNOD")
+@Table(name = "STM_TREE_NOD")
 public class TreeNode {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_ARBOLNOD_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "ANR_CODIGO",
-    allocationSize = 1)
+      name = "STM_ARBOLNOD_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "ANR_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOLNOD_GEN")
-  @Column(name = "ANR_CODIGO", precision = 11)
+  @Column(name = "TNO_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "ARN_NOMBRE", length = 80)
-  private String name;
-
-  @Column(name = "ARN_TOOLTIP", length = 100)
-  private String tooltip;
-
-  @Column(name = "ARN_ORDEN", precision = 6)
-  private BigInteger orden;
-
-  @Column(name = "ARN_ACTIVO")
-  private Boolean active;
-
-  @JoinColumn(name = "ARN_CODPADRE", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARN"))
+  /**
+   * Parent node.
+   */
+  @JoinColumn(name = "TNO_PARENTID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARN"))
   @ManyToOne
   @JsonIgnore
   private TreeNode parent;
 
-  @JoinColumn(name = "ARN_CODARB", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
+  /**
+   * Name.
+   */
+  @Column(name = "TNO_NAME", length = 80)
+  private String name;
+
+  /**
+   * Description.
+   */
+  @Column(name = "TNO_ABSTRACT", length = 250)
+  private String description;
+
+  /**
+   * Tooltip text.
+   */
+  @Column(name = "TNO_TOOLTIP", length = 100)
+  private String tooltip;
+
+  /**
+   * Enabled by default.
+   */
+  @Column(name = "TNO_ACTIVE")
+  private Boolean active;
+
+  /**
+   * Radio button type (only if the node is a folder).
+   */
+  @Column(name = "TNO_RADIO")
+  private Boolean radio;
+
+  /**
+   * Order of the node within the tree.
+   */
+  @Column(name = "TNO_ORDER", precision = 6)
+  private BigInteger orden;
+
+  /**
+   * URL to metadata.
+   */
+  @Column(name = "TNO_METAURL", length = 250)
+  private String metadataURL;
+
+  /**
+   * URL to downloadable (zip) dataset.
+   */
+  @Column(name = "TNO_DATAURL", length = 4000)
+  private String datasetURL;
+
+  /**
+   * Enable GetMap Filter (if available).
+   */
+  @Column(name = "TNO_FILTER_GM")
+  private Boolean filterGetMap;
+
+  /**
+   * Enable GetFeatureInfo Filter (if available).
+   */
+  @Column(name = "TNO_FILTER_GFI")
+  private Boolean filterGetFeatureInfo;
+
+  /**
+   * Enable GetFeatureInfo (if available).
+   */
+  @Column(name = "TNO_QUERYACT")
+  private Boolean queryableActive;
+
+  /**
+   * Enable Selectable Filter (if available).
+   */
+  @Column(name = "TNO_FILTER_SE")
+  private Boolean filterSelectable;
+
+  /**
+   * Tree.
+   */
+  @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
   @ManyToOne
   private Tree tree;
 
-  @JoinColumn(name = "ARN_CODCAR", foreignKey = @ForeignKey(name = "STM_ARN_FK_CAR"))
+  /**
+   * Cartography associated to this node.
+   */
+  @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_ARN_FK_CAR"))
   @ManyToOne
   private Cartography cartography;
 
@@ -62,12 +137,28 @@ public class TreeNode {
     this.id = id;
   }
 
+  public TreeNode getParent() {
+    return parent;
+  }
+
+  public void setParent(TreeNode parent) {
+    this.parent = parent;
+  }
+
   public String getName() {
     return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public String getTooltip() {
@@ -78,14 +169,6 @@ public class TreeNode {
     this.tooltip = tooltip;
   }
 
-  public BigInteger getOrden() {
-    return orden;
-  }
-
-  public void setOrden(BigInteger orden) {
-    this.orden = orden;
-  }
-
   public Boolean getActive() {
     return active;
   }
@@ -94,12 +177,68 @@ public class TreeNode {
     this.active = active;
   }
 
-  public TreeNode getParent() {
-    return parent;
+  public Boolean getRadio() {
+    return radio;
   }
 
-  public void setParent(TreeNode parent) {
-    this.parent = parent;
+  public void setRadio(Boolean radio) {
+    this.radio = radio;
+  }
+
+  public BigInteger getOrden() {
+    return orden;
+  }
+
+  public void setOrden(BigInteger orden) {
+    this.orden = orden;
+  }
+
+  public String getMetadataURL() {
+    return metadataURL;
+  }
+
+  public void setMetadataURL(String metadataURL) {
+    this.metadataURL = metadataURL;
+  }
+
+  public String getDatasetURL() {
+    return datasetURL;
+  }
+
+  public void setDatasetURL(String datasetURL) {
+    this.datasetURL = datasetURL;
+  }
+
+  public Boolean getFilterGetMap() {
+    return filterGetMap;
+  }
+
+  public void setFilterGetMap(Boolean filterGetMap) {
+    this.filterGetMap = filterGetMap;
+  }
+
+  public Boolean getFilterGetFeatureInfo() {
+    return filterGetFeatureInfo;
+  }
+
+  public void setFilterGetFeatureInfo(Boolean filterGetFeatureInfo) {
+    this.filterGetFeatureInfo = filterGetFeatureInfo;
+  }
+
+  public Boolean getQueryableActive() {
+    return queryableActive;
+  }
+
+  public void setQueryableActive(Boolean queryableActive) {
+    this.queryableActive = queryableActive;
+  }
+
+  public Boolean getFilterSelectable() {
+    return filterSelectable;
+  }
+
+  public void setFilterSelectable(Boolean filterSelectable) {
+    this.filterSelectable = filterSelectable;
   }
 
   public Tree getTree() {
@@ -117,5 +256,4 @@ public class TreeNode {
   public void setCartography(Cartography cartography) {
     this.cartography = cartography;
   }
-
 }

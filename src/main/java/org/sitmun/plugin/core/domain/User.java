@@ -16,58 +16,97 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 // import org.springframework.hateoas.Identifiable;
 
+/**
+ * User.
+ */
 @Entity
-@Table(name = "STM_USUARIO", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USU_USUARIO"})})
+@Table(name = "STM_USER", uniqueConstraints = {
+    @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
 public class User { //implements Identifiable<BigInteger> {
 
   @TableGenerator(
-    name = "STM_USUARIO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "USU_CODIGO",
-    allocationSize = 1)
+      name = "STM_USUARIO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "USU_CODIGO",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUARIO_GEN")
-  @Column(name = "USU_CODIGO", precision = 11)
+  @Column(name = "USE_ID", precision = 11)
   private BigInteger id;
 
+  /**
+   * User login.
+   */
   @NotNull
-  @Column(name = "USU_USUARIO", nullable = false, length = 30)
+  @Column(name = "USE_USER", nullable = false, length = 30)
   private String username;
 
-  @Column(name = "USU_PASSWORD", length = 128)
+  /**
+   * User password hash.
+   */
+  @Column(name = "USE_PWD", length = 128)
   private String password;
 
-  @Column(name = "USU_NOMBRE", length = 30)
+  /**
+   * User first name.
+   */
+  @Column(name = "USE_NAME", length = 30)
   private String firstName;
 
-  @Column(name = "USU_APELLIDOS", length = 40)
+  /**
+   * User last name.
+   */
+  @Column(name = "USE_SURNAME", length = 40)
   private String lastName;
 
+  /**
+   * User identification number.
+   */
+  @Column(name = "USE_IDENT", length = 20)
+  private String identificationNumber;
+
+  /**
+   * User identification type.
+   */
+  @Column(name = "USE_IDENTTYPE", length = 3)
+  private String identificationType;
+
+  /**
+   * If <code>true</code>, the user is a system administrator.
+   */
   @Column(name = "USU_ADM")
   private Boolean administrator;
 
-  @Column(name = "USU_BLOQ")
+  /**
+   * If <code>true</code>, the user is blocked and cannot log to the system.
+   */
+  @Column(name = "USE_BLOCKED")
   private Boolean blocked;
 
+  /**
+   * If <code>true</code>, the user act on behalf of any citizen.
+   */
+  @Column(name = "USE_GENERIC")
+  private Boolean generic;
+
+  /**
+   * User positions.
+   */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<UserPosition> positions = new HashSet<>();
 
+  /**
+   * User permissions.
+   */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<UserConfiguration> permissions = new HashSet<>();
 
-  /**
-   * @return the id
-   */
   public BigInteger getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
   public void setId(BigInteger id) {
     this.id = id;
   }
@@ -104,6 +143,22 @@ public class User { //implements Identifiable<BigInteger> {
     this.lastName = lastName;
   }
 
+  public String getIdentificationNumber() {
+    return identificationNumber;
+  }
+
+  public void setIdentificationNumber(String identificationNumber) {
+    this.identificationNumber = identificationNumber;
+  }
+
+  public String getIdentificationType() {
+    return identificationType;
+  }
+
+  public void setIdentificationType(String identificationType) {
+    this.identificationType = identificationType;
+  }
+
   public Boolean getAdministrator() {
     return administrator;
   }
@@ -118,6 +173,14 @@ public class User { //implements Identifiable<BigInteger> {
 
   public void setBlocked(Boolean blocked) {
     this.blocked = blocked;
+  }
+
+  public Boolean getGeneric() {
+    return generic;
+  }
+
+  public void setGeneric(Boolean generic) {
+    this.generic = generic;
   }
 
   public Set<UserPosition> getPositions() {
@@ -135,5 +198,4 @@ public class User { //implements Identifiable<BigInteger> {
   public void setPermissions(Set<UserConfiguration> permissions) {
     this.permissions = permissions;
   }
-
 }
