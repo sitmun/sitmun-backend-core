@@ -36,7 +36,7 @@ public class Background { //implements Identifiable {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "FON_CODIGO",
+      pkColumnValue = "BAC_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_FONDO_GEN")

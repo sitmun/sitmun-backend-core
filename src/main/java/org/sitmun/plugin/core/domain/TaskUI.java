@@ -24,7 +24,7 @@ public class TaskUI {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TUI_CODIGO",
+      pkColumnValue = "TUI_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_UI_GEN")

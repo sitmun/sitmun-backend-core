@@ -27,7 +27,7 @@ public class Role {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "ROL_CODIGO",
+      pkColumnValue = "ROL_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")

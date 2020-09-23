@@ -33,7 +33,7 @@ public class TaskAvailability {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "DTA_CODIGO",
+      pkColumnValue = "ATS_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPTAREA_GEN")

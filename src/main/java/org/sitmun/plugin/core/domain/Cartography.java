@@ -24,107 +24,210 @@ import javax.persistence.TemporalType;
 //import org.springframework.hateoas.Resource;
 //import org.springframework.hateoas.ResourceSupport;
 
+/**
+ * Geographic information.
+ */
 @Entity
-@Table(name = "STM_CARTO")
+@Table(name = "STM_GEOINFO")
 public class Cartography { //implements Identifiable {
 
+  /**
+   * Unique identifier.
+   */
   @TableGenerator(
-    name = "STM_CARTO_GEN",
-    table = "STM_CODIGOS",
-    pkColumnName = "GEN_CODIGO",
-    valueColumnName = "GEN_VALOR",
-    pkColumnValue = "CAR_CODIGO",
-    allocationSize = 1)
+      name = "STM_CARTO_GEN",
+      table = "STM_CODIGOS",
+      pkColumnName = "GEN_CODIGO",
+      valueColumnName = "GEN_VALOR",
+      pkColumnValue = "GEO_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARTO_GEN")
-  @Column(name = "CAR_CODIGO", precision = 11)
+  @Column(name = "GEO_ID", precision = 11)
   private BigInteger id;
 
-  @Column(name = "CAR_NOMBRE", length = 100)
+  /**
+   * Cartography name.
+   */
+  @Column(name = "GEO_NAME", length = 100)
   private String name;
 
-  @Column(name = "CAR_TIPO", length = 30)
-  private String type;
+  /**
+   * Cartography description.
+   */
+  @Column(name = "GEO_ABSTRACT", length = 250)
+  private String description;
 
-  @Column(name = "CAR_VISIBLE")
-  private Boolean visible;
+  /**
+   * List of layer identifiers, separated by comas in case of multiple layers.
+   */
+  @Column(name = "GEO_LAYERS", length = 800)
+  private String layers;
 
-  @Column(name = "CAR_TRANSP", precision = 11)
+  /**
+   * Minimum scale visibility.
+   */
+  @Column(name = "GEO_MINSCALE", precision = 11)
+  private BigInteger minimumScale;
+
+  /**
+   * Maximum visibility.
+   */
+  @Column(name = "GEO_MAXSCALE", precision = 11)
+  private BigInteger maximumScale;
+
+  /**
+   * Cartography order appearance.
+   */
+  @Column(name = "GEO_ORDER", precision = 11)
+  private BigInteger order;
+
+  /**
+   * 0 opaque, 100 translucid.
+   */
+  @Column(name = "GEO_TRANSP", precision = 11)
   private BigInteger transparency;
 
-  @Column(name = "CAR_QUERYABL")
-  private Boolean queryable;
+  /**
+   * If <code>true</code>, a filter is applied to GetMap requests.
+   */
+  @Column(name = "GEO_FILTER_GM")
+  private Boolean applyFilterToGetMap;
 
-  @Column(name = "CAR_QUERYACT")
-  private Boolean queryAct;
+  /**
+   * If <code>true</code>, the layers are queryable.
+   */
+  @Column(name = "GEO_QUERYABL")
+  private Boolean queryableFeatureAvailable;
 
-  @Column(name = "CAR_QUERYLAY", length = 500)
-  private String queryLay;
+  /**
+   * If <code>true</code>, the queryable feature is enabled.
+   * This only applies if the layers are queryable
+   */
+  @Column(name = "GEO_QUERYACT")
+  private Boolean queryableFeatureEnabled;
 
-  @Column(name = "CAR_F_ALTA")
+  /**
+   * List of queryable layers.
+   */
+  @Column(name = "GEO_QUERYLAY", length = 500)
+  private String queryableLayers;
+
+  /**
+   * If <code>true</code>, a filter is applied to GetFeatureInfo requests.
+   */
+  @Column(name = "GEO_FILTER_GFI")
+  private Boolean applyFilterToGetFeatureInfo;
+
+  /**
+   * Type.
+   */
+  @Column(name = "GEO_TYPE", length = 30)
+  private String type;
+
+  /**
+   * Portrayal service.
+   */
+  @ManyToOne
+  @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
+  private Service service;
+
+  /**
+   * If <code>true</code>, the contents of some layers are can be selected.
+   */
+  @Column(name = "GEO_SELECTABL")
+  private Boolean selectableFeatureEnabled;
+
+  /**
+   * Layer available for spatial selection.
+   */
+  @Column(name = "GEO_SELECTLAY", length = 500)
+  private String selectableLayers;
+
+  /**
+   * If <code>true</code>, ta filter is applied to spatial selection requests.
+   */
+  @Column(name = "GEO_FILTER_SE")
+  private Boolean applyFilterToSpatialSelection;
+
+  /**
+   * Selection service.
+   */
+  @ManyToOne
+  @JoinColumn(name = "CAR_CODSERSEL", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
+  private Service spatialSelectionService;
+
+  /**
+   * Legend type.
+   */
+  @Column(name = "GEO_LEGENDTIP", length = 500)
+  private String legendType;
+
+  /**
+   * Legend URL.
+   */
+  @Column(name = "GEO_LEGENDURL", length = 250)
+  private String legendURL;
+
+  /**
+   * Creation date.
+   */
+  @Column(name = "GEO_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
 
-  @Column(name = "CAR_ORDEN", precision = 11)
-  private BigInteger order;
-
-  @Column(name = "CAR_ESC_MIN", precision = 11)
-  private BigInteger minimumScale;
-
-  @Column(name = "CAR_ESC_MAX", precision = 11)
-  private BigInteger maximumScale;
-
-  // Nombre de las capa
-  @Column(name = "CAR_CAPAS", length = 500)
-  private String layers;
-
+  /**
+   * Connection for spatial selection listbox queries.
+   */
   @ManyToOne
-  @JoinColumn(name = "CAR_CODSER", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
-  private Service service;
+  @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_CAR_FK_CON"))
+  private Connection spatialSelectionConnection;
 
-  @ManyToOne
-  @JoinColumn(name = "CAR_CODCON", foreignKey = @ForeignKey(name = "STM_CAR_FK_CON"))
-  private Connection connection;
+  /**
+   * Direct link to a metadata document.
+   */
+  @Column(name = "GEO_METAURL", length = 250)
+  private String metadataURL;
 
+  /**
+   * Direct link to a dataset file.
+   */
+  @Column(name = "GEO_DATAURL", length = 4000)
+  private String datasetURL;
+
+  /**
+   * If <code>true</code>, a thematic map can be created from this layer.
+   */
+  @Column(name = "GEO_THEMATIC")
+  private Boolean thematic;
+
+  /**
+   * Geometry type.
+   */
+  @Column(name = "GEO_GEOMTYPE", length = 50)
+  private String geometryType;
+
+  /**
+   * Grouping source.
+   */
+  @Column(name = "GEO_SOURCE", length = 80)
+  private String source;
+
+  /**
+   * Availailability.
+   */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
-  // CAR_SELECTABL
-  @Column(name = "CAR_SELECTABL")
-  private Boolean selectable;
+  /**
+   * Styles.
+   */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<CartographyStyle> styles = new HashSet<>();
 
-  // CAR_SELECTLAY
-  @Column(name = "CAR_SELECTLAY", length = 500)
-  private String selectionLayer;
-
-  // CAR_CODSERSEL
   @ManyToOne
-  @JoinColumn(name = "CAR_CODSERSEL", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
-  private Service selectionService;
-
-  // CAR_LEYENDTIP
-  @Column(name = "CAR_LEYENDTIP", length = 50)
-  private String legendTip;
-
-  // CAR_LEYENDURL
-  @Column(name = "CAR_LEYENDURL", length = 250)
-  private String legendUrl;
-
-  // CAR_EDITABLE
-  @Column(name = "CAR_EDITABLE")
-  private Boolean editable;
-
-  // CAR_METAURL
-  @Column(name = "CAR_METAURL")
-  private String metadataUrl;
-
-  // CAR_TEMATIZABLE
-  @Column(name = "CAR_TEMATIZABLE")
-  private Boolean themeable;
-
-  // CAR_TIPOGEOM "POLYGON",...
-  @Column(name = "CAR_TIPOGEOM")
-  private String geometryType;
+  @JoinColumn(name = "GEO_STYID")
+  private CartographyStyle defaultStyle;
 
   public BigInteger getId() {
     return id;
@@ -142,68 +245,20 @@ public class Cartography { //implements Identifiable {
     this.name = name;
   }
 
-  public String getType() {
-    return type;
+  public String getDescription() {
+    return description;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setDescription(String description) {
+    this.description = description;
   }
 
-  public Boolean getVisible() {
-    return visible;
+  public String getLayers() {
+    return layers;
   }
 
-  public void setVisible(Boolean visible) {
-    this.visible = visible;
-  }
-
-  public BigInteger getTransparency() {
-    return transparency;
-  }
-
-  public void setTransparency(BigInteger transparency) {
-    this.transparency = transparency;
-  }
-
-  public Boolean getQueryable() {
-    return queryable;
-  }
-
-  public void setQueryable(Boolean queryable) {
-    this.queryable = queryable;
-  }
-
-  public Boolean getQueryAct() {
-    return queryAct;
-  }
-
-  public void setQueryAct(Boolean queryAct) {
-    this.queryAct = queryAct;
-  }
-
-  public String getQueryLay() {
-    return queryLay;
-  }
-
-  public void setQueryLay(String queryLay) {
-    this.queryLay = queryLay;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public BigInteger getOrder() {
-    return order;
-  }
-
-  public void setOrder(BigInteger order) {
-    this.order = order;
+  public void setLayers(String layers) {
+    this.layers = layers;
   }
 
   public BigInteger getMinimumScale() {
@@ -222,100 +277,165 @@ public class Cartography { //implements Identifiable {
     this.maximumScale = maximumScale;
   }
 
-  public String getLayers() {
-    return layers;
+  public BigInteger getOrder() {
+    return order;
   }
 
-  public void setLayers(String layers) {
-    this.layers = layers;
+  public void setOrder(BigInteger order) {
+    this.order = order;
+  }
+
+  public BigInteger getTransparency() {
+    return transparency;
+  }
+
+  public void setTransparency(BigInteger transparency) {
+    this.transparency = transparency;
+  }
+
+  public Boolean getApplyFilterToGetMap() {
+    return applyFilterToGetMap;
+  }
+
+  public void setApplyFilterToGetMap(Boolean applyFilterToGetMap) {
+    this.applyFilterToGetMap = applyFilterToGetMap;
+  }
+
+  public Boolean getQueryableFeatureAvailable() {
+    return queryableFeatureAvailable;
+  }
+
+  public void setQueryableFeatureAvailable(Boolean queryableFeatureAvailable) {
+    this.queryableFeatureAvailable = queryableFeatureAvailable;
+  }
+
+  public Boolean getQueryableFeatureEnabled() {
+    return queryableFeatureEnabled;
+  }
+
+  public void setQueryableFeatureEnabled(Boolean queryableFeatureEnabled) {
+    this.queryableFeatureEnabled = queryableFeatureEnabled;
+  }
+
+  public String getQueryableLayers() {
+    return queryableLayers;
+  }
+
+  public void setQueryableLayers(String queryableLayers) {
+    this.queryableLayers = queryableLayers;
+  }
+
+  public Boolean getApplyFilterToGetFeatureInfo() {
+    return applyFilterToGetFeatureInfo;
+  }
+
+  public void setApplyFilterToGetFeatureInfo(Boolean applyFilterToGetFeatureInfo) {
+    this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
   public Service getService() {
     return service;
   }
 
-  public void setService(Service service) {
-    this.service = service;
+  public void setService(Service portrayalService) {
+    this.service = portrayalService;
   }
 
-  public Connection getConnection() {
-    return connection;
+  public Boolean getSelectableFeatureEnabled() {
+    return selectableFeatureEnabled;
   }
 
-  public void setConnection(Connection connection) {
-    this.connection = connection;
+  public void setSelectableFeatureEnabled(Boolean selectableFeatureEnabled) {
+    this.selectableFeatureEnabled = selectableFeatureEnabled;
   }
 
-  public Set<CartographyAvailability> getAvailabilities() {
-    return availabilities;
+  public String getSelectableLayers() {
+    return selectableLayers;
   }
 
-  public void setAvailabilities(Set<CartographyAvailability> availabilities) {
-    this.availabilities = availabilities;
+  public void setSelectableLayers(String selectableLayers) {
+    this.selectableLayers = selectableLayers;
   }
 
-  public Boolean getSelectable() {
-    return selectable;
+  public Boolean getApplyFilterToSpatialSelection() {
+    return applyFilterToSpatialSelection;
   }
 
-  public void setSelectable(Boolean selectable) {
-    this.selectable = selectable;
+  public void setApplyFilterToSpatialSelection(Boolean applyFilterToSpatialSelection) {
+    this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
   }
 
-  public String getSelectionLayer() {
-    return selectionLayer;
+  public Service getSpatialSelectionService() {
+    return spatialSelectionService;
   }
 
-  public void setSelectionLayer(String selectionLayer) {
-    this.selectionLayer = selectionLayer;
+  public void setSpatialSelectionService(Service spatialSelectionService) {
+    this.spatialSelectionService = spatialSelectionService;
   }
 
-  public Service getSelectionService() {
-    return selectionService;
+  public String getLegendType() {
+    return legendType;
   }
 
-  public void setSelectionService(Service selectionService) {
-    this.selectionService = selectionService;
+  public void setLegendType(String legendType) {
+    this.legendType = legendType;
   }
 
-  public String getLegendTip() {
-    return legendTip;
+  public String getLegendURL() {
+    return legendURL;
   }
 
-  public void setLegendTip(String legendTip) {
-    this.legendTip = legendTip;
+  public void setLegendURL(String legendURL) {
+    this.legendURL = legendURL;
   }
 
-  public String getLegendUrl() {
-    return legendUrl;
+  public Date getCreatedDate() {
+    return createdDate;
   }
 
-  public void setLegendUrl(String legendUrl) {
-    this.legendUrl = legendUrl;
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
   }
 
-  public Boolean getEditable() {
-    return editable;
+  public Connection getSpatialSelectionConnection() {
+    return spatialSelectionConnection;
   }
 
-  public void setEditable(Boolean editable) {
-    this.editable = editable;
+  public void setSpatialSelectionConnection(
+      Connection spatialSelectionConnection) {
+    this.spatialSelectionConnection = spatialSelectionConnection;
   }
 
-  public String getMetadataUrl() {
-    return metadataUrl;
+  public String getMetadataURL() {
+    return metadataURL;
   }
 
-  public void setMetadataUrl(String metadataUrl) {
-    this.metadataUrl = metadataUrl;
+  public void setMetadataURL(String metadataURL) {
+    this.metadataURL = metadataURL;
   }
 
-  public Boolean getThemeable() {
-    return themeable;
+  public String getDatasetURL() {
+    return datasetURL;
   }
 
-  public void setThemeable(Boolean themeable) {
-    this.themeable = themeable;
+  public void setDatasetURL(String datasetURL) {
+    this.datasetURL = datasetURL;
+  }
+
+  public Boolean getThematic() {
+    return thematic;
+  }
+
+  public void setThematic(Boolean thematic) {
+    this.thematic = thematic;
   }
 
   public String getGeometryType() {
@@ -326,14 +446,49 @@ public class Cartography { //implements Identifiable {
     this.geometryType = geometryType;
   }
 
-//  public ResourceSupport toResource(RepositoryEntityLinks links) {
-//    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-//    ResourceSupport res = new Resource<>(this, selfLink);
-//    res.add(links.linkForSingleResource(this).slash("availabilities").withRel("availabilities"));
-//    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-//    res.add(links.linkForSingleResource(this).slash("selectionService").withRel("selectionService"));
-//    res.add(links.linkForSingleResource(this).slash("service").withRel("service"));
-//    return res;
-//  }
+  public String getSource() {
+    return source;
+  }
+
+  public void setSource(String source) {
+    this.source = source;
+  }
+
+  public Set<CartographyAvailability> getAvailabilities() {
+    return availabilities;
+  }
+
+  public void setAvailabilities(
+      Set<CartographyAvailability> availabilities) {
+    this.availabilities = availabilities;
+  }
+
+  public Set<CartographyStyle> getStyles() {
+    return styles;
+  }
+
+  public void setStyles(Set<CartographyStyle> styles) {
+    this.styles = styles;
+  }
+
+  public CartographyStyle getDefaultStyle() {
+    return defaultStyle;
+  }
+
+  public void setDefaultStyle(CartographyStyle defaultStyle) {
+    this.defaultStyle = defaultStyle;
+  }
+
+  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
+  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
+  //    ResourceSupport res = new Resource<>(this, selfLink);
+  //    res.add(links.linkForSingleResource(this).slash("availabilities")
+  //      .withRel("availabilities"));
+  //    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
+  //    res.add(links.linkForSingleResource(this).slash("selectionService")
+  //      .withRel("selectionService"));
+  //    res.add(links.linkForSingleResource(this).slash("service").withRel("service"));
+  //    return res;
+  //  }
 
 }

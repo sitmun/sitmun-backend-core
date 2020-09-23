@@ -33,7 +33,7 @@ public class UserConfiguration {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "UCF_CODIGO",
+      pkColumnValue = "UCO_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUCONF_GEN")

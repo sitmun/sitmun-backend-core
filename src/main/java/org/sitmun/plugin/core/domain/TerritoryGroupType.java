@@ -27,7 +27,7 @@ public class TerritoryGroupType {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TGR_CODIGO",
+      pkColumnValue = "GTT_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOGRP_GEN")

@@ -24,7 +24,7 @@ public class TaskGroup {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "GTA_CODIGO",
+      pkColumnValue = "GTS_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "GTA_CODIGO_GEN")

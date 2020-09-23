@@ -29,7 +29,7 @@ public class Log {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "LOG_CODIGO",
+      pkColumnValue = "LOG_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_LOG_GEN")

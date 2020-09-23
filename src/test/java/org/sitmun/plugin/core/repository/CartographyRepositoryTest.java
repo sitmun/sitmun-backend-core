@@ -30,29 +30,26 @@ public class CartographyRepositoryTest {
     cartography = new Cartography();
     cartography.setName("Test");
     cartography.setLayers(null);
-    cartography.setSelectionLayer(null);
-    cartography.setConnection(null);
+    cartography.setSelectableLayers(null);
+    cartography.setSpatialSelectionConnection(null);
     cartography.setAvailabilities(null);
-    cartography.setEditable(true);
     cartography.setMaximumScale(null);
     cartography.setMinimumScale(null);
     cartography.setCreatedDate(new Date());
     cartography.setOrder(BigInteger.ZERO);
-    cartography.setQueryable(true);
-    cartography.setQueryAct(true);
-    cartography.setQueryLay(null);
-    cartography.setSelectable(true);
+    cartography.setQueryableFeatureAvailable(true);
+    cartography.setQueryableFeatureEnabled(true);
+    cartography.setQueryableLayers(null);
+    cartography.setSelectableFeatureEnabled(true);
     cartography.setService(null);
-    cartography.setSelectionService(null);
-    cartography.setThemeable(true);
-    cartography.setLegendTip(null);
+    cartography.setSpatialSelectionService(null);
+    cartography.setThematic(true);
+    cartography.setLegendType(null);
     cartography.setType(null);
     cartography.setGeometryType(null);
     cartography.setTransparency(BigInteger.ZERO);
-    cartography.setLegendUrl(null);
-    cartography.setMetadataUrl(null);
-    cartography.setVisible(true);
-
+    cartography.setLegendURL(null);
+    cartography.setMetadataURL(null);
   }
 
   @Test

@@ -28,7 +28,7 @@ public class TaskParameter {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "PTT_CODIGO",
+      pkColumnValue = "PTT_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")

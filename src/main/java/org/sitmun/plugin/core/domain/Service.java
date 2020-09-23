@@ -31,7 +31,7 @@ public class Service {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "SER_CODIGO",
+      pkColumnValue = "SER_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICIO_GEN")

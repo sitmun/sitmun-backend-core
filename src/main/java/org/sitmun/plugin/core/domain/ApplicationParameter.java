@@ -30,7 +30,7 @@ public class ApplicationParameter {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "PAP_CODIGO",
+      pkColumnValue = "PAP_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMAPP_GEN")

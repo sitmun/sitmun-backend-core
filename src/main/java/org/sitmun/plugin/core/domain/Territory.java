@@ -38,7 +38,7 @@ public class Territory {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TER_CODIGO",
+      pkColumnValue = "TER_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")

@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,27 +42,25 @@ public class Task { //implements Identifiable {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "TAR_CODIGO",
+      pkColumnValue = "TAS_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
   @Column(name = "TAS_ID", precision = 11)
   private BigInteger id;
 
-  // There is a bug in SpringFox 3.0.0 that breaks the creation of documentation
-  // when a parent-child relationship is present.
-  // see https://github.com/springfox/springfox/issues/3469
-  // This is planned to be fixed in SpringFox 3.0.1
-  // see https://github.com/springfox/springfox/milestone/45
-  //
-  // FIXME Enable again Task.parent field
-  //
-  // /**
-  //  * Parent task.
-  //  */
-  // @ManyToOne
-  // @JoinColumn(name = "TAS_PARENTID")
-  // private Task parent;
+  /**
+   * Parent task.
+   */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "TAS_PARENTID")
+  private Task parent;
+
+  /**
+   * Children tasks.
+   */
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+  private Set<Task> children = new HashSet<>();
 
   /**
    * Name.
@@ -159,13 +158,21 @@ public class Task { //implements Identifiable {
     this.id = id;
   }
 
-  //public Task getParent() {
-  //  return parent;
-  //}
+  public Task getParent() {
+    return parent;
+  }
 
-  //public void setParent(Task parent) {
-  //  this.parent = parent;
-  //}
+  public void setParent(Task parent) {
+    this.parent = parent;
+  }
+
+  public Set<Task> getChildren() {
+    return children;
+  }
+
+  public void setChildren(Set<Task> children) {
+    this.children = children;
+  }
 
   public String getName() {
     return name;

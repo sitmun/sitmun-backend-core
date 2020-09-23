@@ -29,7 +29,7 @@ public class User { //implements Identifiable<BigInteger> {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "USU_CODIGO",
+      pkColumnValue = "USE_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUARIO_GEN")

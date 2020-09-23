@@ -34,7 +34,7 @@ public class CartographyGroup { //implements Identifiable {
       table = "STM_CODIGOS",
       pkColumnName = "GEN_CODIGO",
       valueColumnName = "GEN_VALOR",
-      pkColumnValue = "GCA_CODIGO",
+      pkColumnValue = "GGI_ID",
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRPCARTO_GEN")
