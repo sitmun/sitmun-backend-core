@@ -225,9 +225,24 @@ public class Cartography { //implements Identifiable {
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CartographyStyle> styles = new HashSet<>();
 
+  /**
+   * Default style.
+   */
   @ManyToOne
   @JoinColumn(name = "GEO_STYID")
   private CartographyStyle defaultStyle;
+
+  /**
+   * Filters.
+   */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<CartographyFilter> filters = new HashSet<>();
+
+  /**
+   * Parameters.
+   */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<CartographyParameter> parameters = new HashSet<>();
 
   public BigInteger getId() {
     return id;
@@ -477,6 +492,22 @@ public class Cartography { //implements Identifiable {
 
   public void setDefaultStyle(CartographyStyle defaultStyle) {
     this.defaultStyle = defaultStyle;
+  }
+
+  public Set<CartographyFilter> getFilters() {
+    return filters;
+  }
+
+  public void setFilters(Set<CartographyFilter> filters) {
+    this.filters = filters;
+  }
+
+  public Set<CartographyParameter> getParameters() {
+    return parameters;
+  }
+
+  public void setParameters(Set<CartographyParameter> parameters) {
+    this.parameters = parameters;
   }
 
   //  public ResourceSupport toResource(RepositoryEntityLinks links) {

@@ -129,11 +129,11 @@ public class Application { //implements Identifiable {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_APPROL",
+      name = "STM_APP_ROL",
       joinColumns = @JoinColumn(
-          name = "APR_CODAPP", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
+          name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
       inverseJoinColumns = @JoinColumn(
-          name = "APR_CODROL", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
+          name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
   private Set<Role> availableRoles = new HashSet<>();
 
   /**
@@ -141,11 +141,11 @@ public class Application { //implements Identifiable {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_APPARB",
+      name = "STM_APP_TREE",
       joinColumns = @JoinColumn(
-          name = "APA_CODAPP", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
+          name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
       inverseJoinColumns = @JoinColumn(
-          name = "APA_CODARB", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
+          name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
   private Set<Tree> trees;
 
   /**
@@ -294,7 +294,8 @@ public class Application { //implements Identifiable {
   //  public ResourceSupport toResource(RepositoryEntityLinks links) {
   //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
   //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("availableRoles").withRel("availableRoles"));
+  //    res.add(links.linkForSingleResource(this).slash("availableRoles")
+  //    .withRel("availableRoles"));
   //    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
   //    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
   //    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));

@@ -12,6 +12,8 @@ import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -32,6 +34,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "STM_TASK")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Task { //implements Identifiable {
 
   /**
