@@ -12,8 +12,13 @@ env:
 
 script: ./build-scripts/script.sh
 
-after_success: 
+after_success:
+  # SonarCloud require analysis to be run on at least Java 11
+  - export JAVA_HOME=$HOME/openjdk11
+  - $TRAVIS_BUILD_DIR/install-jdk.sh --install openjdk11 --target $JAVA_HOME
   - ./build-scripts/after_success.sh
+  # Back to Java 8
+  - jdk_switcher use openjdk8
   - ./build-scripts/deploy_docs.sh
 
 before_cache:
