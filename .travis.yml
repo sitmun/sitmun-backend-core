@@ -13,12 +13,16 @@ env:
 script: ./build-scripts/script.sh
 
 after_success:
+  # Save path variables
+  - PATH_JDK8=$PATH
+  - JAVA_HOME_JDK8=$JAVA_HOME
   # SonarCloud require analysis to be run on at least Java 11
-  # Xenial has pre-installed openjdk11
-  - jdk_switcher use openjdk11
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+  - source ./install-jdk.sh --feature 11
   - ./build-scripts/after_success.sh
-  # Back to Java 8
-  - jdk_switcher use openjdk8
+  # Back to normal
+  - PATH=$PATH_JDK8
+  - JAVA_HOME=$JAVA_HOME_JDK8
   - ./build-scripts/deploy_docs.sh
 
 before_cache:
