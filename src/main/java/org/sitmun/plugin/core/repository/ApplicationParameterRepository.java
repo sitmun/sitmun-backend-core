@@ -11,7 +11,7 @@ import org.springframework.security.core.parameters.P;
 
 @RepositoryRestResource(collectionResourceRel = "application-parameters", path = "application-parameters")
 public interface ApplicationParameterRepository
-  extends CrudRepository<ApplicationParameter, BigInteger> {
+    extends CrudRepository<ApplicationParameter, BigInteger> {
 
   @Override
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

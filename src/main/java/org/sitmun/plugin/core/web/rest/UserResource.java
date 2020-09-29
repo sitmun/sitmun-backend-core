@@ -55,8 +55,8 @@ public class UserResource {
   public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
     User result = userService.createUser(user);
     URI location = ServletUriComponentsBuilder
-      .fromCurrentRequest().path("/{id}")
-      .buildAndExpand(result.getId()).toUri();
+        .fromCurrentRequest().path("/{id}")
+        .buildAndExpand(result.getId()).toUri();
 
     return ResponseEntity.created(location).build();
   }

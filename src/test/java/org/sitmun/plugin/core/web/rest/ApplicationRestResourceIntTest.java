@@ -112,28 +112,28 @@ public class ApplicationRestResourceIntTest {
   @Before
   public void init() {
     territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    ArrayList<Application> appsToCreate = new ArrayList<Application>();
-    ArrayList<ApplicationParameter> parametersToCreate = new ArrayList<ApplicationParameter>();
+    ArrayList<Application> appsToCreate = new ArrayList<>();
+    ArrayList<ApplicationParameter> parametersToCreate = new ArrayList<>();
     publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
 
-    Set<Role> availableRoles = new HashSet<Role>();
+    Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
     //Trees
-    ArrayList<Tree> treesToCreate = new ArrayList<Tree>();
+    ArrayList<Tree> treesToCreate = new ArrayList<>();
     Tree publicTree = new Tree();
     publicTree.setName(PUBLIC_TREE_NAME);
     publicTree.setAvailableRoles(availableRoles);
     treesToCreate.add(publicTree);
     this.treeRepository.saveAll(treesToCreate);
-    Set<Tree> trees = new HashSet<Tree>();
+    Set<Tree> trees = new HashSet<>();
     trees.add(publicTree);
 
     //Services
     Service publicService = new Service();
     publicService.setName(PUBLIC_SERVICE_NAME);
     //publicService.setLayers(cartographies);
-    Set<Service> services = new HashSet<Service>();
+    Set<Service> services = new HashSet<>();
     services.add(publicService);
     this.serviceRepository.saveAll(services);
 
@@ -142,7 +142,7 @@ public class ApplicationRestResourceIntTest {
     Cartography publicCartography = new Cartography();
     publicCartography.setName(PUBLIC_CARTOGRAPHY_NAME);
     publicCartography.setService(publicService);
-    Set<Cartography> cartographies = new HashSet<Cartography>();
+    Set<Cartography> cartographies = new HashSet<>();
     cartographies.add(publicCartography);
     this.cartographyRepository.saveAll(cartographies);
     publicCartography = cartographies.iterator().next();
@@ -151,14 +151,14 @@ public class ApplicationRestResourceIntTest {
     CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
     publicCartographyAvailability.setCartography(publicCartography);
     publicCartographyAvailability.setTerritory(this.territory);
-    Set<CartographyAvailability> cartographyAvailabilities = new HashSet<CartographyAvailability>();
+    Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
     cartographyAvailabilities.add(publicCartographyAvailability);
     this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
     publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
 
     //Tree nodes
-    Set<TreeNode> treeNodes = new HashSet<TreeNode>();
+    Set<TreeNode> treeNodes = new HashSet<>();
     TreeNode publicTreeNode = new TreeNode();
     publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
     publicTreeNode.setCartography(publicCartography);
@@ -168,7 +168,7 @@ public class ApplicationRestResourceIntTest {
 
 
     //Cartography group
-    Set<CartographyGroup> cartographyGroups = new HashSet<CartographyGroup>();
+    Set<CartographyGroup> cartographyGroups = new HashSet<>();
     CartographyGroup publicCartographyGroup = new CartographyGroup();
     publicCartographyGroup.setName(PUBLIC_CARTOGRAPHY_GROUP_NAME);
     publicCartographyGroup.setRoles(availableRoles);
@@ -178,7 +178,7 @@ public class ApplicationRestResourceIntTest {
     publicCartographyGroup = cartographyGroups.iterator().next();
 
     //backgrounds
-    Set<Background> backgrounds = new HashSet<Background>();
+    Set<Background> backgrounds = new HashSet<>();
     Background publicBackground = new Background();
     publicBackground.setName(PUBLIC_BACKGROUND_NAME);
     publicBackground.setCartographyGroup(publicCartographyGroup);
@@ -256,16 +256,16 @@ public class ApplicationRestResourceIntTest {
     // TO DO
     // ok is expected
     mvc.perform(get(APP_URI)).andDo(print()).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.applications", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.applications", hasSize(1)));
   }
-	/*
-	@Test
-	public void getPublicApplicationParamsAsPublic() throws Exception {
-		// TO DO
-		// ok is expected
-		mvc.perform(get(APP_URI+"/2/parameters")).andDo(print()).andExpect(status().isOk());
-	}
-	*/
+  /*
+  @Test
+  public void getPublicApplicationParamsAsPublic() throws Exception {
+    // TO DO
+    // ok is expected
+    mvc.perform(get(APP_URI+"/2/parameters")).andDo(print()).andExpect(status().isOk());
+  }
+  */
 
   /*@Test
   @WithMockUser(username = ADMIN_USERNAME)
@@ -281,9 +281,9 @@ public class ApplicationRestResourceIntTest {
   @WithMockUser(username = ADMIN_USERNAME)
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId))
-      .andDo(print())
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.order").value(1));
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.order").value(1));
   }
 
 
@@ -301,29 +301,29 @@ public class ApplicationRestResourceIntTest {
     mvc.perform(get(APP_URI + "/2/backgrounds")).andDo(print()).andExpect(status().isOk());
   }
 /*
-	@Test
-	public void getPublicApplicationSituationMapsAsPublic() throws Exception {
-		// TO DO
-		// ok is expected
-		mvc.perform(get(APP_URI+"/2/situationMap")).andDo(print()).andExpect(status().isOk());
-	}
-	*/
+  @Test
+  public void getPublicApplicationSituationMapsAsPublic() throws Exception {
+    // TO DO
+    // ok is expected
+    mvc.perform(get(APP_URI+"/2/situationMap")).andDo(print()).andExpect(status().isOk());
+  }
+  */
 
   @Test
   public void getCartographyGroupMembersAsPublic() throws Exception {
     // TO DO
     // ok is expected
     mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members")).andDo(print())
-      .andExpect(status().isOk());
+        .andExpect(status().isOk());
   }
-	
-	/*
-	@Test
-	public void getTreeNodeCartographyAsPublic() throws Exception {
-		// TO DO
-		// ok is expected
-		mvc.perform(get(TREE_NODE_URI+"/1/cartography")).andDo(print()).andExpect(status().isOk());
-	}
+
+  /*
+  @Test
+  public void getTreeNodeCartographyAsPublic() throws Exception {
+    // TO DO
+    // ok is expected
+    mvc.perform(get(TREE_NODE_URI+"/1/cartography")).andDo(print()).andExpect(status().isOk());
+  }
 */
 
   @Test
@@ -344,9 +344,9 @@ public class ApplicationRestResourceIntTest {
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(APP_URI))
-      .andDo(print())
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.applications", hasSize(2)));
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.applications", hasSize(2)));
 
   }
 

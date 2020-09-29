@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "STM_CODELIST",
-    uniqueConstraints = { @UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"})})
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"})})
 public class CodeListValue {
 
   /**

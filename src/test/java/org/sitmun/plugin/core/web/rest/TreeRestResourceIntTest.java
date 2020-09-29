@@ -60,12 +60,12 @@ public class TreeRestResourceIntTest {
 
   @Before
   public void init() {
-    ArrayList<TreeNode> nodesToCreate = new ArrayList<TreeNode>();
+    ArrayList<TreeNode> nodesToCreate = new ArrayList<>();
     publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
-    Set<Role> availableRoles = new HashSet<Role>();
+    Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
-    ArrayList<Tree> treesToCreate = new ArrayList<Tree>();
+    ArrayList<Tree> treesToCreate = new ArrayList<>();
 
     publicTree = new Tree();
     publicTree.setName(PUBLIC_TREE_NAME);
@@ -73,7 +73,7 @@ public class TreeRestResourceIntTest {
     treesToCreate.add(publicTree);
 
 
-    Set<Tree> trees = new HashSet<Tree>();
+    Set<Tree> trees = new HashSet<>();
     trees.add(publicTree);
 
     tree = new Tree();
@@ -104,17 +104,17 @@ public class TreeRestResourceIntTest {
     // TO DO
     // ok is expected
     mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.trees", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.trees", hasSize(1)));
   }
-	
-	/*
-	@Test
-	public void getPublicTreeNodesAsPublic() throws Exception {
-		// TO DO
-		// ok is expected
-		mvc.perform(get(TREE_URI+"/2/nodes")).andDo(print()).andExpect(status().isOk());
-	}
-	*/
+
+  /*
+  @Test
+  public void getPublicTreeNodesAsPublic() throws Exception {
+    // TO DO
+    // ok is expected
+    mvc.perform(get(TREE_URI+"/2/nodes")).andDo(print()).andExpect(status().isOk());
+  }
+  */
 
 
   @Test
@@ -128,7 +128,7 @@ public class TreeRestResourceIntTest {
   public void getTreesAsSitmunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.trees", hasSize(2)));
+        .andExpect(jsonPath("$._embedded.trees", hasSize(2)));
 
   }
 

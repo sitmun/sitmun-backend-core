@@ -119,14 +119,14 @@ public class UserRestResourceIntTest {
     sitmunAdminRole = this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_SITMUN).get();
 
     organizacionAdminRole =
-      this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+        this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
 
     territorialRole =
-      this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+        this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
 
     defaultTerritory = territoryRepository.findOneByName(this.defaultTerritoryName).get();
-    ArrayList<Territory> territoriesToCreate = new ArrayList<Territory>();
-    ArrayList<User> usersToCreate = new ArrayList<User>();
+    ArrayList<Territory> territoriesToCreate = new ArrayList<>();
+    ArrayList<User> usersToCreate = new ArrayList<>();
     territory1 = new Territory();
     territory1.setName("Territorio 1");
     // territoryRepository.save(territory1);
@@ -203,11 +203,11 @@ public class UserRestResourceIntTest {
 
   @After
   public void cleanup() {
-    ArrayList<User> usersToDelete = new ArrayList<User>();
+    ArrayList<User> usersToDelete = new ArrayList<>();
     usersToDelete.add(territory1User);
     usersToDelete.add(territory2User);
     usersToDelete.add(organizacionAdmin);
-    ArrayList<Territory> territoriesToDelete = new ArrayList<Territory>();
+    ArrayList<Territory> territoriesToDelete = new ArrayList<>();
     territoriesToDelete.add(territory1);
     territoriesToDelete.add(territory2);
     territoryRepository.deleteAll(territoriesToDelete);
@@ -223,16 +223,17 @@ public class UserRestResourceIntTest {
     newUser.setUsername(NEW_USER_USERNAME);
 
     String uri = mvc.perform(post("/api/users")
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
-      .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(newUser)))
+        .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
 
     mvc.perform(get(uri).header(HEADER_STRING, TOKEN_PREFIX + token)).andExpect(status().isOk())
-      .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
 
     mvc.perform(delete(uri).header(HEADER_STRING, TOKEN_PREFIX + token))
-      .andExpect(status().isNoContent())
+        .andExpect(status().isNoContent())
 
     ;
   }
@@ -244,9 +245,10 @@ public class UserRestResourceIntTest {
     newUser.setId(null);
 
     mvc.perform(post("/api/users")
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(newUser)))
-      .andExpect(status().isConflict());
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(newUser)))
+        .andExpect(status().isConflict());
   }
 
   /*
@@ -274,23 +276,24 @@ public class UserRestResourceIntTest {
     userDTO.setLastName(USER_CHANGEDLASTNAME);
 
     mvc.perform(put(USER_URI + "/" + sitmunAdmin.getId())
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(userDTO)))
-      .andExpect(status().isNoContent());
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(userDTO)))
+        .andExpect(status().isNoContent());
 
     mvc.perform(get(USER_URI + "/" + sitmunAdmin.getId())
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isOk()).andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+        .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
+        .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
   }
 
   @Test
   @WithMockUser(username = USER_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
     mvc.perform(get(USER_URI)).andDo(print()).andExpect(status().isOk())
-      .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$._embedded.users", hasSize(5)));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.users", hasSize(5)));
   }
 
   @Test
@@ -299,8 +302,8 @@ public class UserRestResourceIntTest {
     mvc.perform(get(USER_URI)
 
     ).andDo(print()).andExpect(status().isOk())
-      .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$._embedded.users", hasSize(2)));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.users", hasSize(2)));
   }
 
   @Test
@@ -310,10 +313,10 @@ public class UserRestResourceIntTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8)
-      .content(Util.convertObjectToJsonBytes(passwordDTO)))
-      .andExpect(status().isOk());
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(passwordDTO)))
+        .andExpect(status().isOk());
   }
 
   @Test
@@ -323,10 +326,10 @@ public class UserRestResourceIntTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8)
-      .content(Util.convertObjectToJsonBytes(passwordDTO)))
-      .andExpect(status().isOk());
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(passwordDTO)))
+        .andExpect(status().isOk());
   }
 
 

@@ -12,7 +12,7 @@ import org.springframework.security.core.parameters.P;
 
 @RepositoryRestResource(collectionResourceRel = "cartography-availabilities", path = "cartography-availabilities")
 public interface CartographyAvailabilityRepository
-  extends CrudRepository<CartographyAvailability, BigInteger> {
+    extends CrudRepository<CartographyAvailability, BigInteger> {
 
   @Override
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

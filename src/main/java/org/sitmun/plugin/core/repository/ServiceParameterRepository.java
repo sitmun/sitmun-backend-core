@@ -13,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 public interface ServiceParameterRepository extends CrudRepository<ServiceParameter, BigInteger> {
 
   @Override
-    //@PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  //@PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends ServiceParameter> S save(@P("entity") S entity);
 
   @Override

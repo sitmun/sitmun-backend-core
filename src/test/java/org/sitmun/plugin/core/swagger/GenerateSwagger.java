@@ -32,7 +32,7 @@ public class GenerateSwagger {
   @Test
   public void generateSwagger() throws IOException {
     String response =
-      restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
+        restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
     Files.asCharSink(new File("swagger.json"), Charset.defaultCharset()).write(response);
   }
 }

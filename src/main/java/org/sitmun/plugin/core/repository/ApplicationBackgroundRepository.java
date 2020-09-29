@@ -11,7 +11,7 @@ import org.springframework.security.core.parameters.P;
 
 @RepositoryRestResource(collectionResourceRel = "application-backgrounds", path = "application-backgrounds")
 public interface ApplicationBackgroundRepository
-  extends PagingAndSortingRepository<ApplicationBackground, BigInteger> {
+    extends PagingAndSortingRepository<ApplicationBackground, BigInteger> {
 
   @Override
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

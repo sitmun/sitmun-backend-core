@@ -35,8 +35,8 @@ public class SitmunSchemaExport implements Callable<Void> {
   @Override
   public Void call() {
     ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-      .applySetting(AvailableSettings.DIALECT, dialect)
-      .build();
+        .applySetting(AvailableSettings.DIALECT, dialect)
+        .build();
 
     MetadataSources source = mapAnnotatedClasses(serviceRegistry);
 
@@ -56,7 +56,7 @@ public class SitmunSchemaExport implements Callable<Void> {
 
     final Reflections reflections = new Reflections((Object[]) ENTITY_PACKAGES);
     for (final Class<?> mappedSuperClass : reflections
-      .getTypesAnnotatedWith(MappedSuperclass.class)) {
+        .getTypesAnnotatedWith(MappedSuperclass.class)) {
       sources.addAnnotatedClass(mappedSuperClass);
       System.out.println("Mapped = " + mappedSuperClass.getName());
     }

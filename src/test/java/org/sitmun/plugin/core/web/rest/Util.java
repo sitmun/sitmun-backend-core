@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 class Util {
 
   static MediaType APPLICATION_HAL_JSON_UTF8 =
-    new MediaType("application", "hal+json", StandardCharsets.UTF_8);
+      new MediaType("application", "hal+json", StandardCharsets.UTF_8);
 
   static byte[] convertObjectToJsonBytes(Object object) throws IOException {
     ObjectMapper mapper = new ObjectMapper();

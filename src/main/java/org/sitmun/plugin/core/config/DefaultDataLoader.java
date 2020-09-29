@@ -38,11 +38,12 @@ public class DefaultDataLoader implements ApplicationRunner {
 
   /**
    * Default data loader.
-   * @param userRepository user repository
+   *
+   * @param userRepository              user repository
    * @param userConfigurationRepository user configuration repository
-   * @param roleRepository role repository
-   * @param territoryRepository territory repository
-   * @param userService user service
+   * @param roleRepository              role repository
+   * @param territoryRepository         territory repository
+   * @param userService                 user service
    */
   public DefaultDataLoader(UserRepository userRepository,
                            UserConfigurationRepository userConfigurationRepository,

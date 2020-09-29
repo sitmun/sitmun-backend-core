@@ -16,15 +16,15 @@ public class RolePermissionResolver implements PermissionResolver<Role> {
   public boolean resolvePermission(User authUser, Role entity, String permission) {
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
-      .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+        .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
 
     if (isAdminSitmun) {
       return true;
     }
 
-    return (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION) &&
-      !entity.getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION) &&
-      !entity.getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+    return (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)
+        && !entity.getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION)
+        && !entity.getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
   }
 
 }

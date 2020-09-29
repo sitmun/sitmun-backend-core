@@ -25,19 +25,19 @@ public class ApplicationService implements PermissionResolver<Application> {
   private final TreeNodeRepository treeNodeRepository;
   private final CartographyRepository cartographyRepository;
   private final ServiceRepository serviceRepository;
-*/
+  */
   public ApplicationService(ApplicationRepository applicationApplicationRepository /*, RoleRepository roleRepository,
-			TreeRepository treeRepository, TreeNodeRepository treeNodeRepository,
-			CartographyRepository cartographyRepository, ServiceRepository serviceRepository*/) {
+    TreeRepository treeRepository, TreeNodeRepository treeNodeRepository,
+    CartographyRepository cartographyRepository, ServiceRepository serviceRepository*/) {
     super();
     this.applicationApplicationRepository = applicationApplicationRepository;
-		/*
-		this.roleRepository = roleRepository;
-		this.treeRepository = treeRepository;
-		this.treeNodeRepository = treeNodeRepository;
-		this.cartographyRepository = cartographyRepository;
-		this.serviceRepository = serviceRepository;
-		*/
+    /*
+    this.roleRepository = roleRepository;
+    this.treeRepository = treeRepository;
+    this.treeNodeRepository = treeNodeRepository;
+    this.cartographyRepository = cartographyRepository;
+    this.serviceRepository = serviceRepository;
+    */
   }
 
   public Optional<Application> findApplication(BigInteger id) {
@@ -75,20 +75,20 @@ public class ApplicationService implements PermissionResolver<Application> {
   public boolean resolvePermission(User authUser, Application entity, String permission) {
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
-      .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+        .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
     if (isAdminSitmun) {
       return true;
     }
 
     if (permission.equalsIgnoreCase(SecurityConstants.CREATE_PERMISSION)
-      || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
-      || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
-      || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
+        || permission.equalsIgnoreCase(SecurityConstants.UPDATE_PERMISSION)
+        || permission.equalsIgnoreCase(SecurityConstants.DELETE_PERMISSION)
+        || permission.equalsIgnoreCase(SecurityConstants.ADMIN_PERMISSION)) {
 
       return false;
     } else if (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)) {
       return (permissions.stream().map(UserConfiguration::getRole)
-        .anyMatch(entity.getAvailableRoles()::contains));
+          .anyMatch(entity.getAvailableRoles()::contains));
     }
 
     return false;

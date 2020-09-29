@@ -61,9 +61,9 @@ public class CartographyRestResourceIntTest {
   @Before
   public void init() {
     territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    ArrayList<Cartography> cartosToCreate = new ArrayList<Cartography>();
+    ArrayList<Cartography> cartosToCreate = new ArrayList<>();
     ArrayList<CartographyAvailability> availabilitesToCreate =
-      new ArrayList<CartographyAvailability>();
+        new ArrayList<>();
     cartography = new Cartography();
     cartography.setName(CARTOGRAPHY_NAME);
     cartosToCreate.add(cartography);
@@ -85,15 +85,15 @@ public class CartographyRestResourceIntTest {
   public void postCartography() throws Exception {
 
     String uri = mvc.perform(post(CARTOGRAPHY_URI)
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8)
-      .content(Util.convertObjectToJsonBytes(cartography)))
-      .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(cartography)))
+        .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
 
     mvc.perform(get(uri)
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isOk()).andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+        .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
   }
 
   @Test
@@ -105,10 +105,10 @@ public class CartographyRestResourceIntTest {
   public void postCartographyAsPublicUserFails() throws Exception {
 
     mvc.perform(post(CARTOGRAPHY_URI)
-      // .header(HEADER_STRING, TOKEN_PREFIX + token)
-      .contentType(MediaType.APPLICATION_JSON_UTF8)
-      .content(Util.convertObjectToJsonBytes(cartography)))
-      .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+        // .header(HEADER_STRING, TOKEN_PREFIX + token)
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(Util.convertObjectToJsonBytes(cartography)))
+        .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
   }
 
   @After

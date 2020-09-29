@@ -76,6 +76,7 @@ public class CartographyAvailability {
 
   /**
    * Provides a human readable description of the grant.
+   *
    * @return a short description of the grant
    */
   public String toString() {

@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(name = "STM_LANGUAGE",
-    uniqueConstraints = { @UniqueConstraint(columnNames = {"LAN_SHORTNAME"})})
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"LAN_SHORTNAME"})})
 public class Language {
 
   /**

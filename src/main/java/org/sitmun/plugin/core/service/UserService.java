@@ -56,14 +56,15 @@ public class UserService implements PermissionResolver<User> {
 
           Set<UserConfiguration> permissions = currentUser.get().getPermissions();
           boolean isAdminSitmun = permissions.stream()
-            .anyMatch(
-              p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+              .anyMatch(
+                  p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
           Optional<UserConfiguration> baseConfiguration = permissions.stream()
-            .filter(
-              p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION))
-            .findFirst();
+              .filter(
+                  p -> p.getRole().getName()
+                      .equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION))
+              .findFirst();
           Optional<Role> territorialRole =
-            this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_TERRITORIAL);
+              this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_TERRITORIAL);
 
           if (!isAdminSitmun && baseConfiguration.isPresent() && territorialRole.isPresent()) {
             // get the first territory with ADMIN_ORGANIZACION role
@@ -124,10 +125,10 @@ public class UserService implements PermissionResolver<User> {
     }
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
-      .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
+        .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
     boolean isAdminOrganization = permissions.stream()
-      .anyMatch(
-        p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION));
+        .anyMatch(
+            p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION));
 
     if (isAdminSitmun) {
       return true;
@@ -138,15 +139,15 @@ public class UserService implements PermissionResolver<User> {
     if (isAdminOrganization) {
       if (user.getId() != null) {
         return this.getUserWithPermissionsByUsername(user.getUsername()).map(u ->
-          u.getPermissions().stream()
-            .anyMatch(targetDomainObjectPermissions ->
-              permissions.stream()
-                .filter(p -> p.getRole().getName()
-                  .equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION))
-                .map(UserConfiguration::getTerritory).map(Territory::getId)
-                .collect(Collectors.toList())
-                .contains(targetDomainObjectPermissions.getTerritory().getId())
-            )
+            u.getPermissions().stream()
+                .anyMatch(targetDomainObjectPermissions ->
+                    permissions.stream()
+                        .filter(p -> p.getRole().getName()
+                            .equalsIgnoreCase(AuthoritiesConstants.ADMIN_ORGANIZACION))
+                        .map(UserConfiguration::getTerritory).map(Territory::getId)
+                        .collect(Collectors.toList())
+                        .contains(targetDomainObjectPermissions.getTerritory().getId())
+                )
         ).orElse(false);
       } else {
         return true;

@@ -34,18 +34,19 @@ public class DomainUserDetailsService implements UserDetailsService {
     String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
     Optional<User> userByEmailFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
     return userByEmailFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
-      .orElseGet(() -> {
-        Optional<User> userByLoginFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
-        return userByLoginFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
-          .orElseThrow(
-            () -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the "
-              + "database"));
-      });
+        .orElseGet(() -> {
+          Optional<User> userByLoginFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
+          return userByLoginFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
+              .orElseThrow(
+                  () -> new UsernameNotFoundException(
+                      "User " + lowercaseLogin + " was not found in the "
+                          + "database"));
+        });
   }
 
   private org.springframework.security.core.userdetails.User createSpringSecurityUser(
-    String lowercaseLogin, User user) {
+      String lowercaseLogin, User user) {
     return new org.springframework.security.core.userdetails.User(user.getUsername(),
-      user.getPassword(), new ArrayList<>());
+        user.getPassword(), new ArrayList<>());
   }
 }
