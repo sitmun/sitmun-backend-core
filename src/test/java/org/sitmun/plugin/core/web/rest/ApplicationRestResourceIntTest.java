@@ -12,8 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.domain.Application;
@@ -103,20 +103,16 @@ public class ApplicationRestResourceIntTest {
   private String defaultTerritoryName;
   @Autowired
   private MockMvc mvc;
-  private Application application;
-  private Application publicApplication;
-  private Role publicRole;
-  private Territory territory;
 
   private BigInteger appId;
   private BigInteger backAppId;
 
   @Before
   public void init() {
-    territory = territoryRepository.findOneByName(defaultTerritoryName).get();
+    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
     ArrayList<Application> appsToCreate = new ArrayList<>();
     ArrayList<ApplicationParameter> parametersToCreate = new ArrayList<>();
-    publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
+    Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
 
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
@@ -136,12 +132,11 @@ public class ApplicationRestResourceIntTest {
     publicService.setName(PUBLIC_SERVICE_NAME);
     publicService.setType("");
     publicService.setServiceURL("");
-
     //publicService.setLayers(cartographies);
+
     Set<Service> services = new HashSet<>();
     services.add(publicService);
     this.serviceRepository.saveAll(services);
-
 
     //Cartographies
     Cartography publicCartography = new Cartography();
@@ -159,12 +154,11 @@ public class ApplicationRestResourceIntTest {
     //Cartography availabilities
     CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
     publicCartographyAvailability.setCartography(publicCartography);
-    publicCartographyAvailability.setTerritory(this.territory);
+    publicCartographyAvailability.setTerritory(territory);
     Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
     cartographyAvailabilities.add(publicCartographyAvailability);
     this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
     publicCartographyAvailability = cartographyAvailabilities.iterator().next();
-
 
     //Tree nodes
     Set<TreeNode> treeNodes = new HashSet<>();
@@ -175,7 +169,6 @@ public class ApplicationRestResourceIntTest {
     treeNodes.add(publicTreeNode);
     this.treeNodeRepository.saveAll(treeNodes);
     publicTreeNode = treeNodes.iterator().next();
-
 
     //Cartography group
     Set<CartographyGroup> cartographyGroups = new HashSet<>();
@@ -197,7 +190,7 @@ public class ApplicationRestResourceIntTest {
     publicBackground = backgrounds.iterator().next();
 
 
-    application = new Application();
+    Application application = new Application();
     application.setName(NON_PUBLIC_APPLICATION_NAME);
     application.setJspTemplate("");
     SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
@@ -209,7 +202,7 @@ public class ApplicationRestResourceIntTest {
     }
     appsToCreate.add(application);
 
-    publicApplication = new Application();
+    Application publicApplication = new Application();
     publicApplication.setName(PUBLIC_APPLICATION_NAME);
     publicApplication.setAvailableRoles(availableRoles);
     publicApplication.setTrees(trees);
@@ -229,7 +222,6 @@ public class ApplicationRestResourceIntTest {
     publicApplicationBackground.setOrder(BigInteger.ONE);
     applicationBackgrounds.add(publicApplicationBackground);
     applicationBackgroundRepository.saveAll(applicationBackgrounds);
-
 
     backAppId = publicApplicationBackground.getId();
 
@@ -252,34 +244,36 @@ public class ApplicationRestResourceIntTest {
     // Create territory
     // Create role
     // Create application
-
   }
 
   @Test
   public void getPublicApplicationsAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(APP_URI)).andDo(print()).andExpect(status().isOk())
+    mvc.perform(get(APP_URI))
+        .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(1)));
   }
-  /*
-  @Test
-  public void getPublicApplicationParamsAsPublic() throws Exception {
-    // TO DO
-    // ok is expected
-    mvc.perform(get(APP_URI+"/2/parameters")).andDo(print()).andExpect(status().isOk());
-  }
-  */
 
-  /*@Test
+  @Ignore
+  public void getPublicApplicationParamsAsPublic() throws Exception {
+    // TODO
+    // ok is expected
+    mvc.perform(get(APP_URI + "/2/parameters"))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @Ignore
   @WithMockUser(username = ADMIN_USERNAME)
   public void getInformationAboutAnApp() throws Exception {
     mvc.perform(get(APP_URI + "/" + appId))
-      .andDo(print())
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.name").value("Non-public Application"))
-      .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
-  }*/
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Non-public Application"))
+        .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
+  }
 
   @Test
   @WithMockUser(username = ADMIN_USERNAME)
@@ -293,53 +287,61 @@ public class ApplicationRestResourceIntTest {
 
   @Test
   public void getPublicApplicationTreesAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/trees")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(APP_URI + "/2/trees"))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
 
   @Test
   public void getPublicApplicationBackgroundsAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/backgrounds")).andDo(print()).andExpect(status().isOk());
-  }
-/*
-  @Test
-  public void getPublicApplicationSituationMapsAsPublic() throws Exception {
-    // TO DO
-    // ok is expected
-    mvc.perform(get(APP_URI+"/2/situationMap")).andDo(print()).andExpect(status().isOk());
-  }
-  */
-
-  @Test
-  public void getCartographyGroupMembersAsPublic() throws Exception {
-    // TO DO
-    // ok is expected
-    mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members")).andDo(print())
+    mvc.perform(get(APP_URI + "/2/backgrounds"))
+        .andDo(print())
         .andExpect(status().isOk());
   }
 
-  /*
-  @Test
-  public void getTreeNodeCartographyAsPublic() throws Exception {
-    // TO DO
+  @Ignore
+  public void getPublicApplicationSituationMapsAsPublic() throws Exception {
+    // TODO
     // ok is expected
-    mvc.perform(get(TREE_NODE_URI+"/1/cartography")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(APP_URI + "/2/situationMap"))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
-*/
+
+  @Test
+  public void getCartographyGroupMembersAsPublic() throws Exception {
+    // TODO
+    // ok is expected
+    mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members"))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @Ignore
+  public void getTreeNodeCartographyAsPublic() throws Exception {
+    // TODO
+    // ok is expected
+    mvc.perform(get(TREE_NODE_URI + "/1/cartography"))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
 
   @Test
   public void getServiceLayersAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(SERVICE_URI + "/1/layers")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(SERVICE_URI + "/1/layers"))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
 
   @Test
   public void getApplicationsAsTerritorialUser() {
-    // TO DO
+    // TODO
     // ok is expected
   }
 
@@ -351,93 +353,77 @@ public class ApplicationRestResourceIntTest {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(2)));
-
   }
 
   @Test
   public void getApplicationsAsOrganizationAdmin() {
-    // TO DO
+    // TODO
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsPublicFails() {
-    // TO DO
+    // TODO
     // fail is expected
   }
 
   @Test
   public void setAvailableRolesAsTerritorialUserFails() {
-    // TO DO
+    // TODO
     // fail is expected
   }
 
   @Test
   public void setAvailableRolesAsSitmunAdmin() {
-    // TO DO
-    // Update available roles for the app as an admin user
+    // TODO Update available roles for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setTreeAsSitmunAdmin() {
-    // TO DO
-    // Update tree for the app as an admin user
+    // TODO Update tree for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setBackgroundAsSitmunAdmin() {
-    // TO DO
-    // Update background for the app as an admin user
+    // TODO:Update background for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsOrganizationAdmin() {
-    // TO DO
-    // Update available roles for the app (linked to the same organization) as an
-    // organization admin user
+    // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setTreeAsOrganizationAdmin() {
-    // TO DO
-    // Update tree for the app (linked to the same organization) as an organization
-    // admin user
+    // TODO: Update tree for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setBackgroundAsOrganizationAdmin() {
-    // TO DO
-    // Update background for the app (linked to the same organization) as an
-    // organization admin user
+    // TODO: Update background for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update available roles for the app (linked to another organization) as an
-    // organization admin user
+    // TODO: Update available roles for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
   public void setTreeAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update tree for the app (linked to another organization) as an organization
-    // admin user
+    // TODO: Update tree for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
   public void setBackgroundAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update background for the app (linked to another organization) as an
-    // organization admin user
+    // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 

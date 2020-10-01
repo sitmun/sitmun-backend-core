@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.domain.Role;
@@ -56,14 +56,13 @@ public class TreeRestResourceIntTest {
 
   @Autowired
   private MockMvc mvc;
-  private Tree tree;
+
   private Tree publicTree;
-  private Role publicRole;
 
   @Before
   public void init() {
     ArrayList<TreeNode> nodesToCreate = new ArrayList<>();
-    publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
+    Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
@@ -78,7 +77,7 @@ public class TreeRestResourceIntTest {
     Set<Tree> trees = new HashSet<>();
     trees.add(publicTree);
 
-    tree = new Tree();
+    Tree tree = new Tree();
     tree.setName(NON_PUBLIC_TREE_NAME);
     treesToCreate.add(tree);
     this.treeRepository.saveAll(treesToCreate);
@@ -97,121 +96,108 @@ public class TreeRestResourceIntTest {
 
   @Test
   public void getPublicTreesAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
+    mvc.perform(get(TREE_URI))
+        .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.trees", hasSize(1)));
   }
 
-  /*
-  @Test
+  @Ignore
   public void getPublicTreeNodesAsPublic() throws Exception {
-    // TO DO
+    // TODO
     // ok is expected
-    mvc.perform(get(TREE_URI+"/2/nodes")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(TREE_URI + "/"+ publicTree.getId() + "/nodes"))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
-  */
 
 
   @Test
   public void getTreesAsTerritorialUser() {
-    // TO DO
+    // TODO
     // ok is expected
   }
 
   @Test
   @WithMockUser(username = ADMIN_USERNAME)
   public void getTreesAsSitmunAdmin() throws Exception {
-    // ok is expected
-    mvc.perform(get(TREE_URI)).andDo(print()).andExpect(status().isOk())
+    mvc.perform(get(TREE_URI))
+        .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.trees", hasSize(2)));
-
   }
 
   @Test
   public void getTreesAsOrganizationAdmin() {
-    // TO DO
+    // TODO
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsPublicFails() {
-    // TO DO
+    // TODO
     // fail is expected
   }
 
   @Test
   public void setAvailableRolesAsTerritorialUserFails() {
-    // TO DO
+    // TODO
     // fail is expected
   }
 
   @Test
   public void setAvailableRolesAsSitmunAdmin() {
-    // TO DO
-    // Update available roles for the app as an admin user
+    // TODO: Update available roles for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setTreeAsSitmunAdmin() {
-    // TO DO
-    // Update tree for the app as an admin user
+    // TODO: Update tree for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setBackgroundAsSitmunAdmin() {
-    // TO DO
-    // Update background for the app as an admin user
+    // TODO: Update background for the app as an admin user
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsOrganizationAdmin() {
-    // TO DO
-    // Update available roles for the app (linked to the same organization) as an
-    // organization admin user
+    // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setTreeAsOrganizationAdmin() {
-    // TO DO
-    // Update tree for the app (linked to the same organization) as an organization
-    // admin user
+    // TODO: Update tree for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setBackgroundAsOrganizationAdmin() {
-    // TO DO
-    // Update background for the app (linked to the same organization) as an
-    // organization admin user
+    // TODO: Update background for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
   public void setAvailableRolesAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update available roles for the app (linked to another organization) as an
-    // organization admin user
+    // TODO: Update available roles for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
   public void setTreeAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update tree for the app (linked to another organization) as an organization
-    // admin user
+    // TODO: Update tree for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
   public void setBackgroundAsOtherOrganizationAdminFails() {
-    // TO DO
-    // Update background for the app (linked to another organization) as an
-    // organization admin user
+    // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 

@@ -2,6 +2,7 @@ package org.sitmun.plugin.core.web.rest;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -12,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Date;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,20 +60,20 @@ public class TaskRestResourceIntTest {
   TerritoryRepository territoryRepository;
   @Autowired
   private MockMvc mvc;
-  private Task task;
-  private Territory territory;
+
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
-  private Task taskWithAvailabilities;
+
+  private Task task;
 
   @Before
   public void init() {
-    territory = territoryRepository.findOneByName(defaultTerritoryName).get();
+    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
     ArrayList<Task> cartosToCreate = new ArrayList<>();
     task = new Task();
     task.setName(TASK_NAME);
     cartosToCreate.add(task);
-    taskWithAvailabilities = new Task();
+    Task taskWithAvailabilities = new Task();
     taskWithAvailabilities.setName("Task with availabilities");
     cartosToCreate.add(taskWithAvailabilities);
     taskRepository.saveAll(cartosToCreate);
@@ -101,44 +101,51 @@ public class TaskRestResourceIntTest {
   @Test
   @WithMockUser(username = ADMIN_USERNAME)
   public void postTask() throws Exception {
-
     String uri = mvc.perform(post(TASK_URI)
-        .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(task)))
-        .andExpect(status().isCreated()).andReturn().getResponse().getHeader("Location");
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(task))
+    ).andExpect(status().isCreated())
+        .andReturn().getResponse().getHeader("Location");
 
-    mvc.perform(get(uri)
-    ).andExpect(status().isOk()).andExpect(content().contentType(MediaTypes.HAL_JSON))
+    mvc.perform(get(uri))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
-    taskRepository.deleteAll();
   }
 
   @Test
   public void getTasksAsPublic() throws Exception {
-    mvc.perform(get(TASK_URI)).andDo(print()).andExpect(status().isOk())
+    mvc.perform(get(TASK_URI))
+        .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
   }
 
   @Test
   @WithMockUser(username = ADMIN_USERNAME)
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI)).andDo(print()).andExpect(status().isOk())
+    mvc.perform(get(TASK_URI))
+        .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.tasks", hasSize(2)));
   }
 
-  /*
   @Test
   @WithMockUser(username = PUBLIC_USERNAME)
   public void getTaskParamsAsPublic() throws Exception {
-      mvc.perform(get(TASK_URI+"/2/parameters")).andDo(print()).andExpect(status().isOk());
+    mvc.perform(get(TASK_URI + "/"+ task.getId() + "/parameters"))
+        .andDo(print())
+        .andExpect(status().isOk());
   }
-  */
+
   @Test
   public void postTaskAsPublicUserFails() throws Exception {
 
     mvc.perform(post(TASK_URI)
-        // .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(task)))
-        .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(task))
+    ).andDo(print())
+        .andExpect(status().is4xxClientError()).andReturn();
   }
 
 }
