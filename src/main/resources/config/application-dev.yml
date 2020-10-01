@@ -32,7 +32,9 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:config/liquibase/changelog.h2.sql
 
 security:
   authentication:

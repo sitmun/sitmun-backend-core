@@ -55,6 +55,8 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.springframework.security:spring-security-data'
 
+  implementation 'org.liquibase:liquibase-core'
+
   implementation "io.springfox:springfox-boot-starter:${springfox_swagger_version}"
 
   implementation 'com.zaxxer:HikariCP'
