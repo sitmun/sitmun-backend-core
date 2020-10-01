@@ -19,10 +19,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class TerritoryRestResourceIntTest {
 
   private static final String USER_USERNAME = "admin";
@@ -58,11 +60,6 @@ public class TerritoryRestResourceIntTest {
     // territoryService.createTerritory(territory1);
     // territoryService.createTerritory(territory2);
 
-  }
-
-  @After
-  public void cleanup() {
-    // territoryRepository.deleteAll();
   }
 
   @Test

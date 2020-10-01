@@ -28,11 +28,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class TreeRestResourceIntTest {
   private static final String ADMIN_USERNAME = "admin";
   private static final String TREE_URI = "http://localhost/api/trees";
@@ -91,12 +93,6 @@ public class TreeRestResourceIntTest {
     nodesToCreate.add(treeNode2);
     treeNodeRepository.saveAll(nodesToCreate);
 
-  }
-
-  @After
-  public void cleanup() {
-    treeRepository.deleteAll();
-    //treeNodeRepository.deleteAll();
   }
 
   @Test

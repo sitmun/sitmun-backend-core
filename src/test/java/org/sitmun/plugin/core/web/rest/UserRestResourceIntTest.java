@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.web.rest;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,6 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +47,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,6 +60,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class UserRestResourceIntTest {
 
   private static final String USER_USERNAME = "admin";
@@ -129,10 +143,14 @@ public class UserRestResourceIntTest {
     ArrayList<User> usersToCreate = new ArrayList<>();
     territory1 = new Territory();
     territory1.setName("Territorio 1");
+    territory1.setCode("");
+    territory1.setBlocked(false);
     // territoryRepository.save(territory1);
 
     territory2 = new Territory();
     territory2.setName("Territorio 2");
+    territory2.setCode("");
+    territory2.setBlocked(false);
     // territoryRepository.save(territory2);
     territoriesToCreate.add(territory1);
     territoriesToCreate.add(territory2);
@@ -201,22 +219,8 @@ public class UserRestResourceIntTest {
 
   }
 
-  @After
-  public void cleanup() {
-    ArrayList<User> usersToDelete = new ArrayList<>();
-    usersToDelete.add(territory1User);
-    usersToDelete.add(territory2User);
-    usersToDelete.add(organizacionAdmin);
-    ArrayList<Territory> territoriesToDelete = new ArrayList<>();
-    territoriesToDelete.add(territory1);
-    territoriesToDelete.add(territory2);
-    territoryRepository.deleteAll(territoriesToDelete);
-    userRepository.deleteAll(usersToDelete);
-
-  }
-
   @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = USER_USERNAME, authorities = {SITMUN_ADMIN_USERNAME})
   public void createNewUserAndDelete() throws Exception {
     UserDTO newUser = new UserDTO(sitmunAdmin);
     newUser.setId(null);
@@ -303,7 +307,7 @@ public class UserRestResourceIntTest {
 
     ).andDo(print()).andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(2)));
+        .andExpect(jsonPath("$._embedded.users", hasSize(1)));
   }
 
   @Test

@@ -34,10 +34,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class TaskRestResourceIntTest {
 
   private static final String ADMIN_USERNAME = "admin";
@@ -113,7 +115,7 @@ public class TaskRestResourceIntTest {
   @Test
   public void getTasksAsPublic() throws Exception {
     mvc.perform(get(TASK_URI)).andDo(print()).andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
   }
 
   @Test
@@ -137,14 +139,6 @@ public class TaskRestResourceIntTest {
         // .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON_UTF8).content(Util.convertObjectToJsonBytes(task)))
         .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
-  }
-
-  @After
-  public void cleanup() {
-    taskAvailabilityRepository.deleteAll();
-    taskRepository.deleteAll();
-    //taskParameterRepository.deleteAll();
-
   }
 
 }

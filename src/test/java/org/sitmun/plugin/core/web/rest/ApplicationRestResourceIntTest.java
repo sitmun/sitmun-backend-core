@@ -49,11 +49,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class ApplicationRestResourceIntTest {
   private static final String ADMIN_USERNAME = "admin";
   private static final String APP_URI = "http://localhost/api/applications";
@@ -63,13 +65,13 @@ public class ApplicationRestResourceIntTest {
   private static final String NON_PUBLIC_APPLICATION_PARAM_NAME = "Non-public Application Param";
   private static final String PUBLIC_APPLICATION_PARAM_NAME = "Public Application Param";
   private static final String PUBLIC_TREE_NAME = "Public tree";
-  private static final String PUBLIC_BACKGROUND_NAME = null;
-  private static final String PUBLIC_CARTOGRAPHY_GROUP_NAME = null;
-  private static final String PUBLIC_CARTOGRAPHY_NAME = null;
-  private static final String PUBLIC_TREE_NODE_NAME = null;
+  private static final String PUBLIC_BACKGROUND_NAME = "Public Background Name";
+  private static final String PUBLIC_CARTOGRAPHY_GROUP_NAME = "Public Cartography Group Name";
+  private static final String PUBLIC_CARTOGRAPHY_NAME = "Public Cartography Name";
+  private static final String PUBLIC_TREE_NODE_NAME = "Tree Node Name";
   private static final String TREE_NODE_URI = "http://localhost/api/tree-nodes";
   private static final String APP_BACKGROUNDS_URI = "http://localhost/api/application-backgrounds";
-  private static final String PUBLIC_SERVICE_NAME = null;
+  private static final String PUBLIC_SERVICE_NAME = "Public Service Name";
   private static final String SERVICE_URI = "http://localhost/api/services";
   @Autowired
   ApplicationRepository applicationRepository;
@@ -132,6 +134,9 @@ public class ApplicationRestResourceIntTest {
     //Services
     Service publicService = new Service();
     publicService.setName(PUBLIC_SERVICE_NAME);
+    publicService.setType("");
+    publicService.setServiceURL("");
+
     //publicService.setLayers(cartographies);
     Set<Service> services = new HashSet<>();
     services.add(publicService);
@@ -142,6 +147,10 @@ public class ApplicationRestResourceIntTest {
     Cartography publicCartography = new Cartography();
     publicCartography.setName(PUBLIC_CARTOGRAPHY_NAME);
     publicCartography.setService(publicService);
+    publicCartography.setLayers("");
+    publicCartography.setApplyFilterToGetMap(false);
+    publicCartography.setApplyFilterToSpatialSelection(false);
+    publicCartography.setApplyFilterToGetFeatureInfo(false);
     Set<Cartography> cartographies = new HashSet<>();
     cartographies.add(publicCartography);
     this.cartographyRepository.saveAll(cartographies);
@@ -162,6 +171,7 @@ public class ApplicationRestResourceIntTest {
     TreeNode publicTreeNode = new TreeNode();
     publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
     publicTreeNode.setCartography(publicCartography);
+    publicTreeNode.setTree(publicTree);
     treeNodes.add(publicTreeNode);
     this.treeNodeRepository.saveAll(treeNodes);
     publicTreeNode = treeNodes.iterator().next();
@@ -189,6 +199,7 @@ public class ApplicationRestResourceIntTest {
 
     application = new Application();
     application.setName(NON_PUBLIC_APPLICATION_NAME);
+    application.setJspTemplate("");
     SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
     String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
     try {
@@ -203,6 +214,7 @@ public class ApplicationRestResourceIntTest {
     publicApplication.setAvailableRoles(availableRoles);
     publicApplication.setTrees(trees);
     publicApplication.setSituationMap(publicCartographyGroup);
+    publicApplication.setJspTemplate("");
 
     appsToCreate.add(publicApplication);
     applicationRepository.saveAll(appsToCreate);
@@ -224,31 +236,23 @@ public class ApplicationRestResourceIntTest {
     ApplicationParameter applicationParam1 = new ApplicationParameter();
     applicationParam1.setName(NON_PUBLIC_APPLICATION_PARAM_NAME);
     applicationParam1.setApplication(application);
+    applicationParam1.setValue("");
+    applicationParam1.setType("");
     parametersToCreate.add(applicationParam1);
+
     ApplicationParameter applicationParam2 = new ApplicationParameter();
     applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
     applicationParam2.setApplication(publicApplication);
+    applicationParam2.setValue("");
+    applicationParam2.setType("");
     parametersToCreate.add(applicationParam2);
+
     applicationParameterRepository.saveAll(parametersToCreate);
     // Create user
     // Create territory
     // Create role
     // Create application
 
-  }
-
-  @After
-  public void cleanup() {
-    applicationRepository.deleteAll();
-    treeRepository.deleteAll();
-    treeNodeRepository.deleteAll();
-    applicationBackgroundRepository.deleteAll();
-    backgroundRepository.deleteAll();
-    cartographyGroupRepository.deleteAll();
-    cartographyRepository.deleteAll();
-    serviceRepository.deleteAll();
-    cartographyAvailabilityRepository.deleteAll();
-    applicationParameterRepository.deleteAll();
   }
 
   @Test
