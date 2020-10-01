@@ -49,3 +49,6 @@ branches:
   only:
     - master
     - /^\d+\.\d+(\.\d+)?(-\S*)?$/
+
+git:
+  depth: false
