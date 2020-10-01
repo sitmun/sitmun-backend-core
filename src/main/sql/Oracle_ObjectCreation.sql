@@ -1,10 +1,10 @@
 --------------------------------------------------
 -- REPOSITORIO
--- VersiÛn compatible Oracle 11 y 12
+-- Versi√≥n compatible Oracle 11 y 12
 --------------------------------------------------
 
 --------------------------------------------------
--- EliminaciÛn de tablas
+-- Eliminaci√≥n de tablas
 --------------------------------------------------
 PROMPT Eliminando tablas
 
@@ -70,7 +70,7 @@ drop table STM_AUXMIGRATION CASCADE CONSTRAINTS;
 
 
 --------------------------------------------------
--- CreaciÛn de tablas
+-- Creaci√≥n de tablas
 --------------------------------------------------
 
 
@@ -160,8 +160,8 @@ CREATE TABLE STM_USER (
 	USE_PWD	VARCHAR2(128),
 	USE_NAME	VARCHAR2(30),
 	USE_SURNAME	VARCHAR2(40),
-	USE_IDENT	VARCHAR2(20),  -- n˙mero de identificaciÛn de la persona
-	USE_IDENTTYPE VARCHAR2(3),  -- tipo de identificaciÛn (DNI, NIE, Passaport, etc.)
+	USE_IDENT	VARCHAR2(20),  -- n√∫mero de identificaci√≥n de la persona
+	USE_IDENTTYPE VARCHAR2(3),  -- tipo de identificaci√≥n (DNI, NIE, Passaport, etc.)
 	USE_ADM	NUMBER(1)	CHECK ("USE_ADM" IN (0,1)) NOT NULL,
 	USE_BLOCKED	NUMBER(1)	CHECK ("USE_BLOCKED" IN (0,1)) NOT NULL,
 	USE_GENERIC NUMBER(1)	CHECK ("USE_GENERIC" IN (0,1))
@@ -172,7 +172,7 @@ ALTER TABLE STM_USER ADD CONSTRAINT STM_USE_NAME_UK UNIQUE (USE_USER) USING INDE
 
 
 --------------------------------------------------
--- ConfiguraciÛn de usuarios
+-- Configuraci√≥n de usuarios
 PROMPT Creando Table 'STM_USR_CONF'
 --------------------------------------------------
 CREATE TABLE STM_USR_CONF (
@@ -207,7 +207,7 @@ PROMPT Creando Table 'STM_AVAIL_GI'
 CREATE TABLE STM_AVAIL_GI (
 	AGI_ID	NUMBER(11)	NOT NULL,
 	AGI_CREATED	TIMESTAMP(6),
-	AGI_PROPIETA	VARCHAR2(50),
+	AGI_PROPRIETA	VARCHAR2(50),
 	AGI_TERID	NUMBER(11)	NOT NULL,
 	AGI_GIID	NUMBER(11)	NOT NULL
 );
@@ -217,13 +217,13 @@ ALTER TABLE STM_AVAIL_GI ADD CONSTRAINT STM_AGI_UK UNIQUE (AGI_TERID,AGI_GIID) U
 
 
 --------------------------------------------------
--- Tabla de cartografÌas
+-- Tabla de cartograf√≠as
 PROMPT Creando Table 'STM_GEOINFO'
 --------------------------------------------------
 CREATE TABLE STM_GEOINFO (
 	GEO_ID	NUMBER(11)	NOT NULL,
 	GEO_NAME	VARCHAR2(100)	NOT NULL,
-	GEO_ABSTRACT	VARCHAR2(250),	-- DescripciÛn multi-idioma
+	GEO_ABSTRACT	VARCHAR2(250),	-- Descripci√≥n multi-idioma
 	GEO_LAYERS	VARCHAR2(800)	NOT NULL, -- LAYERs
 	GEO_MINSCALE	NUMBER(11),
 	GEO_MAXSCALE	NUMBER(11),
@@ -232,24 +232,24 @@ CREATE TABLE STM_GEOINFO (
 	GEO_FILTER_GM	NUMBER(1)	NOT NULL	CHECK ("GEO_FILTER_GM" IN (0,1)),  -- aplicar filtros para GetMap?
 	GEO_QUERYABL	NUMBER(1)	CHECK ("GEO_QUERYABL" IN (0,1)), -- capa identificable?
 	GEO_QUERYACT	NUMBER(1)	CHECK ("GEO_QUERYACT" IN (0,1)), -- Info Activada? Inicialmente activado. solo aplica si QUERYABLE=1
-	GEO_QUERYLAY	VARCHAR2(500),	-- lista de capas para resolver una peticiÛn de info
+	GEO_QUERYLAY	VARCHAR2(500),	-- lista de capas para resolver una petici√≥n de info
 	GEO_FILTER_GFI	NUMBER(1)	NOT NULL	CHECK ("GEO_FILTER_GFI" IN (0,1)),  -- aplicar filtros para FeatureInfo?
-	GEO_TYTE	VARCHAR2(30),	-- BASE o SITUACION o null
-	GEO_SERID	NUMBER(11)	NOT NULL,-- FK al servicio para la visualizaciÛn
+	GEO_TYPE	VARCHAR2(30),	-- BASE o SITUACION o null
+	GEO_SERID	NUMBER(11)	NOT NULL,-- FK al servicio para la visualizaci√≥n
 	GEO_SELECTABL	NUMBER(1)	CHECK ("GEO_SELECTABL" IN (0,1)), -- capa seleccionable?
-	GEO_SELECTLAY	VARCHAR2(500),	-- nombre de la capa para la selecciÛn espacial. Solo 1 capa.
-	GEO_FILTER_SE	NUMBER(1)	NOT NULL	CHECK ("GEO_FILTER_SE" IN (0,1)),  -- aplicar filtros para selecciÛn?
-	GEO_SERSELID	NUMBER(11),	-- FK al servicio para la selecciÛn.
-	GEO_LEGENDTIP	VARCHAR2(50)	CHECK ("GEO_LEGENDTIP" IN ('LINK','LEGENDGRAPHIC','CAPABILITIES')), -- tipo de leyenda: link est·tico, getlegendgraphic o getcapabilities
+	GEO_SELECTLAY	VARCHAR2(500),	-- nombre de la capa para la selecci√≥n espacial. Solo 1 capa.
+	GEO_FILTER_SE	NUMBER(1)	NOT NULL	CHECK ("GEO_FILTER_SE" IN (0,1)),  -- aplicar filtros para selecci√≥n?
+	GEO_SERSELID	NUMBER(11),	-- FK al servicio para la selecci√≥n.
+	GEO_LEGENDTIP	VARCHAR2(50)	CHECK ("GEO_LEGENDTIP" IN ('LINK','LEGENDGRAPHIC','CAPABILITIES')), -- tipo de leyenda: link est√°tico, getlegendgraphic o getcapabilities
 	GEO_LEGENDURL	VARCHAR2(250),	-- url de la leyenda de esta cartografia.
 	GEO_CREATED	TIMESTAMP(6),
 	GEO_EDITABLE	NUMBER(1)	CHECK ("GEO_EDITABLE" IN (0,1)), -- capa editable?
-	GEO_CONNID	NUMBER(11),	-- FK a la conexiÛn para la ediciÛn
+	GEO_CONNID	NUMBER(11),	-- FK a la conexi√≥n para la edici√≥n
 	GEO_METAURL	VARCHAR2(250),	-- url de metadatos
 	GEO_DATAURL	VARCHAR2(4000), -- Url zip para descarga
 	GEO_THEMATIC	NUMBER(1)	CHECK ("GEO_THEMATIC" IN (0,1)), -- capa tematizable?
 	GEO_GEOMTYPE	VARCHAR2(50)	CHECK ("GEO_GEOMTYPE" IN ('POINT','LINE','POLYGON')), -- tipo de geometria: punto, linea, o poligono
-	GEO_SOURCE	VARCHAR2(80), -- Nombre agrupaciÛn fuente
+	GEO_SOURCE	VARCHAR2(80), -- Nombre agrupaci√≥n fuente
 	GEO_STYID	NUMBER(11) -- Estilo por defecto
 );
 PROMPT Creando Primary Key on 'STM_GEOINFO'
@@ -257,18 +257,18 @@ ALTER TABLE STM_GEOINFO ADD CONSTRAINT STM_GEO_PK PRIMARY KEY (GEO_ID) USING IND
 
 
 --------------------------------------------------
--- Filtros para cartografÌa
+-- Filtros para cartograf√≠a
 PROMPT Creando Table 'STM_FIL_GI'
 --------------------------------------------------
 CREATE TABLE STM_FIL_GI (
 	FGI_ID	NUMBER(11)	NOT NULL,
 	FGI_NAME	VARCHAR2(80)	NOT NULL,
 	FGI_REQUIRED	NUMBER(1)	CHECK ("FGI_REQUIRED" IN (0,1))	NOT NULL, -- obligatorio informar
-	FGI_TYPE	VARCHAR2(1)	CHECK ("FGI_TYPE" IN ('D','C'))	NOT NULL, -- tipo D=Defined Definido por la aplicaciÛn, C=Custom personalizado por el usuario
+	FGI_TYPE	VARCHAR2(1)	CHECK ("FGI_TYPE" IN ('D','C'))	NOT NULL, -- tipo D=Defined Definido por la aplicaci√≥n, C=Custom personalizado por el usuario
 	FGI_TYPID	NUMBER(11), -- tipologia del territorio
 	FGI_COLUMN	VARCHAR2(250), -- Atributo a filtrar
 	FGI_VALUE	VARCHAR2(4000), -- Valor o lista de valores
-	FGI_VALUETYPE	VARCHAR2(30)	CHECK ("FGI_VALUETYPE" IN ('A','D','N')),  -- Tipologia del valor (A=AlfanumÈrico,D=Fecha,N=NumÈrico)
+	FGI_VALUETYPE	VARCHAR2(30)	CHECK ("FGI_VALUETYPE" IN ('A','D','N')),  -- Tipologia del valor (A=Alfanum√©rico,D=Fecha,N=Num√©rico)
 	FGI_GIID	NUMBER(11)	NOT NULL
 );
 PROMPT Creando Primary Key on 'STM_FIL_GI'
@@ -276,14 +276,14 @@ ALTER TABLE STM_FIL_GI ADD CONSTRAINT STM_FGI_PK PRIMARY KEY (FGI_ID) USING INDE
 
 
 --------------------------------------------------
--- Estilos para cartografÌa
+-- Estilos para cartograf√≠a
 PROMPT Creando Table 'STM_STY_GI'
 --------------------------------------------------
 CREATE TABLE STM_STY_GI (
 	SGI_ID	NUMBER(11)	NOT NULL,
 	SGI_NAME	VARCHAR2(80)	NOT NULL,
 	SGI_TITLE	VARCHAR2(250),
-	SGI_ABSTRACT	VARCHAR2(250),	-- DescripciÛn
+	SGI_ABSTRACT	VARCHAR2(250),	-- Descripci√≥n
 	SGI_LURL_WIDTH	NUMBER(6),  -- LegendURL.width
 	SGI_LURL_HEIGHT	NUMBER(6),  -- LegendURL.height
 	SGI_LURL_FORMAT	VARCHAR2(80),  -- LegendURL.Format
@@ -327,7 +327,7 @@ PROMPT Creando Table 'STM_GRP_GI'
 CREATE TABLE STM_GRP_GI (
 	GGI_ID	NUMBER(11)	NOT NULL,
 	GGI_NAME	VARCHAR2(80)	NOT NULL,
-	GGI_TYPE	VARCHAR2(30)	-- C, F=Fondo, M=Mapa de situaciÛn, Si TIPO = F, se trata de grupos de cartografia para selecciÛn de fondo
+	GGI_TYPE	VARCHAR2(30)	-- C, F=Fondo, M=Mapa de situaci√≥n, Si TIPO = F, se trata de grupos de cartografia para selecci√≥n de fondo
 );
 PROMPT Creando Primary Key on 'STM_GRP_GI'
 ALTER TABLE STM_GRP_GI ADD CONSTRAINT STM_GGI_PK PRIMARY KEY (GGI_ID) USING INDEX TABLESPACE STM3_NDX;
@@ -352,11 +352,11 @@ CREATE TABLE STM_APP (
 	APP_NAME	VARCHAR2(80)	NOT NULL,
 	APP_TYPE	VARCHAR2(250),
 	APP_TITLE	VARCHAR2(250),						-- a mostrar en la interficie
-	APP_THEME	VARCHAR2(30) ,						-- tema a aplicar a la interfÌcie. define el css a utilizar.
+	APP_THEME	VARCHAR2(30) ,						-- tema a aplicar a la interf√≠cie. define el css a utilizar.
 	APP_SCALES	VARCHAR2(250),						-- lista de escalas separadas por comas
 	APP_PROJECT	VARCHAR2(250),						-- la proyecciona a utilizar en esta aplicacion.
-	APP_TEMPLATE	VARCHAR2(250)	NOT NULL,				-- el visor jsp a cargar para esta aplicaciÛn
-	APP_REFRESH	NUMBER(1)	CHECK ("APP_REFRESH" IN (0,1)),	-- indica si la aplicaciÛn tiene un boton de "actualizar mapa" o si al activar un layer se actualiza autom.
+	APP_TEMPLATE	VARCHAR2(250)	NOT NULL,				-- el visor jsp a cargar para esta aplicaci√≥n
+	APP_REFRESH	NUMBER(1)	CHECK ("APP_REFRESH" IN (0,1)),	-- indica si la aplicaci√≥n tiene un boton de "actualizar mapa" o si al activar un layer se actualiza autom.
 	APP_ENTRYS	NUMBER(1)	CHECK ("APP_ENTRYS" IN (0,1)), -- supramunicipal entrar por padre
 	APP_ENTRYM	NUMBER(1)	CHECK ("APP_ENTRYM" IN (0,1)), -- supramunicipal entrar por hijo	
 	APP_GGIID	NUMBER(11),
@@ -437,7 +437,7 @@ PROMPT Creando Table 'STM_TREE'
 CREATE TABLE STM_TREE (
 	TRE_ID	NUMBER(11)	NOT NULL,
 	TRE_NAME	VARCHAR2(100)	NOT NULL,
-	TRE_USERID	NUMBER(11) -- si est· informado indica que es privado 
+	TRE_USERID	NUMBER(11) -- si est√° informado indica que es privado 
 );
 PROMPT Creando Primary Key on STM_TREE
 ALTER TABLE STM_TREE ADD CONSTRAINT STM_TRE_PK PRIMARY KEY (TRE_ID) USING INDEX TABLESPACE STM3_NDX;
@@ -450,7 +450,7 @@ CREATE TABLE STM_TREE_NOD (
 	TNO_ID	NUMBER(11)	NOT NULL,
 	TNO_PARENTID	NUMBER(11),
 	TNO_NAME	VARCHAR2(80)	NOT NULL,
-	TNO_ABSTRACT	VARCHAR2(250),	-- DescripciÛn multi-idioma
+	TNO_ABSTRACT	VARCHAR2(250),	-- Descripci√≥n multi-idioma
 	TNO_TOOLTIP	VARCHAR2(100),
 	TNO_ACTIVE	NUMBER(1)	CHECK ("TNO_ACTIVE" IN (0,1)),	-- inicialmente seleccionado
 	TNO_RADIO	NUMBER(1)	CHECK ("TNO_RADIO" IN (0,1)),	-- solo aplicable a carpetas
@@ -459,8 +459,8 @@ CREATE TABLE STM_TREE_NOD (
 	TNO_DATAURL	VARCHAR2(2000), -- Url zip para descarga
 	TNO_FILTER_GM	NUMBER(1)	CHECK ("TNO_FILTER_GM" IN (0,1)),  -- aplicar filtros para GetMap?
 	TNO_FILTER_GFI	NUMBER(1)	CHECK ("TNO_FILTER_GFI" IN (0,1)),  -- aplicar filtros para FeatureInfo?
-	TNO_QUERYACT	NUMBER(1)	CHECK ("TNO_QUERYACT" IN (0,1)),  -- si es nulo, utiliza el valor de cartografÌa
-	TNO_FILTER_SE	NUMBER(1)	CHECK ("TNO_FILTER_SE" IN (0,1)),  -- aplicar filtros para selecciÛn?
+	TNO_QUERYACT	NUMBER(1)	CHECK ("TNO_QUERYACT" IN (0,1)),  -- si es nulo, utiliza el valor de cartograf√≠a
+	TNO_FILTER_SE	NUMBER(1)	CHECK ("TNO_FILTER_SE" IN (0,1)),  -- aplicar filtros para selecci√≥n?
 	TNO_TREEID	NUMBER(11)	NOT NULL,
 	TNO_GIID	NUMBER(11)
 );
@@ -485,7 +485,7 @@ PROMPT Creando Table 'STM_SERVICE'
 CREATE TABLE STM_SERVICE (
 	SER_ID	NUMBER(11)	NOT NULL,
 	SER_NAME	VARCHAR2(60)	NOT NULL,
-	SER_ABSTRACT	VARCHAR2(250),	-- DescripciÛn multi-idioma
+	SER_ABSTRACT	VARCHAR2(250),	-- Descripci√≥n multi-idioma
 	SER_URL	VARCHAR2(250)	NOT NULL,
 	SER_PROJECTS	VARCHAR2(250),			-- lista de proyecciones que suporta este servicio.ej: EPSG:4326,EPSG:23031,...
 	SER_LEGEND	VARCHAR2(250),
@@ -660,7 +660,8 @@ CREATE TABLE STM_LOG (
 	LOG_FORMAT	VARCHAR2(250),
 	LOG_BUFFER	NUMBER(1)	CHECK ("LOG_BUFFER" IN (0,1)),
 	LOG_EMAIL	VARCHAR2(250),
-	LOG_OTHER	VARCHAR2(4000)
+	LOG_OTHER	VARCHAR2(4000),
+    LOG_GIID    NUMBER(11)
 );
 PROMPT Creando Primary Key on 'STM_LOG'
 ALTER TABLE STM_LOG ADD CONSTRAINT STM_LOG_PK PRIMARY KEY (LOG_ID) USING INDEX TABLESPACE STM3_NDX;
@@ -672,7 +673,7 @@ PROMPT Creando Table 'STM_DOWNLOAD'
 --------------------------------------------------
 CREATE TABLE STM_DOWNLOAD (	
 	DOW_ID	NUMBER(11) NOT NULL,
-	DOW_EXT	VARCHAR2(5) NOT NULL,  -- ExtensiÛn del archivo
+	DOW_EXT	VARCHAR2(5) NOT NULL,  -- Extensi√≥n del archivo
 	DOW_TYPE	VARCHAR2(1) DEFAULT 'U' NOT NULL,
 	DOW_PATH	VARCHAR2(300)
 );
@@ -772,7 +773,7 @@ PROMPT Creando Table 'STM_LANGUAGE'
 CREATE TABLE STM_LANGUAGE (
 	LAN_ID	NUMBER(11)	NOT NULL,
 	LAN_SHORTNAME	VARCHAR2(3)	NOT NULL, -- (CAT,ESP,ENG,...)
-	LAN_NAME	VARCHAR2(80)	NOT NULL  -- Catal‡, EspaÒol, English, ...
+	LAN_NAME	VARCHAR2(80)	NOT NULL  -- Catal√†, Espa√±ol, English, ...
 );
 PROMPT Creando Primary Key on 'STM_LANGUAGE'
 ALTER TABLE STM_LANGUAGE ADD CONSTRAINT STM_LAN_PK PRIMARY KEY (LAN_ID) USING INDEX TABLESPACE STM3_NDX;
@@ -795,17 +796,17 @@ ALTER TABLE STM_TRANSLATION ADD CONSTRAINT STM_TRA_PK PRIMARY KEY (TRA_ID) USING
 ALTER TABLE STM_TRANSLATION ADD CONSTRAINT STM_TRA_UK UNIQUE (TRA_ELEID,TRA_COLUMN,TRA_LANID) USING INDEX TABLESPACE STM3_NDX;
 
 --------------------------------------------------
--- Tabla auxiliar para migraciÛn de STM2
+-- Tabla auxiliar para migraci√≥n de STM2
 PROMPT Creando Table 'STM_AUXMIGRATION'
 --------------------------------------------------
 CREATE TABLE STM_AUXMIGRATION (
 	AUX_ID	NUMBER(11)	NOT NULL,
 	AUX_ELEID	NUMBER(11)	NOT NULL,
 	AUX_COLUMN	VARCHAR2(30)	NOT NULL,  -- nombre de columna incluye el prefijo de la tabla
-	AUX_VALUE_A	VARCHAR2(4000), -- Valor alfanumÈrico
+	AUX_VALUE_A	VARCHAR2(4000), -- Valor alfanum√©rico
 	AUX_VALUE_D	DATE, -- Valor fecha
-	AUX_VALUE_N	NUMBER, -- Valor numÈrico
-	AUX_VALUETYPE	VARCHAR2(1)	CHECK ("AUX_VALUETYPE" IN ('A','D','N'))  -- Tipo del valor (A=AlfanumÈrico,D=Fecha,N=NumÈrico)
+	AUX_VALUE_N	NUMBER, -- Valor num√©rico
+	AUX_VALUETYPE	VARCHAR2(1)	CHECK ("AUX_VALUETYPE" IN ('A','D','N'))  -- Tipo del valor (A=Alfanum√©rico,D=Fecha,N=Num√©rico)
 );
 PROMPT Creando Primary Key on 'STM_TRANSLATION'
 ALTER TABLE STM_AUXMIGRATION ADD CONSTRAINT STM_AUX_PK PRIMARY KEY (AUX_ID) USING INDEX TABLESPACE STM3_NDX;
