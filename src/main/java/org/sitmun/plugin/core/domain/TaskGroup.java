@@ -13,7 +13,7 @@ import javax.persistence.TableGenerator;
  * Task group.
  */
 @Entity
-@Table(name = "STM_GRP_TASK")
+@Table(name = "STM_GRP_TSK")
 public class TaskGroup {
 
   /**
@@ -21,9 +21,9 @@ public class TaskGroup {
    */
   @TableGenerator(
       name = "GTA_CODIGO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "GTS_ID",
       allocationSize = 1)
   @Id

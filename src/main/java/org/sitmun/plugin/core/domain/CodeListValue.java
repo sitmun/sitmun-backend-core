@@ -23,9 +23,9 @@ public class CodeListValue {
    */
   @TableGenerator(
       name = "STM_CODELIST_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "COD_ID",
       allocationSize = 1)
   @Id

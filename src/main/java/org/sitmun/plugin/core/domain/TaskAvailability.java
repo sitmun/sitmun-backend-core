@@ -30,9 +30,9 @@ public class TaskAvailability {
    */
   @TableGenerator(
       name = "STM_DISPTAREA_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "ATS_ID",
       allocationSize = 1)
   @Id

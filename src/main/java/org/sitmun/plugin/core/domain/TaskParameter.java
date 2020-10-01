@@ -25,9 +25,9 @@ public class TaskParameter {
    */
   @TableGenerator(
       name = "STM_PARAMTTA_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "PTT_ID",
       allocationSize = 1)
   @Id

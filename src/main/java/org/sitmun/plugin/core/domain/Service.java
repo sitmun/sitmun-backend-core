@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 /**
  * Service.
@@ -28,9 +29,9 @@ public class Service {
    */
   @TableGenerator(
       name = "STM_SERVICIO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "SER_ID",
       allocationSize = 1)
   @Id
@@ -42,6 +43,7 @@ public class Service {
    * Service name.
    */
   @Column(name = "SER_NAME", length = 30)
+  @NotNull
   private String name;
 
   /**
@@ -54,6 +56,7 @@ public class Service {
    * Service endpoint.
    */
   @Column(name = "SER_URL", length = 250)
+  @NotNull
   private String serviceURL;
 
   /**
@@ -86,6 +89,7 @@ public class Service {
    * The protocol that can be used to request the service.
    */
   @Column(name = "SER_PROTOCOL", length = 30)
+  @NotNull
   private String type;
 
   /**
@@ -93,7 +97,7 @@ public class Service {
    * Required when SITMUN acts as reverse proxy and the origin protocol has a protocol
    * different from the protocol declared in {@link #type}.
    */
-  @Column(name = "SER_NAT_PROTOCOL", length = 30)
+  @Column(name = "SER_NAT_PROT", length = 30)
   private String nativeProtocol;
 
   /**

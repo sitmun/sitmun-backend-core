@@ -31,9 +31,9 @@ public class CartographyGroup { //implements Identifiable {
    */
   @TableGenerator(
       name = "STM_GRPCARTO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "GGI_ID",
       allocationSize = 1)
   @Id
@@ -74,11 +74,11 @@ public class CartographyGroup { //implements Identifiable {
   @JoinTable(
       name = "STM_ROL_GGI",
       joinColumns = @JoinColumn(
-          name = "RGG_ROLEID",
-          foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")),
-      inverseJoinColumns = @JoinColumn(
           name = "RGG_GGIID",
-          foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
+          foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")),
+      inverseJoinColumns = @JoinColumn(
+          name = "RGG_ROLEID",
+          foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")))
   private Set<Role> roles;
 
   public BigInteger getId() {

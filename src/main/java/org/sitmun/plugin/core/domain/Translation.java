@@ -25,9 +25,9 @@ public class Translation {
    */
   @TableGenerator(
       name = "STM_TRANSLATION_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "TRA_ID",
       allocationSize = 1)
   @Id

@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -30,7 +31,7 @@ import javax.persistence.TemporalType;
  * An application.
  */
 @Entity
-@Table(name = "STM_APPS")
+@Table(name = "STM_APP")
 public class Application { //implements Identifiable {
 
   /**
@@ -39,8 +40,8 @@ public class Application { //implements Identifiable {
   @Id
   @Column(name = "APP_ID", precision = 11)
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
-  @TableGenerator(name = "STM_APPS_GEN", table = "STM_CODIGOS", pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR", pkColumnValue = "APP_ID", allocationSize = 1)
+  @TableGenerator(name = "STM_APPS_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
   private BigInteger id;
 
   /**
@@ -84,7 +85,8 @@ public class Application { //implements Identifiable {
    * If and Only if the application is a SITMUN 2 application.
    */
   @Column(name = "APP_TEMPLATE")
-  private Boolean jspTemplate;
+  @NotNull
+  private String jspTemplate;
 
   /**
    * True if the application refreshes automatically; False if an "update map" button is required.
@@ -210,11 +212,11 @@ public class Application { //implements Identifiable {
     this.srs = srs;
   }
 
-  public Boolean getJspTemplate() {
+  public String getJspTemplate() {
     return jspTemplate;
   }
 
-  public void setJspTemplate(Boolean jspTemplate) {
+  public void setJspTemplate(String jspTemplate) {
     this.jspTemplate = jspTemplate;
   }
 

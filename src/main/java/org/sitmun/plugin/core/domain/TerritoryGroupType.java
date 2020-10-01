@@ -24,9 +24,9 @@ public class TerritoryGroupType {
    */
   @TableGenerator(
       name = "STM_TIPOGRP_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "GTT_ID",
       allocationSize = 1)
   @Id

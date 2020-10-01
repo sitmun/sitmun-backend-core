@@ -26,9 +26,9 @@ public class CartographyStyle {
    */
   @TableGenerator(
       name = "STM_STY_GI_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "SGI_ID",
       allocationSize = 1)
   @Id

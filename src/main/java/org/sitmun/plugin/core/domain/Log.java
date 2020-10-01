@@ -26,9 +26,9 @@ public class Log {
    */
   @TableGenerator(
       name = "STM_LOG_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "LOG_ID",
       allocationSize = 1)
   @Id
@@ -87,7 +87,7 @@ public class Log {
   /**
    * Counter (to add up).
    */
-  @Column(name = "LOG_CONT", precision = 11)
+  @Column(name = "LOG_COUNT", precision = 11)
   private BigInteger counter;
 
   /**

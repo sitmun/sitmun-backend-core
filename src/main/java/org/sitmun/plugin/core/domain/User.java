@@ -26,9 +26,9 @@ public class User { //implements Identifiable<BigInteger> {
 
   @TableGenerator(
       name = "STM_USUARIO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "USE_ID",
       allocationSize = 1)
   @Id
@@ -76,7 +76,7 @@ public class User { //implements Identifiable<BigInteger> {
   /**
    * If <code>true</code>, the user is a system administrator.
    */
-  @Column(name = "USU_ADM")
+  @Column(name = "USE_ADM")
   private Boolean administrator;
 
   /**

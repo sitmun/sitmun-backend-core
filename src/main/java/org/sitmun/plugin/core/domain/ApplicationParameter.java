@@ -27,9 +27,9 @@ public class ApplicationParameter {
    */
   @TableGenerator(
       name = "STM_PARAMAPP_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "PAP_ID",
       allocationSize = 1)
   @Id
@@ -41,18 +41,21 @@ public class ApplicationParameter {
    * Application parameter name.
    */
   @Column(name = "PAP_NAME", length = 30)
+  @NotNull
   private String name;
 
   /**
    * Parameter value.
    */
   @Column(name = "PAP_VALUE", length = 250)
+  @NotNull
   private String value;
 
   /**
    * Parameter type.
    */
   @Column(name = "PAP_TYPE", length = 250)
+  @NotNull
   private String type;
 
   /**

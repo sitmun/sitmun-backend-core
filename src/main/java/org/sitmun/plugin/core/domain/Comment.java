@@ -26,9 +26,9 @@ public class Comment {
    */
   @TableGenerator(
       name = "STM_COMMENT_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "COM_ID",
       allocationSize = 1)
   @Id
@@ -41,14 +41,14 @@ public class Comment {
    */
   @Column(name = "COM_COORD_X")
   @NotNull
-  private Float coordinateX;
+  private Double coordinateX;
 
   /**
    * Coordinate Y of the place.
    */
   @Column(name = "COM_COORD_Y")
   @NotNull
-  private Float coordinateY;
+  private Double coordinateY;
 
   /**
    * Name of the person.
@@ -103,19 +103,19 @@ public class Comment {
     this.id = id;
   }
 
-  public Float getCoordinateX() {
+  public Double getCoordinateX() {
     return coordinateX;
   }
 
-  public void setCoordinateX(Float coordinateX) {
+  public void setCoordinateX(Double coordinateX) {
     this.coordinateX = coordinateX;
   }
 
-  public Float getCoordinateY() {
+  public Double getCoordinateY() {
     return coordinateY;
   }
 
-  public void setCoordinateY(Float coordinateY) {
+  public void setCoordinateY(Double coordinateY) {
     this.coordinateY = coordinateY;
   }
 

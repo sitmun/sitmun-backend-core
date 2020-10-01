@@ -35,9 +35,9 @@ public class Territory {
    */
   @TableGenerator(
       name = "STM_ETERRIT_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "TER_ID",
       allocationSize = 1)
   @Id
@@ -48,6 +48,7 @@ public class Territory {
   /**
    * Geographic code.
    */
+  @NotNull
   @Column(name = "TER_CODMUN", length = 250)
   private String code;
 
@@ -98,6 +99,7 @@ public class Territory {
    * <code>true</code> if the territory is blocked.
    */
   @Column(name = "TER_BLOCKED")
+  @NotNull
   private Boolean blocked;
 
   /**

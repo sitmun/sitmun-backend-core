@@ -42,9 +42,9 @@ public class Task { //implements Identifiable {
    */
   @TableGenerator(
       name = "STM_TAREA_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "TAS_ID",
       allocationSize = 1)
   @Id
@@ -134,10 +134,10 @@ public class Task { //implements Identifiable {
   @JoinTable(
       name = "STM_ROL_TSK",
       joinColumns = @JoinColumn(
-          name = "RST_ROLEID",
+          name = "RTS_ROLEID",
           foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")),
       inverseJoinColumns = @JoinColumn(
-          name = "RST_TASKID",
+          name = "RTS_TASKID",
           foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
   private Set<Role> roles;
 

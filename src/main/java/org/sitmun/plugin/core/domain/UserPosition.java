@@ -30,9 +30,9 @@ public class UserPosition {
    */
   @TableGenerator(
       name = "STM_CARGO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "POS_ID",
       allocationSize = 1)
   @Id

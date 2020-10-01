@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -36,9 +37,9 @@ public class Cartography { //implements Identifiable {
    */
   @TableGenerator(
       name = "STM_CARTO_GEN",
-      table = "STM_CODIGOS",
-      pkColumnName = "GEN_CODIGO",
-      valueColumnName = "GEN_VALOR",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
       pkColumnValue = "GEO_ID",
       allocationSize = 1)
   @Id
@@ -62,6 +63,7 @@ public class Cartography { //implements Identifiable {
    * List of layer identifiers, separated by comas in case of multiple layers.
    */
   @Column(name = "GEO_LAYERS", length = 800)
+  @NotNull
   private String layers;
 
   /**
@@ -92,6 +94,7 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, a filter is applied to GetMap requests.
    */
   @Column(name = "GEO_FILTER_GM")
+  @NotNull
   private Boolean applyFilterToGetMap;
 
   /**
@@ -117,6 +120,7 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, a filter is applied to GetFeatureInfo requests.
    */
   @Column(name = "GEO_FILTER_GFI")
+  @NotNull
   private Boolean applyFilterToGetFeatureInfo;
 
   /**
@@ -129,6 +133,7 @@ public class Cartography { //implements Identifiable {
    * Portrayal service.
    */
   @ManyToOne
+  @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
   private Service service;
 
@@ -148,13 +153,14 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, ta filter is applied to spatial selection requests.
    */
   @Column(name = "GEO_FILTER_SE")
+  @NotNull
   private Boolean applyFilterToSpatialSelection;
 
   /**
    * Selection service.
    */
   @ManyToOne
-  @JoinColumn(name = "CAR_CODSERSEL", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
+  @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
   private Service spatialSelectionService;
 
   /**

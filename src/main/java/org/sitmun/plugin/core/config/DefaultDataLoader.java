@@ -111,6 +111,8 @@ public class DefaultDataLoader implements ApplicationRunner {
     if (!optTerritory.isPresent()) {
       defaultTerritory = new Territory();
       defaultTerritory.setName(this.defaultTerritoryName);
+      defaultTerritory.setCode("");
+      defaultTerritory.setBlocked(false);
       territoryRepository.save(defaultTerritory);
     } else {
       defaultTerritory = optTerritory.get();
