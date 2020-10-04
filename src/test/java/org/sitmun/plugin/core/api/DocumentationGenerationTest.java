@@ -1,10 +1,10 @@
-package org.sitmun.plugin.core.swagger;
+package org.sitmun.plugin.core.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,8 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Ignore
-public class GenerateSwagger {
+public class DocumentationGenerationTest {
 
   TestRestTemplate restTemplate = new TestRestTemplate();
   @LocalServerPort
@@ -27,7 +26,9 @@ public class GenerateSwagger {
    * see https://github.com/springfox/springfox/issues/3469
    * This is planned to be fixed in SpringFox 3.0.1
    * see https://github.com/springfox/springfox/milestone/45
-   * FIXME Upgrade to SpringFox 3.0.1
+   *
+   * The current workaround is to add the annotation {@link JsonIgnore} to the parent-child
+   * properties involved.
    */
   @Test
   public void generateSwagger() throws IOException {

@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -23,6 +25,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import springfox.documentation.annotations.ApiIgnore;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -57,12 +60,14 @@ public class Task { //implements Identifiable {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_PARENTID")
+  @JsonIgnore
   private Task parent;
 
   /**
    * Children tasks.
    */
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+  @JsonIgnore
   private Set<Task> children = new HashSet<>();
 
   /**
