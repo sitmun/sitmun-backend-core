@@ -1,7 +1,7 @@
 language: java
 
 jdk:  
-  - openjdk8
+  - openjdk11
 
 addons:
   sonarcloud:
@@ -13,16 +13,7 @@ env:
 script: ./build-scripts/script.sh
 
 after_success:
-  # Save path variables
-  - PATH_JDK8=$PATH
-  - JAVA_HOME_JDK8=$JAVA_HOME
-  # SonarCloud requires analysis to be run on at least Java 11
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
-  - source ./install-jdk.sh --feature 11
   - ./build-scripts/after_success.sh
-  # Back to normal
-  - PATH=$PATH_JDK8
-  - JAVA_HOME=$JAVA_HOME_JDK8
   - ./build-scripts/deploy_docs.sh
 
 before_cache:
