@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +35,8 @@ public class DocumentationGenerationTest {
   public void generateSwagger() throws IOException {
     String response =
         restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
-    Files.asCharSink(new File("swagger.json"), Charset.defaultCharset()).write(response);
+    File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.json").toFile();
+    Files.createParentDirs(file);
+    Files.asCharSink(file, Charset.defaultCharset()).write(response);
   }
 }

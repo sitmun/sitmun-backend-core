@@ -136,9 +136,10 @@ clean {
 //
 
 convertSwagger2markup {
-  dependsOn test
+  if (!file("${swaggerOutputDir}/swagger.json").exists()) {
+    dependsOn test
+  }
   swaggerInput "${swaggerOutputDir}/swagger.json"
-  swaggerInput 'swagger.json'
   outputDir asciiDocOutputDir
   config = [
     'swagger2markup.pathsGroupedBy'                          : 'TAGS',
