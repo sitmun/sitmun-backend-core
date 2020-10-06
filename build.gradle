@@ -113,11 +113,14 @@ sonarqube {
   }
 }
 
-tasks['sonarqube'].dependsOn test
 
-test {
-  finalizedBy jacocoTestReport
+jacocoTestReport {
+  reports {
+    xml.enabled true
+  }
 }
+test.finalizedBy jacocoTestReport
+tasks['sonarqube'].dependsOn test
 
 def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
 
