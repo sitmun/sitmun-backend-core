@@ -1,7 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
  * Geographic Information filter.
@@ -73,7 +76,8 @@ public class CartographyFilter {
    * A row is part of the filter if the value of the column is one of these values.
    */
   @Column(name = "FGI_VALUE", length = 4000)
-  private String value;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> values;
 
   /**
    * Type of filter value.
@@ -137,12 +141,12 @@ public class CartographyFilter {
     this.column = column;
   }
 
-  public String getValue() {
-    return value;
+  public List<String> getValues() {
+    return values;
   }
 
-  public void setValue(String value) {
-    this.value = value;
+  public void setValues(List<String> value) {
+    this.values = value;
   }
 
   public String getValueType() {

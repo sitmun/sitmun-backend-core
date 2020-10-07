@@ -3,9 +3,11 @@ package org.sitmun.plugin.core.domain;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
@@ -19,6 +21,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -64,7 +67,8 @@ public class Cartography { //implements Identifiable {
    */
   @Column(name = "GEO_LAYERS", length = 800)
   @NotNull
-  private String layers;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> layers;
 
   /**
    * Minimum scale visibility.
@@ -114,7 +118,8 @@ public class Cartography { //implements Identifiable {
    * List of queryable layers.
    */
   @Column(name = "GEO_QUERYLAY", length = 500)
-  private String queryableLayers;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> queryableLayers;
 
   /**
    * If <code>true</code>, a filter is applied to GetFeatureInfo requests.
@@ -147,7 +152,8 @@ public class Cartography { //implements Identifiable {
    * Layer available for spatial selection.
    */
   @Column(name = "GEO_SELECTLAY", length = 500)
-  private String selectableLayers;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> selectableLayers;
 
   /**
    * If <code>true</code>, ta filter is applied to spatial selection requests.
@@ -274,11 +280,11 @@ public class Cartography { //implements Identifiable {
     this.description = description;
   }
 
-  public String getLayers() {
+  public List<String> getLayers() {
     return layers;
   }
 
-  public void setLayers(String layers) {
+  public void setLayers(List<String> layers) {
     this.layers = layers;
   }
 
@@ -338,11 +344,11 @@ public class Cartography { //implements Identifiable {
     this.queryableFeatureEnabled = queryableFeatureEnabled;
   }
 
-  public String getQueryableLayers() {
+  public List<String> getQueryableLayers() {
     return queryableLayers;
   }
 
-  public void setQueryableLayers(String queryableLayers) {
+  public void setQueryableLayers(List<String> queryableLayers) {
     this.queryableLayers = queryableLayers;
   }
 
@@ -378,11 +384,11 @@ public class Cartography { //implements Identifiable {
     this.selectableFeatureEnabled = selectableFeatureEnabled;
   }
 
-  public String getSelectableLayers() {
+  public List<String> getSelectableLayers() {
     return selectableLayers;
   }
 
-  public void setSelectableLayers(String selectableLayers) {
+  public void setSelectableLayers(List<String> selectableLayers) {
     this.selectableLayers = selectableLayers;
   }
 

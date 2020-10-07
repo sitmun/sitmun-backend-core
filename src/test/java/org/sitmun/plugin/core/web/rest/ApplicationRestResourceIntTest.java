@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
@@ -142,7 +143,7 @@ public class ApplicationRestResourceIntTest {
     Cartography publicCartography = new Cartography();
     publicCartography.setName(PUBLIC_CARTOGRAPHY_NAME);
     publicCartography.setService(publicService);
-    publicCartography.setLayers("");
+    publicCartography.setLayers(Collections.emptyList());
     publicCartography.setApplyFilterToGetMap(false);
     publicCartography.setApplyFilterToSpatialSelection(false);
     publicCartography.setApplyFilterToGetFeatureInfo(false);

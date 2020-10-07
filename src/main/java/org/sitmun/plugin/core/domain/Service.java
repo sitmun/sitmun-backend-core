@@ -3,9 +3,11 @@ package org.sitmun.plugin.core.domain;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +18,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
  * Service.
@@ -63,7 +66,8 @@ public class Service {
    * List of SRS supported by this service.
    */
   @Column(name = "SER_PROJECTS", length = 1000)
-  private String srs;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> supportedSRS;
 
   /**
    * Legend endpoint.
@@ -144,12 +148,12 @@ public class Service {
     this.serviceURL = serviceURL;
   }
 
-  public String getSrs() {
-    return srs;
+  public List<String> getSupportedSRS() {
+    return supportedSRS;
   }
 
-  public void setSrs(String srs) {
-    this.srs = srs;
+  public void setSupportedSRS(List<String> srs) {
+    this.supportedSRS = srs;
   }
 
   public String getLegendURL() {

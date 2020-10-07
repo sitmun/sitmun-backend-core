@@ -2,7 +2,9 @@ package org.sitmun.plugin.core.domain;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
  * Log.
@@ -98,10 +101,11 @@ public class Log {
 
   /**
    * If the log entry involves more than one territory, this field must contain a list of all the
-   * territories involved..
+   * territories involved.
    */
   @Column(name = "LOG_TEREXT", length = 250)
-  private String territoryExtent;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> territories;
 
   /**
    * Data (or process) requested.
@@ -219,12 +223,12 @@ public class Log {
     this.territoryCode = territoryCode;
   }
 
-  public String getTerritoryExtent() {
-    return territoryExtent;
+  public List<String> getTerritories() {
+    return territories;
   }
 
-  public void setTerritoryExtent(String territoryExtent) {
-    this.territoryExtent = territoryExtent;
+  public void setTerritories(List<String> territoryExtent) {
+    this.territories = territoryExtent;
   }
 
   public String getData() {

@@ -13,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +86,7 @@ public class CartographyRestResourceIntTest {
 
     cartography = new Cartography();
     cartography.setName(CARTOGRAPHY_NAME);
-    cartography.setLayers("");
+    cartography.setLayers(Collections.emptyList());
     cartography.setApplyFilterToGetMap(false);
     cartography.setApplyFilterToGetFeatureInfo(false);
     cartography.setApplyFilterToSpatialSelection(false);
@@ -93,7 +95,7 @@ public class CartographyRestResourceIntTest {
 
     Cartography cartographyWithAvailabilities = new Cartography();
     cartographyWithAvailabilities.setName("Cartography with availabilities");
-    cartographyWithAvailabilities.setLayers("");
+    cartographyWithAvailabilities.setLayers(Collections.emptyList());
     cartographyWithAvailabilities.setApplyFilterToGetMap(false);
     cartographyWithAvailabilities.setApplyFilterToGetFeatureInfo(false);
     cartographyWithAvailabilities.setApplyFilterToSpatialSelection(false);
@@ -116,7 +118,7 @@ public class CartographyRestResourceIntTest {
 
     String content = new JSONObject()
         .put("name", CARTOGRAPHY_NAME)
-        .put("layers", "")
+        .put("layers", new JSONArray())
         .put("applyFilterToGetMap", false)
         .put("applyFilterToSpatialSelection", false)
         .put("applyFilterToGetFeatureInfo", false)

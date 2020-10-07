@@ -3,9 +3,11 @@ package org.sitmun.plugin.core.domain;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
@@ -21,6 +23,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -72,7 +75,8 @@ public class Application { //implements Identifiable {
    * Scales to be used in this application.
    */
   @Column(name = "APP_SCALES", length = 250)
-  private String scales;
+  @Convert(converter = StringListAttributeConverter.class)
+  private List<String> scales;
 
   /**
    * Projection to be used in this application.
@@ -196,11 +200,11 @@ public class Application { //implements Identifiable {
     this.theme = theme;
   }
 
-  public String getScales() {
+  public List<String> getScales() {
     return scales;
   }
 
-  public void setScales(String scales) {
+  public void setScales(List<String> scales) {
     this.scales = scales;
   }
 
