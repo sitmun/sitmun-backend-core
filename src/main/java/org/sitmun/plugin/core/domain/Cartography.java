@@ -21,6 +21,8 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
@@ -173,6 +175,7 @@ public class Cartography { //implements Identifiable {
    * Legend type.
    */
   @Column(name = "GEO_LEGENDTIP", length = 500)
+  @CodeList(CodeLists.legendType)
   private String legendType;
 
   /**
@@ -255,6 +258,9 @@ public class Cartography { //implements Identifiable {
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CartographyParameter> parameters = new HashSet<>();
+
+  public Cartography() {
+  }
 
   public BigInteger getId() {
     return id;
@@ -522,6 +528,61 @@ public class Cartography { //implements Identifiable {
     this.parameters = parameters;
   }
 
+  private Cartography(BigInteger id, String name, String description,
+                      @NotNull List<String> layers, BigInteger minimumScale,
+                      BigInteger maximumScale, BigInteger order, BigInteger transparency,
+                      @NotNull Boolean applyFilterToGetMap,
+                      Boolean queryableFeatureAvailable, Boolean queryableFeatureEnabled,
+                      List<String> queryableLayers,
+                      @NotNull Boolean applyFilterToGetFeatureInfo, String type,
+                      @NotNull Service service, Boolean selectableFeatureEnabled,
+                      List<String> selectableLayers,
+                      @NotNull Boolean applyFilterToSpatialSelection,
+                      Service spatialSelectionService, String legendType, String legendURL,
+                      Date createdDate,
+                      Connection spatialSelectionConnection, String metadataURL,
+                      String datasetURL, Boolean thematic, String geometryType,
+                      String source,
+                      Set<CartographyAvailability> availabilities,
+                      Set<CartographyStyle> styles,
+                      CartographyStyle defaultStyle,
+                      Set<CartographyFilter> filters,
+                      Set<CartographyParameter> parameters) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.layers = layers;
+    this.minimumScale = minimumScale;
+    this.maximumScale = maximumScale;
+    this.order = order;
+    this.transparency = transparency;
+    this.applyFilterToGetMap = applyFilterToGetMap;
+    this.queryableFeatureAvailable = queryableFeatureAvailable;
+    this.queryableFeatureEnabled = queryableFeatureEnabled;
+    this.queryableLayers = queryableLayers;
+    this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
+    this.type = type;
+    this.service = service;
+    this.selectableFeatureEnabled = selectableFeatureEnabled;
+    this.selectableLayers = selectableLayers;
+    this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
+    this.spatialSelectionService = spatialSelectionService;
+    this.legendType = legendType;
+    this.legendURL = legendURL;
+    this.createdDate = createdDate;
+    this.spatialSelectionConnection = spatialSelectionConnection;
+    this.metadataURL = metadataURL;
+    this.datasetURL = datasetURL;
+    this.thematic = thematic;
+    this.geometryType = geometryType;
+    this.source = source;
+    this.availabilities = availabilities;
+    this.styles = styles;
+    this.defaultStyle = defaultStyle;
+    this.filters = filters;
+    this.parameters = parameters;
+  }
+
   //  public ResourceSupport toResource(RepositoryEntityLinks links) {
   //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
   //    ResourceSupport res = new Resource<>(this, selfLink);
@@ -534,4 +595,223 @@ public class Cartography { //implements Identifiable {
   //    return res;
   //  }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private String name;
+    private String description;
+    private @NotNull List<String> layers;
+    private BigInteger minimumScale;
+    private BigInteger maximumScale;
+    private BigInteger order;
+    private BigInteger transparency;
+    private @NotNull Boolean applyFilterToGetMap;
+    private Boolean queryableFeatureAvailable;
+    private Boolean queryableFeatureEnabled;
+    private List<String> queryableLayers;
+    private @NotNull Boolean applyFilterToGetFeatureInfo;
+    private String type;
+    private @NotNull Service service;
+    private Boolean selectableFeatureEnabled;
+    private List<String> selectableLayers;
+    private @NotNull Boolean applyFilterToSpatialSelection;
+    private Service spatialSelectionService;
+    private String legendType;
+    private String legendURL;
+    private Date createdDate;
+    private Connection spatialSelectionConnection;
+    private String metadataURL;
+    private String datasetURL;
+    private Boolean thematic;
+    private String geometryType;
+    private String source;
+    private Set<CartographyAvailability> availabilities;
+    private Set<CartographyStyle> styles;
+    private CartographyStyle defaultStyle;
+    private Set<CartographyFilter> filters;
+    private Set<CartographyParameter> parameters;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setLayers(@NotNull List<String> layers) {
+      this.layers = layers;
+      return this;
+    }
+
+    public Builder setMinimumScale(BigInteger minimumScale) {
+      this.minimumScale = minimumScale;
+      return this;
+    }
+
+    public Builder setMaximumScale(BigInteger maximumScale) {
+      this.maximumScale = maximumScale;
+      return this;
+    }
+
+    public Builder setOrder(BigInteger order) {
+      this.order = order;
+      return this;
+    }
+
+    public Builder setTransparency(BigInteger transparency) {
+      this.transparency = transparency;
+      return this;
+    }
+
+    public Builder setApplyFilterToGetMap(@NotNull Boolean applyFilterToGetMap) {
+      this.applyFilterToGetMap = applyFilterToGetMap;
+      return this;
+    }
+
+    public Builder setQueryableFeatureAvailable(Boolean queryableFeatureAvailable) {
+      this.queryableFeatureAvailable = queryableFeatureAvailable;
+      return this;
+    }
+
+    public Builder setQueryableFeatureEnabled(Boolean queryableFeatureEnabled) {
+      this.queryableFeatureEnabled = queryableFeatureEnabled;
+      return this;
+    }
+
+    public Builder setQueryableLayers(List<String> queryableLayers) {
+      this.queryableLayers = queryableLayers;
+      return this;
+    }
+
+    public Builder setApplyFilterToGetFeatureInfo(
+        @NotNull Boolean applyFilterToGetFeatureInfo) {
+      this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
+      return this;
+    }
+
+    public Builder setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder setService(@NotNull Service service) {
+      this.service = service;
+      return this;
+    }
+
+    public Builder setSelectableFeatureEnabled(Boolean selectableFeatureEnabled) {
+      this.selectableFeatureEnabled = selectableFeatureEnabled;
+      return this;
+    }
+
+    public Builder setSelectableLayers(List<String> selectableLayers) {
+      this.selectableLayers = selectableLayers;
+      return this;
+    }
+
+    public Builder setApplyFilterToSpatialSelection(
+        @NotNull Boolean applyFilterToSpatialSelection) {
+      this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
+      return this;
+    }
+
+    public Builder setSpatialSelectionService(Service spatialSelectionService) {
+      this.spatialSelectionService = spatialSelectionService;
+      return this;
+    }
+
+    public Builder setLegendType(String legendType) {
+      this.legendType = legendType;
+      return this;
+    }
+
+    public Builder setLegendURL(String legendURL) {
+      this.legendURL = legendURL;
+      return this;
+    }
+
+    public Builder setCreatedDate(Date createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder setSpatialSelectionConnection(Connection spatialSelectionConnection) {
+      this.spatialSelectionConnection = spatialSelectionConnection;
+      return this;
+    }
+
+    public Builder setMetadataURL(String metadataURL) {
+      this.metadataURL = metadataURL;
+      return this;
+    }
+
+    public Builder setDatasetURL(String datasetURL) {
+      this.datasetURL = datasetURL;
+      return this;
+    }
+
+    public Builder setThematic(Boolean thematic) {
+      this.thematic = thematic;
+      return this;
+    }
+
+    public Builder setGeometryType(String geometryType) {
+      this.geometryType = geometryType;
+      return this;
+    }
+
+    public Builder setSource(String source) {
+      this.source = source;
+      return this;
+    }
+
+    public Builder setAvailabilities(Set<CartographyAvailability> availabilities) {
+      this.availabilities = availabilities;
+      return this;
+    }
+
+    public Builder setStyles(Set<CartographyStyle> styles) {
+      this.styles = styles;
+      return this;
+    }
+
+    public Builder setDefaultStyle(CartographyStyle defaultStyle) {
+      this.defaultStyle = defaultStyle;
+      return this;
+    }
+
+    public Builder setFilters(Set<CartographyFilter> filters) {
+      this.filters = filters;
+      return this;
+    }
+
+    public Builder setParameters(Set<CartographyParameter> parameters) {
+      this.parameters = parameters;
+      return this;
+    }
+
+    /**
+     * Cartography builder.
+     * @return a new Cartography object.
+     */
+    public Cartography build() {
+      return new Cartography(id, name, description, layers, minimumScale, maximumScale, order,
+          transparency, applyFilterToGetMap, queryableFeatureAvailable, queryableFeatureEnabled,
+          queryableLayers, applyFilterToGetFeatureInfo, type, service, selectableFeatureEnabled,
+          selectableLayers, applyFilterToSpatialSelection, spatialSelectionService, legendType,
+          legendURL, createdDate, spatialSelectionConnection, metadataURL, datasetURL, thematic,
+          geometryType, source, availabilities, styles, defaultStyle, filters, parameters);
+    }
+  }
 }

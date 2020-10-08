@@ -1,9 +1,11 @@
 package org.sitmun.plugin.core.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.CartographyAvailability;
+import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
@@ -28,9 +30,12 @@ public class CartographyPermissionResolver implements PermissionResolver<Cartogr
 
       return false;
     } else if (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)) {
-      return (permissions.stream().map(UserConfiguration::getTerritory).anyMatch(
-          entity.getAvailabilities().stream().map(CartographyAvailability::getTerritory)
-              .collect(Collectors.toList())::contains));
+      List<Territory> availableTerritories = entity.getAvailabilities().stream()
+          .map(CartographyAvailability::getTerritory)
+          .collect(Collectors.toList());
+      return permissions.stream()
+          .map(UserConfiguration::getTerritory)
+          .anyMatch(availableTerritories::contains);
     }
 
     return false;

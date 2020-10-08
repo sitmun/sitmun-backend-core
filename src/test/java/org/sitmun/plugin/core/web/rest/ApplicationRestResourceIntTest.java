@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.Application;
 import org.sitmun.plugin.core.domain.ApplicationBackground;
 import org.sitmun.plugin.core.domain.ApplicationParameter;
@@ -47,6 +48,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,6 +62,15 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @Transactional
 public class ApplicationRestResourceIntTest {
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig();
+    }
+  }
+
   private static final String ADMIN_USERNAME = "admin";
   private static final String APP_URI = "http://localhost/api/applications";
   private static final String CARTOGRAPHY_GROUP_URI = "http://localhost/api/cartography-groups";
@@ -140,13 +153,15 @@ public class ApplicationRestResourceIntTest {
     this.serviceRepository.saveAll(services);
 
     //Cartographies
-    Cartography publicCartography = new Cartography();
-    publicCartography.setName(PUBLIC_CARTOGRAPHY_NAME);
-    publicCartography.setService(publicService);
-    publicCartography.setLayers(Collections.emptyList());
-    publicCartography.setApplyFilterToGetMap(false);
-    publicCartography.setApplyFilterToSpatialSelection(false);
-    publicCartography.setApplyFilterToGetFeatureInfo(false);
+    Cartography publicCartography = Cartography.builder()
+        .setName(PUBLIC_CARTOGRAPHY_NAME)
+        .setService(publicService)
+        .setLayers(Collections.emptyList())
+        .setApplyFilterToGetMap(false)
+        .setApplyFilterToSpatialSelection(false)
+        .setApplyFilterToGetFeatureInfo(false)
+        .build();
+
     Set<Cartography> cartographies = new HashSet<>();
     cartographies.add(publicCartography);
     this.cartographyRepository.saveAll(cartographies);

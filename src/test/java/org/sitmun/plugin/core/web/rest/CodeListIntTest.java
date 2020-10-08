@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import org.json.JSONArray;
@@ -37,12 +36,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class CartographyRestResourceIntTest {
+public class CodeListIntTest {
 
   @TestConfiguration
   static class ContextConfiguration {
@@ -133,7 +130,7 @@ public class CartographyRestResourceIntTest {
 
   @Test
   @WithMockUser(username = ADMIN_USERNAME)
-  public void postCartography() throws Exception {
+  public void passIfCodeListValueIsValid() throws Exception {
 
     String content = new JSONObject()
         .put("name", CARTOGRAPHY_NAME)
@@ -141,6 +138,7 @@ public class CartographyRestResourceIntTest {
         .put("applyFilterToGetMap", false)
         .put("applyFilterToSpatialSelection", false)
         .put("applyFilterToGetFeatureInfo", false)
+        .put("legendType", "LINK")
         .put("service", "http://localhost/api/services/" + service.getId())
         .toString();
 
@@ -159,18 +157,24 @@ public class CartographyRestResourceIntTest {
   }
 
   @Test
-  public void getCartographiesAsPublic() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_URI))
-        .andDo(print())
-        .andExpect(status().isOk());
-  }
+  @WithMockUser(username = ADMIN_USERNAME)
+  public void failIfCodeListValueIsWrong() throws Exception {
 
-  @Test
-  public void postCartographyAsPublicUserFails() throws Exception {
+    String content = new JSONObject()
+        .put("name", CARTOGRAPHY_NAME)
+        .put("layers", new JSONArray())
+        .put("applyFilterToGetMap", false)
+        .put("applyFilterToSpatialSelection", false)
+        .put("applyFilterToGetFeatureInfo", false)
+        .put("legendType", "WRONG VALUE")
+        .put("service", "http://localhost/api/services/" + service.getId())
+        .toString();
+
     mvc.perform(post(CARTOGRAPHY_URI)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(cartography)))
-        .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+        .content(content)
+    ).andExpect(status().is4xxClientError())
+        .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
+        .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));
   }
-
 }
