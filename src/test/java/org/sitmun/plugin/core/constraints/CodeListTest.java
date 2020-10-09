@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.web.rest;
+package org.sitmun.plugin.core.constraints;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -48,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class CodeListIntTest {
+public class CodeListTest {
 
   @TestConfiguration
   static class ContextConfiguration {
