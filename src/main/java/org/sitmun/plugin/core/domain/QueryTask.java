@@ -6,6 +6,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Query task.
@@ -26,6 +28,7 @@ public class QueryTask extends Task {
    * Command scope.
    */
   @Column(name = "QUE_TYPE", length = 250)
+  @CodeList(CodeLists.QUERY_TASK_SCOPE)
   private String scope;
 
   /**

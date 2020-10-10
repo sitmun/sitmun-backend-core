@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -56,6 +58,7 @@ public class CartographyFilter {
    */
   @Column(name = "FGI_TYPE", length = 1)
   @NotNull
+  @CodeList(CodeLists.CARTOGRAPHY_FILTER_TYPE)
   private String type;
 
   /**
@@ -83,6 +86,7 @@ public class CartographyFilter {
    * Type of filter value.
    */
   @Column(name = "FGI_VALUETYPE", length = 30)
+  @CodeList(CodeLists.CARTOGRAPHY_FILTER_VALUE_TYPE)
   private String valueType;
 
   /**

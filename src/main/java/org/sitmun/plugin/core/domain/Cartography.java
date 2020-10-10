@@ -175,7 +175,7 @@ public class Cartography { //implements Identifiable {
    * Legend type.
    */
   @Column(name = "GEO_LEGENDTIP", length = 500)
-  @CodeList(CodeLists.legendType)
+  @CodeList(CodeLists.CARTOGRAPHY_LEGEND_TYPE)
   private String legendType;
 
   /**
@@ -220,6 +220,7 @@ public class Cartography { //implements Identifiable {
    * Geometry type.
    */
   @Column(name = "GEO_GEOMTYPE", length = 50)
+  @CodeList(CodeLists.CARTOGRAPHY_GEOMETRY_TYPE)
   private String geometryType;
 
   /**

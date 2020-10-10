@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Download file task.
@@ -19,6 +21,7 @@ public class DownloadTask extends Task {
    */
   @Column(name = "DOW_EXT", length = 5)
   @NotNull
+  @CodeList(CodeLists.DOWNLOAD_TASK_FORMAT)
   private String format;
 
   /**
@@ -26,6 +29,7 @@ public class DownloadTask extends Task {
    */
   @Column(name = "DOW_TYPE", length = 5)
   @NotNull
+  @CodeList(CodeLists.DOWNLOAD_TASK_SCOPE)
   private String scope;
 
   /**

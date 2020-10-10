@@ -8,6 +8,8 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * A range defined in a thematic map.
@@ -67,6 +69,7 @@ public class ThematicMapRange {
    * Range fill style.
    */
   @Column(name = "TRK_STYLEINT", length = 30)
+  @CodeList(CodeLists.THEMATIC_MAP_RANGE_STYLE)
   private String fillStyle;
 
   /**
@@ -79,6 +82,7 @@ public class ThematicMapRange {
    * Range border style.
    */
   @Column(name = "TRK_STYLE", length = 30)
+  @CodeList(CodeLists.THEMATIC_MAP_RANGE_STYLE)
   private String borderStyle;
 
   /**

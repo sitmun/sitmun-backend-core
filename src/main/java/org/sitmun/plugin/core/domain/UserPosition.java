@@ -16,6 +16,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * User position in a territory.
@@ -76,6 +78,7 @@ public class UserPosition {
    * Type of user (only used in some cases).
    */
   @Column(name = "POS_TYPE", length = 2)
+  @CodeList(CodeLists.USER_POSITION_TYPE)
   private String type;
 
   /**

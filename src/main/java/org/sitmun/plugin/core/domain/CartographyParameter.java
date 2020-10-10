@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Geographic Information parameter.
@@ -51,6 +53,7 @@ public class CartographyParameter {
    * Format.
    */
   @Column(name = "PGI_FORMAT", length = 250)
+  @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_FORMAT)
   private String format;
 
   /**
@@ -58,6 +61,7 @@ public class CartographyParameter {
    */
   @Column(name = "PGI_TYPE", length = 250)
   @NotNull
+  @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_TYPE)
   private String type;
 
   /**

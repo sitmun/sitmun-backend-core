@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Task parameter.
@@ -51,6 +53,7 @@ public class TaskParameter {
    * Parameter type.
    */
   @Column(name = "PTT_TYPE", length = 30)
+  @CodeList(CodeLists.TASK_PARAMETER_TYPE)
   private String type;
 
   /**
@@ -63,6 +66,7 @@ public class TaskParameter {
    * Attribute format (when editing).
    */
   @Column(name = "PTT_FORMAT", length = 250)
+  @CodeList(CodeLists.TASK_PARAMETER_FORMAT)
   private String format;
 
   /**

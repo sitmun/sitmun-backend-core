@@ -21,6 +21,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Territorial entity.
@@ -81,6 +83,7 @@ public class Territory {
    * Territory scope.
    */
   @Column(name = "TER_SCOPE", length = 250)
+  @CodeList(CodeLists.TERRITORY_SCOPE)
   private String scope;
 
   /**

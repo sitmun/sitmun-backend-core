@@ -18,6 +18,8 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -94,6 +96,7 @@ public class Service {
    */
   @Column(name = "SER_PROTOCOL", length = 30)
   @NotNull
+  @CodeList(CodeLists.SERVICE_TYPE)
   private String type;
 
   /**
@@ -102,6 +105,7 @@ public class Service {
    * different from the protocol declared in {@link #type}.
    */
   @Column(name = "SER_NAT_PROT", length = 30)
+  @CodeList(CodeLists.SERVICE_NATIVE_PROTOCOL)
   private String nativeProtocol;
 
   /**

@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Thematic map.
@@ -52,6 +54,7 @@ public class ThematicMap {
    * equal size interval).
    */
   @Column(name = "THE_RANKTYPE", length = 30)
+  @CodeList(CodeLists.THEMATIC_MAP_TYPE)
   private String type;
 
   /**
@@ -133,6 +136,7 @@ public class ThematicMap {
    * Label value type (double or string).
    */
   @Column(name = "THE_VALUETYPE", length = 30)
+  @CodeList(CodeLists.THEMATIC_MAP_VALUE_TYPE)
   private String valueType;
 
   /**
@@ -145,6 +149,7 @@ public class ThematicMap {
    * If <code>null</code>, the destination of the map is SITMUN.
    */
   @Column(name = "THE_DESTINATION", length = 30)
+  @CodeList(CodeLists.THEMATIC_MAP_DESTINATION)
   private String destination;
 
   /**

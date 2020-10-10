@@ -13,6 +13,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -51,6 +53,7 @@ public class CartographyGroup { //implements Identifiable {
    * Group type.
    */
   @Column(name = "GGI_TYPE", length = 30)
+  @CodeList(CodeLists.CARTOGRAPHY_GROUP_TYPE)
   private String type;
 
   /**

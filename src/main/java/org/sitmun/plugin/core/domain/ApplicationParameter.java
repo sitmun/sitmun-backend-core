@@ -14,6 +14,8 @@ import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Application parameter.
@@ -56,6 +58,7 @@ public class ApplicationParameter {
    */
   @Column(name = "PAP_TYPE", length = 250)
   @NotNull
+  @CodeList(CodeLists.APPLICATION_PARAMETER_TYPE)
   private String type;
 
   /**

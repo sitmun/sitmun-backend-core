@@ -14,6 +14,8 @@ import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 /**
  * Service parameter.
@@ -53,6 +55,7 @@ public class ServiceParameter {
    * Parameter type.
    */
   @Column(name = "PSE_TYPE", length = 250)
+  @CodeList(CodeLists.SERVICE_PARAMETER_TYPE)
   private String type;
 
   /**

@@ -45,6 +45,8 @@ spring:
       hibernate.criteria.literal_handling_mode: BIND
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
+      # Disable Hibernate validation to avoid double validation
+      javax.persistence.validation.mode: none
     hibernate:
       use-new-id-generator-mappings: true
       ddl-auto: none

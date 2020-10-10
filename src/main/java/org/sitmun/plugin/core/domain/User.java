@@ -14,6 +14,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 // import org.springframework.hateoas.Identifiable;
 
 /**
@@ -71,6 +73,7 @@ public class User { //implements Identifiable<BigInteger> {
    * User identification type.
    */
   @Column(name = "USE_IDENTTYPE", length = 3)
+  @CodeList(CodeLists.USER_IDENTIFICATION_TYPE)
   private String identificationType;
 
   /**
