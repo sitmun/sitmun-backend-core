@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Type of territorial entities.
@@ -37,8 +37,8 @@ public class TerritoryType {
   /**
    * Name.
    */
-  @NotNull
-  @Column(name = "TET_NAME", nullable = false, length = 250)
+  @Column(name = "TET_NAME", length = 250)
+  @NotBlank
   private String name;
 
   public BigInteger getId() {
@@ -57,4 +57,34 @@ public class TerritoryType {
     this.name = name;
   }
 
+  public TerritoryType() {
+  }
+
+  private TerritoryType(BigInteger id, @NotBlank String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String name;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public TerritoryType build() {
+      return new TerritoryType(id, name);
+    }
+  }
 }

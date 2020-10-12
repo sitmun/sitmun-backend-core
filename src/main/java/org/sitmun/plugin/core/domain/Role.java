@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Role.
@@ -38,8 +38,8 @@ public class Role {
    * Role name.
    * Role names are unique and cannot be shared across applications.
    */
-  @NotNull
-  @Column(name = "ROL_NAME", nullable = false, length = 250)
+  @Column(name = "ROL_NAME", length = 250)
+  @NotBlank
   private String name;
 
   /**
@@ -85,4 +85,41 @@ public class Role {
     return super.hashCode();
   }
 
+  public Role() {
+  }
+
+  private Role(BigInteger id, @NotBlank String name, String description) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String name;
+    private String description;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Role build() {
+      return new Role(id, name, description);
+    }
+  }
 }

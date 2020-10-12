@@ -44,18 +44,13 @@ public class UserPositionRepositoryTest {
     user.setPermissions(null);
     userRepository.save(user);
 
-    Territory territory = new Territory();
-    territory.setName("Admin");
-    territory.setScope(null);
-    territory.setBlocked(false);
-    territory.setTerritorialAuthorityAddress(null);
-    territory.setTerritorialAuthorityEmail("email@email.org");
-    territory.setExtent(null);
-    territory.setCreatedDate(new Date());
-    territory.setTerritorialAuthorityLogo(null);
-    territory.setMembers(null);
-    territory.setTerritorialAuthorityName("Test");
-    territory.setNote(null);
+    Territory territory = Territory.builder()
+        .setName("Admin")
+        .setBlocked(false)
+        .setTerritorialAuthorityEmail("email@email.org")
+        .setCreatedDate(new Date())
+        .setTerritorialAuthorityName("Test")
+        .build();
     territorioRepository.save(territory);
 
     userPosition = new UserPosition();

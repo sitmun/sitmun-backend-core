@@ -55,6 +55,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 
 @RunWith(SpringRunner.class)
@@ -66,8 +68,13 @@ public class ApplicationRestResourceIntTest {
   @TestConfiguration
   static class ContextConfiguration {
     @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
     RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig();
+      return new RepositoryRestConfig(validator());
     }
   }
 
@@ -174,7 +181,7 @@ public class ApplicationRestResourceIntTest {
     Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
     cartographyAvailabilities.add(publicCartographyAvailability);
     this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
-    publicCartographyAvailability = cartographyAvailabilities.iterator().next();
+    // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
     //Tree nodes
     Set<TreeNode> treeNodes = new HashSet<>();
@@ -184,7 +191,7 @@ public class ApplicationRestResourceIntTest {
     publicTreeNode.setTree(publicTree);
     treeNodes.add(publicTreeNode);
     this.treeNodeRepository.saveAll(treeNodes);
-    publicTreeNode = treeNodes.iterator().next();
+    // publicTreeNode = treeNodes.iterator().next();
 
     //Cartography group
     Set<CartographyGroup> cartographyGroups = new HashSet<>();

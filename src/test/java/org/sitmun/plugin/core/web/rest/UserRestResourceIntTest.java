@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
@@ -48,6 +49,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -58,8 +61,13 @@ public class UserRestResourceIntTest {
   @TestConfiguration
   static class ContextConfiguration {
     @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
     RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig();
+      return new RepositoryRestConfig(validator());
     }
   }
 
@@ -130,15 +138,17 @@ public class UserRestResourceIntTest {
     defaultTerritory = territoryRepository.findOneByName(this.defaultTerritoryName).get();
     ArrayList<Territory> territoriesToCreate = new ArrayList<>();
     ArrayList<User> usersToCreate = new ArrayList<>();
-    territory1 = new Territory();
-    territory1.setName("Territorio 1");
-    territory1.setCode("");
-    territory1.setBlocked(false);
+    territory1 = Territory.builder()
+        .setName("Territorio 1")
+        .setCode("")
+        .setBlocked(false)
+        .build();
 
-    territory2 = new Territory();
-    territory2.setName("Territorio 2");
-    territory2.setCode("");
-    territory2.setBlocked(false);
+    territory2 =  Territory.builder()
+        .setName("Territorio 2")
+        .setCode("")
+        .setBlocked(false)
+        .build();
     territoriesToCreate.add(territory1);
     territoriesToCreate.add(territory2);
 
@@ -211,6 +221,8 @@ public class UserRestResourceIntTest {
         .content(asJsonString(newUser))
     ).andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("Location");
+
+    assertThat(uri).isNotNull();
 
     mvc.perform(get(uri)
         .header(HEADER_STRING, TOKEN_PREFIX + token)
@@ -308,19 +320,19 @@ public class UserRestResourceIntTest {
 
 
   @Test
-  public void createNewUserAsOrganizationAdmin() throws Exception {
+  public void createNewUserAsOrganizationAdmin() {
     // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
     // ok is expected. The new user has roles linked to my organization territory
   }
 
   @Test
-  public void assignRoleToUserAsOrganizationAdmin() throws Exception {
+  public void assignRoleToUserAsOrganizationAdmin() {
     // TODO
     // ok is expected. The new user has roles linked to my organization territory
   }
 
   @Test
-  public void updateUserAsOrganizationAdmin() throws Exception {
+  public void updateUserAsOrganizationAdmin() {
     // TODO
     // Update user (linked to the same organization) by an organization admin user
     // (ADMIN DE ORGANIZACION)
@@ -328,7 +340,7 @@ public class UserRestResourceIntTest {
   }
 
   @Test
-  public void updateUserPasswordAsOrganizationAdmin() throws Exception {
+  public void updateUserPasswordAsOrganizationAdmin() {
     // TODO
     // Update user password (linked to the same organization) by an organization
     // admin user (ADMIN DE ORGANIZACION)
@@ -336,14 +348,14 @@ public class UserRestResourceIntTest {
   }
 
   @Test
-  public void assignRoleToUserAsOtherOrganizationAdminFails() throws Exception {
+  public void assignRoleToUserAsOtherOrganizationAdminFails() {
     // TODO
     // fail is expected. No permission to assign territory role to user if don't
     // have territory role
   }
 
   @Test
-  public void updateUserAsOtherOrganizationAdminFails() throws Exception {
+  public void updateUserAsOtherOrganizationAdminFails() {
     // TODO
     // Update user (linked to another organization) by an organization admin user
     // (ADMIN DE ORGANIZACION)
@@ -351,7 +363,7 @@ public class UserRestResourceIntTest {
   }
 
   @Test
-  public void updateUserPasswordAsOtherOrganizationAdminFails() throws Exception {
+  public void updateUserPasswordAsOtherOrganizationAdminFails() {
     // TODO
     // Update user password (linked to another organization) by an organization
     // admin user (ADMIN DE ORGANIZACION)

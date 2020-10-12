@@ -54,8 +54,9 @@ public class ApplicationRepositoryTest {
     application.setType(null);
     application.setTitle("Test");
 
-    Role rol = new Role();
-    rol.setName("Rol 1");
+    Role rol = Role.builder()
+        .setName("Rol 1")
+        .build();
     application.getAvailableRoles().add(rol);
 
     CartographyGroup cartographyGroup;

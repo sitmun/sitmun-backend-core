@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -37,8 +38,8 @@ public class TerritoryGroupType {
   /**
    * Name.
    */
-  @NotNull
-  @Column(name = "GTT_NAME", nullable = false, length = 250)
+  @NotBlank
+  @Column(name = "GTT_NAME", length = 250)
   private String name;
 
   public BigInteger getId() {
@@ -57,4 +58,35 @@ public class TerritoryGroupType {
     this.name = name;
   }
 
+  public TerritoryGroupType() {
+  }
+
+  private TerritoryGroupType(BigInteger id,
+                             @NotNull String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotNull String name;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public TerritoryGroupType build() {
+      return new TerritoryGroupType(id, name);
+    }
+  }
 }

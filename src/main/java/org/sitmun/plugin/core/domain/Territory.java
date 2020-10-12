@@ -20,6 +20,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -50,15 +51,15 @@ public class Territory {
   /**
    * Geographic code.
    */
-  @NotNull
   @Column(name = "TER_CODMUN", length = 250)
+  @NotBlank
   private String code;
 
   /**
    * Territory name.
    */
-  @NotNull
-  @Column(name = "TER_NAME", nullable = false, length = 250)
+  @Column(name = "TER_NAME", length = 250)
+  @NotBlank
   private String name;
 
   /**
@@ -301,4 +302,141 @@ public class Territory {
     return super.hashCode();
   }
 
+  public Territory() {
+  }
+
+  private Territory(BigInteger id, @NotBlank String code,
+                    @NotBlank String name, String territorialAuthorityName,
+                    String territorialAuthorityAddress, String territorialAuthorityEmail,
+                    String scope, String territorialAuthorityLogo, String extent,
+                    @NotNull Boolean blocked, TerritoryType type, String note,
+                    Date createdDate, TerritoryGroupType groupType,
+                    Set<Territory> members,
+                    Set<Territory> memberOf) {
+    this.id = id;
+    this.code = code;
+    this.name = name;
+    this.territorialAuthorityName = territorialAuthorityName;
+    this.territorialAuthorityAddress = territorialAuthorityAddress;
+    this.territorialAuthorityEmail = territorialAuthorityEmail;
+    this.scope = scope;
+    this.territorialAuthorityLogo = territorialAuthorityLogo;
+    this.extent = extent;
+    this.blocked = blocked;
+    this.type = type;
+    this.note = note;
+    this.createdDate = createdDate;
+    this.groupType = groupType;
+    this.members = members;
+    this.memberOf = memberOf;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String code;
+    private @NotBlank String name;
+    private String territorialAuthorityName;
+    private String territorialAuthorityAddress;
+    private String territorialAuthorityEmail;
+    private String scope;
+    private String territorialAuthorityLogo;
+    private String extent;
+    private @NotNull Boolean blocked;
+    private TerritoryType type;
+    private String note;
+    private Date createdDate;
+    private TerritoryGroupType groupType;
+    private Set<Territory> members;
+    private Set<Territory> memberOf;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setCode(String code) {
+      this.code = code;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setTerritorialAuthorityName(String territorialAuthorityName) {
+      this.territorialAuthorityName = territorialAuthorityName;
+      return this;
+    }
+
+    public Builder setTerritorialAuthorityAddress(String territorialAuthorityAddress) {
+      this.territorialAuthorityAddress = territorialAuthorityAddress;
+      return this;
+    }
+
+    public Builder setTerritorialAuthorityEmail(String territorialAuthorityEmail) {
+      this.territorialAuthorityEmail = territorialAuthorityEmail;
+      return this;
+    }
+
+    public Builder setScope(String scope) {
+      this.scope = scope;
+      return this;
+    }
+
+    public Builder setTerritorialAuthorityLogo(String territorialAuthorityLogo) {
+      this.territorialAuthorityLogo = territorialAuthorityLogo;
+      return this;
+    }
+
+    public Builder setExtent(String extent) {
+      this.extent = extent;
+      return this;
+    }
+
+    public Builder setBlocked(@NotNull Boolean blocked) {
+      this.blocked = blocked;
+      return this;
+    }
+
+    public Builder setType(TerritoryType type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder setNote(String note) {
+      this.note = note;
+      return this;
+    }
+
+    public Builder setCreatedDate(Date createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder setGroupType(TerritoryGroupType groupType) {
+      this.groupType = groupType;
+      return this;
+    }
+
+    public Builder setMembers(Set<Territory> members) {
+      this.members = members;
+      return this;
+    }
+
+    public Builder setMemberOf(Set<Territory> memberOf) {
+      this.memberOf = memberOf;
+      return this;
+    }
+
+    public Territory build() {
+      return new Territory(id, code, name, territorialAuthorityName, territorialAuthorityAddress,
+          territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,
+          createdDate, groupType, members, memberOf);
+    }
+  }
 }

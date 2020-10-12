@@ -27,22 +27,17 @@ public class UserRepositoryTest {
 
   @Before
   public void init() {
-    TerritoryType type = new TerritoryType();
+    TerritoryType type = new TerritoryType.Builder().build();
     type.setName("tipo Territorio 1");
 
-    Territory territory = new Territory();
-    territory.setName("Admin");
-    territory.setScope(null);
-    territory.setBlocked(false);
-    territory.setTerritorialAuthorityAddress(null);
-    territory.setTerritorialAuthorityEmail("email@email.org");
-    territory.setExtent(null);
-    territory.setCreatedDate(new Date());
-    territory.setTerritorialAuthorityLogo(null);
-    territory.setMembers(null);
-    territory.setTerritorialAuthorityName("Test");
-    territory.setNote(null);
-    territory.setType(type);
+    Territory territory = Territory.builder()
+        .setName("Admin")
+        .setBlocked(false)
+        .setTerritorialAuthorityEmail("email@email.org")
+        .setCreatedDate(new Date())
+        .setTerritorialAuthorityName("Test")
+        .setType(type)
+        .build();
 
     user = new User();
     user.setFirstName("Admin");
@@ -54,9 +49,10 @@ public class UserRepositoryTest {
     user.setPositions(null);
     user.setPermissions(null);
 
-    Role role = new Role();
-    role.setName("rol-admin");
-    role.setDescription("rol de administrador");
+    Role role = Role.builder()
+        .setName("rol-admin")
+        .setDescription("rol de administrador")
+        .build();
     UserConfiguration conf = new UserConfiguration();
     conf.setUser(user);
     conf.setRole(role);

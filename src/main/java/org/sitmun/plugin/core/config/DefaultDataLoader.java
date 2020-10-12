@@ -72,8 +72,9 @@ public class DefaultDataLoader implements ApplicationRunner {
     Optional<Role> optRole = roleRepository.findOneByName(AuthoritiesConstants.ADMIN_SITMUN);
     Role sitmunAdminRole;
     if (!optRole.isPresent()) {
-      sitmunAdminRole = new Role();
-      sitmunAdminRole.setName(AuthoritiesConstants.ADMIN_SITMUN);
+      sitmunAdminRole = Role.builder()
+          .setName(AuthoritiesConstants.ADMIN_SITMUN)
+          .build();
       roleRepository.save(sitmunAdminRole);
     } else {
       sitmunAdminRole = optRole.get();
@@ -81,8 +82,9 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role organizacionAdminRole;
     optRole = roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION);
     if (!optRole.isPresent()) {
-      organizacionAdminRole = new Role();
-      organizacionAdminRole.setName(AuthoritiesConstants.ADMIN_ORGANIZACION);
+      organizacionAdminRole = Role.builder()
+          .setName(AuthoritiesConstants.ADMIN_ORGANIZACION)
+          .build();
       roleRepository.save(organizacionAdminRole);
     } else {
       organizacionAdminRole = optRole.get();
@@ -90,8 +92,9 @@ public class DefaultDataLoader implements ApplicationRunner {
     optRole = roleRepository.findOneByName(AuthoritiesConstants.USUARIO_TERRITORIAL);
     Role territorialRole;
     if (!optRole.isPresent()) {
-      territorialRole = new Role();
-      territorialRole.setName(AuthoritiesConstants.USUARIO_TERRITORIAL);
+      territorialRole = Role.builder()
+          .setName(AuthoritiesConstants.USUARIO_TERRITORIAL)
+          .build();
       roleRepository.save(territorialRole);
     } else {
       territorialRole = optRole.get();
@@ -100,8 +103,9 @@ public class DefaultDataLoader implements ApplicationRunner {
     optRole = roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO);
     Role publicRole;
     if (!optRole.isPresent()) {
-      publicRole = new Role();
-      publicRole.setName(AuthoritiesConstants.USUARIO_PUBLICO);
+      publicRole = Role.builder()
+          .setName(AuthoritiesConstants.USUARIO_PUBLICO)
+          .build();
       roleRepository.save(publicRole);
     } else {
       publicRole = optRole.get();
@@ -109,10 +113,11 @@ public class DefaultDataLoader implements ApplicationRunner {
     Optional<Territory> optTerritory = territoryRepository.findOneByName(this.defaultTerritoryName);
     Territory defaultTerritory;
     if (!optTerritory.isPresent()) {
-      defaultTerritory = new Territory();
-      defaultTerritory.setName(this.defaultTerritoryName);
-      defaultTerritory.setCode("");
-      defaultTerritory.setBlocked(false);
+      defaultTerritory = Territory.builder()
+          .setName(this.defaultTerritoryName)
+          .setCode("")
+          .setBlocked(false)
+          .build();
       territoryRepository.save(defaultTerritory);
     } else {
       defaultTerritory = optTerritory.get();

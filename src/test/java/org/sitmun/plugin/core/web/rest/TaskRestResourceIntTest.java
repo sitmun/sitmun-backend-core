@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
@@ -39,6 +40,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -49,8 +52,13 @@ public class TaskRestResourceIntTest {
   @TestConfiguration
   static class ContextConfiguration {
     @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
     RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig();
+      return new RepositoryRestConfig(validator());
     }
   }
 
@@ -118,6 +126,8 @@ public class TaskRestResourceIntTest {
         .content(asJsonString(task))
     ).andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("Location");
+
+    assertThat(uri).isNotNull();
 
     mvc.perform(get(uri))
         .andExpect(status().isOk())
