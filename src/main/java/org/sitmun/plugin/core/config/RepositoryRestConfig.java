@@ -7,7 +7,7 @@ import org.springframework.validation.Validator;
 
 public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
-  private Validator validator;
+  private final Validator validator;
 
   public RepositoryRestConfig(Validator validator) {
     this.validator = validator;

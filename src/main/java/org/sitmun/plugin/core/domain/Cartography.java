@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -56,6 +57,7 @@ public class Cartography { //implements Identifiable {
    * Cartography name.
    */
   @Column(name = "GEO_NAME", length = 100)
+  @NotBlank
   private String name;
 
   /**
@@ -261,6 +263,66 @@ public class Cartography { //implements Identifiable {
   private Set<CartographyParameter> parameters = new HashSet<>();
 
   public Cartography() {
+  }
+
+  private Cartography(BigInteger id,
+                      @NotBlank String name, String description,
+                      @NotNull List<String> layers, BigInteger minimumScale,
+                      BigInteger maximumScale, BigInteger order, BigInteger transparency,
+                      @NotNull Boolean applyFilterToGetMap,
+                      Boolean queryableFeatureAvailable, Boolean queryableFeatureEnabled,
+                      List<String> queryableLayers,
+                      @NotNull Boolean applyFilterToGetFeatureInfo, String type,
+                      @NotNull Service service, Boolean selectableFeatureEnabled,
+                      List<String> selectableLayers,
+                      @NotNull Boolean applyFilterToSpatialSelection,
+                      @NotNull Service spatialSelectionService, String legendType, String legendURL,
+                      Date createdDate,
+                      Connection spatialSelectionConnection, String metadataURL,
+                      String datasetURL, Boolean thematic, String geometryType,
+                      String source,
+                      Set<CartographyAvailability> availabilities,
+                      Set<CartographyStyle> styles,
+                      CartographyStyle defaultStyle,
+                      Set<CartographyFilter> filters,
+                      Set<CartographyParameter> parameters) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.layers = layers;
+    this.minimumScale = minimumScale;
+    this.maximumScale = maximumScale;
+    this.order = order;
+    this.transparency = transparency;
+    this.applyFilterToGetMap = applyFilterToGetMap;
+    this.queryableFeatureAvailable = queryableFeatureAvailable;
+    this.queryableFeatureEnabled = queryableFeatureEnabled;
+    this.queryableLayers = queryableLayers;
+    this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
+    this.type = type;
+    this.service = service;
+    this.selectableFeatureEnabled = selectableFeatureEnabled;
+    this.selectableLayers = selectableLayers;
+    this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
+    this.spatialSelectionService = spatialSelectionService;
+    this.legendType = legendType;
+    this.legendURL = legendURL;
+    this.createdDate = createdDate;
+    this.spatialSelectionConnection = spatialSelectionConnection;
+    this.metadataURL = metadataURL;
+    this.datasetURL = datasetURL;
+    this.thematic = thematic;
+    this.geometryType = geometryType;
+    this.source = source;
+    this.availabilities = availabilities;
+    this.styles = styles;
+    this.defaultStyle = defaultStyle;
+    this.filters = filters;
+    this.parameters = parameters;
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public BigInteger getId() {
@@ -525,65 +587,6 @@ public class Cartography { //implements Identifiable {
     return parameters;
   }
 
-  public void setParameters(Set<CartographyParameter> parameters) {
-    this.parameters = parameters;
-  }
-
-  private Cartography(BigInteger id, String name, String description,
-                      @NotNull List<String> layers, BigInteger minimumScale,
-                      BigInteger maximumScale, BigInteger order, BigInteger transparency,
-                      @NotNull Boolean applyFilterToGetMap,
-                      Boolean queryableFeatureAvailable, Boolean queryableFeatureEnabled,
-                      List<String> queryableLayers,
-                      @NotNull Boolean applyFilterToGetFeatureInfo, String type,
-                      @NotNull Service service, Boolean selectableFeatureEnabled,
-                      List<String> selectableLayers,
-                      @NotNull Boolean applyFilterToSpatialSelection,
-                      Service spatialSelectionService, String legendType, String legendURL,
-                      Date createdDate,
-                      Connection spatialSelectionConnection, String metadataURL,
-                      String datasetURL, Boolean thematic, String geometryType,
-                      String source,
-                      Set<CartographyAvailability> availabilities,
-                      Set<CartographyStyle> styles,
-                      CartographyStyle defaultStyle,
-                      Set<CartographyFilter> filters,
-                      Set<CartographyParameter> parameters) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.layers = layers;
-    this.minimumScale = minimumScale;
-    this.maximumScale = maximumScale;
-    this.order = order;
-    this.transparency = transparency;
-    this.applyFilterToGetMap = applyFilterToGetMap;
-    this.queryableFeatureAvailable = queryableFeatureAvailable;
-    this.queryableFeatureEnabled = queryableFeatureEnabled;
-    this.queryableLayers = queryableLayers;
-    this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
-    this.type = type;
-    this.service = service;
-    this.selectableFeatureEnabled = selectableFeatureEnabled;
-    this.selectableLayers = selectableLayers;
-    this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
-    this.spatialSelectionService = spatialSelectionService;
-    this.legendType = legendType;
-    this.legendURL = legendURL;
-    this.createdDate = createdDate;
-    this.spatialSelectionConnection = spatialSelectionConnection;
-    this.metadataURL = metadataURL;
-    this.datasetURL = datasetURL;
-    this.thematic = thematic;
-    this.geometryType = geometryType;
-    this.source = source;
-    this.availabilities = availabilities;
-    this.styles = styles;
-    this.defaultStyle = defaultStyle;
-    this.filters = filters;
-    this.parameters = parameters;
-  }
-
   //  public ResourceSupport toResource(RepositoryEntityLinks links) {
   //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
   //    ResourceSupport res = new Resource<>(this, selfLink);
@@ -596,13 +599,13 @@ public class Cartography { //implements Identifiable {
   //    return res;
   //  }
 
-  public static Builder builder() {
-    return new Builder();
+  public void setParameters(Set<CartographyParameter> parameters) {
+    this.parameters = parameters;
   }
 
   public static class Builder {
     private BigInteger id;
-    private String name;
+    private @NotBlank String name;
     private String description;
     private @NotNull List<String> layers;
     private BigInteger minimumScale;
@@ -804,6 +807,7 @@ public class Cartography { //implements Identifiable {
 
     /**
      * Cartography builder.
+     *
      * @return a new Cartography object.
      */
     public Cartography build() {

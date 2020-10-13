@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModelProperty;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,7 +24,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import springfox.documentation.annotations.ApiIgnore;
+import javax.validation.constraints.NotBlank;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -74,6 +73,7 @@ public class Task { //implements Identifiable {
    * Name.
    */
   @Column(name = "TAS_NAME", length = 250)
+  @NotBlank
   private String name;
 
   /**

@@ -43,19 +43,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class TreeRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String ADMIN_USERNAME = "admin";
   private static final String TREE_URI = "http://localhost/api/trees";
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-public Tree Node";
@@ -64,19 +51,14 @@ public class TreeRestResourceIntTest {
   private static final String NON_PUBLIC_TREE_NAME = "Non-public Tree Name";
   @Autowired
   TreeRepository treeRepository;
-
   @Autowired
   TreeNodeRepository treeNodeRepository;
-
   @Autowired
   RoleRepository roleRepository;
-
   @Autowired
   TokenProvider tokenProvider;
-
   @Autowired
   private MockMvc mvc;
-
   private Tree publicTree;
 
   @Before
@@ -128,11 +110,10 @@ public class TreeRestResourceIntTest {
   public void getPublicTreeNodesAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(TREE_URI + "/"+ publicTree.getId() + "/nodes"))
+    mvc.perform(get(TREE_URI + "/" + publicTree.getId() + "/nodes"))
         .andDo(print())
         .andExpect(status().isOk());
   }
-
 
   @Test
   public void getTreesAsTerritorialUser() {
@@ -219,6 +200,19 @@ public class TreeRestResourceIntTest {
   public void setBackgroundAsOtherOrganizationAdminFails() {
     // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }

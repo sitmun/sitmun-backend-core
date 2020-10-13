@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import org.json.JSONArray;
@@ -37,12 +36,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,22 +52,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class CartographyRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String ADMIN_USERNAME = "admin";
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
-
   private static final String CARTOGRAPHY_URI = "http://localhost/api/cartographies";
   @Autowired
   CartographyRepository cartographyRepository;
@@ -84,10 +67,8 @@ public class CartographyRestResourceIntTest {
   private ServiceRepository serviceRepository;
   @Autowired
   private MockMvc mvc;
-
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
-
   private Cartography cartography;
   private Service service;
 
@@ -178,6 +159,19 @@ public class CartographyRestResourceIntTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(cartography)))
         .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }

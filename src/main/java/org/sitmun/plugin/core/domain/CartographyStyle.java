@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -39,8 +40,8 @@ public class CartographyStyle {
   /**
    * Style name.
    */
-  @NotNull
   @Column(name = "SGI_NAME", length = 80)
+  @NotBlank
   private String name;
 
   /**

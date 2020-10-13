@@ -48,6 +48,19 @@ public class Role {
   @Column(name = "ROL_NOTE", length = 500)
   private String description;
 
+  public Role() {
+  }
+
+  private Role(BigInteger id, @NotBlank String name, String description) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BigInteger getId() {
     return id;
   }
@@ -83,19 +96,6 @@ public class Role {
   @Override
   public int hashCode() {
     return super.hashCode();
-  }
-
-  public Role() {
-  }
-
-  private Role(BigInteger id, @NotBlank String name, String description) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public static class Builder {

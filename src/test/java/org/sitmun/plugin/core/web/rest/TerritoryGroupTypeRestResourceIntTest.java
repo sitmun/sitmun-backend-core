@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
-import org.sitmun.plugin.core.repository.TerritoryGroupTypeRepository;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,21 +32,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class TerritoryGroupTypeRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String TERRITORY_URI = "http://localhost/api/territory-group-types";
-
   @Autowired
   private MockMvc mvc;
 
@@ -82,5 +67,18 @@ public class TerritoryGroupTypeRestResourceIntTest {
     ).andDo(print())
         .andExpect(status().isCreated())
         .andExpect(header().string("location", "http://localhost/api/territory-group-types/1"));
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 }

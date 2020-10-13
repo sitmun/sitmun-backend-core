@@ -13,6 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
@@ -47,6 +48,7 @@ public class CartographyGroup { //implements Identifiable {
    * Group name.
    */
   @Column(name = "GGI_NAME", length = 80)
+  @NotBlank
   private String name;
 
   /**

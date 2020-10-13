@@ -27,7 +27,7 @@ public class DocumentationGenerationTest {
    * see https://github.com/springfox/springfox/issues/3469
    * This is planned to be fixed in SpringFox 3.0.1
    * see https://github.com/springfox/springfox/milestone/45
-   *
+   * <p>
    * The current workaround is to add the annotation {@link JsonIgnore} to the parent-child
    * properties involved.
    */

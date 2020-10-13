@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -46,7 +47,7 @@ public class Translation {
    * Table and Column identifier.
    */
   @Column(name = "TRA_COLUMN", length = 30)
-  @NotNull
+  @NotBlank
   private String column;
 
   /**
@@ -61,7 +62,7 @@ public class Translation {
    * Translation.
    */
   @Column(name = "TRA_NAME", length = 250)
-  @NotNull
+  @NotBlank
   private String translation;
 
   public Integer getId() {

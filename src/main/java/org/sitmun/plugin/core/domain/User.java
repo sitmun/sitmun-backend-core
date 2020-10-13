@@ -41,8 +41,7 @@ public class User { //implements Identifiable<BigInteger> {
   /**
    * User login.
    */
-  @NotNull
-  @Column(name = "USE_USER", nullable = false, length = 30)
+  @Column(name = "USE_USER", length = 30)
   private String username;
 
   /**
@@ -80,12 +79,14 @@ public class User { //implements Identifiable<BigInteger> {
    * If <code>true</code>, the user is a system administrator.
    */
   @Column(name = "USE_ADM")
+  @NotNull
   private Boolean administrator;
 
   /**
    * If <code>true</code>, the user is blocked and cannot log to the system.
    */
   @Column(name = "USE_BLOCKED")
+  @NotNull
   private Boolean blocked;
 
   /**

@@ -40,7 +40,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,19 +53,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class AccountRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String USER_USERNAME = "user";
   private static final String USER_PASSWORD = "user";
   private static final String USER_CHANGEDPASSWORD = "resur";
@@ -78,23 +64,17 @@ public class AccountRestResourceIntTest {
   private static final Boolean USER_ADMINISTRATOR = false;
   private static final String ACCOUNT_URI = "http://localhost/api/account";
   private static final String AUTHENTICATION_URI = "http://localhost/api/authenticate";
-
   @Autowired
   TokenProvider tokenProvider;
-
   @Autowired
   private MockMvc mvc;
-
   @Autowired
   private UserRepository userRepository;
-
   @Autowired
   private UserService userService;
-
   private String token;
   private User user;
   private String expiredToken;
-
 
   @Before
   public void init() {
@@ -194,6 +174,19 @@ public class AccountRestResourceIntTest {
         .content(asJsonString(login))
     ).andExpect(status().isOk())
         .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }

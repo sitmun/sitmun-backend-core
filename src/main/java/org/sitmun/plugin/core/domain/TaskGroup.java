@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Task group.
@@ -35,6 +36,7 @@ public class TaskGroup {
    * Task group name.
    */
   @Column(name = "GTS_NAME", length = 80)
+  @NotBlank
   private String name;
 
   public BigInteger getId() {

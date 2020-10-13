@@ -22,6 +22,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
@@ -51,6 +52,7 @@ public class Application { //implements Identifiable {
    * Application name.
    */
   @Column(name = "APP_NAME", length = 80)
+  @NotBlank
   private String name;
 
   /**

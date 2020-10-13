@@ -31,7 +31,7 @@ public class TerritoryRepositoryTest {
     type.setName("tipo Territorio 1");
     territoryTypeRepository.save(type);
 
-    territory =  Territory.builder()
+    territory = Territory.builder()
         .setName("Admin")
         .setBlocked(false)
         .setTerritorialAuthorityEmail("email@email.org")

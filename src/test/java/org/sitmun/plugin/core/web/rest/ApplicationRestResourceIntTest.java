@@ -65,19 +65,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class ApplicationRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String ADMIN_USERNAME = "admin";
   private static final String APP_URI = "http://localhost/api/applications";
   private static final String CARTOGRAPHY_GROUP_URI = "http://localhost/api/cartography-groups";
@@ -124,7 +111,6 @@ public class ApplicationRestResourceIntTest {
   private String defaultTerritoryName;
   @Autowired
   private MockMvc mvc;
-
   private BigInteger appId;
   private BigInteger backAppId;
 
@@ -307,7 +293,6 @@ public class ApplicationRestResourceIntTest {
         .andExpect(jsonPath("$.order").value(1));
   }
 
-
   @Test
   public void getPublicApplicationTreesAsPublic() throws Exception {
     // TODO
@@ -448,6 +433,19 @@ public class ApplicationRestResourceIntTest {
   public void setBackgroundAsOtherOrganizationAdminFails() {
     // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }

@@ -42,6 +42,19 @@ public class TerritoryGroupType {
   @Column(name = "GTT_NAME", length = 250)
   private String name;
 
+  public TerritoryGroupType() {
+  }
+
+  private TerritoryGroupType(BigInteger id,
+                             @NotNull String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BigInteger getId() {
     return id;
   }
@@ -56,19 +69,6 @@ public class TerritoryGroupType {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public TerritoryGroupType() {
-  }
-
-  private TerritoryGroupType(BigInteger id,
-                             @NotNull String name) {
-    this.id = id;
-    this.name = name;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public static class Builder {

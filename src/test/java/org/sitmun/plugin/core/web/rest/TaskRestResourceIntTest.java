@@ -49,25 +49,10 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class TaskRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String ADMIN_USERNAME = "admin";
   private static final String TASK_NAME = "Task Name";
-
   private static final String TASK_URI = "http://localhost/api/tasks";
   private static final String PUBLIC_USERNAME = "public";
-
   @Autowired
   TaskRepository taskRepository;
   @Autowired
@@ -80,10 +65,8 @@ public class TaskRestResourceIntTest {
   TerritoryRepository territoryRepository;
   @Autowired
   private MockMvc mvc;
-
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
-
   private Task task;
 
   @Before
@@ -155,7 +138,7 @@ public class TaskRestResourceIntTest {
   @Test
   @WithMockUser(username = PUBLIC_USERNAME)
   public void getTaskParamsAsPublic() throws Exception {
-    mvc.perform(get(TASK_URI + "/"+ task.getId() + "/parameters"))
+    mvc.perform(get(TASK_URI + "/" + task.getId() + "/parameters"))
         .andDo(print())
         .andExpect(status().isOk());
   }
@@ -168,6 +151,19 @@ public class TaskRestResourceIntTest {
         .content(asJsonString(task))
     ).andDo(print())
         .andExpect(status().is4xxClientError()).andReturn();
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }

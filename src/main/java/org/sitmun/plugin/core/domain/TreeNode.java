@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Tree node.
@@ -47,6 +49,7 @@ public class TreeNode {
    * Name.
    */
   @Column(name = "TNO_NAME", length = 80)
+  @NotBlank
   private String name;
 
   /**
@@ -120,6 +123,7 @@ public class TreeNode {
    */
   @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
   @ManyToOne
+  @NotNull
   private Tree tree;
 
   /**

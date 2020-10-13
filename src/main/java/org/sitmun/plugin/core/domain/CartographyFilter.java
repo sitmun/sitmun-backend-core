@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -43,7 +44,7 @@ public class CartographyFilter {
    * Filter name.
    */
   @Column(name = "FGI_NAME", length = 80)
-  @NotNull
+  @NotBlank
   private String name;
 
   /**
@@ -66,7 +67,6 @@ public class CartographyFilter {
    */
   @ManyToOne
   @JoinColumn(name = "FGI_TYPID")
-  @NotNull
   private TerritoryType territorialLevel;
 
   /**

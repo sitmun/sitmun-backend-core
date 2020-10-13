@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -41,6 +42,7 @@ public class TaskParameter {
    * Parameter name.
    */
   @Column(name = "PTT_NAME", length = 50)
+  @NotBlank
   private String name;
 
   /**

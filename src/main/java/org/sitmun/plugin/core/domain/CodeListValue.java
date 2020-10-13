@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Code list value.
@@ -37,21 +37,20 @@ public class CodeListValue {
    * Code list name.
    */
   @Column(name = "COD_LIST")
-  @NotNull
+  @NotBlank
   private String codeListName;
 
   /**
    * Value.
    */
   @Column(name = "COD_VALUE")
-  @NotNull
+  @NotBlank
   private String value;
 
   /**
    * Value description.
    */
   @Column(name = "COD_DESCRIPTION")
-  @NotNull
   private String description;
 
   public Integer getId() {

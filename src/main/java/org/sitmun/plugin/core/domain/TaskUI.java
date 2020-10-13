@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Task UI.
@@ -35,6 +36,7 @@ public class TaskUI {
    * Task name.
    */
   @Column(name = "TUI_NAME", length = 30)
+  @NotBlank
   private String name;
 
   /**

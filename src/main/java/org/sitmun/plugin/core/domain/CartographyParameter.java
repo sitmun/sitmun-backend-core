@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -39,7 +40,7 @@ public class CartographyParameter {
    * Name.
    */
   @Column(name = "PGI_NAME", length = 250)
-  @NotNull
+  @NotBlank
   private String name;
 
   /**

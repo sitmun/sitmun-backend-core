@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
 //import org.springframework.hateoas.Link;
@@ -50,6 +51,7 @@ public class Tree { // implements Identifiable {
    * Tree name.
    */
   @Column(name = "TRE_NAME", length = 100)
+  @NotBlank
   private String name;
 
   /**

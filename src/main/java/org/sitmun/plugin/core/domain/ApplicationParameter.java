@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -43,7 +44,7 @@ public class ApplicationParameter {
    * Application parameter name.
    */
   @Column(name = "PAP_NAME", length = 30)
-  @NotNull
+  @NotBlank
   private String name;
 
   /**

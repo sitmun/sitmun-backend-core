@@ -41,6 +41,18 @@ public class TerritoryType {
   @NotBlank
   private String name;
 
+  public TerritoryType() {
+  }
+
+  private TerritoryType(BigInteger id, @NotBlank String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BigInteger getId() {
     return id;
   }
@@ -55,18 +67,6 @@ public class TerritoryType {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public TerritoryType() {
-  }
-
-  private TerritoryType(BigInteger id, @NotBlank String name) {
-    this.id = id;
-    this.name = name;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public static class Builder {

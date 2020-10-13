@@ -58,19 +58,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class UserRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String USER_USERNAME = "admin";
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String TERRITORY1_USER_USERNAME = "territory1-user";
@@ -85,19 +72,14 @@ public class UserRestResourceIntTest {
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
   private static final String USER_URI = "http://localhost/api/users";
-
   @Autowired
   UserRepository userRepository;
-
   @Autowired
   UserConfigurationRepository userConfigurationRepository;
-
   @Autowired
   RoleRepository roleRepository;
-
   @Autowired
   TerritoryRepository territoryRepository;
-
   @Autowired
   UserService userService;
   @Autowired
@@ -106,16 +88,11 @@ public class UserRestResourceIntTest {
   private MockMvc mvc;
   private String token;
   private User sitmunAdmin;
-
   private User organizacionAdmin;
-
   private User territory1User;
-
   private User territory2User;
-
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
-
   private Territory defaultTerritory;
   private Territory territory1;
   private Territory territory2;
@@ -144,7 +121,7 @@ public class UserRestResourceIntTest {
         .setBlocked(false)
         .build();
 
-    territory2 =  Territory.builder()
+    territory2 = Territory.builder()
         .setName("Territorio 2")
         .setCode("")
         .setBlocked(false)
@@ -318,7 +295,6 @@ public class UserRestResourceIntTest {
     ).andExpect(status().isOk());
   }
 
-
   @Test
   public void createNewUserAsOrganizationAdmin() {
     // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
@@ -368,5 +344,18 @@ public class UserRestResourceIntTest {
     // Update user password (linked to another organization) by an organization
     // admin user (ADMIN DE ORGANIZACION)
     // fail is expected (no permission)
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 }

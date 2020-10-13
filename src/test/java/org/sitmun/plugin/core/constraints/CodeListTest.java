@@ -5,7 +5,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +28,6 @@ import org.sitmun.plugin.core.repository.CartographyRepository;
 import org.sitmun.plugin.core.repository.ServiceRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
-import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -52,22 +50,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class CodeListTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-        return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String ADMIN_USERNAME = "admin";
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
-
   private static final String CARTOGRAPHY_URI = "http://localhost/api/cartographies";
   @Autowired
   CartographyRepository cartographyRepository;
@@ -81,10 +65,8 @@ public class CodeListTest {
   private ServiceRepository serviceRepository;
   @Autowired
   private MockMvc mvc;
-
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
-
   private Cartography cartography;
   private Service service;
 
@@ -183,5 +165,18 @@ public class CodeListTest {
     ).andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
         .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 }

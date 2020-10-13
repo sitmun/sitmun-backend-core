@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Available languages.
@@ -36,12 +37,14 @@ public class Language {
    * Language identifier.
    */
   @Column(name = "LAN_SHORTNAME", length = 3)
+  @NotBlank
   private String shortname;
 
   /**
    * Language name.
    */
   @Column(name = "LAN_NAME", length = 80)
+  @NotBlank
   private String name;
 
   public Integer getId() {

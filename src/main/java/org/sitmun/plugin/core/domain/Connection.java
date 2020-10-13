@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Represents a JDBC database connection.
@@ -35,12 +36,14 @@ public class Connection {
    * Connection name.
    */
   @Column(name = "CON_NAME", length = 80)
+  @NotBlank
   private String name;
 
   /**
    * JDBC driver.
    */
   @Column(name = "CON_DRIVER", length = 50)
+  @NotBlank
   private String type;
 
   /**

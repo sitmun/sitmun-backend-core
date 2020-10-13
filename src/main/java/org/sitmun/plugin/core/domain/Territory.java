@@ -161,6 +161,39 @@ public class Territory {
           foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
   private Set<Territory> memberOf = new HashSet<>();
 
+  public Territory() {
+  }
+
+  private Territory(BigInteger id, @NotBlank String code,
+                    @NotBlank String name, String territorialAuthorityName,
+                    String territorialAuthorityAddress, String territorialAuthorityEmail,
+                    String scope, String territorialAuthorityLogo, String extent,
+                    @NotNull Boolean blocked, TerritoryType type, String note,
+                    Date createdDate, TerritoryGroupType groupType,
+                    Set<Territory> members,
+                    Set<Territory> memberOf) {
+    this.id = id;
+    this.code = code;
+    this.name = name;
+    this.territorialAuthorityName = territorialAuthorityName;
+    this.territorialAuthorityAddress = territorialAuthorityAddress;
+    this.territorialAuthorityEmail = territorialAuthorityEmail;
+    this.scope = scope;
+    this.territorialAuthorityLogo = territorialAuthorityLogo;
+    this.extent = extent;
+    this.blocked = blocked;
+    this.type = type;
+    this.note = note;
+    this.createdDate = createdDate;
+    this.groupType = groupType;
+    this.members = members;
+    this.memberOf = memberOf;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BigInteger getId() {
     return id;
   }
@@ -300,39 +333,6 @@ public class Territory {
   @Override
   public int hashCode() {
     return super.hashCode();
-  }
-
-  public Territory() {
-  }
-
-  private Territory(BigInteger id, @NotBlank String code,
-                    @NotBlank String name, String territorialAuthorityName,
-                    String territorialAuthorityAddress, String territorialAuthorityEmail,
-                    String scope, String territorialAuthorityLogo, String extent,
-                    @NotNull Boolean blocked, TerritoryType type, String note,
-                    Date createdDate, TerritoryGroupType groupType,
-                    Set<Territory> members,
-                    Set<Territory> memberOf) {
-    this.id = id;
-    this.code = code;
-    this.name = name;
-    this.territorialAuthorityName = territorialAuthorityName;
-    this.territorialAuthorityAddress = territorialAuthorityAddress;
-    this.territorialAuthorityEmail = territorialAuthorityEmail;
-    this.scope = scope;
-    this.territorialAuthorityLogo = territorialAuthorityLogo;
-    this.extent = extent;
-    this.blocked = blocked;
-    this.type = type;
-    this.note = note;
-    this.createdDate = createdDate;
-    this.groupType = groupType;
-    this.members = members;
-    this.memberOf = memberOf;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public static class Builder {

@@ -33,22 +33,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class TerritoryRestResourceIntTest {
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
-
   private static final String USER_USERNAME = "admin";
   private static final String NEW_USER_USERNAME = "admin_new";
-
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";
   private static final String USER_LASTNAME = "Admin";
@@ -70,7 +56,7 @@ public class TerritoryRestResourceIntTest {
 
   @Before
   public void init() {
-    territory =  Territory.builder().build();
+    territory = Territory.builder().build();
     // Asignar atributos al territorio (municipio1)
     // Crear TerritoryType y asignar al territorio (tipo municipio)
     // Crear territorio 2 de tipo comarca
@@ -202,6 +188,19 @@ public class TerritoryRestResourceIntTest {
   public void deleteMemberAsOrganizationAdminFails() {
     // TODO: Delete territory1 (municipality) as member of territory2 (supramunicipality) by an organization admin user (ADMIN DE ORGANIZACION)
     // fail is expected (no permission)
+  }
+
+  @TestConfiguration
+  static class ContextConfiguration {
+    @Bean
+    public Validator validator() {
+      return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    RepositoryRestConfigurer repositoryRestConfigurer() {
+      return new RepositoryRestConfig(validator());
+    }
   }
 
 }
