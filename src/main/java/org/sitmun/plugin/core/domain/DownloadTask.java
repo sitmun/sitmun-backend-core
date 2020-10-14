@@ -7,6 +7,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 /**
  * Download file task.
@@ -37,6 +38,7 @@ public class DownloadTask extends Task {
    */
   @Column(name = "DOW_PATH", length = 5)
   @NotNull
+  @HttpURL
   private String path;
 
   public String getFormat() {

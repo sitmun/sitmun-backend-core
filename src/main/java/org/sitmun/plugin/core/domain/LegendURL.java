@@ -2,7 +2,9 @@ package org.sitmun.plugin.core.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 /**
  * Legend provider.
@@ -13,11 +15,13 @@ public class LegendURL {
   /**
    * Legend width.
    */
+  @Min(1)
   private Integer width;
 
   /**
    * Legend height.
    */
+  @Min(1)
   private Integer height;
 
   /**
@@ -31,6 +35,7 @@ public class LegendURL {
    */
   @Column(length = 250)
   @NotNull
+  @HttpURL
   private String onlineResource;
 
   public Integer getWidth() {

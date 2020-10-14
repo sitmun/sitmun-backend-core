@@ -20,10 +20,13 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 //import org.springframework.hateoas.Identifiable;
@@ -96,6 +99,8 @@ public class Cartography { //implements Identifiable {
    * 0 opaque, 100 translucid.
    */
   @Column(name = "GEO_TRANSP", precision = 11)
+  @Min(0)
+  @Max(100)
   private BigInteger transparency;
 
   /**
@@ -184,6 +189,7 @@ public class Cartography { //implements Identifiable {
    * Legend URL.
    */
   @Column(name = "GEO_LEGENDURL", length = 250)
+  @HttpURL
   private String legendURL;
 
   /**
@@ -204,12 +210,14 @@ public class Cartography { //implements Identifiable {
    * Direct link to a metadata document.
    */
   @Column(name = "GEO_METAURL", length = 250)
+  @HttpURL
   private String metadataURL;
 
   /**
    * Direct link to a dataset file.
    */
   @Column(name = "GEO_DATAURL", length = 4000)
+  @HttpURL
   private String datasetURL;
 
   /**

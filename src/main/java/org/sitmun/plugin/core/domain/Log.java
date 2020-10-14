@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Email;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -135,6 +136,7 @@ public class Log {
    * Email where the results have been sent.
    */
   @Column(name = "LOG_EMAIL", length = 250)
+  @Email
   private String email;
 
   /**

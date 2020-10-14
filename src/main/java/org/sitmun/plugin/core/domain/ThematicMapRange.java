@@ -8,6 +8,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -32,6 +33,7 @@ public class ThematicMapRange {
    */
   @Id
   @Column(name = "TRK_POSITION")
+  @Min(0)
   private Integer position;
 
   /**

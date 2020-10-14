@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
@@ -62,6 +63,7 @@ public class TaskParameter {
    * Parameter position.
    */
   @Column(name = "PTT_ORDER", precision = 6)
+  @Min(0)
   private BigInteger order;
 
   /**
@@ -112,6 +114,7 @@ public class TaskParameter {
    * Maximum length of the value (for some formats).
    */
   @Column(name = "PTT_MAXLEN")
+  @Min(1)
   private Integer maxLength;
 
   /**

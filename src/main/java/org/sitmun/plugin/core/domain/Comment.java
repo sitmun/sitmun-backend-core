@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -60,6 +61,7 @@ public class Comment {
    * Email to receive an answer.
    */
   @Column(name = "COM_EMAIL", length = 250)
+  @Email
   private String email;
 
   /**

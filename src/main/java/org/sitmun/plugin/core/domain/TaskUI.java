@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -49,6 +50,7 @@ public class TaskUI {
    * Task order.
    */
   @Column(name = "TUI_ORDER", precision = 6)
+  @Min(0)
   private BigInteger order;
 
   public String getTooltip() {

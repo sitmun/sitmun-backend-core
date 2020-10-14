@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import javax.persistence.Column;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 /**
  * Tree node.
@@ -86,12 +88,14 @@ public class TreeNode {
    * URL to metadata.
    */
   @Column(name = "TNO_METAURL", length = 250)
+  @HttpURL
   private String metadataURL;
 
   /**
    * URL to downloadable (zip) dataset.
    */
   @Column(name = "TNO_DATAURL", length = 4000)
+  @HttpURL
   private String datasetURL;
 
   /**
@@ -124,6 +128,7 @@ public class TreeNode {
   @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
   @ManyToOne
   @NotNull
+  @JsonBackReference
   private Tree tree;
 
   /**

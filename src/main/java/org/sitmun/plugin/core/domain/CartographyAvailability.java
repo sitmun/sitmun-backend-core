@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Column;
@@ -72,6 +73,7 @@ public class CartographyAvailability {
   @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_DCA_FK_CAR"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
+  @JsonIgnore
   private Cartography cartography;
 
   /**

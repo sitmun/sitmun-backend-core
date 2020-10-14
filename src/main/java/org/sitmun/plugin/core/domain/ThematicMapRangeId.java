@@ -12,6 +12,9 @@ public class ThematicMapRangeId implements Serializable {
 
   private Integer position;
 
+  public ThematicMapRangeId() {
+  }
+
   public ThematicMapRangeId(ThematicMap map, Integer position) {
     this.map = map;
     this.position = position;

@@ -15,6 +15,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -58,6 +59,7 @@ public class UserPosition {
    * Email.
    */
   @Column(name = "POS_EMAIL", length = 250)
+  @Email
   private String email;
 
   /**

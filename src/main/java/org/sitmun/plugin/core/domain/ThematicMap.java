@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,15 +13,18 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 /**
  * Thematic map.
  */
 @Entity
 @Table(name = "STM_THEMATIC")
-public class ThematicMap {
+public class ThematicMap implements Serializable {
 
   /**
    * Unique identifier.
@@ -61,6 +65,7 @@ public class ThematicMap {
    * Number of ranks.
    */
   @Column(name = "THE_RANKNUM")
+  @Min(1)
   private Integer ranges;
 
   /**
@@ -79,18 +84,22 @@ public class ThematicMap {
    * Border minimum size.
    */
   @Column(name = "THE_SIZEMIN")
+  @Min(0)
   private Integer borderMinSize;
 
   /**
    * Border maximum size.
    */
   @Column(name = "THE_SIZEMAX")
+  @Min(0)
   private Integer borderMaxSize;
 
   /**
    * Opacity.
    */
   @Column(name = "THE_TRANSPARENCY")
+  @Min(0)
+  @Max(100)
   private Integer transparency;
 
   /**
@@ -143,6 +152,7 @@ public class ThematicMap {
    * Webservice URL that brings data to represent (in JSON format).
    */
   @Column(name = "THE_URLWS", length = 250)
+  @HttpURL
   private String url;
 
   /**
@@ -158,6 +168,42 @@ public class ThematicMap {
   @Column(name = "THE_EXPIRATION")
   @Temporal(TemporalType.TIMESTAMP)
   private Date expirationDate;
+
+  public ThematicMap() {
+  }
+
+  private ThematicMap(Integer id, String name, String description, String type,
+                      Integer ranges, String startColor, String endColor,
+                      Integer borderMinSize, Integer borderMaxSize,
+                      @Min(0) @Max(100) Integer transparency, Boolean refreshData,
+                      Boolean recreateRanges, User user,
+                      Cartography cartography, Task task, Boolean taggable, String valueType,
+                      String url, String destination, Date expirationDate) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.type = type;
+    this.ranges = ranges;
+    this.startColor = startColor;
+    this.endColor = endColor;
+    this.borderMinSize = borderMinSize;
+    this.borderMaxSize = borderMaxSize;
+    this.transparency = transparency;
+    this.refreshData = refreshData;
+    this.recreateRanges = recreateRanges;
+    this.user = user;
+    this.cartography = cartography;
+    this.task = task;
+    this.taggable = taggable;
+    this.valueType = valueType;
+    this.url = url;
+    this.destination = destination;
+    this.expirationDate = expirationDate;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   public Integer getId() {
     return id;
@@ -317,5 +363,136 @@ public class ThematicMap {
 
   public void setExpirationDate(Date expirationDate) {
     this.expirationDate = expirationDate;
+  }
+
+  public static class Builder {
+    private Integer id;
+    private String name;
+    private String description;
+    private String type;
+    private Integer ranges;
+    private String startColor;
+    private String endColor;
+    private Integer borderMinSize;
+    private Integer borderMaxSize;
+    private @Min(0) @Max(100) Integer transparency;
+    private Boolean refreshData;
+    private Boolean recreateRanges;
+    private User user;
+    private Cartography cartography;
+    private Task task;
+    private Boolean taggable;
+    private String valueType;
+    private String url;
+    private String destination;
+    private Date expirationDate;
+
+    public Builder setId(Integer id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder setRanges(Integer ranges) {
+      this.ranges = ranges;
+      return this;
+    }
+
+    public Builder setStartColor(String startColor) {
+      this.startColor = startColor;
+      return this;
+    }
+
+    public Builder setEndColor(String endColor) {
+      this.endColor = endColor;
+      return this;
+    }
+
+    public Builder setBorderMinSize(Integer borderMinSize) {
+      this.borderMinSize = borderMinSize;
+      return this;
+    }
+
+    public Builder setBorderMaxSize(Integer borderMaxSize) {
+      this.borderMaxSize = borderMaxSize;
+      return this;
+    }
+
+    public Builder setTransparency(@Min(0) @Max(100) Integer transparency) {
+      this.transparency = transparency;
+      return this;
+    }
+
+    public Builder setRefreshData(Boolean refreshData) {
+      this.refreshData = refreshData;
+      return this;
+    }
+
+    public Builder setRecreateRanges(Boolean recreateRanges) {
+      this.recreateRanges = recreateRanges;
+      return this;
+    }
+
+    public Builder setUser(User user) {
+      this.user = user;
+      return this;
+    }
+
+    public Builder setCartography(Cartography cartography) {
+      this.cartography = cartography;
+      return this;
+    }
+
+    public Builder setTask(Task task) {
+      this.task = task;
+      return this;
+    }
+
+    public Builder setTaggable(Boolean taggable) {
+      this.taggable = taggable;
+      return this;
+    }
+
+    public Builder setValueType(String valueType) {
+      this.valueType = valueType;
+      return this;
+    }
+
+    public Builder setUrl(String url) {
+      this.url = url;
+      return this;
+    }
+
+    public Builder setDestination(String destination) {
+      this.destination = destination;
+      return this;
+    }
+
+    public Builder setExpirationDate(Date expirationDate) {
+      this.expirationDate = expirationDate;
+      return this;
+    }
+
+    public ThematicMap build() {
+      return new ThematicMap(id, name, description, type, ranges, startColor, endColor,
+          borderMinSize,
+          borderMaxSize, transparency, refreshData, recreateRanges, user, cartography, task,
+          taggable,
+          valueType, url, destination, expirationDate);
+    }
   }
 }

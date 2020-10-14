@@ -20,10 +20,12 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 /**
  * Territorial entity.
@@ -78,6 +80,7 @@ public class Territory {
    * Territorial authority email.
    */
   @Column(name = "TER_EMAIL", length = 250)
+  @Email
   private String territorialAuthorityEmail;
 
   /**
@@ -91,6 +94,7 @@ public class Territory {
    * Link to the territorial authority logo.
    */
   @Column(name = "TER_LOGO", length = 250)
+  @HttpURL
   private String territorialAuthorityLogo;
 
   /**

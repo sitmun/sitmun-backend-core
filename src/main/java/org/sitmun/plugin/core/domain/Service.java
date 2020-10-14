@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -63,6 +65,7 @@ public class Service {
    */
   @Column(name = "SER_URL", length = 250)
   @NotNull
+  @HttpURL
   private String serviceURL;
 
   /**
@@ -76,12 +79,14 @@ public class Service {
    * Legend endpoint.
    */
   @Column(name = "SER_LEGEND", length = 250)
+  @HttpURL
   private String legendURL;
 
   /**
    * Get information endpoint.
    */
   @Column(name = "SER_INFOURL", length = 250)
+  @HttpURL
   private String getInformationURL;
 
   /**
@@ -113,6 +118,7 @@ public class Service {
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", orphanRemoval = true)
+  @JsonIgnore
   private Set<Cartography> layers = new HashSet<>();
 
   /**

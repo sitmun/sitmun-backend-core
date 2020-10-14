@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
@@ -71,12 +73,14 @@ public class CartographyParameter {
   @ManyToOne
   @JoinColumn(name = "PGI_GIID")
   @NotNull
+  @JsonIgnore
   private Cartography cartography;
 
   /**
    * Order.
    */
   @Column(name = "PGI_ORDER")
+  @Min(0)
   private Integer order;
 
   public Integer getId() {

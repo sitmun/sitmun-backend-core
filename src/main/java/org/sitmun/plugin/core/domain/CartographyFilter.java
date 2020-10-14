@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -95,6 +96,7 @@ public class CartographyFilter {
   @ManyToOne
   @JoinColumn(name = "FGI_GIID")
   @NotNull
+  @JsonIgnore
   private Cartography cartography;
 
   public Integer getId() {

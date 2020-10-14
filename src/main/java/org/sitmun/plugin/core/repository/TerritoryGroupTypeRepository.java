@@ -23,7 +23,7 @@ public interface TerritoryGroupTypeRepository
   void delete(@P("entity") TerritoryGroupType entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TerritoryGroupType', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TerritoryGroupType', 'delete')")
   void deleteById(@P("entityId") BigInteger entityId);
 
   @Override

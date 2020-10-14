@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,6 +68,7 @@ public class Tree { // implements Identifiable {
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL,
       orphanRemoval = true, fetch = FetchType.EAGER)
+  @JsonManagedReference
   private Set<TreeNode> allNodes = new HashSet<>();
 
   @ManyToMany
