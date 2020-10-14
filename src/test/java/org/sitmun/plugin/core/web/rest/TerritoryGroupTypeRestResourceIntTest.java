@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
+import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -7,10 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+import java.math.BigInteger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
+import org.sitmun.plugin.core.repository.TerritoryGroupTypeRepository;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,19 +25,21 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class TerritoryGroupTypeRestResourceIntTest {
 
   private static final String TERRITORY_URI = "http://localhost/api/territory-group-types";
+
   @Autowired
   private MockMvc mvc;
+
+  @Autowired
+  private TerritoryGroupTypeRepository repository;
 
   @Test
   public void mustNotBeNull() throws Exception {
@@ -67,6 +72,9 @@ public class TerritoryGroupTypeRestResourceIntTest {
     ).andDo(print())
         .andExpect(status().isCreated())
         .andExpect(header().string("location", "http://localhost/api/territory-group-types/1"));
+    asAdmin(() -> {
+      repository.deleteById(BigInteger.valueOf(1));
+    });
   }
 
   @TestConfiguration

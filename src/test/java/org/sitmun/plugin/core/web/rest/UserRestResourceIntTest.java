@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import java.util.ArrayList;
-import javax.transaction.Transactional;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +56,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class UserRestResourceIntTest {
 
   private static final String USER_USERNAME = "admin";
@@ -100,6 +100,9 @@ public class UserRestResourceIntTest {
   private Role organizacionAdminRole;
   private Role territorialRole;
 
+  private ArrayList<Territory> territories;
+  private ArrayList<User> users;
+
   @Before
   @WithMockUser(username = USER_USERNAME)
   public void init() {
@@ -113,8 +116,8 @@ public class UserRestResourceIntTest {
         this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
 
     defaultTerritory = territoryRepository.findOneByName(this.defaultTerritoryName).get();
-    ArrayList<Territory> territoriesToCreate = new ArrayList<>();
-    ArrayList<User> usersToCreate = new ArrayList<>();
+    territories = new ArrayList<>();
+    users = new ArrayList<>();
     territory1 = Territory.builder()
         .setName("Territorio 1")
         .setCode("")
@@ -126,10 +129,10 @@ public class UserRestResourceIntTest {
         .setCode("")
         .setBlocked(false)
         .build();
-    territoriesToCreate.add(territory1);
-    territoriesToCreate.add(territory2);
+    territories.add(territory1);
+    territories.add(territory2);
 
-    territoryRepository.saveAll(territoriesToCreate);
+    territoryRepository.saveAll(territories);
 
     // Sitmun Admin
     sitmunAdmin = this.userRepository.findOneWithPermissionsByUsername(USER_USERNAME).get();
@@ -142,7 +145,7 @@ public class UserRestResourceIntTest {
     organizacionAdmin.setLastName(USER_LASTNAME);
     organizacionAdmin.setPassword(USER_PASSWORD);
     organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
-    usersToCreate.add(organizacionAdmin);
+    users.add(organizacionAdmin);
 
     // Territory 1 user
     territory1User = new User();
@@ -152,7 +155,7 @@ public class UserRestResourceIntTest {
     territory1User.setLastName(USER_LASTNAME);
     territory1User.setPassword(USER_PASSWORD);
     territory1User.setUsername(TERRITORY1_USER_USERNAME);
-    usersToCreate.add(territory1User);
+    users.add(territory1User);
 
     // Territory 2 user
     territory2User = new User();
@@ -162,9 +165,9 @@ public class UserRestResourceIntTest {
     territory2User.setLastName(USER_LASTNAME);
     territory2User.setPassword(USER_PASSWORD);
     territory2User.setUsername(TERRITORY2_USER_USERNAME);
-    usersToCreate.add(territory2User);
+    users.add(territory2User);
 
-    userRepository.saveAll(usersToCreate);
+    userRepository.saveAll(users);
 
     UserConfiguration userConf = new UserConfiguration();
     userConf.setTerritory(territory1);
@@ -185,6 +188,15 @@ public class UserRestResourceIntTest {
 
     this.userConfigurationRepository.save(userConf);
   }
+
+  @After
+  public void cleanup() {
+    asAdmin(() -> {
+      users.forEach((item) -> userRepository.deleteById(item.getId()));
+      territories.forEach((item) -> territoryRepository.deleteById(item.getId()));
+    });
+  }
+
 
   @Test
   @WithMockUser(username = USER_USERNAME, authorities = {SITMUN_ADMIN_USERNAME})
@@ -268,7 +280,7 @@ public class UserRestResourceIntTest {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.users", hasSize(2)));
   }
 
   @Test

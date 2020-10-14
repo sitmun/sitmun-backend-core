@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Date;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,14 +41,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class TaskRestResourceIntTest {
 
   private static final String ADMIN_USERNAME = "admin";
@@ -68,37 +68,49 @@ public class TaskRestResourceIntTest {
   @Value("${default.territory.name}")
   private String defaultTerritoryName;
   private Task task;
+  private ArrayList<Task> tasks;
+  private ArrayList<TaskAvailability> availabilities;
+  private ArrayList<TaskParameter> parameters;
 
   @Before
   public void init() {
     Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    ArrayList<Task> cartosToCreate = new ArrayList<>();
+    tasks = new ArrayList<>();
     task = new Task();
     task.setName(TASK_NAME);
-    cartosToCreate.add(task);
+    tasks.add(task);
     Task taskWithAvailabilities = new Task();
     taskWithAvailabilities.setName("Task with availabilities");
-    cartosToCreate.add(taskWithAvailabilities);
-    taskRepository.saveAll(cartosToCreate);
+    tasks.add(taskWithAvailabilities);
+    taskRepository.saveAll(tasks);
 
-    ArrayList<TaskAvailability> availabilitesToCreate = new ArrayList<>();
+    availabilities = new ArrayList<>();
     TaskAvailability taskAvailability1 = new TaskAvailability();
     taskAvailability1.setTask(taskWithAvailabilities);
     taskAvailability1.setTerritory(territory);
     taskAvailability1.setCreatedDate(new Date());
-    availabilitesToCreate.add(taskAvailability1);
-    taskAvailabilityRepository.saveAll(availabilitesToCreate);
+    availabilities.add(taskAvailability1);
+    taskAvailabilityRepository.saveAll(availabilities);
 
-    ArrayList<TaskParameter> paramsToCreate = new ArrayList<>();
+    parameters = new ArrayList<>();
     TaskParameter taskParam1 = new TaskParameter();
     taskParam1.setTask(task);
     taskParam1.setName("Task Param 1");
-    paramsToCreate.add(taskParam1);
+    parameters.add(taskParam1);
     TaskParameter taskParam2 = new TaskParameter();
     taskParam2.setTask(taskWithAvailabilities);
     taskParam2.setName("Task Param 2");
-    paramsToCreate.add(taskParam2);
-    taskParameterRepository.saveAll(paramsToCreate);
+    parameters.add(taskParam2);
+    taskParameterRepository.saveAll(parameters);
+  }
+
+  @After
+  public void cleanup() {
+    asAdmin(() -> {
+      parameters.forEach((item) -> taskParameterRepository.delete(item));
+      availabilities.forEach((item) -> taskAvailabilityRepository.delete(item));
+      tasks.forEach((item) -> taskRepository.delete(item));
+    });
   }
 
   @Test
@@ -123,7 +135,7 @@ public class TaskRestResourceIntTest {
     mvc.perform(get(TASK_URI))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(1)));
   }
 
   @Test

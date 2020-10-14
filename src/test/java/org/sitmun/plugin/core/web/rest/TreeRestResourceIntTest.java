@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,7 +34,6 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -40,7 +41,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class TreeRestResourceIntTest {
 
   private static final String ADMIN_USERNAME = "admin";
@@ -61,39 +61,46 @@ public class TreeRestResourceIntTest {
   private MockMvc mvc;
   private Tree publicTree;
 
+  private ArrayList<Tree> trees;
+  private ArrayList<TreeNode> nodes;
+
   @Before
   public void init() {
-    ArrayList<TreeNode> nodesToCreate = new ArrayList<>();
+    nodes = new ArrayList<>();
     Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
-    ArrayList<Tree> treesToCreate = new ArrayList<>();
+    trees = new ArrayList<>();
 
     publicTree = new Tree();
     publicTree.setName(PUBLIC_TREE_NAME);
     publicTree.setAvailableRoles(availableRoles);
-    treesToCreate.add(publicTree);
-
-
-    Set<Tree> trees = new HashSet<>();
     trees.add(publicTree);
 
     Tree tree = new Tree();
     tree.setName(NON_PUBLIC_TREE_NAME);
-    treesToCreate.add(tree);
-    this.treeRepository.saveAll(treesToCreate);
+    trees.add(tree);
+    treeRepository.saveAll(trees);
 
     TreeNode treeNode1 = new TreeNode();
     treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
     treeNode1.setTree(tree);
-    nodesToCreate.add(treeNode1);
+    nodes.add(treeNode1);
     TreeNode treeNode2 = new TreeNode();
     treeNode2.setName(PUBLIC_TREENODE_NAME);
     treeNode2.setTree(publicTree);
-    nodesToCreate.add(treeNode2);
-    treeNodeRepository.saveAll(nodesToCreate);
+    nodes.add(treeNode2);
+    treeNodeRepository.saveAll(nodes);
 
+  }
+
+  @After
+  public void cleanup() {
+    asAdmin(() -> {
+      nodes.forEach((item) -> treeNodeRepository.deleteById(item.getId()));
+      trees.forEach((item) -> treeRepository.deleteById(item.getId()));
+    });
   }
 
   @Test

@@ -25,7 +25,6 @@ spring:
     password:
     hikari:
       poolName: Hikari
-      auto-commit: false
   h2:
     console:
       enabled: false

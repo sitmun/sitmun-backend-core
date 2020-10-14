@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -54,7 +56,6 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -62,7 +63,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class ApplicationRestResourceIntTest {
 
   private static final String ADMIN_USERNAME = "admin";
@@ -114,23 +114,33 @@ public class ApplicationRestResourceIntTest {
   private BigInteger appId;
   private BigInteger backAppId;
 
+  private ArrayList<Tree> trees;
+  private Set<Service> services;
+  private Set<Cartography> cartographies;
+  private Set<CartographyAvailability> cartographyAvailabilities;
+  private Set<TreeNode> treeNodes;
+  private Set<CartographyGroup> cartographyGroups;
+  private Set<Background> backgrounds;
+  private ArrayList<Application> applications;
+  private ArrayList<ApplicationParameter> applicationParameters;
+
   @Before
   public void init() {
     Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    ArrayList<Application> appsToCreate = new ArrayList<>();
-    ArrayList<ApplicationParameter> parametersToCreate = new ArrayList<>();
+    applications = new ArrayList<>();
+    applicationParameters = new ArrayList<>();
     Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
 
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
     //Trees
-    ArrayList<Tree> treesToCreate = new ArrayList<>();
+    trees = new ArrayList<>();
     Tree publicTree = new Tree();
     publicTree.setName(PUBLIC_TREE_NAME);
     publicTree.setAvailableRoles(availableRoles);
-    treesToCreate.add(publicTree);
-    this.treeRepository.saveAll(treesToCreate);
+    trees.add(publicTree);
+    this.treeRepository.saveAll(trees);
     Set<Tree> trees = new HashSet<>();
     trees.add(publicTree);
 
@@ -141,9 +151,9 @@ public class ApplicationRestResourceIntTest {
     publicService.setServiceURL("");
     //publicService.setLayers(cartographies);
 
-    Set<Service> services = new HashSet<>();
+    services = new HashSet<>();
     services.add(publicService);
-    this.serviceRepository.saveAll(services);
+    serviceRepository.saveAll(services);
 
     //Cartographies
     Cartography publicCartography = Cartography.builder()
@@ -155,7 +165,7 @@ public class ApplicationRestResourceIntTest {
         .setApplyFilterToGetFeatureInfo(false)
         .build();
 
-    Set<Cartography> cartographies = new HashSet<>();
+    cartographies = new HashSet<>();
     cartographies.add(publicCartography);
     this.cartographyRepository.saveAll(cartographies);
     publicCartography = cartographies.iterator().next();
@@ -164,13 +174,14 @@ public class ApplicationRestResourceIntTest {
     CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
     publicCartographyAvailability.setCartography(publicCartography);
     publicCartographyAvailability.setTerritory(territory);
-    Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
+
+    cartographyAvailabilities = new HashSet<>();
     cartographyAvailabilities.add(publicCartographyAvailability);
     this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
     // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
     //Tree nodes
-    Set<TreeNode> treeNodes = new HashSet<>();
+    treeNodes = new HashSet<>();
     TreeNode publicTreeNode = new TreeNode();
     publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
     publicTreeNode.setCartography(publicCartography);
@@ -180,7 +191,7 @@ public class ApplicationRestResourceIntTest {
     // publicTreeNode = treeNodes.iterator().next();
 
     //Cartography group
-    Set<CartographyGroup> cartographyGroups = new HashSet<>();
+    cartographyGroups = new HashSet<>();
     CartographyGroup publicCartographyGroup = new CartographyGroup();
     publicCartographyGroup.setName(PUBLIC_CARTOGRAPHY_GROUP_NAME);
     publicCartographyGroup.setRoles(availableRoles);
@@ -190,7 +201,7 @@ public class ApplicationRestResourceIntTest {
     publicCartographyGroup = cartographyGroups.iterator().next();
 
     //backgrounds
-    Set<Background> backgrounds = new HashSet<>();
+    backgrounds = new HashSet<>();
     Background publicBackground = new Background();
     publicBackground.setName(PUBLIC_BACKGROUND_NAME);
     publicBackground.setCartographyGroup(publicCartographyGroup);
@@ -209,7 +220,7 @@ public class ApplicationRestResourceIntTest {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    appsToCreate.add(application);
+    applications.add(application);
 
     Application publicApplication = new Application();
     publicApplication.setName(PUBLIC_APPLICATION_NAME);
@@ -218,10 +229,10 @@ public class ApplicationRestResourceIntTest {
     publicApplication.setSituationMap(publicCartographyGroup);
     publicApplication.setJspTemplate("");
 
-    appsToCreate.add(publicApplication);
-    applicationRepository.saveAll(appsToCreate);
+    applications.add(publicApplication);
+    applicationRepository.saveAll(applications);
 
-    appId = appsToCreate.get(0).getId();
+    appId = applications.get(0).getId();
 
     //application backgrounds
     Set<ApplicationBackground> applicationBackgrounds = new HashSet<>();
@@ -239,20 +250,37 @@ public class ApplicationRestResourceIntTest {
     applicationParam1.setApplication(application);
     applicationParam1.setValue("");
     applicationParam1.setType("");
-    parametersToCreate.add(applicationParam1);
+    applicationParameters.add(applicationParam1);
 
     ApplicationParameter applicationParam2 = new ApplicationParameter();
     applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
     applicationParam2.setApplication(publicApplication);
     applicationParam2.setValue("");
     applicationParam2.setType("");
-    parametersToCreate.add(applicationParam2);
+    applicationParameters.add(applicationParam2);
 
-    applicationParameterRepository.saveAll(parametersToCreate);
+    applicationParameterRepository.saveAll(applicationParameters);
     // Create user
     // Create territory
     // Create role
     // Create application
+  }
+
+  @After
+  public void cleanup() {
+    asAdmin(() -> {
+      applicationParameters
+          .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
+      applications.forEach((item) -> applicationRepository.deleteById(item.getId()));
+      backgrounds.forEach((item) -> backgroundRepository.deleteById(item.getId()));
+      cartographyGroups.forEach((item) -> cartographyGroupRepository.deleteById(item.getId()));
+      cartographyAvailabilities
+          .forEach((item) -> cartographyAvailabilityRepository.deleteById(item.getId()));
+      treeNodes.forEach((item) -> treeNodeRepository.deleteById(item.getId()));
+      trees.forEach((item) -> treeRepository.deleteById(item.getId()));
+      cartographies.forEach((item) -> cartographyRepository.deleteById(item.getId()));
+      services.forEach((item) -> serviceRepository.deleteById(item.getId()));
+    });
   }
 
   @Test

@@ -33,4 +33,18 @@ public class TestUtils {
     SecurityContextHolder.clearContext();
   }
 
+  public static void asAdmin(Runnable func) {
+    List<SimpleGrantedAuthority> authorities =
+        Collections.singletonList(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
+
+    UsernamePasswordAuthenticationToken authReq =
+        new UsernamePasswordAuthenticationToken("admin", "admin",
+            authorities);
+
+    SecurityContext sc = SecurityContextHolder.getContext();
+    sc.setAuthentication(authReq);
+    func.run();
+    sc.setAuthentication(null);
+    SecurityContextHolder.clearContext();
+  }
 }
