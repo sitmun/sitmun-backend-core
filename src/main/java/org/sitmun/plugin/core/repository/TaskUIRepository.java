@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TaskUI;
@@ -9,6 +10,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "task ui")
 @RepositoryRestResource(collectionResourceRel = "task-uis", path = "task-uis")
 public interface TaskUIRepository extends CrudRepository<TaskUI, BigInteger> {
 

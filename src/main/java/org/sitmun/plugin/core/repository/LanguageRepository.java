@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Language;
 import org.springframework.data.repository.CrudRepository;
@@ -9,7 +10,8 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
-@RepositoryRestResource(collectionResourceRel = "cartography-styles", path = "cartography-styles")
+@Tag(name = "language")
+@RepositoryRestResource(collectionResourceRel = "languages", path = "languages")
 public interface LanguageRepository
     extends CrudRepository<Language, Integer> {
 

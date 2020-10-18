@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.CartographyStyle;
 import org.springframework.data.repository.CrudRepository;
@@ -9,6 +10,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "cartography style")
 @RepositoryRestResource(collectionResourceRel = "cartography-styles", path = "cartography-styles")
 public interface CartographyStyleRepository
     extends CrudRepository<CartographyStyle, Integer> {

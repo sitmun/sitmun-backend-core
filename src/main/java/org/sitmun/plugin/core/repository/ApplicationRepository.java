@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
 
-//@Api(tags = "Applications")
+@Tag(name = "application")
 @RepositoryRestResource(collectionResourceRel = "applications", path = "applications"/*, excerptProjection = ApplicationProjection.class*/)
 public interface ApplicationRepository extends CrudRepository<Application, BigInteger> {
 

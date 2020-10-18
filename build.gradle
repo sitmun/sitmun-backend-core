@@ -21,6 +21,9 @@ plugins {
   id('org.ajoberstar.git-publish') version '2.1.3'
   id('org.asciidoctor.jvm.convert') version '3.1.0'
   id('org.asciidoctor.jvm.pdf') version '3.1.0'
+
+  id("com.github.johnrengelman.processes") version "0.5.0"
+  id("org.springdoc.openapi-gradle-plugin") version "1.3.0"
 }
 
 def targetJavaVersion = JavaVersion.VERSION_1_8
@@ -57,7 +60,11 @@ dependencies {
 
   implementation 'org.liquibase:liquibase-core'
 
-  implementation "io.springfox:springfox-boot-starter:${springfox_swagger_version}"
+//  implementation "io.springfox:springfox-boot-starter:${springfox_swagger_version}"
+  implementation 'org.springdoc:springdoc-openapi-ui:1.4.8'
+  implementation 'org.springdoc:springdoc-openapi-data-rest:1.4.8'
+  implementation 'org.springdoc:springdoc-openapi-security:1.4.8'
+  implementation 'org.springdoc:springdoc-openapi-hateoas:1.4.8'
 
   implementation 'com.zaxxer:HikariCP'
 
@@ -147,7 +154,8 @@ convertSwagger2markup {
 }
 
 asciidoctor {
-  dependsOn convertSwagger2markup
+// TODO fix generation of API documentation
+// dependsOn convertSwagger2markup
   sourceDir = file('src/main/docs/asciidoc')
   sources {
     include 'index.adoc'
@@ -224,3 +232,7 @@ task exportSchemas(dependsOn: [
   oracle10gSchemaExport,
   postgreSQLSchemaExport,
   h2SchemaExport])
+
+openApi {
+  outputDir.set(file(projectDir))
+}

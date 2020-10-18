@@ -3,35 +3,36 @@ package org.sitmun.plugin.core.repository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
-import org.sitmun.plugin.core.domain.Connection;
+import org.sitmun.plugin.core.domain.DownloadTask;
+import org.sitmun.plugin.core.domain.QueryTask;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
-@Tag(name = "connection")
-@RepositoryRestResource(collectionResourceRel = "connections", path = "connections")
-public interface ConnectionRepository extends CrudRepository<Connection, BigInteger> {
+@Tag(name = "query task")
+@RepositoryRestResource(collectionResourceRel = "query-tasks", path = "query-tasks")
+public interface QueryTaskRepository extends CrudRepository<QueryTask, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  <S extends Connection> S save(@P("entity") S entity);
+  <S extends QueryTask> S save(@P("entity") S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") Connection entity);
+  void delete(@P("entity") QueryTask entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
   void deleteById(@P("entityId") BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
-  Iterable<Connection> findAll();
+  Iterable<QueryTask> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
-  Optional<Connection> findById(@P("entityId") BigInteger entityId);
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
+  Optional<QueryTask> findById(@P("entityId") BigInteger entityId);
 
 }

@@ -8,6 +8,10 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
+sitmun:
+  module: SITMUN Core
+  version: 3.0-SNAPSHOT
+
 spring:
   application:
     name: SITMUN
@@ -72,6 +76,10 @@ server:
     session:
       cookie:
         http-only: true
+
+springdoc:
+  swagger-ui:
+    docExpansion: none
 
 # ===================================================================
 # SITMUN specific properties

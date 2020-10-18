@@ -1,6 +1,11 @@
 package org.sitmun.plugin.core.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@Tag(name = "login")
 public class UserJWTController {
 
   private final TokenProvider tokenProvider;
@@ -34,11 +40,22 @@ public class UserJWTController {
     this.authenticationManager = authenticationManager;
   }
 
+  /**
+   * Authenticate a user an obtain a JWT token.
+   *
+   * @param login user login and password
+   * @return JWT token
+   */
   @PostMapping("/authenticate")
-  public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDTO loginVM) {
+  @Operation(summary = "authenticate a user and obtain a JWT token")
+  @SecurityRequirements
+  public ResponseEntity<JWTToken> authorize(
+      @Parameter(description = "user's credentials", required = true,
+          schema = @Schema(implementation = LoginDTO.class))
+      @Valid @RequestBody LoginDTO login) {
 
     UsernamePasswordAuthenticationToken authenticationToken =
-        new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
+        new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword());
 
     Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
     SecurityContextHolder.getContext().setAuthentication(authentication);

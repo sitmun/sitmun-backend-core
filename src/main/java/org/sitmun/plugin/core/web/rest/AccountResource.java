@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import javax.validation.Valid;
 import org.sitmun.plugin.core.domain.User;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @RepositoryRestController
 @RequestMapping("/api/account")
+@Tag(name = "account")
 public class AccountResource {
 
   private final UserService userService;

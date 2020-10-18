@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TaskAvailability;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "task availability")
 @RepositoryRestResource(collectionResourceRel = "task-availabilities", path = "task-availabilities")
 public interface TaskAvailabilityRepository extends CrudRepository<TaskAvailability, BigInteger> {
 

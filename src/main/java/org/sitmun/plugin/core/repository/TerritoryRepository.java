@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Territory;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "territory")
 @RepositoryRestResource(collectionResourceRel = "territories", path = "territories")
 public interface TerritoryRepository extends CrudRepository<Territory, BigInteger> {
 

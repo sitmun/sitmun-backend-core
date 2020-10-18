@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
@@ -105,6 +106,7 @@ public class User { //implements Identifiable<BigInteger> {
    * User permissions.
    */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private Set<UserConfiguration> permissions = new HashSet<>();
 
   public BigInteger getId() {

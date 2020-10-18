@@ -29,4 +29,5 @@ SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
 
 Travis-CI runs the tests with the development profile active.
 
-When the application runs in local the API Documentation is available at http://localhost:8080/swagger-ui/index.html.
+When the application runs in local the API Documentation is available at 
+http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config.

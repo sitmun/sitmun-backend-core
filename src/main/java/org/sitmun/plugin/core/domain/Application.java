@@ -32,7 +32,7 @@ import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 //import org.springframework.hateoas.ResourceSupport;
 
 /**
- * An application.
+ * A SITMUN application.
  */
 @Entity
 @Table(name = "STM_APP")

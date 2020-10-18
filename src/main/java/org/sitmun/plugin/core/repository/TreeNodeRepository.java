@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.List;
 import org.sitmun.plugin.core.domain.Cartography;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "tree node")
 @RepositoryRestResource(collectionResourceRel = "tree-nodes", path = "tree-nodes"/*, excerptProjection = TreeNodeProjection.class*/)
 public interface TreeNodeRepository extends CrudRepository<TreeNode, BigInteger> {
 

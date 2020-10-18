@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.UserConfiguration;
@@ -10,11 +11,12 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@Tag(name = "user configuration")
 @RepositoryRestResource(collectionResourceRel = "user-configurations", path = "user-configurations")
 public interface UserConfigurationRepository extends CrudRepository<UserConfiguration, BigInteger> {
 
   @Override
-    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  //@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends UserConfiguration> S save(@P("entity") S entity);
 
   @Override
