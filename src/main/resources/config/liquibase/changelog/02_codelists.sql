@@ -23,8 +23,8 @@ INSERT INTO STM_CODELIST VALUES  (11, 'cartography.geometryType', 'LINE', 'Line'
 INSERT INTO STM_CODELIST VALUES  (12, 'cartography.geometryType', 'POLYGON', 'Polygon');
 
 -- STM_FIL_GI.FGI_TYPE
-INSERT INTO STM_CODELIST VALUES  (13, 'cartographyFilter.type', 'C', 'Defined');
-INSERT INTO STM_CODELIST VALUES  (14, 'cartographyFilter.type', 'D', 'Custom');
+INSERT INTO STM_CODELIST VALUES  (13, 'cartographyFilter.type', 'C', 'Custom');
+INSERT INTO STM_CODELIST VALUES  (14, 'cartographyFilter.type', 'D', 'Defined');
 
 -- STM_FIL_GI.FGI_VALUETYPE
 INSERT INTO STM_CODELIST VALUES  (15, 'cartographyFilter.valueType', 'A', 'Alphanumeric');
