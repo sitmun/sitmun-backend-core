@@ -32,7 +32,7 @@ import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
-import org.sitmun.plugin.core.web.rest.dto.LoginDTO;
+import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -92,7 +92,8 @@ public class AccountRestResourceIntTest {
       user.setPassword(USER_PASSWORD);
       user.setUsername(USER_USERNAME);
       userService.createUser(user);
-      user = userRepository.findOneWithPermissionsByUsername(user.getUsername()).get();
+      user = userRepository.findOneWithPermissionsByUsername(user.getUsername())
+          .orElseThrow(() -> new RuntimeException("User "+user.getUsername()+ " not found"));
     });
   }
 
@@ -105,7 +106,7 @@ public class AccountRestResourceIntTest {
 
   @Test
   public void login() throws Exception {
-    LoginDTO login = new LoginDTO();
+    LoginRequest login = new LoginRequest();
     login.setUsername(USER_USERNAME);
     login.setPassword(USER_PASSWORD);
     mvc.perform(post(AUTHENTICATION_URI)

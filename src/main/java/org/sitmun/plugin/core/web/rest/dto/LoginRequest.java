@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 /**
  * DTO object for storing a user's credentials.
  */
-public class LoginDTO {
+public class LoginRequest {
 
   @Schema(description = "User identifier. It cannot be empty", example = "some_user")
   @NotNull
