@@ -1,19 +1,12 @@
 package org.sitmun.plugin.core.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
 import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,24 +42,6 @@ public class AuthController {
    * @return JWT token
    */
   @PostMapping("/authenticate")
-  @Operation(summary = "authenticate a user")
-  @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "user's credentials",
-      required = true,
-      content = @Content(
-          mediaType = MediaType.APPLICATION_JSON_VALUE,
-          examples = {@ExampleObject(
-              name = "admin",
-              value = "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}",
-              description = "system administrator credentials (in demo setups)"
-          )},
-          schema = @Schema(implementation = LoginRequest.class)))
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "user is authenticated", content =
-      @Content(
-          mediaType = MediaType.APPLICATION_JSON_VALUE,
-          schema = @Schema(implementation = JWTToken.class))),
-      @ApiResponse(responseCode = "401", description = "unauthorized")
-  })
   @SecurityRequirements
   public ResponseEntity<JWTToken> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(

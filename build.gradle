@@ -234,5 +234,9 @@ task exportSchemas(dependsOn: [
   h2SchemaExport])
 
 openApi {
+  apiDocsUrl.set("http://localhost:8080/v3/api-docs.yaml")
   outputDir.set(file(projectDir))
+  outputFileName.set("openapi.yaml")
+  forkProperties.set("-Dspring.profiles.active=dev,openapi-annotation")
+  waitTimeInSeconds.set(50)
 }
