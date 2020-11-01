@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
-import static org.sitmun.plugin.core.test.TestUtils.asSystem;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -19,7 +19,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import org.junit.After;
@@ -76,7 +75,7 @@ public class AccountRestResourceIntTest {
 
   @Before
   public void init() {
-    asSystem(() -> {
+    withMockSitmunAdmin(() -> {
       Date expiredDate =
           Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
       expiredToken = Jwts.builder().setSubject(USER_USERNAME)
@@ -99,9 +98,7 @@ public class AccountRestResourceIntTest {
 
   @After
   public void cleanup() {
-    ArrayList<User> userToDelete = new ArrayList<>();
-    userToDelete.add(user);
-    userRepository.deleteAll(userToDelete);
+    withMockSitmunAdmin(() -> userRepository.delete(user));
   }
 
   @Test

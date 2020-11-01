@@ -28,14 +28,14 @@ import org.sitmun.plugin.core.constraints.CodeLists;
 public class User { //implements Identifiable<BigInteger> {
 
   @TableGenerator(
-      name = "STM_USUARIO_GEN",
+      name = "STM_USER_GEN",
       table = "STM_SEQUENCE",
       pkColumnName = "SEQ_NAME",
       valueColumnName = "SEQ_COUNT",
       pkColumnValue = "USE_ID",
       allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUARIO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USER_GEN")
   @Column(name = "USE_ID", precision = 11)
   private BigInteger id;
 

@@ -1,5 +1,4 @@
 --liquibase formatted sql
-
 --changeset sitmun:2
 
 -- STM_TERRITORY.TER_SCOPE
@@ -128,20 +127,30 @@ INSERT INTO STM_CODELIST VALUES  (75, 'queryTask.scope', 'TAREA', 'TAREA');
 INSERT INTO STM_CODELIST VALUES  (76, 'userPosition.type', 'RE', 'RE');
 
 -- STM_THEMATIC.THE_RANKTYPE
-INSERT INTO STM_CODELIST VALUES  (77, 'thematicMap.type', 'VU', 'Unique values');
-INSERT INTO STM_CODELIST VALUES  (78, 'thematicMap.type', 'RE', 'Equal record count');
-INSERT INTO STM_CODELIST VALUES  (79, 'thematicMap.type', 'RL', 'Equal interval size');
+INSERT INTO STM_CODELIST
+VALUES (77, 'thematicMap.type', 'VU', 'Unique values');
+INSERT INTO STM_CODELIST
+VALUES (78, 'thematicMap.type', 'RE', 'Equal record count');
+INSERT INTO STM_CODELIST
+VALUES (79, 'thematicMap.type', 'RL', 'Equal interval size');
 
 -- STM_THEMATIC.THE_VALUETYPE
-INSERT INTO STM_CODELIST VALUES  (80, 'thematicMap.valueType', 'STR', 'String');
-INSERT INTO STM_CODELIST VALUES  (81, 'thematicMap.valueType', 'DOU', 'Double');
+INSERT INTO STM_CODELIST
+VALUES (80, 'thematicMap.valueType', 'STR', 'String');
+INSERT INTO STM_CODELIST
+VALUES (81, 'thematicMap.valueType', 'DOU', 'Double');
 
 -- STM_THEMATIC.THE_DESTINATION
-INSERT INTO STM_CODELIST VALUES  (82, 'thematicMap.destination', 'WS', 'Web Service');
-INSERT INTO STM_CODELIST VALUES  (83, 'thematicMap.destination', 'WS_HERMES', 'Hermes Web Service');
-INSERT INTO STM_CODELIST VALUES  (84, 'thematicMap.destination', 'UPLOADED', 'Uploaded JSON file');
+INSERT INTO STM_CODELIST
+VALUES (82, 'thematicMap.destination', 'WS', 'Web Service');
+INSERT INTO STM_CODELIST
+VALUES (83, 'thematicMap.destination', 'WS_HERMES', 'Hermes Web Service');
+INSERT INTO STM_CODELIST
+VALUES (84, 'thematicMap.destination', 'UPLOADED', 'Uploaded JSON file');
 
 -- STM_THE_RANK.TRK_STYLEINT
 -- STM_THE_RANK.TRK_STYLE
 -- TODO Provide value and description for code list thematicMapRange.style
 
+INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
+VALUES ('COD_ID', 85);

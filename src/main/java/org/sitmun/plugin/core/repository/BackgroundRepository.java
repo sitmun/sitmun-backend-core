@@ -15,7 +15,7 @@ import org.springframework.security.core.parameters.P;
 public interface BackgroundRepository extends CrudRepository<Background, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends Background> S save(@P("entity") S entity);
 
   @Override

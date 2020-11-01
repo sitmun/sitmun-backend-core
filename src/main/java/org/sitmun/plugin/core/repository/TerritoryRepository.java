@@ -17,7 +17,7 @@ import org.springframework.security.core.parameters.P;
 public interface TerritoryRepository extends CrudRepository<Territory, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends Territory> S save(@P("entity") S entity);
 
   @Override

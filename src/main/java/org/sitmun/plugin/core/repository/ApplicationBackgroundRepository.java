@@ -16,7 +16,7 @@ public interface ApplicationBackgroundRepository
     extends PagingAndSortingRepository<ApplicationBackground, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends ApplicationBackground> S save(@P("entity") S entity);
 
   @Override

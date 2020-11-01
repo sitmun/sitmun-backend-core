@@ -16,7 +16,7 @@ public interface ApplicationParameterRepository
     extends CrudRepository<ApplicationParameter, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends ApplicationParameter> S save(@P("entity") S entity);
 
   @Override

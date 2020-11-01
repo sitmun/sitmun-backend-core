@@ -21,7 +21,7 @@ import org.springframework.security.core.parameters.P;
 public interface CartographyGroupRepository extends CrudRepository<CartographyGroup, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends CartographyGroup> S save(@P("entity") S entity);
 
   @Override

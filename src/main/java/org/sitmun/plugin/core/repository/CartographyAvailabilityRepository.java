@@ -17,7 +17,7 @@ public interface CartographyAvailabilityRepository
     extends CrudRepository<CartographyAvailability, BigInteger> {
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends CartographyAvailability> S save(@P("entity") S entity);
 
   @Override

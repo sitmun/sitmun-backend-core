@@ -16,7 +16,7 @@ import org.springframework.security.core.parameters.P;
 @RepositoryRestResource(collectionResourceRel = "territory-types", path = "territory-types")
 public interface TerritoryTypeRepository extends CrudRepository<TerritoryType, BigInteger> {
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends TerritoryType> S save(@P("entity") S entity);
 
   @Override

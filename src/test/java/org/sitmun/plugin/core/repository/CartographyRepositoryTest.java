@@ -16,8 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 public class CartographyRepositoryTest {
 
-  private static final String ADMIN_USERNAME = "admin";
-
   @Autowired
   private CartographyRepository cartographyRepository;
 

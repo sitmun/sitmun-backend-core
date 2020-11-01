@@ -2,11 +2,9 @@ package org.sitmun.plugin.core.security;
 
 import java.io.Serializable;
 import java.util.Optional;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.sitmun.plugin.core.domain.User;
-import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.sitmun.plugin.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,23 +62,24 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     if (currentUser.isPresent()) {
       User user = currentUser.get();
+      if (user.getBlocked()) {
+        return false;
+      }
+      if (user.getAdministrator()) {
+        return true;
+      }
       try {
         String[] beanNamesForType = context.getBeanNamesForType(
             ResolvableType
                 .forClassWithGenerics(PermissionResolver.class, targetDomainObject.getClass()));
         if (beanNamesForType.length > 0) {
-          PermissionResolver rc = (PermissionResolver) context.getBean(beanNamesForType[0]);
+          @SuppressWarnings("unchecked")
+          PermissionResolver<Object> rc =
+              (PermissionResolver<Object>) context.getBean(beanNamesForType[0]);
           return rc.resolvePermission(user, targetDomainObject, (String) permission);
         }
       } catch (BeansException e) {
         LOGGER.error("Can't resolve bean for class " + targetDomainObject.getClass(), e);
-      }
-      //return true;
-      Set<UserConfiguration> permissions = user.getPermissions();
-      boolean isAdminSitmun = permissions.stream()
-          .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));
-      if (isAdminSitmun) {
-        return true;
       }
       return (((String) permission).equalsIgnoreCase(SecurityConstants.READ_PERMISSION));
     } else {
@@ -104,12 +103,19 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     if (currentUser.isPresent()) {
       User user = currentUser.get();
+      if (user.getBlocked()) {
+        return false;
+      }
+      if (user.getAdministrator()) {
+        return true;
+      }
 
       try {
         String[] beanNamesForType = context.getBeanNamesForType(
             ResolvableType
                 .forClassWithGenerics(PermissionResolver.class, Class.forName(targetType)));
         if (beanNamesForType.length > 0) {
+          @SuppressWarnings("unchecked")
           PermissionResolver<Object> rc =
               (PermissionResolver<Object>) context.getBean(beanNamesForType[0]);
           return rc.resolvePermission(user, em.find(Class.forName(targetType), targetId),

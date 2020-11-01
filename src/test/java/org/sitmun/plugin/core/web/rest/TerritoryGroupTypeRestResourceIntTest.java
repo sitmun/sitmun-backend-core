@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
-import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import java.math.BigInteger;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -64,17 +66,20 @@ public class TerritoryGroupTypeRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = "admin")
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void groupCanBeCreated() throws Exception {
     mvc.perform(post(TERRITORY_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
     ).andDo(print())
         .andExpect(status().isCreated())
-        .andExpect(header().string("location", "http://localhost/api/territory-group-types/1"));
-    asAdmin(() -> {
-      repository.deleteById(BigInteger.valueOf(1));
-    });
+        .andExpect(header().string("location", TERRITORY_URI + "/" + 1));
+  }
+
+  @After
+  public void after() {
+    withMockSitmunAdmin(
+        () -> repository.findById(BigInteger.ONE).ifPresent((it) -> repository.delete(it)));
   }
 
   @TestConfiguration

@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.constraints;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,7 +32,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class MinMaxTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final Integer VALID_MIN = 0;
   private static final Integer VALID_MID = 50;
   private static final Integer VALID_MAX = 100;
@@ -44,7 +44,7 @@ public class MinMaxTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsMin() throws Exception {
     postEntityWithMinMaxValue(VALID_MIN)
         .andExpect(status().isCreated())
@@ -52,7 +52,7 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsMax() throws Exception {
     postEntityWithMinMaxValue(VALID_MAX)
         .andExpect(status().isCreated())
@@ -60,7 +60,7 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsBetween() throws Exception {
     postEntityWithMinMaxValue(VALID_MID)
         .andExpect(status().isCreated())
@@ -68,7 +68,7 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsBelowMin() throws Exception {
     postEntityWithMinMaxValue(INVALID_BELOW_MIN)
         .andExpect(status().is4xxClientError())
@@ -77,7 +77,7 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsUpperMax() throws Exception {
     postEntityWithMinMaxValue(INVALID_UPPER_MAX)
         .andExpect(status().is4xxClientError())

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,13 +33,11 @@ import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.repository.UserConfigurationRepository;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
-import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -58,7 +56,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class UserRestResourceIntTest {
 
-  private static final String USER_USERNAME = "admin";
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String TERRITORY1_USER_USERNAME = "territory1-user";
   private static final String TERRITORY2_USER_USERNAME = "territory2-user";
@@ -87,125 +84,131 @@ public class UserRestResourceIntTest {
   @Autowired
   private MockMvc mvc;
   private String token;
-  private User sitmunAdmin;
   private User organizacionAdmin;
   private User territory1User;
   private User territory2User;
-  @Value("${default.territory.name}")
-  private String defaultTerritoryName;
-  private Territory defaultTerritory;
+
   private Territory territory1;
   private Territory territory2;
-  private Role sitmunAdminRole;
+
+
   private Role organizacionAdminRole;
   private Role territorialRole;
 
   private ArrayList<Territory> territories;
   private ArrayList<User> users;
+  private ArrayList<UserConfiguration> userConfigurations;
 
   @Before
-  @WithMockUser(username = USER_USERNAME)
   public void init() {
-    token = tokenProvider.createToken(USER_USERNAME);
-    sitmunAdminRole = this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_SITMUN).get();
+    withMockSitmunAdmin(() -> {
 
-    organizacionAdminRole =
-        this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
-    territorialRole =
-        this.roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION).get();
+      organizacionAdminRole =
+          Role.builder().setName(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
+      roleRepository.save(organizacionAdminRole);
 
-    defaultTerritory = territoryRepository.findOneByName(this.defaultTerritoryName).get();
-    territories = new ArrayList<>();
-    users = new ArrayList<>();
-    territory1 = Territory.builder()
-        .setName("Territorio 1")
-        .setCode("")
-        .setBlocked(false)
-        .build();
+      territorialRole = Role.builder().setName(AuthoritiesConstants.USUARIO_TERRITORIAL).build();
+      roleRepository.save(territorialRole);
 
-    territory2 = Territory.builder()
-        .setName("Territorio 2")
-        .setCode("")
-        .setBlocked(false)
-        .build();
-    territories.add(territory1);
-    territories.add(territory2);
+      territories = new ArrayList<>();
+      users = new ArrayList<>();
+      territory1 = Territory.builder()
+          .setName("Territorio 1")
+          .setCode("")
+          .setBlocked(false)
+          .build();
 
-    territoryRepository.saveAll(territories);
+      territory2 = Territory.builder()
+          .setName("Territorio 2")
+          .setCode("")
+          .setBlocked(false)
+          .build();
+      territories.add(territory1);
+      territories.add(territory2);
 
-    // Sitmun Admin
-    sitmunAdmin = this.userRepository.findOneWithPermissionsByUsername(USER_USERNAME).get();
+      territoryRepository.saveAll(territories);
 
-    // Territory 1 Admin
-    organizacionAdmin = new User();
-    organizacionAdmin.setAdministrator(USER_ADMINISTRATOR);
-    organizacionAdmin.setBlocked(USER_BLOCKED);
-    organizacionAdmin.setFirstName(USER_FIRSTNAME);
-    organizacionAdmin.setLastName(USER_LASTNAME);
-    organizacionAdmin.setPassword(USER_PASSWORD);
-    organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
-    users.add(organizacionAdmin);
+      // Territory 1 Admin
+      organizacionAdmin = new User();
+      organizacionAdmin.setAdministrator(USER_ADMINISTRATOR);
+      organizacionAdmin.setBlocked(USER_BLOCKED);
+      organizacionAdmin.setFirstName(USER_FIRSTNAME);
+      organizacionAdmin.setLastName(USER_LASTNAME);
+      organizacionAdmin.setPassword(USER_PASSWORD);
+      organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
+      users.add(organizacionAdmin);
 
-    // Territory 1 user
-    territory1User = new User();
-    territory1User.setAdministrator(false);
-    territory1User.setBlocked(USER_BLOCKED);
-    territory1User.setFirstName(USER_FIRSTNAME);
-    territory1User.setLastName(USER_LASTNAME);
-    territory1User.setPassword(USER_PASSWORD);
-    territory1User.setUsername(TERRITORY1_USER_USERNAME);
-    users.add(territory1User);
+      // Territory 1 user
+      territory1User = new User();
+      territory1User.setAdministrator(false);
+      territory1User.setBlocked(USER_BLOCKED);
+      territory1User.setFirstName(USER_FIRSTNAME);
+      territory1User.setLastName(USER_LASTNAME);
+      territory1User.setPassword(USER_PASSWORD);
+      territory1User.setUsername(TERRITORY1_USER_USERNAME);
+      users.add(territory1User);
 
-    // Territory 2 user
-    territory2User = new User();
-    territory2User.setAdministrator(false);
-    territory2User.setBlocked(USER_BLOCKED);
-    territory2User.setFirstName(USER_FIRSTNAME);
-    territory2User.setLastName(USER_LASTNAME);
-    territory2User.setPassword(USER_PASSWORD);
-    territory2User.setUsername(TERRITORY2_USER_USERNAME);
-    users.add(territory2User);
+      // Territory 2 user
+      territory2User = new User();
+      territory2User.setAdministrator(false);
+      territory2User.setBlocked(USER_BLOCKED);
+      territory2User.setFirstName(USER_FIRSTNAME);
+      territory2User.setLastName(USER_LASTNAME);
+      territory2User.setPassword(USER_PASSWORD);
+      territory2User.setUsername(TERRITORY2_USER_USERNAME);
+      users.add(territory2User);
 
-    userRepository.saveAll(users);
+      userRepository.saveAll(users);
 
-    UserConfiguration userConf = new UserConfiguration();
-    userConf.setTerritory(territory1);
-    userConf.setRole(organizacionAdminRole);
-    userConf.setUser(organizacionAdmin);
-    this.userConfigurationRepository.save(userConf);
+      userConfigurations = new ArrayList<>();
 
-    userConf = new UserConfiguration();
-    userConf.setTerritory(territory1);
-    userConf.setRole(territorialRole);
-    userConf.setUser(territory1User);
-    this.userConfigurationRepository.save(userConf);
+      UserConfiguration userConf = new UserConfiguration();
+      userConf.setTerritory(territory1);
+      userConf.setRole(organizacionAdminRole);
+      userConf.setUser(organizacionAdmin);
+      userConfigurations.add(userConf);
+      this.userConfigurationRepository.save(userConf);
 
-    userConf = new UserConfiguration();
-    userConf.setTerritory(territory2);
-    userConf.setRole(territorialRole);
-    userConf.setUser(territory2User);
+      userConf = new UserConfiguration();
+      userConf.setTerritory(territory1);
+      userConf.setRole(territorialRole);
+      userConf.setUser(territory1User);
+      userConfigurations.add(userConf);
+      this.userConfigurationRepository.save(userConf);
 
-    this.userConfigurationRepository.save(userConf);
+      userConf = new UserConfiguration();
+      userConf.setTerritory(territory2);
+      userConf.setRole(territorialRole);
+      userConf.setUser(territory2User);
+      userConfigurations.add(userConf);
+
+      userConfigurationRepository.saveAll(userConfigurations);
+    });
   }
 
   @After
   public void cleanup() {
-    asAdmin(() -> {
-      users.forEach((item) -> userRepository.deleteById(item.getId()));
-      territories.forEach((item) -> territoryRepository.deleteById(item.getId()));
+    withMockSitmunAdmin(() -> {
+      userConfigurationRepository.deleteAll(userConfigurations);
+      roleRepository.delete(territorialRole);
+      roleRepository.delete(organizacionAdminRole);
+      userRepository.deleteAll(users);
+      territoryRepository.deleteAll(territories);
     });
   }
 
 
   @Test
-  @WithMockUser(username = USER_USERNAME, authorities = {SITMUN_ADMIN_USERNAME})
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void createNewUserAndDelete() throws Exception {
-    UserDTO newUser = new UserDTO(sitmunAdmin);
+    UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
     newUser.setUsername(NEW_USER_USERNAME);
 
     String uri = mvc.perform(post("/api/users")
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(newUser))
     ).andExpect(status().isCreated())
@@ -225,38 +228,32 @@ public class UserRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void createDuplicatedUserFails() throws Exception {
-    UserDTO newUser = new UserDTO(sitmunAdmin);
+    UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
 
     mvc.perform(post("/api/users")
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(newUser)))
         .andExpect(status().isConflict());
   }
 
   @Test
-  public void getUsers() throws Exception {
-    mvc.perform(get("/api/users")
-        .header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token)
-    ).andDo(print())
-        .andExpect(status().isOk());
-  }
-
-  @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUser() throws Exception {
-    UserDTO userDTO = new UserDTO(sitmunAdmin);
+    UserDTO userDTO = new UserDTO(organizacionAdmin);
     userDTO.setFirstName(USER_CHANGEDFIRSTNAME);
     userDTO.setLastName(USER_CHANGEDLASTNAME);
 
-    mvc.perform(put(USER_URI + "/" + sitmunAdmin.getId())
+    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(userDTO))
     ).andExpect(status().isNoContent());
 
-    mvc.perform(get(USER_URI + "/" + sitmunAdmin.getId()))
+    mvc.perform(get(USER_URI + "/" + organizacionAdmin.getId()))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
@@ -264,9 +261,10 @@ public class UserRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
-    mvc.perform(get(USER_URI))
+    mvc.perform(get(USER_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
@@ -276,32 +274,34 @@ public class UserRestResourceIntTest {
   @Test
   @WithMockUser(username = TERRITORY1_ADMIN_USERNAME)
   public void getUsersAsOrganizationAdmin() throws Exception {
-    mvc.perform(get(USER_URI))
+    mvc.perform(get(USER_URI).header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(2)));
+        .andExpect(jsonPath("$._embedded.users", hasSize(5)));
   }
 
   @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUserPassword() throws Exception {
     PasswordDTO passwordDTO = new PasswordDTO();
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
-    mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
+    mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(passwordDTO))
     ).andExpect(status().isOk());
   }
 
   @Test
-  @WithMockUser(username = USER_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUserPasswordAsSitmunAdmin() throws Exception {
     PasswordDTO passwordDTO = new PasswordDTO();
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
-    mvc.perform(post(USER_URI + "/" + sitmunAdmin.getId() + "/change-password")
+    mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(passwordDTO))
     ).andExpect(status().isOk());

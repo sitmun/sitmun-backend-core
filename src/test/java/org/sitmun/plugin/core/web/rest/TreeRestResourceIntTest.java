@@ -1,7 +1,10 @@
 package org.sitmun.plugin.core.web.rest;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,13 +28,14 @@ import org.sitmun.plugin.core.repository.TreeNodeRepository;
 import org.sitmun.plugin.core.repository.TreeRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -43,7 +47,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class TreeRestResourceIntTest {
 
-  private static final String ADMIN_USERNAME = "admin";
+  private static final Logger log = LoggerFactory.getLogger(TreeRestResourceIntTest.class);
+
   private static final String TREE_URI = "http://localhost/api/trees";
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-public Tree Node";
   private static final String PUBLIC_TREENODE_NAME = "Public Tree Node";
@@ -59,47 +64,63 @@ public class TreeRestResourceIntTest {
   TokenProvider tokenProvider;
   @Autowired
   private MockMvc mvc;
-  private Tree publicTree;
 
+  private String token;
+  private Tree publicTree;
   private ArrayList<Tree> trees;
   private ArrayList<TreeNode> nodes;
+  private Role publicRole;
 
   @Before
   public void init() {
-    nodes = new ArrayList<>();
-    Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
-    Set<Role> availableRoles = new HashSet<>();
-    availableRoles.add(publicRole);
+    withMockSitmunAdmin(() -> {
 
-    trees = new ArrayList<>();
+      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
-    publicTree = new Tree();
-    publicTree.setName(PUBLIC_TREE_NAME);
-    publicTree.setAvailableRoles(availableRoles);
-    trees.add(publicTree);
+      nodes = new ArrayList<>();
 
-    Tree tree = new Tree();
-    tree.setName(NON_PUBLIC_TREE_NAME);
-    trees.add(tree);
-    treeRepository.saveAll(trees);
+      publicRole = Role.builder().setName(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      roleRepository.save(publicRole);
 
-    TreeNode treeNode1 = new TreeNode();
-    treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
-    treeNode1.setTree(tree);
-    nodes.add(treeNode1);
-    TreeNode treeNode2 = new TreeNode();
-    treeNode2.setName(PUBLIC_TREENODE_NAME);
-    treeNode2.setTree(publicTree);
-    nodes.add(treeNode2);
-    treeNodeRepository.saveAll(nodes);
+      Set<Role> availableRoles = new HashSet<>();
+      availableRoles.add(publicRole);
 
+      trees = new ArrayList<>();
+
+      publicTree = new Tree();
+      publicTree.setName(PUBLIC_TREE_NAME);
+      publicTree.setAvailableRoles(availableRoles);
+      trees.add(publicTree);
+
+      Tree tree = new Tree();
+      tree.setName(NON_PUBLIC_TREE_NAME);
+      trees.add(tree);
+      treeRepository.saveAll(trees);
+
+      TreeNode treeNode1 = new TreeNode();
+      treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
+      treeNode1.setTree(tree);
+      nodes.add(treeNode1);
+
+      TreeNode treeNode2 = new TreeNode();
+      treeNode2.setName(PUBLIC_TREENODE_NAME);
+      treeNode2.setTree(publicTree);
+
+      nodes.add(treeNode2);
+      treeNodeRepository.saveAll(nodes);
+    });
   }
 
   @After
   public void cleanup() {
-    asAdmin(() -> {
-      nodes.forEach((item) -> treeNodeRepository.deleteById(item.getId()));
-      trees.forEach((item) -> treeRepository.deleteById(item.getId()));
+    withMockSitmunAdmin(() -> {
+      for (TreeNode node : nodes) {
+        treeNodeRepository.deleteById(node.getId());
+      }
+      for (Tree tree : trees) {
+        treeRepository.deleteById(tree.getId());
+      }
+      roleRepository.delete(publicRole);
     });
   }
 
@@ -110,7 +131,7 @@ public class TreeRestResourceIntTest {
     mvc.perform(get(TREE_URI))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.trees", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
   }
 
   @Ignore
@@ -129,9 +150,9 @@ public class TreeRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
   public void getTreesAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TREE_URI))
+    mvc.perform(get(TREE_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.trees", hasSize(2)));

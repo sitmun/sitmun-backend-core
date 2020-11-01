@@ -24,7 +24,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("dev")
+@Profile("diba")
+@Deprecated
 public class DefaultDataLoader implements ApplicationRunner {
 
   final UserRepository userRepository;
@@ -86,8 +87,6 @@ public class DefaultDataLoader implements ApplicationRunner {
           .setName(AuthoritiesConstants.ADMIN_ORGANIZACION)
           .build();
       roleRepository.save(organizacionAdminRole);
-    } else {
-      organizacionAdminRole = optRole.get();
     }
     optRole = roleRepository.findOneByName(AuthoritiesConstants.USUARIO_TERRITORIAL);
     Role territorialRole;
@@ -151,8 +150,6 @@ public class DefaultDataLoader implements ApplicationRunner {
       userConf.setRole(publicRole);
       userConf.setUser(sitmunAdmin);
       this.userConfigurationRepository.save(userConf);
-    } else {
-      sitmunAdmin = optUser.get();
     }
 
     // Sitmun Public User
@@ -172,8 +169,6 @@ public class DefaultDataLoader implements ApplicationRunner {
       userConf.setRole(publicRole);
       userConf.setUser(sitmunPublicUser);
       this.userConfigurationRepository.save(userConf);
-    } else {
-      sitmunPublicUser = optUser.get();
     }
 
     sc.setAuthentication(null);

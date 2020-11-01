@@ -1,5 +1,4 @@
 --liquibase formatted sql
-
 --changeset sitmun:1 dbms:h2
 
 CREATE TABLE STM_GTER_TYP (

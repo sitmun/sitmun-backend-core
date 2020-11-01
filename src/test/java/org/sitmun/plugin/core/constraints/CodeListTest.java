@@ -3,6 +3,8 @@ package org.sitmun.plugin.core.constraints;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -13,8 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +33,6 @@ import org.sitmun.plugin.core.repository.ServiceRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -50,7 +53,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class CodeListTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
   private static final String CARTOGRAPHY_URI = "http://localhost/api/cartographies";
   @Autowired
@@ -65,26 +67,31 @@ public class CodeListTest {
   private ServiceRepository serviceRepository;
   @Autowired
   private MockMvc mvc;
-  @Value("${default.territory.name}")
-  private String defaultTerritoryName;
-  private Cartography cartography;
+
+  private List<Cartography> cartographies;
   private Service service;
+  private Territory territory;
+  private CartographyAvailability cartographyAvailability;
 
   @Before
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void init() {
-    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
+    territory = Territory.builder()
+        .setName("Some territory")
+        .setCode("")
+        .setBlocked(false)
+        .build();
+    territoryRepository.save(territory);
 
     service = new Service();
     service.setName("Service");
     service.setServiceURL("");
     service.setType("");
-    serviceRepository.saveAll(Collections.singletonList(service));
+    serviceRepository.save(service);
 
-    ArrayList<Cartography> cartosToCreate = new ArrayList<>();
-    ArrayList<CartographyAvailability> availabilitesToCreate =
-        new ArrayList<>();
+    cartographies = new ArrayList<>();
 
-    cartography = Cartography.builder()
+    Cartography cartography = Cartography.builder()
         .setName(CARTOGRAPHY_NAME)
         .setLayers(Collections.emptyList())
         .setApplyFilterToGetMap(false)
@@ -93,7 +100,7 @@ public class CodeListTest {
         .setService(service)
         .setAvailabilities(Collections.emptySet())
         .build();
-    cartosToCreate.add(cartography);
+    cartographies.add(cartography);
 
     Cartography cartographyWithAvailabilities = Cartography.builder()
         .setName("Cartography with availabilities")
@@ -105,20 +112,30 @@ public class CodeListTest {
         .setAvailabilities(Collections.emptySet())
         .build();
 
-    cartosToCreate.add(cartographyWithAvailabilities);
+    cartographies.add(cartographyWithAvailabilities);
 
-    cartographyRepository.saveAll(cartosToCreate);
-    CartographyAvailability cartographyAvailability1 = new CartographyAvailability();
-    cartographyAvailability1.setCartography(cartographyWithAvailabilities);
-    cartographyAvailability1.setTerritory(territory);
-    cartographyAvailability1.setCreatedDate(new Date());
-    availabilitesToCreate.add(cartographyAvailability1);
+    cartographyRepository.saveAll(cartographies);
 
-    cartographyAvailabilityRepository.saveAll(availabilitesToCreate);
+    cartographyAvailability = new CartographyAvailability();
+    cartographyAvailability.setCartography(cartographyWithAvailabilities);
+    cartographyAvailability.setTerritory(territory);
+    cartographyAvailability.setCreatedDate(new Date());
+
+    cartographyAvailabilityRepository.save(cartographyAvailability);
+  }
+
+  @After
+  public void cleanup() {
+    withMockSitmunAdmin(() -> {
+      cartographyAvailabilityRepository.delete(cartographyAvailability);
+      cartographyRepository.deleteAll(cartographies);
+      serviceRepository.delete(service);
+      territoryRepository.delete(territory);
+    });
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfCodeListValueIsValid() throws Exception {
 
     String content = new JSONObject()
@@ -146,7 +163,7 @@ public class CodeListTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfCodeListValueIsWrong() throws Exception {
 
     String content = new JSONObject()

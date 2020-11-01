@@ -20,7 +20,7 @@ public interface RoleRepository extends CrudRepository<Role, BigInteger> {
   Optional<Role> findOneByName(String name);
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends Role> S save(@P("entity") S entity);
 
   @Override

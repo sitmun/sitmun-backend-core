@@ -3,8 +3,11 @@ package org.sitmun.plugin.core.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -13,6 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+import java.math.BigInteger;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import org.junit.After;
@@ -30,7 +35,6 @@ import org.sitmun.plugin.core.repository.TaskRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -49,7 +53,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class TaskRestResourceIntTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String TASK_NAME = "Task Name";
   private static final String TASK_URI = "http://localhost/api/tasks";
   private static final String PUBLIC_USERNAME = "public";
@@ -65,8 +68,9 @@ public class TaskRestResourceIntTest {
   TerritoryRepository territoryRepository;
   @Autowired
   private MockMvc mvc;
-  @Value("${default.territory.name}")
-  private String defaultTerritoryName;
+
+  private String token;
+  private Territory territory;
   private Task task;
   private ArrayList<Task> tasks;
   private ArrayList<TaskAvailability> availabilities;
@@ -74,60 +78,78 @@ public class TaskRestResourceIntTest {
 
   @Before
   public void init() {
-    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    tasks = new ArrayList<>();
-    task = new Task();
-    task.setName(TASK_NAME);
-    tasks.add(task);
-    Task taskWithAvailabilities = new Task();
-    taskWithAvailabilities.setName("Task with availabilities");
-    tasks.add(taskWithAvailabilities);
-    taskRepository.saveAll(tasks);
 
-    availabilities = new ArrayList<>();
-    TaskAvailability taskAvailability1 = new TaskAvailability();
-    taskAvailability1.setTask(taskWithAvailabilities);
-    taskAvailability1.setTerritory(territory);
-    taskAvailability1.setCreatedDate(new Date());
-    availabilities.add(taskAvailability1);
-    taskAvailabilityRepository.saveAll(availabilities);
+    withMockSitmunAdmin(() -> {
 
-    parameters = new ArrayList<>();
-    TaskParameter taskParam1 = new TaskParameter();
-    taskParam1.setTask(task);
-    taskParam1.setName("Task Param 1");
-    parameters.add(taskParam1);
-    TaskParameter taskParam2 = new TaskParameter();
-    taskParam2.setTask(taskWithAvailabilities);
-    taskParam2.setName("Task Param 2");
-    parameters.add(taskParam2);
-    taskParameterRepository.saveAll(parameters);
+      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
+      territory = Territory.builder()
+          .setName("Territorio 1")
+          .setCode("")
+          .setBlocked(false)
+          .build();
+      territoryRepository.save(territory);
+      tasks = new ArrayList<>();
+      task = new Task();
+      task.setName(TASK_NAME);
+      tasks.add(task);
+      Task taskWithAvailabilities = new Task();
+      taskWithAvailabilities.setName("Task with availabilities");
+      tasks.add(taskWithAvailabilities);
+      taskRepository.saveAll(tasks);
+
+      availabilities = new ArrayList<>();
+      TaskAvailability taskAvailability1 = new TaskAvailability();
+      taskAvailability1.setTask(taskWithAvailabilities);
+      taskAvailability1.setTerritory(territory);
+      taskAvailability1.setCreatedDate(new Date());
+      availabilities.add(taskAvailability1);
+      taskAvailabilityRepository.saveAll(availabilities);
+
+      parameters = new ArrayList<>();
+      TaskParameter taskParam1 = new TaskParameter();
+      taskParam1.setTask(task);
+      taskParam1.setName("Task Param 1");
+      parameters.add(taskParam1);
+      TaskParameter taskParam2 = new TaskParameter();
+      taskParam2.setTask(taskWithAvailabilities);
+      taskParam2.setName("Task Param 2");
+      parameters.add(taskParam2);
+      taskParameterRepository.saveAll(parameters);
+    });
   }
 
   @After
   public void cleanup() {
-    asAdmin(() -> {
-      parameters.forEach((item) -> taskParameterRepository.delete(item));
-      availabilities.forEach((item) -> taskAvailabilityRepository.delete(item));
-      tasks.forEach((item) -> taskRepository.delete(item));
+    withMockSitmunAdmin(() -> {
+      taskParameterRepository.deleteAll(parameters);
+      taskAvailabilityRepository.deleteAll(availabilities);
+      taskRepository.deleteAll(tasks);
+      territoryRepository.delete(territory);
     });
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
   public void postTask() throws Exception {
-    String uri = mvc.perform(post(TASK_URI)
+    String location = mvc.perform(post(TASK_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(task))
     ).andExpect(status().isCreated())
         .andReturn().getResponse().getHeader("Location");
 
-    assertThat(uri).isNotNull();
+    assertThat(location).isNotNull();
 
-    mvc.perform(get(uri))
+    mvc.perform(get(location)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
+
+    withMockSitmunAdmin(() -> {
+      String[] paths = URI.create(location).getPath().split("/");
+      BigInteger id = BigInteger.valueOf(Integer.parseInt(paths[paths.length - 1]));
+      taskRepository.findById(id).ifPresent((it) -> tasks.add(it));
+    });
   }
 
   @Test
@@ -135,13 +157,13 @@ public class TaskRestResourceIntTest {
     mvc.perform(get(TASK_URI))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI))
+    mvc.perform(get(TASK_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.tasks", hasSize(2)));

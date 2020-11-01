@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_PASSWORD;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,8 +29,8 @@ public class AuthControllerTest {
   @Test
   public void successfulLogin() throws Exception {
     LoginRequest login = new LoginRequest();
-    login.setUsername("admin");
-    login.setPassword("admin");
+    login.setUsername(SITMUN_ADMIN_USERNAME);
+    login.setPassword(SITMUN_ADMIN_PASSWORD);
 
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
@@ -40,7 +42,7 @@ public class AuthControllerTest {
   @Test
   public void loginFailure() throws Exception {
     LoginRequest login = new LoginRequest();
-    login.setUsername("admin");
+    login.setUsername(SITMUN_ADMIN_USERNAME);
     login.setPassword("other");
 
     mvc.perform(post("/api/authenticate")

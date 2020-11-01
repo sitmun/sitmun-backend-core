@@ -1,7 +1,10 @@
 package org.sitmun.plugin.core.web.rest;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.test.TestUtils.asAdmin;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +50,6 @@ import org.sitmun.plugin.core.repository.TreeRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -65,7 +67,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class ApplicationRestResourceIntTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String APP_URI = "http://localhost/api/applications";
   private static final String CARTOGRAPHY_GROUP_URI = "http://localhost/api/cartography-groups";
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
@@ -107,13 +108,13 @@ public class ApplicationRestResourceIntTest {
   RoleRepository roleRepository;
   @Autowired
   TokenProvider tokenProvider;
-  @Value("${default.territory.name}")
-  private String defaultTerritoryName;
+
   @Autowired
   private MockMvc mvc;
+
+  private String token;
   private BigInteger appId;
   private BigInteger backAppId;
-
   private ArrayList<Tree> trees;
   private Set<Service> services;
   private Set<Cartography> cartographies;
@@ -123,152 +124,167 @@ public class ApplicationRestResourceIntTest {
   private Set<Background> backgrounds;
   private ArrayList<Application> applications;
   private ArrayList<ApplicationParameter> applicationParameters;
+  private Territory territory;
+  private Role publicRole;
 
   @Before
   public void init() {
-    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
-    applications = new ArrayList<>();
-    applicationParameters = new ArrayList<>();
-    Role publicRole = this.roleRepository.findOneByName(AuthoritiesConstants.USUARIO_PUBLICO).get();
+    withMockSitmunAdmin(() -> {
 
-    Set<Role> availableRoles = new HashSet<>();
-    availableRoles.add(publicRole);
+      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
-    //Trees
-    trees = new ArrayList<>();
-    Tree publicTree = new Tree();
-    publicTree.setName(PUBLIC_TREE_NAME);
-    publicTree.setAvailableRoles(availableRoles);
-    trees.add(publicTree);
-    this.treeRepository.saveAll(trees);
-    Set<Tree> trees = new HashSet<>();
-    trees.add(publicTree);
+      territory = Territory.builder()
+          .setName("Territorio 1")
+          .setCode("")
+          .setBlocked(false)
+          .build();
+      territoryRepository.save(territory);
 
-    //Services
-    Service publicService = new Service();
-    publicService.setName(PUBLIC_SERVICE_NAME);
-    publicService.setType("");
-    publicService.setServiceURL("");
-    //publicService.setLayers(cartographies);
+      applications = new ArrayList<>();
+      applicationParameters = new ArrayList<>();
 
-    services = new HashSet<>();
-    services.add(publicService);
-    serviceRepository.saveAll(services);
+      publicRole = Role.builder().setName(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      roleRepository.save(publicRole);
 
-    //Cartographies
-    Cartography publicCartography = Cartography.builder()
-        .setName(PUBLIC_CARTOGRAPHY_NAME)
-        .setService(publicService)
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .build();
+      Set<Role> availableRoles = new HashSet<>();
+      availableRoles.add(publicRole);
 
-    cartographies = new HashSet<>();
-    cartographies.add(publicCartography);
-    this.cartographyRepository.saveAll(cartographies);
-    publicCartography = cartographies.iterator().next();
+      //Trees
+      trees = new ArrayList<>();
+      Tree publicTree = new Tree();
+      publicTree.setName(PUBLIC_TREE_NAME);
+      publicTree.setAvailableRoles(availableRoles);
+      trees.add(publicTree);
+      this.treeRepository.saveAll(trees);
+      Set<Tree> trees = new HashSet<>();
+      trees.add(publicTree);
 
-    //Cartography availabilities
-    CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
-    publicCartographyAvailability.setCartography(publicCartography);
-    publicCartographyAvailability.setTerritory(territory);
+      //Services
+      Service publicService = new Service();
+      publicService.setName(PUBLIC_SERVICE_NAME);
+      publicService.setType("");
+      publicService.setServiceURL("");
+      //publicService.setLayers(cartographies);
 
-    cartographyAvailabilities = new HashSet<>();
-    cartographyAvailabilities.add(publicCartographyAvailability);
-    this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
-    // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
+      services = new HashSet<>();
+      services.add(publicService);
+      serviceRepository.saveAll(services);
 
-    //Tree nodes
-    treeNodes = new HashSet<>();
-    TreeNode publicTreeNode = new TreeNode();
-    publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
-    publicTreeNode.setCartography(publicCartography);
-    publicTreeNode.setTree(publicTree);
-    treeNodes.add(publicTreeNode);
-    this.treeNodeRepository.saveAll(treeNodes);
-    // publicTreeNode = treeNodes.iterator().next();
+      //Cartographies
+      Cartography publicCartography = Cartography.builder()
+          .setName(PUBLIC_CARTOGRAPHY_NAME)
+          .setService(publicService)
+          .setLayers(Collections.emptyList())
+          .setApplyFilterToGetMap(false)
+          .setApplyFilterToSpatialSelection(false)
+          .setApplyFilterToGetFeatureInfo(false)
+          .build();
 
-    //Cartography group
-    cartographyGroups = new HashSet<>();
-    CartographyGroup publicCartographyGroup = new CartographyGroup();
-    publicCartographyGroup.setName(PUBLIC_CARTOGRAPHY_GROUP_NAME);
-    publicCartographyGroup.setRoles(availableRoles);
-    publicCartographyGroup.setMembers(cartographies);
-    cartographyGroups.add(publicCartographyGroup);
-    cartographyGroupRepository.saveAll(cartographyGroups);
-    publicCartographyGroup = cartographyGroups.iterator().next();
+      cartographies = new HashSet<>();
+      cartographies.add(publicCartography);
+      this.cartographyRepository.saveAll(cartographies);
+      publicCartography = cartographies.iterator().next();
 
-    //backgrounds
-    backgrounds = new HashSet<>();
-    Background publicBackground = new Background();
-    publicBackground.setName(PUBLIC_BACKGROUND_NAME);
-    publicBackground.setCartographyGroup(publicCartographyGroup);
-    backgrounds.add(publicBackground);
-    backgroundRepository.saveAll(backgrounds);
-    publicBackground = backgrounds.iterator().next();
+      //Cartography availabilities
+      CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
+      publicCartographyAvailability.setCartography(publicCartography);
+      publicCartographyAvailability.setTerritory(territory);
+
+      cartographyAvailabilities = new HashSet<>();
+      cartographyAvailabilities.add(publicCartographyAvailability);
+      this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
+      // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
+
+      //Tree nodes
+      treeNodes = new HashSet<>();
+      TreeNode publicTreeNode = new TreeNode();
+      publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
+      publicTreeNode.setCartography(publicCartography);
+      publicTreeNode.setTree(publicTree);
+      treeNodes.add(publicTreeNode);
+      this.treeNodeRepository.saveAll(treeNodes);
+      // publicTreeNode = treeNodes.iterator().next();
+
+      //Cartography group
+      cartographyGroups = new HashSet<>();
+      CartographyGroup publicCartographyGroup = new CartographyGroup();
+      publicCartographyGroup.setName(PUBLIC_CARTOGRAPHY_GROUP_NAME);
+      publicCartographyGroup.setRoles(availableRoles);
+      publicCartographyGroup.setMembers(cartographies);
+      cartographyGroups.add(publicCartographyGroup);
+      cartographyGroupRepository.saveAll(cartographyGroups);
+      publicCartographyGroup = cartographyGroups.iterator().next();
+
+      //backgrounds
+      backgrounds = new HashSet<>();
+      Background publicBackground = new Background();
+      publicBackground.setName(PUBLIC_BACKGROUND_NAME);
+      publicBackground.setCartographyGroup(publicCartographyGroup);
+      backgrounds.add(publicBackground);
+      backgroundRepository.saveAll(backgrounds);
+      publicBackground = backgrounds.iterator().next();
 
 
-    Application application = new Application();
-    application.setName(NON_PUBLIC_APPLICATION_NAME);
-    application.setJspTemplate("");
-    SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
-    String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
-    try {
-      application.setCreatedDate(formatter.parse(dateInString));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    applications.add(application);
+      Application application = new Application();
+      application.setName(NON_PUBLIC_APPLICATION_NAME);
+      application.setJspTemplate("");
+      SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
+      String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
+      try {
+        application.setCreatedDate(formatter.parse(dateInString));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      applications.add(application);
 
-    Application publicApplication = new Application();
-    publicApplication.setName(PUBLIC_APPLICATION_NAME);
-    publicApplication.setAvailableRoles(availableRoles);
-    publicApplication.setTrees(trees);
-    publicApplication.setSituationMap(publicCartographyGroup);
-    publicApplication.setJspTemplate("");
+      Application publicApplication = new Application();
+      publicApplication.setName(PUBLIC_APPLICATION_NAME);
+      publicApplication.setAvailableRoles(availableRoles);
+      publicApplication.setTrees(trees);
+      publicApplication.setSituationMap(publicCartographyGroup);
+      publicApplication.setJspTemplate("");
 
-    applications.add(publicApplication);
-    applicationRepository.saveAll(applications);
+      applications.add(publicApplication);
+      applicationRepository.saveAll(applications);
 
-    appId = applications.get(0).getId();
+      appId = applications.get(0).getId();
 
-    //application backgrounds
-    Set<ApplicationBackground> applicationBackgrounds = new HashSet<>();
-    ApplicationBackground publicApplicationBackground = new ApplicationBackground();
-    publicApplicationBackground.setBackground(publicBackground);
-    publicApplicationBackground.setApplication(publicApplication);
-    publicApplicationBackground.setOrder(BigInteger.ONE);
-    applicationBackgrounds.add(publicApplicationBackground);
-    applicationBackgroundRepository.saveAll(applicationBackgrounds);
+      //application backgrounds
+      Set<ApplicationBackground> applicationBackgrounds = new HashSet<>();
+      ApplicationBackground publicApplicationBackground = new ApplicationBackground();
+      publicApplicationBackground.setBackground(publicBackground);
+      publicApplicationBackground.setApplication(publicApplication);
+      publicApplicationBackground.setOrder(BigInteger.ONE);
+      applicationBackgrounds.add(publicApplicationBackground);
+      applicationBackgroundRepository.saveAll(applicationBackgrounds);
 
-    backAppId = publicApplicationBackground.getId();
+      backAppId = publicApplicationBackground.getId();
 
-    ApplicationParameter applicationParam1 = new ApplicationParameter();
-    applicationParam1.setName(NON_PUBLIC_APPLICATION_PARAM_NAME);
-    applicationParam1.setApplication(application);
-    applicationParam1.setValue("");
-    applicationParam1.setType("");
-    applicationParameters.add(applicationParam1);
+      ApplicationParameter applicationParam1 = new ApplicationParameter();
+      applicationParam1.setName(NON_PUBLIC_APPLICATION_PARAM_NAME);
+      applicationParam1.setApplication(application);
+      applicationParam1.setValue("");
+      applicationParam1.setType("");
+      applicationParameters.add(applicationParam1);
 
-    ApplicationParameter applicationParam2 = new ApplicationParameter();
-    applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
-    applicationParam2.setApplication(publicApplication);
-    applicationParam2.setValue("");
-    applicationParam2.setType("");
-    applicationParameters.add(applicationParam2);
+      ApplicationParameter applicationParam2 = new ApplicationParameter();
+      applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
+      applicationParam2.setApplication(publicApplication);
+      applicationParam2.setValue("");
+      applicationParam2.setType("");
+      applicationParameters.add(applicationParam2);
 
-    applicationParameterRepository.saveAll(applicationParameters);
-    // Create user
-    // Create territory
-    // Create role
-    // Create application
+      applicationParameterRepository.saveAll(applicationParameters);
+      // Create user
+      // Create territory
+      // Create role
+      // Create application
+    });
   }
 
   @After
   public void cleanup() {
-    asAdmin(() -> {
+    withMockSitmunAdmin(() -> {
       applicationParameters
           .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
       applications.forEach((item) -> applicationRepository.deleteById(item.getId()));
@@ -280,6 +296,8 @@ public class ApplicationRestResourceIntTest {
       trees.forEach((item) -> treeRepository.deleteById(item.getId()));
       cartographies.forEach((item) -> cartographyRepository.deleteById(item.getId()));
       services.forEach((item) -> serviceRepository.deleteById(item.getId()));
+      territoryRepository.delete(territory);
+      roleRepository.delete(publicRole);
     });
   }
 
@@ -290,7 +308,7 @@ public class ApplicationRestResourceIntTest {
     mvc.perform(get(APP_URI))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.applications", hasSize(1)));
+        .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
   }
 
   @Ignore
@@ -303,7 +321,7 @@ public class ApplicationRestResourceIntTest {
   }
 
   @Ignore
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getInformationAboutAnApp() throws Exception {
     mvc.perform(get(APP_URI + "/" + appId))
         .andDo(print())
@@ -313,9 +331,9 @@ public class ApplicationRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
   public void getInformationAboutBackgrounds() throws Exception {
-    mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId))
+    mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.order").value(1));
@@ -382,10 +400,10 @@ public class ApplicationRestResourceIntTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(get(APP_URI))
+    mvc.perform(get(APP_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(2)));

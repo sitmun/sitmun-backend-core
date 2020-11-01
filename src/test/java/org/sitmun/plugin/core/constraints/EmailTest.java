@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.constraints;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,7 +32,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class EmailTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String VALID_EMAIL = "fake@example.com";
   private static final String INVALID_EMAIL = "fake @ example.com";
   private static final String ENTITY_WITH_EMAIL_URI = "http://localhost/api/territories";
@@ -41,7 +41,7 @@ public class EmailTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
         .andExpect(status().isCreated())
@@ -49,7 +49,7 @@ public class EmailTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)
         .andExpect(status().is4xxClientError())

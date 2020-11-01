@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.constraints;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,7 +32,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Transactional
 public class HttpURLTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String VALID_HTTP_URL = "http://example.com/somefile";
   private static final String VALID_HTTPS_URL = "https://example.com/somefile";
   private static final String INVALID_URL = "ftp://example.com/somefile";
@@ -42,7 +42,7 @@ public class HttpURLTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfURLValueIsHttp() throws Exception {
     postEntityWithEmailValue(VALID_HTTP_URL)
         .andExpect(status().isCreated())
@@ -50,7 +50,7 @@ public class HttpURLTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfURLValueIsHttps() throws Exception {
     postEntityWithEmailValue(VALID_HTTPS_URL)
         .andExpect(status().isCreated())
@@ -58,7 +58,7 @@ public class HttpURLTest {
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_URL)
         .andExpect(status().is4xxClientError())

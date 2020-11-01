@@ -1,13 +1,15 @@
 package org.sitmun.plugin.core.test;
 
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_PASSWORD;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
-import java.util.List;
-import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 
 public class TestUtils {
   public static String asJsonString(Object obj) {
@@ -18,33 +20,15 @@ public class TestUtils {
     }
   }
 
-  public static void asSystem(Runnable func) {
-    List<SimpleGrantedAuthority> authorities =
-        Collections.singletonList(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
-
+  public static void withMockSitmunAdmin(Runnable func) {
     UsernamePasswordAuthenticationToken authReq =
-        new UsernamePasswordAuthenticationToken("system", "system",
-            authorities);
-
-    SecurityContext sc = SecurityContextHolder.getContext();
-    sc.setAuthentication(authReq);
+        new UsernamePasswordAuthenticationToken(SITMUN_ADMIN_USERNAME,
+            SITMUN_ADMIN_PASSWORD,
+            Collections.emptyList());
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(authReq);
+    TestSecurityContextHolder.setContext(context);
     func.run();
-    sc.setAuthentication(null);
-    SecurityContextHolder.clearContext();
-  }
-
-  public static void asAdmin(Runnable func) {
-    List<SimpleGrantedAuthority> authorities =
-        Collections.singletonList(new SimpleGrantedAuthority(AuthoritiesConstants.ROLE_ADMIN));
-
-    UsernamePasswordAuthenticationToken authReq =
-        new UsernamePasswordAuthenticationToken("admin", "admin",
-            authorities);
-
-    SecurityContext sc = SecurityContextHolder.getContext();
-    sc.setAuthentication(authReq);
-    func.run();
-    sc.setAuthentication(null);
-    SecurityContextHolder.clearContext();
+    TestSecurityContextHolder.clearContext();
   }
 }

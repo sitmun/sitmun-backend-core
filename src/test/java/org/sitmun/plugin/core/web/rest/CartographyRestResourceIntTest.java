@@ -3,6 +3,10 @@ package org.sitmun.plugin.core.web.rest;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -11,11 +15,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+import java.math.BigInteger;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +38,6 @@ import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -50,75 +56,97 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class CartographyRestResourceIntTest {
 
-  private static final String ADMIN_USERNAME = "admin";
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
   private static final String CARTOGRAPHY_URI = "http://localhost/api/cartographies";
   @Autowired
-  CartographyRepository cartographyRepository;
+  private CartographyRepository cartographyRepository;
   @Autowired
-  CartographyAvailabilityRepository cartographyAvailabilityRepository;
+  private CartographyAvailabilityRepository cartographyAvailabilityRepository;
   @Autowired
-  TokenProvider tokenProvider;
+  private TokenProvider tokenProvider;
   @Autowired
-  TerritoryRepository territoryRepository;
+  private TerritoryRepository territoryRepository;
   @Autowired
   private ServiceRepository serviceRepository;
   @Autowired
   private MockMvc mvc;
-  @Value("${default.territory.name}")
-  private String defaultTerritoryName;
+
+  private String token;
+  private Territory territory;
   private Cartography cartography;
   private Service service;
+  private ArrayList<Cartography> cartographies;
+  private ArrayList<CartographyAvailability> availabilities;
 
   @Before
   public void init() {
-    Territory territory = territoryRepository.findOneByName(defaultTerritoryName).get();
 
-    service = new Service();
-    service.setName("Service");
-    service.setServiceURL("");
-    service.setType("");
-    serviceRepository.saveAll(Collections.singletonList(service));
+    withMockSitmunAdmin(() -> {
 
-    ArrayList<Cartography> cartosToCreate = new ArrayList<>();
-    ArrayList<CartographyAvailability> availabilitesToCreate =
-        new ArrayList<>();
+      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
-    cartography = Cartography.builder()
-        .setName(CARTOGRAPHY_NAME)
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .build();
-    cartosToCreate.add(cartography);
+      territory = Territory.builder()
+          .setName("Territorio 1")
+          .setCode("")
+          .setBlocked(false)
+          .build();
+      territoryRepository.save(territory);
 
-    Cartography cartographyWithAvailabilities = Cartography.builder()
-        .setName("Cartography with availabilities")
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .build();
+      service = new Service();
+      service.setName("Service");
+      service.setServiceURL("");
+      service.setType("");
+      serviceRepository.save(service);
 
-    cartosToCreate.add(cartographyWithAvailabilities);
+      cartographies = new ArrayList<>();
+      availabilities = new ArrayList<>();
 
-    cartographyRepository.saveAll(cartosToCreate);
-    CartographyAvailability cartographyAvailability1 = new CartographyAvailability();
-    cartographyAvailability1.setCartography(cartographyWithAvailabilities);
-    cartographyAvailability1.setTerritory(territory);
-    cartographyAvailability1.setCreatedDate(new Date());
-    availabilitesToCreate.add(cartographyAvailability1);
+      cartography = Cartography.builder()
+          .setName(CARTOGRAPHY_NAME)
+          .setLayers(Collections.emptyList())
+          .setApplyFilterToGetMap(false)
+          .setApplyFilterToGetFeatureInfo(false)
+          .setApplyFilterToSpatialSelection(false)
+          .setService(service)
+          .setAvailabilities(Collections.emptySet())
+          .build();
+      cartographies.add(cartography);
 
-    cartographyAvailabilityRepository.saveAll(availabilitesToCreate);
+      Cartography cartographyWithAvailabilities = Cartography.builder()
+          .setName("Cartography with availabilities")
+          .setLayers(Collections.emptyList())
+          .setApplyFilterToGetMap(false)
+          .setApplyFilterToGetFeatureInfo(false)
+          .setApplyFilterToSpatialSelection(false)
+          .setService(service)
+          .setAvailabilities(Collections.emptySet())
+          .build();
+
+      cartographies.add(cartographyWithAvailabilities);
+
+      cartographyRepository.saveAll(cartographies);
+      CartographyAvailability cartographyAvailability1 = new CartographyAvailability();
+      cartographyAvailability1.setCartography(cartographyWithAvailabilities);
+      cartographyAvailability1.setTerritory(territory);
+      cartographyAvailability1.setCreatedDate(new Date());
+      availabilities.add(cartographyAvailability1);
+
+      cartographyAvailabilityRepository.saveAll(availabilities);
+    });
+  }
+
+  @After
+  public void after() {
+    withMockSitmunAdmin(() -> {
+      cartographyAvailabilityRepository.deleteAll(availabilities);
+      cartographyRepository.deleteAll(cartographies);
+      serviceRepository.delete(service);
+      territoryRepository.delete(territory);
+    });
   }
 
   @Test
-  @WithMockUser(username = ADMIN_USERNAME)
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void postCartography() throws Exception {
 
     String content = new JSONObject()
@@ -131,6 +159,7 @@ public class CartographyRestResourceIntTest {
         .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
+        .header(HEADER_STRING, TOKEN_PREFIX + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(content)
     ).andExpect(status().isCreated())
@@ -138,10 +167,17 @@ public class CartographyRestResourceIntTest {
 
     assertThat(location, notNullValue());
 
-    mvc.perform(get(location))
+    mvc.perform(get(location)
+        .header(HEADER_STRING, TOKEN_PREFIX + token))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+
+    withMockSitmunAdmin(() -> {
+      String[] paths = URI.create(location).getPath().split("/");
+      BigInteger id = BigInteger.valueOf(Integer.parseInt(paths[paths.length - 1]));
+      cartographyRepository.findById(id).ifPresent((it) -> cartographies.add(it));
+    });
   }
 
   @Test

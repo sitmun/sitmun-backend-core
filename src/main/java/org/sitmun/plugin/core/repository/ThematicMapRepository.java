@@ -15,7 +15,7 @@ import org.springframework.security.core.parameters.P;
 public interface ThematicMapRepository extends CrudRepository<ThematicMap, Integer> {
 
   @Override
-    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends ThematicMap> S save(@P("entity") S entity);
 
   @Override

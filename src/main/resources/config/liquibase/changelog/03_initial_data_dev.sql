@@ -1,0 +1,10 @@
+--liquibase formatted sql
+--changeset sitmun:3 context:dev
+
+INSERT INTO STM_USER(USE_ID, USE_USER, USE_PWD, USE_ADM, USE_BLOCKED)
+VALUES (1, 'admin', '$2a$10$8I1/oR7ycUx3dr8hafeOxufFeHo5Fa8U68tTIAArm2Gcpj7hoApEO', 1, 0);
+INSERT INTO STM_USER(USE_ID, USE_USER, USE_ADM, USE_BLOCKED, USE_GENERIC)
+VALUES (2, 'public', 0, 0, 1);
+
+INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
+VALUES ('USE_ID', 3);

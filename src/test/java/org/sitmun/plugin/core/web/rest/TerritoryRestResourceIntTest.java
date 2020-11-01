@@ -31,7 +31,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class TerritoryRestResourceIntTest {
 
-  private static final String USER_USERNAME = "admin";
   private static final String NEW_USER_USERNAME = "admin_new";
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";

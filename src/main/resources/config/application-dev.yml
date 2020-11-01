@@ -13,8 +13,6 @@ logging:
     org.sitmun.plugin.core: DEBUG
 
 spring:
-  profiles:
-    active: dev
   jackson:
     serialization:
       indent-output: true
@@ -34,6 +32,7 @@ spring:
       ddl-auto: validate
   liquibase:
     change-log: classpath:config/liquibase/master.xml
+    contexts: dev
 
 security:
   authentication:
@@ -47,7 +46,3 @@ server:
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================
-
-default:
-  territory:
-    name: Diputació de Barcelona

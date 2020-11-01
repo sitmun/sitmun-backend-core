@@ -21,7 +21,7 @@ public interface UserRepository extends CrudRepository<User, BigInteger> {
   Optional<User> findOneByUsername(String username);
 
   @Override
-  @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends User> S save(@P("entity") S entity);
 
   @Override
