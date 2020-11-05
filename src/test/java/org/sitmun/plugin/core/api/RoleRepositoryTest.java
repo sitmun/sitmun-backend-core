@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.domain.Role;
 import org.sitmun.plugin.core.repository.RoleRepository;
-import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,9 +56,9 @@ public class RoleRepositoryTest {
     withMockSitmunAdmin(() -> {
       roles = new ArrayList<>();
       roles.add(roleRepository
-          .save(Role.builder().setName(AuthoritiesConstants.USUARIO_PUBLICO).build()));
+          .save(Role.builder().setName("RoleRepositoryTest_1").build()));
       roles.add(roleRepository
-          .save(Role.builder().setName(AuthoritiesConstants.USUARIO_TERRITORIAL).build()));
+          .save(Role.builder().setName("RoleRepositoryTest_2").build()));
     });
   }
 
@@ -74,10 +73,12 @@ public class RoleRepositoryTest {
         restTemplate.getForEntity("http://localhost:" + port + "/api/roles", String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
-    assertThat(context.read("$._embedded.roles[*]", JSONArray.class)).hasSize(2);
 
     assertThat(context.read("$._embedded.roles[*].id", JSONArray.class))
-        .containsExactlyElementsOf(
+        .containsAll(
             roles.stream().map(it -> it.getId().intValue()).collect(Collectors.toList()));
+    assertThat(context.read("$._embedded.roles[*].name", JSONArray.class))
+        .containsAll(
+            roles.stream().map(Role::getName).collect(Collectors.toList()));
   }
 }
