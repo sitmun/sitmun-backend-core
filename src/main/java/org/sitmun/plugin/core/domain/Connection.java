@@ -44,7 +44,7 @@ public class Connection {
    */
   @Column(name = "CON_DRIVER", length = 50)
   @NotBlank
-  private String type;
+  private String driver;
 
   /**
    * User.
@@ -62,7 +62,7 @@ public class Connection {
    * JDBC connection string.
    */
   @Column(name = "CON_CONNECTION", length = 250)
-  private String connectionString;
+  private String url;
 
   public BigInteger getId() {
     return id;
@@ -80,12 +80,18 @@ public class Connection {
     this.name = name;
   }
 
-  public String getType() {
-    return type;
+  public Connection() {
   }
 
-  public void setType(String type) {
-    this.type = type;
+  private Connection(BigInteger id, @NotBlank String name,
+                     @NotBlank String driver, String user, String password,
+                     String url) {
+    this.id = id;
+    this.name = name;
+    this.driver = driver;
+    this.user = user;
+    this.password = password;
+    this.url = url;
   }
 
   public String getUser() {
@@ -104,12 +110,66 @@ public class Connection {
     this.password = password;
   }
 
-  public String getConnectionString() {
-    return connectionString;
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public void setConnectionString(String connectionString) {
-    this.connectionString = connectionString;
+  public String getDriver() {
+    return driver;
   }
 
+  public void setDriver(String driver) {
+    this.driver = driver;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String name;
+    private @NotBlank String driver;
+    private String user;
+    private String password;
+    private String url;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDriver(@NotBlank String driver) {
+      this.driver = driver;
+      return this;
+    }
+
+    public Builder setUser(String user) {
+      this.user = user;
+      return this;
+    }
+
+    public Builder setPassword(String password) {
+      this.password = password;
+      return this;
+    }
+
+    public Builder setUrl(String url) {
+      this.url = url;
+      return this;
+    }
+
+    public Connection build() {
+      return new Connection(id, name, driver, user, password, url);
+    }
+  }
 }

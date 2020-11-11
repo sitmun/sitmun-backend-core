@@ -19030,21 +19030,26 @@ components:
     Connection:
       required:
         - name
-        - type
+        - driver
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-        type:
+          description: Connection name
+        driver:
           type: string
+          description: JDBC driver
         user:
           type: string
+          description: User
         password:
           type: string
-        connectionString:
+          description: Password
+        url:
           type: string
+          description: JDBC connection string
     LegendURL:
       required:
         - onlineResource
@@ -20199,24 +20204,14 @@ components:
           items:
             $ref: '#/components/schemas/Link'
     EntityModelConnection:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        type:
-          type: string
-        user:
-          type: string
-        password:
-          type: string
-        connectionString:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/Connection'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     RepresentationModelTask:
       type: object
       properties:
