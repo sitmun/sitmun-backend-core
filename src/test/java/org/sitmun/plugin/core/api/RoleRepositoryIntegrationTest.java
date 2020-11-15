@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RoleRepositoryTest {
+public class RoleRepositoryIntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;

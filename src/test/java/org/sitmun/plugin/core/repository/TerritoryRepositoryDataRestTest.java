@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.web.rest;
+package org.sitmun.plugin.core.repository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.Territory;
-import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TerritoryRestResourceIntTest {
+public class TerritoryRepositoryDataRestTest {
 
   private static final String NEW_USER_USERNAME = "admin_new";
   private static final String USER_FIRSTNAME = "Admin";

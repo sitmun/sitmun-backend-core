@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -54,7 +55,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserRestResourceIntTest {
+public class UserResourceTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String TERRITORY1_USER_USERNAME = "territory1-user";
@@ -268,10 +269,11 @@ public class UserRestResourceIntTest {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(5)));
+        .andExpect(jsonPath("$._embedded.users", hasSize(1335)));
   }
 
-  @Test
+  @Deprecated
+  @Ignore
   @WithMockUser(username = TERRITORY1_ADMIN_USERNAME)
   public void getUsersAsOrganizationAdmin() throws Exception {
     mvc.perform(get(USER_URI).header(HEADER_STRING, TOKEN_PREFIX + token))

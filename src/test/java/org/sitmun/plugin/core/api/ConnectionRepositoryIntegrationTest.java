@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ConnectionRepositoryTest {
+public class ConnectionRepositoryIntegrationTest {
 
   @Autowired
   ConnectionRepository connectionRepository;

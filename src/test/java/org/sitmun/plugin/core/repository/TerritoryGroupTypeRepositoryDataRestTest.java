@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.web.rest;
+package org.sitmun.plugin.core.repository;
 
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
-import org.sitmun.plugin.core.repository.TerritoryGroupTypeRepository;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +32,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TerritoryGroupTypeRestResourceIntTest {
+public class TerritoryGroupTypeRepositoryDataRestTest {
 
   private static final String TERRITORY_URI = "http://localhost/api/territory-group-types";
 

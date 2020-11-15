@@ -48,7 +48,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AccountRestResourceIntTest {
+public class AccountResourceTest {
 
   private static final String USER_USERNAME = "user";
   private static final String USER_PASSWORD = "user";

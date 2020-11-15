@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.web.rest;
+package org.sitmun.plugin.core.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -29,10 +29,6 @@ import org.sitmun.plugin.core.domain.Task;
 import org.sitmun.plugin.core.domain.TaskAvailability;
 import org.sitmun.plugin.core.domain.TaskParameter;
 import org.sitmun.plugin.core.domain.Territory;
-import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
-import org.sitmun.plugin.core.repository.TaskParameterRepository;
-import org.sitmun.plugin.core.repository.TaskRepository;
-import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -51,7 +47,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TaskRestResourceIntTest {
+public class TaskRepositoryDataRestTest {
 
   private static final String TASK_NAME = "Task Name";
   private static final String TASK_URI = "http://localhost/api/tasks";

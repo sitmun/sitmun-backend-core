@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
@@ -91,7 +90,7 @@ public class User { //implements Identifiable<BigInteger> {
   private Boolean blocked;
 
   /**
-   * If <code>true</code>, the user act on behalf of any citizen.
+   * If <code>true</code>, the user acts on behalf of any citizen.
    */
   @Column(name = "USE_GENERIC")
   private Boolean generic;
@@ -106,7 +105,6 @@ public class User { //implements Identifiable<BigInteger> {
    * User permissions.
    */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  @JsonIgnore
   private Set<UserConfiguration> permissions = new HashSet<>();
 
   public BigInteger getId() {

@@ -65,7 +65,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApplicationRestResourceIntTest {
+public class ApplicationResourceTest {
 
   private static final String APP_URI = "http://localhost/api/applications";
   private static final String CARTOGRAPHY_GROUP_URI = "http://localhost/api/cartography-groups";

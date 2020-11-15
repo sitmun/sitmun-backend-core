@@ -61,16 +61,19 @@ public class AuthController {
   /**
    * Object to return as body in JWT Authentication.
    */
-  static class JWTToken {
+  public static class JWTToken {
 
     private String idToken;
 
-    JWTToken(String idToken) {
+    public JWTToken() {
+    }
+
+    public JWTToken(String idToken) {
       this.idToken = idToken;
     }
 
     @JsonProperty("id_token")
-    String getIdToken() {
+    public String getIdToken() {
       return idToken;
     }
 

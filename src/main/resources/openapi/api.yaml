@@ -18538,27 +18538,43 @@ components:
           type: integer
         username:
           type: string
+          description: User login
         password:
           type: string
+          description: User password hash
         firstName:
           type: string
+          description: User first name
         lastName:
           type: string
+          description: User last name
         identificationNumber:
           type: string
+          description: User identification number
         identificationType:
           type: string
+          description: User identification type
         administrator:
           type: boolean
+          description: If true, the user is a system administrator
         blocked:
           type: boolean
+          description: If true, the user is blocked and cannot log to the system
         generic:
           type: boolean
+          description: If true, the user acts on behalf of any citizen
         positions:
           uniqueItems: true
           type: array
+          description: User positions
           items:
             $ref: '#/components/schemas/UserPosition'
+        permissions:
+          uniqueItems: true
+          type: array
+          description: User permissions
+          items:
+            $ref: '#/components/schemas/UserConfiguration'
     UserPosition:
       required:
         - territory
@@ -19834,36 +19850,14 @@ components:
             $ref: '#/components/schemas/Link'
     EntityModelUser:
       type: object
-      properties:
-        id:
-          type: integer
-        username:
-          type: string
-        password:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        identificationNumber:
-          type: string
-        identificationType:
-          type: string
-        administrator:
-          type: boolean
-        blocked:
-          type: boolean
-        generic:
-          type: boolean
-        positions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserPosition'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     RepresentationModelTree:
       type: object
       properties:

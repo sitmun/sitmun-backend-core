@@ -28,8 +28,6 @@ import org.sitmun.plugin.core.repository.TreeNodeRepository;
 import org.sitmun.plugin.core.repository.TreeRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,9 +43,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TreeRestResourceIntTest {
-
-  private static final Logger log = LoggerFactory.getLogger(TreeRestResourceIntTest.class);
+public class TreeNodeResourceTest {
 
   private static final String TREE_URI = "http://localhost/api/trees";
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-public Tree Node";

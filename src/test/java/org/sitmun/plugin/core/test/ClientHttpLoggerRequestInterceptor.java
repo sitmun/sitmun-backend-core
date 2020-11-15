@@ -22,11 +22,15 @@ public class ClientHttpLoggerRequestInterceptor implements ClientHttpRequestInte
       HttpRequest req, byte[] reqBody, ClientHttpRequestExecution ex) throws IOException {
     LOGGER.debug("Request body:\n{}", new String(reqBody, StandardCharsets.UTF_8));
     ClientHttpResponse response = ex.execute(req, reqBody);
-    InputStreamReader isr = new InputStreamReader(
-        response.getBody(), StandardCharsets.UTF_8);
-    String body = new BufferedReader(isr).lines()
-        .collect(Collectors.joining("\n"));
-    LOGGER.debug("Response body:\n{}", body);
+    try {
+      InputStreamReader isr = new InputStreamReader(
+          response.getBody(), StandardCharsets.UTF_8);
+      String body = new BufferedReader(isr).lines()
+          .collect(Collectors.joining("\n"));
+      LOGGER.debug("Response body:\n{}", body);
+    } catch (IOException e) {
+      LOGGER.debug("No response body");
+    }
     return response;
   }
 }
