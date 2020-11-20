@@ -160,10 +160,12 @@ public class ApplicationResourceTest {
       trees.add(publicTree);
 
       //Services
-      Service publicService = new Service();
-      publicService.setName(PUBLIC_SERVICE_NAME);
-      publicService.setType("");
-      publicService.setServiceURL("");
+      Service publicService = Service.builder()
+          .setName(PUBLIC_SERVICE_NAME)
+          .setType("")
+          .setServiceURL("")
+          .setBlocked(false)
+          .build();
       //publicService.setLayers(cartographies);
 
       services = new HashSet<>();
@@ -178,6 +180,7 @@ public class ApplicationResourceTest {
           .setApplyFilterToGetMap(false)
           .setApplyFilterToSpatialSelection(false)
           .setApplyFilterToGetFeatureInfo(false)
+          .setBlocked(false)
           .build();
 
       cartographies = new HashSet<>();

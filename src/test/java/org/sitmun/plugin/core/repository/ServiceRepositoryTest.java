@@ -22,8 +22,7 @@ public class ServiceRepositoryTest {
 
   @Before
   public void init() {
-    service = new Service();
-
+    service = Service.builder().build();
   }
 
   @Test

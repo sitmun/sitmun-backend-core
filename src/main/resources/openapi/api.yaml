@@ -18855,6 +18855,7 @@ components:
         - layers
         - name
         - service
+        - blocked
       type: object
       properties:
         id:
@@ -18934,6 +18935,10 @@ components:
             $ref: '#/components/schemas/CartographyStyle'
         defaultStyle:
           $ref: '#/components/schemas/CartographyStyle'
+        blocked:
+          type: boolean
+          description: |
+            `true` if the cartography is blocked and cannot be used.
         filters:
           uniqueItems: true
           type: array
@@ -19088,6 +19093,7 @@ components:
         - name
         - serviceURL
         - type
+        - blocked
       type: object
       properties:
         id:
@@ -19113,6 +19119,10 @@ components:
           type: string
         nativeProtocol:
           type: string
+        blocked:
+          type: boolean
+          description: |
+            `true` if the service is blocked and cannot be used.
         parameters:
           uniqueItems: true
           type: array
@@ -19199,98 +19209,14 @@ components:
             $ref: '#/components/schemas/Link'
     EntityModelCartography:
       type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-        layers:
-          type: array
-          items:
-            type: string
-        minimumScale:
-          type: integer
-        maximumScale:
-          type: integer
-        order:
-          type: integer
-        transparency:
-          maximum: 100
-          minimum: 0
-          type: integer
-        applyFilterToGetMap:
-          type: boolean
-        queryableFeatureAvailable:
-          type: boolean
-        queryableFeatureEnabled:
-          type: boolean
-        queryableLayers:
-          type: array
-          items:
-            type: string
-        applyFilterToGetFeatureInfo:
-          type: boolean
-        type:
-          type: string
-        service:
-          $ref: '#/components/schemas/Service'
-        selectableFeatureEnabled:
-          type: boolean
-        selectableLayers:
-          type: array
-          items:
-            type: string
-        applyFilterToSpatialSelection:
-          type: boolean
-        spatialSelectionService:
-          $ref: '#/components/schemas/Service'
-        legendType:
-          type: string
-        legendURL:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        spatialSelectionConnection:
-          $ref: '#/components/schemas/Connection'
-        metadataURL:
-          type: string
-        datasetURL:
-          type: string
-        thematic:
-          type: boolean
-        geometryType:
-          type: string
-        source:
-          type: string
-        availabilities:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyAvailability'
-        styles:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyStyle'
-        defaultStyle:
-          $ref: '#/components/schemas/CartographyStyle'
-        filters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyFilter'
-        parameters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/Cartography'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     Application:
       required:
         - jspTemplate
@@ -20674,39 +20600,14 @@ components:
             $ref: '#/components/schemas/Link'
     EntityModelService:
       type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-        serviceURL:
-          type: string
-        supportedSRS:
-          type: array
-          items:
-            type: string
-        legendURL:
-          type: string
-        getInformationURL:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        type:
-          type: string
-        nativeProtocol:
-          type: string
-        parameters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/Service'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     ThematicMapRange:
       type: object
       properties:

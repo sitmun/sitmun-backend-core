@@ -115,6 +115,13 @@ public class Service {
   private String nativeProtocol;
 
   /**
+   * <code>true</code> if the service is blocked and cannot be used.
+   */
+  @NotNull
+  @Column(name = "SER_BLOCKED")
+  private Boolean blocked;
+
+  /**
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", orphanRemoval = true)
@@ -207,6 +214,31 @@ public class Service {
     this.nativeProtocol = nativeProtocol;
   }
 
+  public Service() {
+  }
+
+  private Service(BigInteger id, @NotBlank String name, String description,
+                  @NotNull String serviceURL, List<String> supportedSRS, String legendURL,
+                  String getInformationURL, Date createdDate,
+                  @NotNull String type, String nativeProtocol,
+                  @NotNull Boolean blocked,
+                  Set<Cartography> layers,
+                  Set<ServiceParameter> parameters) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.serviceURL = serviceURL;
+    this.supportedSRS = supportedSRS;
+    this.legendURL = legendURL;
+    this.getInformationURL = getInformationURL;
+    this.createdDate = createdDate;
+    this.type = type;
+    this.nativeProtocol = nativeProtocol;
+    this.blocked = blocked;
+    this.layers = layers;
+    this.parameters = parameters;
+  }
+
   public Set<Cartography> getLayers() {
     return layers;
   }
@@ -221,5 +253,103 @@ public class Service {
 
   public void setParameters(Set<ServiceParameter> parameters) {
     this.parameters = parameters;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Boolean getBlocked() {
+    return blocked;
+  }
+
+  public void setBlocked(Boolean blocked) {
+    this.blocked = blocked;
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String name;
+    private String description;
+    private @NotNull String serviceURL;
+    private List<String> supportedSRS;
+    private String legendURL;
+    private String getInformationURL;
+    private Date createdDate;
+    private @NotNull String type;
+    private String nativeProtocol;
+    private @NotNull Boolean blocked;
+    private Set<Cartography> layers;
+    private Set<ServiceParameter> parameters;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setServiceURL(@NotNull String serviceURL) {
+      this.serviceURL = serviceURL;
+      return this;
+    }
+
+    public Builder setSupportedSRS(List<String> supportedSRS) {
+      this.supportedSRS = supportedSRS;
+      return this;
+    }
+
+    public Builder setLegendURL(String legendURL) {
+      this.legendURL = legendURL;
+      return this;
+    }
+
+    public Builder setGetInformationURL(String getInformationURL) {
+      this.getInformationURL = getInformationURL;
+      return this;
+    }
+
+    public Builder setCreatedDate(Date createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder setType(@NotNull String type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder setNativeProtocol(String nativeProtocol) {
+      this.nativeProtocol = nativeProtocol;
+      return this;
+    }
+
+    public Builder setBlocked(@NotNull Boolean blocked) {
+      this.blocked = blocked;
+      return this;
+    }
+
+    public Builder setLayers(Set<Cartography> layers) {
+      this.layers = layers;
+      return this;
+    }
+
+    public Builder setParameters(Set<ServiceParameter> parameters) {
+      this.parameters = parameters;
+      return this;
+    }
+
+    public Service build() {
+      return new Service(id, name, description, serviceURL, supportedSRS, legendURL,
+          getInformationURL, createdDate, type, nativeProtocol, blocked, layers, parameters);
+    }
   }
 }

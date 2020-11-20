@@ -92,37 +92,38 @@ CREATE TABLE STM_AVAIL_GI (
 ALTER TABLE STM_AVAIL_GI ADD CONSTRAINT STM_AGI_PK PRIMARY KEY (AGI_ID);
 ALTER TABLE STM_AVAIL_GI ADD CONSTRAINT STM_AGI_UK UNIQUE (AGI_TERID,AGI_GIID);
 
-CREATE TABLE STM_GEOINFO (
-    GEO_ID          NUMBER(11)      NOT NULL,
-    GEO_NAME        VARCHAR2(100)   NOT NULL,
-    GEO_ABSTRACT    VARCHAR2(250),    
-    GEO_LAYERS      VARCHAR2(800)   NOT NULL,
-    GEO_MINSCALE    NUMBER(11),
-    GEO_MAXSCALE    NUMBER(11),
-    GEO_ORDER       NUMBER(6),
-    GEO_TRANSP      NUMBER(6),
-    GEO_FILTER_GM   BOOLEAN         NOT NULL,
-    GEO_QUERYABL    BOOLEAN,
-    GEO_QUERYACT    BOOLEAN,
-    GEO_QUERYLAY    VARCHAR2(500),    
-    GEO_FILTER_GFI  BOOLEAN         NOT NULL,
-    GEO_TYPE        VARCHAR2(30),
-    GEO_SERID       NUMBER(11)      NOT NULL,
-    GEO_SELECTABL   BOOLEAN,
-    GEO_SELECTLAY   VARCHAR2(500),
-    GEO_FILTER_SE   BOOLEAN         NOT NULL,
-    GEO_SERSELID    NUMBER(11),    
-    GEO_LEGENDTIP   VARCHAR2(50),
-    GEO_LEGENDURL   VARCHAR2(250),
-    GEO_CREATED     TIMESTAMP(6),
-    GEO_EDITABLE    BOOLEAN,
-    GEO_CONNID      NUMBER(11),
-    GEO_METAURL     VARCHAR2(250),
-    GEO_DATAURL     VARCHAR2(4000),
-    GEO_THEMATIC    BOOLEAN,
-    GEO_GEOMTYPE    VARCHAR2(50),
-    GEO_SOURCE      VARCHAR2(80),
-    GEO_STYID       INTEGER
+CREATE TABLE STM_GEOINFO(
+                            GEO_ID         NUMBER(11)    NOT NULL,
+                            GEO_NAME       VARCHAR2(100) NOT NULL,
+                            GEO_ABSTRACT   VARCHAR2(250),
+                            GEO_LAYERS     VARCHAR2(800) NOT NULL,
+                            GEO_MINSCALE   NUMBER(11),
+                            GEO_MAXSCALE   NUMBER(11),
+                            GEO_ORDER      NUMBER(6),
+                            GEO_TRANSP     NUMBER(6),
+                            GEO_FILTER_GM  BOOLEAN       NOT NULL,
+                            GEO_QUERYABL   BOOLEAN,
+                            GEO_QUERYACT   BOOLEAN,
+                            GEO_QUERYLAY   VARCHAR2(500),
+                            GEO_FILTER_GFI BOOLEAN       NOT NULL,
+                            GEO_TYPE       VARCHAR2(30),
+                            GEO_SERID      NUMBER(11)    NOT NULL,
+                            GEO_SELECTABL  BOOLEAN,
+                            GEO_SELECTLAY  VARCHAR2(500),
+                            GEO_FILTER_SE  BOOLEAN       NOT NULL,
+                            GEO_SERSELID   NUMBER(11),
+                            GEO_LEGENDTIP  VARCHAR2(50),
+                            GEO_LEGENDURL  VARCHAR2(250),
+                            GEO_CREATED    TIMESTAMP(6),
+                            GEO_EDITABLE   BOOLEAN,
+                            GEO_CONNID     NUMBER(11),
+                            GEO_METAURL    VARCHAR2(250),
+                            GEO_DATAURL    VARCHAR2(4000),
+                            GEO_THEMATIC   BOOLEAN,
+                            GEO_GEOMTYPE   VARCHAR2(50),
+                            GEO_SOURCE     VARCHAR2(80),
+                            GEO_STYID      INTEGER,
+                            GEO_BLOCKED    BOOLEAN       NOT NULL
 );
 ALTER TABLE STM_GEOINFO ADD CONSTRAINT STM_GEO_PK PRIMARY KEY (GEO_ID);
 
@@ -272,18 +273,20 @@ CREATE TABLE STM_TREE_ROL (
 );
 ALTER TABLE STM_TREE_ROL ADD CONSTRAINT STM_TRO_PK PRIMARY KEY (TRO_TREEID,TRO_ROLEID);
 
-CREATE TABLE STM_SERVICE (
-    SER_ID          NUMBER(11)      NOT NULL,
-    SER_NAME        VARCHAR2(60)    NOT NULL,
-    SER_ABSTRACT    VARCHAR2(250),
-    SER_URL         VARCHAR2(250)   NOT NULL,
-    SER_PROJECTS    VARCHAR2(250),
-    SER_LEGEND      VARCHAR2(250),
-    SER_INFOURL     VARCHAR2(250),
-    SER_CREATED     TIMESTAMP(6),
-    SER_PROTOCOL    VARCHAR2(30)    NOT NULL,
-    SER_NAT_PROT    VARCHAR2(10),
-    SER_CONNID      NUMBER(11)
+CREATE TABLE STM_SERVICE
+(
+    SER_ID       NUMBER(11)    NOT NULL,
+    SER_NAME     VARCHAR2(60)  NOT NULL,
+    SER_ABSTRACT VARCHAR2(250),
+    SER_URL      VARCHAR2(250) NOT NULL,
+    SER_PROJECTS VARCHAR2(250),
+    SER_LEGEND   VARCHAR2(250),
+    SER_INFOURL  VARCHAR2(250),
+    SER_CREATED  TIMESTAMP(6),
+    SER_PROTOCOL VARCHAR2(30)  NOT NULL,
+    SER_NAT_PROT VARCHAR2(10),
+    SER_CONNID   NUMBER(11),
+    SER_BLOCKED  BOOLEAN       NOT NULL
 );
 ALTER TABLE STM_SERVICE ADD CONSTRAINT STM_SER_PK PRIMARY KEY (SER_ID);
 

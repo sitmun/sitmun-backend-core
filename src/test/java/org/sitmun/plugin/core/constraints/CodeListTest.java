@@ -83,10 +83,12 @@ public class CodeListTest {
         .build();
     territoryRepository.save(territory);
 
-    service = new Service();
-    service.setName("Service");
-    service.setServiceURL("");
-    service.setType("");
+    service = Service.builder()
+        .setName("Service")
+        .setServiceURL("")
+        .setType("")
+        .setBlocked(false)
+        .build();
     serviceRepository.save(service);
 
     cartographies = new ArrayList<>();
@@ -99,6 +101,7 @@ public class CodeListTest {
         .setApplyFilterToSpatialSelection(false)
         .setService(service)
         .setAvailabilities(Collections.emptySet())
+        .setBlocked(false)
         .build();
     cartographies.add(cartography);
 
@@ -110,6 +113,7 @@ public class CodeListTest {
         .setApplyFilterToSpatialSelection(false)
         .setService(service)
         .setAvailabilities(Collections.emptySet())
+        .setBlocked(false)
         .build();
 
     cartographies.add(cartographyWithAvailabilities);
@@ -146,6 +150,7 @@ public class CodeListTest {
         .put("applyFilterToGetFeatureInfo", false)
         .put("legendType", "LINK")
         .put("service", "http://localhost/api/services/" + service.getId())
+        .put("blocked", false)
         .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
@@ -174,6 +179,7 @@ public class CodeListTest {
         .put("applyFilterToGetFeatureInfo", false)
         .put("legendType", "WRONG VALUE")
         .put("service", "http://localhost/api/services/" + service.getId())
+        .put("blocked", false)
         .toString();
 
     mvc.perform(post(CARTOGRAPHY_URI)

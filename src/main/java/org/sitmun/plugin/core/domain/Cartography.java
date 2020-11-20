@@ -259,6 +259,13 @@ public class Cartography { //implements Identifiable {
   private CartographyStyle defaultStyle;
 
   /**
+   * <code>true</code> if the cartography is blocked and cannot be used.
+   */
+  @NotNull
+  @Column(name = "GEO_BLOCKED")
+  private Boolean blocked;
+
+  /**
    * Filters.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -292,6 +299,7 @@ public class Cartography { //implements Identifiable {
                       Set<CartographyAvailability> availabilities,
                       Set<CartographyStyle> styles,
                       CartographyStyle defaultStyle,
+                      @NotNull Boolean blocked,
                       Set<CartographyFilter> filters,
                       Set<CartographyParameter> parameters) {
     this.id = id;
@@ -325,6 +333,7 @@ public class Cartography { //implements Identifiable {
     this.availabilities = availabilities;
     this.styles = styles;
     this.defaultStyle = defaultStyle;
+    this.blocked = blocked;
     this.filters = filters;
     this.parameters = parameters;
   }
@@ -583,6 +592,14 @@ public class Cartography { //implements Identifiable {
     this.defaultStyle = defaultStyle;
   }
 
+  public Boolean getBlocked() {
+    return blocked;
+  }
+
+  public void setBlocked(Boolean blocked) {
+    this.blocked = blocked;
+  }
+
   public Set<CartographyFilter> getFilters() {
     return filters;
   }
@@ -643,6 +660,7 @@ public class Cartography { //implements Identifiable {
     private Set<CartographyAvailability> availabilities;
     private Set<CartographyStyle> styles;
     private CartographyStyle defaultStyle;
+    private @NotNull Boolean blocked;
     private Set<CartographyFilter> filters;
     private Set<CartographyParameter> parameters;
 
@@ -803,6 +821,11 @@ public class Cartography { //implements Identifiable {
       return this;
     }
 
+    public Builder setBlocked(Boolean blocked) {
+      this.blocked = blocked;
+      return this;
+    }
+
     public Builder setFilters(Set<CartographyFilter> filters) {
       this.filters = filters;
       return this;
@@ -824,7 +847,7 @@ public class Cartography { //implements Identifiable {
           queryableLayers, applyFilterToGetFeatureInfo, type, service, selectableFeatureEnabled,
           selectableLayers, applyFilterToSpatialSelection, spatialSelectionService, legendType,
           legendURL, createdDate, spatialSelectionConnection, metadataURL, datasetURL, thematic,
-          geometryType, source, availabilities, styles, defaultStyle, filters, parameters);
+          geometryType, source, availabilities, styles, defaultStyle, blocked, filters, parameters);
     }
   }
 }

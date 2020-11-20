@@ -88,10 +88,12 @@ public class CartographyRepositoryDataRestTest {
           .build();
       territoryRepository.save(territory);
 
-      service = new Service();
-      service.setName("Service");
-      service.setServiceURL("");
-      service.setType("");
+      service = Service.builder()
+          .setName("Service")
+          .setServiceURL("")
+          .setType("")
+          .setBlocked(false)
+          .build();
       serviceRepository.save(service);
 
       cartographies = new ArrayList<>();
@@ -105,6 +107,7 @@ public class CartographyRepositoryDataRestTest {
           .setApplyFilterToSpatialSelection(false)
           .setService(service)
           .setAvailabilities(Collections.emptySet())
+          .setBlocked(false)
           .build();
       cartographies.add(cartography);
 
@@ -116,6 +119,7 @@ public class CartographyRepositoryDataRestTest {
           .setApplyFilterToSpatialSelection(false)
           .setService(service)
           .setAvailabilities(Collections.emptySet())
+          .setBlocked(false)
           .build();
 
       cartographies.add(cartographyWithAvailabilities);
@@ -152,6 +156,7 @@ public class CartographyRepositoryDataRestTest {
         .put("applyFilterToSpatialSelection", false)
         .put("applyFilterToGetFeatureInfo", false)
         .put("service", "http://localhost/api/services/" + service.getId())
+        .put("blocked", false)
         .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
