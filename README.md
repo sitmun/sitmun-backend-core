@@ -29,5 +29,12 @@ SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
 
 Travis-CI runs the tests with the development profile active.
 
+The development profile (`unsafe`) may be used for UI development.
+It enables an anonymous user to work with admin privileges.
+
+```bash
+SPRING_PROFILES_ACTIVE=dev,unsafe ./gradlew bootRun
+```
+
 When the application runs in local the API Documentation is available at 
 http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config.

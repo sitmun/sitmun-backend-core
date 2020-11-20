@@ -28,17 +28,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
-@Profile("!unsafe")
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@Profile("unsafe")
+public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
   private final TokenProvider tokenProvider;
   private final UserDetailsService userDetailsService;
   private final PasswordEncoder passwordEncoder;
   private final AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-  public WebSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
-                           TokenProvider tokenProvider,
-                           AuthenticationManagerBuilder authenticationManagerBuilder) {
+  public WebSecurityConfigUnsafe(UserDetailsService userDetailsService,
+                                 PasswordEncoder passwordEncoder,
+                                 TokenProvider tokenProvider,
+                                 AuthenticationManagerBuilder authenticationManagerBuilder) {
     super();
     this.authenticationManagerBuilder = authenticationManagerBuilder;
     this.userDetailsService = userDetailsService;
@@ -46,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     this.tokenProvider = tokenProvider;
     anonymousAuthenticationFilter = new AnonymousAuthenticationFilter(
         "anonymous",
-        SecurityConstants.SITMUN_PUBLIC_USERNAME,
+        SecurityConstants.SITMUN_ADMIN_USERNAME,
         AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
   }
 
@@ -71,8 +72,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .authorizeRequests()
-        .antMatchers("/api/users").authenticated()
-        .antMatchers("/api/account").authenticated()
         .antMatchers("/api/**").permitAll()
         .and()
         .apply(securityConfigurerAdapter())
