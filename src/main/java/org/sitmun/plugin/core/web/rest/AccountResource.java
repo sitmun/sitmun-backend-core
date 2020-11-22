@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @RepositoryRestController
 @RequestMapping("/api/account")
-@Tag(name = "account")
+@Tag(name = "account", description = "user account management")
 public class AccountResource {
 
   private final UserService userService;
@@ -29,12 +29,24 @@ public class AccountResource {
   //@Autowired
   //private RepositoryEntityLinks links;
 
+  /**
+   * Constructor.
+   *
+   * @param userService    user service
+   * @param userRepository user repository
+   */
   public AccountResource(UserService userService, UserRepository userRepository) {
     super();
     this.userService = userService;
     this.userRepository = userRepository;
   }
 
+  /**
+   * Update en existing account.
+   *
+   * @param userDTO account to be updated
+   * @return ok if the account has been updated
+   */
   @PostMapping("")
   @ResponseBody
   public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDTO) {
@@ -53,6 +65,9 @@ public class AccountResource {
 
   }
 
+  /**
+   * Get accounts.
+   */
   @GetMapping("")
   @ResponseBody
   public ResponseEntity<User> getAccount() {
@@ -74,6 +89,12 @@ public class AccountResource {
   //    return new Resource<>(dto);
   //  }
 
+  /**
+   * Change account password.
+   *
+   * @param password new password
+   * @return ok if the password has been updated
+   */
   @PostMapping(path = "/change-password")
   @ResponseBody
   public ResponseEntity<Void> changePassword(@RequestBody PasswordDTO password) {

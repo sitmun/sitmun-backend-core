@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "code list")
-@RepositoryRestResource(collectionResourceRel = "colelist-values", path = "colelist-values")
+@RepositoryRestResource(collectionResourceRel = "codelist-values", path = "codelist-values")
 public interface CodeListValueRepository extends CrudRepository<CodeListValue, Integer> {
 
   boolean existsByCodeListNameAndValue(String codeList, String code);

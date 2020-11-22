@@ -1,17 +1,104 @@
 openapi: 3.0.1
 info:
   title: SITMUN Core API
-  description: "Configuration manager of SITMUN applications.<br/><br/>**Note**: In\
-    \ active development."
+  description: |
+    Configuration manager of SITMUN applications.
+
+    **Note**: In active development.
+  contact:
+    name: SITMUN
+    url: https://github.com/sitmun
   version: 3.0-SNAPSHOT
+servers:
+  - url: /api
+    description: SITMUN 3 API
 security:
   - bearerAuth: [ ]
 tags:
+  - name: account
+    description: user account management
+  - name: application
+    description: SITMUN application
+  - name: application background
+    description: relationship between applications and backgrounds
+  - name: application parameter
+    description: application parameter
   - name: authentication
     description: authentication process
+  - name: background
+    description: background map
+  - name: cartography
+    description: geographic information
+  - name: cartography availability
+    description: grants availability of a Geographic Information in a Territory
+  - name: cartography filter
+    description: geographic information filter
+  - name: cartography group
+    description: geographic information group
+  - name: cartography parameter
+    description: geographic informatin parameter
+  - name: cartography style
+    description: geographic information style
+  - name: code list
+    description: code list value
+  - name: comment
+    description: comment or user's suggestion
+  - name: connection
+    description: represents a JDBC database connection
+  - name: download task
+    description: download file taks
+  - name: language
+    description: available languages
+  - name: log
+    description: log
+  - name: hal profile
+    description: HAL profile
+  - name: query task
+    description: query task
+  - name: role
+    description: role
+  - name: service
+    description: service description
+  - name: service parameter
+    description: service parameter
+  - name: task
+    description: task
+  - name: task availability
+    description: availability of Tasks in a Territory
+  - name: task group
+    description: task group
+  - name: task parameter
+    description: task parameter
+  - name: task type
+    description: task type
+  - name: task ui
+    description: task UI
+  - name: territory
+    description: territorial entity
+  - name: territory group type
+    description: type of grouping of territorial entities
+  - name: territory type
+    description: type of territorial entities
+  - name: thematic map
+    description: thematic map
+  - name: thematic map range
+    description: a range defined in a thematic map
+  - name: translation
+    description: available translations
+  - name: tree
+    description: tree
+  - name: tree node
+    description: tree node
+  - name: user
+    description: user
+  - name: user configuration
+    description: user role in a territoriy
+  - name: user position
+    description: user position in a territory
 paths:
-  /api/account:
+  /account:
     get:
+      description: get accounts
       tags:
         - account
       operationId: getAccount
@@ -23,6 +110,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
     post:
+      description: update an existing account
       tags:
         - account
       operationId: saveAccount
@@ -35,8 +123,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/account/change-password:
+  /account/change-password:
     post:
+      description: change account password
       tags:
         - account
       operationId: changePassword
@@ -49,7 +138,7 @@ paths:
       responses:
         "200":
           description: OK
-  /api/authenticate:
+  /authenticate:
     post:
       tags:
         - authentication
@@ -84,7 +173,7 @@ paths:
         "401":
           description: unauthorized
       security: [ ]
-  /api/application-backgrounds:
+  /application-backgrounds:
     get:
       tags:
         - application background
@@ -146,7 +235,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelApplicationBackground'
-  /api/application-backgrounds/{id}:
+  /application-backgrounds/{id}:
     get:
       tags:
         - application background
@@ -239,7 +328,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplicationBackground'
         "204":
           description: No Content
-  /api/application-backgrounds/{id}/application:
+  /application-backgrounds/{id}/application:
     get:
       tags:
         - application background
@@ -347,7 +436,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplicationBackground'
         "204":
           description: No Content
-  /api/application-backgrounds/{id}/application/{propertyId}:
+  /application-backgrounds/{id}/application/{propertyId}:
     get:
       tags:
         - application background
@@ -394,7 +483,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/application-backgrounds/{id}/background:
+  /application-backgrounds/{id}/background:
     get:
       tags:
         - application background
@@ -502,7 +591,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplicationBackground'
         "204":
           description: No Content
-  /api/application-backgrounds/{id}/background/{propertyId}:
+  /application-backgrounds/{id}/background/{propertyId}:
     get:
       tags:
         - application background
@@ -549,7 +638,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/application-parameters:
+  /application-parameters:
     get:
       tags:
         - application parameter
@@ -585,7 +674,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelApplicationParameter'
-  /api/application-parameters/{id}:
+  /application-parameters/{id}:
     get:
       tags:
         - application parameter
@@ -678,7 +767,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplicationParameter'
         "204":
           description: No Content
-  /api/application-parameters/{id}/application:
+  /application-parameters/{id}/application:
     get:
       tags:
         - application parameter
@@ -786,7 +875,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplicationParameter'
         "204":
           description: No Content
-  /api/application-parameters/{id}/application/{propertyId}:
+  /application-parameters/{id}/application/{propertyId}:
     get:
       tags:
         - application parameter
@@ -833,7 +922,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/applications:
+  /applications:
     get:
       tags:
         - application
@@ -869,7 +958,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelApplication'
-  /api/applications/{id}:
+  /applications/{id}:
     get:
       tags:
         - application
@@ -962,7 +1051,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/availableRoles:
+  /applications/{id}/availableRoles:
     get:
       tags:
         - application
@@ -1070,7 +1159,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/availableRoles/{propertyId}:
+  /applications/{id}/availableRoles/{propertyId}:
     get:
       tags:
         - application
@@ -1117,7 +1206,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/applications/{id}/backgrounds:
+  /applications/{id}/backgrounds:
     get:
       tags:
         - application
@@ -1225,7 +1314,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/backgrounds/{propertyId}:
+  /applications/{id}/backgrounds/{propertyId}:
     get:
       tags:
         - application
@@ -1272,7 +1361,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/applications/{id}/parameters:
+  /applications/{id}/parameters:
     get:
       tags:
         - application
@@ -1380,7 +1469,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/parameters/{propertyId}:
+  /applications/{id}/parameters/{propertyId}:
     get:
       tags:
         - application
@@ -1427,7 +1516,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/applications/{id}/situationMap:
+  /applications/{id}/situationMap:
     get:
       tags:
         - application
@@ -1535,7 +1624,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/situationMap/{propertyId}:
+  /applications/{id}/situationMap/{propertyId}:
     get:
       tags:
         - application
@@ -1582,7 +1671,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/applications/{id}/trees:
+  /applications/{id}/trees:
     get:
       tags:
         - application
@@ -1690,7 +1779,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelApplication'
         "204":
           description: No Content
-  /api/applications/{id}/trees/{propertyId}:
+  /applications/{id}/trees/{propertyId}:
     get:
       tags:
         - application
@@ -1737,7 +1826,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/backgrounds:
+  /backgrounds:
     get:
       tags:
         - background
@@ -1773,7 +1862,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelBackground'
-  /api/backgrounds/{id}:
+  /backgrounds/{id}:
     get:
       tags:
         - background
@@ -1866,7 +1955,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelBackground'
         "204":
           description: No Content
-  /api/backgrounds/{id}/cartographyGroup:
+  /backgrounds/{id}/cartographyGroup:
     get:
       tags:
         - background
@@ -1974,7 +2063,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelBackground'
         "204":
           description: No Content
-  /api/backgrounds/{id}/cartographyGroup/{propertyId}:
+  /backgrounds/{id}/cartographyGroup/{propertyId}:
     get:
       tags:
         - background
@@ -2021,7 +2110,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies:
+  /cartographies:
     get:
       tags:
         - cartography
@@ -2057,8 +2146,9 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartography'
-  /api/cartographies/search/findOneWithEagerRelationships:
+  /cartographies/search/findOneWithEagerRelationships:
     get:
+      description: get one cartography with eager relationships
       tags:
         - cartography
       operationId: executeSearch-cartography-get
@@ -2076,7 +2166,7 @@ paths:
                 $ref: '#/components/schemas/EntityModelCartography'
         "404":
           description: Not Found
-  /api/cartographies/{id}:
+  /cartographies/{id}:
     get:
       tags:
         - cartography
@@ -2169,7 +2259,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/availabilities:
+  /cartographies/{id}/availabilities:
     get:
       tags:
         - cartography
@@ -2277,7 +2367,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/availabilities/{propertyId}:
+  /cartographies/{id}/availabilities/{propertyId}:
     get:
       tags:
         - cartography
@@ -2324,7 +2414,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/defaultStyle:
+  /cartographies/{id}/defaultStyle:
     get:
       tags:
         - cartography
@@ -2432,7 +2522,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/defaultStyle/{propertyId}:
+  /cartographies/{id}/defaultStyle/{propertyId}:
     get:
       tags:
         - cartography
@@ -2479,7 +2569,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/filters:
+  /cartographies/{id}/filters:
     get:
       tags:
         - cartography
@@ -2587,7 +2677,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/filters/{propertyId}:
+  /cartographies/{id}/filters/{propertyId}:
     get:
       tags:
         - cartography
@@ -2634,7 +2724,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/parameters:
+  /cartographies/{id}/parameters:
     get:
       tags:
         - cartography
@@ -2742,7 +2832,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/parameters/{propertyId}:
+  /cartographies/{id}/parameters/{propertyId}:
     get:
       tags:
         - cartography
@@ -2789,7 +2879,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/service:
+  /cartographies/{id}/service:
     get:
       tags:
         - cartography
@@ -2897,7 +2987,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/service/{propertyId}:
+  /cartographies/{id}/service/{propertyId}:
     get:
       tags:
         - cartography
@@ -2944,7 +3034,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/spatialSelectionConnection:
+  /cartographies/{id}/spatialSelectionConnection:
     get:
       tags:
         - cartography
@@ -3052,7 +3142,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/spatialSelectionConnection/{propertyId}:
+  /cartographies/{id}/spatialSelectionConnection/{propertyId}:
     get:
       tags:
         - cartography
@@ -3099,7 +3189,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/spatialSelectionService:
+  /cartographies/{id}/spatialSelectionService:
     get:
       tags:
         - cartography
@@ -3207,7 +3297,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/spatialSelectionService/{propertyId}:
+  /cartographies/{id}/spatialSelectionService/{propertyId}:
     get:
       tags:
         - cartography
@@ -3254,7 +3344,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartographies/{id}/styles:
+  /cartographies/{id}/styles:
     get:
       tags:
         - cartography
@@ -3362,7 +3452,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartography'
         "204":
           description: No Content
-  /api/cartographies/{id}/styles/{propertyId}:
+  /cartographies/{id}/styles/{propertyId}:
     get:
       tags:
         - cartography
@@ -3409,7 +3499,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartography-availabilities:
+  /cartography-availabilities:
     get:
       tags:
         - cartography availability
@@ -3445,7 +3535,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartographyAvailability'
-  /api/cartography-availabilities/{id}:
+  /cartography-availabilities/{id}:
     get:
       tags:
         - cartography availability
@@ -3538,7 +3628,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyAvailability'
         "204":
           description: No Content
-  /api/cartography-availabilities/{id}/territory:
+  /cartography-availabilities/{id}/territory:
     get:
       tags:
         - cartography availability
@@ -3646,7 +3736,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyAvailability'
         "204":
           description: No Content
-  /api/cartography-availabilities/{id}/territory/{propertyId}:
+  /cartography-availabilities/{id}/territory/{propertyId}:
     get:
       tags:
         - cartography availability
@@ -3693,7 +3783,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartography-filters:
+  /cartography-filters:
     get:
       tags:
         - cartography filter
@@ -3729,7 +3819,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartographyFilter'
-  /api/cartography-filters/{id}:
+  /cartography-filters/{id}:
     get:
       tags:
         - cartography filter
@@ -3822,7 +3912,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyFilter'
         "204":
           description: No Content
-  /api/cartography-filters/{id}/territorialLevel:
+  /cartography-filters/{id}/territorialLevel:
     get:
       tags:
         - cartography filter
@@ -3930,7 +4020,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyFilter'
         "204":
           description: No Content
-  /api/cartography-filters/{id}/territorialLevel/{propertyId}:
+  /cartography-filters/{id}/territorialLevel/{propertyId}:
     get:
       tags:
         - cartography filter
@@ -3977,7 +4067,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartography-groups:
+  /cartography-groups:
     get:
       tags:
         - cartography group
@@ -4013,7 +4103,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartographyGroup'
-  /api/cartography-groups/{id}:
+  /cartography-groups/{id}:
     get:
       tags:
         - cartography group
@@ -4106,7 +4196,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyGroup'
         "204":
           description: No Content
-  /api/cartography-groups/{id}/members:
+  /cartography-groups/{id}/members:
     get:
       tags:
         - cartography group
@@ -4214,7 +4304,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyGroup'
         "204":
           description: No Content
-  /api/cartography-groups/{id}/members/{propertyId}:
+  /cartography-groups/{id}/members/{propertyId}:
     get:
       tags:
         - cartography group
@@ -4261,7 +4351,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartography-groups/{id}/roles:
+  /cartography-groups/{id}/roles:
     get:
       tags:
         - cartography group
@@ -4369,7 +4459,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyGroup'
         "204":
           description: No Content
-  /api/cartography-groups/{id}/roles/{propertyId}:
+  /cartography-groups/{id}/roles/{propertyId}:
     get:
       tags:
         - cartography group
@@ -4416,7 +4506,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/cartography-parameters:
+  /cartography-parameters:
     get:
       tags:
         - cartography parameter
@@ -4452,7 +4542,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartographyParameter'
-  /api/cartography-parameters/{id}:
+  /cartography-parameters/{id}:
     get:
       tags:
         - cartography parameter
@@ -4545,7 +4635,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyParameter'
         "204":
           description: No Content
-  /api/cartography-styles:
+  /cartography-styles:
     get:
       tags:
         - cartography style
@@ -4581,7 +4671,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCartographyStyle'
-  /api/cartography-styles/{id}:
+  /cartography-styles/{id}:
     get:
       tags:
         - cartography style
@@ -4674,7 +4764,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCartographyStyle'
         "204":
           description: No Content
-  /api/colelist-values:
+  /codelist-values:
     get:
       tags:
         - code list
@@ -4710,8 +4800,9 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelCodeListValue'
-  /api/colelist-values/search/existsByCodeListNameAndValue:
+  /codelist-values/search/existsByCodeListNameAndValue:
     get:
+      description: test if code list exists by code list name and code
       tags:
         - code list
       operationId: executeSearch-codelistvalue-get
@@ -4733,8 +4824,9 @@ paths:
                 $ref: '#/components/schemas/EntityModelCodeListValue'
         "404":
           description: Not Found
-  /api/colelist-values/search/findDistinctCodeListName:
+  /codelist-values/search/findDistinctCodeListName:
     get:
+      description: find code list by name
       tags:
         - code list
       operationId: executeSearch-codelistvalue-get_1
@@ -4747,8 +4839,9 @@ paths:
                 $ref: '#/components/schemas/CollectionModelCodeListValue'
         "404":
           description: Not Found
-  /api/colelist-values/search/findValuesByCodeListName:
+  /codelist-values/search/findValuesByCodeListName:
     get:
+      description: find code list by name
       tags:
         - code list
       operationId: executeSearch-codelistvalue-get_2
@@ -4766,7 +4859,7 @@ paths:
                 $ref: '#/components/schemas/CollectionModelCodeListValue'
         "404":
           description: Not Found
-  /api/colelist-values/{id}:
+  /codelist-values/{id}:
     get:
       tags:
         - code list
@@ -4859,7 +4952,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelCodeListValue'
         "204":
           description: No Content
-  /api/comments:
+  /comments:
     get:
       tags:
         - comment
@@ -4895,7 +4988,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelComment'
-  /api/comments/{id}:
+  /comments/{id}:
     get:
       tags:
         - comment
@@ -4988,7 +5081,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelComment'
         "204":
           description: No Content
-  /api/comments/{id}/application:
+  /comments/{id}/application:
     get:
       tags:
         - comment
@@ -5096,7 +5189,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelComment'
         "204":
           description: No Content
-  /api/comments/{id}/application/{propertyId}:
+  /comments/{id}/application/{propertyId}:
     get:
       tags:
         - comment
@@ -5143,7 +5236,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/comments/{id}/user:
+  /comments/{id}/user:
     get:
       tags:
         - comment
@@ -5251,7 +5344,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelComment'
         "204":
           description: No Content
-  /api/comments/{id}/user/{propertyId}:
+  /comments/{id}/user/{propertyId}:
     get:
       tags:
         - comment
@@ -5298,7 +5391,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/connections:
+  /connections:
     get:
       tags:
         - connection
@@ -5334,7 +5427,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelConnection'
-  /api/connections/{id}:
+  /connections/{id}:
     get:
       tags:
         - connection
@@ -5427,7 +5520,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelConnection'
         "204":
           description: No Content
-  /api/download-tasks:
+  /download-tasks:
     get:
       tags:
         - download task
@@ -5463,7 +5556,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
-  /api/download-tasks/{id}:
+  /download-tasks/{id}:
     get:
       tags:
         - download task
@@ -5556,7 +5649,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/availabilities:
+  /download-tasks/{id}/availabilities:
     get:
       tags:
         - download task
@@ -5664,7 +5757,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/availabilities/{propertyId}:
+  /download-tasks/{id}/availabilities/{propertyId}:
     get:
       tags:
         - download task
@@ -5711,7 +5804,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/cartography:
+  /download-tasks/{id}/cartography:
     get:
       tags:
         - download task
@@ -5819,7 +5912,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/cartography/{propertyId}:
+  /download-tasks/{id}/cartography/{propertyId}:
     get:
       tags:
         - download task
@@ -5866,7 +5959,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/connection:
+  /download-tasks/{id}/connection:
     get:
       tags:
         - download task
@@ -5974,7 +6067,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/connection/{propertyId}:
+  /download-tasks/{id}/connection/{propertyId}:
     get:
       tags:
         - download task
@@ -6021,7 +6114,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/group:
+  /download-tasks/{id}/group:
     get:
       tags:
         - download task
@@ -6129,7 +6222,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/group/{propertyId}:
+  /download-tasks/{id}/group/{propertyId}:
     get:
       tags:
         - download task
@@ -6176,7 +6269,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/parameters:
+  /download-tasks/{id}/parameters:
     get:
       tags:
         - download task
@@ -6284,7 +6377,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/parameters/{propertyId}:
+  /download-tasks/{id}/parameters/{propertyId}:
     get:
       tags:
         - download task
@@ -6331,7 +6424,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/roles:
+  /download-tasks/{id}/roles:
     get:
       tags:
         - download task
@@ -6439,7 +6532,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/roles/{propertyId}:
+  /download-tasks/{id}/roles/{propertyId}:
     get:
       tags:
         - download task
@@ -6486,7 +6579,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/service:
+  /download-tasks/{id}/service:
     get:
       tags:
         - download task
@@ -6594,7 +6687,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/service/{propertyId}:
+  /download-tasks/{id}/service/{propertyId}:
     get:
       tags:
         - download task
@@ -6641,7 +6734,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/type:
+  /download-tasks/{id}/type:
     get:
       tags:
         - download task
@@ -6749,7 +6842,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/type/{propertyId}:
+  /download-tasks/{id}/type/{propertyId}:
     get:
       tags:
         - download task
@@ -6796,7 +6889,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/download-tasks/{id}/ui:
+  /download-tasks/{id}/ui:
     get:
       tags:
         - download task
@@ -6904,7 +6997,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelDownloadTask'
         "204":
           description: No Content
-  /api/download-tasks/{id}/ui/{propertyId}:
+  /download-tasks/{id}/ui/{propertyId}:
     get:
       tags:
         - download task
@@ -6951,7 +7044,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/languages:
+  /languages:
     get:
       tags:
         - language
@@ -6987,7 +7080,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelLanguage'
-  /api/languages/{id}:
+  /languages/{id}:
     get:
       tags:
         - language
@@ -7080,7 +7173,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLanguage'
         "204":
           description: No Content
-  /api/logs:
+  /logs:
     get:
       tags:
         - log
@@ -7142,7 +7235,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelLog'
-  /api/logs/{id}:
+  /logs/{id}:
     get:
       tags:
         - log
@@ -7235,7 +7328,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/application:
+  /logs/{id}/application:
     get:
       tags:
         - log
@@ -7343,7 +7436,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/application/{propertyId}:
+  /logs/{id}/application/{propertyId}:
     get:
       tags:
         - log
@@ -7390,7 +7483,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/logs/{id}/cartography:
+  /logs/{id}/cartography:
     get:
       tags:
         - log
@@ -7498,7 +7591,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/cartography/{propertyId}:
+  /logs/{id}/cartography/{propertyId}:
     get:
       tags:
         - log
@@ -7545,7 +7638,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/logs/{id}/task:
+  /logs/{id}/task:
     get:
       tags:
         - log
@@ -7653,7 +7746,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/task/{propertyId}:
+  /logs/{id}/task/{propertyId}:
     get:
       tags:
         - log
@@ -7700,7 +7793,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/logs/{id}/territory:
+  /logs/{id}/territory:
     get:
       tags:
         - log
@@ -7808,7 +7901,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/territory/{propertyId}:
+  /logs/{id}/territory/{propertyId}:
     get:
       tags:
         - log
@@ -7855,7 +7948,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/logs/{id}/user:
+  /logs/{id}/user:
     get:
       tags:
         - log
@@ -7963,7 +8056,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelLog'
         "204":
           description: No Content
-  /api/logs/{id}/user/{propertyId}:
+  /logs/{id}/user/{propertyId}:
     get:
       tags:
         - log
@@ -8010,8 +8103,9 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/profile:
+  /profile:
     get:
+      description: get hal profile
       tags:
         - hal profile
       operationId: listAllFormsOfMetadata_1
@@ -8023,8 +8117,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RepresentationModelObject'
       security: [ ]
-  /api/profile/application-backgrounds:
+  /profile/application-backgrounds:
     get:
+      description: get hal profile for application background
       tags:
         - hal profile
       operationId: descriptor_1
@@ -8042,8 +8137,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/application-parameters:
+  /profile/application-parameters:
     get:
+      description: get hal profile for application parameters
       tags:
         - hal profile
       operationId: descriptor_2
@@ -8061,8 +8157,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/applications:
+  /profile/applications:
     get:
+      description: get hal profile for applications
       tags:
         - hal profile
       operationId: descriptor_3
@@ -8080,8 +8177,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/backgrounds:
+  /profile/backgrounds:
     get:
+      description: get hal profile for backgrounds
       tags:
         - hal profile
       operationId: descriptor_4
@@ -8099,8 +8197,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartographies:
+  /profile/cartographies:
     get:
+      description: get hal profile for cartography
       tags:
         - hal profile
       operationId: descriptor_5
@@ -8118,8 +8217,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartography-availabilities:
+  /profile/cartography-availabilities:
     get:
+      description: get hal profile for cartography availability
       tags:
         - hal profile
       operationId: descriptor_6
@@ -8137,8 +8237,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartography-filters:
+  /profile/cartography-filters:
     get:
+      description: get hal profile for cartography filter
       tags:
         - hal profile
       operationId: descriptor_7
@@ -8156,8 +8257,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartography-groups:
+  /profile/cartography-groups:
     get:
+      description: get hal profile for cartography group
       tags:
         - hal profile
       operationId: descriptor_8
@@ -8175,8 +8277,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartography-parameters:
+  /profile/cartography-parameters:
     get:
+      description: get hal profile for cartography parameter
       tags:
         - hal profile
       operationId: descriptor_9
@@ -8194,8 +8297,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/cartography-styles:
+  /profile/cartography-styles:
     get:
+      description: get hal profile for cartography style
       tags:
         - hal profile
       operationId: descriptor_10
@@ -8213,8 +8317,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/colelist-values:
+  /profile/codelist-values:
     get:
+      description: get hal profile for codelist value
       tags:
         - hal profile
       operationId: descriptor_11
@@ -8232,8 +8337,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/comments:
+  /profile/comments:
     get:
+      description: get hal profile for comments
       tags:
         - hal profile
       operationId: descriptor_12
@@ -8251,8 +8357,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/connections:
+  /profile/connections:
     get:
+      description: get hal profile for connections
       tags:
         - hal profile
       operationId: descriptor_13
@@ -8270,8 +8377,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/download-tasks:
+  /profile/download-tasks:
     get:
+      description: get hal profile for download task
       tags:
         - hal profile
       operationId: descriptor_14
@@ -8289,8 +8397,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/languages:
+  /profile/languages:
     get:
+      description: get hal profile for language
       tags:
         - hal profile
       operationId: descriptor_15
@@ -8308,8 +8417,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/logs:
+  /profile/logs:
     get:
+      description: get hal profile for log
       tags:
         - hal profile
       operationId: descriptor_16
@@ -8327,8 +8437,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/query-tasks:
+  /profile/query-tasks:
     get:
+      description: get hal profile for query task
       tags:
         - hal profile
       operationId: descriptor_17
@@ -8346,8 +8457,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/roles:
+  /profile/roles:
     get:
+      description: get hal profile for role
       tags:
         - hal profile
       operationId: descriptor_18
@@ -8365,8 +8477,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/service-parameters:
+  /profile/service-parameters:
     get:
+      description: get hal profile for service parameter
       tags:
         - hal profile
       operationId: descriptor_19
@@ -8384,8 +8497,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/services:
+  /profile/services:
     get:
+      description: get hal profile for service
       tags:
         - hal profile
       operationId: descriptor_20
@@ -8403,8 +8517,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-availabilities:
+  /profile/task-availabilities:
     get:
+      description: get hal profile for task availability
       tags:
         - hal profile
       operationId: descriptor_21
@@ -8422,8 +8537,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-groups:
+  /profile/task-groups:
     get:
+      description: get hal profile for task group
       tags:
         - hal profile
       operationId: descriptor_22
@@ -8441,8 +8557,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-parameters:
+  /profile/task-parameters:
     get:
+      description: get hal profile for task parameter
       tags:
         - hal profile
       operationId: descriptor_23
@@ -8460,8 +8577,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-types:
+  /profile/task-types:
     get:
+      description: get hal profile for task type
       tags:
         - hal profile
       operationId: descriptor_24
@@ -8479,8 +8597,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-uis:
+  /profile/task-uis:
     get:
+      description: get hal profile for task UI
       tags:
         - hal profile
       operationId: descriptor_25
@@ -8498,8 +8617,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/tasks:
+  /profile/tasks:
     get:
+      description: get hal profile for task
       tags:
         - hal profile
       operationId: descriptor_26
@@ -8517,8 +8637,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territories:
+  /profile/territories:
     get:
+      description: get hal profile for territory
       tags:
         - hal profile
       operationId: descriptor_27
@@ -8536,8 +8657,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territory-group-types:
+  /profile/territory-group-types:
     get:
+      description: get hal profile for territory group type
       tags:
         - hal profile
       operationId: descriptor_28
@@ -8555,8 +8677,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territory-types:
+  /profile/territory-types:
     get:
+      description: get hal profile for territory type
       tags:
         - hal profile
       operationId: descriptor_29
@@ -8574,8 +8697,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/thematic-map-ranges:
+  /profile/thematic-map-ranges:
     get:
+      description: get hal profile for thematic map range
       tags:
         - hal profile
       operationId: descriptor_30
@@ -8593,8 +8717,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/thematic-maps:
+  /profile/thematic-maps:
     get:
+      description: get hal profile for thematic map
       tags:
         - hal profile
       operationId: descriptor_31
@@ -8612,8 +8737,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/translations:
+  /profile/translations:
     get:
+      description: get hal profile for translation
       tags:
         - hal profile
       operationId: descriptor_32
@@ -8631,8 +8757,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/tree-nodes:
+  /profile/tree-nodes:
     get:
+      description: get hal profile for tree node
       tags:
         - hal profile
       operationId: descriptor_33
@@ -8650,8 +8777,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/trees:
+  /profile/trees:
     get:
+      description: get hal profile for tree
       tags:
         - hal profile
       operationId: descriptor_34
@@ -8669,8 +8797,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/user-configurations:
+  /profile/user-configurations:
     get:
+      description: get hal profile for user configuration
       tags:
         - hal profile
       operationId: descriptor_35
@@ -8688,8 +8817,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/user-positions:
+  /profile/user-positions:
     get:
+      description: get hal profile for user position
       tags:
         - hal profile
       operationId: descriptor_36
@@ -8707,8 +8837,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/users:
+  /profile/users:
     get:
+      description: get hal profile for user
       tags:
         - hal profile
       operationId: descriptor_37
@@ -8726,7 +8857,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/query-tasks:
+  /query-tasks:
     get:
       tags:
         - query task
@@ -8762,7 +8893,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
-  /api/query-tasks/{id}:
+  /query-tasks/{id}:
     get:
       tags:
         - query task
@@ -8855,7 +8986,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/availabilities:
+  /query-tasks/{id}/availabilities:
     get:
       tags:
         - query task
@@ -8963,7 +9094,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/availabilities/{propertyId}:
+  /query-tasks/{id}/availabilities/{propertyId}:
     get:
       tags:
         - query task
@@ -9010,7 +9141,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/cartography:
+  /query-tasks/{id}/cartography:
     get:
       tags:
         - query task
@@ -9118,7 +9249,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/cartography/{propertyId}:
+  /query-tasks/{id}/cartography/{propertyId}:
     get:
       tags:
         - query task
@@ -9165,7 +9296,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/connection:
+  /query-tasks/{id}/connection:
     get:
       tags:
         - query task
@@ -9273,7 +9404,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/connection/{propertyId}:
+  /query-tasks/{id}/connection/{propertyId}:
     get:
       tags:
         - query task
@@ -9320,7 +9451,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/group:
+  /query-tasks/{id}/group:
     get:
       tags:
         - query task
@@ -9428,7 +9559,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/group/{propertyId}:
+  /query-tasks/{id}/group/{propertyId}:
     get:
       tags:
         - query task
@@ -9475,7 +9606,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/parameters:
+  /query-tasks/{id}/parameters:
     get:
       tags:
         - query task
@@ -9583,7 +9714,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/parameters/{propertyId}:
+  /query-tasks/{id}/parameters/{propertyId}:
     get:
       tags:
         - query task
@@ -9630,7 +9761,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/reportTask:
+  /query-tasks/{id}/reportTask:
     get:
       tags:
         - query task
@@ -9738,7 +9869,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/reportTask/{propertyId}:
+  /query-tasks/{id}/reportTask/{propertyId}:
     get:
       tags:
         - query task
@@ -9785,7 +9916,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/roles:
+  /query-tasks/{id}/roles:
     get:
       tags:
         - query task
@@ -9893,7 +10024,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/roles/{propertyId}:
+  /query-tasks/{id}/roles/{propertyId}:
     get:
       tags:
         - query task
@@ -9940,7 +10071,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/service:
+  /query-tasks/{id}/service:
     get:
       tags:
         - query task
@@ -10048,7 +10179,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/service/{propertyId}:
+  /query-tasks/{id}/service/{propertyId}:
     get:
       tags:
         - query task
@@ -10095,7 +10226,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/type:
+  /query-tasks/{id}/type:
     get:
       tags:
         - query task
@@ -10203,7 +10334,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/type/{propertyId}:
+  /query-tasks/{id}/type/{propertyId}:
     get:
       tags:
         - query task
@@ -10250,7 +10381,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/query-tasks/{id}/ui:
+  /query-tasks/{id}/ui:
     get:
       tags:
         - query task
@@ -10358,7 +10489,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelQueryTask'
         "204":
           description: No Content
-  /api/query-tasks/{id}/ui/{propertyId}:
+  /query-tasks/{id}/ui/{propertyId}:
     get:
       tags:
         - query task
@@ -10405,7 +10536,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/roles:
+  /roles:
     get:
       tags:
         - role
@@ -10441,7 +10572,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelRole'
-  /api/roles/{id}:
+  /roles/{id}:
     get:
       tags:
         - role
@@ -10534,7 +10665,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelRole'
         "204":
           description: No Content
-  /api/service-parameters:
+  /service-parameters:
     get:
       tags:
         - service parameter
@@ -10570,7 +10701,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelServiceParameter'
-  /api/service-parameters/{id}:
+  /service-parameters/{id}:
     get:
       tags:
         - service parameter
@@ -10663,7 +10794,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelServiceParameter'
         "204":
           description: No Content
-  /api/service-parameters/{id}/service:
+  /service-parameters/{id}/service:
     get:
       tags:
         - service parameter
@@ -10771,7 +10902,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelServiceParameter'
         "204":
           description: No Content
-  /api/service-parameters/{id}/service/{propertyId}:
+  /service-parameters/{id}/service/{propertyId}:
     get:
       tags:
         - service parameter
@@ -10818,7 +10949,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/services:
+  /services:
     get:
       tags:
         - service
@@ -10854,7 +10985,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelService'
-  /api/services/{id}:
+  /services/{id}:
     get:
       tags:
         - service
@@ -10947,7 +11078,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelService'
         "204":
           description: No Content
-  /api/services/{id}/parameters:
+  /services/{id}/parameters:
     get:
       tags:
         - service
@@ -11055,7 +11186,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelService'
         "204":
           description: No Content
-  /api/services/{id}/parameters/{propertyId}:
+  /services/{id}/parameters/{propertyId}:
     get:
       tags:
         - service
@@ -11102,7 +11233,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/task-availabilities:
+  /task-availabilities:
     get:
       tags:
         - task availability
@@ -11138,7 +11269,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTaskAvailability'
-  /api/task-availabilities/{id}:
+  /task-availabilities/{id}:
     get:
       tags:
         - task availability
@@ -11231,7 +11362,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskAvailability'
         "204":
           description: No Content
-  /api/task-availabilities/{id}/task:
+  /task-availabilities/{id}/task:
     get:
       tags:
         - task availability
@@ -11339,7 +11470,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskAvailability'
         "204":
           description: No Content
-  /api/task-availabilities/{id}/task/{propertyId}:
+  /task-availabilities/{id}/task/{propertyId}:
     get:
       tags:
         - task availability
@@ -11386,7 +11517,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/task-availabilities/{id}/territory:
+  /task-availabilities/{id}/territory:
     get:
       tags:
         - task availability
@@ -11494,7 +11625,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskAvailability'
         "204":
           description: No Content
-  /api/task-availabilities/{id}/territory/{propertyId}:
+  /task-availabilities/{id}/territory/{propertyId}:
     get:
       tags:
         - task availability
@@ -11541,7 +11672,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/task-groups:
+  /task-groups:
     get:
       tags:
         - task group
@@ -11577,7 +11708,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTaskGroup'
-  /api/task-groups/{id}:
+  /task-groups/{id}:
     get:
       tags:
         - task group
@@ -11670,7 +11801,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskGroup'
         "204":
           description: No Content
-  /api/task-parameters:
+  /task-parameters:
     get:
       tags:
         - task parameter
@@ -11706,7 +11837,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTaskParameter'
-  /api/task-parameters/{id}:
+  /task-parameters/{id}:
     get:
       tags:
         - task parameter
@@ -11799,7 +11930,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskParameter'
         "204":
           description: No Content
-  /api/task-parameters/{id}/task:
+  /task-parameters/{id}/task:
     get:
       tags:
         - task parameter
@@ -11907,7 +12038,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskParameter'
         "204":
           description: No Content
-  /api/task-parameters/{id}/task/{propertyId}:
+  /task-parameters/{id}/task/{propertyId}:
     get:
       tags:
         - task parameter
@@ -11954,7 +12085,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/task-types:
+  /task-types:
     get:
       tags:
         - task type
@@ -11990,7 +12121,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTaskType'
-  /api/task-types/{id}:
+  /task-types/{id}:
     get:
       tags:
         - task type
@@ -12083,7 +12214,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskType'
         "204":
           description: No Content
-  /api/task-uis:
+  /task-uis:
     get:
       tags:
         - task ui
@@ -12119,7 +12250,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTaskUI'
-  /api/task-uis/{id}:
+  /task-uis/{id}:
     get:
       tags:
         - task ui
@@ -12212,7 +12343,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTaskUI'
         "204":
           description: No Content
-  /api/tasks:
+  /tasks:
     get:
       tags:
         - task
@@ -12248,7 +12379,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTask'
-  /api/tasks/{id}:
+  /tasks/{id}:
     get:
       tags:
         - task
@@ -12341,7 +12472,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/availabilities:
+  /tasks/{id}/availabilities:
     get:
       tags:
         - task
@@ -12449,7 +12580,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/availabilities/{propertyId}:
+  /tasks/{id}/availabilities/{propertyId}:
     get:
       tags:
         - task
@@ -12496,7 +12627,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/cartography:
+  /tasks/{id}/cartography:
     get:
       tags:
         - task
@@ -12604,7 +12735,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/cartography/{propertyId}:
+  /tasks/{id}/cartography/{propertyId}:
     get:
       tags:
         - task
@@ -12651,7 +12782,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/connection:
+  /tasks/{id}/connection:
     get:
       tags:
         - task
@@ -12759,7 +12890,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/connection/{propertyId}:
+  /tasks/{id}/connection/{propertyId}:
     get:
       tags:
         - task
@@ -12806,7 +12937,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/group:
+  /tasks/{id}/group:
     get:
       tags:
         - task
@@ -12914,7 +13045,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/group/{propertyId}:
+  /tasks/{id}/group/{propertyId}:
     get:
       tags:
         - task
@@ -12961,7 +13092,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/parameters:
+  /tasks/{id}/parameters:
     get:
       tags:
         - task
@@ -13069,7 +13200,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/parameters/{propertyId}:
+  /tasks/{id}/parameters/{propertyId}:
     get:
       tags:
         - task
@@ -13116,7 +13247,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/roles:
+  /tasks/{id}/roles:
     get:
       tags:
         - task
@@ -13224,7 +13355,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/roles/{propertyId}:
+  /tasks/{id}/roles/{propertyId}:
     get:
       tags:
         - task
@@ -13271,7 +13402,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/service:
+  /tasks/{id}/service:
     get:
       tags:
         - task
@@ -13379,7 +13510,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/service/{propertyId}:
+  /tasks/{id}/service/{propertyId}:
     get:
       tags:
         - task
@@ -13426,7 +13557,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/type:
+  /tasks/{id}/type:
     get:
       tags:
         - task
@@ -13534,7 +13665,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/type/{propertyId}:
+  /tasks/{id}/type/{propertyId}:
     get:
       tags:
         - task
@@ -13581,7 +13712,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/ui:
+  /tasks/{id}/ui:
     get:
       tags:
         - task
@@ -13689,7 +13820,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTask'
         "204":
           description: No Content
-  /api/tasks/{id}/ui/{propertyId}:
+  /tasks/{id}/ui/{propertyId}:
     get:
       tags:
         - task
@@ -13736,7 +13867,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/territories:
+  /territories:
     get:
       tags:
         - territory
@@ -13772,7 +13903,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
-  /api/territories/{id}:
+  /territories/{id}:
     get:
       tags:
         - territory
@@ -13865,7 +13996,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
         "204":
           description: No Content
-  /api/territories/{id}/groupType:
+  /territories/{id}/groupType:
     get:
       tags:
         - territory
@@ -13973,7 +14104,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
         "204":
           description: No Content
-  /api/territories/{id}/groupType/{propertyId}:
+  /territories/{id}/groupType/{propertyId}:
     get:
       tags:
         - territory
@@ -14020,7 +14151,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/territories/{id}/memberOf:
+  /territories/{id}/memberOf:
     get:
       tags:
         - territory
@@ -14128,7 +14259,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
         "204":
           description: No Content
-  /api/territories/{id}/memberOf/{propertyId}:
+  /territories/{id}/memberOf/{propertyId}:
     get:
       tags:
         - territory
@@ -14175,7 +14306,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/territories/{id}/members:
+  /territories/{id}/members:
     get:
       tags:
         - territory
@@ -14283,7 +14414,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
         "204":
           description: No Content
-  /api/territories/{id}/members/{propertyId}:
+  /territories/{id}/members/{propertyId}:
     get:
       tags:
         - territory
@@ -14330,7 +14461,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/territories/{id}/type:
+  /territories/{id}/type:
     get:
       tags:
         - territory
@@ -14438,7 +14569,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritory'
         "204":
           description: No Content
-  /api/territories/{id}/type/{propertyId}:
+  /territories/{id}/type/{propertyId}:
     get:
       tags:
         - territory
@@ -14485,7 +14616,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/territory-group-types:
+  /territory-group-types:
     get:
       tags:
         - territory group type
@@ -14521,7 +14652,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTerritoryGroupType'
-  /api/territory-group-types/{id}:
+  /territory-group-types/{id}:
     get:
       tags:
         - territory group type
@@ -14614,7 +14745,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritoryGroupType'
         "204":
           description: No Content
-  /api/territory-types:
+  /territory-types:
     get:
       tags:
         - territory type
@@ -14650,7 +14781,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTerritoryType'
-  /api/territory-types/{id}:
+  /territory-types/{id}:
     get:
       tags:
         - territory type
@@ -14743,7 +14874,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTerritoryType'
         "204":
           description: No Content
-  /api/thematic-map-ranges:
+  /thematic-map-ranges:
     get:
       tags:
         - thematic map range
@@ -14779,7 +14910,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelThematicMapRange'
-  /api/thematic-map-ranges/{id}:
+  /thematic-map-ranges/{id}:
     get:
       tags:
         - thematic map range
@@ -14872,7 +15003,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMapRange'
         "204":
           description: No Content
-  /api/thematic-map-ranges/{id}/map:
+  /thematic-map-ranges/{id}/map:
     get:
       tags:
         - thematic map range
@@ -14980,7 +15111,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMapRange'
         "204":
           description: No Content
-  /api/thematic-map-ranges/{id}/map/{propertyId}:
+  /thematic-map-ranges/{id}/map/{propertyId}:
     get:
       tags:
         - thematic map range
@@ -15027,7 +15158,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/thematic-maps:
+  /thematic-maps:
     get:
       tags:
         - thematic map
@@ -15063,7 +15194,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelThematicMap'
-  /api/thematic-maps/{id}:
+  /thematic-maps/{id}:
     get:
       tags:
         - thematic map
@@ -15156,7 +15287,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMap'
         "204":
           description: No Content
-  /api/thematic-maps/{id}/cartography:
+  /thematic-maps/{id}/cartography:
     get:
       tags:
         - thematic map
@@ -15264,7 +15395,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMap'
         "204":
           description: No Content
-  /api/thematic-maps/{id}/cartography/{propertyId}:
+  /thematic-maps/{id}/cartography/{propertyId}:
     get:
       tags:
         - thematic map
@@ -15311,7 +15442,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/thematic-maps/{id}/task:
+  /thematic-maps/{id}/task:
     get:
       tags:
         - thematic map
@@ -15419,7 +15550,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMap'
         "204":
           description: No Content
-  /api/thematic-maps/{id}/task/{propertyId}:
+  /thematic-maps/{id}/task/{propertyId}:
     get:
       tags:
         - thematic map
@@ -15466,7 +15597,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/thematic-maps/{id}/user:
+  /thematic-maps/{id}/user:
     get:
       tags:
         - thematic map
@@ -15574,7 +15705,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelThematicMap'
         "204":
           description: No Content
-  /api/thematic-maps/{id}/user/{propertyId}:
+  /thematic-maps/{id}/user/{propertyId}:
     get:
       tags:
         - thematic map
@@ -15621,7 +15752,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/translations:
+  /translations:
     get:
       tags:
         - translation
@@ -15657,7 +15788,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTranslation'
-  /api/translations/{id}:
+  /translations/{id}:
     get:
       tags:
         - translation
@@ -15750,7 +15881,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTranslation'
         "204":
           description: No Content
-  /api/translations/{id}/language:
+  /translations/{id}/language:
     get:
       tags:
         - translation
@@ -15858,7 +15989,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTranslation'
         "204":
           description: No Content
-  /api/translations/{id}/language/{propertyId}:
+  /translations/{id}/language/{propertyId}:
     get:
       tags:
         - translation
@@ -15905,7 +16036,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tree-nodes:
+  /tree-nodes:
     get:
       tags:
         - tree node
@@ -15941,7 +16072,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTreeNode'
-  /api/tree-nodes/{id}:
+  /tree-nodes/{id}:
     get:
       tags:
         - tree node
@@ -16034,7 +16165,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTreeNode'
         "204":
           description: No Content
-  /api/tree-nodes/{id}/cartography:
+  /tree-nodes/{id}/cartography:
     get:
       tags:
         - tree node
@@ -16142,7 +16273,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTreeNode'
         "204":
           description: No Content
-  /api/tree-nodes/{id}/cartography/{propertyId}:
+  /tree-nodes/{id}/cartography/{propertyId}:
     get:
       tags:
         - tree node
@@ -16189,7 +16320,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tree-nodes/{id}/tree:
+  /tree-nodes/{id}/tree:
     get:
       tags:
         - tree node
@@ -16297,7 +16428,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTreeNode'
         "204":
           description: No Content
-  /api/tree-nodes/{id}/tree/{propertyId}:
+  /tree-nodes/{id}/tree/{propertyId}:
     get:
       tags:
         - tree node
@@ -16344,7 +16475,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/trees:
+  /trees:
     get:
       tags:
         - tree
@@ -16380,8 +16511,9 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelTree'
-  /api/trees/search/findOneWithEagerRelationships:
+  /trees/search/findOneWithEagerRelationships:
     get:
+      description: find one tree with relationships
       tags:
         - tree
       operationId: executeSearch-tree-get
@@ -16400,7 +16532,7 @@ paths:
                 $ref: '#/components/schemas/EntityModelTree'
         "404":
           description: Not Found
-  /api/trees/{id}:
+  /trees/{id}:
     get:
       tags:
         - tree
@@ -16493,7 +16625,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTree'
         "204":
           description: No Content
-  /api/trees/{id}/allNodes:
+  /trees/{id}/allNodes:
     get:
       tags:
         - tree
@@ -16601,7 +16733,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTree'
         "204":
           description: No Content
-  /api/trees/{id}/allNodes/{propertyId}:
+  /trees/{id}/allNodes/{propertyId}:
     get:
       tags:
         - tree
@@ -16648,7 +16780,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/trees/{id}/availableRoles:
+  /trees/{id}/availableRoles:
     get:
       tags:
         - tree
@@ -16756,7 +16888,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTree'
         "204":
           description: No Content
-  /api/trees/{id}/availableRoles/{propertyId}:
+  /trees/{id}/availableRoles/{propertyId}:
     get:
       tags:
         - tree
@@ -16803,7 +16935,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/trees/{id}/owner:
+  /trees/{id}/owner:
     get:
       tags:
         - tree
@@ -16911,7 +17043,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelTree'
         "204":
           description: No Content
-  /api/trees/{id}/owner/{propertyId}:
+  /trees/{id}/owner/{propertyId}:
     get:
       tags:
         - tree
@@ -16958,7 +17090,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-configurations:
+  /user-configurations:
     get:
       tags:
         - user configuration
@@ -16994,7 +17126,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
-  /api/user-configurations/{id}:
+  /user-configurations/{id}:
     get:
       tags:
         - user configuration
@@ -17087,7 +17219,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         "204":
           description: No Content
-  /api/user-configurations/{id}/role:
+  /user-configurations/{id}/role:
     get:
       tags:
         - user configuration
@@ -17195,7 +17327,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         "204":
           description: No Content
-  /api/user-configurations/{id}/role/{propertyId}:
+  /user-configurations/{id}/role/{propertyId}:
     get:
       tags:
         - user configuration
@@ -17242,7 +17374,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-configurations/{id}/roleChildren:
+  /user-configurations/{id}/roleChildren:
     get:
       tags:
         - user configuration
@@ -17350,7 +17482,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         "204":
           description: No Content
-  /api/user-configurations/{id}/roleChildren/{propertyId}:
+  /user-configurations/{id}/roleChildren/{propertyId}:
     get:
       tags:
         - user configuration
@@ -17397,7 +17529,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-configurations/{id}/territory:
+  /user-configurations/{id}/territory:
     get:
       tags:
         - user configuration
@@ -17505,7 +17637,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         "204":
           description: No Content
-  /api/user-configurations/{id}/territory/{propertyId}:
+  /user-configurations/{id}/territory/{propertyId}:
     get:
       tags:
         - user configuration
@@ -17552,7 +17684,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-configurations/{id}/user:
+  /user-configurations/{id}/user:
     get:
       tags:
         - user configuration
@@ -17660,7 +17792,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         "204":
           description: No Content
-  /api/user-configurations/{id}/user/{propertyId}:
+  /user-configurations/{id}/user/{propertyId}:
     get:
       tags:
         - user configuration
@@ -17707,7 +17839,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-positions:
+  /user-positions:
     get:
       tags:
         - user position
@@ -17743,7 +17875,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelUserPosition'
-  /api/user-positions/{id}:
+  /user-positions/{id}:
     get:
       tags:
         - user position
@@ -17836,7 +17968,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserPosition'
         "204":
           description: No Content
-  /api/user-positions/{id}/territory:
+  /user-positions/{id}/territory:
     get:
       tags:
         - user position
@@ -17944,7 +18076,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserPosition'
         "204":
           description: No Content
-  /api/user-positions/{id}/territory/{propertyId}:
+  /user-positions/{id}/territory/{propertyId}:
     get:
       tags:
         - user position
@@ -17991,7 +18123,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/user-positions/{id}/user:
+  /user-positions/{id}/user:
     get:
       tags:
         - user position
@@ -18099,7 +18231,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUserPosition'
         "204":
           description: No Content
-  /api/user-positions/{id}/user/{propertyId}:
+  /user-positions/{id}/user/{propertyId}:
     get:
       tags:
         - user position
@@ -18146,7 +18278,7 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/users:
+  /users:
     get:
       tags:
         - user
@@ -18182,7 +18314,7 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/RepresentationModelUser'
-  /api/users/{id}:
+  /users/{id}:
     get:
       tags:
         - user
@@ -18275,7 +18407,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUser'
         "204":
           description: No Content
-  /api/users/{id}/positions:
+  /users/{id}/positions:
     get:
       tags:
         - user
@@ -18383,7 +18515,7 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelUser'
         "204":
           description: No Content
-  /api/users/{id}/positions/{propertyId}:
+  /users/{id}/positions/{propertyId}:
     get:
       tags:
         - user
@@ -18724,7 +18856,7 @@ components:
         _embedded:
           type: object
           properties:
-            colelist-values:
+            codelist-values:
               type: array
               items:
                 $ref: '#/components/schemas/CodeListValue'
@@ -21322,6 +21454,5 @@ components:
   securitySchemes:
     bearerAuth:
       type: http
-      name: bearerAuth
       scheme: bearer
       bearerFormat: JWT
