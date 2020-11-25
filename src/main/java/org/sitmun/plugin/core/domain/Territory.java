@@ -437,6 +437,11 @@ public class Territory {
       return this;
     }
 
+    /**
+     * Builds a Territory.
+     *
+     * @return a new territory instance
+     */
     public Territory build() {
       return new Territory(id, code, name, territorialAuthorityName, territorialAuthorityAddress,
           territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,

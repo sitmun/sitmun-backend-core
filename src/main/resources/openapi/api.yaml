@@ -18597,6 +18597,7 @@ components:
             items:
               type: string
     Territory:
+      description: Territorial entity
       required:
         - blocked
         - code
@@ -18606,38 +18607,53 @@ components:
         id:
           type: integer
         code:
+          description: Geographic code
           type: string
         name:
+          description: Territory name
           type: string
         territorialAuthorityName:
+          description: Territorial authority name
           type: string
         territorialAuthorityAddress:
+          description: Territorial authority address
           type: string
         territorialAuthorityEmail:
+          description: Territorial authority email
           type: string
+          format: email
         scope:
+          description: Teritory scope
           type: string
         territorialAuthorityLogo:
+          description: Link to the territorial authority logo
           type: string
+          format: uri
         extent:
+          description: Bounding gox of the territory
           type: string
         blocked:
+          description: True if the territory is blocked
           type: boolean
         type:
           $ref: '#/components/schemas/TerritoryType'
         note:
+          description: Notes
           type: string
         createdDate:
+          description: Creation date
           type: string
           format: date-time
         groupType:
           $ref: '#/components/schemas/TerritoryGroupType'
         members:
+          description: Territories that are part of this territory
           uniqueItems: true
           type: array
           items:
             $ref: '#/components/schemas/Territory'
         memberOf:
+          description: Territories of which this territory is part of
           uniqueItems: true
           type: array
           items:
@@ -21212,50 +21228,14 @@ components:
             $ref: '#/components/schemas/Link'
     EntityModelTerritory:
       type: object
-      properties:
-        id:
-          type: integer
-        code:
-          type: string
-        name:
-          type: string
-        territorialAuthorityName:
-          type: string
-        territorialAuthorityAddress:
-          type: string
-        territorialAuthorityEmail:
-          type: string
-        scope:
-          type: string
-        territorialAuthorityLogo:
-          type: string
-        extent:
-          type: string
-        blocked:
-          type: boolean
-        type:
-          $ref: '#/components/schemas/TerritoryType'
-        note:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        groupType:
-          $ref: '#/components/schemas/TerritoryGroupType'
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        memberOf:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/Territory'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     Comment:
       required:
         - coordinateX
