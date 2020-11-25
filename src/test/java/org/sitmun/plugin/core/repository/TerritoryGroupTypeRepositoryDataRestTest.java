@@ -72,13 +72,13 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
     ).andDo(print())
         .andExpect(status().isCreated())
-        .andExpect(header().string("location", TERRITORY_URI + "/" + 1));
+        .andExpect(header().string("location", TERRITORY_URI + "/5"));
   }
 
   @After
   public void after() {
     withMockSitmunAdmin(
-        () -> repository.findById(BigInteger.ONE).ifPresent((it) -> repository.delete(it)));
+        () -> repository.findById(BigInteger.valueOf(5)).ifPresent((it) -> repository.delete(it)));
   }
 
   @TestConfiguration

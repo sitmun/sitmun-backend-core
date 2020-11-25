@@ -18652,6 +18652,7 @@ components:
         name:
           type: string
     TerritoryType:
+      description: Type of grouping of territorial entities
       required:
         - name
       type: object
@@ -18660,6 +18661,7 @@ components:
           type: integer
         name:
           type: string
+          description: Name
     User:
       required:
         - administrator
@@ -20351,15 +20353,14 @@ components:
             $ref: '#/components/schemas/Link'
     EntityModelTerritoryGroupType:
       type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+      allOf:
+        - $ref: '#/components/schemas/TerritoryGroupType'
+        - type: object
+          properties:
+            _links:
+              type: array
+              items:
+                $ref: '#/components/schemas/Link'
     RepresentationModelCartographyFilter:
       type: object
       properties:
