@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.UserConfiguration;
+import org.sitmun.plugin.core.domain.UserConfigurationProjection;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -12,7 +13,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
 @Tag(name = "user configuration")
-@RepositoryRestResource(collectionResourceRel = "user-configurations", path = "user-configurations")
+@RepositoryRestResource(
+    collectionResourceRel = "user-configurations",
+    path = "user-configurations",
+    excerptProjection = UserConfigurationProjection.class)
 public interface UserConfigurationRepository extends CrudRepository<UserConfiguration, BigInteger> {
 
   @Override

@@ -18562,6 +18562,161 @@ paths:
           description: No Content
         "404":
           description: Not Found
+  /users/{id}/permissions:
+    get:
+      tags:
+        - user
+      description: get-user
+      operationId: followPropertyReference-user-get_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelUserConfiguration'
+            text/uri-list:
+              schema:
+                $ref: '#/components/schemas/CollectionModelUserConfiguration'
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - user
+      description: update-user
+      operationId: createPropertyReference-user-put_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/RepresentationModelUser'
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/RepresentationModelUser'
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - user
+      description: delete-user
+      operationId: deletePropertyReference-user-delete_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - user
+      description: patch-user
+      operationId: createPropertyReference-user-patch_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/RepresentationModelUser'
+        "204":
+          description: No Content
+  /users/{id}/permissions/{propertyId}:
+    get:
+      tags:
+        - user
+      description: get-user
+      operationId: followPropertyReference-user-get_2_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/RepresentationModelUser'
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - user
+      description: delete-user
+      operationId: deletePropertyReferenceId-user-delete_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
 components:
   schemas:
     UserDTO:
@@ -18928,7 +19083,19 @@ components:
           $ref: '#/components/schemas/Role'
     RepresentationModelUserConfiguration:
       type: object
+      required:
+        - role
+        - user
+        - territory
       properties:
+        user:
+          type: string
+        territory:
+          type: string
+        roleChildren:
+          type: string
+        role:
+          type: string
         _links:
           type: array
           items:
@@ -18942,7 +19109,7 @@ components:
             user-configurations:
               type: array
               items:
-                $ref: '#/components/schemas/UserConfiguration'
+                $ref: '#/components/schemas/RepresentationModelUserConfiguration'
         _links:
           type: array
           items:
