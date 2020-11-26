@@ -19083,19 +19083,7 @@ components:
           $ref: '#/components/schemas/Role'
     RepresentationModelUserConfiguration:
       type: object
-      required:
-        - role
-        - user
-        - territory
       properties:
-        user:
-          type: string
-        territory:
-          type: string
-        roleChildren:
-          type: string
-        role:
-          type: string
         _links:
           type: array
           items:

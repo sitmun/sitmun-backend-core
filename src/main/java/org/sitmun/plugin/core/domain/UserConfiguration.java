@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.domain;
 import java.math.BigInteger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -45,14 +46,14 @@ public class UserConfiguration {
    */
   @JoinColumn(name = "UCO_USERID", foreignKey = @ForeignKey(name = "STM_UCF_FK_USU"))
   @NotNull
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   /**
    * Territory.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "UCO_TERID", foreignKey = @ForeignKey(name = "STM_UCF_FK_TER"))
@@ -61,7 +62,7 @@ public class UserConfiguration {
   /**
    * Role.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   @JoinColumn(name = "UCO_ROLEID", foreignKey = @ForeignKey(name = "STM_UCF_FK_ROL"))
@@ -71,7 +72,7 @@ public class UserConfiguration {
    * Role for its children territories in case the user can access the territory through
    * its children.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "UCO_ROLEMID", foreignKey = @ForeignKey(name = "STM_UCF_FK_ROL_M"))
   private Role roleChildren;

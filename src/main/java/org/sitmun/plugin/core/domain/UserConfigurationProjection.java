@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.config.Projection;
 /**
  * Projections for REST views of user configuration.
  */
-@Projection(types = {UserConfiguration.class})
+@Projection(name = "view", types = {UserConfiguration.class})
 public interface UserConfigurationProjection {
 
   /**
