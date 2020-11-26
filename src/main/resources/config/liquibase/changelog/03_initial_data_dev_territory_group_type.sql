@@ -1,0 +1,16 @@
+--liquibase formatted sql
+--changeset sitmun:3 context:dev
+
+INSERT INTO STM_GTER_TYP(GTT_ID, GTT_NAME)
+VALUES (1, 'Consell Comarcal');
+INSERT INTO STM_GTER_TYP(GTT_ID, GTT_NAME)
+VALUES (3, 'Consorci');
+INSERT INTO STM_GTER_TYP(GTT_ID, GTT_NAME)
+VALUES (2, 'Mancomunitat');
+INSERT INTO STM_GTER_TYP(GTT_ID, GTT_NAME)
+VALUES (0, 'Parc natural');
+INSERT INTO STM_GTER_TYP(GTT_ID, GTT_NAME)
+VALUES (4, 'Àrea');
+
+INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
+VALUES ('GTT_ID', 4);

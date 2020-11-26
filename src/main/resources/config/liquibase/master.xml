@@ -5,5 +5,10 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
     <include file="changelog/01_schema.h2.sql" relativeToChangelogFile="true"/>
     <include file="changelog/02_codelists.sql" relativeToChangelogFile="true"/>
-    <include file="changelog/03_initial_data_dev.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_user.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_connect.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_role.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_territory_group_type.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_territory.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/03_initial_data_dev_user_configuration.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
