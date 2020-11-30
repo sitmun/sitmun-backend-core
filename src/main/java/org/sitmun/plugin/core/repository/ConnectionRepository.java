@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Connection;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +12,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "connection")
 @RepositoryRestResource(collectionResourceRel = "connections", path = "connections")
-public interface ConnectionRepository extends CrudRepository<Connection, BigInteger> {
+public interface ConnectionRepository extends PagingAndSortingRepository<Connection, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

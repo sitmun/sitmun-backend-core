@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TaskGroup;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "task group")
 @RepositoryRestResource(collectionResourceRel = "task-groups", path = "task-groups")
-public interface TaskGroupRepository extends CrudRepository<TaskGroup, BigInteger> {
+public interface TaskGroupRepository extends PagingAndSortingRepository<TaskGroup, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

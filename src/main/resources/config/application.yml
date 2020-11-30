@@ -29,7 +29,8 @@ spring:
         bootstrap-mode: deferred
     rest:
       base-path: api
-      default-page-size: 10
+      default-page-size: 100000
+      max-page-size: 100000
 
   jpa:
     open-in-view: true

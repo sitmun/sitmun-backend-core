@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.Service;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -17,7 +17,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "service")
 @RepositoryRestResource(collectionResourceRel = "services", path = "services")
-public interface ServiceRepository extends CrudRepository<Service, BigInteger> {
+public interface ServiceRepository extends PagingAndSortingRepository<Service, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

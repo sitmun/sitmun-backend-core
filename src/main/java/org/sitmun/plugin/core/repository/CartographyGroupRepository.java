@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.CartographyGroup;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -18,7 +18,8 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "cartography group")
 @RepositoryRestResource(collectionResourceRel = "cartography-groups", path = "cartography-groups")
-public interface CartographyGroupRepository extends CrudRepository<CartographyGroup, BigInteger> {
+public interface CartographyGroupRepository extends
+    PagingAndSortingRepository<CartographyGroup, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

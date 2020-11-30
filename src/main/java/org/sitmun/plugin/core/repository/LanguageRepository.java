@@ -4,7 +4,7 @@ package org.sitmun.plugin.core.repository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Language;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "language")
 @RepositoryRestResource(collectionResourceRel = "languages", path = "languages")
 public interface LanguageRepository
-    extends CrudRepository<Language, Integer> {
+    extends PagingAndSortingRepository<Language, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

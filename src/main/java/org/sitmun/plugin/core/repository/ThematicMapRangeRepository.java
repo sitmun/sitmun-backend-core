@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.ThematicMapRange;
 import org.sitmun.plugin.core.domain.ThematicMapRangeId;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
@@ -14,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "thematic map range")
 @RepositoryRestResource(collectionResourceRel = "thematic-map-ranges", path = "thematic-map-ranges")
 public interface ThematicMapRangeRepository
-    extends CrudRepository<ThematicMapRange, ThematicMapRangeId> {
+    extends PagingAndSortingRepository<ThematicMapRange, ThematicMapRangeId> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

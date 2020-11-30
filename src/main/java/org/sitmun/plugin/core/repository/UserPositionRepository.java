@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.UserPosition;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
@@ -14,7 +14,8 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "user position")
 @RepositoryRestResource(collectionResourceRel = "user-positions", path = "user-positions")
-public interface UserPositionRepository extends CrudRepository<UserPosition, BigInteger> {
+public interface UserPositionRepository extends
+    PagingAndSortingRepository<UserPosition, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

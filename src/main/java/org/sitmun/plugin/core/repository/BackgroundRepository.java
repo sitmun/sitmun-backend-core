@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Background;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +12,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "background")
 @RepositoryRestResource(collectionResourceRel = "backgrounds", path = "backgrounds")
-public interface BackgroundRepository extends CrudRepository<Background, BigInteger> {
+public interface BackgroundRepository extends PagingAndSortingRepository<Background, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

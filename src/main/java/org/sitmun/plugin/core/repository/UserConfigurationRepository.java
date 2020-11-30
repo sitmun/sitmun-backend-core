@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.UserConfiguration;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
@@ -13,7 +13,8 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "user configuration")
 @RepositoryRestResource(collectionResourceRel = "user-configurations", path = "user-configurations")
-public interface UserConfigurationRepository extends CrudRepository<UserConfiguration, BigInteger> {
+public interface UserConfigurationRepository extends
+    PagingAndSortingRepository<UserConfiguration, BigInteger> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

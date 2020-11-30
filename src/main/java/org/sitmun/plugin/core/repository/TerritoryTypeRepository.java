@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TerritoryType;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -14,7 +14,8 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "territory type")
 @RepositoryRestResource(collectionResourceRel = "territory-types", path = "territory-types")
-public interface TerritoryTypeRepository extends CrudRepository<TerritoryType, BigInteger> {
+public interface TerritoryTypeRepository extends
+    PagingAndSortingRepository<TerritoryType, BigInteger> {
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   <S extends TerritoryType> S save(@P("entity") S entity);
