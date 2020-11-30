@@ -1,0 +1,16 @@
+THE_ID,THE_NAME,THE_DESC,THE_RANKTYPE,THE_RANKNUM,THE_COLORMIN,THE_COLORMAX,THE_SIZEMIN,THE_SIZEMAX,THE_TRANSPARENCY,THE_DATAREF,THE_USERID,THE_GIID,THE_TASKID,THE_TAGGABLE,THE_VALUETYPE
+52,Hermes - Temàtic per municipis,Hermes - Temàtic per municipis,RE,4,#ffffff,#009900,1,1,0,0,6,950,31813,1,DOU
+53,Hermes - Temàtic per comarques,Hermes - Temàtic per comarques,VU,5,#006699,#ff9933,1,1,0,0,6,963,31814,1,DOU
+26,Temàtic - Població 2012,Municipis per població segons dades INE 2012,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,31727,0,DOU
+1121,Temàtic - Població 2004,Municipis per població segons dades INE 2004,RE,6,#f7f3ce,#630e0e,1,1,0,0,NULL,950,32089,0,DOU
+1113,Temàtic - Població 2015,Municipis per població segons dades INE 2015,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32085,0,DOU
+1116,Temàtic - Població 1996,Municipis per població segons dades INE 1996,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32086,0,DOU
+1122,Temàtic - Població 2006,Municipis per població segons dades INE 2006,RE,6,#f7f3ce,#630e0e,1,1,0,0,NULL,950,32090,0,DOU
+1125,Temàtic - Població 2010,Municipis per població segons dades INE 2010,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32092,0,DOU
+1109,Temàtic - Població 1998,Municipis per població segons dades INE 1998,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32084,0,DOU
+1123,Temàtic - Població 2008,Municipis per població segons dades INE 2008,RE,6,#f7f3ce,#630e0e,1,1,0,0,NULL,950,32091,0,DOU
+1120,Temàtic - Població 2002,Municipis per població segons dades INE 2002,RE,6,#f7f3ce,#630e0e,1,1,0,0,NULL,950,32088,0,DOU
+1134,Temàtic - Població 1950,Municipis per població segons dades INE 1950,RL,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32099,0,DOU
+1118,Temàtic - Població 2000,Municipis per població segons dades INE 2000,RE,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32087,0,DOU
+1136,Temàtic - Població 1900,Municipis per població segons dades INE 1900,RL,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32102,0,DOU
+1138,Temàtic - Població 1981,Municipis per població segons dades INE 1981,RL,6,#f7f3ce,#610a0a,1,1,0,0,NULL,950,32103,0,DOU

@@ -1,0 +1,7 @@
+BAC_ID,BAC_NAME,BAC_DESC,BAC_ACTIVE,BAC_GGIID,BAC_CREATED
+1,Mapa topogràfic,Topogràfic,0,129,NULL
+2,Foto aèria,Ortofoto,0,130,NULL
+4,Mapa Nomenclàtor,NOMENCLÀTOR - Mapa topogràfic,0,146,2013-02-13 17:44:45
+5,Imatge Nomenclàtor,NOMENCLÀTOR - Ortofoto ICC,0,147,2013-02-14 12:41:43
+6,Mapa,Mapa topogràfic pel mòbil,1,189,2017-04-19 11:06:51
+7,Imatge,Orto ICC pel mòbil,0,190,2017-04-19 11:08:48

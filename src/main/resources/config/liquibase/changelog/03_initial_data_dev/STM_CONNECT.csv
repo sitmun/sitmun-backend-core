@@ -1,0 +1,17 @@
+CON_ID,CON_NAME,CON_DRIVER,CON_USER,CON_PWD,CON_CONNECTION
+50,Name of Connection 50,driver.jdbc.DatabaseDriver50,User50,Password50,jdbc:database:@host:schema50
+28,Name of Connection 28,driver.jdbc.DatabaseDriver28,User28,Password28,jdbc:database:@host:schema28
+29,Name of Connection 29,driver.jdbc.DatabaseDriver29,User29,Password29,jdbc:database:@host:schema29
+30,Name of Connection 30,driver.jdbc.DatabaseDriver30,User30,Password30,jdbc:database:@host:schema30
+31,Name of Connection 31,driver.jdbc.DatabaseDriver31,User31,Password31,jdbc:database:@host:schema31
+3,Name of Connection 3,driver.jdbc.DatabaseDriver3,User3,Password3,jdbc:database:@host:schema3
+2,Name of Connection 2,driver.jdbc.DatabaseDriver2,User2,Password2,jdbc:database:@host:schema2
+4,Name of Connection 4,driver.jdbc.DatabaseDriver4,User4,Password4,jdbc:database:@host:schema4
+5,Name of Connection 5,driver.jdbc.DatabaseDriver5,User5,Password5,jdbc:database:@host:schema5
+6,Name of Connection 6,driver.jdbc.DatabaseDriver6,User6,Password6,jdbc:database:@host:schema6
+20,Name of Connection 20,driver.jdbc.DatabaseDriver20,User20,Password20,jdbc:database:@host:schema20
+26,Name of Connection 26,driver.jdbc.DatabaseDriver26,User26,Password26,jdbc:database:@host:schema26
+21,Name of Connection 21,driver.jdbc.DatabaseDriver21,User21,Password21,jdbc:database:@host:schema21
+27,Name of Connection 27,driver.jdbc.DatabaseDriver27,User27,Password27,jdbc:database:@host:schema27
+51,Name of Connection 51,driver.jdbc.DatabaseDriver51,User51,Password51,jdbc:database:@host:schema51
+52,Name of Connection 52,driver.jdbc.DatabaseDriver52,User52,Password52,jdbc:database:@host:schema52

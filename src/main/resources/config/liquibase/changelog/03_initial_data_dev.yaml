@@ -1,0 +1,419 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: sitmun
+      context: dev
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_USER.csv
+            relativeToChangelogFile: true
+            tableName: STM_USER
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 2390);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_CONNECT.csv
+            relativeToChangelogFile: true
+            tableName: STM_CONNECT
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('CON_ID', 52);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_ROLE.csv
+            relativeToChangelogFile: true
+            tableName: STM_ROLE
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 151);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GTER_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_GTER_TYP
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTT_ID', 4);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TERRITORY.csv
+            relativeToChangelogFile: true
+            tableName: STM_TERRITORY
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 340);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GRP_TER.csv
+            relativeToChangelogFile: true
+            tableName: STM_GRP_TER
+            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_USR_CONF_00000.csv
+            relativeToChangelogFile: true
+            tableName: STM_USR_CONF
+            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_USR_CONF_10000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_USR_CONF
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_USR_CONF_20000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_USR_CONF
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_USR_CONF_30000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_USR_CONF
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_USR_CONF_40000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_USR_CONF
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_USR_CONF_50000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_USR_CONF
+        #            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('UCO_ID', 51863);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GRP_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_GRP_GI
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GGI_ID', 193);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TREE.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 22);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_SERVICE.csv
+            relativeToChangelogFile: true
+            tableName: STM_SERVICE
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SER_ID', 152);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GEOINFO.csv
+            relativeToChangelogFile: true
+            tableName: STM_GEOINFO
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GEO_ID', 1255);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_PAR_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_GI
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PGI_ID', 5437);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GGI_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_GGI_GI
+            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_ROL_GGI.csv
+            relativeToChangelogFile: true
+            tableName: STM_ROL_GGI
+            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_APP.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 43);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_APP_TREE.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_TREE
+            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_APP_ROL.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_ROL
+            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_PAR_APP.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_APP
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 39);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_BACKGRD.csv
+            relativeToChangelogFile: true
+            tableName: STM_BACKGRD
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('BAC_ID', 7);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_APP_BCKG.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_BCKG
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_AVAIL_GI_00000.csv
+            relativeToChangelogFile: true
+            tableName: STM_AVAIL_GI
+            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_10000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_20000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_30000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_40000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_50000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_60000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_70000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_80000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_GI_90000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
+        - sql:
+            sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TREE_NOD.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE_NOD
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TNO_ID', 8463);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_GRP_TSK.csv
+            relativeToChangelogFile: true
+            tableName: STM_GRP_TSK
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTS_ID', 77);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TSK_UI.csv
+            relativeToChangelogFile: true
+            tableName: STM_TSK_UI
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TUI_ID', 36);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TSK_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_TSK_TYP
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TTY_ID', 14);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TASK.csv
+            relativeToChangelogFile: true
+            tableName: STM_TASK
+            usePreparedStatements: true
+            quotchar: "\""
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_DOWNLOAD.csv
+            relativeToChangelogFile: true
+            tableName: STM_DOWNLOAD
+            usePreparedStatements: true
+            quotchar: "\""
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_QUERY.csv
+            relativeToChangelogFile: true
+            tableName: STM_QUERY
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 32279);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_POST.csv
+            relativeToChangelogFile: true
+            tableName: STM_POST
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 6961);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_COMMENT.csv
+            relativeToChangelogFile: true
+            tableName: STM_COMMENT
+            usePreparedStatements: true
+            quotchar: "\""
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COM_ID', 82);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_AVAIL_TSK_00000.csv
+            relativeToChangelogFile: true
+            tableName: STM_AVAIL_TSK
+            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_10000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_20000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_30000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_40000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_50000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_60000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_70000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_80000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 03_initial_data_dev/STM_AVAIL_TSK_90000.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_TSK
+        #            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 97338);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_PAR_SER.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_SER
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSE_ID', 533);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_THEMATIC.csv
+            relativeToChangelogFile: true
+            tableName: STM_THEMATIC
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('THE_ID', 1138);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_THE_RANK.csv
+            relativeToChangelogFile: true
+            tableName: STM_THE_RANK
+            quotchar: "\""
+            usePreparedStatements: true

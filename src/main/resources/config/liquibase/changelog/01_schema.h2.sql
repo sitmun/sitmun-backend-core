@@ -92,37 +92,38 @@ CREATE TABLE STM_AVAIL_GI (
 ALTER TABLE STM_AVAIL_GI ADD CONSTRAINT STM_AGI_PK PRIMARY KEY (AGI_ID);
 ALTER TABLE STM_AVAIL_GI ADD CONSTRAINT STM_AGI_UK UNIQUE (AGI_TERID,AGI_GIID);
 
-CREATE TABLE STM_GEOINFO(
-                            GEO_ID         NUMBER(11)    NOT NULL,
-                            GEO_NAME       VARCHAR2(100) NOT NULL,
-                            GEO_ABSTRACT   VARCHAR2(250),
-                            GEO_LAYERS     VARCHAR2(800) NOT NULL,
-                            GEO_MINSCALE   NUMBER(11),
-                            GEO_MAXSCALE   NUMBER(11),
-                            GEO_ORDER      NUMBER(6),
-                            GEO_TRANSP     NUMBER(6),
-                            GEO_FILTER_GM  BOOLEAN       NOT NULL,
-                            GEO_QUERYABL   BOOLEAN,
-                            GEO_QUERYACT   BOOLEAN,
-                            GEO_QUERYLAY   VARCHAR2(500),
-                            GEO_FILTER_GFI BOOLEAN       NOT NULL,
-                            GEO_TYPE       VARCHAR2(30),
-                            GEO_SERID      NUMBER(11)    NOT NULL,
-                            GEO_SELECTABL  BOOLEAN,
-                            GEO_SELECTLAY  VARCHAR2(500),
-                            GEO_FILTER_SE  BOOLEAN       NOT NULL,
-                            GEO_SERSELID   NUMBER(11),
-                            GEO_LEGENDTIP  VARCHAR2(50),
-                            GEO_LEGENDURL  VARCHAR2(250),
-                            GEO_CREATED    TIMESTAMP(6),
-                            GEO_CONNID     NUMBER(11),
-                            GEO_METAURL    VARCHAR2(250),
-                            GEO_DATAURL    VARCHAR2(4000),
-                            GEO_THEMATIC   BOOLEAN,
-                            GEO_GEOMTYPE   VARCHAR2(50),
-                            GEO_SOURCE     VARCHAR2(80),
-                            GEO_STYID      INTEGER,
-                            GEO_BLOCKED    BOOLEAN       NOT NULL
+CREATE TABLE STM_GEOINFO
+(
+    GEO_ID         NUMBER(11)    NOT NULL,
+    GEO_NAME       VARCHAR2(100) NOT NULL,
+    GEO_ABSTRACT   VARCHAR2(250),
+    GEO_LAYERS     VARCHAR2(800) NOT NULL,
+    GEO_MINSCALE   NUMBER(11),
+    GEO_MAXSCALE   NUMBER(11),
+    GEO_ORDER      NUMBER(6),
+    GEO_TRANSP     NUMBER(6),
+    GEO_FILTER_GM  BOOLEAN,
+    GEO_QUERYABL   BOOLEAN       NOT NULL,
+    GEO_QUERYACT   BOOLEAN       NOT NULL,
+    GEO_QUERYLAY   VARCHAR2(500),
+    GEO_FILTER_GFI BOOLEAN,
+    GEO_TYPE       VARCHAR2(30),
+    GEO_SERID      NUMBER(11)    NOT NULL,
+    GEO_SELECTABL  BOOLEAN,
+    GEO_SELECTLAY  VARCHAR2(500),
+    GEO_FILTER_SE  BOOLEAN,
+    GEO_SERSELID   NUMBER(11),
+    GEO_LEGENDTIP  VARCHAR2(50),
+    GEO_LEGENDURL  VARCHAR2(250),
+    GEO_CREATED    TIMESTAMP(6),
+    GEO_CONNID     NUMBER(11),
+    GEO_METAURL    VARCHAR2(250),
+    GEO_DATAURL    VARCHAR2(4000),
+    GEO_THEMATIC   BOOLEAN,
+    GEO_GEOMTYPE   VARCHAR2(50),
+    GEO_SOURCE     VARCHAR2(80),
+    GEO_STYID      INTEGER,
+    GEO_BLOCKED    BOOLEAN       NOT NULL
 );
 ALTER TABLE STM_GEOINFO ADD CONSTRAINT STM_GEO_PK PRIMARY KEY (GEO_ID);
 
@@ -182,20 +183,21 @@ CREATE TABLE STM_GGI_GI (
 );
 ALTER TABLE STM_GGI_GI ADD CONSTRAINT STM_GGG_PK PRIMARY KEY (GGG_GGIID,GGG_GIID);
 
-CREATE TABLE STM_APP (
-    APP_ID          NUMBER(11)      NOT NULL,
-    APP_NAME        VARCHAR2(80)    NOT NULL,
-    APP_TYPE        VARCHAR2(250),
-    APP_TITLE       VARCHAR2(250),
-    APP_THEME       VARCHAR2(30),
-    APP_SCALES      VARCHAR2(250),
-    APP_PROJECT     VARCHAR2(250),
-    APP_TEMPLATE    VARCHAR2(250)   NOT NULL,
-    APP_REFRESH     BOOLEAN,
-    APP_ENTRYS      BOOLEAN,
-    APP_ENTRYM      BOOLEAN,
-    APP_GGIID       NUMBER(11),
-    APP_CREATED     TIMESTAMP(6)
+CREATE TABLE STM_APP
+(
+    APP_ID       NUMBER(11)    NOT NULL,
+    APP_NAME     VARCHAR2(80)  NOT NULL,
+    APP_TYPE     VARCHAR2(250) NOT NULL,
+    APP_TITLE    VARCHAR2(250),
+    APP_THEME    VARCHAR2(30),
+    APP_SCALES   VARCHAR2(250),
+    APP_PROJECT  VARCHAR2(250),
+    APP_TEMPLATE VARCHAR2(250) NOT NULL,
+    APP_REFRESH  BOOLEAN,
+    APP_ENTRYS   BOOLEAN,
+    APP_ENTRYM   BOOLEAN,
+    APP_GGIID    NUMBER(11),
+    APP_CREATED  TIMESTAMP(6)  NOT NULL
 );
 ALTER TABLE STM_APP ADD CONSTRAINT STM_APP_PK PRIMARY KEY (APP_ID);
 
