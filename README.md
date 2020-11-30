@@ -37,4 +37,10 @@ SPRING_PROFILES_ACTIVE=dev,unsafe ./gradlew bootRun
 ```
 
 When the application runs in local the API Documentation is available at 
-http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config.
+<http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config>.
+
+## Experimental feature
+
+[HAL Explorer](https://github.com/toedter/hal-explorer) is enabled by default.  
+With HAL Explorer you can browse and explore SITMUN Hypermedia APIs. 
+It is available at <http://localhost:8080/api/explorer/index.html#uri=/api>.
