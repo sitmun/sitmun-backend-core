@@ -31,7 +31,9 @@ spring:
       base-path: api
       default-page-size: 100000
       max-page-size: 100000
-
+  jackson:
+    serialization:
+      fail_on_empty_beans: false
   jpa:
     open-in-view: true
     properties:
