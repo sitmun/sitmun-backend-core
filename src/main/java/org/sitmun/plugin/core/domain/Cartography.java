@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,18 +30,13 @@ import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * Geographic information.
  */
 @Entity
 @Table(name = "STM_GEOINFO")
-public class Cartography { //implements Identifiable {
+public class Cartography {
 
   /**
    * Unique identifier.
@@ -107,13 +104,13 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, a filter is applied to GetMap requests.
    */
   @Column(name = "GEO_FILTER_GM")
-  @NotNull
   private Boolean applyFilterToGetMap;
 
   /**
    * If <code>true</code>, the layers are queryable.
    */
   @Column(name = "GEO_QUERYABL")
+  @NotNull
   private Boolean queryableFeatureAvailable;
 
   /**
@@ -121,6 +118,7 @@ public class Cartography { //implements Identifiable {
    * This only applies if the layers are queryable
    */
   @Column(name = "GEO_QUERYACT")
+  @NotNull
   private Boolean queryableFeatureEnabled;
 
   /**
@@ -134,7 +132,6 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, a filter is applied to GetFeatureInfo requests.
    */
   @Column(name = "GEO_FILTER_GFI")
-  @NotNull
   private Boolean applyFilterToGetFeatureInfo;
 
   /**
@@ -146,9 +143,10 @@ public class Cartography { //implements Identifiable {
   /**
    * Portrayal service.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
+  @JsonBackReference
   private Service service;
 
   /**
@@ -168,13 +166,12 @@ public class Cartography { //implements Identifiable {
    * If <code>true</code>, ta filter is applied to spatial selection requests.
    */
   @Column(name = "GEO_FILTER_SE")
-  @NotNull
   private Boolean applyFilterToSpatialSelection;
 
   /**
    * Selection service.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
   private Service spatialSelectionService;
 
@@ -202,7 +199,7 @@ public class Cartography { //implements Identifiable {
   /**
    * Connection for spatial selection listbox queries.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_CAR_FK_CON"))
   private Connection spatialSelectionConnection;
 
@@ -242,7 +239,7 @@ public class Cartography { //implements Identifiable {
   /**
    * Availailability.
    */
-  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
   /**
@@ -254,7 +251,7 @@ public class Cartography { //implements Identifiable {
   /**
    * Default style.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_STYID")
   private CartographyStyle defaultStyle;
 
@@ -284,14 +281,15 @@ public class Cartography { //implements Identifiable {
                       @NotBlank String name, String description,
                       @NotNull List<String> layers, BigInteger minimumScale,
                       BigInteger maximumScale, BigInteger order, BigInteger transparency,
-                      @NotNull Boolean applyFilterToGetMap,
-                      Boolean queryableFeatureAvailable, Boolean queryableFeatureEnabled,
+                      Boolean applyFilterToGetMap,
+                      @NotNull Boolean queryableFeatureAvailable,
+                      @NotNull Boolean queryableFeatureEnabled,
                       List<String> queryableLayers,
-                      @NotNull Boolean applyFilterToGetFeatureInfo, String type,
+                      Boolean applyFilterToGetFeatureInfo, String type,
                       @NotNull Service service, Boolean selectableFeatureEnabled,
                       List<String> selectableLayers,
-                      @NotNull Boolean applyFilterToSpatialSelection,
-                      @NotNull Service spatialSelectionService, String legendType, String legendURL,
+                      Boolean applyFilterToSpatialSelection,
+                      Service spatialSelectionService, String legendType, String legendURL,
                       Date createdDate,
                       Connection spatialSelectionConnection, String metadataURL,
                       String datasetURL, Boolean thematic, String geometryType,
@@ -611,18 +609,6 @@ public class Cartography { //implements Identifiable {
   public Set<CartographyParameter> getParameters() {
     return parameters;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("availabilities")
-  //      .withRel("availabilities"));
-  //    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-  //    res.add(links.linkForSingleResource(this).slash("selectionService")
-  //      .withRel("selectionService"));
-  //    res.add(links.linkForSingleResource(this).slash("service").withRel("service"));
-  //    return res;
-  //  }
 
   public void setParameters(Set<CartographyParameter> parameters) {
     this.parameters = parameters;

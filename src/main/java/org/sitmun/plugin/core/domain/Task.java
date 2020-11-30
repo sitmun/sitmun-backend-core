@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,11 +24,6 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * Task.
@@ -37,7 +31,7 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Table(name = "STM_TASK")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Task { //implements Identifiable {
+public class Task {
 
   /**
    * Unique identifier.
@@ -59,14 +53,12 @@ public class Task { //implements Identifiable {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_PARENTID")
-  @JsonIgnore
   private Task parent;
 
   /**
    * Children tasks.
    */
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-  @JsonIgnore
   private Set<Task> children = new HashSet<>();
 
   /**
@@ -102,7 +94,7 @@ public class Task { //implements Identifiable {
    */
   @ManyToOne
   @JoinColumn(name = "TAS_SERID")
-  private Cartography service;
+  private Service service;
 
   /**
    * Task group.
@@ -214,11 +206,11 @@ public class Task { //implements Identifiable {
     this.cartography = cartography;
   }
 
-  public Cartography getService() {
+  public Service getService() {
     return service;
   }
 
-  public void setService(Cartography service) {
+  public void setService(Service service) {
     this.service = service;
   }
 
@@ -278,19 +270,4 @@ public class Task { //implements Identifiable {
   public void setParameters(Set<TaskParameter> parameters) {
     this.parameters = parameters;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("availabilities")
-  //      .withRel("availabilities"));
-  //    res.add(links.linkForSingleResource(this).slash("connection").withRel("connection"));
-  //    res.add(links.linkForSingleResource(this).slash("group").withRel("group"));
-  //    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-  //    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
-  //    res.add(links.linkForSingleResource(this).slash("type").withRel("type"));
-  //    res.add(links.linkForSingleResource(this).slash("ui").withRel("ui"));
-  //    return res;
-  //  }
-
 }

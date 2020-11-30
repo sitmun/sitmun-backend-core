@@ -1,7 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigInteger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,7 +42,6 @@ public class TreeNode {
    */
   @JoinColumn(name = "TNO_PARENTID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARN"))
   @ManyToOne
-  @JsonIgnore
   private TreeNode parent;
 
   /**
@@ -82,7 +79,7 @@ public class TreeNode {
    * Order of the node within the tree.
    */
   @Column(name = "TNO_ORDER", precision = 6)
-  private BigInteger orden;
+  private BigInteger order;
 
   /**
    * URL to metadata.
@@ -128,7 +125,6 @@ public class TreeNode {
   @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
   @ManyToOne
   @NotNull
-  @JsonBackReference
   private Tree tree;
 
   /**
@@ -194,12 +190,12 @@ public class TreeNode {
     this.radio = radio;
   }
 
-  public BigInteger getOrden() {
-    return orden;
+  public BigInteger getOrder() {
+    return order;
   }
 
-  public void setOrden(BigInteger orden) {
-    this.orden = orden;
+  public void setOrder(BigInteger orden) {
+    this.order = orden;
   }
 
   public String getMetadataURL() {

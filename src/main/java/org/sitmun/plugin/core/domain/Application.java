@@ -25,18 +25,13 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * A SITMUN application.
  */
 @Entity
 @Table(name = "STM_APP")
-public class Application { //implements Identifiable {
+public class Application {
 
   /**
    * Application unique identifier.
@@ -59,43 +54,45 @@ public class Application { //implements Identifiable {
    * Application type (external or internal).
    */
   @Column(name = "APP_TYPE", length = 250)
+  @NotNull
   private String type;
 
   /**
-   * Title to be shown in the browser and in the application.
+   * Title to be shown in the browser and in the application when it is internal.
    */
   @Column(name = "APP_TITLE", length = 250)
   private String title;
 
   /**
-   * CSS to use in this application.
+   * CSS to use in this application when it is internal.
    */
   @Column(name = "APP_THEME", length = 30)
   private String theme;
 
   /**
-   * Scales to be used in this application.
+   * Scales to be used in this application when it is internal.
    */
   @Column(name = "APP_SCALES", length = 250)
   @Convert(converter = StringListAttributeConverter.class)
   private List<String> scales;
 
   /**
-   * Projection to be used in this application.
+   * Projection to be used in this application when it is internal.
    */
   @Column(name = "APP_PROJECT", length = 250)
   private String srs;
 
   /**
-   * The JSP viewer to be loaded in this application.
-   * If and Only if the application is a SITMUN 2 application.
+   * The JSP viewer to be loaded in this application when it is internal or a link to the
+   * external application.
    */
   @Column(name = "APP_TEMPLATE")
   @NotNull
   private String jspTemplate;
 
   /**
-   * True if the application refreshes automatically; False if an "update map" button is required.
+   * Wheb tge appliction is internal {@code True} if the application refreshes automatically;
+   * {@code False} if an "update map" button is required.
    */
   @Column(name = "APP_REFRESH")
   private Boolean treeAutoRefresh;
@@ -113,7 +110,7 @@ public class Application { //implements Identifiable {
   private Boolean accessChildrenTerritory;
 
   /**
-   * Situation map.
+   * Situation map when the application is internal.
    */
   @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
@@ -124,6 +121,7 @@ public class Application { //implements Identifiable {
    */
   @Column(name = "APP_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @NotNull
   private Date createdDate;
 
   /**
@@ -299,15 +297,155 @@ public class Application { //implements Identifiable {
     this.backgrounds = backgrounds;
   }
 
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("availableRoles")
-  //    .withRel("availableRoles"));
-  //    res.add(links.linkForSingleResource(this).slash("parameters").withRel("parameters"));
-  //    res.add(links.linkForSingleResource(this).slash("trees").withRel("trees"));
-  //    res.add(links.linkForSingleResource(this).slash("backgrounds").withRel("backgrounds"));
-  //    res.add(links.linkForSingleResource(this).slash("situationMap").withRel("situationMap"));
-  //    return res;
-  //  }
+  public Application() {
+  }
+
+  private Application(BigInteger id, @NotBlank String name,
+                      @NotNull String type, String title, String theme,
+                      List<String> scales, String srs,
+                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
+                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
+                      CartographyGroup situationMap,
+                      @NotNull Date createdDate,
+                      Set<ApplicationParameter> parameters,
+                      Set<Role> availableRoles,
+                      Set<Tree> trees,
+                      Set<ApplicationBackground> backgrounds) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.title = title;
+    this.theme = theme;
+    this.scales = scales;
+    this.srs = srs;
+    this.jspTemplate = jspTemplate;
+    this.treeAutoRefresh = treeAutoRefresh;
+    this.accessParentTerritory = accessParentTerritory;
+    this.accessChildrenTerritory = accessChildrenTerritory;
+    this.situationMap = situationMap;
+    this.createdDate = createdDate;
+    this.parameters = parameters;
+    this.availableRoles = availableRoles;
+    this.trees = trees;
+    this.backgrounds = backgrounds;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private BigInteger id;
+    private @NotBlank String name;
+    private @NotNull String type;
+    private String title;
+    private String theme;
+    private List<String> scales;
+    private String srs;
+    private @NotNull String jspTemplate;
+    private Boolean treeAutoRefresh;
+    private Boolean accessParentTerritory;
+    private Boolean accessChildrenTerritory;
+    private CartographyGroup situationMap;
+    private @NotNull Date createdDate;
+    private Set<ApplicationParameter> parameters;
+    private Set<Role> availableRoles;
+    private Set<Tree> trees;
+    private Set<ApplicationBackground> backgrounds;
+
+    public Builder setId(BigInteger id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setName(@NotBlank String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setType(@NotNull String type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder setTitle(String title) {
+      this.title = title;
+      return this;
+    }
+
+    public Builder setTheme(String theme) {
+      this.theme = theme;
+      return this;
+    }
+
+    public Builder setScales(List<String> scales) {
+      this.scales = scales;
+      return this;
+    }
+
+    public Builder setSrs(String srs) {
+      this.srs = srs;
+      return this;
+    }
+
+    public Builder setJspTemplate(@NotNull String jspTemplate) {
+      this.jspTemplate = jspTemplate;
+      return this;
+    }
+
+    public Builder setTreeAutoRefresh(Boolean treeAutoRefresh) {
+      this.treeAutoRefresh = treeAutoRefresh;
+      return this;
+    }
+
+    public Builder setAccessParentTerritory(Boolean accessParentTerritory) {
+      this.accessParentTerritory = accessParentTerritory;
+      return this;
+    }
+
+    public Builder setAccessChildrenTerritory(Boolean accessChildrenTerritory) {
+      this.accessChildrenTerritory = accessChildrenTerritory;
+      return this;
+    }
+
+    public Builder setSituationMap(CartographyGroup situationMap) {
+      this.situationMap = situationMap;
+      return this;
+    }
+
+    public Builder setCreatedDate(@NotNull Date createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public Builder setParameters(Set<ApplicationParameter> parameters) {
+      this.parameters = parameters;
+      return this;
+    }
+
+    public Builder setAvailableRoles(Set<Role> availableRoles) {
+      this.availableRoles = availableRoles;
+      return this;
+    }
+
+    public Builder setTrees(Set<Tree> trees) {
+      this.trees = trees;
+      return this;
+    }
+
+    public Builder setBackgrounds(Set<ApplicationBackground> backgrounds) {
+      this.backgrounds = backgrounds;
+      return this;
+    }
+
+    /**
+     * Build the application.
+     */
+    public Application build() {
+      return new Application(id, name, type, title, theme, scales, srs, jspTemplate,
+          treeAutoRefresh,
+          accessParentTerritory, accessChildrenTerritory, situationMap, createdDate, parameters,
+          availableRoles, trees, backgrounds);
+    }
+  }
 }

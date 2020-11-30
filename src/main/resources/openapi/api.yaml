@@ -19154,13 +19154,12 @@ components:
           $ref: '#/components/schemas/CartographyGroup'
     Cartography:
       required:
-        - applyFilterToGetFeatureInfo
-        - applyFilterToGetMap
-        - applyFilterToSpatialSelection
         - layers
         - name
         - service
         - blocked
+        - queryableFeatureAvailable
+        - queryableFeatureEnabled
       type: object
       properties:
         id:
@@ -19666,7 +19665,7 @@ components:
         cartography:
           $ref: '#/components/schemas/Cartography'
         service:
-          $ref: '#/components/schemas/Cartography'
+          $ref: '#/components/schemas/Service'
         group:
           $ref: '#/components/schemas/TaskGroup'
         type:
@@ -19817,7 +19816,7 @@ components:
           type: boolean
         radio:
           type: boolean
-        orden:
+        order:
           type: integer
         metadataURL:
           type: string
@@ -20169,7 +20168,7 @@ components:
           type: boolean
         radio:
           type: boolean
-        orden:
+        order:
           type: integer
         metadataURL:
           type: string
@@ -20473,7 +20472,7 @@ components:
         cartography:
           $ref: '#/components/schemas/Cartography'
         service:
-          $ref: '#/components/schemas/Cartography'
+          $ref: '#/components/schemas/Service'
         group:
           $ref: '#/components/schemas/TaskGroup'
         type:

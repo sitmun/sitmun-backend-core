@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,18 +19,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotBlank;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * Tree.
  */
 @Entity
 @Table(name = "STM_TREE")
-public class Tree { // implements Identifiable {
+public class Tree {
 
   /**
    * Unique identifier.
@@ -67,8 +61,7 @@ public class Tree { // implements Identifiable {
    * All three nodes.
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL,
-      orphanRemoval = true, fetch = FetchType.EAGER)
-  @JsonManagedReference
+      orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<TreeNode> allNodes = new HashSet<>();
 
   @ManyToMany
@@ -120,14 +113,5 @@ public class Tree { // implements Identifiable {
   public void setAvailableRoles(Set<Role> availableRoles) {
     this.availableRoles = availableRoles;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("availableRoles")
-  //      .withRel("availableRoles"));
-  //    res.add(links.linkForSingleResource(this).slash("nodes").withRel("nodes"));
-  //    return res;
-  //  }
 
 }

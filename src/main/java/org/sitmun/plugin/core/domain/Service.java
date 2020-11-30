@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -124,8 +125,8 @@ public class Service {
   /**
    * Layers provided by this service.
    */
-  @OneToMany(mappedBy = "service", orphanRemoval = true)
-  @JsonIgnore
+  @OneToMany(mappedBy = "service", orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonManagedReference
   private Set<Cartography> layers = new HashSet<>();
 
   /**
