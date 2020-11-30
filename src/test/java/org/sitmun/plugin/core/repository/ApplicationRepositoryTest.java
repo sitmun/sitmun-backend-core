@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import org.assertj.core.api.SoftAssertions;
@@ -40,19 +41,22 @@ public class ApplicationRepositoryTest {
   @Before
   public void init() {
 
-    application = new Application();
-    application.setName("Test");
-    application.setCreatedDate(new Date());
-    application.setTrees(null);
-    application.setTreeAutoRefresh(true);
-    application.setScales(null);
-    application.setSituationMap(null);
-    application.setParameters(null);
-    application.setSrs(null);
-    application.setParameters(new HashSet<>());
-    application.setTheme(null);
-    application.setType(null);
-    application.setTitle("Test");
+    application = Application.builder()
+        .setName("Test")
+        .setCreatedDate(Date.from(Instant.now()))
+        .setTrees(null)
+        .setTreeAutoRefresh(true)
+        .setScales(null)
+        .setSituationMap(null)
+        .setParameters(null)
+        .setSrs(null)
+        .setParameters(new HashSet<>())
+        .setTheme(null)
+        .setType(null)
+        .setTitle("Test")
+        .setAvailableRoles(new HashSet<>())
+        .setBackgrounds(new HashSet<>())
+        .build();
 
     Role rol = Role.builder()
         .setName("Rol 1")

@@ -99,27 +99,23 @@ public class CartographyRepositoryDataRestTest {
       cartographies = new ArrayList<>();
       availabilities = new ArrayList<>();
 
-      cartography = Cartography.builder()
+      Cartography.Builder cartographyDefaults = Cartography.builder()
+          .setType("I")
           .setName(CARTOGRAPHY_NAME)
           .setLayers(Collections.emptyList())
-          .setApplyFilterToGetMap(false)
-          .setApplyFilterToGetFeatureInfo(false)
-          .setApplyFilterToSpatialSelection(false)
+          .setQueryableFeatureAvailable(false)
+          .setQueryableFeatureEnabled(false)
           .setService(service)
           .setAvailabilities(Collections.emptySet())
-          .setBlocked(false)
+          .setBlocked(false);
+
+      cartography = cartographyDefaults
+          .setName(CARTOGRAPHY_NAME)
           .build();
       cartographies.add(cartography);
 
-      Cartography cartographyWithAvailabilities = Cartography.builder()
+      Cartography cartographyWithAvailabilities = cartographyDefaults
           .setName("Cartography with availabilities")
-          .setLayers(Collections.emptyList())
-          .setApplyFilterToGetMap(false)
-          .setApplyFilterToGetFeatureInfo(false)
-          .setApplyFilterToSpatialSelection(false)
-          .setService(service)
-          .setAvailabilities(Collections.emptySet())
-          .setBlocked(false)
           .build();
 
       cartographies.add(cartographyWithAvailabilities);
@@ -152,9 +148,8 @@ public class CartographyRepositoryDataRestTest {
     String content = new JSONObject()
         .put("name", CARTOGRAPHY_NAME)
         .put("layers", new JSONArray())
-        .put("applyFilterToGetMap", false)
-        .put("applyFilterToSpatialSelection", false)
-        .put("applyFilterToGetFeatureInfo", false)
+        .put("queryableFeatureAvailable", false)
+        .put("queryableFeatureEnabled", false)
         .put("service", "http://localhost/api/services/" + service.getId())
         .put("blocked", false)
         .toString();
