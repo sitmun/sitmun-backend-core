@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Application;
 import org.sitmun.plugin.core.domain.ApplicationBackground;
-import org.sitmun.plugin.core.domain.CartographyGroup;
+import org.sitmun.plugin.core.domain.CartographyPermission;
 import org.sitmun.plugin.core.domain.Tree;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -59,7 +59,7 @@ public interface ApplicationRepository extends PagingAndSortingRepository<Applic
   @RestResource(exported = false)
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
   @Query("select application.situationMap from Application application where application.id =:id")
-  List<CartographyGroup> findSituationMap(@Param("id") BigInteger id);
+  List<CartographyPermission> findSituationMap(@Param("id") BigInteger id);
 
 
 }

@@ -3,11 +3,16 @@ package org.sitmun.plugin.core.domain;
 import java.math.BigInteger;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -16,18 +21,17 @@ import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotBlank;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
- * Geographic Information Group.
+ * Geographic Information Permissions.
  */
 @Entity
 @Table(name = "STM_GRP_GI")
-public class CartographyGroup { //implements Identifiable {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "GGI_TYPE",
+    discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("C")
+public class CartographyPermission {
 
   /**
    * Unique identifier.
@@ -45,21 +49,21 @@ public class CartographyGroup { //implements Identifiable {
   private BigInteger id;
 
   /**
-   * Group name.
+   * Permissions name.
    */
   @Column(name = "GGI_NAME", length = 80)
   @NotBlank
   private String name;
 
   /**
-   * Group type.
+   * Permissions type.
    */
-  @Column(name = "GGI_TYPE", length = 30)
-  @CodeList(CodeLists.CARTOGRAPHY_GROUP_TYPE)
+  @Column(name = "GGI_TYPE", length = 30, insertable = false, updatable = false)
+  @CodeList(CodeLists.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 
   /**
-   * The set that contains all members in the group.
+   * The geographic information that the roles can access.
    */
   @ManyToMany
   @JoinTable(
@@ -73,7 +77,7 @@ public class CartographyGroup { //implements Identifiable {
   private Set<Cartography> members;
 
   /**
-   * The set that contains the roles for which this group is available.
+   * The the roles allowed to access the members.
    */
   @ManyToMany
   @JoinTable(
@@ -125,13 +129,5 @@ public class CartographyGroup { //implements Identifiable {
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("members").withRel("members"));
-  //    res.add(links.linkForSingleResource(this).slash("roles").withRel("roles"));
-  //    return res;
-  //  }
 
 }

@@ -5,10 +5,10 @@ import static org.sitmun.plugin.core.constraints.CodeLists.APPLICATION_PARAMETER
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_FILTER_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_FILTER_VALUE_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_GEOMETRY_TYPE;
-import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_GROUP_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_LEGEND_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_PARAMETER_FORMAT;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_PARAMETER_TYPE;
+import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_PERMISSION_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.DOWNLOAD_TASK_FORMAT;
 import static org.sitmun.plugin.core.constraints.CodeLists.DOWNLOAD_TASK_SCOPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.QUERY_TASK_SCOPE;
@@ -51,7 +51,7 @@ public class CodeListsTest {
         CARTOGRAPHY_FILTER_VALUE_TYPE,
         CARTOGRAPHY_PARAMETER_FORMAT,
         CARTOGRAPHY_PARAMETER_TYPE,
-        CARTOGRAPHY_GROUP_TYPE,
+        CARTOGRAPHY_PERMISSION_TYPE,
         APPLICATION_PARAMETER_TYPE,
         SERVICE_TYPE,
         // SERVICE_NATIVE_PROTOCOL,
@@ -119,8 +119,8 @@ public class CodeListsTest {
   }
 
   @Test
-  public void checkCartographyGroupType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_GROUP_TYPE))
+  public void checkCartographyPermissionType() {
+    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_PERMISSION_TYPE))
         .containsExactlyInAnyOrder("C", "F", "M", "I");
   }
 

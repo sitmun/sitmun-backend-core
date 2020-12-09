@@ -114,7 +114,7 @@ public class Application {
    */
   @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
-  private CartographyGroup situationMap;
+  private SituationMap situationMap;
 
   /**
    * Created date.
@@ -248,11 +248,44 @@ public class Application {
     this.accessChildrenTerritory = accessChildrenTerritory;
   }
 
-  public CartographyGroup getSituationMap() {
+  private Application(BigInteger id, @NotBlank String name,
+                      @NotNull String type, String title, String theme,
+                      List<String> scales, String srs,
+                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
+                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
+                      SituationMap situationMap,
+                      @NotNull Date createdDate,
+                      Set<ApplicationParameter> parameters,
+                      Set<Role> availableRoles,
+                      Set<Tree> trees,
+                      Set<ApplicationBackground> backgrounds) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.title = title;
+    this.theme = theme;
+    this.scales = scales;
+    this.srs = srs;
+    this.jspTemplate = jspTemplate;
+    this.treeAutoRefresh = treeAutoRefresh;
+    this.accessParentTerritory = accessParentTerritory;
+    this.accessChildrenTerritory = accessChildrenTerritory;
+    this.situationMap = situationMap;
+    this.createdDate = createdDate;
+    this.parameters = parameters;
+    this.availableRoles = availableRoles;
+    this.trees = trees;
+    this.backgrounds = backgrounds;
+  }
+
+  public Application() {
+  }
+
+  public SituationMap getSituationMap() {
     return situationMap;
   }
 
-  public void setSituationMap(CartographyGroup situationMap) {
+  public void setSituationMap(SituationMap situationMap) {
     this.situationMap = situationMap;
   }
 
@@ -297,39 +330,6 @@ public class Application {
     this.backgrounds = backgrounds;
   }
 
-  public Application() {
-  }
-
-  private Application(BigInteger id, @NotBlank String name,
-                      @NotNull String type, String title, String theme,
-                      List<String> scales, String srs,
-                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
-                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
-                      CartographyGroup situationMap,
-                      @NotNull Date createdDate,
-                      Set<ApplicationParameter> parameters,
-                      Set<Role> availableRoles,
-                      Set<Tree> trees,
-                      Set<ApplicationBackground> backgrounds) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.title = title;
-    this.theme = theme;
-    this.scales = scales;
-    this.srs = srs;
-    this.jspTemplate = jspTemplate;
-    this.treeAutoRefresh = treeAutoRefresh;
-    this.accessParentTerritory = accessParentTerritory;
-    this.accessChildrenTerritory = accessChildrenTerritory;
-    this.situationMap = situationMap;
-    this.createdDate = createdDate;
-    this.parameters = parameters;
-    this.availableRoles = availableRoles;
-    this.trees = trees;
-    this.backgrounds = backgrounds;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -346,7 +346,7 @@ public class Application {
     private Boolean treeAutoRefresh;
     private Boolean accessParentTerritory;
     private Boolean accessChildrenTerritory;
-    private CartographyGroup situationMap;
+    private SituationMap situationMap;
     private @NotNull Date createdDate;
     private Set<ApplicationParameter> parameters;
     private Set<Role> availableRoles;
@@ -408,7 +408,7 @@ public class Application {
       return this;
     }
 
-    public Builder setSituationMap(CartographyGroup situationMap) {
+    public Builder setSituationMap(SituationMap situationMap) {
       this.situationMap = situationMap;
       return this;
     }

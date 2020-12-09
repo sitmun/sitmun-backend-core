@@ -16,7 +16,7 @@ import org.sitmun.plugin.core.domain.Application;
 import org.sitmun.plugin.core.domain.ApplicationBackground;
 import org.sitmun.plugin.core.domain.ApplicationParameter;
 import org.sitmun.plugin.core.domain.Background;
-import org.sitmun.plugin.core.domain.CartographyGroup;
+import org.sitmun.plugin.core.domain.BackgroundMap;
 import org.sitmun.plugin.core.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -30,7 +30,7 @@ public class ApplicationRepositoryTest {
   private ApplicationRepository applicationRepository;
 
   @Autowired
-  private CartographyGroupRepository cartographyGroupRepository;
+  private CartographyPermissionRepository cartographyPermissionRepository;
 
   @Autowired
   private BackgroundRepository backgroundRepository;
@@ -63,16 +63,16 @@ public class ApplicationRepositoryTest {
         .build();
     application.getAvailableRoles().add(rol);
 
-    CartographyGroup cartographyGroup;
-    cartographyGroup = new CartographyGroup();
-    cartographyGroup.setName("Grupo cartografía");
-    cartographyGroupRepository.save(cartographyGroup);
+    BackgroundMap backgroundMap;
+    backgroundMap = new BackgroundMap();
+    backgroundMap.setName("Background map");
+    cartographyPermissionRepository.save(backgroundMap);
 
     Background background = new Background();
     background.setActive(true);
     background.setDescription(null);
     background.setName("fondo");
-    background.setCartographyGroup(cartographyGroup);
+    background.setCartographyGroup(backgroundMap);
     background.setCreatedDate(new Date());
     backgroundRepository.save(background);
 

@@ -18,7 +18,7 @@ public interface CodeLists {
 
   String CARTOGRAPHY_PARAMETER_TYPE = "cartographyParameter.type";
 
-  String CARTOGRAPHY_GROUP_TYPE = "cartographyGroup.type";
+  String CARTOGRAPHY_PERMISSION_TYPE = "cartographyPermission.type";
 
   String APPLICATION_PARAMETER_TYPE = "applicationParameter.type";
 

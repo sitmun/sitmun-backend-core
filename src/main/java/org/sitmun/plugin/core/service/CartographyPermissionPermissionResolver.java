@@ -1,7 +1,7 @@
 package org.sitmun.plugin.core.service;
 
 import java.util.Set;
-import org.sitmun.plugin.core.domain.CartographyGroup;
+import org.sitmun.plugin.core.domain.CartographyPermission;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
@@ -10,9 +10,10 @@ import org.sitmun.plugin.core.security.SecurityConstants;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CartographyGroupPermissionResolver implements PermissionResolver<CartographyGroup> {
+public class CartographyPermissionPermissionResolver
+    implements PermissionResolver<CartographyPermission> {
 
-  public boolean resolvePermission(User authUser, CartographyGroup entity, String permission) {
+  public boolean resolvePermission(User authUser, CartographyPermission entity, String permission) {
     Set<UserConfiguration> permissions = authUser.getPermissions();
     boolean isAdminSitmun = permissions.stream()
         .anyMatch(p -> p.getRole().getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN_SITMUN));

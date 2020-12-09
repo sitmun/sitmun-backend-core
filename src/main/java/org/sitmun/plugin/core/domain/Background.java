@@ -16,18 +16,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * Background.
  */
 @Entity
 @Table(name = "STM_BACKGRD")
-public class Background { //implements Identifiable {
+public class Background {
 
   /**
    * Unique identifier.
@@ -76,7 +71,7 @@ public class Background { //implements Identifiable {
   @ManyToOne
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
   @NotNull
-  private CartographyGroup cartographyGroup;
+  private BackgroundMap cartographyGroup;
 
   public BigInteger getId() {
     return id;
@@ -118,20 +113,12 @@ public class Background { //implements Identifiable {
     this.createdDate = createdDate;
   }
 
-  public CartographyGroup getCartographyGroup() {
+  public BackgroundMap getCartographyGroup() {
     return cartographyGroup;
   }
 
-  public void setCartographyGroup(CartographyGroup cartographyGroup) {
+  public void setCartographyGroup(BackgroundMap cartographyGroup) {
     this.cartographyGroup = cartographyGroup;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("cartographyGroup").
-  //    withRel("cartographyGroup"));
-  //    return res;
-  //  }
 
 }
