@@ -334,6 +334,11 @@ public class Territory {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
   public static class Builder {
     private BigInteger id;
     private @NotBlank String code;
