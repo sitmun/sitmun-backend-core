@@ -31,6 +31,7 @@ public class OpenApi30Config {
 
   /**
    * Describe SITMUN 3.0 API using OpenApi.
+   *
    * @return the OpenAPI description of SITMUN 3.0
    */
   @Bean
@@ -61,6 +62,7 @@ public class OpenApi30Config {
 
   /**
    * Customize the automatic generation of descriptions.
+   *
    * @return an OpenApi customizer
    */
   @Bean

@@ -1,16 +1,14 @@
 package org.sitmun.plugin.core.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-import java.math.BigInteger;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -26,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -66,19 +65,21 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
-  public void groupCanBeCreated() throws Exception {
-    mvc.perform(post(TERRITORY_URI)
+  public void groupCanBeCreatedAndDeleted() throws Exception {
+    long count = repository.count();
+    MvcResult result = mvc.perform(post(TERRITORY_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
     ).andDo(print())
         .andExpect(status().isCreated())
-        .andExpect(header().string("location", TERRITORY_URI + "/5"));
-  }
-
-  @After
-  public void after() {
-    withMockSitmunAdmin(
-        () -> repository.findById(BigInteger.valueOf(5)).ifPresent((it) -> repository.delete(it)));
+        .andReturn();
+    assertThat(repository.count()).isEqualTo(count + 1);
+    String location = result.getResponse().getHeader("Location");
+    assertThat(location).isNotNull();
+    mvc.perform(delete(location)).andDo(print())
+        .andExpect(status().isNoContent())
+        .andReturn();
+    assertThat(repository.count()).isEqualTo(count);
   }
 
   @TestConfiguration

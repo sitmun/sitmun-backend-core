@@ -19,7 +19,7 @@ import javax.persistence.Converter;
 @Converter
 public class StringListAttributeConverter implements AttributeConverter<List<String>, String> {
 
-  public static String DELIMITER = ",";
+  public static final String DELIMITER = ",";
 
   @Override
   public String convertToDatabaseColumn(List<String> list) {

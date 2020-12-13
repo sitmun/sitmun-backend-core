@@ -49,12 +49,10 @@ public class UserResourceIntegrationTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
-  @LocalServerPort
-  private int port;
-
   @Autowired
   HypermediaRestTemplateConfigurer configurer;
-
+  @LocalServerPort
+  private int port;
   private RestTemplate restTemplate;
   private User organizacionAdmin;
 

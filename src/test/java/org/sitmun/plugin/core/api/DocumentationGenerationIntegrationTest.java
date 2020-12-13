@@ -17,7 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DocumentationGenerationIntegrationTest {
 
-  TestRestTemplate restTemplate = new TestRestTemplate();
   @LocalServerPort
   private int port;
 
@@ -33,6 +32,7 @@ public class DocumentationGenerationIntegrationTest {
    */
   @Test
   public void generateSwagger() throws IOException {
+    TestRestTemplate restTemplate = new TestRestTemplate();
     String response =
         restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
     File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.json").toFile();

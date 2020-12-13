@@ -14,6 +14,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
@@ -25,23 +26,26 @@ public interface ApplicationRepository extends PagingAndSortingRepository<Applic
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  <S extends Application> S save(@P("entity") S entity);
+  @NonNull
+  <S extends Application> S save(@P("entity") @NonNull S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") Application entity);
+  void delete(@P("entity") @NonNull Application entity);
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application', 'delete')")
-  void deleteById(@P("entityId") BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
+  @NonNull
   Iterable<Application> findAll();
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Application', 'read')")
-  Optional<Application> findById(@P("entityId") BigInteger entityId);
+  @NonNull
+  Optional<Application> findById(@P("entityId") @NonNull BigInteger entityId);
 
   @RestResource(exported = false)
   Optional<Application> findOneByName(String name);

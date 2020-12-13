@@ -181,19 +181,26 @@ INSERT INTO STM_CODELIST
 VALUES (68, 'downloadTask.scope', 'U', 'Isolated');
 INSERT INTO STM_CODELIST
 VALUES (69, 'downloadTask.scope', 'A', 'Application');
-INSERT INTO STM_CODELIST VALUES  (70, 'downloadTask.scope', 'C', 'Layer');
+INSERT INTO STM_CODELIST
+VALUES (70, 'downloadTask.scope', 'C', 'Layer');
 
 -- STM_QUERY.QUE_TYPE
 -- TODO Validate description of code list queryTask.scope
-INSERT INTO STM_CODELIST VALUES  (71, 'queryTask.scope', 'URL', 'URL');
-INSERT INTO STM_CODELIST VALUES  (72, 'queryTask.scope', 'SQL', 'SQL');
-INSERT INTO STM_CODELIST VALUES  (73, 'queryTask.scope', 'WS', 'WS');
-INSERT INTO STM_CODELIST VALUES  (74, 'queryTask.scope', 'INFORME', 'INFORME');
-INSERT INTO STM_CODELIST VALUES  (75, 'queryTask.scope', 'TAREA', 'TAREA');
+INSERT INTO STM_CODELIST
+VALUES (71, 'queryTask.scope', 'URL', 'URL');
+INSERT INTO STM_CODELIST
+VALUES (72, 'queryTask.scope', 'SQL', 'SQL');
+INSERT INTO STM_CODELIST
+VALUES (73, 'queryTask.scope', 'WS', 'WS');
+INSERT INTO STM_CODELIST
+VALUES (74, 'queryTask.scope', 'INFORME', 'INFORME');
+INSERT INTO STM_CODELIST
+VALUES (75, 'queryTask.scope', 'TAREA', 'TAREA');
 
 -- STM_POST.POS_TYPE
 -- TODO Validate description of code list userPosition.type
-INSERT INTO STM_CODELIST VALUES  (76, 'userPosition.type', 'RE', 'RE');
+INSERT INTO STM_CODELIST
+VALUES (76, 'userPosition.type', 'RE', 'RE');
 
 -- STM_THEMATIC.THE_RANKTYPE
 INSERT INTO STM_CODELIST

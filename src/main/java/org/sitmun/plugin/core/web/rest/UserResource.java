@@ -26,12 +26,6 @@ public class UserResource {
 
   private final UserService userService;
 
-  //@Autowired
-  //private RepositoryEntityLinks links;
-
-  //@Autowired
-  //private ResourceAssemblerSupport<User,ResourceSupport> assembler;
-
   public UserResource(UserService userService) {
     super();
     this.userService = userService;
@@ -78,30 +72,6 @@ public class UserResource {
     }
 
   }
-
-  /*
-  @GetMapping("/users")
-    public ResponseEntity<?> getPagedUsers(Pageable pageable) {
-        Page<User> users = userService.findAllUsers(pageable);
-    
-        Link pageSelfLink = links.linkToPagedResource(User.class,pageable).withSelfRel();
-                
-        PagedResources<?> resources = assembler.toResource(users , this::toResource, pageSelfLink);
-        //Link pageSearchLink = links.linkToSearchResource(User.class,"search",pageable);
-        //resources.add(pageSearchLink);
-
-        return ResponseEntity.ok(resources);
-
-    }
-    
-  @GetMapping("/users")
-  public ResponseEntity<?> getUsers() {
-    UserResourceAssembler assembler = new UserResourceAssembler(UserRepository.class, ResourceSupport.class,links);
-      List<User> users = userService.findAllUsers();
-      return ResponseEntity.ok(assembler.toResources(users ));
-  }
-*/
-
 
   @PostMapping(path = "/users/{id}/change-password")
   public ResponseEntity<Void> changePassword(@PathVariable BigInteger id,

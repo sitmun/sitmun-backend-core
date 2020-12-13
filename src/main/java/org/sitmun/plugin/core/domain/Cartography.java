@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -146,7 +145,6 @@ public class Cartography {
   @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
-  @JsonBackReference
   private Service service;
 
   /**
@@ -239,7 +237,8 @@ public class Cartography {
   /**
    * Availailability.
    */
-  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true,
+      fetch = FetchType.LAZY)
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
   /**

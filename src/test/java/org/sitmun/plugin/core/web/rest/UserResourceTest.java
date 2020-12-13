@@ -309,19 +309,19 @@ public class UserResourceTest {
     ).andExpect(status().isOk());
   }
 
-  @Test
+  @Ignore
   public void createNewUserAsOrganizationAdmin() {
     // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
     // ok is expected. The new user has roles linked to my organization territory
   }
 
-  @Test
+  @Ignore
   public void assignRoleToUserAsOrganizationAdmin() {
     // TODO
     // ok is expected. The new user has roles linked to my organization territory
   }
 
-  @Test
+  @Ignore
   public void updateUserAsOrganizationAdmin() {
     // TODO
     // Update user (linked to the same organization) by an organization admin user
@@ -329,7 +329,7 @@ public class UserResourceTest {
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void updateUserPasswordAsOrganizationAdmin() {
     // TODO
     // Update user password (linked to the same organization) by an organization
@@ -337,14 +337,14 @@ public class UserResourceTest {
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void assignRoleToUserAsOtherOrganizationAdminFails() {
     // TODO
     // fail is expected. No permission to assign territory role to user if don't
     // have territory role
   }
 
-  @Test
+  @Ignore
   public void updateUserAsOtherOrganizationAdminFails() {
     // TODO
     // Update user (linked to another organization) by an organization admin user
@@ -352,7 +352,7 @@ public class UserResourceTest {
     // fail is expected (no permission)
   }
 
-  @Test
+  @Ignore
   public void updateUserPasswordAsOtherOrganizationAdminFails() {
     // TODO
     // Update user password (linked to another organization) by an organization

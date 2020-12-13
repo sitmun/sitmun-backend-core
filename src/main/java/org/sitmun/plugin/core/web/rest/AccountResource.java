@@ -26,9 +26,6 @@ public class AccountResource {
 
   private final UserRepository userRepository;
 
-  //@Autowired
-  //private RepositoryEntityLinks links;
-
   /**
    * Constructor.
    *
@@ -81,13 +78,6 @@ public class AccountResource {
       return ResponseEntity.notFound().build();
     }
   }
-
-  //  private ResourceSupport toResource(User user) {
-  //    UserDTO dto = new UserDTO(user);
-  //    Link selfLink = links.linkForSingleResource(user).withSelfRel();
-  //
-  //    return new Resource<>(dto);
-  //  }
 
   /**
    * Change account password.

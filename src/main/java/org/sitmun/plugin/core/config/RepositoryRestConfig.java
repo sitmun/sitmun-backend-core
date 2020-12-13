@@ -10,10 +10,9 @@ import org.springframework.validation.Validator;
 
 public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
+  private final Validator validator;
   @Autowired
   private EntityManager entityManager;
-
-  private final Validator validator;
 
   public RepositoryRestConfig(Validator validator) {
     this.validator = validator;

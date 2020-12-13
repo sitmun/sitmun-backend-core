@@ -14,7 +14,7 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class ClientHttpLoggerRequestInterceptor implements ClientHttpRequestInterceptor {
 
-  static Logger LOGGER = LoggerFactory.getLogger(ClientHttpLoggerRequestInterceptor.class);
+  static final Logger LOGGER = LoggerFactory.getLogger(ClientHttpLoggerRequestInterceptor.class);
 
   @SuppressWarnings("NullableProblems")
   @Override

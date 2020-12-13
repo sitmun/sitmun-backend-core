@@ -13,11 +13,6 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-//import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-//import org.springframework.hateoas.Identifiable;
-//import org.springframework.hateoas.Link;
-//import org.springframework.hateoas.Resource;
-//import org.springframework.hateoas.ResourceSupport;
 
 /**
  * Relationship between applications and backgrounds.
@@ -25,7 +20,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "STM_APP_BCKG", uniqueConstraints = {
     @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
-public class ApplicationBackground { //implements Identifiable {
+public class ApplicationBackground {
 
   /**
    * Unique identifier.
@@ -97,13 +92,5 @@ public class ApplicationBackground { //implements Identifiable {
   public void setBackground(Background background) {
     this.background = background;
   }
-
-  //  public ResourceSupport toResource(RepositoryEntityLinks links) {
-  //    Link selfLink = links.linkForSingleResource(this).withSelfRel();
-  //    ResourceSupport res = new Resource<>(this, selfLink);
-  //    res.add(links.linkForSingleResource(this).slash("application").withRel("application"));
-  //    res.add(links.linkForSingleResource(this).slash("background").withRel("background"));
-  //    return res;
-  //  }
 
 }

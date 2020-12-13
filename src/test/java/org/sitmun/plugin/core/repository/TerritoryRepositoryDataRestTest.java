@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -30,20 +31,9 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class TerritoryRepositoryDataRestTest {
 
-  private static final String NEW_USER_USERNAME = "admin_new";
-  private static final String USER_FIRSTNAME = "Admin";
-  private static final String USER_CHANGEDFIRSTNAME = "Administrator";
-  private static final String USER_LASTNAME = "Admin";
-  private static final String USER_CHANGEDLASTNAME = "Territory 1";
-  private static final Boolean USER_BLOCKED = false;
-  private static final Boolean USER_ADMINISTRATOR = true;
-  // private static final String DEFAULT_USER_URI =
-  // "http://localhost/api/users/1";
   private static final String TERRITORY_URI = "http://localhost/api/territories";
   @Autowired
   TerritoryRepository territoryRepository;
-  // @Autowired
-  // TerritoryService territoryService;
   @Autowired
   TokenProvider tokenProvider;
   @Autowired
@@ -77,110 +67,110 @@ public class TerritoryRepositoryDataRestTest {
 
   }
 
-  @Test
+  @Ignore
   public void setMemberAsPublicFails() {
     // TODO: Define territory1 (municipality) as member of territory2 (supramunicipality) as public user
     // fails is expected
   }
 
-  @Test
+  @Ignore
   public void updateTerritoryAsPublicFails() {
     // TODO: Modify territory type
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void deleteMemberAsPublicFails() {
     // TODO: Delete territory1 (municipality) as member of territory2 (supramunicipality) by an public user
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void getTerritoriesAsTerritorialUser() {
     // TODO: get all territories as TerritorialUser
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void createTerritoriesAsTerritorialUserFails() {
     // TODO: create a territorie as an TerritorialUser
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setMemberAsTerritorialUserFails() {
     // TODO: Define territory1 (municipality) as member of territory2 (supramunicipality) as TerritorialUser
     // fails is expected
   }
 
-  @Test
+  @Ignore
   public void updateTerritoryAsTerritorialUserFails() {
     // TODO: Modify territory type
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void deleteMemberAsTerritorialUserFails() {
     // TODO: Delete territory1 (municipality) as member of territory2 (supramunicipality) by a TerritorialUser
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void getTerritoriesAsSitmunAdmin() {
     // TODO: get all territories as an admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void createTerritoriesAsSitmunAdmin() {
     // TODO; create a territorie as an sitmun admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setMemberAsSitmunAdmin() {
     // TODO: Define territory1 (municipality) as member of territory2 (supramunicipality) as an sitmun admin user
     // --> It should appear territory2 as child and territory1 as parent
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void updateTerritoryAsSitmunAdmin() {
     // TODO: Modify territory type
     // ok is expected --> Eliminar su listado de miembros si se cambia el tipo
   }
 
-  @Test
+  @Ignore
   public void deleteMemberAsSitmunAdmin() {
     // TODO: Delete territory1 (municipality) as member of territory2 (supramunicipality) by an admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void getTerritoriesAsOrganizationAdmin() {
     // TODO: get all territories as an organization admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void createTerritoriesAsOrganizationAdminFails() {
     // TODO: create a territorie as an organization user
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setMemberAsOrganizationAdminFails() {
     // TODO: Define territory1 (municipality) as member of territory2 (supramunicipality) by an organization admin user (ADMIN DE ORGANIZACION)
     // fail is expected (no permission)
   }
 
-  @Test
+  @Ignore
   public void updateTerritoryAsOrganizationAdminFails() {
     // TODO: Try to modify territory type by an organization admin user (ADMIN DE ORGANIZACION)
     // fail is expected (no permission)
   }
 
-  @Test
+  @Ignore
   public void deleteMemberAsOrganizationAdminFails() {
     // TODO: Delete territory1 (municipality) as member of territory2 (supramunicipality) by an organization admin user (ADMIN DE ORGANIZACION)
     // fail is expected (no permission)

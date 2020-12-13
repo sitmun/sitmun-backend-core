@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.sitmun.plugin.core.domain.ApplicationParameter;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
@@ -17,23 +18,25 @@ public interface ApplicationParameterRepository
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  <S extends ApplicationParameter> S save(@P("entity") S entity);
+  @NonNull
+  <S extends ApplicationParameter> S save(@P("entity") @NonNull S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") ApplicationParameter entity);
+  void delete(@P("entity") @NonNull ApplicationParameter entity);
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationParameter', 'delete')")
-  void deleteById(@P("entityId") BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
+  @NonNull
   Iterable<ApplicationParameter> findAll();
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationParameter', 'read')")
-  Optional<ApplicationParameter> findById(@P("entityId") BigInteger entityId);
-
+  @NonNull
+  Optional<ApplicationParameter> findById(@P("entityId") @NonNull BigInteger entityId);
 
 }

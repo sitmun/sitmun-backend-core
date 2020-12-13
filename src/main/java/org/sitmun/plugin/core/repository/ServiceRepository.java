@@ -11,6 +11,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
@@ -21,27 +22,28 @@ public interface ServiceRepository extends PagingAndSortingRepository<Service, B
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  <S extends Service> S save(@P("entity") S entity);
+  @NonNull
+  <S extends Service> S save(@P("entity") @NonNull S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") Service entity);
+  @NonNull
+  void delete(@P("entity") @NonNull Service entity);
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service', 'delete')")
-  void deleteById(@P("entityId") BigInteger entityId);
+  @NonNull
+  void deleteById(@P("entityId") @NonNull BigInteger entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
+  @NonNull
   Iterable<Service> findAll();
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service', 'read')")
-  Optional<Service> findById(@P("entityId") BigInteger entityId);
-  /*
-  @Query("select service from Service service left join fetch service.parameters where service.id =:id")
-  Service findOneWithEagerRelationships(long id);
-  */
+  @NonNull
+  Optional<Service> findById(@P("entityId") @NonNull BigInteger entityId);
 
   @RestResource(exported = false)
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")

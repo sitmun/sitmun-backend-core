@@ -139,7 +139,7 @@ public class TreeNodeResourceTest {
         .andExpect(status().isOk());
   }
 
-  @Test
+  @Ignore
   public void getTreesAsTerritorialUser() {
     // TODO
     // ok is expected
@@ -154,73 +154,73 @@ public class TreeNodeResourceTest {
         .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
   }
 
-  @Test
+  @Ignore
   public void getTreesAsOrganizationAdmin() {
     // TODO
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setAvailableRolesAsPublicFails() {
     // TODO
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setAvailableRolesAsTerritorialUserFails() {
     // TODO
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setAvailableRolesAsSitmunAdmin() {
     // TODO: Update available roles for the app as an admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setTreeAsSitmunAdmin() {
     // TODO: Update tree for the app as an admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setBackgroundAsSitmunAdmin() {
     // TODO: Update background for the app as an admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setAvailableRolesAsOrganizationAdmin() {
     // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setTreeAsOrganizationAdmin() {
     // TODO: Update tree for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setBackgroundAsOrganizationAdmin() {
     // TODO: Update background for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
-  @Test
+  @Ignore
   public void setAvailableRolesAsOtherOrganizationAdminFails() {
     // TODO: Update available roles for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setTreeAsOtherOrganizationAdminFails() {
     // TODO: Update tree for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
-  @Test
+  @Ignore
   public void setBackgroundAsOtherOrganizationAdminFails() {
     // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected

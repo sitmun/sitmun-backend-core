@@ -101,16 +101,19 @@ public class UserService implements PermissionResolver<User> {
   }
 
   public void changeUserPassword(BigInteger id, String password) {
-    User user = applicationUserRepository.findById(id).get();
-    user.setPassword(bcryptPasswordEncoder.encode(password));
-    applicationUserRepository.save(user);
+    applicationUserRepository.findById(id)
+        .ifPresent(user -> {
+          user.setPassword(bcryptPasswordEncoder.encode(password));
+          applicationUserRepository.save(user);
+        });
   }
 
   public void updateUser(BigInteger id, String firstName, String lastName) {
-    User user = applicationUserRepository.findById(id).get();
-    user.setFirstName(firstName);
-    user.setLastName(lastName);
-    applicationUserRepository.save(user);
+    applicationUserRepository.findById(id).ifPresent(user -> {
+      user.setFirstName(firstName);
+      user.setLastName(lastName);
+      applicationUserRepository.save(user);
+    });
   }
 
   public List<User> findAllUsers() {

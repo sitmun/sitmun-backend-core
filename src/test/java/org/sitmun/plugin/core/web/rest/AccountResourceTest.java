@@ -92,7 +92,7 @@ public class AccountResourceTest {
       user.setUsername(USER_USERNAME);
       userService.createUser(user);
       user = userRepository.findOneWithPermissionsByUsername(user.getUsername())
-          .orElseThrow(() -> new RuntimeException("User "+user.getUsername()+ " not found"));
+          .orElseThrow(() -> new RuntimeException("User " + user.getUsername() + " not found"));
     });
   }
 

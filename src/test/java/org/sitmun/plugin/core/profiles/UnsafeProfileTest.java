@@ -33,21 +33,11 @@ import org.springframework.web.client.RestTemplate;
 @ActiveProfiles(profiles = {"unsafe", "dev"})
 public class UnsafeProfileTest {
 
-  private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
-  private static final String NEW_USER_USERNAME = "admin_new";
-  private static final String ADMIN_USERNAME = "admin";
-  private static final String ADMIN_PASSWORD = "admin";
-  private static final String USER_PASSWORD = "admin";
-  private static final String USER_FIRSTNAME = "Admin";
-  private static final String USER_LASTNAME = "Admin";
-  private static final Boolean USER_BLOCKED = false;
-  private static final Boolean USER_ADMINISTRATOR = true;
   @Autowired
   HypermediaRestTemplateConfigurer configurer;
   @LocalServerPort
   private int port;
   private RestTemplate restTemplate;
-  private User organizacionAdmin;
 
   @Before
   public void init() {
@@ -61,14 +51,6 @@ public class UnsafeProfileTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
     configurer.registerHypermediaTypes(restTemplate);
-
-    organizacionAdmin = new User();
-    organizacionAdmin.setAdministrator(USER_ADMINISTRATOR);
-    organizacionAdmin.setBlocked(USER_BLOCKED);
-    organizacionAdmin.setFirstName(USER_FIRSTNAME);
-    organizacionAdmin.setLastName(USER_LASTNAME);
-    organizacionAdmin.setPassword(USER_PASSWORD);
-    organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
   }
 
 

@@ -6,6 +6,7 @@ import org.sitmun.plugin.core.domain.ThematicMapRange;
 import org.sitmun.plugin.core.domain.ThematicMapRangeId;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,22 +19,25 @@ public interface ThematicMapRangeRepository
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
-  <S extends ThematicMapRange> S save(@P("entity") S entity);
+  @NonNull
+  <S extends ThematicMapRange> S save(@P("entity") @NonNull S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") ThematicMapRange entity);
+  void delete(@P("entity") @NonNull ThematicMapRange entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ThematicMapRange', 'delete')")
-  void deleteById(@P("entityId") ThematicMapRangeId entityId);
+  void deleteById(@P("entityId") @NonNull ThematicMapRangeId entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
+  @NonNull
   Iterable<ThematicMapRange> findAll();
 
   @Override
   @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
-  Optional<ThematicMapRange> findById(ThematicMapRangeId id);
+  @NonNull
+  Optional<ThematicMapRange> findById(@NonNull ThematicMapRangeId id);
 
 }

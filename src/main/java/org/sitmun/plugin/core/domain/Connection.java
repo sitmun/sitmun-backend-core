@@ -64,6 +64,24 @@ public class Connection {
   @Column(name = "CON_CONNECTION", length = 250)
   private String url;
 
+  public Connection() {
+  }
+
+  private Connection(BigInteger id, @NotBlank String name,
+                     @NotBlank String driver, String user, String password,
+                     String url) {
+    this.id = id;
+    this.name = name;
+    this.driver = driver;
+    this.user = user;
+    this.password = password;
+    this.url = url;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public BigInteger getId() {
     return id;
   }
@@ -80,20 +98,6 @@ public class Connection {
     this.name = name;
   }
 
-  public Connection() {
-  }
-
-  private Connection(BigInteger id, @NotBlank String name,
-                     @NotBlank String driver, String user, String password,
-                     String url) {
-    this.id = id;
-    this.name = name;
-    this.driver = driver;
-    this.user = user;
-    this.password = password;
-    this.url = url;
-  }
-
   public String getUser() {
     return user;
   }
@@ -108,10 +112,6 @@ public class Connection {
 
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public String getDriver() {

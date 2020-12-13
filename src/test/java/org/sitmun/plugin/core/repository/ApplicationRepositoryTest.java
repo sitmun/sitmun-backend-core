@@ -11,6 +11,7 @@ import java.util.HashSet;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.domain.Application;
 import org.sitmun.plugin.core.domain.ApplicationBackground;
@@ -103,7 +104,8 @@ public class ApplicationRepositoryTest {
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
 
-    application = applicationRepository.findById(application.getId()).get();
+
+    application = applicationRepository.findById(application.getId()).orElseGet(Assertions::fail);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(application.getAvailableRoles()).isNotEmpty();
     softly.assertThat(application.getBackgrounds()).isNotEmpty();

@@ -1,6 +1,6 @@
 language: java
 
-jdk:  
+jdk:
   - openjdk11
 
 addons:
@@ -28,7 +28,7 @@ cache:
     - $HOME/.m2/repository
     - .gradle
     - node_modules
-    
+
 deploy:
   provider: script
   script: bash ./build-scripts/deploy.sh
