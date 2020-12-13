@@ -24,6 +24,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -80,6 +81,7 @@ public class Application {
    * Projection to be used in this application when it is internal.
    */
   @Column(name = "APP_PROJECT", length = 250)
+  @SpatialReferenceSystem
   private String srs;
 
   /**
@@ -159,6 +161,43 @@ public class Application {
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
+
+  private Application(BigInteger id, @NotBlank String name,
+                      @NotNull String type, String title, String theme,
+                      List<String> scales, String srs,
+                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
+                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
+                      SituationMap situationMap,
+                      @NotNull Date createdDate,
+                      Set<ApplicationParameter> parameters,
+                      Set<Role> availableRoles,
+                      Set<Tree> trees,
+                      Set<ApplicationBackground> backgrounds) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.title = title;
+    this.theme = theme;
+    this.scales = scales;
+    this.srs = srs;
+    this.jspTemplate = jspTemplate;
+    this.treeAutoRefresh = treeAutoRefresh;
+    this.accessParentTerritory = accessParentTerritory;
+    this.accessChildrenTerritory = accessChildrenTerritory;
+    this.situationMap = situationMap;
+    this.createdDate = createdDate;
+    this.parameters = parameters;
+    this.availableRoles = availableRoles;
+    this.trees = trees;
+    this.backgrounds = backgrounds;
+  }
+
+  public Application() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   public BigInteger getId() {
     return id;
@@ -248,39 +287,6 @@ public class Application {
     this.accessChildrenTerritory = accessChildrenTerritory;
   }
 
-  private Application(BigInteger id, @NotBlank String name,
-                      @NotNull String type, String title, String theme,
-                      List<String> scales, String srs,
-                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
-                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
-                      SituationMap situationMap,
-                      @NotNull Date createdDate,
-                      Set<ApplicationParameter> parameters,
-                      Set<Role> availableRoles,
-                      Set<Tree> trees,
-                      Set<ApplicationBackground> backgrounds) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.title = title;
-    this.theme = theme;
-    this.scales = scales;
-    this.srs = srs;
-    this.jspTemplate = jspTemplate;
-    this.treeAutoRefresh = treeAutoRefresh;
-    this.accessParentTerritory = accessParentTerritory;
-    this.accessChildrenTerritory = accessChildrenTerritory;
-    this.situationMap = situationMap;
-    this.createdDate = createdDate;
-    this.parameters = parameters;
-    this.availableRoles = availableRoles;
-    this.trees = trees;
-    this.backgrounds = backgrounds;
-  }
-
-  public Application() {
-  }
-
   public SituationMap getSituationMap() {
     return situationMap;
   }
@@ -328,10 +334,6 @@ public class Application {
   public void setBackgrounds(
       Set<ApplicationBackground> backgrounds) {
     this.backgrounds = backgrounds;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public static class Builder {

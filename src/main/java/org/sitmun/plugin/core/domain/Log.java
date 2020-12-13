@@ -16,6 +16,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
+import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -118,6 +119,7 @@ public class Log {
    * SRS requested.
    */
   @Column(name = "LOG_SRS", length = 250)
+  @SpatialReferenceSystem
   private String srs;
 
   /**

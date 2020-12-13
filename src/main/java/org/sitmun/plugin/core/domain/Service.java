@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
+import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
 /**
@@ -74,6 +74,7 @@ public class Service {
    */
   @Column(name = "SER_PROJECTS", length = 1000)
   @Convert(converter = StringListAttributeConverter.class)
+  @SpatialReferenceSystem
   private List<String> supportedSRS;
 
   /**
@@ -126,7 +127,6 @@ public class Service {
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", orphanRemoval = true, fetch = FetchType.LAZY)
-  @JsonManagedReference
   private Set<Cartography> layers = new HashSet<>();
 
   /**
@@ -134,6 +134,35 @@ public class Service {
    */
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ServiceParameter> parameters = new HashSet<>();
+
+  public Service() {
+  }
+
+  private Service(BigInteger id, @NotBlank String name, String description,
+                  @NotNull String serviceURL, List<String> supportedSRS, String legendURL,
+                  String getInformationURL, Date createdDate,
+                  @NotNull String type, String nativeProtocol,
+                  @NotNull Boolean blocked,
+                  Set<Cartography> layers,
+                  Set<ServiceParameter> parameters) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.serviceURL = serviceURL;
+    this.supportedSRS = supportedSRS;
+    this.legendURL = legendURL;
+    this.getInformationURL = getInformationURL;
+    this.createdDate = createdDate;
+    this.type = type;
+    this.nativeProtocol = nativeProtocol;
+    this.blocked = blocked;
+    this.layers = layers;
+    this.parameters = parameters;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   public BigInteger getId() {
     return id;
@@ -215,31 +244,6 @@ public class Service {
     this.nativeProtocol = nativeProtocol;
   }
 
-  public Service() {
-  }
-
-  private Service(BigInteger id, @NotBlank String name, String description,
-                  @NotNull String serviceURL, List<String> supportedSRS, String legendURL,
-                  String getInformationURL, Date createdDate,
-                  @NotNull String type, String nativeProtocol,
-                  @NotNull Boolean blocked,
-                  Set<Cartography> layers,
-                  Set<ServiceParameter> parameters) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.serviceURL = serviceURL;
-    this.supportedSRS = supportedSRS;
-    this.legendURL = legendURL;
-    this.getInformationURL = getInformationURL;
-    this.createdDate = createdDate;
-    this.type = type;
-    this.nativeProtocol = nativeProtocol;
-    this.blocked = blocked;
-    this.layers = layers;
-    this.parameters = parameters;
-  }
-
   public Set<Cartography> getLayers() {
     return layers;
   }
@@ -254,10 +258,6 @@ public class Service {
 
   public void setParameters(Set<ServiceParameter> parameters) {
     this.parameters = parameters;
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   public Boolean getBlocked() {
