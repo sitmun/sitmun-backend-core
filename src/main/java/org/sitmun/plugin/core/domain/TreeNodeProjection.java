@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
@@ -14,10 +14,10 @@ public interface TreeNodeProjection {
    * Make accesible the parent node.
    */
   @Value("#{target.parent != null? target.parent.id : null}")
-  BigInteger getParent();
+  Integer getParent();
 
   @Value("#{target.id}")
-  BigInteger getId();
+  Integer getId();
 
   @Value("#{target.name}")
   String getName();
@@ -35,7 +35,7 @@ public interface TreeNodeProjection {
   Boolean getRadio();
 
   @Value("#{target.order}")
-  BigInteger getOrder();
+  Integer getOrder();
 
   @Value("#{target.metadataURL}")
   String getMetadataURL();

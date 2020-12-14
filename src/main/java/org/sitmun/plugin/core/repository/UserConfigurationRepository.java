@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "user configuration")
 @RepositoryRestResource(collectionResourceRel = "user-configurations", path = "user-configurations")
 public interface UserConfigurationRepository extends
-    PagingAndSortingRepository<UserConfiguration, BigInteger> {
+    PagingAndSortingRepository<UserConfiguration, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -28,7 +27,7 @@ public interface UserConfigurationRepository extends
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.UserConfiguration', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
@@ -38,7 +37,7 @@ public interface UserConfigurationRepository extends
   @Override
   @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
   @NonNull
-  Optional<UserConfiguration> findById(@NonNull BigInteger id);
+  Optional<UserConfiguration> findById(@NonNull Integer id);
 
 
 }

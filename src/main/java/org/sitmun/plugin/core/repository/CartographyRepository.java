@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "cartography")
 @RepositoryRestResource(collectionResourceRel = "cartographies", path = "cartographies"/*, excerptProjection = CartographyProjection.class*/)
-public interface CartographyRepository extends PagingAndSortingRepository<Cartography, BigInteger> {
+public interface CartographyRepository extends PagingAndSortingRepository<Cartography, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -27,7 +26,7 @@ public interface CartographyRepository extends PagingAndSortingRepository<Cartog
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Cartography','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Cartography', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -37,9 +36,9 @@ public interface CartographyRepository extends PagingAndSortingRepository<Cartog
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Cartography','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Cartography', 'read')")
   @NonNull
-  Optional<Cartography> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<Cartography> findById(@P("entityId") @NonNull Integer entityId);
 
   @Query("select cartography from Cartography cartography left join fetch cartography.service where cartography.id =:id")
-  Cartography findOneWithEagerRelationships(BigInteger id);
+  Cartography findOneWithEagerRelationships(Integer id);
 
 }

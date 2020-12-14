@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -34,8 +34,8 @@ public class ApplicationBackground {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPFON_GEN")
-  @Column(name = "ABC_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "ABC_ID")
+  private Integer id;
 
   /**
    * Application.
@@ -58,22 +58,22 @@ public class ApplicationBackground {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "ABC_ORDER", precision = 6)
-  private BigInteger order;
+  private Integer order;
 
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger order) {
+  public void setOrder(Integer order) {
     this.order = order;
   }
 

@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.QueryTask;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -13,7 +12,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "query task")
 @RepositoryRestResource(collectionResourceRel = "query-tasks", path = "query-tasks")
-public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTask, BigInteger> {
+public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTask, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -26,7 +25,7 @@ public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTas
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -36,6 +35,6 @@ public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTas
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
   @NonNull
-  Optional<QueryTask> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<QueryTask> findById(@P("entityId") @NonNull Integer entityId);
 
 }

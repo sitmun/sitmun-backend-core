@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -37,8 +37,8 @@ public class ApplicationParameter {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMAPP_GEN")
-  @Column(name = "PAP_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "PAP_ID")
+  private Integer id;
 
   /**
    * Application parameter name.
@@ -71,11 +71,11 @@ public class ApplicationParameter {
   @JoinColumn(name = "PAP_APPID", foreignKey = @ForeignKey(name = "STM_PAP_FK_APP"))
   private Application application;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

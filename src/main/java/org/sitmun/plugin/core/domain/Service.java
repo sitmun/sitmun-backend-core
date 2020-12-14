@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -45,8 +45,8 @@ public class Service {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICIO_GEN")
-  @Column(name = "SER_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "SER_ID")
+  private Integer id;
 
   /**
    * Service name.
@@ -138,7 +138,7 @@ public class Service {
   public Service() {
   }
 
-  private Service(BigInteger id, @NotBlank String name, String description,
+  private Service(Integer id, @NotBlank String name, String description,
                   @NotNull String serviceURL, List<String> supportedSRS, String legendURL,
                   String getInformationURL, Date createdDate,
                   @NotNull String type, String nativeProtocol,
@@ -164,11 +164,11 @@ public class Service {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -269,7 +269,7 @@ public class Service {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
     private String description;
     private @NotNull String serviceURL;
@@ -283,7 +283,7 @@ public class Service {
     private Set<Cartography> layers;
     private Set<ServiceParameter> parameters;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

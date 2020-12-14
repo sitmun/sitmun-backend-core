@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.service;
 
-import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -96,11 +96,11 @@ public class UserService implements PermissionResolver<User> {
 
   }
 
-  public Optional<User> findUser(BigInteger id) {
+  public Optional<User> findUser(Integer id) {
     return applicationUserRepository.findById(id);
   }
 
-  public void changeUserPassword(BigInteger id, String password) {
+  public void changeUserPassword(Integer id, String password) {
     applicationUserRepository.findById(id)
         .ifPresent(user -> {
           user.setPassword(bcryptPasswordEncoder.encode(password));
@@ -108,7 +108,7 @@ public class UserService implements PermissionResolver<User> {
         });
   }
 
-  public void updateUser(BigInteger id, String firstName, String lastName) {
+  public void updateUser(Integer id, String firstName, String lastName) {
     applicationUserRepository.findById(id).ifPresent(user -> {
       user.setFirstName(firstName);
       user.setLastName(lastName);

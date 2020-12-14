@@ -15,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,7 +170,7 @@ public class CartographyRepositoryDataRestTest {
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
-      BigInteger id = BigInteger.valueOf(Integer.parseInt(paths[paths.length - 1]));
+      Integer id = Integer.valueOf(Integer.parseInt(paths[paths.length - 1]));
       cartographyRepository.findById(id).ifPresent((it) -> cartographies.add(it));
     });
   }

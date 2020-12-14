@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,8 +38,8 @@ public class UserConfiguration {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USUCONF_GEN")
-  @Column(name = "UCO_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "UCO_ID")
+  private Integer id;
 
   /**
    * User.
@@ -77,11 +77,11 @@ public class UserConfiguration {
   @JoinColumn(name = "UCO_ROLEMID", foreignKey = @ForeignKey(name = "STM_UCF_FK_ROL_M"))
   private Role roleChildren;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

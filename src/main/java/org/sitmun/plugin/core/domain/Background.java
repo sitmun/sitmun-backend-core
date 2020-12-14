@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,8 +36,8 @@ public class Background {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_FONDO_GEN")
-  @Column(name = "BAC_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "BAC_ID")
+  private Integer id;
 
   /**
    * Name.
@@ -73,11 +73,11 @@ public class Background {
   @NotNull
   private BackgroundMap cartographyGroup;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

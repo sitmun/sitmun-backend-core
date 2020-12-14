@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -36,8 +36,8 @@ public class User { //implements Identifiable<BigInteger> {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USER_GEN")
-  @Column(name = "USE_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "USE_ID")
+  private Integer id;
 
   /**
    * User login.
@@ -108,11 +108,11 @@ public class User { //implements Identifiable<BigInteger> {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<UserConfiguration> permissions = new HashSet<>();
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

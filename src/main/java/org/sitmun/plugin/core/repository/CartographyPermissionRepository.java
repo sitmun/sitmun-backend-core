@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.repository;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
@@ -20,7 +19,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "cartography group")
 @RepositoryRestResource(collectionResourceRel = "cartography-groups", path = "cartography-groups")
 public interface CartographyPermissionRepository extends
-    PagingAndSortingRepository<CartographyPermission, BigInteger> {
+    PagingAndSortingRepository<CartographyPermission, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -33,7 +32,7 @@ public interface CartographyPermissionRepository extends
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -43,12 +42,12 @@ public interface CartographyPermissionRepository extends
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup', 'read')")
   @NonNull
-  Optional<CartographyPermission> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<CartographyPermission> findById(@P("entityId") @NonNull Integer entityId);
 
   @RestResource(exported = false)
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
   @Query("select cartographyGroup.members from CartographyPermission cartographyGroup where cartographyGroup.id =:id")
-  List<Cartography> findCartographyMembers(@Param("id") BigInteger id);
+  List<Cartography> findCartographyMembers(@Param("id") Integer id);
 
 
 }

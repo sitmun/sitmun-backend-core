@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Role;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "role")
 @RepositoryRestResource(collectionResourceRel = "roles", path = "roles")
-public interface RoleRepository extends PagingAndSortingRepository<Role, BigInteger> {
+public interface RoleRepository extends PagingAndSortingRepository<Role, Integer> {
 
   @RestResource(exported = false)
   Optional<Role> findOneByName(String name);
@@ -31,7 +30,7 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, BigInte
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Role', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
@@ -41,6 +40,6 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, BigInte
   @Override
   @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
   @NonNull
-  Optional<Role> findById(@NonNull BigInteger id);
+  Optional<Role> findById(@NonNull Integer id);
 
 }

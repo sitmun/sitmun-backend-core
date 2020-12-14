@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,8 +29,8 @@ public class TaskGroup {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "GTA_CODIGO_GEN")
-  @Column(name = "GTS_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "GTS_ID")
+  private Integer id;
 
   /**
    * Task group name.
@@ -39,11 +39,11 @@ public class TaskGroup {
   @NotBlank
   private String name;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

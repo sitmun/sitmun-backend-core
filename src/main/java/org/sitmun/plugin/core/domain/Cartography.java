@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -49,8 +49,8 @@ public class Cartography {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARTO_GEN")
-  @Column(name = "GEO_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "GEO_ID")
+  private Integer id;
 
   /**
    * Cartography name.
@@ -76,28 +76,28 @@ public class Cartography {
   /**
    * Minimum scale visibility.
    */
-  @Column(name = "GEO_MINSCALE", precision = 11)
-  private BigInteger minimumScale;
+  @Column(name = "GEO_MINSCALE")
+  private Integer minimumScale;
 
   /**
    * Maximum visibility.
    */
-  @Column(name = "GEO_MAXSCALE", precision = 11)
-  private BigInteger maximumScale;
+  @Column(name = "GEO_MAXSCALE")
+  private Integer maximumScale;
 
   /**
    * Cartography order appearance.
    */
-  @Column(name = "GEO_ORDER", precision = 11)
-  private BigInteger order;
+  @Column(name = "GEO_ORDER")
+  private Integer order;
 
   /**
    * 0 opaque, 100 translucid.
    */
-  @Column(name = "GEO_TRANSP", precision = 11)
+  @Column(name = "GEO_TRANSP")
   @Min(0)
   @Max(100)
-  private BigInteger transparency;
+  private Integer transparency;
 
   /**
    * If <code>true</code>, a filter is applied to GetMap requests.
@@ -276,10 +276,10 @@ public class Cartography {
   public Cartography() {
   }
 
-  private Cartography(BigInteger id,
+  private Cartography(Integer id,
                       @NotBlank String name, String description,
-                      @NotNull List<String> layers, BigInteger minimumScale,
-                      BigInteger maximumScale, BigInteger order, BigInteger transparency,
+                      @NotNull List<String> layers, Integer minimumScale,
+                      Integer maximumScale, Integer order, Integer transparency,
                       Boolean applyFilterToGetMap,
                       @NotNull Boolean queryableFeatureAvailable,
                       @NotNull Boolean queryableFeatureEnabled,
@@ -339,11 +339,11 @@ public class Cartography {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -371,35 +371,35 @@ public class Cartography {
     this.layers = layers;
   }
 
-  public BigInteger getMinimumScale() {
+  public Integer getMinimumScale() {
     return minimumScale;
   }
 
-  public void setMinimumScale(BigInteger minimumScale) {
+  public void setMinimumScale(Integer minimumScale) {
     this.minimumScale = minimumScale;
   }
 
-  public BigInteger getMaximumScale() {
+  public Integer getMaximumScale() {
     return maximumScale;
   }
 
-  public void setMaximumScale(BigInteger maximumScale) {
+  public void setMaximumScale(Integer maximumScale) {
     this.maximumScale = maximumScale;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger order) {
+  public void setOrder(Integer order) {
     this.order = order;
   }
 
-  public BigInteger getTransparency() {
+  public Integer getTransparency() {
     return transparency;
   }
 
-  public void setTransparency(BigInteger transparency) {
+  public void setTransparency(Integer transparency) {
     this.transparency = transparency;
   }
 
@@ -614,14 +614,14 @@ public class Cartography {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
     private String description;
     private @NotNull List<String> layers;
-    private BigInteger minimumScale;
-    private BigInteger maximumScale;
-    private BigInteger order;
-    private BigInteger transparency;
+    private Integer minimumScale;
+    private Integer maximumScale;
+    private Integer order;
+    private Integer transparency;
     private @NotNull Boolean applyFilterToGetMap;
     private Boolean queryableFeatureAvailable;
     private Boolean queryableFeatureEnabled;
@@ -649,7 +649,7 @@ public class Cartography {
     private Set<CartographyFilter> filters;
     private Set<CartographyParameter> parameters;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }
@@ -669,22 +669,22 @@ public class Cartography {
       return this;
     }
 
-    public Builder setMinimumScale(BigInteger minimumScale) {
+    public Builder setMinimumScale(Integer minimumScale) {
       this.minimumScale = minimumScale;
       return this;
     }
 
-    public Builder setMaximumScale(BigInteger maximumScale) {
+    public Builder setMaximumScale(Integer maximumScale) {
       this.maximumScale = maximumScale;
       return this;
     }
 
-    public Builder setOrder(BigInteger order) {
+    public Builder setOrder(Integer order) {
       this.order = order;
       return this;
     }
 
-    public Builder setTransparency(BigInteger transparency) {
+    public Builder setTransparency(Integer transparency) {
       this.transparency = transparency;
       return this;
     }

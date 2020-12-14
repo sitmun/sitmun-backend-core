@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -144,7 +143,7 @@ public class TaskRepositoryDataRestTest {
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
-      BigInteger id = BigInteger.valueOf(Integer.parseInt(paths[paths.length - 1]));
+      Integer id = Integer.valueOf(Integer.parseInt(paths[paths.length - 1]));
       taskRepository.findById(id).ifPresent((it) -> tasks.add(it));
     });
   }

@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.ServiceParameter;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -14,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "service parameter")
 @RepositoryRestResource(collectionResourceRel = "service-parameters", path = "service-parameters")
 public interface ServiceParameterRepository extends
-    PagingAndSortingRepository<ServiceParameter, BigInteger> {
+    PagingAndSortingRepository<ServiceParameter, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -27,7 +26,7 @@ public interface ServiceParameterRepository extends
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ServiceParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ServiceParameter', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -37,5 +36,5 @@ public interface ServiceParameterRepository extends
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ServiceParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ServiceParameter', 'read')")
   @NonNull
-  Optional<ServiceParameter> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<ServiceParameter> findById(@P("entityId") @NonNull Integer entityId);
 }

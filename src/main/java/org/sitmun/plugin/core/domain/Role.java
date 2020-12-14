@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,8 +31,8 @@ public class Role {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")
-  @Column(name = "ROL_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "ROL_ID")
+  private Integer id;
 
   /**
    * Role name.
@@ -51,7 +51,7 @@ public class Role {
   public Role() {
   }
 
-  private Role(BigInteger id, @NotBlank String name, String description) {
+  private Role(Integer id, @NotBlank String name, String description) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -61,11 +61,11 @@ public class Role {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -99,11 +99,11 @@ public class Role {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
     private String description;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

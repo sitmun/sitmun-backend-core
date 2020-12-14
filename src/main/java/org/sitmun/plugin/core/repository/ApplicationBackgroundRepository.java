@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.ApplicationBackground;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -14,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "application background")
 @RepositoryRestResource(collectionResourceRel = "application-backgrounds", path = "application-backgrounds")
 public interface ApplicationBackgroundRepository
-    extends PagingAndSortingRepository<ApplicationBackground, BigInteger> {
+    extends PagingAndSortingRepository<ApplicationBackground, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -27,7 +26,7 @@ public interface ApplicationBackgroundRepository
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationBackground','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationBackground', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -37,6 +36,6 @@ public interface ApplicationBackgroundRepository
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationBackground','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ApplicationBackground', 'read')")
   @NonNull
-  Optional<ApplicationBackground> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<ApplicationBackground> findById(@P("entityId") @NonNull Integer entityId);
 
 }

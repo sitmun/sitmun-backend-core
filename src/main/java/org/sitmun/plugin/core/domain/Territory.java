@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,8 +47,8 @@ public class Territory {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")
-  @Column(name = "TER_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TER_ID")
+  private Integer id;
 
   /**
    * Geographic code.
@@ -168,7 +168,7 @@ public class Territory {
   public Territory() {
   }
 
-  private Territory(BigInteger id, @NotBlank String code,
+  private Territory(Integer id, @NotBlank String code,
                     @NotBlank String name, String territorialAuthorityName,
                     String territorialAuthorityAddress, String territorialAuthorityEmail,
                     String scope, String territorialAuthorityLogo, String extent,
@@ -198,11 +198,11 @@ public class Territory {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -340,7 +340,7 @@ public class Territory {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String code;
     private @NotBlank String name;
     private String territorialAuthorityName;
@@ -357,7 +357,7 @@ public class Territory {
     private Set<Territory> members;
     private Set<Territory> memberOf;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

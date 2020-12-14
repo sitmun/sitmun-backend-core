@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -38,8 +38,8 @@ public class Log {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_LOG_GEN")
-  @Column(name = "LOG_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "LOG_ID")
+  private Integer id;
 
   /**
    * Action date.
@@ -92,8 +92,8 @@ public class Log {
   /**
    * Counter (to add up).
    */
-  @Column(name = "LOG_COUNT", precision = 11)
-  private BigInteger counter;
+  @Column(name = "LOG_COUNT")
+  private Integer counter;
 
   /**
    * Territory code.
@@ -147,11 +147,11 @@ public class Log {
   @Column(name = "LOG_OTHER", length = 4000)
   private String other;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -211,11 +211,11 @@ public class Log {
     this.cartography = cartography;
   }
 
-  public BigInteger getCounter() {
+  public Integer getCounter() {
     return counter;
   }
 
-  public void setCounter(BigInteger counter) {
+  public void setCounter(Integer counter) {
     this.counter = counter;
   }
 

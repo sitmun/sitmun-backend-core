@@ -38,7 +38,7 @@ public class ThematicMap implements Serializable {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_THEMATIC_GEN")
-  @Column(name = "THE_ID", precision = 11)
+  @Column(name = "THE_ID")
   private Integer id;
 
   /**

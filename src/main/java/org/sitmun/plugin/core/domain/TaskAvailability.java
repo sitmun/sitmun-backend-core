@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,8 +37,8 @@ public class TaskAvailability {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPTAREA_GEN")
-  @Column(name = "ATS_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "ATS_ID")
+  private Integer id;
 
   /**
    * Created date.
@@ -63,11 +63,11 @@ public class TaskAvailability {
   @NotNull
   private Task task;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

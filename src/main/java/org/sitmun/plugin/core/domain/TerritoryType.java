@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,8 +31,8 @@ public class TerritoryType {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOGRP_GEN")
-  @Column(name = "TET_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TET_ID")
+  private Integer id;
 
   /**
    * Name.
@@ -44,7 +44,7 @@ public class TerritoryType {
   public TerritoryType() {
   }
 
-  private TerritoryType(BigInteger id, @NotBlank String name) {
+  private TerritoryType(Integer id, @NotBlank String name) {
     this.id = id;
     this.name = name;
   }
@@ -53,11 +53,11 @@ public class TerritoryType {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -70,10 +70,10 @@ public class TerritoryType {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

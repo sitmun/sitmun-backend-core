@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -39,8 +39,8 @@ public class Tree {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOL_GEN")
-  @Column(name = "TRE_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TRE_ID")
+  private Integer id;
 
   /**
    * Tree name.
@@ -74,11 +74,11 @@ public class Tree {
           foreignKey = @ForeignKey(name = "STM_ARR_FK_ROL")))
   private Set<Role> availableRoles = new HashSet<>();
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

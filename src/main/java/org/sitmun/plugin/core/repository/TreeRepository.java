@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.repository;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import org.sitmun.plugin.core.domain.Tree;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -14,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "tree")
 @RepositoryRestResource(collectionResourceRel = "trees", path = "trees"/*, excerptProjection = TreeProjection.class*/)
-public interface TreeRepository extends PagingAndSortingRepository<Tree, BigInteger> {
+public interface TreeRepository extends PagingAndSortingRepository<Tree, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -27,7 +26,7 @@ public interface TreeRepository extends PagingAndSortingRepository<Tree, BigInte
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Tree', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")

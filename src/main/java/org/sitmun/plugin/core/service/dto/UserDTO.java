@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.service.dto;
 
-import java.math.BigInteger;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.sitmun.plugin.core.domain.User;
 
 public class UserDTO {
 
-  private BigInteger id;
+  private Integer id;
   private String username;
   private String firstName;
   private String lastName;
@@ -63,11 +63,11 @@ public class UserDTO {
     return authoritiesPerTerritory;
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

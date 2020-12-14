@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
@@ -18,7 +17,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "service")
 @RepositoryRestResource(collectionResourceRel = "services", path = "services")
-public interface ServiceRepository extends PagingAndSortingRepository<Service, BigInteger> {
+public interface ServiceRepository extends PagingAndSortingRepository<Service, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -33,7 +32,7 @@ public interface ServiceRepository extends PagingAndSortingRepository<Service, B
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service', 'delete')")
   @NonNull
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -43,12 +42,12 @@ public interface ServiceRepository extends PagingAndSortingRepository<Service, B
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Service', 'read')")
   @NonNull
-  Optional<Service> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<Service> findById(@P("entityId") @NonNull Integer entityId);
 
   @RestResource(exported = false)
   @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
   @Query("select service.layers from Service service where service.id =:id")
-  List<Cartography> findLayers(@Param("id") BigInteger id);
+  List<Cartography> findLayers(@Param("id") Integer id);
 
 
 }

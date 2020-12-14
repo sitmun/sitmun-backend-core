@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -36,8 +36,8 @@ public class TaskParameter {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")
-  @Column(name = "PTT_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "PTT_ID")
+  private Integer id;
 
   /**
    * Parameter name.
@@ -64,7 +64,7 @@ public class TaskParameter {
    */
   @Column(name = "PTT_ORDER", precision = 6)
   @Min(0)
-  private BigInteger order;
+  private Integer order;
 
   /**
    * Attribute format (when editing).
@@ -137,11 +137,11 @@ public class TaskParameter {
   @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAR"))
   private Task task;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -169,11 +169,11 @@ public class TaskParameter {
     this.type = type;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger order) {
+  public void setOrder(Integer order) {
     this.order = order;
   }
 

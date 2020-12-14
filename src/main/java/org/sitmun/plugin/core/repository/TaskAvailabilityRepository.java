@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.repository;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TaskAvailability;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "task availability")
 @RepositoryRestResource(collectionResourceRel = "task-availabilities", path = "task-availabilities")
 public interface TaskAvailabilityRepository extends
-    PagingAndSortingRepository<TaskAvailability, BigInteger> {
+    PagingAndSortingRepository<TaskAvailability, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -28,7 +27,7 @@ public interface TaskAvailabilityRepository extends
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskAvailability','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskAvailability', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -38,7 +37,7 @@ public interface TaskAvailabilityRepository extends
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskAvailability','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskAvailability', 'read')")
   @NonNull
-  Optional<TaskAvailability> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<TaskAvailability> findById(@P("entityId") @NonNull Integer entityId);
 
 
 }

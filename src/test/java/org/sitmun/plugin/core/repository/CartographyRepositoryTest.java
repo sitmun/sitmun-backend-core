@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-import java.math.BigInteger;
 import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +40,12 @@ public class CartographyRepositoryTest {
     return Cartography.builder()
         .setName("Test")
         .setCreatedDate(new Date())
-        .setOrder(BigInteger.ZERO)
+        .setOrder(0)
         .setQueryableFeatureAvailable(true)
         .setQueryableFeatureEnabled(true)
         .setSelectableFeatureEnabled(true)
         .setThematic(true)
-        .setTransparency(BigInteger.ZERO);
+        .setTransparency(0);
   }
 }
 

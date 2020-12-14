@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,8 +30,8 @@ public class TaskUI {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_UI_GEN")
-  @Column(name = "TUI_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TUI_ID")
+  private Integer id;
 
   /**
    * Task name.
@@ -51,7 +51,7 @@ public class TaskUI {
    */
   @Column(name = "TUI_ORDER", precision = 6)
   @Min(0)
-  private BigInteger order;
+  private Integer order;
 
   public String getTooltip() {
     return tooltip;
@@ -61,19 +61,19 @@ public class TaskUI {
     this.tooltip = tooltip;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger order) {
+  public void setOrder(Integer order) {
     this.order = order;
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

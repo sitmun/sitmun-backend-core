@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,8 +39,8 @@ public class CartographyAvailability {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPCARTO_GEN")
-  @Column(name = "AGI_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "AGI_ID")
+  private Integer id;
 
   /**
    * Creation date.
@@ -87,11 +86,11 @@ public class CartographyAvailability {
         + "fechaAlta=" + this.createdDate;
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

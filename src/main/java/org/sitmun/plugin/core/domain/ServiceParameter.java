@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -37,8 +37,8 @@ public class ServiceParameter {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMSER_GEN")
-  @Column(name = "PSE_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "PSE_ID")
+  private Integer id;
 
   /**
    * Parameter name.
@@ -70,11 +70,11 @@ public class ServiceParameter {
   @JoinColumn(name = "PSE_SERID", foreignKey = @ForeignKey(name = "STM_PSE_FK_SER"))
   private Service service;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

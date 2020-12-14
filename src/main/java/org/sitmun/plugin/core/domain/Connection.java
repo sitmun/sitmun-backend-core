@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,8 +29,8 @@ public class Connection {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CONEXION_GEN")
-  @Column(name = "CON_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "CON_ID")
+  private Integer id;
 
   /**
    * Connection name.
@@ -67,7 +67,7 @@ public class Connection {
   public Connection() {
   }
 
-  private Connection(BigInteger id, @NotBlank String name,
+  private Connection(Integer id, @NotBlank String name,
                      @NotBlank String driver, String user, String password,
                      String url) {
     this.id = id;
@@ -82,11 +82,11 @@ public class Connection {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -131,14 +131,14 @@ public class Connection {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
     private @NotBlank String driver;
     private String user;
     private String password;
     private String url;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

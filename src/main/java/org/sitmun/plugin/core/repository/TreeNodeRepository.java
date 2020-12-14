@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.repository;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import org.sitmun.plugin.core.domain.TreeNode;
 import org.sitmun.plugin.core.domain.TreeNodeProjection;
 import org.springframework.data.repository.CrudRepository;
@@ -15,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "tree node")
 @RepositoryRestResource(collectionResourceRel = "tree-nodes", path = "tree-nodes",
     excerptProjection = TreeNodeProjection.class)
-public interface TreeNodeRepository extends CrudRepository<TreeNode, BigInteger> {
+public interface TreeNodeRepository extends CrudRepository<TreeNode, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -28,7 +27,7 @@ public interface TreeNodeRepository extends CrudRepository<TreeNode, BigInteger>
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TreeNode', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")

@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -45,8 +45,8 @@ public class CartographyPermission {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRPCARTO_GEN")
-  @Column(name = "GGI_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "GGI_ID")
+  private Integer id;
 
   /**
    * Permissions name.
@@ -90,11 +90,11 @@ public class CartographyPermission {
           foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")))
   private Set<Role> roles;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

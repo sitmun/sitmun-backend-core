@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -34,8 +34,8 @@ public class TreeNode {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOLNOD_GEN")
-  @Column(name = "TNO_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TNO_ID")
+  private Integer id;
 
   /**
    * Parent node.
@@ -79,7 +79,7 @@ public class TreeNode {
    * Order of the node within the tree.
    */
   @Column(name = "TNO_ORDER", precision = 6)
-  private BigInteger order;
+  private Integer order;
 
   /**
    * URL to metadata.
@@ -134,11 +134,11 @@ public class TreeNode {
   @ManyToOne
   private Cartography cartography;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -190,11 +190,11 @@ public class TreeNode {
     this.radio = radio;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger orden) {
+  public void setOrder(Integer orden) {
     this.order = orden;
   }
 

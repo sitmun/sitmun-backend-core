@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,8 +45,8 @@ public class Task {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
-  @Column(name = "TAS_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "TAS_ID")
+  private Integer id;
 
   /**
    * Parent task.
@@ -80,7 +80,7 @@ public class Task {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "TAS_ORDER", precision = 6)
-  private BigInteger order;
+  private Integer order;
 
   /**
    * Associated cartography.
@@ -150,11 +150,11 @@ public class Task {
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<TaskParameter> parameters = new HashSet<>();
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -190,11 +190,11 @@ public class Task {
     this.createdDate = createdDate;
   }
 
-  public BigInteger getOrder() {
+  public Integer getOrder() {
     return order;
   }
 
-  public void setOrder(BigInteger order) {
+  public void setOrder(Integer order) {
     this.order = order;
   }
 

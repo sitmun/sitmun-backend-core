@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,11 +38,11 @@ public class Application {
    * Application unique identifier.
    */
   @Id
-  @Column(name = "APP_ID", precision = 11)
+  @Column(name = "APP_ID")
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
   @TableGenerator(name = "STM_APPS_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
       valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
-  private BigInteger id;
+  private Integer id;
 
   /**
    * Application name.
@@ -162,7 +162,7 @@ public class Application {
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
-  private Application(BigInteger id, @NotBlank String name,
+  private Application(Integer id, @NotBlank String name,
                       @NotNull String type, String title, String theme,
                       List<String> scales, String srs,
                       @NotNull String jspTemplate, Boolean treeAutoRefresh,
@@ -199,11 +199,11 @@ public class Application {
     return new Builder();
   }
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -337,7 +337,7 @@ public class Application {
   }
 
   public static class Builder {
-    private BigInteger id;
+    private Integer id;
     private @NotBlank String name;
     private @NotNull String type;
     private String title;
@@ -355,7 +355,7 @@ public class Application {
     private Set<Tree> trees;
     private Set<ApplicationBackground> backgrounds;
 
-    public Builder setId(BigInteger id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }

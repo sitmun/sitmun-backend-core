@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
-import java.math.BigInteger;
+
 import java.net.URI;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -56,7 +56,7 @@ public class UserResource {
   }
 
   @PutMapping("/users/{id}")
-  public ResponseEntity<User> updateUser(@PathVariable BigInteger id,
+  public ResponseEntity<User> updateUser(@PathVariable Integer id,
                                          @Valid @RequestBody UserDTO userDTO) {
     Optional<User> optUser = userService.findUser(id);
     if (optUser.isPresent()) {
@@ -74,7 +74,7 @@ public class UserResource {
   }
 
   @PostMapping(path = "/users/{id}/change-password")
-  public ResponseEntity<Void> changePassword(@PathVariable BigInteger id,
+  public ResponseEntity<Void> changePassword(@PathVariable Integer id,
                                              @RequestBody PasswordDTO password) {
     Optional<User> optUser = userService.findUser(id);
     if (optUser.isPresent()) {

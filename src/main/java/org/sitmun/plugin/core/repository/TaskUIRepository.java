@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TaskUI;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -13,7 +12,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "task ui")
 @RepositoryRestResource(collectionResourceRel = "task-uis", path = "task-uis")
-public interface TaskUIRepository extends PagingAndSortingRepository<TaskUI, BigInteger> {
+public interface TaskUIRepository extends PagingAndSortingRepository<TaskUI, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -26,7 +25,7 @@ public interface TaskUIRepository extends PagingAndSortingRepository<TaskUI, Big
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskUI','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskUI', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
@@ -36,6 +35,6 @@ public interface TaskUIRepository extends PagingAndSortingRepository<TaskUI, Big
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskUI','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskUI', 'read')")
   @NonNull
-  Optional<TaskUI> findById(@P("entityId") @NonNull BigInteger entityId);
+  Optional<TaskUI> findById(@P("entityId") @NonNull Integer entityId);
 
 }

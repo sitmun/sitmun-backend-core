@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-import java.math.BigInteger;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -118,8 +117,8 @@ public class ApplicationResourceTest {
   private MockMvc mvc;
 
   private String token;
-  private BigInteger appId;
-  private BigInteger backAppId;
+  private Integer appId;
+  private Integer backAppId;
   private ArrayList<Tree> trees;
   private Set<Service> services;
   private Set<Cartography> cartographies;
@@ -273,7 +272,7 @@ public class ApplicationResourceTest {
       ApplicationBackground publicApplicationBackground = new ApplicationBackground();
       publicApplicationBackground.setBackground(publicBackground);
       publicApplicationBackground.setApplication(publicApplication);
-      publicApplicationBackground.setOrder(BigInteger.ONE);
+      publicApplicationBackground.setOrder(1);
       applicationBackgrounds.add(publicApplicationBackground);
       applicationBackgroundRepository.saveAll(applicationBackgrounds);
 

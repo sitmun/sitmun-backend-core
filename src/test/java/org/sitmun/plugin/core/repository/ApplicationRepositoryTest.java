@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
@@ -80,7 +79,7 @@ public class ApplicationRepositoryTest {
     ApplicationBackground applicationBackground = new ApplicationBackground();
     applicationBackground.setApplication(application);
     applicationBackground.setBackground(background);
-    applicationBackground.setOrder(BigInteger.ONE);
+    applicationBackground.setOrder(1);
     application.getBackgrounds().add(applicationBackground);
 
     ApplicationParameter parameter = new ApplicationParameter();
@@ -119,7 +118,7 @@ public class ApplicationRepositoryTest {
     applicationRepository.save(application);
     assumeThat(application.getId()).isNotZero();
 
-    BigInteger id = application.getId();
+    Integer id = application.getId();
     applicationRepository.delete(application);
     assertThat(applicationRepository.findById(id)).isEmpty();
   }

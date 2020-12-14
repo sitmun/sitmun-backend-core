@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import java.math.BigInteger;
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,8 +40,8 @@ public class UserPosition {
       allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARGO_GEN")
-  @Column(name = "POS_ID", precision = 11)
-  private BigInteger id;
+  @Column(name = "POS_ID")
+  private Integer id;
 
   /**
    * Position description.
@@ -99,11 +99,11 @@ public class UserPosition {
   @NotNull
   private Territory territory;
 
-  public BigInteger getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(BigInteger id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

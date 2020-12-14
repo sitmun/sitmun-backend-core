@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigInteger;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -16,7 +15,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "territory group type")
 @RepositoryRestResource(collectionResourceRel = "territory-group-types", path = "territory-group-types")
 public interface TerritoryGroupTypeRepository
-    extends PagingAndSortingRepository<TerritoryGroupType, BigInteger> {
+    extends PagingAndSortingRepository<TerritoryGroupType, Integer> {
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   @NonNull
@@ -28,7 +27,7 @@ public interface TerritoryGroupTypeRepository
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TerritoryGroupType', 'delete')")
-  void deleteById(@P("entityId") @NonNull BigInteger entityId);
+  void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
   @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
@@ -38,7 +37,7 @@ public interface TerritoryGroupTypeRepository
   @Override
   @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
   @NonNull
-  Optional<TerritoryGroupType> findById(@NonNull BigInteger id);
+  Optional<TerritoryGroupType> findById(@NonNull Integer id);
 
   @RestResource(exported = false)
   Optional<TerritoryGroupType> findOneByName(String name);
