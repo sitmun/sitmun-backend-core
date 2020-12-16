@@ -21,17 +21,17 @@ cache:
   - "$HOME/.m2/repository"
   - ".gradle"
   - node_modules
-deploy:
+deploy:  
   - provider: script
     script: bash ./build-scripts/deploy.sh
     on:
       tags: true
-  - provider: heroku    
+  - provider: heroku
     app: sitmun-backend-core
     on:
       all_branches: true
     api_key:
-      secure: HnGH1kZA+JGY4aEG5IHjyQAcSzYTKP9fbWZ0El3dNa1mYnnWl92EW6BAlB6RmKWyjcOLVTg0b8tphFPfZxnecGQcRY6sLbwQbaSj+/zgRzhMhimX9surCQlXUv/shhXJHgRbnj2TaA51ME5x9kFwTPmeZmcFt1onfr1nQcDWwD5upnz0TPPMJDjAVbLfNS5hmNezGiQAuzsBbm6Tkn61sYYPn9WsQybO2A31XYOIGIpAfnARQMMZK07VWHru3UiLP+p0fTZa6tcPnNmDE3nSUEzZSTPGa6qbvw1NFTFzKigImYxeCZIVieiQF7eppp26Fj10+WJLcTXG/LUolNam51XT5e67rhO+0gqOlTLFb/VZxuED4STdEAxJr10W3JmArOdV53MtQZ2k7GSLpYTWNtZNzj79+h7V+hqfC/WxNrNIZ/SKP5rTarLrLvLYdd4uRd1OJn37w1dhupqapkla2kxtNKvAwNx1vLHNCrYr/Mf+6bn0aHHVWQ68Fww2Ed5GqCcAlLjdpk5Bw5gUL0u3CsEjWFfuOZgiln7Xe7qZ/E5VJfv5LbnEtVFY+30Lx8XIuYpUP18Jy0BWi0471P1PVD14yycG6G3WXnXDVDIivFM96T79hVp5N1IfNEA4hu5giK4sMs1ihJx2bH+3XEIAUdVckbkN4ZDExHhnjorKT3k=
+      secure: Frl3TrzBXekD+zFWmO0t0C8Jp5UgASgJwOXTz9pYdazENZfCVR52vcszeOURqOHJoObvfRyDkXEMgnT3FoBqw77o8e1CcBk2HtN0TI78l54dcsxuNydE4AOYX16FIptyMjwcWtdCK87rpNM5FHrs+c2h7Vs9Aq2XXAHiObjkN806/MzHwr4V9wmFhD130RbDk/5m0JMHpjqrZnwD59KSryt0IKnGFIOPo3YRWPq8L7jSS9VNTFeWSdnqWB7e4hEc1clMgUvRIrvt5qk5ME3qaUY4Kh3utsrW7LG4P4F8UOcRx9PEqR0iIN286bpUFmhLTdu3/HWYouwb87aCN/5qhaAxPMjSISugW0RlT3/fDDdVqE0UZyBgAASgeoWVSutdXyFVxj1Si4RB2L6kRofoMnOq2prVZF5PffsIOf5R2AHqGS4f7S41as7VmzzZP/BNyz8MKcBwZYYvaBoYL99ktY+E0HGpvvA5iJjgpYnf3VS9wpPbhGWih0eJwLfNMLNJ8s5sD2ucTBJiYo1SSpMviN6mKX4fJV5hDqaCMgBALgrTmr6/eQjykpk7dsYPc16O5r05g3V6iZr9kOx8X/ZWH+F3u1K5YrE5qcrVHbKu38IGHtaxtc1kVi9ZFyNtRcs2IWy5KqSgNFrCPoiXDS6WPNG/HCnFOQnBmN1TvOcv2yw=
 branches:
   only:
   - master
