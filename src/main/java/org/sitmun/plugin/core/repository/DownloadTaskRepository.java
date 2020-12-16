@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import org.sitmun.plugin.core.domain.DownloadTask;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
@@ -13,7 +14,7 @@ import org.springframework.security.core.parameters.P;
 @Tag(name = "download task")
 @RepositoryRestResource(collectionResourceRel = "download-tasks", path = "download-tasks")
 public interface DownloadTaskRepository extends
-    PagingAndSortingRepository<DownloadTask, Integer> {
+    PagingAndSortingRepository<DownloadTask, Integer>, QuerydslPredicateExecutor<DownloadTask> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
