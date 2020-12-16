@@ -30,10 +30,18 @@ cache:
     - node_modules
 
 deploy:
-  provider: script
-  script: bash ./build-scripts/deploy.sh
-  on:
-    tags: true
+    - provider: script
+      script: bash ./build-scripts/deploy.sh
+      on:
+        tags: true
+    # We deploy every build to the test deployment machine in Heroku
+    - provider: heroku
+      api_key:
+        secure: $HEROKU_TOKEN
+      app: sitmun-backend-core
+      on:
+        all_branches: true
+      
 
 # Safelist. The regular expression allows for tagged commits that match it to be built
 branches:
