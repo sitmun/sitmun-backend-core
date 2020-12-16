@@ -3,7 +3,7 @@ package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.TreeNode;
-import org.sitmun.plugin.core.domain.TreeNodeProjection;
+import org.sitmun.plugin.core.domain.projections.TreeNodeProjection;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
@@ -26,11 +26,11 @@ public interface TreeNodeRepository extends CrudRepository<TreeNode, Integer> {
   void delete(@P("entity") @NonNull TreeNode entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TreeNode', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TreeNode', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
-  @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
+  @PostFilter("hasPermission(filterObject, 'read')")
   @NonNull
   Iterable<TreeNode> findAll();
 

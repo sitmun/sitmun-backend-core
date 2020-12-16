@@ -1,6 +1,7 @@
-package org.sitmun.plugin.core.domain;
+package org.sitmun.plugin.core.domain.projections;
 
 
+import org.sitmun.plugin.core.domain.TreeNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
