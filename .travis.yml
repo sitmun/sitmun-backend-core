@@ -1,53 +1,41 @@
 language: java
-
 jdk:
-  - openjdk11
-
+- openjdk11
 addons:
   sonarcloud:
     organization: sitmun
-
 env:
-  - SPRING_PROFILES_ACTIVE=dev
-
-script: ./build-scripts/script.sh
-
+- SPRING_PROFILES_ACTIVE=dev
+script: "./build-scripts/script.sh"
 after_success:
-  - ./build-scripts/after_success.sh
-  - ./build-scripts/deploy_docs.sh
-
+- "./build-scripts/after_success.sh"
+- "./build-scripts/deploy_docs.sh"
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-    - $HOME/.sonar/cache
-    - $HOME/.m2/repository
-    - .gradle
-    - node_modules
-
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+  - "$HOME/.sonar/cache"
+  - "$HOME/.m2/repository"
+  - ".gradle"
+  - node_modules
 deploy:
-    - provider: script
-      script: bash ./build-scripts/deploy.sh
-      on:
-        tags: true
-    # We deploy every build to the test deployment machine in Heroku
-    - provider: heroku
-      api_key:
-        secure: $HEROKU_TOKEN
-      app: sitmun-backend-core
-      on:
-        all_branches: true
-      
-
-# Safelist. The regular expression allows for tagged commits that match it to be built
+  matrix:
+  - provider: script
+    script: bash ./build-scripts/deploy.sh
+    on:
+      tags: true
+  - provider: heroku    
+    app: sitmun-backend-core
+    on:
+      all_branches: true
+    api_key:
+      secure: HnGH1kZA+JGY4aEG5IHjyQAcSzYTKP9fbWZ0El3dNa1mYnnWl92EW6BAlB6RmKWyjcOLVTg0b8tphFPfZxnecGQcRY6sLbwQbaSj+/zgRzhMhimX9surCQlXUv/shhXJHgRbnj2TaA51ME5x9kFwTPmeZmcFt1onfr1nQcDWwD5upnz0TPPMJDjAVbLfNS5hmNezGiQAuzsBbm6Tkn61sYYPn9WsQybO2A31XYOIGIpAfnARQMMZK07VWHru3UiLP+p0fTZa6tcPnNmDE3nSUEzZSTPGa6qbvw1NFTFzKigImYxeCZIVieiQF7eppp26Fj10+WJLcTXG/LUolNam51XT5e67rhO+0gqOlTLFb/VZxuED4STdEAxJr10W3JmArOdV53MtQZ2k7GSLpYTWNtZNzj79+h7V+hqfC/WxNrNIZ/SKP5rTarLrLvLYdd4uRd1OJn37w1dhupqapkla2kxtNKvAwNx1vLHNCrYr/Mf+6bn0aHHVWQ68Fww2Ed5GqCcAlLjdpk5Bw5gUL0u3CsEjWFfuOZgiln7Xe7qZ/E5VJfv5LbnEtVFY+30Lx8XIuYpUP18Jy0BWi0471P1PVD14yycG6G3WXnXDVDIivFM96T79hVp5N1IfNEA4hu5giK4sMs1ihJx2bH+3XEIAUdVckbkN4ZDExHhnjorKT3k=
 branches:
   only:
-    - master
-    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
-
+  - master
+  - "/^\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
 git:
   depth: false
