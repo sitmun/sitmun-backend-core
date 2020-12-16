@@ -22,7 +22,6 @@ cache:
   - ".gradle"
   - node_modules
 deploy:
-  matrix:
   - provider: script
     script: bash ./build-scripts/deploy.sh
     on:
