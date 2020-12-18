@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository;
+package org.sitmun.plugin.core.repository.rest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
+import org.sitmun.plugin.core.repository.TerritoryGroupTypeRepository;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

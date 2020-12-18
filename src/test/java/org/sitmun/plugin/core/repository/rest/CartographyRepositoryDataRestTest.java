@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository;
+package org.sitmun.plugin.core.repository.rest;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -30,6 +30,10 @@ import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.CartographyAvailability;
 import org.sitmun.plugin.core.domain.Service;
 import org.sitmun.plugin.core.domain.Territory;
+import org.sitmun.plugin.core.repository.CartographyAvailabilityRepository;
+import org.sitmun.plugin.core.repository.CartographyRepository;
+import org.sitmun.plugin.core.repository.ServiceRepository;
+import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,7 +174,7 @@ public class CartographyRepositoryDataRestTest {
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
-      Integer id = Integer.valueOf(Integer.parseInt(paths[paths.length - 1]));
+      Integer id = Integer.parseInt(paths[paths.length - 1]);
       cartographyRepository.findById(id).ifPresent((it) -> cartographies.add(it));
     });
   }

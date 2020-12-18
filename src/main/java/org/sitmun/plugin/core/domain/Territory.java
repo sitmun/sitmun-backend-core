@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -165,6 +166,18 @@ public class Territory {
           foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
   private Set<Territory> memberOf = new HashSet<>();
 
+  /**
+   * Task availabilities.
+   */
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
+  private Set<TaskAvailability> taskAvailabilities = new HashSet<>();
+
+  /**
+   * Cartography availabilities.
+   */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL)
+  private Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
+
   public Territory() {
   }
 
@@ -175,7 +188,9 @@ public class Territory {
                     @NotNull Boolean blocked, TerritoryType type, String note,
                     Date createdDate, TerritoryGroupType groupType,
                     Set<Territory> members,
-                    Set<Territory> memberOf) {
+                    Set<Territory> memberOf,
+                    Set<TaskAvailability> taskAvailabilities,
+                    Set<CartographyAvailability> cartographyAvailabilities) {
     this.id = id;
     this.code = code;
     this.name = name;
@@ -192,6 +207,8 @@ public class Territory {
     this.groupType = groupType;
     this.members = members;
     this.memberOf = memberOf;
+    this.taskAvailabilities = taskAvailabilities;
+    this.cartographyAvailabilities = cartographyAvailabilities;
   }
 
   public static Builder builder() {
@@ -326,6 +343,24 @@ public class Territory {
     this.memberOf = memberOf;
   }
 
+  public Set<TaskAvailability> getTaskAvailabilities() {
+    return taskAvailabilities;
+  }
+
+  public void setTaskAvailabilities(
+      Set<TaskAvailability> taskAvailabilities) {
+    this.taskAvailabilities = taskAvailabilities;
+  }
+
+  public Set<CartographyAvailability> getCartographyAvailabilities() {
+    return cartographyAvailabilities;
+  }
+
+  public void setCartographyAvailabilities(
+      Set<CartographyAvailability> cartographyAvailabilities) {
+    this.cartographyAvailabilities = cartographyAvailabilities;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof Territory) {
@@ -356,6 +391,8 @@ public class Territory {
     private TerritoryGroupType groupType;
     private Set<Territory> members;
     private Set<Territory> memberOf;
+    private Set<TaskAvailability> taskAvailabilities;
+    private Set<CartographyAvailability> cartographyAvailabilities;
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -437,6 +474,17 @@ public class Territory {
       return this;
     }
 
+    public Builder setTaskAvailabilities(Set<TaskAvailability> taskAvailabilities) {
+      this.taskAvailabilities = taskAvailabilities;
+      return this;
+    }
+
+    public Builder setCartographyAvailabilities(
+        Set<CartographyAvailability> cartographyAvailabilities) {
+      this.cartographyAvailabilities = cartographyAvailabilities;
+      return this;
+    }
+
     /**
      * Builds a Territory.
      *
@@ -445,7 +493,7 @@ public class Territory {
     public Territory build() {
       return new Territory(id, code, name, territorialAuthorityName, territorialAuthorityAddress,
           territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,
-          createdDate, groupType, members, memberOf);
+          createdDate, groupType, members, memberOf, taskAvailabilities, cartographyAvailabilities);
     }
   }
 }

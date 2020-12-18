@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository;
+package org.sitmun.plugin.core.repository.rest;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
@@ -15,6 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
+import org.sitmun.plugin.core.repository.TaskParameterRepository;
+import org.sitmun.plugin.core.repository.TaskRepository;
+import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
