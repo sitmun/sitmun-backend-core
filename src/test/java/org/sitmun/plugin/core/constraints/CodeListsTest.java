@@ -26,8 +26,12 @@ import static org.sitmun.plugin.core.constraints.CodeLists.USER_IDENTIFICATION_T
 import static org.sitmun.plugin.core.constraints.CodeLists.USER_POSITION_TYPE;
 
 
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sitmun.plugin.core.domain.CodeListValue;
+import org.sitmun.plugin.core.domain.QCodeListValue;
 import org.sitmun.plugin.core.repository.CodeListValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -69,142 +73,148 @@ public class CodeListsTest {
     );
   }
 
+  private Iterable<String> select(String list) {
+    return StreamSupport.stream(
+        codeListValueRepository.findAll(QCodeListValue.codeListValue.codeListName.eq(list))
+            .spliterator(), false)
+        .map(CodeListValue::getValue).collect(Collectors.toList());
+  }
+
   @Test
   public void checkTerritoryScope() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(TERRITORY_SCOPE))
-        .containsExactlyInAnyOrder("M", "R", "T");
+    assertThat(select(TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
   }
 
   @Test
   public void checkUserIdentificationType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(USER_IDENTIFICATION_TYPE))
+    assertThat(select(USER_IDENTIFICATION_TYPE))
         .containsExactlyInAnyOrder("DNI", "NIE", "PAS");
   }
 
   @Test
   public void checkCartographyLegendType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_LEGEND_TYPE))
+    assertThat(select(CARTOGRAPHY_LEGEND_TYPE))
         .containsExactlyInAnyOrder("LINK", "LEGENDGRAPHIC", "CAPABILITIES");
   }
 
   @Test
   public void checkCartographyGeometryType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_GEOMETRY_TYPE))
+    assertThat(select(CARTOGRAPHY_GEOMETRY_TYPE))
         .containsExactlyInAnyOrder("POINT", "LINE", "POLYGON");
   }
 
   @Test
   public void checkCartographyFilterType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_FILTER_TYPE))
+    assertThat(select(CARTOGRAPHY_FILTER_TYPE))
         .containsExactlyInAnyOrder("C", "D");
   }
 
   @Test
   public void checkCartographyFilterValueType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_FILTER_VALUE_TYPE))
+    assertThat(select(CARTOGRAPHY_FILTER_VALUE_TYPE))
         .containsExactlyInAnyOrder("A", "N", "D");
   }
 
   @Test
   public void checkCartographyParameterFormat() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_PARAMETER_FORMAT))
+    assertThat(select(CARTOGRAPHY_PARAMETER_FORMAT))
         .containsExactlyInAnyOrder("Imagen", "número", "porcentaje", "texto", "URL", "fecha");
   }
 
   @Test
   public void checkCartographyParameterType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_PARAMETER_TYPE))
+    assertThat(select(CARTOGRAPHY_PARAMETER_TYPE))
         .containsExactlyInAnyOrder("INFO", "SELECT", "INFOSELECT", "FILTRO_INFO", "FILTRO_ESPACIAL",
             "FILTRO", "EDIT");
   }
 
   @Test
   public void checkCartographyPermissionType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(CARTOGRAPHY_PERMISSION_TYPE))
+    assertThat(select(CARTOGRAPHY_PERMISSION_TYPE))
         .containsExactlyInAnyOrder("C", "F", "M", "I");
   }
 
   @Test
   public void checkApplicationParameterType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(APPLICATION_PARAMETER_TYPE))
+    assertThat(select(APPLICATION_PARAMETER_TYPE))
         .containsExactlyInAnyOrder("MOBILE", "Nomenclator", "PRINT_TEMPLATE");
   }
 
   @Test
   public void checkServiceType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(SERVICE_TYPE))
+    assertThat(select(SERVICE_TYPE))
         .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
   }
 
   @Test
   public void checkServiceNativeProtocol() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(SERVICE_NATIVE_PROTOCOL))
+    assertThat(select(SERVICE_NATIVE_PROTOCOL))
         .isEmpty();
   }
 
   @Test
   public void checkServiceParameterType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(SERVICE_PARAMETER_TYPE))
+    assertThat(select(SERVICE_PARAMETER_TYPE))
         .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM");
   }
 
   @Test
   public void checkTaskParameterType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(TASK_PARAMETER_TYPE))
+    assertThat(select(TASK_PARAMETER_TYPE))
         .containsExactlyInAnyOrder("CAMPO", "CAPA", "EDIT", "FILTRO", "FME", "GEOM", "LABEL",
             "RELM", "RELS", "SQL", "TIPO", "VISTA");
   }
 
   @Test
   public void checkTaskParameterFormat() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(TASK_PARAMETER_FORMAT))
+    assertThat(select(TASK_PARAMETER_FORMAT))
         .containsExactlyInAnyOrder("T", "F", "N", "L", "U", "I", "C", "R", "S", "B");
   }
 
   @Test
   public void checkDownloadTaskFormat() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(DOWNLOAD_TASK_FORMAT)).isEmpty();
+    assertThat(select(DOWNLOAD_TASK_FORMAT)).isEmpty();
   }
 
   @Test
   public void checkDownloadTaskScope() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(DOWNLOAD_TASK_SCOPE))
+    assertThat(select(DOWNLOAD_TASK_SCOPE))
         .containsExactlyInAnyOrder("U", "A", "C");
   }
 
   @Test
   public void checkQueryTaskScope() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(QUERY_TASK_SCOPE))
+    assertThat(select(QUERY_TASK_SCOPE))
         .containsExactlyInAnyOrder("URL", "SQL", "WS", "INFORME", "TAREA");
   }
 
   @Test
   public void checkUserPositionType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(USER_POSITION_TYPE))
+    assertThat(select(USER_POSITION_TYPE))
         .containsExactlyInAnyOrder("RE");
   }
 
   @Test
   public void checkThematicMapType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(THEMATIC_MAP_TYPE))
+    assertThat(select(THEMATIC_MAP_TYPE))
         .containsExactlyInAnyOrder("VU", "RE", "RL");
   }
 
   @Test
   public void checkThematicMapValueType() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(THEMATIC_MAP_VALUE_TYPE))
+    assertThat(select(THEMATIC_MAP_VALUE_TYPE))
         .containsExactlyInAnyOrder("STR", "DOU");
   }
 
   @Test
   public void checkThematicMapDestination() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(THEMATIC_MAP_DESTINATION))
+    assertThat(select(THEMATIC_MAP_DESTINATION))
         .containsExactlyInAnyOrder("WS", "WS_HERMES", "UPLOADED");
   }
 
   @Test
   public void checkThematicMapRangeStyle() {
-    assertThat(codeListValueRepository.findValuesByCodeListName(THEMATIC_MAP_RANGE_STYLE))
+    assertThat(select(THEMATIC_MAP_RANGE_STYLE))
         .isEmpty();
   }
 }
