@@ -175,7 +175,7 @@ public class Territory {
   /**
    * Cartography availabilities.
    */
-  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
   private Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
 
   public Territory() {
