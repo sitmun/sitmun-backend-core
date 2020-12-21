@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -20,7 +23,7 @@ public class DownloadTask extends Task {
   /**
    * Download extension.
    */
-  @Column(name = "DOW_EXT", length = 5)
+  @Column(name = "DOW_EXT", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.DOWNLOAD_TASK_FORMAT)
   private String format;
@@ -28,7 +31,7 @@ public class DownloadTask extends Task {
   /**
    * Download scope.
    */
-  @Column(name = "DOW_TYPE", length = 5)
+  @Column(name = "DOW_TYPE", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.DOWNLOAD_TASK_SCOPE)
   private String scope;

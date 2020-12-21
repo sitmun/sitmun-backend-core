@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,7 +38,7 @@ public class TaskGroup {
   /**
    * Task group name.
    */
-  @Column(name = "GTS_NAME", length = 80)
+  @Column(name = "GTS_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

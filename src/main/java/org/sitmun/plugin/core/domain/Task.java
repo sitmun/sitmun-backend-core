@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -64,7 +67,7 @@ public class Task {
   /**
    * Name.
    */
-  @Column(name = "TAS_NAME", length = 250)
+  @Column(name = "TAS_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

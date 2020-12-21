@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,14 +39,14 @@ public class CodeListValue {
   /**
    * Code list name.
    */
-  @Column(name = "COD_LIST")
+  @Column(name = "COD_LIST", length = IDENTIFIER)
   @NotBlank
   private String codeListName;
 
   /**
    * Value.
    */
-  @Column(name = "COD_VALUE")
+  @Column(name = "COD_VALUE", length = IDENTIFIER)
   @NotBlank
   private String value;
 

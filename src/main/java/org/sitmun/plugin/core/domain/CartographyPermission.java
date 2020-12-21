@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -51,14 +54,14 @@ public class CartographyPermission {
   /**
    * Permissions name.
    */
-  @Column(name = "GGI_NAME", length = 80)
+  @Column(name = "GGI_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
   /**
    * Permissions type.
    */
-  @Column(name = "GGI_TYPE", length = 30, insertable = false, updatable = false)
+  @Column(name = "GGI_TYPE", length = IDENTIFIER, insertable = false, updatable = false)
   @CodeList(CodeLists.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 

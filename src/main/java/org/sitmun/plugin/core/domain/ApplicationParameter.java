@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -43,7 +46,7 @@ public class ApplicationParameter {
   /**
    * Application parameter name.
    */
-  @Column(name = "PAP_NAME", length = 30)
+  @Column(name = "PAP_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -57,7 +60,7 @@ public class ApplicationParameter {
   /**
    * Parameter type.
    */
-  @Column(name = "PAP_TYPE", length = 250)
+  @Column(name = "PAP_TYPE", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.APPLICATION_PARAMETER_TYPE)
   private String type;

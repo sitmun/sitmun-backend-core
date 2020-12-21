@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -42,7 +45,7 @@ public class TaskParameter {
   /**
    * Parameter name.
    */
-  @Column(name = "PTT_NAME", length = 50)
+  @Column(name = "PTT_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -55,7 +58,7 @@ public class TaskParameter {
   /**
    * Parameter type.
    */
-  @Column(name = "PTT_TYPE", length = 30)
+  @Column(name = "PTT_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.TASK_PARAMETER_TYPE)
   private String type;
 
@@ -69,7 +72,7 @@ public class TaskParameter {
   /**
    * Attribute format (when editing).
    */
-  @Column(name = "PTT_FORMAT", length = 250)
+  @Column(name = "PTT_FORMAT", length = IDENTIFIER)
   @CodeList(CodeLists.TASK_PARAMETER_FORMAT)
   private String format;
 

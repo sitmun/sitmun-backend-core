@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -39,21 +42,21 @@ public class Connection {
   /**
    * Connection name.
    */
-  @Column(name = "CON_NAME", length = 80)
+  @Column(name = "CON_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
   /**
    * JDBC driver.
    */
-  @Column(name = "CON_DRIVER", length = 50)
+  @Column(name = "CON_DRIVER", length = IDENTIFIER)
   @NotBlank
   private String driver;
 
   /**
    * User.
    */
-  @Column(name = "CON_USER", length = 50)
+  @Column(name = "CON_USER", length = IDENTIFIER)
   private String user;
 
   /**

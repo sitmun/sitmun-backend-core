@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +42,7 @@ public class ThematicMapRange {
   /**
    * Range name.
    */
-  @Column(name = "TRK_NAME", length = 30)
+  @Column(name = "TRK_NAME", length = IDENTIFIER)
   private String name;
 
   /**

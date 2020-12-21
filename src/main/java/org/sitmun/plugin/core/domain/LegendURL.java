@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
@@ -27,7 +30,7 @@ public class LegendURL {
   /**
    * Legend format.
    */
-  @Column(length = 80)
+  @Column(length = IDENTIFIER)
   private String format;
 
   /**

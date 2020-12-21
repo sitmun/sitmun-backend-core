@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -47,7 +50,7 @@ public class TreeNode {
   /**
    * Name.
    */
-  @Column(name = "TNO_NAME", length = 80)
+  @Column(name = "TNO_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

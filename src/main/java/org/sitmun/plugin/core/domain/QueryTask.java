@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -27,7 +30,7 @@ public class QueryTask extends Task {
   /**
    * Command scope.
    */
-  @Column(name = "QUE_TYPE", length = 250)
+  @Column(name = "QUE_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.QUERY_TASK_SCOPE)
   private String scope;
 

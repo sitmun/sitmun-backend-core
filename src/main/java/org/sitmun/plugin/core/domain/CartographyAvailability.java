@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Date;
 import javax.persistence.Column;
@@ -53,7 +56,7 @@ public class CartographyAvailability {
    * Owner of the Geographic Information.
    * Keeps the owner's name when ownership is not obvious or is an exception.
    */
-  @Column(name = "AGI_PROPRIETA")
+  @Column(name = "AGI_PROPRIETA", length = IDENTIFIER)
   private String owner;
 
   /**

@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,7 +44,7 @@ public class CartographyParameter {
   /**
    * Name.
    */
-  @Column(name = "PGI_NAME", length = 250)
+  @Column(name = "PGI_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -55,14 +58,14 @@ public class CartographyParameter {
   /**
    * Format.
    */
-  @Column(name = "PGI_FORMAT", length = 250)
+  @Column(name = "PGI_FORMAT", length = IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_FORMAT)
   private String format;
 
   /**
    * Type.
    */
-  @Column(name = "PGI_TYPE", length = 250)
+  @Column(name = "PGI_TYPE", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_TYPE)
   private String type;

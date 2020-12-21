@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +39,7 @@ public class Language {
   /**
    * Language identifier.
    */
-  @Column(name = "LAN_SHORTNAME", length = 3)
+  @Column(name = "LAN_SHORTNAME", length = IDENTIFIER)
   @NotBlank
   private String shortname;
 

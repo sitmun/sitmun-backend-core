@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +58,7 @@ public class Cartography {
   /**
    * Cartography name.
    */
-  @Column(name = "GEO_NAME", length = 100)
+  @Column(name = "GEO_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -136,7 +139,7 @@ public class Cartography {
   /**
    * Type.
    */
-  @Column(name = "GEO_TYPE", length = 30)
+  @Column(name = "GEO_TYPE", length = IDENTIFIER)
   private String type;
 
   /**
@@ -176,7 +179,7 @@ public class Cartography {
   /**
    * Legend type.
    */
-  @Column(name = "GEO_LEGENDTIP", length = 500)
+  @Column(name = "GEO_LEGENDTIP", length = IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_LEGEND_TYPE)
   private String legendType;
 
@@ -224,14 +227,14 @@ public class Cartography {
   /**
    * Geometry type.
    */
-  @Column(name = "GEO_GEOMTYPE", length = 50)
+  @Column(name = "GEO_GEOMTYPE", length = IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_GEOMETRY_TYPE)
   private String geometryType;
 
   /**
    * Grouping source.
    */
-  @Column(name = "GEO_SOURCE", length = 80)
+  @Column(name = "GEO_SOURCE", length = IDENTIFIER)
   private String source;
 
   /**

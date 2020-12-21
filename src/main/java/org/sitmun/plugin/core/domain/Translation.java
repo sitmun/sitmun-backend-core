@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -46,7 +49,7 @@ public class Translation {
   /**
    * Table and Column identifier.
    */
-  @Column(name = "TRA_COLUMN", length = 30)
+  @Column(name = "TRA_COLUMN", length = IDENTIFIER)
   @NotBlank
   private String column;
 

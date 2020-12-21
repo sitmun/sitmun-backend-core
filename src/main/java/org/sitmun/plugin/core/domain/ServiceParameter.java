@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -43,7 +46,7 @@ public class ServiceParameter {
   /**
    * Parameter name.
    */
-  @Column(name = "PSE_NAME", length = 30)
+  @Column(name = "PSE_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -56,7 +59,7 @@ public class ServiceParameter {
   /**
    * Parameter type.
    */
-  @Column(name = "PSE_TYPE", length = 250)
+  @Column(name = "PSE_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.SERVICE_PARAMETER_TYPE)
   @NotNull
   private String type;

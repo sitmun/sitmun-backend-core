@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,7 +45,7 @@ public class Background {
   /**
    * Name.
    */
-  @Column(name = "BAC_NAME", length = 30)
+  @Column(name = "BAC_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

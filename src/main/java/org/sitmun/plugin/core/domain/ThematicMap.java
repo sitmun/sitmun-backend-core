@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -44,7 +47,7 @@ public class ThematicMap implements Serializable {
   /**
    * Name.
    */
-  @Column(name = "THE_NAME", length = 250)
+  @Column(name = "THE_NAME", length = IDENTIFIER)
   private String name;
 
   /**
@@ -57,7 +60,7 @@ public class ThematicMap implements Serializable {
    * Method to create ranges automatically (e.g. unique values, equal record count,
    * equal size interval).
    */
-  @Column(name = "THE_RANKTYPE", length = 30)
+  @Column(name = "THE_RANKTYPE", length = IDENTIFIER)
   @CodeList(CodeLists.THEMATIC_MAP_TYPE)
   private String type;
 
@@ -138,13 +141,13 @@ public class ThematicMap implements Serializable {
   /**
    * Allow to label thematic map.
    */
-  @Column(name = "THE_TAGGABLE", length = 30)
+  @Column(name = "THE_TAGGABLE")
   private Boolean taggable;
 
   /**
    * Label value type (double or string).
    */
-  @Column(name = "THE_VALUETYPE", length = 30)
+  @Column(name = "THE_VALUETYPE", length = IDENTIFIER)
   @CodeList(CodeLists.THEMATIC_MAP_VALUE_TYPE)
   private String valueType;
 
@@ -158,7 +161,7 @@ public class ThematicMap implements Serializable {
   /**
    * If <code>null</code>, the destination of the map is SITMUN.
    */
-  @Column(name = "THE_DESTINATION", length = 30)
+  @Column(name = "THE_DESTINATION", length = IDENTIFIER)
   @CodeList(CodeLists.THEMATIC_MAP_DESTINATION)
   private String destination;
 

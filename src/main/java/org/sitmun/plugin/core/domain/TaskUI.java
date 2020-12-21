@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +39,7 @@ public class TaskUI {
   /**
    * Task name.
    */
-  @Column(name = "TUI_NAME", length = 30)
+  @Column(name = "TUI_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

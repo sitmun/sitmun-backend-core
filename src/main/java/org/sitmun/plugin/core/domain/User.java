@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -42,7 +45,7 @@ public class User { //implements Identifiable<BigInteger> {
   /**
    * User login.
    */
-  @Column(name = "USE_USER", length = 30)
+  @Column(name = "USE_USER", length = IDENTIFIER)
   private String username;
 
   /**
@@ -66,13 +69,13 @@ public class User { //implements Identifiable<BigInteger> {
   /**
    * User identification number.
    */
-  @Column(name = "USE_IDENT", length = 20)
+  @Column(name = "USE_IDENT", length = IDENTIFIER)
   private String identificationNumber;
 
   /**
    * User identification type.
    */
-  @Column(name = "USE_IDENTTYPE", length = 3)
+  @Column(name = "USE_IDENTTYPE", length = IDENTIFIER)
   @CodeList(CodeLists.USER_IDENTIFICATION_TYPE)
   private String identificationType;
 

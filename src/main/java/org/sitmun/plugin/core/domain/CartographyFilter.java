@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import javax.persistence.Column;
@@ -44,7 +47,7 @@ public class CartographyFilter {
   /**
    * Filter name.
    */
-  @Column(name = "FGI_NAME", length = 80)
+  @Column(name = "FGI_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -58,7 +61,7 @@ public class CartographyFilter {
   /**
    * Type of filter: custom or required.
    */
-  @Column(name = "FGI_TYPE", length = 1)
+  @Column(name = "FGI_TYPE", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.CARTOGRAPHY_FILTER_TYPE)
   private String type;
@@ -73,7 +76,7 @@ public class CartographyFilter {
   /**
    * Column where the filter applies.
    */
-  @Column(name = "FGI_COLUMN", length = 250)
+  @Column(name = "FGI_COLUMN", length = IDENTIFIER)
   private String column;
 
   /**
@@ -86,7 +89,7 @@ public class CartographyFilter {
   /**
    * Type of filter value.
    */
-  @Column(name = "FGI_VALUETYPE", length = 30)
+  @Column(name = "FGI_VALUETYPE", length = IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_FILTER_VALUE_TYPE)
   private String valueType;
 

@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -47,14 +50,14 @@ public class Application {
   /**
    * Application name.
    */
-  @Column(name = "APP_NAME", length = 80)
+  @Column(name = "APP_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
   /**
    * Application type (external or internal).
    */
-  @Column(name = "APP_TYPE", length = 250)
+  @Column(name = "APP_TYPE", length = IDENTIFIER)
   @NotNull
   private String type;
 
@@ -80,7 +83,7 @@ public class Application {
   /**
    * Projection to be used in this application when it is internal.
    */
-  @Column(name = "APP_PROJECT", length = 250)
+  @Column(name = "APP_PROJECT", length = IDENTIFIER)
   @SpatialReferenceSystem
   private String srs;
 

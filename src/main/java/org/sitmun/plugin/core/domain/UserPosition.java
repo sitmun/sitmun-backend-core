@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -79,7 +82,7 @@ public class UserPosition {
   /**
    * Type of user (only used in some cases).
    */
-  @Column(name = "POS_TYPE", length = 2)
+  @Column(name = "POS_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.USER_POSITION_TYPE)
   private String type;
 

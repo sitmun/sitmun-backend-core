@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -98,7 +101,7 @@ public class Log {
   /**
    * Territory code.
    */
-  @Column(name = "LOG_TER", length = 250)
+  @Column(name = "LOG_TER", length = IDENTIFIER)
   private String territoryCode;
 
   /**
@@ -118,14 +121,14 @@ public class Log {
   /**
    * SRS requested.
    */
-  @Column(name = "LOG_SRS", length = 250)
+  @Column(name = "LOG_SRS", length = IDENTIFIER)
   @SpatialReferenceSystem
   private String srs;
 
   /**
    * Format requested.
    */
-  @Column(name = "LOG_FORMAT", length = 250)
+  @Column(name = "LOG_FORMAT", length = IDENTIFIER)
   private String format;
 
   /**

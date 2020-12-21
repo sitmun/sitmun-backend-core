@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +57,7 @@ public class Territory {
   /**
    * Geographic code.
    */
-  @Column(name = "TER_CODMUN", length = 250)
+  @Column(name = "TER_CODMUN", length = IDENTIFIER)
   @NotBlank
   private String code;
 
@@ -87,7 +90,7 @@ public class Territory {
   /**
    * Territory scope.
    */
-  @Column(name = "TER_SCOPE", length = 250)
+  @Column(name = "TER_SCOPE", length = IDENTIFIER)
   @CodeList(CodeLists.TERRITORY_SCOPE)
   private String scope;
 

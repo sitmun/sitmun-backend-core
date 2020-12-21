@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,7 +41,7 @@ public class Role {
    * Role name.
    * Role names are unique and cannot be shared across applications.
    */
-  @Column(name = "ROL_NAME", length = 250)
+  @Column(name = "ROL_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

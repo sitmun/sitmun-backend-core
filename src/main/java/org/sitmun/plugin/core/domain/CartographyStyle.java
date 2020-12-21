@@ -1,5 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -41,7 +44,7 @@ public class CartographyStyle {
   /**
    * Style name.
    */
-  @Column(name = "SGI_NAME", length = 80)
+  @Column(name = "SGI_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 

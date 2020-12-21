@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +54,7 @@ public class Service {
   /**
    * Service name.
    */
-  @Column(name = "SER_NAME", length = 30)
+  @Column(name = "SER_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -102,7 +105,7 @@ public class Service {
    * Service type.
    * The protocol that can be used to request the service.
    */
-  @Column(name = "SER_PROTOCOL", length = 30)
+  @Column(name = "SER_PROTOCOL", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.SERVICE_TYPE)
   private String type;
@@ -112,7 +115,7 @@ public class Service {
    * Required when SITMUN acts as reverse proxy and the origin protocol has a protocol
    * different from the protocol declared in {@link #type}.
    */
-  @Column(name = "SER_NAT_PROT", length = 30)
+  @Column(name = "SER_NAT_PROT", length = IDENTIFIER)
   @CodeList(CodeLists.SERVICE_NATIVE_PROTOCOL)
   private String nativeProtocol;
 

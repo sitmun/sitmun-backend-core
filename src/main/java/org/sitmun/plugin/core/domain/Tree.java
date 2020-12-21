@@ -1,6 +1,9 @@
 package org.sitmun.plugin.core.domain;
 
 
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -45,7 +48,7 @@ public class Tree {
   /**
    * Tree name.
    */
-  @Column(name = "TRE_NAME", length = 100)
+  @Column(name = "TRE_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
 
