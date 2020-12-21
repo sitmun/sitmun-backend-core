@@ -27,28 +27,41 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureMockMvc
 public class UserConfigurationProjectionTest {
 
+  private static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
+      "/api/user-configurations?projection=view&{0}={1}";
+
   @Autowired
   private MockMvc mvc;
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void filterByProjectedProperty() throws Exception {
-    mvc.perform(get("/api/user-configurations?projection=view&territory.id=41"))
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territory.id", "41"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
         .andExpect(
             jsonPath("$._embedded.user-configurations[?(@.['territory.id'] == 41)]", hasSize(34)));
 
-    mvc.perform(get("/api/user-configurations?projection=view&user.id=1777"))
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "user.id", "1777"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.user-configurations", hasSize(9)))
         .andExpect(
             jsonPath("$._embedded.user-configurations[?(@.['user.id'] == 1777)]", hasSize(9)));
 
-    mvc.perform(get("/api/user-configurations?projection=view&role.id=10"))
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "role.id", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.user-configurations", hasSize(7)))
         .andExpect(jsonPath("$._embedded.user-configurations[?(@.['role.id'] == 10)]", hasSize(7)));
+  }
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void ensureIdIsPresent() throws Exception {
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territory.id", "41"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
+        .andExpect(
+            jsonPath("$._embedded.user-configurations[*].id", hasSize(34)));
   }
 
   @TestConfiguration

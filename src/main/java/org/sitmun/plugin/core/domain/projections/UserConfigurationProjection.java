@@ -12,6 +12,12 @@ import org.springframework.data.rest.core.config.Projection;
 public interface UserConfigurationProjection {
 
   /**
+   * User configuration identifier.
+   */
+  @Value("#{target.id}")
+  Integer getId();
+
+  /**
    * Username of the user.
    */
   @Value("#{target.user.username}")
