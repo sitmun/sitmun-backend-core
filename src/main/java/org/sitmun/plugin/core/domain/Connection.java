@@ -1,11 +1,15 @@
 package org.sitmun.plugin.core.domain;
 
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotBlank;
@@ -64,18 +68,34 @@ public class Connection {
   @Column(name = "CON_CONNECTION", length = 250)
   private String url;
 
+
+  /**
+   * Tasks that use this connection.
+   */
+  @OneToMany(mappedBy = "connection", cascade = CascadeType.ALL)
+  private Set<Task> tasks = new HashSet<>();
+
+  /**
+   * Cartographies that use this coneection.
+   */
+  @OneToMany(mappedBy = "spatialSelectionConnection", cascade = CascadeType.ALL)
+  private Set<Cartography> cartographies = new HashSet<>();
+
+
   public Connection() {
   }
 
   private Connection(Integer id, @NotBlank String name,
                      @NotBlank String driver, String user, String password,
-                     String url) {
+                     String url, Set<Task> tasks, Set<Cartography> cartographies) {
     this.id = id;
     this.name = name;
     this.driver = driver;
     this.user = user;
     this.password = password;
     this.url = url;
+    this.tasks = tasks;
+    this.cartographies = cartographies;
   }
 
   public static Builder builder() {
@@ -130,6 +150,22 @@ public class Connection {
     this.url = url;
   }
 
+  public Set<Task> getTasks() {
+    return tasks;
+  }
+
+  public void setTasks(Set<Task> tasks) {
+    this.tasks = tasks;
+  }
+
+  public Set<Cartography> getCartographies() {
+    return cartographies;
+  }
+
+  public void setCartographies(Set<Cartography> cartographies) {
+    this.cartographies = cartographies;
+  }
+
   public static class Builder {
     private Integer id;
     private @NotBlank String name;
@@ -137,6 +173,8 @@ public class Connection {
     private String user;
     private String password;
     private String url;
+    private Set<Task> tasks;
+    private Set<Cartography> cartographies;
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -168,8 +206,18 @@ public class Connection {
       return this;
     }
 
+    public Builder setTaks(Set<Task> tasks) {
+      this.tasks = tasks;
+      return this;
+    }
+
+    public Builder setCartographies(Set<Cartography> cartographies) {
+      this.cartographies = cartographies;
+      return this;
+    }
+
     public Connection build() {
-      return new Connection(id, name, driver, user, password, url);
+      return new Connection(id, name, driver, user, password, url, tasks, cartographies);
     }
   }
 }
