@@ -27,6 +27,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
@@ -59,6 +61,7 @@ public class Application {
    */
   @Column(name = "APP_TYPE", length = IDENTIFIER)
   @NotNull
+  @CodeList(CodeLists.APPLICATION_TYPE)
   private String type;
 
   /**

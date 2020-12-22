@@ -228,5 +228,11 @@ VALUES (84, 'thematicMap.destination', 'UPLOADED', 'Uploaded JSON file');
 -- STM_THE_RANK.TRK_STYLE
 -- TODO Provide value and description for code list thematicMapRange.style
 
+-- STM_APPLICATION.APP_TYPE
+INSERT INTO STM_CODELIST
+VALUES (85, 'application.type', 'I', 'Internal');
+INSERT INTO STM_CODELIST
+VALUES (86, 'application.type', 'E', 'External');
+
 INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
-VALUES ('COD_ID', 85);
+VALUES ('COD_ID', 86);

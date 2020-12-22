@@ -2,6 +2,7 @@ package org.sitmun.plugin.core.constraints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sitmun.plugin.core.constraints.CodeLists.APPLICATION_PARAMETER_TYPE;
+import static org.sitmun.plugin.core.constraints.CodeLists.APPLICATION_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_FILTER_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_FILTER_VALUE_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_GEOMETRY_TYPE;
@@ -47,6 +48,7 @@ public class CodeListsTest {
   @Test
   public void checkAvailableCodeLists() {
     assertThat(codeListValueRepository.findDistinctCodeListName()).containsExactlyInAnyOrder(
+        APPLICATION_TYPE,
         TERRITORY_SCOPE,
         USER_IDENTIFICATION_TYPE,
         CARTOGRAPHY_LEGEND_TYPE,
@@ -78,6 +80,12 @@ public class CodeListsTest {
         codeListValueRepository.findAll(QCodeListValue.codeListValue.codeListName.eq(list))
             .spliterator(), false)
         .map(CodeListValue::getValue).collect(Collectors.toList());
+  }
+
+  @Test
+  public void checkApplicationType() {
+    assertThat(select(APPLICATION_TYPE))
+        .containsExactlyInAnyOrder("I", "E");
   }
 
   @Test

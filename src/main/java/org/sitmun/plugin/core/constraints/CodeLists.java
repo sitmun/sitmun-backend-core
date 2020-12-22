@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.constraints;
 
 public interface CodeLists {
 
+  String APPLICATION_TYPE = "application.type";
+
   String TERRITORY_SCOPE = "territory.scope";
 
   String USER_IDENTIFICATION_TYPE = "user.identificationType";
