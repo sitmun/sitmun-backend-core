@@ -25,41 +25,21 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CartographyPermissionsRepositoryDataRestTest {
+public class BackgroundMapsRepositoryDataRestTest {
 
-  private static final String CARTOGRAPHY_PERMISSIONS_URI =
-      "http://localhost/api/cartography-groups?type={0}";
-  private static final String CARTOGRAPHY_PERMISSIONS_OR_URI =
-      "http://localhost/api/cartography-groups?type={0}&type={1}";
+  private static final String BACKGROUND_MAPS_URI =
+      "http://localhost/api/background-maps";
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
-  public void filterType() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "M"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(1)))
-        .andExpect(jsonPath("$._embedded.situation-maps[?(@.type == 'M')]", hasSize(1)));
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "F"))
+  public void retrieveAll() throws Exception {
+    mvc.perform(get(BACKGROUND_MAPS_URI))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
-        .andExpect(jsonPath("$._embedded.background-maps[?(@.type == 'F')]", hasSize(6)));
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "C"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(112)))
-        .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == 'C')]", hasSize(112)));
-  }
-
-  @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
-  public void filterOrType() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_OR_URI, "M", "C"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(113)))
-        .andExpect(jsonPath("$._embedded.situation-maps[?(@.type == 'M')]", hasSize(1)))
-        .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == 'C')]", hasSize(112)));
+        .andExpect(jsonPath("$._embedded.background-maps", hasSize(6)));
   }
 
   @TestConfiguration
