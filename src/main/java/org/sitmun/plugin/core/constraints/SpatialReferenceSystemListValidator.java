@@ -12,10 +12,6 @@ public class SpatialReferenceSystemListValidator
       .compile("^[A-Z_\\-]+:\\d+$", Pattern.CASE_INSENSITIVE);
 
   @Override
-  public void initialize(SpatialReferenceSystem constraintAnnotation) {
-  }
-
-  @Override
   public boolean isValid(List<String> value, ConstraintValidatorContext context) {
     if (value == null) {
       return true;

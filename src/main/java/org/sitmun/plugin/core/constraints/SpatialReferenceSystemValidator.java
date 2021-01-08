@@ -10,10 +10,6 @@ public class SpatialReferenceSystemValidator
   private static final Pattern pattern = Pattern.compile("^[A-Z\\-]+:\\d+$");
 
   @Override
-  public void initialize(SpatialReferenceSystem constraintAnnotation) {
-  }
-
-  @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
     if (value == null) {
       return true;
