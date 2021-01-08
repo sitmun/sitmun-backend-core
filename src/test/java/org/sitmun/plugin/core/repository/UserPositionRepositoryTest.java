@@ -53,7 +53,7 @@ public class UserPositionRepositoryTest {
         .build();
     territorioRepository.save(territory);
 
-    userPosition = new UserPosition();
+    userPosition = new UserPosition.UserPositionBuilder().build();
     userPosition.setName("Test");
     userPosition.setEmail(null);
     userPosition.setCreatedDate(new Date());

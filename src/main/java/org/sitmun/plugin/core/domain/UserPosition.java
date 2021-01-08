@@ -174,4 +174,85 @@ public class UserPosition {
     this.territory = territory;
   }
 
+  public UserPosition() {
+  }
+
+  private UserPosition(Integer id, String name, String organization,
+                       @Email String email, Date createdDate, Date expirationDate,
+                       String type,
+                       @NotNull User user,
+                       @NotNull Territory territory) {
+    this.id = id;
+    this.name = name;
+    this.organization = organization;
+    this.email = email;
+    this.createdDate = createdDate;
+    this.expirationDate = expirationDate;
+    this.type = type;
+    this.user = user;
+    this.territory = territory;
+  }
+
+  public static class UserPositionBuilder {
+    private Integer id;
+    private String name;
+    private String organization;
+    private @Email String email;
+    private Date createdDate;
+    private Date expirationDate;
+    private String type;
+    private @NotNull User user;
+    private @NotNull Territory territory;
+
+    public UserPositionBuilder setId(Integer id) {
+      this.id = id;
+      return this;
+    }
+
+    public UserPositionBuilder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public UserPositionBuilder setOrganization(String organization) {
+      this.organization = organization;
+      return this;
+    }
+
+    public UserPositionBuilder setEmail(@Email String email) {
+      this.email = email;
+      return this;
+    }
+
+    public UserPositionBuilder setCreatedDate(Date createdDate) {
+      this.createdDate = createdDate;
+      return this;
+    }
+
+    public UserPositionBuilder setExpirationDate(Date expirationDate) {
+      this.expirationDate = expirationDate;
+      return this;
+    }
+
+    public UserPositionBuilder setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    public UserPositionBuilder setUser(@NotNull User user) {
+      this.user = user;
+      return this;
+    }
+
+    public UserPositionBuilder setTerritory(@NotNull Territory territory) {
+      this.territory = territory;
+      return this;
+    }
+
+    public UserPosition build() {
+      return new UserPosition(id, name, organization, email, createdDate, expirationDate, type,
+          user,
+          territory);
+    }
+  }
 }
