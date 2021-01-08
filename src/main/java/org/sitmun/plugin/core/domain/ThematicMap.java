@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.domain;
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 
-import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,7 +26,7 @@ import org.sitmun.plugin.core.constraints.HttpURL;
  */
 @Entity
 @Table(name = "STM_THEMATIC")
-public class ThematicMap implements Serializable {
+public class ThematicMap {
 
   /**
    * Unique identifier.
