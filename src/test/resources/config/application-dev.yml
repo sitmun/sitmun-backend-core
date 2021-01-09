@@ -1,0 +1,45 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+logging:
+  level:
+    ROOT: DEBUG
+    org.sitmun.plugin.core: DEBUG
+
+spring:
+  jackson:
+    serialization:
+      indent-output: true
+  datasource:
+    url: jdbc:h2:file:./build/sitmundb
+    username: sample
+    password:
+  h2:
+    console:
+      enabled: false
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+    contexts: dev
+
+security:
+  authentication:
+    jwt:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+      token-validity-in-miliseconds: 36000000
+
+server:
+  port: 8080
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
