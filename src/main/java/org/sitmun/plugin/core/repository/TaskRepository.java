@@ -1,19 +1,26 @@
 package org.sitmun.plugin.core.repository;
 
+import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Optional;
+import org.sitmun.plugin.core.domain.QTask;
 import org.sitmun.plugin.core.domain.Task;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
+import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.Optional;
+
 @Tag(name = "task")
 @RepositoryRestResource(collectionResourceRel = "tasks", path = "tasks")
-public interface TaskRepository extends PagingAndSortingRepository<Task, Integer> {
+public interface TaskRepository extends PagingAndSortingRepository<Task, Integer>,
+  QuerydslPredicateExecutor<Task>,
+  QuerydslBinderCustomizer<QTask> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
@@ -25,16 +32,22 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
   void delete(@P("entity") @NonNull Task entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Task', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Task', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
-  @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
+  @PostAuthorize("hasPermission(returnObject, 'read')")
   @NonNull
   Iterable<Task> findAll();
 
   @Override
-  @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
+  @PostAuthorize("hasPermission(#entityId, 'administration') or hasPermission(returnObject, 'read')")
   @NonNull
-  Optional<Task> findById(@NonNull Integer id);
+  Optional<Task> findById(@P("entityId") @NonNull Integer entityId);
+
+  @Override
+  default void customize(QuerydslBindings bindings, QTask root) {
+    //noinspection NullableProblems
+    bindings.bind(root.type.id).first(SimpleExpression::eq);
+  }
 }
