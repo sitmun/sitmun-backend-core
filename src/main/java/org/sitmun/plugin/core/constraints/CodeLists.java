@@ -2,6 +2,9 @@ package org.sitmun.plugin.core.constraints;
 
 public class CodeLists {
 
+  private CodeLists() {
+  }
+
   public static final String APPLICATION_TYPE = "application.type";
 
   public static final String TERRITORY_SCOPE = "territory.scope";
