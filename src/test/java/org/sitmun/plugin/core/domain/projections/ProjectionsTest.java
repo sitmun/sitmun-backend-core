@@ -130,6 +130,15 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
   }
 
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void checkServiceNamesInCartographiesProjection() throws Exception {
+    mvc.perform(get("/api/cartographies?projection=view"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartographies", hasSize(730)))
+      .andExpect(jsonPath("$._embedded.cartographies[?(@.serviceName)]", hasSize(730)));
+  }
+
   @TestConfiguration
   static class ContextConfiguration {
 
