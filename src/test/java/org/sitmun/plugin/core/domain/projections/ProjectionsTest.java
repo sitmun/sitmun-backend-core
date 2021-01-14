@@ -1,12 +1,5 @@
 package org.sitmun.plugin.core.domain.projections;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -22,13 +15,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ProjectionsTest {
 
   private static final String APPLICATION_PROJECTION_VIEW =
-      "/api/applications/{0}?projection=view";
+    "/api/applications/{0}?projection=view";
 
   private static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
       "/api/user-configurations?projection=view&{0}={1}";
@@ -116,9 +115,19 @@ public class ProjectionsTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkCartographyGroupIdExistsInTasksProjection() throws Exception {
     mvc.perform(get("/api/tasks?projection=view"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(1756)))
-        .andExpect(jsonPath("$._embedded.*.[?(@.['group.id'])]", hasSize(1756)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(1756)))
+      .andExpect(jsonPath("$._embedded.*.[?(@.['group.id'])]", hasSize(1756)));
+  }
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void checkTerritoryIdExistsInAvailabilityProjection() throws Exception {
+    mvc.perform(get("/api/cartographies/85/availabilities?projection=view"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartography-availabilities", hasSize(32)))
+      .andExpect(jsonPath("$._embedded.cartography-availabilities[?(@.['territory.id'])]", hasSize(32)))
+      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
   }
 
   @TestConfiguration
