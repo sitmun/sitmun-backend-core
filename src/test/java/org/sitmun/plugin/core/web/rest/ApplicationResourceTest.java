@@ -1,55 +1,13 @@
 package org.sitmun.plugin.core.web.rest;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
-import org.sitmun.plugin.core.domain.Application;
-import org.sitmun.plugin.core.domain.ApplicationBackground;
-import org.sitmun.plugin.core.domain.ApplicationParameter;
-import org.sitmun.plugin.core.domain.Background;
-import org.sitmun.plugin.core.domain.BackgroundMap;
-import org.sitmun.plugin.core.domain.Cartography;
-import org.sitmun.plugin.core.domain.CartographyAvailability;
-import org.sitmun.plugin.core.domain.CartographyPermission;
-import org.sitmun.plugin.core.domain.Role;
-import org.sitmun.plugin.core.domain.Service;
-import org.sitmun.plugin.core.domain.SituationMap;
-import org.sitmun.plugin.core.domain.Territory;
-import org.sitmun.plugin.core.domain.Tree;
-import org.sitmun.plugin.core.domain.TreeNode;
-import org.sitmun.plugin.core.repository.ApplicationBackgroundRepository;
-import org.sitmun.plugin.core.repository.ApplicationParameterRepository;
-import org.sitmun.plugin.core.repository.ApplicationRepository;
-import org.sitmun.plugin.core.repository.BackgroundRepository;
-import org.sitmun.plugin.core.repository.CartographyAvailabilityRepository;
-import org.sitmun.plugin.core.repository.CartographyPermissionRepository;
-import org.sitmun.plugin.core.repository.CartographyRepository;
-import org.sitmun.plugin.core.repository.RoleRepository;
-import org.sitmun.plugin.core.repository.ServiceRepository;
-import org.sitmun.plugin.core.repository.TerritoryRepository;
-import org.sitmun.plugin.core.repository.TreeNodeRepository;
-import org.sitmun.plugin.core.repository.TreeRepository;
+import org.sitmun.plugin.core.domain.*;
+import org.sitmun.plugin.core.repository.*;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +21,23 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -325,7 +300,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
   }
@@ -335,7 +309,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/parameters"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -343,7 +316,6 @@ public class ApplicationResourceTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getInformationAboutAnApp() throws Exception {
     mvc.perform(get(APP_URI + "/" + appId))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Non-public Application"))
         .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
@@ -353,7 +325,6 @@ public class ApplicationResourceTest {
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId)
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.order").value(1));
   }
@@ -363,7 +334,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/trees"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -372,7 +342,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/backgrounds"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -381,7 +350,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/situationMap"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -390,7 +358,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -399,7 +366,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_NODE_URI + "/1/cartography"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -408,7 +374,6 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(SERVICE_URI + "/1/layers"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -423,7 +388,6 @@ public class ApplicationResourceTest {
     // ok is expected
     mvc.perform(get(APP_URI)
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }

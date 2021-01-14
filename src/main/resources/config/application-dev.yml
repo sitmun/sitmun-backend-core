@@ -9,8 +9,8 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    org.sitmun.plugin.core: DEBUG
+    ROOT: INFO
+    org.sitmun.plugin.core: INFO
 
 spring:
   jackson:

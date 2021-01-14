@@ -1,12 +1,5 @@
 package org.sitmun.plugin.core.repository.rest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,6 +20,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -57,24 +55,21 @@ public class TerritoryRepositoryDataRestTest {
   @Test
   public void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(TERRITORIES_URI))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
   @Test
   public void createTerritoriesAsPublicFails() throws Exception {
     mvc.perform(post(TERRITORIES_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(territory))
-    ).andDo(print())
-        .andExpect(status().is4xxClientError()).andReturn();
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestUtils.asJsonString(territory))
+    ).andExpect(status().is4xxClientError()).andReturn();
 
   }
 
   @Test
   public void hasLinkToCartographyAvailability() throws Exception {
     mvc.perform(get(TERRITORIES_URI))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 

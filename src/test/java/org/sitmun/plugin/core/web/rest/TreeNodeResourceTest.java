@@ -1,19 +1,5 @@
 package org.sitmun.plugin.core.web.rest;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -38,6 +24,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -125,7 +124,6 @@ public class TreeNodeResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_URI))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
   }
@@ -135,7 +133,6 @@ public class TreeNodeResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_URI + "/" + publicTree.getId() + "/nodes"))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
@@ -149,7 +146,6 @@ public class TreeNodeResourceTest {
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(TREE_URI)
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
   }

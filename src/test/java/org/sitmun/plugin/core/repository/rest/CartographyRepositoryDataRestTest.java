@@ -1,24 +1,5 @@
 package org.sitmun.plugin.core.repository.rest;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -49,6 +30,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -182,16 +179,15 @@ public class CartographyRepositoryDataRestTest {
   @Test
   public void getCartographiesAsPublic() throws Exception {
     mvc.perform(get(CARTOGRAPHY_URI))
-        .andDo(print())
         .andExpect(status().isOk());
   }
 
   @Test
   public void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(post(CARTOGRAPHY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(cartography)))
-        .andDo(print()).andExpect(status().is4xxClientError()).andReturn();
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestUtils.asJsonString(cartography)))
+      .andExpect(status().is4xxClientError()).andReturn();
   }
 
   @TestConfiguration

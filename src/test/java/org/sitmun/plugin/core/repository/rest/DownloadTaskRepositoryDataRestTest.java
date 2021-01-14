@@ -1,16 +1,5 @@
 package org.sitmun.plugin.core.repository.rest;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +19,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,19 +60,16 @@ public class DownloadTaskRepositoryDataRestTest {
   public void filterScope() throws Exception {
     mvc.perform(get(TASK_URI + "?scope=U")
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.download-tasks", hasSize(977)))
         .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(977)));
     mvc.perform(get(TASK_URI + "?scope=A")
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.download-tasks", hasSize(38)))
         .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)));
     mvc.perform(get(TASK_URI + "?scope=C")
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.download-tasks", hasSize(47)))
         .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)));
@@ -84,7 +79,6 @@ public class DownloadTaskRepositoryDataRestTest {
   public void filterScopeOr() throws Exception {
     mvc.perform(get(TASK_URI + "?scope=A&scope=C")
         .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.download-tasks", hasSize(85)))
         .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)))

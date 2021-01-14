@@ -1,14 +1,7 @@
 package org.sitmun.plugin.core.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-
-
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +22,13 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -77,7 +77,7 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
 
     assertThat(context.read("$._embedded.territory-group-types[*].id", JSONArray.class))
         .containsAll(
-            territoryGroupTypes.stream().map(it -> it.getId().intValue())
+          territoryGroupTypes.stream().map(TerritoryGroupType::getId)
                 .collect(Collectors.toList()));
     assertThat(context.read("$._embedded.territory-group-types[*].name", JSONArray.class))
         .containsAll(

@@ -1,14 +1,5 @@
 package org.sitmun.plugin.core.repository.rest;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
@@ -29,6 +20,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -45,10 +43,9 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   @Test
   public void mustNotBeNull() throws Exception {
     mvc.perform(post(TERRITORY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
-    ).andDo(print())
-        .andExpect(status().is4xxClientError())
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
+    ).andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.errors[0].property").value("name"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
@@ -56,10 +53,9 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   @Test
   public void mustNotBeBlank() throws Exception {
     mvc.perform(post(TERRITORY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("   ").build()))
-    ).andDo(print())
-        .andExpect(status().is4xxClientError())
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("   ").build()))
+    ).andExpect(status().is4xxClientError())
         .andExpect(jsonPath("$.errors[0].property").value("name"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
@@ -69,15 +65,14 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   public void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
     MvcResult result = mvc.perform(post(TERRITORY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
-    ).andDo(print())
-        .andExpect(status().isCreated())
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
+    ).andExpect(status().isCreated())
         .andReturn();
     assertThat(repository.count()).isEqualTo(count + 1);
     String location = result.getResponse().getHeader("Location");
     assertThat(location).isNotNull();
-    mvc.perform(delete(location)).andDo(print())
+    mvc.perform(delete(location))
         .andExpect(status().isNoContent())
         .andReturn();
     assertThat(repository.count()).isEqualTo(count);

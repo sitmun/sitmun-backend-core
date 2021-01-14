@@ -1,16 +1,14 @@
 package org.sitmun.plugin.core.converters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
-
+import javax.persistence.AttributeConverter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.AttributeConverter;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class StringListAttributeConverterTest {
 
@@ -100,7 +98,6 @@ public class StringListAttributeConverterTest {
    */
   @Test
   public void blankString() {
-    System.out.println(converter.convertToEntityAttribute("   ").size());
     assertTrue(converter.convertToEntityAttribute("   ").isEmpty());
   }
 

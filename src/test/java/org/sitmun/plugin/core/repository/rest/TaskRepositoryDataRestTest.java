@@ -43,7 +43,6 @@ import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -197,7 +196,6 @@ public class TaskRepositoryDataRestTest {
   @WithMockUser(username = PUBLIC_USERNAME)
   public void getTaskParamsAsPublic() throws Exception {
     mvc.perform(get(TASK_URI + "/" + task.getId() + "/parameters"))
-      .andDo(print())
       .andExpect(status().isOk());
   }
 
@@ -207,8 +205,7 @@ public class TaskRepositoryDataRestTest {
     mvc.perform(post(TASK_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
-    ).andDo(print())
-      .andExpect(status().is4xxClientError()).andReturn();
+    ).andExpect(status().is4xxClientError()).andReturn();
   }
 
   @TestConfiguration
