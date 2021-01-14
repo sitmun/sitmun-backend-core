@@ -1,18 +1,12 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Role.
@@ -51,13 +45,26 @@ public class Role {
   @Column(name = "ROL_NOTE", length = 500)
   private String description;
 
+  /**
+   * Applications that have this role granted.
+   */
+  @ManyToMany
+  @JoinTable(
+    name = "STM_APP_ROL",
+    joinColumns = @JoinColumn(
+      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")),
+    inverseJoinColumns = @JoinColumn(
+      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")))
+  private Set<Application> applications = new HashSet<>();
+
   public Role() {
   }
 
-  private Role(Integer id, @NotBlank String name, String description) {
+  private Role(Integer id, @NotBlank String name, String description, Set<Application> applications) {
     this.id = id;
     this.name = name;
     this.description = description;
+    this.applications = applications;
   }
 
   public static Builder builder() {
@@ -88,6 +95,14 @@ public class Role {
     this.description = comments;
   }
 
+  public Set<Application> getApplications() {
+    return applications;
+  }
+
+  public void setApplications(Set<Application> applications) {
+    this.applications = applications;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof Role) {
@@ -105,6 +120,7 @@ public class Role {
     private Integer id;
     private @NotBlank String name;
     private String description;
+    private Set<Application> applications = new HashSet<>();
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -121,8 +137,13 @@ public class Role {
       return this;
     }
 
+    public Builder setApplications(Set<Application> applications) {
+      this.applications = applications;
+      return this;
+    }
+
     public Role build() {
-      return new Role(id, name, description);
+      return new Role(id, name, description, applications);
     }
   }
 }
