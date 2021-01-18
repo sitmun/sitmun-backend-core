@@ -126,7 +126,7 @@ public class ProjectionsTest {
     mvc.perform(get("/api/cartographies/85/availabilities?projection=view"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-availabilities", hasSize(32)))
-      .andExpect(jsonPath("$._embedded.cartography-availabilities[?(@.['territory.id'])]", hasSize(32)))
+      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryCode", hasSize(32)))
       .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
   }
 

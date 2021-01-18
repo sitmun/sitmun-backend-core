@@ -30,11 +30,10 @@ public interface CartographyAvailabilityProjection {
   String getOwner();
 
   /**
-   * Identifier of the territory allowed to access to the cartography.
+   * Geographic code of the territory allowed to access to the cartography.
    */
-  @Value("#{target.territory.id}")
-  @JsonProperty("territory.id")
-  Integer getTerritoryId();
+  @Value("#{target.territory.code}")
+  String getTerritoryCode();
 
   /**
    * Name of the territory allowed to access to the cartography.
