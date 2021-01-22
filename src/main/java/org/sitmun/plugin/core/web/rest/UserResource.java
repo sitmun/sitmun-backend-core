@@ -1,9 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
 
-import java.net.URI;
-import java.util.Optional;
-import javax.validation.Valid;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
@@ -13,13 +10,12 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.util.Optional;
 
 @RepositoryRestController
 public class UserResource {
@@ -49,8 +45,8 @@ public class UserResource {
   public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
     User result = userService.createUser(user);
     URI location = ServletUriComponentsBuilder
-        .fromCurrentRequest().path("/{id}")
-        .buildAndExpand(result.getId()).toUri();
+      .fromCurrentRequest().path("/{id}")
+      .buildAndExpand(result.getId()).toUri();
 
     return ResponseEntity.created(location).build();
   }

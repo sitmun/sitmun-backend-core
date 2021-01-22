@@ -1,17 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -19,19 +9,19 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "STM_APP_BCKG", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
+  @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
 public class ApplicationBackground {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_APPFON_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "ABC_ID",
-      allocationSize = 1)
+    name = "STM_APPFON_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "ABC_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPFON_GEN")
   @Column(name = "ABC_ID")

@@ -1,10 +1,5 @@
 package org.sitmun.plugin.core.tools;
 
-import java.io.File;
-import java.util.EnumSet;
-import java.util.concurrent.Callable;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.registry.internal.StandardServiceRegistryImpl;
@@ -18,6 +13,12 @@ import org.reflections.Reflections;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
+import java.io.File;
+import java.util.EnumSet;
+import java.util.concurrent.Callable;
 
 @Command(name = "schema")
 public class SitmunSchemaExport implements Callable<Void> {
@@ -35,8 +36,8 @@ public class SitmunSchemaExport implements Callable<Void> {
   @Override
   public Void call() {
     ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-        .applySetting(AvailableSettings.DIALECT, dialect)
-        .build();
+      .applySetting(AvailableSettings.DIALECT, dialect)
+      .build();
 
     MetadataSources source = mapAnnotatedClasses(serviceRegistry);
 
@@ -56,7 +57,7 @@ public class SitmunSchemaExport implements Callable<Void> {
 
     final Reflections reflections = new Reflections((Object[]) ENTITY_PACKAGES);
     for (final Class<?> mappedSuperClass : reflections
-        .getTypesAnnotatedWith(MappedSuperclass.class)) {
+      .getTypesAnnotatedWith(MappedSuperclass.class)) {
       sources.addAnnotatedClass(mappedSuperClass);
       System.out.println("Mapped = " + mappedSuperClass.getName());
     }

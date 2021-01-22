@@ -1,16 +1,11 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+
+import javax.persistence.*;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Query task.

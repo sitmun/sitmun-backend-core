@@ -1,24 +1,15 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.sitmun.plugin.core.constraints.CodeList;
-import org.sitmun.plugin.core.constraints.CodeLists;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Task parameter.
@@ -31,12 +22,12 @@ public class TaskParameter {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_PARAMTTA_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "PTT_ID",
-      allocationSize = 1)
+    name = "STM_PARAMTTA_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "PTT_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")
   @Column(name = "PTT_ID")

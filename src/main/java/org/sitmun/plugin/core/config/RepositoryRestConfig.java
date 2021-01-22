@@ -1,12 +1,13 @@
 package org.sitmun.plugin.core.config;
 
-import javax.persistence.EntityManager;
-import javax.persistence.metamodel.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.validation.Validator;
+
+import javax.persistence.EntityManager;
+import javax.persistence.metamodel.Type;
 
 public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
@@ -23,7 +24,7 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
    */
   @Override
   public void configureValidatingRepositoryEventListener(
-      ValidatingRepositoryEventListener validatingListener) {
+    ValidatingRepositoryEventListener validatingListener) {
     validatingListener.addValidator("beforeSave", validator);
     validatingListener.addValidator("beforeCreate", validator);
   }
@@ -32,8 +33,8 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
     config.setReturnBodyForPutAndPost(true);
     config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
-        .map(Type::getJavaType)
-        .toArray(Class[]::new));
+      .map(Type::getJavaType)
+      .toArray(Class[]::new));
   }
 
 }

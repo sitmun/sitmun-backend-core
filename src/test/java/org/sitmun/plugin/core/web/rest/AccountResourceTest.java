@@ -73,11 +73,11 @@ public class AccountResourceTest {
   public void init() {
     withMockSitmunAdmin(() -> {
       Date expiredDate =
-          Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
       expiredToken = Jwts.builder().setSubject(USER_USERNAME)
-          .signWith(SignatureAlgorithm.HS512, tokenProvider.getSecretKey().getBytes())
-          .setExpiration(expiredDate)
-          .compact();
+        .signWith(SignatureAlgorithm.HS512, tokenProvider.getSecretKey().getBytes())
+        .setExpiration(expiredDate)
+        .compact();
       token = tokenProvider.createToken(USER_USERNAME);
       user = new User();
       user.setAdministrator(USER_ADMINISTRATOR);
@@ -88,7 +88,7 @@ public class AccountResourceTest {
       user.setUsername(USER_USERNAME);
       userService.createUser(user);
       user = userRepository.findOneWithPermissionsByUsername(user.getUsername())
-          .orElseThrow(() -> new RuntimeException("User " + user.getUsername() + " not found"));
+        .orElseThrow(() -> new RuntimeException("User " + user.getUsername() + " not found"));
     });
   }
 
@@ -103,10 +103,10 @@ public class AccountResourceTest {
     login.setUsername(USER_USERNAME);
     login.setPassword(USER_PASSWORD);
     mvc.perform(post(AUTHENTICATION_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(login))
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(login))
     ).andExpect(status().isOk())
-        .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
+      .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
   }
 
   @Test
@@ -114,15 +114,15 @@ public class AccountResourceTest {
     mvc.perform(get(ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));
+      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));
   }
 
   @Test
   public void recoverAccountExpiredToken() throws Exception {
     mvc.perform(get(ACCOUNT_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + expiredToken)
+      .header(HEADER_STRING, TOKEN_PREFIX + expiredToken)
     ).andExpect(status().isUnauthorized());
   }
 
@@ -132,17 +132,17 @@ public class AccountResourceTest {
     user.setLastName(USER_CHANGEDLASTNAME);
 
     mvc.perform(post(ACCOUNT_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(new UserDTO(user)))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(new UserDTO(user)))
     ).andExpect(status().isOk());
 
     mvc.perform(get(ACCOUNT_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
   }
 
   @Test
@@ -151,9 +151,9 @@ public class AccountResourceTest {
     password.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(ACCOUNT_URI + "/change-password")
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(password))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(password))
     ).andExpect(status().isOk());
 
     HashMap<String, String> login = new HashMap<>();
@@ -161,10 +161,10 @@ public class AccountResourceTest {
     login.put("password", USER_CHANGEDPASSWORD);
 
     mvc.perform(post(AUTHENTICATION_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(login))
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(login))
     ).andExpect(status().isOk())
-        .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
+      .andExpect(header().string(HEADER_STRING, startsWith(TOKEN_PREFIX)));
   }
 
   @TestConfiguration

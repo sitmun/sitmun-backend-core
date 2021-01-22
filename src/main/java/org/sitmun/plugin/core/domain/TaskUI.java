@@ -1,18 +1,11 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Task UI.
@@ -25,12 +18,12 @@ public class TaskUI {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_TAREA_UI_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "TUI_ID",
-      allocationSize = 1)
+    name = "STM_TAREA_UI_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "TUI_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_UI_GEN")
   @Column(name = "TUI_ID")

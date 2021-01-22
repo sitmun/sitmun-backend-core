@@ -1,18 +1,6 @@
 package org.sitmun.plugin.core.security;
 
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +9,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 
 @Component
 public class TokenProvider {
@@ -87,8 +81,8 @@ public class TokenProvider {
     validity = new Date(now + this.tokenValidityInMilliseconds);
 
     return Jwts.builder().setSubject(authentication.getName())
-        // .claim(AUTHORITIES_KEY, authorities)
-        .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
+      // .claim(AUTHORITIES_KEY, authorities)
+      .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
   }
 
   public String createToken(String username) {
@@ -100,15 +94,15 @@ public class TokenProvider {
 
     return Jwts.builder().setSubject(username)
 
-        // .claim(AUTHORITIES_KEY, "")
-        .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
+      // .claim(AUTHORITIES_KEY, "")
+      .signWith(SignatureAlgorithm.HS512, secretKey).setExpiration(validity).compact();
   }
 
   public String getUserFromToken(String token) {
     try {
       return Jwts.parser().setSigningKey(secretKey.getBytes())
-          .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-          .getBody().getSubject();
+        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+        .getBody().getSubject();
     } catch (Exception ex) {
       return null;
     }

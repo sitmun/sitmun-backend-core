@@ -1,22 +1,13 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.sitmun.plugin.core.constraints.HttpURL;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Tree node.
@@ -29,12 +20,12 @@ public class TreeNode {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_ARBOLNOD_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "TNO_ID",
-      allocationSize = 1)
+    name = "STM_ARBOLNOD_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "TNO_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOLNOD_GEN")
   @Column(name = "TNO_ID")

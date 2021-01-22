@@ -1,13 +1,13 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.sitmun.plugin.core.constraints.HttpURL;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Legend provider.

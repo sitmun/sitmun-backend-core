@@ -1,11 +1,11 @@
 package org.sitmun.plugin.core.converters;
 
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 /**
  * Maps a {@link List} of {@link String}s separated by comma to a String.
@@ -46,14 +46,14 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
       return Collections.emptyList();
     } else {
       return Arrays.stream(dbData.split(DELIMITER))
-          .map(String::trim)
-          .map(it -> {
-            if ("null".equals(it)) {
-              return null;
-            } else {
-              return it;
-            }
-          }).collect(Collectors.toList());
+        .map(String::trim)
+        .map(it -> {
+          if ("null".equals(it)) {
+            return null;
+          } else {
+            return it;
+          }
+        }).collect(Collectors.toList());
     }
   }
 }

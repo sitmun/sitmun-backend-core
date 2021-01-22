@@ -1,14 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -17,19 +10,19 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "STM_GTER_TYP", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = {"GTT_NAME"})})
+  @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = {"GTT_NAME"})})
 public class TerritoryGroupType {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_TIPOGRP_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "GTT_ID",
-      allocationSize = 1)
+    name = "STM_TIPOGRP_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "GTT_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOGRP_GEN")
   @Column(name = "GTT_ID")

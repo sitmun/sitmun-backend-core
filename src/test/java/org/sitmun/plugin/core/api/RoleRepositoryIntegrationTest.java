@@ -44,7 +44,7 @@ public class RoleRepositoryIntegrationTest {
   @Before
   public void setup() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -56,9 +56,9 @@ public class RoleRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       roles = new ArrayList<>();
       roles.add(roleRepository
-          .save(Role.builder().setName("RoleRepositoryTest_1").build()));
+        .save(Role.builder().setName("RoleRepositoryTest_1").build()));
       roles.add(roleRepository
-          .save(Role.builder().setName("RoleRepositoryTest_2").build()));
+        .save(Role.builder().setName("RoleRepositoryTest_2").build()));
     });
   }
 
@@ -70,7 +70,7 @@ public class RoleRepositoryIntegrationTest {
   @Test
   public void requestRoles() {
     ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/api/roles", String.class);
+      restTemplate.getForEntity("http://localhost:" + port + "/api/roles", String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 

@@ -1,45 +1,33 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Grants availability of a Geographic Information in a Territory.
  */
 @Entity
 @Table(name = "STM_AVAIL_GI", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
+  @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
 public class CartographyAvailability {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_DISPCARTO_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "AGI_ID",
-      allocationSize = 1)
+    name = "STM_DISPCARTO_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "AGI_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPCARTO_GEN")
   @Column(name = "AGI_ID")
@@ -85,8 +73,8 @@ public class CartographyAvailability {
    */
   public String toString() {
     return "Cartography=" + this.cartography.getId()
-        + ",Territorio=" + this.territory.getId()
-        + "fechaAlta=" + this.createdDate;
+      + ",Territorio=" + this.territory.getId()
+      + "fechaAlta=" + this.createdDate;
   }
 
   public Integer getId() {

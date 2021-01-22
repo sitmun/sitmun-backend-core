@@ -44,7 +44,7 @@ public class ConnectionRepositoryIntegrationTest {
   @Before
   public void setup() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -56,11 +56,11 @@ public class ConnectionRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       connections = new ArrayList<>();
       connections.add(connectionRepository
-          .save(Connection.builder().setName("ConnectionRepositoryTest_1").setDriver("driver1")
-              .build()));
+        .save(Connection.builder().setName("ConnectionRepositoryTest_1").setDriver("driver1")
+          .build()));
       connections.add(connectionRepository
-          .save(Connection.builder().setName("ConnectionRepositoryTest_2").setDriver("driver2")
-              .build()));
+        .save(Connection.builder().setName("ConnectionRepositoryTest_2").setDriver("driver2")
+          .build()));
     });
   }
 
@@ -72,7 +72,7 @@ public class ConnectionRepositoryIntegrationTest {
   @Test
   public void requestConnections() {
     ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/api/connections", String.class);
+      restTemplate.getForEntity("http://localhost:" + port + "/api/connections", String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 

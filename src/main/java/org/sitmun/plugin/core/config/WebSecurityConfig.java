@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.config;
 
-import javax.annotation.PostConstruct;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
@@ -27,6 +26,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import javax.annotation.PostConstruct;
+
 @EnableWebSecurity
 @Profile("!unsafe")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -45,9 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     this.passwordEncoder = passwordEncoder;
     this.tokenProvider = tokenProvider;
     anonymousAuthenticationFilter = new AnonymousAuthenticationFilter(
-        "anonymous",
-        SecurityConstants.SITMUN_PUBLIC_USERNAME,
-        AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
+      "anonymous",
+      SecurityConstants.SITMUN_PUBLIC_USERNAME,
+      AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
   }
 
   @Override
@@ -56,28 +57,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     http
-        .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling()
-        .authenticationEntryPoint(getRestAuthenticationEntryPoint())
-        //.accessDeniedHandler(problemSupport)
-        .and()
-        .csrf()
-        .disable()
-        .headers()
-        .frameOptions()
-        .disable()
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .authorizeRequests()
-        .antMatchers("/api/users").authenticated()
-        .antMatchers("/api/account").authenticated()
-        .antMatchers("/api/**").permitAll()
-        .and()
-        .apply(securityConfigurerAdapter())
-        .and()
-        .anonymous().authenticationFilter(anonymousAuthenticationFilter);
+      .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
+      .exceptionHandling()
+      .authenticationEntryPoint(getRestAuthenticationEntryPoint())
+      //.accessDeniedHandler(problemSupport)
+      .and()
+      .csrf()
+      .disable()
+      .headers()
+      .frameOptions()
+      .disable()
+      .and()
+      .sessionManagement()
+      .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .and()
+      .authorizeRequests()
+      .antMatchers("/api/users").authenticated()
+      .antMatchers("/api/account").authenticated()
+      .antMatchers("/api/**").permitAll()
+      .and()
+      .apply(securityConfigurerAdapter())
+      .and()
+      .anonymous().authenticationFilter(anonymousAuthenticationFilter);
   }
 
   @Bean
@@ -112,7 +113,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   public void init() {
     try {
       authenticationManagerBuilder.userDetailsService(userDetailsService)
-          .passwordEncoder(passwordEncoder);
+        .passwordEncoder(passwordEncoder);
     } catch (Exception e) {
       throw new BeanInitializationException("Security configuration failed", e);
     }

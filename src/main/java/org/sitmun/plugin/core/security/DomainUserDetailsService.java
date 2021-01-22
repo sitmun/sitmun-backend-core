@@ -1,8 +1,5 @@
 package org.sitmun.plugin.core.security;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Optional;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.slf4j.Logger;
@@ -12,6 +9,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Authenticate a user from the database.
@@ -34,19 +35,19 @@ public class DomainUserDetailsService implements UserDetailsService {
     String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
     Optional<User> userByEmailFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
     return userByEmailFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
-        .orElseGet(() -> {
-          Optional<User> userByLoginFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
-          return userByLoginFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
-              .orElseThrow(
-                  () -> new UsernameNotFoundException(
-                      "User " + lowercaseLogin + " was not found in the "
-                          + "database"));
-        });
+      .orElseGet(() -> {
+        Optional<User> userByLoginFromDatabase = userRepository.findOneByUsername(lowercaseLogin);
+        return userByLoginFromDatabase.map(user -> createSpringSecurityUser(lowercaseLogin, user))
+          .orElseThrow(
+            () -> new UsernameNotFoundException(
+              "User " + lowercaseLogin + " was not found in the "
+                + "database"));
+      });
   }
 
   private org.springframework.security.core.userdetails.User createSpringSecurityUser(
-      String lowercaseLogin, User user) {
+    String lowercaseLogin, User user) {
     return new org.springframework.security.core.userdetails.User(user.getUsername(),
-        user.getPassword(), new ArrayList<>());
+      user.getPassword(), new ArrayList<>());
   }
 }

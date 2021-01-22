@@ -7,7 +7,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 public class JWTConfigurer
-    extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+  extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
   public static final String AUTHORIZATION_HEADER = "Authorization";
 

@@ -1,33 +1,21 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Service.
@@ -40,12 +28,12 @@ public class Service {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_SERVICIO_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "SER_ID",
-      allocationSize = 1)
+    name = "STM_SERVICIO_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "SER_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICIO_GEN")
   @Column(name = "SER_ID")
@@ -353,7 +341,7 @@ public class Service {
 
     public Service build() {
       return new Service(id, name, description, serviceURL, supportedSRS, legendURL,
-          getInformationURL, createdDate, type, nativeProtocol, blocked, layers, parameters);
+        getInformationURL, createdDate, type, nativeProtocol, blocked, layers, parameters);
     }
   }
 }

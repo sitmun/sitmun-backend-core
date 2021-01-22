@@ -1,18 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.PostConstruct;
-import org.springdoc.core.AbstractRequestBuilder;
-import org.springdoc.core.ActuatorProvider;
-import org.springdoc.core.GenericResponseBuilder;
-import org.springdoc.core.OpenAPIBuilder;
-import org.springdoc.core.OperationBuilder;
-import org.springdoc.core.RepositoryRestResourceProvider;
-import org.springdoc.core.SecurityOAuth2Provider;
-import org.springdoc.core.SpringDocConfigProperties;
+import org.springdoc.core.*;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springdoc.webmvc.api.OpenApiResource;
@@ -24,6 +13,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Profile({"!openapi-annotation"})
@@ -54,22 +48,22 @@ public class OpenApiController extends OpenApiResource {
    * @param environment                    the environment
    */
   public OpenApiController(
-      ObjectFactory<OpenAPIBuilder> openAPIBuilderObjectFactory,
-      AbstractRequestBuilder requestBuilder,
-      GenericResponseBuilder responseBuilder, OperationBuilder operationParser,
-      RequestMappingInfoHandlerMapping requestMappingHandlerMapping,
-      Optional<ActuatorProvider> actuatorProvider,
-      Optional<List<OperationCustomizer>> operationCustomizers,
-      Optional<List<OpenApiCustomiser>> openApiCustomisers,
-      SpringDocConfigProperties springDocConfigProperties,
-      Optional<SecurityOAuth2Provider> springSecurityOAuth2Provider,
-      Optional<RouterFunctionProvider> routerFunctionProvider,
-      Optional<RepositoryRestResourceProvider> repositoryRestResourceProvider,
-      ConfigurableEnvironment environment) {
+    ObjectFactory<OpenAPIBuilder> openAPIBuilderObjectFactory,
+    AbstractRequestBuilder requestBuilder,
+    GenericResponseBuilder responseBuilder, OperationBuilder operationParser,
+    RequestMappingInfoHandlerMapping requestMappingHandlerMapping,
+    Optional<ActuatorProvider> actuatorProvider,
+    Optional<List<OperationCustomizer>> operationCustomizers,
+    Optional<List<OpenApiCustomiser>> openApiCustomisers,
+    SpringDocConfigProperties springDocConfigProperties,
+    Optional<SecurityOAuth2Provider> springSecurityOAuth2Provider,
+    Optional<RouterFunctionProvider> routerFunctionProvider,
+    Optional<RepositoryRestResourceProvider> repositoryRestResourceProvider,
+    ConfigurableEnvironment environment) {
     super(openAPIBuilderObjectFactory, requestBuilder, responseBuilder, operationParser,
-        requestMappingHandlerMapping, actuatorProvider, operationCustomizers, openApiCustomisers,
-        springDocConfigProperties, springSecurityOAuth2Provider, routerFunctionProvider,
-        repositoryRestResourceProvider);
+      requestMappingHandlerMapping, actuatorProvider, operationCustomizers, openApiCustomisers,
+      springDocConfigProperties, springSecurityOAuth2Provider, routerFunctionProvider,
+      repositoryRestResourceProvider);
     this.environment = environment;
   }
 
@@ -84,7 +78,7 @@ public class OpenApiController extends OpenApiResource {
     String currentDescription = openAPI.getInfo().getDescription();
     String activeProfiles = String.join(", ", environment.getActiveProfiles());
     openAPI.getInfo()
-        .setDescription(currentDescription + "\n\n**Active profiles**: *" + activeProfiles + "*");
+      .setDescription(currentDescription + "\n\n**Active profiles**: *" + activeProfiles + "*");
   }
 
   @Override

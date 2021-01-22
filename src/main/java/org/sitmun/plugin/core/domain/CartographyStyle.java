@@ -1,23 +1,12 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Geographic Information style.
@@ -30,12 +19,12 @@ public class CartographyStyle {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_STY_GI_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "SGI_ID",
-      allocationSize = 1)
+    name = "STM_STY_GI_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "SGI_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_STY_GI_GEN")
   @Column(name = "SGI_ID")
@@ -65,10 +54,10 @@ public class CartographyStyle {
    */
   @Embedded
   @AttributeOverrides({
-      @AttributeOverride(name = "width", column = @Column(name = "SGI_LURL_WIDTH")),
-      @AttributeOverride(name = "height", column = @Column(name = "SGI_LURL_HEIGHT")),
-      @AttributeOverride(name = "format", column = @Column(name = "SGI_LURL_FORMAT")),
-      @AttributeOverride(name = "onlineResource", column = @Column(name = "SGI_LURL_URL")),
+    @AttributeOverride(name = "width", column = @Column(name = "SGI_LURL_WIDTH")),
+    @AttributeOverride(name = "height", column = @Column(name = "SGI_LURL_HEIGHT")),
+    @AttributeOverride(name = "format", column = @Column(name = "SGI_LURL_FORMAT")),
+    @AttributeOverride(name = "onlineResource", column = @Column(name = "SGI_LURL_URL")),
   })
   private LegendURL legendURL;
 

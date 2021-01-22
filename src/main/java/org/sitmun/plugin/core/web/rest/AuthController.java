@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.web.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.validation.Valid;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
 import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * Controller to authenticate users.
@@ -45,17 +46,17 @@ public class AuthController {
   @SecurityRequirements
   public ResponseEntity<JWTToken> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
-            loginRequest.getUsername(),
-            loginRequest.getPassword()));
+      new UsernamePasswordAuthenticationToken(
+        loginRequest.getUsername(),
+        loginRequest.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = tokenProvider.createToken(authentication);
     JWTToken jwtToken = new JWTToken(jwt);
 
     return ResponseEntity.ok()
-        .header(JWTConfigurer.AUTHORIZATION_HEADER, "Bearer " + jwt)
-        .body(jwtToken);
+      .header(JWTConfigurer.AUTHORIZATION_HEADER, "Bearer " + jwt)
+      .body(jwtToken);
   }
 
   /**

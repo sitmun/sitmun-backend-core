@@ -1,16 +1,16 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.sitmun.plugin.core.constraints.CodeList;
-import org.sitmun.plugin.core.constraints.CodeLists;
-import org.sitmun.plugin.core.constraints.HttpURL;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Download file task.

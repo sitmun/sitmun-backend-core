@@ -65,7 +65,7 @@ public class StringListAttributeConverterTest {
   @Test
   public void listWithMulls() {
     assertEquals("one,null,two",
-        converter.convertToDatabaseColumn(Arrays.asList("one", null, "two")));
+      converter.convertToDatabaseColumn(Arrays.asList("one", null, "two")));
   }
 
   /**
@@ -74,7 +74,7 @@ public class StringListAttributeConverterTest {
   @Test
   public void listWithNullAndWhitespaces() {
     assertEquals("one,null,two",
-        converter.convertToDatabaseColumn(Arrays.asList(" one ", null, " two ")));
+      converter.convertToDatabaseColumn(Arrays.asList(" one ", null, " two ")));
   }
 
   /**
@@ -107,7 +107,7 @@ public class StringListAttributeConverterTest {
   @Test
   public void stringSeparatedWithCommas() {
     assertEquals(Arrays.asList("one", "two", null, "three"),
-        converter.convertToEntityAttribute("one, two,null, three"));
+      converter.convertToEntityAttribute("one, two,null, three"));
   }
 
 }

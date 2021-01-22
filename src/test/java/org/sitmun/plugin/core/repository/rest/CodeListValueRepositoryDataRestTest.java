@@ -36,16 +36,16 @@ public class CodeListValueRepositoryDataRestTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void filterType() throws Exception {
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "cartographyPermission.type"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
-        .andExpect(jsonPath(
-            "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
-            hasSize(4)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
+      .andExpect(jsonPath(
+        "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
+        hasSize(4)));
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "territory.scope"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
-        .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",
-            hasSize(3)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",
+        hasSize(3)));
   }
 
   @TestConfiguration

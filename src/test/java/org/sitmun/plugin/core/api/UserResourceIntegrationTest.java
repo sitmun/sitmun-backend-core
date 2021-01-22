@@ -1,13 +1,5 @@
 package org.sitmun.plugin.core.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
-
-
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +14,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.config.HypermediaRestTemplateConfigurer;
 import org.springframework.hateoas.server.core.TypeReferences;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -35,6 +23,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -59,7 +55,7 @@ public class UserResourceIntegrationTest {
   @Before
   public void init() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -85,8 +81,8 @@ public class UserResourceIntegrationTest {
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
     ResponseEntity<JWTToken> loginResponse =
-        restTemplate
-            .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
+      restTemplate
+        .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
     HttpHeaders headers = new HttpHeaders();
     headers.set(HEADER_STRING, TOKEN_PREFIX + loginResponse.getBody().getIdToken());
@@ -97,25 +93,25 @@ public class UserResourceIntegrationTest {
     HttpEntity<UserDTO> entity = new HttpEntity<>(newUser, headers);
 
     ResponseEntity<UserDTO> createdUser =
-        restTemplate
-            .postForEntity("http://localhost:{port}/api/users", entity, UserDTO.class, port);
+      restTemplate
+        .postForEntity("http://localhost:{port}/api/users", entity, UserDTO.class, port);
 
     assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdUser.getHeaders().getLocation()).isNotNull();
 
     ResponseEntity<UserDTO> exists = restTemplate
-        .exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET, new HttpEntity<>(headers),
-            UserDTO.class);
+      .exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET, new HttpEntity<>(headers),
+        UserDTO.class);
     assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     ResponseEntity<String> deleted = restTemplate
-        .exchange(createdUser.getHeaders().getLocation(), HttpMethod.DELETE,
-            new HttpEntity<>(headers), String.class);
+      .exchange(createdUser.getHeaders().getLocation(), HttpMethod.DELETE,
+        new HttpEntity<>(headers), String.class);
     assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
     try {
       restTemplate.exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET,
-          new HttpEntity<>(headers), UserDTO.class);
+        new HttpEntity<>(headers), UserDTO.class);
       fail("404 is expected");
     } catch (HttpClientErrorException e) {
       assertThat(e.getRawStatusCode()).isEqualTo(404);
@@ -129,7 +125,7 @@ public class UserResourceIntegrationTest {
     newUser.setUsername(NEW_USER_USERNAME);
 
     restTemplate
-        .postForEntity("http://localhost:{port}/api/users", newUser, UserDTO.class, port);
+      .postForEntity("http://localhost:{port}/api/users", newUser, UserDTO.class, port);
   }
 
   @Test
@@ -138,18 +134,18 @@ public class UserResourceIntegrationTest {
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
     ResponseEntity<JWTToken> loginResponse =
-        restTemplate
-            .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
+      restTemplate
+        .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
 
     HttpHeaders headers = new HttpHeaders();
     headers.set(HEADER_STRING, TOKEN_PREFIX + loginResponse.getBody().getIdToken());
 
     ResponseEntity<CollectionModel<User>> response = restTemplate
-        .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
-            new HttpEntity<CollectionModel<User>>(headers),
-            new TypeReferences.CollectionModelType<User>() {
-            }, port);
+      .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
+        new HttpEntity<CollectionModel<User>>(headers),
+        new TypeReferences.CollectionModelType<User>() {
+        }, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().getContent().size()).isEqualTo(1332);

@@ -2,16 +2,17 @@ package org.sitmun.plugin.core.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.io.Files;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,7 +35,7 @@ public class DocumentationGenerationIntegrationTest {
   public void generateSwagger() throws IOException {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String response =
-        restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
+      restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
     File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.json").toFile();
     Files.createParentDirs(file);
     Files.asCharSink(file, Charset.defaultCharset()).write(response);

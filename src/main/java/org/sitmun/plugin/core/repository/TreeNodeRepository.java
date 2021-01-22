@@ -13,7 +13,7 @@ import org.springframework.security.core.parameters.P;
 
 @Tag(name = "tree node")
 @RepositoryRestResource(collectionResourceRel = "tree-nodes", path = "tree-nodes",
-    excerptProjection = TreeNodeProjection.class)
+  excerptProjection = TreeNodeProjection.class)
 public interface TreeNodeRepository extends CrudRepository<TreeNode, Integer> {
 
   @Override

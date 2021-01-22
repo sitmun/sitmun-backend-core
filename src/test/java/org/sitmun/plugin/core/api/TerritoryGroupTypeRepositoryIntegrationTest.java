@@ -44,7 +44,7 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
   @Before
   public void setup() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -56,9 +56,9 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       territoryGroupTypes = new ArrayList<>();
       territoryGroupTypes.add(territoryGroupTypeRepository
-          .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_1").build()));
+        .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_1").build()));
       territoryGroupTypes.add(territoryGroupTypeRepository
-          .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_2").build()));
+        .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_2").build()));
     });
   }
 
@@ -70,18 +70,18 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
   @Test
   public void requestRoles() {
     ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://localhost:{port}/api/territory-group-types", String.class, port);
+      restTemplate
+        .getForEntity("http://localhost:{port}/api/territory-group-types", String.class, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
     assertThat(context.read("$._embedded.territory-group-types[*].id", JSONArray.class))
-        .containsAll(
-          territoryGroupTypes.stream().map(TerritoryGroupType::getId)
-                .collect(Collectors.toList()));
+      .containsAll(
+        territoryGroupTypes.stream().map(TerritoryGroupType::getId)
+          .collect(Collectors.toList()));
     assertThat(context.read("$._embedded.territory-group-types[*].name", JSONArray.class))
-        .containsAll(
-            territoryGroupTypes.stream().map(TerritoryGroupType::getName)
-                .collect(Collectors.toList()));
+      .containsAll(
+        territoryGroupTypes.stream().map(TerritoryGroupType::getName)
+          .collect(Collectors.toList()));
   }
 }

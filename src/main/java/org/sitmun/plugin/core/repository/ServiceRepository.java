@@ -1,8 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import java.util.Optional;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.Service;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +12,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
+
+import java.util.List;
+import java.util.Optional;
 
 @Tag(name = "service")
 @RepositoryRestResource(collectionResourceRel = "services", path = "services")
@@ -45,7 +46,7 @@ public interface ServiceRepository extends PagingAndSortingRepository<Service, I
   Optional<Service> findById(@P("entityId") @NonNull Integer entityId);
 
   @RestResource(exported = false)
-  @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
+  @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @Query("select service.layers from Service service where service.id =:id")
   List<Cartography> findLayers(@Param("id") Integer id);
 

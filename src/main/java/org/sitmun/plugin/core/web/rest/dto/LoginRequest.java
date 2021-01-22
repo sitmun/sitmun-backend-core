@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.web.rest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

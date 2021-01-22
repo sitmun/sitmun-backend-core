@@ -1,7 +1,5 @@
 package org.sitmun.plugin.core.config;
 
-import java.util.ArrayList;
-import java.util.Optional;
 import org.sitmun.plugin.core.domain.Role;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.domain.User;
@@ -22,6 +20,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Component
 @Profile("diba")
@@ -74,8 +75,8 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role sitmunAdminRole;
     if (!optRole.isPresent()) {
       sitmunAdminRole = Role.builder()
-          .setName(AuthoritiesConstants.ADMIN_SITMUN)
-          .build();
+        .setName(AuthoritiesConstants.ADMIN_SITMUN)
+        .build();
       roleRepository.save(sitmunAdminRole);
     } else {
       sitmunAdminRole = optRole.get();
@@ -84,16 +85,16 @@ public class DefaultDataLoader implements ApplicationRunner {
     optRole = roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION);
     if (!optRole.isPresent()) {
       organizacionAdminRole = Role.builder()
-          .setName(AuthoritiesConstants.ADMIN_ORGANIZACION)
-          .build();
+        .setName(AuthoritiesConstants.ADMIN_ORGANIZACION)
+        .build();
       roleRepository.save(organizacionAdminRole);
     }
     optRole = roleRepository.findOneByName(AuthoritiesConstants.USUARIO_TERRITORIAL);
     Role territorialRole;
     if (!optRole.isPresent()) {
       territorialRole = Role.builder()
-          .setName(AuthoritiesConstants.USUARIO_TERRITORIAL)
-          .build();
+        .setName(AuthoritiesConstants.USUARIO_TERRITORIAL)
+        .build();
       roleRepository.save(territorialRole);
     } else {
       territorialRole = optRole.get();
@@ -103,8 +104,8 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role publicRole;
     if (!optRole.isPresent()) {
       publicRole = Role.builder()
-          .setName(AuthoritiesConstants.USUARIO_PUBLICO)
-          .build();
+        .setName(AuthoritiesConstants.USUARIO_PUBLICO)
+        .build();
       roleRepository.save(publicRole);
     } else {
       publicRole = optRole.get();
@@ -113,10 +114,10 @@ public class DefaultDataLoader implements ApplicationRunner {
     Territory defaultTerritory;
     if (!optTerritory.isPresent()) {
       defaultTerritory = Territory.builder()
-          .setName(this.defaultTerritoryName)
-          .setCode("")
-          .setBlocked(false)
-          .build();
+        .setName(this.defaultTerritoryName)
+        .setCode("")
+        .setBlocked(false)
+        .build();
       territoryRepository.save(defaultTerritory);
     } else {
       defaultTerritory = optTerritory.get();

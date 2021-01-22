@@ -13,19 +13,19 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_ROLE", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
+  @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
 public class Role {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_ROLES_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "ROL_ID",
-      allocationSize = 1)
+    name = "STM_ROLES_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "ROL_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")
   @Column(name = "ROL_ID")

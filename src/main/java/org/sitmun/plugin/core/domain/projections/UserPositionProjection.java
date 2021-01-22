@@ -1,9 +1,10 @@
 package org.sitmun.plugin.core.domain.projections;
 
-import java.util.Date;
 import org.sitmun.plugin.core.domain.UserPosition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+
+import java.util.Date;
 
 /**
  * Projections for REST views of user position.

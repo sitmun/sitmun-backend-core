@@ -1,10 +1,5 @@
 package org.sitmun.plugin.core.profiles;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +23,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = {"unsafe", "dev"})
@@ -42,7 +42,7 @@ public class UnsafeProfileTest {
   @Before
   public void init() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -57,10 +57,10 @@ public class UnsafeProfileTest {
   @Test
   public void getAllUsers() {
     ResponseEntity<CollectionModel<User>> response = restTemplate
-        .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
-            null,
-            new TypeReferences.CollectionModelType<User>() {
-            }, port);
+      .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
+        null,
+        new TypeReferences.CollectionModelType<User>() {
+        }, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().getContent().size()).isEqualTo(1332);

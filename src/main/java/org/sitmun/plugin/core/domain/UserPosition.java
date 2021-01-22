@@ -1,46 +1,34 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * User position in a territory.
  */
 @Entity
 @Table(name = "STM_POST", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
+  @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
 public class UserPosition {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_CARGO_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "POS_ID",
-      allocationSize = 1)
+    name = "STM_CARGO_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "POS_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARGO_GEN")
   @Column(name = "POS_ID")
@@ -101,6 +89,25 @@ public class UserPosition {
   @JoinColumn(name = "POS_TERID", foreignKey = @ForeignKey(name = "STM_CGO_FK_TER"))
   @NotNull
   private Territory territory;
+
+  public UserPosition() {
+  }
+
+  private UserPosition(Integer id, String name, String organization,
+                       @Email String email, Date createdDate, Date expirationDate,
+                       String type,
+                       @NotNull User user,
+                       @NotNull Territory territory) {
+    this.id = id;
+    this.name = name;
+    this.organization = organization;
+    this.email = email;
+    this.createdDate = createdDate;
+    this.expirationDate = expirationDate;
+    this.type = type;
+    this.user = user;
+    this.territory = territory;
+  }
 
   public Integer getId() {
     return id;
@@ -174,25 +181,6 @@ public class UserPosition {
     this.territory = territory;
   }
 
-  public UserPosition() {
-  }
-
-  private UserPosition(Integer id, String name, String organization,
-                       @Email String email, Date createdDate, Date expirationDate,
-                       String type,
-                       @NotNull User user,
-                       @NotNull Territory territory) {
-    this.id = id;
-    this.name = name;
-    this.organization = organization;
-    this.email = email;
-    this.createdDate = createdDate;
-    this.expirationDate = expirationDate;
-    this.type = type;
-    this.user = user;
-    this.territory = territory;
-  }
-
   public static class UserPositionBuilder {
     private Integer id;
     private String name;
@@ -251,8 +239,8 @@ public class UserPosition {
 
     public UserPosition build() {
       return new UserPosition(id, name, organization, email, createdDate, expirationDate, type,
-          user,
-          territory);
+        user,
+        territory);
     }
   }
 }

@@ -46,8 +46,8 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
     ).andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property").value("name"))
-        .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
+      .andExpect(jsonPath("$.errors[0].property").value("name"))
+      .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
 
   @Test
@@ -56,8 +56,8 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("   ").build()))
     ).andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property").value("name"))
-        .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
+      .andExpect(jsonPath("$.errors[0].property").value("name"))
+      .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
 
   @Test
@@ -68,13 +68,13 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
     ).andExpect(status().isCreated())
-        .andReturn();
+      .andReturn();
     assertThat(repository.count()).isEqualTo(count + 1);
     String location = result.getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location))
-        .andExpect(status().isNoContent())
-        .andReturn();
+      .andExpect(status().isNoContent())
+      .andReturn();
     assertThat(repository.count()).isEqualTo(count);
   }
 

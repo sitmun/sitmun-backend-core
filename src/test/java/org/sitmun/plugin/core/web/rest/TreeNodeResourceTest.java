@@ -124,8 +124,8 @@ public class TreeNodeResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_URI))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
   }
 
   @Ignore
@@ -133,7 +133,7 @@ public class TreeNodeResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_URI + "/" + publicTree.getId() + "/nodes"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -145,9 +145,9 @@ public class TreeNodeResourceTest {
   @Test
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(TREE_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
   }
 
   @Ignore

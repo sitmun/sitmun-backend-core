@@ -1,8 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Optional;
-import javax.validation.Valid;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.security.SecurityUtils;
@@ -11,11 +9,10 @@ import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Optional;
 
 @RepositoryRestController
 @RequestMapping("/api/account")

@@ -1,12 +1,7 @@
 package org.sitmun.plugin.core.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import java.util.ArrayList;
-import java.util.List;
 import net.minidev.json.JSONArray;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +19,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TerritoryRepositoryIntegrationTest {
@@ -35,7 +35,7 @@ public class TerritoryRepositoryIntegrationTest {
   @Before
   public void setup() {
     ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -49,26 +49,26 @@ public class TerritoryRepositoryIntegrationTest {
   @Test
   public void requestMembers() {
     ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://localhost:{port}/api/territories/330/members", String.class,
-                port);
+      restTemplate
+        .getForEntity("http://localhost:{port}/api/territories/330/members", String.class,
+          port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
     assertThat(context.read("$._embedded.territories[*]", JSONArray.class))
-        .hasSize(33);
+      .hasSize(33);
   }
 
   @Test
   public void requestMemberOf() {
     ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://localhost:{port}/api/territories/74/memberOf", String.class,
-                port);
+      restTemplate
+        .getForEntity("http://localhost:{port}/api/territories/74/memberOf", String.class,
+          port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
     assertThat(context.read("$._embedded.territories[*]", JSONArray.class))
-        .hasSize(1);
+      .hasSize(1);
   }
 }

@@ -1,27 +1,12 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.validation.constraints.NotBlank;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Tree.
@@ -34,12 +19,12 @@ public class Tree {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_ARBOL_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "TRE_ID",
-      allocationSize = 1)
+    name = "STM_ARBOL_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "TRE_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOL_GEN")
   @Column(name = "TRE_ID")
@@ -64,17 +49,17 @@ public class Tree {
    * All three nodes.
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL,
-      orphanRemoval = true, fetch = FetchType.LAZY)
+    orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<TreeNode> allNodes = new HashSet<>();
 
   @ManyToMany
   @JoinTable(name = "STM_TREE_ROL",
-      joinColumns = @JoinColumn(
-          name = "TRO_TREEID",
-          foreignKey = @ForeignKey(name = "STM_ARR_FK_ARB")),
-      inverseJoinColumns = @JoinColumn(
-          name = "TRO_ROLEID",
-          foreignKey = @ForeignKey(name = "STM_ARR_FK_ROL")))
+    joinColumns = @JoinColumn(
+      name = "TRO_TREEID",
+      foreignKey = @ForeignKey(name = "STM_ARR_FK_ARB")),
+    inverseJoinColumns = @JoinColumn(
+      name = "TRO_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_ARR_FK_ROL")))
   private Set<Role> availableRoles = new HashSet<>();
 
   public Integer getId() {

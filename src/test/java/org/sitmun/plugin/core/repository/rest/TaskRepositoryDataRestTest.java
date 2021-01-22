@@ -141,10 +141,10 @@ public class TaskRepositoryDataRestTest {
     assertThat(location).isNotNull();
 
     mvc.perform(get(location)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");

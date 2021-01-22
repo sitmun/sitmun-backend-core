@@ -1,25 +1,15 @@
 package org.sitmun.plugin.core.domain;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
+
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import java.util.Date;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Thematic map.
@@ -32,12 +22,12 @@ public class ThematicMap {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_THEMATIC_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "THE_ID",
-      allocationSize = 1)
+    name = "STM_THEMATIC_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "THE_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_THEMATIC_GEN")
   @Column(name = "THE_ID")
@@ -491,10 +481,10 @@ public class ThematicMap {
 
     public ThematicMap build() {
       return new ThematicMap(id, name, description, type, ranges, startColor, endColor,
-          borderMinSize,
-          borderMaxSize, transparency, refreshData, recreateRanges, user, cartography, task,
-          taggable,
-          valueType, url, destination, expirationDate);
+        borderMinSize,
+        borderMaxSize, transparency, refreshData, recreateRanges, user, cartography, task,
+        taggable,
+        valueType, url, destination, expirationDate);
     }
   }
 }

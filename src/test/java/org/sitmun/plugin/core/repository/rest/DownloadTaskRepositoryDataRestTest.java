@@ -59,32 +59,32 @@ public class DownloadTaskRepositoryDataRestTest {
   @Test
   public void filterScope() throws Exception {
     mvc.perform(get(TASK_URI + "?scope=U")
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.download-tasks", hasSize(977)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(977)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(977)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(977)));
     mvc.perform(get(TASK_URI + "?scope=A")
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.download-tasks", hasSize(38)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(38)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)));
     mvc.perform(get(TASK_URI + "?scope=C")
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.download-tasks", hasSize(47)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(47)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)));
   }
 
   @Test
   public void filterScopeOr() throws Exception {
     mvc.perform(get(TASK_URI + "?scope=A&scope=C")
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.download-tasks", hasSize(85)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)))
-        .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C' || @.scope == 'A')]",
-            hasSize(85)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(85)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C' || @.scope == 'A')]",
+        hasSize(85)));
   }
 
   @TestConfiguration

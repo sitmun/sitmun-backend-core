@@ -1,10 +1,11 @@
 package org.sitmun.plugin.core.domain.projections;
 
-import java.util.Date;
-import java.util.List;
 import org.sitmun.plugin.core.domain.Application;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Projections for REST views of an application.

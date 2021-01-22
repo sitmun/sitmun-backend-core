@@ -1,54 +1,38 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
+
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Territorial entity.
  */
 @Entity
 @Table(name = "STM_TERRITORY", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
+  @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
 public class Territory {
 
   /**
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_ETERRIT_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "TER_ID",
-      allocationSize = 1)
+    name = "STM_ETERRIT_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "TER_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")
   @Column(name = "TER_ID")
@@ -146,13 +130,13 @@ public class Territory {
    */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-      name = "STM_GRP_TER",
-      joinColumns = @JoinColumn(
-          name = "GTE_TERID",
-          foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")),
-      inverseJoinColumns = @JoinColumn(
-          name = "GTE_TERMID",
-          foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
+    name = "STM_GRP_TER",
+    joinColumns = @JoinColumn(
+      name = "GTE_TERID",
+      foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")),
+    inverseJoinColumns = @JoinColumn(
+      name = "GTE_TERMID",
+      foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
   private Set<Territory> members = new HashSet<>();
 
   /**
@@ -160,13 +144,13 @@ public class Territory {
    */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-      name = "STM_GRP_TER",
-      joinColumns = @JoinColumn(
-          name = "GTE_TERMID",
-          foreignKey = @ForeignKey(name = "STM_GRT_FK_TERM")),
-      inverseJoinColumns = @JoinColumn(
-          name = "GTE_TERID",
-          foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
+    name = "STM_GRP_TER",
+    joinColumns = @JoinColumn(
+      name = "GTE_TERMID",
+      foreignKey = @ForeignKey(name = "STM_GRT_FK_TERM")),
+    inverseJoinColumns = @JoinColumn(
+      name = "GTE_TERID",
+      foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
   private Set<Territory> memberOf = new HashSet<>();
 
   /**
@@ -351,7 +335,7 @@ public class Territory {
   }
 
   public void setTaskAvailabilities(
-      Set<TaskAvailability> taskAvailabilities) {
+    Set<TaskAvailability> taskAvailabilities) {
     this.taskAvailabilities = taskAvailabilities;
   }
 
@@ -360,7 +344,7 @@ public class Territory {
   }
 
   public void setCartographyAvailabilities(
-      Set<CartographyAvailability> cartographyAvailabilities) {
+    Set<CartographyAvailability> cartographyAvailabilities) {
     this.cartographyAvailabilities = cartographyAvailabilities;
   }
 
@@ -483,7 +467,7 @@ public class Territory {
     }
 
     public Builder setCartographyAvailabilities(
-        Set<CartographyAvailability> cartographyAvailabilities) {
+      Set<CartographyAvailability> cartographyAvailabilities) {
       this.cartographyAvailabilities = cartographyAvailabilities;
       return this;
     }
@@ -495,8 +479,8 @@ public class Territory {
      */
     public Territory build() {
       return new Territory(id, code, name, territorialAuthorityName, territorialAuthorityAddress,
-          territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,
-          createdDate, groupType, members, memberOf, taskAvailabilities, cartographyAvailabilities);
+        territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,
+        createdDate, groupType, members, memberOf, taskAvailabilities, cartographyAvailabilities);
     }
   }
 }

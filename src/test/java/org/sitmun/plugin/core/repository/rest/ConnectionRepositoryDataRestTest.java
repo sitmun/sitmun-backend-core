@@ -36,18 +36,18 @@ public class ConnectionRepositoryDataRestTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void tasksLinksExist() throws Exception {
     mvc.perform(get(CONNECTIONS_URI))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
-        .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
+      .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void cartographiesLinksExist() throws Exception {
     mvc.perform(get(CONNECTIONS_URI))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
-        .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
+      .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));
   }
 
   @TestConfiguration

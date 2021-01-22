@@ -42,10 +42,10 @@ public class SpatialReferenceSystemTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void singleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
-        .contentType(APPLICATION_JSON)
-        .content(serviceFixture("EPSG:1")))
-        .andExpect(status().isCreated())
-        .andReturn().getResponse().getHeader("Location");
+      .contentType(APPLICATION_JSON)
+      .content(serviceFixture("EPSG:1")))
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location)).andExpect(status().isNoContent());
   }
@@ -55,11 +55,11 @@ public class SpatialReferenceSystemTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void singleOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
-        .contentType(APPLICATION_JSON)
-        .content(serviceFixture("other")))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
+      .contentType(APPLICATION_JSON)
+      .content(serviceFixture("other")))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
+      .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
   }
 
   @Test
@@ -67,10 +67,10 @@ public class SpatialReferenceSystemTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void multipleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
-        .contentType(APPLICATION_JSON)
-        .content(serviceFixture("EPSG:1", "EPSG:2")))
-        .andExpect(status().isCreated())
-        .andReturn().getResponse().getHeader("Location");
+      .contentType(APPLICATION_JSON)
+      .content(serviceFixture("EPSG:1", "EPSG:2")))
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location)).andExpect(status().isNoContent());
   }
@@ -80,22 +80,22 @@ public class SpatialReferenceSystemTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
-        .contentType(APPLICATION_JSON)
-        .content(serviceFixture("EPSG:1", "other")))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[1]").value("other"));
+      .contentType(APPLICATION_JSON)
+      .content(serviceFixture("EPSG:1", "other")))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
+      .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))
+      .andExpect(jsonPath("$.errors[0].invalidValue[1]").value("other"));
   }
 
   public String serviceFixture(String... projection) throws JSONException {
     return new JSONObject()
-        .put("supportedSRS", new JSONArray(projection))
-        .put("type", "WMS")
-        .put("blocked", "false")
-        .put("name", "any name")
-        .put("serviceURL", "http://example.com/")
-        .toString();
+      .put("supportedSRS", new JSONArray(projection))
+      .put("type", "WMS")
+      .put("blocked", "false")
+      .put("name", "any name")
+      .put("serviceURL", "http://example.com/")
+      .toString();
   }
 
   @TestConfiguration

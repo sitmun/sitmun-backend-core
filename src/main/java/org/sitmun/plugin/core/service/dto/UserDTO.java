@@ -1,11 +1,12 @@
 package org.sitmun.plugin.core.service.dto;
 
 
+import org.sitmun.plugin.core.domain.User;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sitmun.plugin.core.domain.User;
 
 public class UserDTO {
 

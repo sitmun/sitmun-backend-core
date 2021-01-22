@@ -101,7 +101,7 @@ public class UserResourceTest {
       token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       organizacionAdminRole =
-          Role.builder().setName(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
+        Role.builder().setName(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
       roleRepository.save(organizacionAdminRole);
 
       territorialRole = Role.builder().setName(AuthoritiesConstants.USUARIO_TERRITORIAL).build();
@@ -110,16 +110,16 @@ public class UserResourceTest {
       territories = new ArrayList<>();
       users = new ArrayList<>();
       territory1 = Territory.builder()
-          .setName("Territorio 1")
-          .setCode("")
-          .setBlocked(false)
-          .build();
+        .setName("Territorio 1")
+        .setCode("")
+        .setBlocked(false)
+        .build();
 
       territory2 = Territory.builder()
-          .setName("Territorio 2")
-          .setCode("")
-          .setBlocked(false)
-          .build();
+        .setName("Territorio 2")
+        .setCode("")
+        .setBlocked(false)
+        .build();
       territories.add(territory1);
       territories.add(territory2);
 
@@ -203,22 +203,22 @@ public class UserResourceTest {
     newUser.setUsername(NEW_USER_USERNAME);
 
     String uri = mvc.perform(post("/api/users")
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(newUser))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(newUser))
     ).andExpect(status().isCreated())
-        .andReturn().getResponse().getHeader("Location");
+      .andReturn().getResponse().getHeader("Location");
 
     assertThat(uri).isNotNull();
 
     mvc.perform(get(uri)
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
 
     mvc.perform(delete(uri)
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
     ).andExpect(status().isNoContent());
   }
 
@@ -229,10 +229,10 @@ public class UserResourceTest {
     newUser.setId(null);
 
     mvc.perform(post("/api/users")
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(newUser)))
-        .andExpect(status().isConflict());
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(newUser)))
+      .andExpect(status().isConflict());
   }
 
   @Test
@@ -243,26 +243,26 @@ public class UserResourceTest {
     userDTO.setLastName(USER_CHANGEDLASTNAME);
 
     mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(userDTO))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(userDTO))
     ).andExpect(status().isNoContent());
 
     mvc.perform(get(USER_URI + "/" + organizacionAdmin.getId()))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-        .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
+      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
     mvc.perform(get(USER_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(1335)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$._embedded.users", hasSize(1335)));
   }
 
   @Deprecated
@@ -270,9 +270,9 @@ public class UserResourceTest {
   @WithMockUser(username = TERRITORY1_ADMIN_USERNAME)
   public void getUsersAsOrganizationAdmin() throws Exception {
     mvc.perform(get(USER_URI).header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", hasSize(5)));
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$._embedded.users", hasSize(5)));
   }
 
   @Test
@@ -282,9 +282,9 @@ public class UserResourceTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(passwordDTO))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(passwordDTO))
     ).andExpect(status().isOk());
   }
 
@@ -295,9 +295,9 @@ public class UserResourceTest {
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(passwordDTO))
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(asJsonString(passwordDTO))
     ).andExpect(status().isOk());
   }
 

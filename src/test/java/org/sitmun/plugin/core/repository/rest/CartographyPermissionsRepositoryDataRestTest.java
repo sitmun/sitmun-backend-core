@@ -46,15 +46,15 @@ public class CartographyPermissionsRepositoryDataRestTest {
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, "M"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(1)))
-        .andExpect(jsonPath("$._embedded.situation-maps[?(@.type == 'M')]", hasSize(1)));
+      .andExpect(jsonPath("$._embedded.situation-maps[?(@.type == 'M')]", hasSize(1)));
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, "F"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
-        .andExpect(jsonPath("$._embedded.background-maps[?(@.type == 'F')]", hasSize(6)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
+      .andExpect(jsonPath("$._embedded.background-maps[?(@.type == 'F')]", hasSize(6)));
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, "C"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(112)))
-        .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == 'C')]", hasSize(112)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(112)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == 'C')]", hasSize(112)));
   }
 
   @Test

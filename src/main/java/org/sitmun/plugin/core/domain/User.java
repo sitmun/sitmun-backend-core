@@ -1,25 +1,15 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 // import org.springframework.hateoas.Identifiable;
 
 /**
@@ -27,16 +17,16 @@ import org.sitmun.plugin.core.constraints.CodeLists;
  */
 @Entity
 @Table(name = "STM_USER", uniqueConstraints = {
-    @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
+  @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
 public class User { //implements Identifiable<BigInteger> {
 
   @TableGenerator(
-      name = "STM_USER_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "USE_ID",
-      allocationSize = 1)
+    name = "STM_USER_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "USE_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USER_GEN")
   @Column(name = "USE_ID")

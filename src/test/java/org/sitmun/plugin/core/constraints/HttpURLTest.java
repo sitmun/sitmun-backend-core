@@ -1,12 +1,5 @@
 package org.sitmun.plugin.core.constraints;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +18,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -45,35 +44,35 @@ public class HttpURLTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfURLValueIsHttp() throws Exception {
     postEntityWithEmailValue(VALID_HTTP_URL)
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$." + PROPERTY_WITH_URL, equalTo(VALID_HTTP_URL)));
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$." + PROPERTY_WITH_URL, equalTo(VALID_HTTP_URL)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfURLValueIsHttps() throws Exception {
     postEntityWithEmailValue(VALID_HTTPS_URL)
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$." + PROPERTY_WITH_URL, equalTo(VALID_HTTPS_URL)));
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$." + PROPERTY_WITH_URL, equalTo(VALID_HTTPS_URL)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_URL)
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property", equalTo(PROPERTY_WITH_URL)))
-        .andExpect(jsonPath("$.errors[0].invalidValue", equalTo(INVALID_URL)));
+      .andExpect(status().is4xxClientError())
+      .andExpect(jsonPath("$.errors[0].property", equalTo(PROPERTY_WITH_URL)))
+      .andExpect(jsonPath("$.errors[0].invalidValue", equalTo(INVALID_URL)));
   }
 
   private ResultActions postEntityWithEmailValue(String validEmail) throws Exception {
     JSONObject entity = new JSONObject()
-        .put("name", "Fake Territory")
-        .put("code", "0000")
-        .put("blocked", false);
+      .put("name", "Fake Territory")
+      .put("code", "0000")
+      .put("blocked", false);
     return mvc.perform(post(ENTITY_WITH_URL_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(entity.put(PROPERTY_WITH_URL, validEmail).toString())
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(entity.put(PROPERTY_WITH_URL, validEmail).toString())
     );
   }
 

@@ -55,7 +55,7 @@ public class TerritoryRepositoryDataRestTest {
   @Test
   public void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(TERRITORIES_URI))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -70,21 +70,21 @@ public class TerritoryRepositoryDataRestTest {
   @Test
   public void hasLinkToCartographyAvailability() throws Exception {
     mvc.perform(get(TERRITORIES_URI))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
   public void hasLinkToTaskAvailability() throws Exception {
     mvc.perform(get(TERRITORY_URI, 0))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._links.taskAvailabilities").exists());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._links.taskAvailabilities").exists());
   }
 
   @Test
   public void hasLinkToCartographyAvailabilities() throws Exception {
     mvc.perform(get(TERRITORY_URI, 0))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
   }
 
   @Ignore

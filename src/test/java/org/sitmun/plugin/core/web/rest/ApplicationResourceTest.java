@@ -113,10 +113,10 @@ public class ApplicationResourceTest {
       token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       territory = Territory.builder()
-          .setName("Territorio 1")
-          .setCode("")
-          .setBlocked(false)
-          .build();
+        .setName("Territorio 1")
+        .setCode("")
+        .setBlocked(false)
+        .build();
       territoryRepository.save(territory);
 
       applications = new ArrayList<>();
@@ -140,11 +140,11 @@ public class ApplicationResourceTest {
 
       //Services
       Service publicService = Service.builder()
-          .setName(PUBLIC_SERVICE_NAME)
-          .setType("")
-          .setServiceURL("")
-          .setBlocked(false)
-          .build();
+        .setName(PUBLIC_SERVICE_NAME)
+        .setType("")
+        .setServiceURL("")
+        .setBlocked(false)
+        .build();
       //publicService.setLayers(cartographies);
 
       services = new HashSet<>();
@@ -153,13 +153,13 @@ public class ApplicationResourceTest {
 
       //Cartographies
       Cartography publicCartography = Cartography.builder()
-          .setName(PUBLIC_CARTOGRAPHY_NAME)
-          .setService(publicService)
-          .setLayers(Collections.emptyList())
-          .setQueryableFeatureAvailable(false)
-          .setQueryableFeatureEnabled(false)
-          .setBlocked(false)
-          .build();
+        .setName(PUBLIC_CARTOGRAPHY_NAME)
+        .setService(publicService)
+        .setLayers(Collections.emptyList())
+        .setQueryableFeatureAvailable(false)
+        .setQueryableFeatureEnabled(false)
+        .setBlocked(false)
+        .build();
 
       cartographies = new HashSet<>();
       cartographies.add(publicCartography);
@@ -207,10 +207,10 @@ public class ApplicationResourceTest {
       publicBackground = backgrounds.iterator().next();
 
       Application application = Application.builder()
-          .setName(NON_PUBLIC_APPLICATION_NAME)
-          .setType("I")
-          .setJspTemplate("")
-          .build();
+        .setName(NON_PUBLIC_APPLICATION_NAME)
+        .setType("I")
+        .setJspTemplate("")
+        .build();
       SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
       String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
       try {
@@ -228,14 +228,14 @@ public class ApplicationResourceTest {
       cartographyPermissions.add(publicSituaionMap);
 
       Application publicApplication = Application.builder()
-          .setType("I")
-          .setName(PUBLIC_APPLICATION_NAME)
-          .setAvailableRoles(availableRoles)
-          .setTrees(trees)
-          .setSituationMap(publicSituaionMap)
-          .setJspTemplate("")
-          .setCreatedDate(Date.from(Instant.now()))
-          .build();
+        .setType("I")
+        .setName(PUBLIC_APPLICATION_NAME)
+        .setAvailableRoles(availableRoles)
+        .setTrees(trees)
+        .setSituationMap(publicSituaionMap)
+        .setJspTemplate("")
+        .setCreatedDate(Date.from(Instant.now()))
+        .build();
 
       applications.add(publicApplication);
       applicationRepository.saveAll(applications);
@@ -279,13 +279,13 @@ public class ApplicationResourceTest {
   public void cleanup() {
     withMockSitmunAdmin(() -> {
       applicationParameters
-          .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
+        .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
       applications.forEach((item) -> applicationRepository.deleteById(item.getId()));
       backgrounds.forEach((item) -> backgroundRepository.deleteById(item.getId()));
       cartographyPermissions
-          .forEach((item) -> cartographyPermissionRepository.deleteById(item.getId()));
+        .forEach((item) -> cartographyPermissionRepository.deleteById(item.getId()));
       cartographyAvailabilities
-          .forEach((item) -> cartographyAvailabilityRepository.deleteById(item.getId()));
+        .forEach((item) -> cartographyAvailabilityRepository.deleteById(item.getId()));
       treeNodes.forEach((item) -> treeNodeRepository.deleteById(item.getId()));
       trees.forEach((item) -> treeRepository.deleteById(item.getId()));
       cartographies.forEach((item) -> cartographyRepository.deleteById(item.getId()));
@@ -300,8 +300,8 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
   }
 
   @Ignore
@@ -309,24 +309,24 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/parameters"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getInformationAboutAnApp() throws Exception {
     mvc.perform(get(APP_URI + "/" + appId))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value("Non-public Application"))
-        .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.name").value("Non-public Application"))
+      .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
   }
 
   @Test
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.order").value(1));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.order").value(1));
   }
 
   @Ignore
@@ -334,7 +334,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/trees"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -342,7 +342,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/backgrounds"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -350,7 +350,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(APP_URI + "/2/situationMap"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -358,7 +358,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -366,7 +366,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(TREE_NODE_URI + "/1/cartography"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -374,7 +374,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(SERVICE_URI + "/1/layers"))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Ignore
@@ -387,9 +387,9 @@ public class ApplicationResourceTest {
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(APP_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }
 
   @Ignore

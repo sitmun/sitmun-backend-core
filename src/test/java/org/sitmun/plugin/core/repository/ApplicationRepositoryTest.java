@@ -1,26 +1,21 @@
 package org.sitmun.plugin.core.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
-
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.domain.Application;
-import org.sitmun.plugin.core.domain.ApplicationBackground;
-import org.sitmun.plugin.core.domain.ApplicationParameter;
-import org.sitmun.plugin.core.domain.Background;
-import org.sitmun.plugin.core.domain.BackgroundMap;
-import org.sitmun.plugin.core.domain.Role;
+import org.sitmun.plugin.core.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -42,25 +37,25 @@ public class ApplicationRepositoryTest {
   public void init() {
 
     application = Application.builder()
-        .setName("Test")
-        .setCreatedDate(Date.from(Instant.now()))
-        .setTrees(null)
-        .setTreeAutoRefresh(true)
-        .setScales(null)
-        .setSituationMap(null)
-        .setParameters(null)
-        .setSrs(null)
-        .setParameters(new HashSet<>())
-        .setTheme(null)
-        .setType(null)
-        .setTitle("Test")
-        .setAvailableRoles(new HashSet<>())
-        .setBackgrounds(new HashSet<>())
-        .build();
+      .setName("Test")
+      .setCreatedDate(Date.from(Instant.now()))
+      .setTrees(null)
+      .setTreeAutoRefresh(true)
+      .setScales(null)
+      .setSituationMap(null)
+      .setParameters(null)
+      .setSrs(null)
+      .setParameters(new HashSet<>())
+      .setTheme(null)
+      .setType(null)
+      .setTitle("Test")
+      .setAvailableRoles(new HashSet<>())
+      .setBackgrounds(new HashSet<>())
+      .build();
 
     Role rol = Role.builder()
-        .setName("Rol 1")
-        .build();
+      .setName("Rol 1")
+      .build();
     application.getAvailableRoles().add(rol);
 
     BackgroundMap backgroundMap;

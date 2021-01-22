@@ -1,36 +1,20 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * A SITMUN application.
@@ -46,7 +30,7 @@ public class Application {
   @Column(name = "APP_ID")
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
   @TableGenerator(name = "STM_APPS_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
+    valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
   private Integer id;
 
   /**
@@ -143,11 +127,11 @@ public class Application {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_APP_ROL",
-      joinColumns = @JoinColumn(
-          name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
-      inverseJoinColumns = @JoinColumn(
-          name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
+    name = "STM_APP_ROL",
+    joinColumns = @JoinColumn(
+      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
+    inverseJoinColumns = @JoinColumn(
+      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
   private Set<Role> availableRoles = new HashSet<>();
 
   /**
@@ -155,11 +139,11 @@ public class Application {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_APP_TREE",
-      joinColumns = @JoinColumn(
-          name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
-      inverseJoinColumns = @JoinColumn(
-          name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
+    name = "STM_APP_TREE",
+    joinColumns = @JoinColumn(
+      name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
+    inverseJoinColumns = @JoinColumn(
+      name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
   private Set<Tree> trees;
 
   /**
@@ -338,7 +322,7 @@ public class Application {
   }
 
   public void setBackgrounds(
-      Set<ApplicationBackground> backgrounds) {
+    Set<ApplicationBackground> backgrounds) {
     this.backgrounds = backgrounds;
   }
 
@@ -451,9 +435,9 @@ public class Application {
      */
     public Application build() {
       return new Application(id, name, type, title, theme, scales, srs, jspTemplate,
-          treeAutoRefresh,
-          accessParentTerritory, accessChildrenTerritory, situationMap, createdDate, parameters,
-          availableRoles, trees, backgrounds);
+        treeAutoRefresh,
+        accessParentTerritory, accessChildrenTerritory, situationMap, createdDate, parameters,
+        availableRoles, trees, backgrounds);
     }
   }
 }

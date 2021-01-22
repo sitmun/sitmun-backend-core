@@ -5,12 +5,12 @@ package org.sitmun.plugin.core.domain;
  */
 public class Constants {
 
-  private Constants() {
-  }
-
   /**
    * Machine and human readable identifiers, code lists.
    */
   public static final int IDENTIFIER = 50;
+
+  private Constants() {
+  }
 
 }

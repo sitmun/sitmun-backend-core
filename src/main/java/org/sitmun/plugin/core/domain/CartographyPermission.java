@@ -1,29 +1,14 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.validation.constraints.NotBlank;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Geographic Information Permissions.
@@ -32,7 +17,7 @@ import org.sitmun.plugin.core.constraints.CodeLists;
 @Table(name = "STM_GRP_GI")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "GGI_TYPE",
-    discriminatorType = DiscriminatorType.STRING)
+  discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("C")
 public class CartographyPermission {
 
@@ -40,12 +25,12 @@ public class CartographyPermission {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_GRPCARTO_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "GGI_ID",
-      allocationSize = 1)
+    name = "STM_GRPCARTO_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "GGI_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRPCARTO_GEN")
   @Column(name = "GGI_ID")
@@ -70,13 +55,13 @@ public class CartographyPermission {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_GGI_GI",
-      joinColumns = @JoinColumn(
-          name = "GGG_GGIID",
-          foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")),
-      inverseJoinColumns = @JoinColumn(
-          name = "GGG_GIID",
-          foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")))
+    name = "STM_GGI_GI",
+    joinColumns = @JoinColumn(
+      name = "GGG_GGIID",
+      foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")),
+    inverseJoinColumns = @JoinColumn(
+      name = "GGG_GIID",
+      foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")))
   private Set<Cartography> members;
 
   /**
@@ -84,13 +69,13 @@ public class CartographyPermission {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_ROL_GGI",
-      joinColumns = @JoinColumn(
-          name = "RGG_GGIID",
-          foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")),
-      inverseJoinColumns = @JoinColumn(
-          name = "RGG_ROLEID",
-          foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")))
+    name = "STM_ROL_GGI",
+    joinColumns = @JoinColumn(
+      name = "RGG_GGIID",
+      foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")),
+    inverseJoinColumns = @JoinColumn(
+      name = "RGG_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")))
   private Set<Role> roles;
 
   public Integer getId() {

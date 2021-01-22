@@ -1,21 +1,5 @@
 package org.sitmun.plugin.core.constraints;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -47,6 +31,20 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -77,44 +75,44 @@ public class CodeListTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void init() {
     territory = Territory.builder()
-        .setName("Some territory")
-        .setCode("")
-        .setBlocked(false)
-        .build();
+      .setName("Some territory")
+      .setCode("")
+      .setBlocked(false)
+      .build();
     territoryRepository.save(territory);
 
     service = Service.builder()
-        .setName("Service")
-        .setServiceURL("")
-        .setType("")
-        .setBlocked(false)
-        .build();
+      .setName("Service")
+      .setServiceURL("")
+      .setType("")
+      .setBlocked(false)
+      .build();
     serviceRepository.save(service);
 
     cartographies = new ArrayList<>();
 
     Cartography cartography = Cartography.builder()
-        .setName(CARTOGRAPHY_NAME)
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .setBlocked(false)
-        .build();
+      .setName(CARTOGRAPHY_NAME)
+      .setLayers(Collections.emptyList())
+      .setApplyFilterToGetMap(false)
+      .setApplyFilterToGetFeatureInfo(false)
+      .setApplyFilterToSpatialSelection(false)
+      .setService(service)
+      .setAvailabilities(Collections.emptySet())
+      .setBlocked(false)
+      .build();
     cartographies.add(cartography);
 
     Cartography cartographyWithAvailabilities = Cartography.builder()
-        .setName("Cartography with availabilities")
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .setBlocked(false)
-        .build();
+      .setName("Cartography with availabilities")
+      .setLayers(Collections.emptyList())
+      .setApplyFilterToGetMap(false)
+      .setApplyFilterToGetFeatureInfo(false)
+      .setApplyFilterToSpatialSelection(false)
+      .setService(service)
+      .setAvailabilities(Collections.emptySet())
+      .setBlocked(false)
+      .build();
 
     cartographies.add(cartographyWithAvailabilities);
 
@@ -143,27 +141,27 @@ public class CodeListTest {
   public void passIfCodeListValueIsValid() throws Exception {
 
     String content = new JSONObject()
-        .put("name", CARTOGRAPHY_NAME)
-        .put("layers", new JSONArray())
-        .put("queryableFeatureAvailable", false)
-        .put("queryableFeatureEnabled", false)
-        .put("legendType", "LINK")
-        .put("service", "http://localhost/api/services/" + service.getId())
-        .put("blocked", false)
-        .toString();
+      .put("name", CARTOGRAPHY_NAME)
+      .put("layers", new JSONArray())
+      .put("queryableFeatureAvailable", false)
+      .put("queryableFeatureEnabled", false)
+      .put("legendType", "LINK")
+      .put("service", "http://localhost/api/services/" + service.getId())
+      .put("blocked", false)
+      .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(content)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(content)
     ).andExpect(status().isCreated())
-        .andReturn().getResponse().getHeader("Location");
+      .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
   }
 
   @Test
@@ -171,21 +169,21 @@ public class CodeListTest {
   public void failIfCodeListValueIsWrong() throws Exception {
 
     String content = new JSONObject()
-        .put("name", CARTOGRAPHY_NAME)
-        .put("layers", new JSONArray())
-        .put("queryableFeatureAvailable", false)
-        .put("queryableFeatureEnabled", false)
-        .put("legendType", "WRONG VALUE")
-        .put("service", "http://localhost/api/services/" + service.getId())
-        .put("blocked", false)
-        .toString();
+      .put("name", CARTOGRAPHY_NAME)
+      .put("layers", new JSONArray())
+      .put("queryableFeatureAvailable", false)
+      .put("queryableFeatureEnabled", false)
+      .put("legendType", "WRONG VALUE")
+      .put("service", "http://localhost/api/services/" + service.getId())
+      .put("blocked", false)
+      .toString();
 
     mvc.perform(post(CARTOGRAPHY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(content)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(content)
     ).andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
-        .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));
+      .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
+      .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));
   }
 
   @TestConfiguration
