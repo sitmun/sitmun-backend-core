@@ -21,6 +21,8 @@ public class RoleRepositoryDataRestTest {
   private static final String ROLES_URI = "http://localhost/api/roles";
   private static final String ROLE_URI = ROLES_URI + "/{0}";
   private static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
+  private static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
+  private static final String ROLE_TASKS_URI = ROLE_URI + "/tasks";
 
   @Autowired
   private MockMvc mvc;
@@ -31,5 +33,22 @@ public class RoleRepositoryDataRestTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(1)))
       .andExpect(jsonPath("$._embedded.applications[0].id").value(1));
+  }
+
+  @Test
+  public void getTasksOfARole() throws Exception {
+    mvc.perform(get(ROLE_TASKS_URI, 10))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(220)))
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(23)))
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(136)))
+      .andExpect(jsonPath("$._embedded.query-tasks", hasSize(61)));
+  }
+
+  @Test
+  public void getPermissionsOfARole() throws Exception {
+    mvc.perform(get(ROLE_PERMISSIONS_URI, 10))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(35)));
   }
 }

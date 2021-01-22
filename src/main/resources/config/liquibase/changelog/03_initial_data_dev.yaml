@@ -316,6 +316,13 @@ databaseChangeLog:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 32279);
         - loadData:
             encoding: UTF-8
+            file: 03_initial_data_dev/STM_ROL_TSK.csv
+            relativeToChangelogFile: true
+            tableName: STM_ROL_TSK
+            usePreparedStatements: true
+            quotchar: "\""
+        - loadData:
+            encoding: UTF-8
             file: 03_initial_data_dev/STM_POST.csv
             relativeToChangelogFile: true
             tableName: STM_POST

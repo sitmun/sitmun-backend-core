@@ -57,14 +57,45 @@ public class Role {
       name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")))
   private Set<Application> applications = new HashSet<>();
 
+  /**
+   * Tasks that have this role.
+   */
+  @ManyToMany
+  @JoinTable(
+    name = "STM_ROL_TSK",
+    joinColumns = @JoinColumn(
+      name = "RTS_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")),
+    inverseJoinColumns = @JoinColumn(
+      name = "RTS_TASKID",
+      foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
+  private Set<Task> tasks;
+
+  /**
+   * Permissions that have this role.
+   */
+  @ManyToMany
+  @JoinTable(
+    name = "STM_ROL_GGI",
+    joinColumns = @JoinColumn(
+      name = "RGG_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")),
+    inverseJoinColumns = @JoinColumn(
+      name = "RGG_GGIID",
+      foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
+  private Set<CartographyPermission> permissions;
+
   public Role() {
   }
 
-  private Role(Integer id, @NotBlank String name, String description, Set<Application> applications) {
+  private Role(Integer id, @NotBlank String name, String description, Set<Application> applications,
+               Set<Task> tasks, Set<CartographyPermission> permissions) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.applications = applications;
+    this.tasks = tasks;
+    this.permissions = permissions;
   }
 
   public static Builder builder() {
@@ -103,6 +134,22 @@ public class Role {
     this.applications = applications;
   }
 
+  public Set<Task> getTasks() {
+    return tasks;
+  }
+
+  public void setTasks(Set<Task> tasks) {
+    this.tasks = tasks;
+  }
+
+  public Set<CartographyPermission> getPermissions() {
+    return permissions;
+  }
+
+  public void setPermissions(Set<CartographyPermission> permissions) {
+    this.permissions = permissions;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof Role) {
@@ -121,6 +168,8 @@ public class Role {
     private @NotBlank String name;
     private String description;
     private Set<Application> applications = new HashSet<>();
+    private Set<Task> tasks = new HashSet<>();
+    private Set<CartographyPermission> permissions = new HashSet<>();
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -142,8 +191,18 @@ public class Role {
       return this;
     }
 
+    public Builder setTasks(Set<Task> tasks) {
+      this.tasks = tasks;
+      return this;
+    }
+
+    public Builder setPermissions(Set<CartographyPermission> permissions) {
+      this.permissions = permissions;
+      return this;
+    }
+
     public Role build() {
-      return new Role(id, name, description, applications);
+      return new Role(id, name, description, applications, tasks, permissions);
     }
   }
 }

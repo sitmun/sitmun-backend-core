@@ -1,32 +1,13 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotBlank;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Task.
@@ -40,12 +21,12 @@ public class Task {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_TAREA_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "TAS_ID",
-      allocationSize = 1)
+    name = "STM_TAREA_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "TAS_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
   @Column(name = "TAS_ID")
@@ -132,13 +113,13 @@ public class Task {
    */
   @ManyToMany
   @JoinTable(
-      name = "STM_ROL_TSK",
-      joinColumns = @JoinColumn(
-          name = "RTS_ROLEID",
-          foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")),
-      inverseJoinColumns = @JoinColumn(
-          name = "RTS_TASKID",
-          foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
+    name = "STM_ROL_TSK",
+    joinColumns = @JoinColumn(
+      name = "RTS_TASKID",
+      foreignKey = @ForeignKey(name = "STM_RTA_FK_T")),
+    inverseJoinColumns = @JoinColumn(
+      name = "RTS_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")))
   private Set<Role> roles;
 
   /**
@@ -262,7 +243,7 @@ public class Task {
   }
 
   public void setAvailabilities(
-      Set<TaskAvailability> availabilities) {
+    Set<TaskAvailability> availabilities) {
     this.availabilities = availabilities;
   }
 

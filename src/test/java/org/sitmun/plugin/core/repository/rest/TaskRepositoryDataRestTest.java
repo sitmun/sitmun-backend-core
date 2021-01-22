@@ -51,7 +51,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TaskRepositoryDataRestTest {
 
   private static final String TASK_NAME = "Task Name";
-  private static final String TASK_URI = "http://localhost/api/tasks";
+  private static final String TASKS_URI = "http://localhost/api/tasks";
+  private static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}";
+  private static final String TASK_URI = TASKS_URI + "/{0}";
+  private static final String TASK_ROLE_URI = TASK_URI + "/roles";
+  private static final String TASK_PARAMETERS_URI = TASK_URI + "/parameters";
   private static final String PUBLIC_USERNAME = "public";
   @Autowired
   TaskRepository taskRepository;
@@ -127,7 +131,7 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void postTask() throws Exception {
-    String location = mvc.perform(post(TASK_URI)
+    String location = mvc.perform(post(TASKS_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
@@ -151,7 +155,7 @@ public class TaskRepositoryDataRestTest {
 
   @Ignore
   public void getTasksAsPublic() throws Exception {
-    mvc.perform(get(TASK_URI))
+    mvc.perform(get(TASKS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
   }
@@ -159,7 +163,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI)
+    mvc.perform(get(TASKS_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(115)));
@@ -168,7 +172,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getQueryasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI)
+    mvc.perform(get(TASKS_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.query-tasks", hasSize(581)));
@@ -177,7 +181,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getDownloadTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI)
+    mvc.perform(get(TASKS_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(1062)));
@@ -186,7 +190,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASK_URI + "?type.id=2")
+    mvc.perform(get(TASKS_URI_FILTER, "type.id", "2")
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(648)));
@@ -195,17 +199,31 @@ public class TaskRepositoryDataRestTest {
   @Test
   @WithMockUser(username = PUBLIC_USERNAME)
   public void getTaskParamsAsPublic() throws Exception {
-    mvc.perform(get(TASK_URI + "/" + task.getId() + "/parameters"))
+    mvc.perform(get(TASK_PARAMETERS_URI, task.getId()))
       .andExpect(status().isOk());
   }
 
   @Test
   public void postTaskAsPublicUserFails() throws Exception {
 
-    mvc.perform(post(TASK_URI)
+    mvc.perform(post(TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
     ).andExpect(status().is4xxClientError()).andReturn();
+  }
+
+  @Test
+  public void getRolesOfATask() throws Exception {
+    mvc.perform(get(TASK_ROLE_URI, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
+  }
+
+  @Test
+  public void getPermissionsOfATask() throws Exception {
+    mvc.perform(get(TASK_ROLE_URI, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }
 
   @TestConfiguration
