@@ -1,37 +1,22 @@
 package org.sitmun.plugin.core.domain;
 
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Geographic information.
@@ -44,12 +29,12 @@ public class Cartography {
    * Unique identifier.
    */
   @TableGenerator(
-      name = "STM_CARTO_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "GEO_ID",
-      allocationSize = 1)
+    name = "STM_CARTO_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "GEO_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARTO_GEN")
   @Column(name = "GEO_ID")
@@ -241,7 +226,7 @@ public class Cartography {
    * Availailability.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true,
-      fetch = FetchType.LAZY)
+    fetch = FetchType.LAZY)
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
   /**
@@ -276,6 +261,12 @@ public class Cartography {
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CartographyParameter> parameters = new HashSet<>();
 
+  /**
+   * Tree nodes.
+   */
+  @OneToMany(mappedBy = "cartography")
+  private Set<TreeNode> treeNodes = new HashSet<>();
+
   public Cartography() {
   }
 
@@ -301,7 +292,8 @@ public class Cartography {
                       CartographyStyle defaultStyle,
                       @NotNull Boolean blocked,
                       Set<CartographyFilter> filters,
-                      Set<CartographyParameter> parameters) {
+                      Set<CartographyParameter> parameters,
+                      Set<TreeNode> treeNodes) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -336,6 +328,7 @@ public class Cartography {
     this.blocked = blocked;
     this.filters = filters;
     this.parameters = parameters;
+    this.treeNodes = treeNodes;
   }
 
   public static Builder builder() {
@@ -523,7 +516,7 @@ public class Cartography {
   }
 
   public void setSpatialSelectionConnection(
-      Connection spatialSelectionConnection) {
+    Connection spatialSelectionConnection) {
     this.spatialSelectionConnection = spatialSelectionConnection;
   }
 
@@ -572,7 +565,7 @@ public class Cartography {
   }
 
   public void setAvailabilities(
-      Set<CartographyAvailability> availabilities) {
+    Set<CartographyAvailability> availabilities) {
     this.availabilities = availabilities;
   }
 
@@ -616,6 +609,14 @@ public class Cartography {
     this.parameters = parameters;
   }
 
+  public Set<TreeNode> getTreeNodes() {
+    return treeNodes;
+  }
+
+  public void setTreeNodes(Set<TreeNode> treeNodes) {
+    this.treeNodes = treeNodes;
+  }
+
   public static class Builder {
     private Integer id;
     private @NotBlank String name;
@@ -651,6 +652,7 @@ public class Cartography {
     private @NotNull Boolean blocked;
     private Set<CartographyFilter> filters;
     private Set<CartographyParameter> parameters;
+    private Set<TreeNode> treeNodes;
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -713,7 +715,7 @@ public class Cartography {
     }
 
     public Builder setApplyFilterToGetFeatureInfo(
-        @NotNull Boolean applyFilterToGetFeatureInfo) {
+      @NotNull Boolean applyFilterToGetFeatureInfo) {
       this.applyFilterToGetFeatureInfo = applyFilterToGetFeatureInfo;
       return this;
     }
@@ -739,7 +741,7 @@ public class Cartography {
     }
 
     public Builder setApplyFilterToSpatialSelection(
-        @NotNull Boolean applyFilterToSpatialSelection) {
+      @NotNull Boolean applyFilterToSpatialSelection) {
       this.applyFilterToSpatialSelection = applyFilterToSpatialSelection;
       return this;
     }
@@ -824,6 +826,11 @@ public class Cartography {
       return this;
     }
 
+    public Builder setTreeNodes(Set<TreeNode> treeNodes) {
+      this.treeNodes = treeNodes;
+      return this;
+    }
+
     /**
      * Cartography builder.
      *
@@ -831,11 +838,12 @@ public class Cartography {
      */
     public Cartography build() {
       return new Cartography(id, name, description, layers, minimumScale, maximumScale, order,
-          transparency, applyFilterToGetMap, queryableFeatureAvailable, queryableFeatureEnabled,
-          queryableLayers, applyFilterToGetFeatureInfo, type, service, selectableFeatureEnabled,
-          selectableLayers, applyFilterToSpatialSelection, spatialSelectionService, legendType,
-          legendURL, createdDate, spatialSelectionConnection, metadataURL, datasetURL, thematic,
-          geometryType, source, availabilities, styles, defaultStyle, blocked, filters, parameters);
+        transparency, applyFilterToGetMap, queryableFeatureAvailable, queryableFeatureEnabled,
+        queryableLayers, applyFilterToGetFeatureInfo, type, service, selectableFeatureEnabled,
+        selectableLayers, applyFilterToSpatialSelection, spatialSelectionService, legendType,
+        legendURL, createdDate, spatialSelectionConnection, metadataURL, datasetURL, thematic,
+        geometryType, source, availabilities, styles, defaultStyle, blocked, filters, parameters,
+        treeNodes);
     }
   }
 }

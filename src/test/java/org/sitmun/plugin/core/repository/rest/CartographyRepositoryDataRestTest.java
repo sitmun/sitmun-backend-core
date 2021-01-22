@@ -39,6 +39,7 @@ import java.util.Date;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
@@ -82,41 +83,41 @@ public class CartographyRepositoryDataRestTest {
       token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       territory = Territory.builder()
-          .setName("Territorio 1")
-          .setCode("")
-          .setBlocked(false)
-          .build();
+        .setName("Territorio 1")
+        .setCode("")
+        .setBlocked(false)
+        .build();
       territoryRepository.save(territory);
 
       service = Service.builder()
-          .setName("Service")
-          .setServiceURL("")
-          .setType("")
-          .setBlocked(false)
-          .build();
+        .setName("Service")
+        .setServiceURL("")
+        .setType("")
+        .setBlocked(false)
+        .build();
       serviceRepository.save(service);
 
       cartographies = new ArrayList<>();
       availabilities = new ArrayList<>();
 
       Cartography.Builder cartographyDefaults = Cartography.builder()
-          .setType("I")
-          .setName(CARTOGRAPHY_NAME)
-          .setLayers(Collections.emptyList())
-          .setQueryableFeatureAvailable(false)
-          .setQueryableFeatureEnabled(false)
-          .setService(service)
-          .setAvailabilities(Collections.emptySet())
-          .setBlocked(false);
+        .setType("I")
+        .setName(CARTOGRAPHY_NAME)
+        .setLayers(Collections.emptyList())
+        .setQueryableFeatureAvailable(false)
+        .setQueryableFeatureEnabled(false)
+        .setService(service)
+        .setAvailabilities(Collections.emptySet())
+        .setBlocked(false);
 
       cartography = cartographyDefaults
-          .setName(CARTOGRAPHY_NAME)
-          .build();
+        .setName(CARTOGRAPHY_NAME)
+        .build();
       cartographies.add(cartography);
 
       Cartography cartographyWithAvailabilities = cartographyDefaults
-          .setName("Cartography with availabilities")
-          .build();
+        .setName("Cartography with availabilities")
+        .build();
 
       cartographies.add(cartographyWithAvailabilities);
 
@@ -146,28 +147,28 @@ public class CartographyRepositoryDataRestTest {
   public void postCartography() throws Exception {
 
     String content = new JSONObject()
-        .put("name", CARTOGRAPHY_NAME)
-        .put("layers", new JSONArray())
-        .put("queryableFeatureAvailable", false)
-        .put("queryableFeatureEnabled", false)
-        .put("service", "http://localhost/api/services/" + service.getId())
-        .put("blocked", false)
-        .toString();
+      .put("name", CARTOGRAPHY_NAME)
+      .put("layers", new JSONArray())
+      .put("queryableFeatureAvailable", false)
+      .put("queryableFeatureEnabled", false)
+      .put("service", "http://localhost/api/services/" + service.getId())
+      .put("blocked", false)
+      .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
-        .header(HEADER_STRING, TOKEN_PREFIX + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(content)
+      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(content)
     ).andExpect(status().isCreated())
-        .andReturn().getResponse().getHeader("Location");
+      .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location)
-        .header(HEADER_STRING, TOKEN_PREFIX + token))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
@@ -179,7 +180,7 @@ public class CartographyRepositoryDataRestTest {
   @Test
   public void getCartographiesAsPublic() throws Exception {
     mvc.perform(get(CARTOGRAPHY_URI))
-        .andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -188,6 +189,14 @@ public class CartographyRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(cartography)))
       .andExpect(status().is4xxClientError()).andReturn();
+  }
+
+  @Test
+  public void hasTreeNodeListProperty() throws Exception {
+    mvc.perform(get(CARTOGRAPHY_URI))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(732)))
+      .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(732)));
   }
 
   @TestConfiguration
