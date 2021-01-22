@@ -2,10 +2,11 @@ package org.sitmun.plugin.core.domain.projections;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
 import org.sitmun.plugin.core.domain.Background;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+
+import java.util.Date;
 
 /**
  * Projections for REST views of a background.
@@ -32,6 +33,6 @@ public interface BackgroundProjection {
   String getCartographyGroupName();
 
   @Value("#{target.cartographyGroup.id}")
-  @JsonProperty("cartographyGroup.id")
+  @JsonProperty("cartographyGroupId")
   Long getCartographyGroupId();
 }

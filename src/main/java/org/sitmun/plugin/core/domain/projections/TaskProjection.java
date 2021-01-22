@@ -2,10 +2,11 @@ package org.sitmun.plugin.core.domain.projections;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
 import org.sitmun.plugin.core.domain.Task;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+
+import java.util.Date;
 
 /**
  * Projections for REST views of a task.
@@ -29,6 +30,6 @@ public interface TaskProjection {
   String getGroupName();
 
   @Value("#{target.group != null? target.group.id : null }")
-  @JsonProperty("group.id")
+  @JsonProperty("groupId")
   Long getGroupId();
 }

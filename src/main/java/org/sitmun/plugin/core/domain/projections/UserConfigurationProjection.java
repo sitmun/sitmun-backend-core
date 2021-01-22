@@ -26,7 +26,7 @@ public interface UserConfigurationProjection {
   /**
    * User identifier.
    */
-  @JsonProperty("user.id")
+  @JsonProperty("userId")
   @Value("#{target.user.id}")
   Integer getUserId();
 
@@ -39,7 +39,7 @@ public interface UserConfigurationProjection {
   /**
    * Territory identifier.
    */
-  @JsonProperty("territory.id")
+  @JsonProperty("territoryId")
   @Value("#{target.territory.id}")
   Integer getTerritoryId();
 
@@ -52,7 +52,7 @@ public interface UserConfigurationProjection {
   /**
    * Role identifier.
    */
-  @JsonProperty("role.id")
+  @JsonProperty("roleId")
   @Value("#{target.role.id}")
   Integer getRoleId();
 

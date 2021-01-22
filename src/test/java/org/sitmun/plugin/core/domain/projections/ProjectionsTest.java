@@ -15,9 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.io.FileWriter;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,28 +52,28 @@ public class ProjectionsTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void filterByProjectedProperty() throws Exception {
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territory.id", "41"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
-        .andExpect(
-            jsonPath("$._embedded.user-configurations[?(@.['territory.id'] == 41)]", hasSize(34)));
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
+      .andExpect(
+        jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
 
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "user.id", "1777"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.user-configurations", hasSize(9)))
-        .andExpect(
-            jsonPath("$._embedded.user-configurations[?(@.['user.id'] == 1777)]", hasSize(9)));
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(9)))
+      .andExpect(
+        jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(9)));
 
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "role.id", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.user-configurations", hasSize(7)))
-        .andExpect(jsonPath("$._embedded.user-configurations[?(@.['role.id'] == 10)]", hasSize(7)));
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(7)))
+      .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void ensureIdIsPresent() throws Exception {
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territory.id", "41"))
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
         .andExpect(
@@ -90,8 +93,8 @@ public class ProjectionsTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkCartographyGroupIdExistsInProjection() throws Exception {
     mvc.perform(get("/api/backgrounds?projection=view"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.backgrounds[?(@.['cartographyGroup.id'])]", hasSize(6)));
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)));
   }
 
   @Test
@@ -115,9 +118,10 @@ public class ProjectionsTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkCartographyGroupIdExistsInTasksProjection() throws Exception {
     mvc.perform(get("/api/tasks?projection=view"))
+      .andDo(print(new FileWriter("out.txt")))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.*.*", hasSize(1756)))
-      .andExpect(jsonPath("$._embedded.*.[?(@.['group.id'])]", hasSize(1756)));
+      .andExpect(jsonPath("$._embedded.*[*]", hasSize(1756)))
+      .andExpect(jsonPath("$._embedded.*[?(@.groupId)]", hasSize(1756)));
   }
 
   @Test
