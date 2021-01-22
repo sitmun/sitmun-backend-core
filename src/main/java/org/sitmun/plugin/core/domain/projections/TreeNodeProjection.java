@@ -56,4 +56,10 @@ public interface TreeNodeProjection {
   @Value("#{target.filterSelectable}")
   Boolean getFilterSelectable();
 
+  /**
+   * If this node is a folder then the cartography must be null.
+   */
+  @Value("#{target.cartography == null}")
+  Boolean getIsFolder();
+
 }
