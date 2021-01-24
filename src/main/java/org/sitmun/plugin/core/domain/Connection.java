@@ -70,7 +70,7 @@ public class Connection {
   private Set<Task> tasks = new HashSet<>();
 
   /**
-   * Cartographies that use this coneection.
+   * Cartographies that use this connection.
    */
   @OneToMany(mappedBy = "spatialSelectionConnection", cascade = CascadeType.ALL)
   private Set<Cartography> cartographies = new HashSet<>();
