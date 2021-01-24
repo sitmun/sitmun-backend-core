@@ -15,12 +15,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import java.io.FileWriter;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -108,20 +105,19 @@ public class ProjectionsTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkTaskGroupNameExistsInTasksProjection() throws Exception {
-    mvc.perform(get("/api/tasks?projection=view"))
+    mvc.perform(get("/api/tasks?projection=view&size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.*.*", hasSize(1756)))
-      .andExpect(jsonPath("$._embedded.*.[?(@.groupName)]", hasSize(1756)));
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(10)))
+      .andExpect(jsonPath("$._embedded.*.[?(@.groupName)]", hasSize(10)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkCartographyGroupIdExistsInTasksProjection() throws Exception {
-    mvc.perform(get("/api/tasks?projection=view"))
-      .andDo(print(new FileWriter("out.txt")))
+    mvc.perform(get("/api/tasks?projection=view&size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.*[*]", hasSize(1756)))
-      .andExpect(jsonPath("$._embedded.*[?(@.groupId)]", hasSize(1756)));
+      .andExpect(jsonPath("$._embedded.*[*]", hasSize(10)))
+      .andExpect(jsonPath("$._embedded.*[?(@.groupId)]", hasSize(10)));
   }
 
   @Test
@@ -137,10 +133,10 @@ public class ProjectionsTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void checkServiceNamesInCartographiesProjection() throws Exception {
-    mvc.perform(get("/api/cartographies?projection=view"))
+    mvc.perform(get("/api/cartographies?projection=view&size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartographies", hasSize(730)))
-      .andExpect(jsonPath("$._embedded.cartographies[?(@.serviceName)]", hasSize(730)));
+      .andExpect(jsonPath("$._embedded.cartographies", hasSize(10)))
+      .andExpect(jsonPath("$._embedded.cartographies[?(@.serviceName)]", hasSize(10)));
   }
 
   @TestConfiguration

@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,7 +47,6 @@ public class RepositoryDataRestUpdateTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void itemResourceUpdate() throws Exception {
     String item = mvc.perform(get(SITUATION_MAP_URI, 132))
-      .andDo(print())
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -77,7 +75,6 @@ public class RepositoryDataRestUpdateTest {
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void associationResourceUpdate() throws Exception {
     String item = mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
-      .andDo(print())
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -86,21 +83,17 @@ public class RepositoryDataRestUpdateTest {
 
     String update = links.stream().skip(1).collect(Collectors.joining("\n"));
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"))
-      .andDo(print());
+    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"));
 
     mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size() - 1)));
 
     update = String.join("\n", links);
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"))
-      .andDo(print());
+    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"));
 
     mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size())))
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", containsInAnyOrder(links.toArray())));
