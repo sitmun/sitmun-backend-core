@@ -109,6 +109,10 @@ public class UserPosition {
     this.territory = territory;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public Integer getId() {
     return id;
   }
@@ -181,7 +185,7 @@ public class UserPosition {
     this.territory = territory;
   }
 
-  public static class UserPositionBuilder {
+  public static class Builder {
     private Integer id;
     private String name;
     private String organization;
@@ -192,47 +196,47 @@ public class UserPosition {
     private @NotNull User user;
     private @NotNull Territory territory;
 
-    public UserPositionBuilder setId(Integer id) {
+    public Builder setId(Integer id) {
       this.id = id;
       return this;
     }
 
-    public UserPositionBuilder setName(String name) {
+    public Builder setName(String name) {
       this.name = name;
       return this;
     }
 
-    public UserPositionBuilder setOrganization(String organization) {
+    public Builder setOrganization(String organization) {
       this.organization = organization;
       return this;
     }
 
-    public UserPositionBuilder setEmail(@Email String email) {
+    public Builder setEmail(@Email String email) {
       this.email = email;
       return this;
     }
 
-    public UserPositionBuilder setCreatedDate(Date createdDate) {
+    public Builder setCreatedDate(Date createdDate) {
       this.createdDate = createdDate;
       return this;
     }
 
-    public UserPositionBuilder setExpirationDate(Date expirationDate) {
+    public Builder setExpirationDate(Date expirationDate) {
       this.expirationDate = expirationDate;
       return this;
     }
 
-    public UserPositionBuilder setType(String type) {
+    public Builder setType(String type) {
       this.type = type;
       return this;
     }
 
-    public UserPositionBuilder setUser(@NotNull User user) {
+    public Builder setUser(@NotNull User user) {
       this.user = user;
       return this;
     }
 
-    public UserPositionBuilder setTerritory(@NotNull Territory territory) {
+    public Builder setTerritory(@NotNull Territory territory) {
       this.territory = territory;
       return this;
     }

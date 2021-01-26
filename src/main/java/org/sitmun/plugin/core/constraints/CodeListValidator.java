@@ -1,9 +1,10 @@
 package org.sitmun.plugin.core.constraints;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import org.sitmun.plugin.core.repository.CodeListValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 public class CodeListValidator implements ConstraintValidator<CodeList, String> {
 

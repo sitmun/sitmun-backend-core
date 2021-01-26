@@ -24,6 +24,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Optional;
 
+/**
+ * @deprecated
+ */
 @Component
 @Profile("diba")
 @Deprecated

@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.repository;
 
 import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Optional;
 import org.sitmun.plugin.core.domain.QUserConfiguration;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -16,12 +15,14 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.Optional;
+
 @Tag(name = "user configuration")
 @RepositoryRestResource(collectionResourceRel = "user-configurations", path = "user-configurations")
 public interface UserConfigurationRepository extends
-    PagingAndSortingRepository<UserConfiguration, Integer>,
-    QuerydslPredicateExecutor<UserConfiguration>,
-    QuerydslBinderCustomizer<QUserConfiguration> {
+  PagingAndSortingRepository<UserConfiguration, Integer>,
+  QuerydslPredicateExecutor<UserConfiguration>,
+  QuerydslBinderCustomizer<QUserConfiguration> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

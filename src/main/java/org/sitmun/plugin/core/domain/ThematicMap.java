@@ -357,7 +357,7 @@ public class ThematicMap {
     this.expirationDate = expirationDate;
   }
 
-  public static class Builder {
+  private static class Builder {
     private Integer id;
     private String name;
     private String description;

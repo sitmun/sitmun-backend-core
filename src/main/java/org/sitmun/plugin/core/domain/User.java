@@ -18,7 +18,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_USER", uniqueConstraints = {
   @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
-public class User { //implements Identifiable<BigInteger> {
+public class User {
 
   @TableGenerator(
     name = "STM_USER_GEN",

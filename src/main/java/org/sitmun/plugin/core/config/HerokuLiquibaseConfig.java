@@ -2,8 +2,6 @@ package org.sitmun.plugin.core.config;
 
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +29,6 @@ public class HerokuLiquibaseConfig {
 }
 
 class AsyncSpringLiquibase extends SpringLiquibase {
-  private final Logger log = LoggerFactory.getLogger(AsyncSpringLiquibase.class);
 
   @Autowired
   private TaskExecutor taskExecutor;
@@ -43,7 +40,7 @@ class AsyncSpringLiquibase extends SpringLiquibase {
         log.info("Starting Liquibase asynchronously, your database might not be ready at startup!");
         initDb();
       } catch (LiquibaseException e) {
-        log.error("Liquibase could not start correctly, your database is NOT ready: {}", e.getMessage(), e);
+        log.severe("Liquibase could not start correctly, your database is NOT ready: " + e.getMessage(), e);
       }
     });
   }
@@ -53,6 +50,6 @@ class AsyncSpringLiquibase extends SpringLiquibase {
     watch.start();
     super.afterPropertiesSet();
     watch.stop();
-    log.info("Started Liquibase in {} ms", watch.getTotalTimeMillis());
+    log.info("Started Liquibase in " + watch.getTotalTimeMillis() + "ms");
   }
 }

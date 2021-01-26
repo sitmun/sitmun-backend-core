@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Optional;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -12,10 +11,12 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.Optional;
+
 @Tag(name = "territory group type")
 @RepositoryRestResource(collectionResourceRel = "territory-group-types", path = "territory-group-types")
 public interface TerritoryGroupTypeRepository
-    extends PagingAndSortingRepository<TerritoryGroupType, Integer> {
+  extends PagingAndSortingRepository<TerritoryGroupType, Integer> {
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   @NonNull
