@@ -18,6 +18,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -137,6 +138,23 @@ public class ProjectionsTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies", hasSize(10)))
       .andExpect(jsonPath("$._embedded.cartographies[?(@.serviceName)]", hasSize(10)));
+  }
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void checkTreeNodesExposesCartographyNameAndId() throws Exception {
+    mvc.perform(get("/api/tree-nodes/208?projection=view"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.isFolder").value(true))
+      .andExpect(jsonPath("$.cartographyName").isEmpty())
+      .andExpect(jsonPath("$.cartographyId").isEmpty());
+
+    mvc.perform(get("/api/tree-nodes/2546?projection=view"))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.isFolder").value(false))
+      .andExpect(jsonPath("$.cartographyName").value("BUE1M - Planimetria (punts)"))
+      .andExpect(jsonPath("$.cartographyId").value(178));
   }
 
   @TestConfiguration

@@ -62,4 +62,15 @@ public interface TreeNodeProjection {
   @Value("#{target.cartography == null}")
   Boolean getIsFolder();
 
+  /**
+   * Cartography name.
+   */
+  @Value("#{target.cartography != null? target.cartography.name : null}")
+  String getCartographyName();
+
+  /**
+   * Cartography identifier.
+   */
+  @Value("#{target.cartography != null? target.cartography.id : null}")
+  Integer getCartographyId();
 }
