@@ -58,11 +58,11 @@ public class DownloadTaskRepositoryDataRestTest {
 
   @Test
   public void filterScope() throws Exception {
-    mvc.perform(get(TASK_URI + "?scope=U")
+    mvc.perform(get(TASK_URI + "?scope=U&size=10")
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(977)))
-      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(977)));
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(10)))
+      .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(10)));
     mvc.perform(get(TASK_URI + "?scope=A")
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())

@@ -193,10 +193,10 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void hasTreeNodeListProperty() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_URI))
+    mvc.perform(get(CARTOGRAPHY_URI + "?size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(732)))
-      .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(732)));
+      .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
+      .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));
   }
 
   @TestConfiguration

@@ -258,11 +258,11 @@ public class UserResourceTest {
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
-    mvc.perform(get(USER_URI)
+    mvc.perform(get(USER_URI + "?size=10")
       .header(HEADER_STRING, TOKEN_PREFIX + token))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$._embedded.users", hasSize(1335)));
+      .andExpect(jsonPath("$._embedded.users", hasSize(10)));
   }
 
   @Deprecated

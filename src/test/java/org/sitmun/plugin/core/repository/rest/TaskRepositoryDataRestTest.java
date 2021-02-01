@@ -24,6 +24,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -48,11 +49,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class TaskRepositoryDataRestTest {
 
   private static final String TASK_NAME = "Task Name";
   private static final String TASKS_URI = "http://localhost/api/tasks";
-  private static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}";
+  private static final String DOWNLOAD_TASKS_URI = "http://localhost/api/download-tasks";
+  private static final String QUERY_TASKS_URI = "http://localhost/api/query-tasks";
+  private static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}&size=10";
   private static final String TASK_URI = TASKS_URI + "/{0}";
   private static final String TASK_ROLE_URI = TASK_URI + "/roles";
   private static final String TASK_PARAMETERS_URI = TASK_URI + "/parameters";
@@ -171,29 +175,26 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
-  public void getQueryasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+  public void getQueryTasksAsSitmunAdmin() throws Exception {
+    mvc.perform(get(QUERY_TASKS_URI + "?size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.query-tasks", hasSize(581)));
+      .andExpect(jsonPath("$._embedded.query-tasks", hasSize(10)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getDownloadTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+    mvc.perform(get(DOWNLOAD_TASKS_URI + "?size=10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(1062)));
+      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(10)));
   }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI_FILTER, "type.id", "2")
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+    mvc.perform(get(TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(648)));
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
 
   @Test
