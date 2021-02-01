@@ -13,7 +13,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_CONNECT")
-public class Connection {
+public class DatabaseConnection {
 
   /**
    * Unique identifier.
@@ -76,12 +76,12 @@ public class Connection {
   private Set<Cartography> cartographies = new HashSet<>();
 
 
-  public Connection() {
+  public DatabaseConnection() {
   }
 
-  private Connection(Integer id, @NotBlank String name,
-                     @NotBlank String driver, String user, String password,
-                     String url, Set<Task> tasks, Set<Cartography> cartographies) {
+  private DatabaseConnection(Integer id, @NotBlank String name,
+                             @NotBlank String driver, String user, String password,
+                             String url, Set<Task> tasks, Set<Cartography> cartographies) {
     this.id = id;
     this.name = name;
     this.driver = driver;
@@ -210,8 +210,8 @@ public class Connection {
       return this;
     }
 
-    public Connection build() {
-      return new Connection(id, name, driver, user, password, url, tasks, cartographies);
+    public DatabaseConnection build() {
+      return new DatabaseConnection(id, name, driver, user, password, url, tasks, cartographies);
     }
   }
 }

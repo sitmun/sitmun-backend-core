@@ -187,7 +187,7 @@ public class Cartography {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_CAR_FK_CON"))
-  private Connection spatialSelectionConnection;
+  private DatabaseConnection spatialSelectionConnection;
 
   /**
    * Direct link to a metadata document.
@@ -284,7 +284,7 @@ public class Cartography {
                       Boolean applyFilterToSpatialSelection,
                       Service spatialSelectionService, String legendType, String legendURL,
                       Date createdDate,
-                      Connection spatialSelectionConnection, String metadataURL,
+                      DatabaseConnection spatialSelectionConnection, String metadataURL,
                       String datasetURL, Boolean thematic, String geometryType,
                       String source,
                       Set<CartographyAvailability> availabilities,
@@ -511,12 +511,12 @@ public class Cartography {
     this.createdDate = createdDate;
   }
 
-  public Connection getSpatialSelectionConnection() {
+  public DatabaseConnection getSpatialSelectionConnection() {
     return spatialSelectionConnection;
   }
 
   public void setSpatialSelectionConnection(
-    Connection spatialSelectionConnection) {
+    DatabaseConnection spatialSelectionConnection) {
     this.spatialSelectionConnection = spatialSelectionConnection;
   }
 
@@ -640,7 +640,7 @@ public class Cartography {
     private String legendType;
     private String legendURL;
     private Date createdDate;
-    private Connection spatialSelectionConnection;
+    private DatabaseConnection spatialSelectionConnection;
     private String metadataURL;
     private String datasetURL;
     private Boolean thematic;
@@ -766,7 +766,7 @@ public class Cartography {
       return this;
     }
 
-    public Builder setSpatialSelectionConnection(Connection spatialSelectionConnection) {
+    public Builder setSpatialSelectionConnection(DatabaseConnection spatialSelectionConnection) {
       this.spatialSelectionConnection = spatialSelectionConnection;
       return this;
     }

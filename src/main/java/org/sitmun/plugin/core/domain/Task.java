@@ -106,7 +106,7 @@ public class Task {
    */
   @ManyToOne
   @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAR_FK_CON"))
-  private Connection connection;
+  private DatabaseConnection connection;
 
   /**
    * Roles allowed to access to this task.
@@ -222,11 +222,11 @@ public class Task {
     this.ui = ui;
   }
 
-  public Connection getConnection() {
+  public DatabaseConnection getConnection() {
     return connection;
   }
 
-  public void setConnection(Connection connection) {
+  public void setConnection(DatabaseConnection connection) {
     this.connection = connection;
   }
 

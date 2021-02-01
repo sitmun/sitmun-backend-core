@@ -9,8 +9,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.domain.Connection;
-import org.sitmun.plugin.core.repository.ConnectionRepository;
+import org.sitmun.plugin.core.domain.DatabaseConnection;
+import org.sitmun.plugin.core.repository.DatabaseConnectionRepository;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
 import org.sitmun.plugin.core.web.rest.AuthController;
 import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
@@ -40,12 +40,12 @@ import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ConnectionRepositoryIntegrationTest {
+public class DatabaseConnectionRepositoryIntegrationTest {
 
   @Autowired
-  ConnectionRepository connectionRepository;
+  DatabaseConnectionRepository connectionRepository;
   private RestTemplate restTemplate;
-  private ArrayList<Connection> connections;
+  private ArrayList<DatabaseConnection> connections;
   @LocalServerPort
   private int port;
 
@@ -64,10 +64,10 @@ public class ConnectionRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       connections = new ArrayList<>();
       connections.add(connectionRepository
-        .save(Connection.builder().setName("ConnectionRepositoryTest_1").setDriver("driver1")
+        .save(DatabaseConnection.builder().setName("ConnectionRepositoryTest_1").setDriver("driver1")
           .build()));
       connections.add(connectionRepository
-        .save(Connection.builder().setName("ConnectionRepositoryTest_2").setDriver("driver2")
+        .save(DatabaseConnection.builder().setName("ConnectionRepositoryTest_2").setDriver("driver2")
           .build()));
     });
   }
@@ -86,10 +86,10 @@ public class ConnectionRepositoryIntegrationTest {
 
     assertThat(context.read("$._embedded.connections[*].id", JSONArray.class))
       .containsAll(
-        connections.stream().map(Connection::getId).collect(Collectors.toList()));
+        connections.stream().map(DatabaseConnection::getId).collect(Collectors.toList()));
     assertThat(context.read("$._embedded.connections[*].name", JSONArray.class))
       .containsAll(
-        connections.stream().map(Connection::getName).collect(Collectors.toList()));
+        connections.stream().map(DatabaseConnection::getName).collect(Collectors.toList()));
   }
 
   @Test

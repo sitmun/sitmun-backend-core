@@ -1,7 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.plugin.core.domain.Connection;
+import org.sitmun.plugin.core.domain.DatabaseConnection;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
@@ -13,16 +13,16 @@ import java.util.Optional;
 
 @Tag(name = "connection")
 @RepositoryRestResource(collectionResourceRel = "connections", path = "connections")
-public interface ConnectionRepository extends PagingAndSortingRepository<Connection, Integer> {
+public interface DatabaseConnectionRepository extends PagingAndSortingRepository<DatabaseConnection, Integer> {
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
   @NonNull
-  <S extends Connection> S save(@P("entity") @NonNull S entity);
+  <S extends DatabaseConnection> S save(@P("entity") @NonNull S entity);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
-  void delete(@P("entity") @NonNull Connection entity);
+  void delete(@P("entity") @NonNull DatabaseConnection entity);
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
@@ -31,11 +31,11 @@ public interface ConnectionRepository extends PagingAndSortingRepository<Connect
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @NonNull
-  Iterable<Connection> findAll();
+  Iterable<DatabaseConnection> findAll();
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
   @NonNull
-  Optional<Connection> findById(@P("entityId") @NonNull Integer entityId);
+  Optional<DatabaseConnection> findById(@P("entityId") @NonNull Integer entityId);
 
 }
