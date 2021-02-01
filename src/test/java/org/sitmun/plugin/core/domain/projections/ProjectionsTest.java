@@ -30,6 +30,9 @@ public class ProjectionsTest {
   private static final String APPLICATION_PROJECTION_VIEW =
     "/api/applications/{0}?projection=view";
 
+  private static final String APPLICATION_BACKGROUND_PROJECTION_VIEW =
+    "/api/application-backgrounds/{0}?projection=view";
+
   private static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
     "/api/user-configurations?projection=view&{0}={1}";
 
@@ -38,6 +41,23 @@ public class ProjectionsTest {
 
   @Autowired
   private MockMvc mvc;
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void applicationBackgroundHasBackgroundName() throws Exception {
+    mvc.perform(get(APPLICATION_BACKGROUND_PROJECTION_VIEW, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"));
+  }
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void applicationBackgroundHasBackgroundDescription() throws Exception {
+    mvc.perform(get(APPLICATION_BACKGROUND_PROJECTION_VIEW, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
+  }
+
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
