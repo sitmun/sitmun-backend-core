@@ -26,6 +26,9 @@ public class DatabaseConnectionTesterService {
     String driver = connection.getDriver();
     try {
       Class.forName(driver).getDeclaredConstructor().newInstance();
+    } catch (NullPointerException exception) {
+      LOGGER.error("Driver not found for DatabaseConnection({}) with driver {}", id, driver, exception);
+      throw new DatabaseConnectionDriverNotFoundException(new NullPointerException("null"));
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException exception) {
       LOGGER.error("Driver not found for DatabaseConnection({}) with driver \"{}\"", id, driver, exception);
       throw new DatabaseConnectionDriverNotFoundException(exception);

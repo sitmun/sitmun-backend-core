@@ -31,6 +31,13 @@ public class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  public void testNullDriverException() {
+    DatabaseConnection connection = DatabaseConnection.builder().setDriver(null).build();
+    DatabaseConnectionDriverNotFoundException exception = assertThrows(DatabaseConnectionDriverNotFoundException.class, () -> sut.testDriver(connection));
+    assertEquals("null", exception.getCause().getLocalizedMessage());
+  }
+
+  @Test
   public void testConnection() {
     DatabaseConnection connection = DatabaseConnection.builder()
       .setDriver("org.h2.Driver")

@@ -6,11 +6,9 @@ import org.sitmun.plugin.core.service.DatabaseConnectionTesterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @RepositoryRestController
@@ -45,5 +43,19 @@ public class DatabaseConnectionController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+
+  /**
+   * Test if a potential {@link DatabaseConnection} is valid.
+   *
+   * @return 200 if valid
+   */
+  @RequestMapping(method = RequestMethod.POST, path = "/connections/test")
+  public @ResponseBody
+  ResponseEntity<?> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
+    service.testDriver(connection);
+    service.testConnection(connection);
+    return ResponseEntity.ok().build();
   }
 }
