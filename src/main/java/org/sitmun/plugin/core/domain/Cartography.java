@@ -267,6 +267,20 @@ public class Cartography {
   @OneToMany(mappedBy = "cartography")
   private Set<TreeNode> treeNodes = new HashSet<>();
 
+  /**
+   * The permissions that this cartography has.
+   */
+  @ManyToMany
+  @JoinTable(
+    name = "STM_GGI_GI",
+    joinColumns = @JoinColumn(
+      name = "GGG_GIID",
+      foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")),
+    inverseJoinColumns = @JoinColumn(
+      name = "GGG_GGIID",
+      foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")))
+  private Set<CartographyPermission> permissions;
+
   public Cartography() {
   }
 
@@ -293,7 +307,8 @@ public class Cartography {
                       @NotNull Boolean blocked,
                       Set<CartographyFilter> filters,
                       Set<CartographyParameter> parameters,
-                      Set<TreeNode> treeNodes) {
+                      Set<TreeNode> treeNodes,
+                      Set<CartographyPermission> permissions) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -329,6 +344,7 @@ public class Cartography {
     this.filters = filters;
     this.parameters = parameters;
     this.treeNodes = treeNodes;
+    this.permissions = permissions;
   }
 
   public static Builder builder() {
@@ -617,6 +633,14 @@ public class Cartography {
     this.treeNodes = treeNodes;
   }
 
+  public Set<CartographyPermission> getPermissions() {
+    return permissions;
+  }
+
+  public void setPermissions(Set<CartographyPermission> permissions) {
+    this.permissions = permissions;
+  }
+
   public static class Builder {
     private Integer id;
     private @NotBlank String name;
@@ -653,6 +677,7 @@ public class Cartography {
     private Set<CartographyFilter> filters;
     private Set<CartographyParameter> parameters;
     private Set<TreeNode> treeNodes;
+    private Set<CartographyPermission> permissions;
 
     public Builder setId(Integer id) {
       this.id = id;
@@ -831,6 +856,11 @@ public class Cartography {
       return this;
     }
 
+    public Builder setPermissions(Set<CartographyPermission> permissions) {
+      this.permissions = permissions;
+      return this;
+    }
+
     /**
      * Cartography builder.
      *
@@ -843,7 +873,7 @@ public class Cartography {
         selectableLayers, applyFilterToSpatialSelection, spatialSelectionService, legendType,
         legendURL, createdDate, spatialSelectionConnection, metadataURL, datasetURL, thematic,
         geometryType, source, availabilities, styles, defaultStyle, blocked, filters, parameters,
-        treeNodes);
+        treeNodes, permissions);
     }
   }
 }
