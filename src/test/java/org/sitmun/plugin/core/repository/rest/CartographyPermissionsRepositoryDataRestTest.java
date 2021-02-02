@@ -9,14 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class CartographyPermissionsRepositoryDataRestTest {
 
   private static final String CARTOGRAPHY_PERMISSIONS_URI =
@@ -41,7 +41,6 @@ public class CartographyPermissionsRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void filterType() throws Exception {
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, "M"))
       .andExpect(status().isOk())
@@ -58,7 +57,6 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void filterOrType() throws Exception {
     mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_OR_FILTER, "M", "C"))
       .andExpect(status().isOk())
@@ -68,7 +66,6 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void rolesOfAPermissions() throws Exception {
     mvc.perform(get(CARTOGRAPHY_PERMISSION_ROLES_URI, 6))
       .andExpect(status().isOk())

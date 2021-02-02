@@ -14,7 +14,6 @@ import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
 import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,8 +36,6 @@ import java.util.Date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
@@ -68,13 +65,10 @@ public class TaskRepositoryDataRestTest {
   @Autowired
   TaskParameterRepository taskParameterRepository;
   @Autowired
-  TokenProvider tokenProvider;
-  @Autowired
   TerritoryRepository territoryRepository;
   @Autowired
   private MockMvc mvc;
 
-  private String token;
   private Territory territory;
   private Task task;
   private ArrayList<Task> tasks;
@@ -86,7 +80,6 @@ public class TaskRepositoryDataRestTest {
 
     withMockSitmunAdmin(() -> {
 
-      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
       territory = Territory.builder()
         .setName("Territorio 1")
         .setCode("")
@@ -136,16 +129,16 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void postTask() throws Exception {
     String location = mvc.perform(post(TASKS_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location).isNotNull();
 
     mvc.perform(get(location)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
@@ -165,16 +158,13 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+    mvc.perform(get(TASKS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(115)));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getQueryTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(QUERY_TASKS_URI + "?size=10"))
       .andExpect(status().isOk())
@@ -182,7 +172,6 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getDownloadTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(DOWNLOAD_TASKS_URI + "?size=10"))
       .andExpect(status().isOk())
@@ -190,7 +179,6 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
     mvc.perform(get(TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
@@ -198,7 +186,6 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = PUBLIC_USERNAME)
   public void getTaskParamsAsPublic() throws Exception {
     mvc.perform(get(TASK_PARAMETERS_URI, task.getId()))
       .andExpect(status().isOk());

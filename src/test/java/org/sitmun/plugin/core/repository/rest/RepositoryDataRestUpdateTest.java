@@ -11,7 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class RepositoryDataRestUpdateTest {
 
   private static final String SITUATION_MAPS_URI =
@@ -44,7 +46,6 @@ public class RepositoryDataRestUpdateTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void itemResourceUpdate() throws Exception {
     String item = mvc.perform(get(SITUATION_MAP_URI, 132))
       .andExpect(status().isOk())
@@ -54,7 +55,9 @@ public class RepositoryDataRestUpdateTest {
     String oldName = json.getString("name");
     json.put("name", "New name");
 
-    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString()))
+    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString())
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk());
 
     mvc.perform(get(SITUATION_MAP_URI, 132))
@@ -63,7 +66,9 @@ public class RepositoryDataRestUpdateTest {
 
     json.put("name", oldName);
 
-    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString()))
+    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString())
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk());
 
     mvc.perform(get(SITUATION_MAP_URI, 132))
@@ -72,7 +77,6 @@ public class RepositoryDataRestUpdateTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void associationResourceUpdate() throws Exception {
     String item = mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())
@@ -83,7 +87,9 @@ public class RepositoryDataRestUpdateTest {
 
     String update = links.stream().skip(1).collect(Collectors.joining("\n"));
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"));
+    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    );
 
     mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())
@@ -91,7 +97,9 @@ public class RepositoryDataRestUpdateTest {
 
     update = String.join("\n", links);
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list"));
+    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    );
 
     mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())

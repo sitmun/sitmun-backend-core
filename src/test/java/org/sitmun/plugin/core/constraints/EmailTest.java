@@ -11,7 +11,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("dev")
 public class EmailTest {
 
   private static final String VALID_EMAIL = "fake@example.com";
@@ -40,7 +42,6 @@ public class EmailTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
       .andExpect(status().isCreated())
@@ -48,7 +49,6 @@ public class EmailTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)
       .andExpect(status().is4xxClientError())
@@ -64,6 +64,7 @@ public class EmailTest {
     return mvc.perform(post(ENTITY_WITH_EMAIL_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(entity.put(PROPERTY_WITH_EMAIL, validEmail).toString())
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
   }
 

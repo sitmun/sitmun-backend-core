@@ -13,7 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("dev")
 public class SpatialReferenceSystemTest {
 
   @Autowired
@@ -39,20 +41,22 @@ public class SpatialReferenceSystemTest {
 
   @Test
   @DisplayName("Single projection pass")
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void singleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1")))
+      .content(serviceFixture("EPSG:1"))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
-    mvc.perform(delete(location)).andExpect(status().isNoContent());
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
   }
 
   @Test
   @DisplayName("Single other value fail")
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void singleOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
@@ -64,20 +68,22 @@ public class SpatialReferenceSystemTest {
 
   @Test
   @DisplayName("Multiple projections pass")
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void multipleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1", "EPSG:2")))
+      .content(serviceFixture("EPSG:1", "EPSG:2"))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
-    mvc.perform(delete(location)).andExpect(status().isNoContent());
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
   }
 
   @Test
   @DisplayName("Multiple projections with other value fail")
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)

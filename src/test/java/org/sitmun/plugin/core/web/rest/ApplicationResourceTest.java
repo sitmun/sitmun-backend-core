@@ -9,14 +9,14 @@ import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.*;
 import org.sitmun.plugin.core.repository.*;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -31,8 +31,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class ApplicationResourceTest {
 
   private static final String APP_URI = "http://localhost/api/applications";
@@ -85,13 +84,10 @@ public class ApplicationResourceTest {
   ApplicationParameterRepository applicationParameterRepository;
   @Autowired
   RoleRepository roleRepository;
-  @Autowired
-  TokenProvider tokenProvider;
 
   @Autowired
   private MockMvc mvc;
 
-  private String token;
   private Integer appId;
   private Integer backAppId;
   private ArrayList<Tree> trees;
@@ -109,8 +105,6 @@ public class ApplicationResourceTest {
   @Before
   public void init() {
     withMockSitmunAdmin(() -> {
-
-      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       territory = Territory.builder()
         .setName("Territorio 1")
@@ -295,6 +289,7 @@ public class ApplicationResourceTest {
     });
   }
 
+  @Test
   @Ignore
   public void getPublicApplicationsAsPublic() throws Exception {
     // TODO
@@ -312,8 +307,8 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getInformationAboutAnApp() throws Exception {
     mvc.perform(get(APP_URI + "/" + appId))
       .andExpect(status().isOk())
@@ -324,11 +319,12 @@ public class ApplicationResourceTest {
   @Test
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.order").value(1));
   }
 
+  @Test
   @Ignore
   public void getPublicApplicationTreesAsPublic() throws Exception {
     // TODO
@@ -337,6 +333,7 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void getPublicApplicationBackgroundsAsPublic() throws Exception {
     // TODO
@@ -345,6 +342,7 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void getPublicApplicationSituationMapsAsPublic() throws Exception {
     // TODO
@@ -353,6 +351,7 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void getCartographyGroupMembersAsPublic() throws Exception {
     // TODO
@@ -361,6 +360,7 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void getTreeNodeCartographyAsPublic() throws Exception {
     // TODO
@@ -377,6 +377,7 @@ public class ApplicationResourceTest {
       .andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void getApplicationsAsTerritorialUser() {
     // TODO
@@ -386,78 +387,89 @@ public class ApplicationResourceTest {
   @Test
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(get(APP_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+    mvc.perform(get(APP_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }
 
+  @Test
   @Ignore
   public void getApplicationsAsOrganizationAdmin() {
     // TODO
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setAvailableRolesAsPublicFails() {
     // TODO
     // fail is expected
   }
 
+  @Test
   @Ignore
   public void setAvailableRolesAsTerritorialUserFails() {
     // TODO
     // fail is expected
   }
 
+  @Test
   @Ignore
   public void setAvailableRolesAsSitmunAdmin() {
     // TODO Update available roles for the app as an admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setTreeAsSitmunAdmin() {
     // TODO Update tree for the app as an admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setBackgroundAsSitmunAdmin() {
     // TODO:Update background for the app as an admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setAvailableRolesAsOrganizationAdmin() {
     // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setTreeAsOrganizationAdmin() {
     // TODO: Update tree for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setBackgroundAsOrganizationAdmin() {
     // TODO: Update background for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void setAvailableRolesAsOtherOrganizationAdminFails() {
     // TODO: Update available roles for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
+  @Test
   @Ignore
   public void setTreeAsOtherOrganizationAdminFails() {
     // TODO: Update tree for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
+  @Test
   @Ignore
   public void setBackgroundAsOtherOrganizationAdminFails() {
     // TODO: Update background for the app (linked to another organization) as an organization admin user

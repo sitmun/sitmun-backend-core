@@ -15,7 +15,6 @@ import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.repository.UserConfigurationRepository;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
@@ -27,7 +26,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -38,8 +38,6 @@ import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
@@ -49,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class UserResourceTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
@@ -75,10 +74,7 @@ public class UserResourceTest {
   @Autowired
   UserService userService;
   @Autowired
-  TokenProvider tokenProvider;
-  @Autowired
   private MockMvc mvc;
-  private String token;
   private User organizacionAdmin;
   private User territory1User;
   private User territory2User;
@@ -97,8 +93,6 @@ public class UserResourceTest {
   @Before
   public void init() {
     withMockSitmunAdmin(() -> {
-
-      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       organizacionAdminRole =
         Role.builder().setName(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
@@ -196,56 +190,52 @@ public class UserResourceTest {
 
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void createNewUserAndDelete() throws Exception {
     UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
     newUser.setUsername(NEW_USER_USERNAME);
 
     String uri = mvc.perform(post("/api/users")
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(newUser))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(uri).isNotNull();
 
-    mvc.perform(get(uri)
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
-    ).andExpect(status().isOk())
+    mvc.perform(get(uri)).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
 
     mvc.perform(delete(uri)
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isNoContent());
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void createDuplicatedUserFails() throws Exception {
     UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
 
     mvc.perform(post("/api/users")
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(newUser)))
+      .content(asJsonString(newUser))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isConflict());
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUser() throws Exception {
     UserDTO userDTO = new UserDTO(organizacionAdmin);
     userDTO.setFirstName(USER_CHANGEDFIRSTNAME);
     userDTO.setLastName(USER_CHANGEDLASTNAME);
 
     mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(userDTO))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isNoContent());
 
     mvc.perform(get(USER_URI + "/" + organizacionAdmin.getId()))
@@ -256,63 +246,64 @@ public class UserResourceTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void getUsersAsSitmunAdmin() throws Exception {
     mvc.perform(get(USER_URI + "?size=10")
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$._embedded.users", hasSize(10)));
   }
 
   @Deprecated
+  @Test
   @Ignore
-  @WithMockUser(username = TERRITORY1_ADMIN_USERNAME)
   public void getUsersAsOrganizationAdmin() throws Exception {
-    mvc.perform(get(USER_URI).header(HEADER_STRING, TOKEN_PREFIX + token))
+    mvc.perform(get(USER_URI))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$._embedded.users", hasSize(5)));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUserPassword() throws Exception {
     PasswordDTO passwordDTO = new PasswordDTO();
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(passwordDTO))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void updateUserPasswordAsSitmunAdmin() throws Exception {
     PasswordDTO passwordDTO = new PasswordDTO();
     passwordDTO.setPassword(USER_CHANGEDPASSWORD);
 
     mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(passwordDTO))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
   }
 
+  @Test
   @Ignore
   public void createNewUserAsOrganizationAdmin() {
     // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
     // ok is expected. The new user has roles linked to my organization territory
   }
 
+  @Test
   @Ignore
   public void assignRoleToUserAsOrganizationAdmin() {
     // TODO
     // ok is expected. The new user has roles linked to my organization territory
   }
 
+  @Test
   @Ignore
   public void updateUserAsOrganizationAdmin() {
     // TODO
@@ -321,6 +312,7 @@ public class UserResourceTest {
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void updateUserPasswordAsOrganizationAdmin() {
     // TODO
@@ -329,6 +321,7 @@ public class UserResourceTest {
     // ok is expected
   }
 
+  @Test
   @Ignore
   public void assignRoleToUserAsOtherOrganizationAdminFails() {
     // TODO
@@ -336,6 +329,7 @@ public class UserResourceTest {
     // have territory role
   }
 
+  @Test
   @Ignore
   public void updateUserAsOtherOrganizationAdminFails() {
     // TODO
@@ -344,6 +338,7 @@ public class UserResourceTest {
     // fail is expected (no permission)
   }
 
+  @Test
   @Ignore
   public void updateUserPasswordAsOtherOrganizationAdminFails() {
     // TODO

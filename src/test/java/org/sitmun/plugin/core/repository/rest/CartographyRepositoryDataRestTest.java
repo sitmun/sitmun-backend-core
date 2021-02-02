@@ -15,7 +15,6 @@ import org.sitmun.plugin.core.repository.CartographyAvailabilityRepository;
 import org.sitmun.plugin.core.repository.CartographyRepository;
 import org.sitmun.plugin.core.repository.ServiceRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,8 +40,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -65,15 +61,12 @@ public class CartographyRepositoryDataRestTest {
   @Autowired
   private CartographyAvailabilityRepository cartographyAvailabilityRepository;
   @Autowired
-  private TokenProvider tokenProvider;
-  @Autowired
   private TerritoryRepository territoryRepository;
   @Autowired
   private ServiceRepository serviceRepository;
   @Autowired
   private MockMvc mvc;
 
-  private String token;
   private Territory territory;
   private Cartography cartography;
   private Service service;
@@ -84,8 +77,6 @@ public class CartographyRepositoryDataRestTest {
   public void init() {
 
     withMockSitmunAdmin(() -> {
-
-      token = tokenProvider.createToken(SITMUN_ADMIN_USERNAME);
 
       territory = Territory.builder()
         .setName("Territorio 1")
@@ -148,7 +139,6 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void postCartography() throws Exception {
 
     String content = new JSONObject()
@@ -161,16 +151,16 @@ public class CartographyRepositoryDataRestTest {
       .toString();
 
     String location = mvc.perform(post(CARTOGRAPHIES_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + token)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location)
-      .header(HEADER_STRING, TOKEN_PREFIX + token))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));

@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,17 +37,16 @@ public class DatabaseConnectionControllerTest {
   private DatabaseConnectionRepository repository;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfDatabaseConnectionDriverNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().setDriver("org.h2.DriverX").build()));
-    mockMvc.perform(get("/api/connections/0/test"))
+    mockMvc.perform(get("/api/connections/0/test")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Driver not found"))
       .andExpect(jsonPath("$.message").value("org.h2.DriverX"));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfDatabaseConnectionException() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .setDriver("org.h2.Driver")
@@ -55,14 +54,14 @@ public class DatabaseConnectionControllerTest {
       .setName("sa")
       .setPassword("password")
       .build()));
-    mockMvc.perform(get("/api/connections/0/test"))
+    mockMvc.perform(get("/api/connections/0/test")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("SQL exception"))
       .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void databaseConnectionSuccess() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .setDriver("org.h2.Driver")
@@ -70,15 +69,16 @@ public class DatabaseConnectionControllerTest {
       .setName("sa")
       .setPassword("password")
       .build()));
-    mockMvc.perform(get("/api/connections/0/test"))
+    mockMvc.perform(get("/api/connections/0/test")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfdatabaseConnectionNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.empty());
-    mockMvc.perform(get("/api/connections/0/test"))
+    mockMvc.perform(get("/api/connections/0/test")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isNotFound());
   }
 
@@ -95,33 +95,33 @@ public class DatabaseConnectionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mockMvc.perform(post("/api/connections/test")
       .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+      .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Driver not found"))
       .andExpect(jsonPath("$.message").value("org.h2.DriverX"));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failPostTestIfDatabaseConnectionException() throws Exception {
     mockMvc.perform(post("/api/connections/test")
       .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("SQL exception"))
       .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void databaseConnectionPostTestSuccess() throws Exception {
     mockMvc.perform(post("/api/connections/test")
       .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 

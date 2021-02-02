@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,8 +35,6 @@ public class TerritoryRepositoryDataRestTest {
 
   @Autowired
   TerritoryRepository territoryRepository;
-  @Autowired
-  TokenProvider tokenProvider;
   @Autowired
   private MockMvc mvc;
   private Territory territory;

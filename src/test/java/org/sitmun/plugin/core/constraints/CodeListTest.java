@@ -15,7 +15,6 @@ import org.sitmun.plugin.core.repository.CartographyAvailabilityRepository;
 import org.sitmun.plugin.core.repository.CartographyRepository;
 import org.sitmun.plugin.core.repository.ServiceRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
-import org.sitmun.plugin.core.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("dev")
 public class CodeListTest {
 
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
@@ -57,8 +58,6 @@ public class CodeListTest {
   CartographyRepository cartographyRepository;
   @Autowired
   CartographyAvailabilityRepository cartographyAvailabilityRepository;
-  @Autowired
-  TokenProvider tokenProvider;
   @Autowired
   TerritoryRepository territoryRepository;
   @Autowired
@@ -72,58 +71,60 @@ public class CodeListTest {
   private CartographyAvailability cartographyAvailability;
 
   @Before
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void init() {
-    territory = Territory.builder()
-      .setName("Some territory")
-      .setCode("")
-      .setBlocked(false)
-      .build();
-    territoryRepository.save(territory);
+    withMockSitmunAdmin(() -> {
 
-    service = Service.builder()
-      .setName("Service")
-      .setServiceURL("")
-      .setType("")
-      .setBlocked(false)
-      .build();
-    serviceRepository.save(service);
+      territory = Territory.builder()
+        .setName("Some territory")
+        .setCode("")
+        .setBlocked(false)
+        .build();
+      territoryRepository.save(territory);
 
-    cartographies = new ArrayList<>();
+      service = Service.builder()
+        .setName("Service")
+        .setServiceURL("")
+        .setType("")
+        .setBlocked(false)
+        .build();
+      serviceRepository.save(service);
 
-    Cartography cartography = Cartography.builder()
-      .setName(CARTOGRAPHY_NAME)
-      .setLayers(Collections.emptyList())
-      .setApplyFilterToGetMap(false)
-      .setApplyFilterToGetFeatureInfo(false)
-      .setApplyFilterToSpatialSelection(false)
-      .setService(service)
-      .setAvailabilities(Collections.emptySet())
-      .setBlocked(false)
-      .build();
-    cartographies.add(cartography);
+      cartographies = new ArrayList<>();
 
-    Cartography cartographyWithAvailabilities = Cartography.builder()
-      .setName("Cartography with availabilities")
-      .setLayers(Collections.emptyList())
-      .setApplyFilterToGetMap(false)
-      .setApplyFilterToGetFeatureInfo(false)
-      .setApplyFilterToSpatialSelection(false)
-      .setService(service)
-      .setAvailabilities(Collections.emptySet())
-      .setBlocked(false)
-      .build();
+      Cartography cartography = Cartography.builder()
+        .setName(CARTOGRAPHY_NAME)
+        .setLayers(Collections.emptyList())
+        .setApplyFilterToGetMap(false)
+        .setApplyFilterToGetFeatureInfo(false)
+        .setApplyFilterToSpatialSelection(false)
+        .setService(service)
+        .setAvailabilities(Collections.emptySet())
+        .setBlocked(false)
+        .build();
+      cartographies.add(cartography);
 
-    cartographies.add(cartographyWithAvailabilities);
+      Cartography cartographyWithAvailabilities = Cartography.builder()
+        .setName("Cartography with availabilities")
+        .setLayers(Collections.emptyList())
+        .setApplyFilterToGetMap(false)
+        .setApplyFilterToGetFeatureInfo(false)
+        .setApplyFilterToSpatialSelection(false)
+        .setService(service)
+        .setAvailabilities(Collections.emptySet())
+        .setBlocked(false)
+        .build();
 
-    cartographyRepository.saveAll(cartographies);
+      cartographies.add(cartographyWithAvailabilities);
 
-    cartographyAvailability = new CartographyAvailability();
-    cartographyAvailability.setCartography(cartographyWithAvailabilities);
-    cartographyAvailability.setTerritory(territory);
-    cartographyAvailability.setCreatedDate(new Date());
+      cartographyRepository.saveAll(cartographies);
 
-    cartographyAvailabilityRepository.save(cartographyAvailability);
+      cartographyAvailability = new CartographyAvailability();
+      cartographyAvailability.setCartography(cartographyWithAvailabilities);
+      cartographyAvailability.setTerritory(territory);
+      cartographyAvailability.setCreatedDate(new Date());
+
+      cartographyAvailabilityRepository.save(cartographyAvailability);
+    });
   }
 
   @After
@@ -137,7 +138,6 @@ public class CodeListTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfCodeListValueIsValid() throws Exception {
 
     String content = new JSONObject()
@@ -153,19 +153,21 @@ public class CodeListTest {
     String location = mvc.perform(post(CARTOGRAPHY_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
-    mvc.perform(get(location))
+    mvc.perform(get(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfCodeListValueIsWrong() throws Exception {
 
     String content = new JSONObject()

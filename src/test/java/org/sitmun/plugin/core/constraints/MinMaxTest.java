@@ -11,7 +11,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("dev")
 public class MinMaxTest {
 
   private static final Integer VALID_MIN = 0;
@@ -43,7 +45,6 @@ public class MinMaxTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsMin() throws Exception {
     postEntityWithMinMaxValue(VALID_MIN)
       .andExpect(status().isCreated())
@@ -51,7 +52,6 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsMax() throws Exception {
     postEntityWithMinMaxValue(VALID_MAX)
       .andExpect(status().isCreated())
@@ -59,7 +59,6 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void passIfValueIsBetween() throws Exception {
     postEntityWithMinMaxValue(VALID_MID)
       .andExpect(status().isCreated())
@@ -67,7 +66,6 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsBelowMin() throws Exception {
     postEntityWithMinMaxValue(INVALID_BELOW_MIN)
       .andExpect(status().is4xxClientError())
@@ -76,7 +74,6 @@ public class MinMaxTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void failIfEmailValueIsUpperMax() throws Exception {
     postEntityWithMinMaxValue(INVALID_UPPER_MAX)
       .andExpect(status().is4xxClientError())
@@ -89,6 +86,7 @@ public class MinMaxTest {
     return mvc.perform(post(ENTITY_WITH_MIN_MAX_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(entity.put(PROPERTY_WITH_MIN_MAX, value).toString())
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
   }
 

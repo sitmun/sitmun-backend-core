@@ -9,7 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class ApplicationParameterRepositoryDataRestTest {
 
   private static final String APPLICATION_PARAMETERS_URI_FILTERED =
@@ -33,9 +35,10 @@ public class ApplicationParameterRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void retrieveAll() throws Exception {
-    mvc.perform(get(APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE"))
+    mvc.perform(get(APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.application-parameters", hasSize(4)));
   }

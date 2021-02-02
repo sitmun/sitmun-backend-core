@@ -13,7 +13,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class TerritoryGroupTypeRepositoryDataRestTest {
 
   private static final String TERRITORY_URI = "http://localhost/api/territory-group-types";
@@ -61,18 +63,20 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   }
 
   @Test
-  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
   public void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
     MvcResult result = mvc.perform(post(TERRITORY_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn();
     assertThat(repository.count()).isEqualTo(count + 1);
     String location = result.getResponse().getHeader("Location");
     assertThat(location).isNotNull();
-    mvc.perform(delete(location))
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isNoContent())
       .andReturn();
     assertThat(repository.count()).isEqualTo(count);
