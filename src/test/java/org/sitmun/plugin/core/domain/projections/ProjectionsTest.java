@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("dev")
 public class ProjectionsTest {
 
   private static final String APPLICATION_PROJECTION_VIEW =
@@ -39,8 +41,20 @@ public class ProjectionsTest {
   private static final String USER_POSITION_PROJECTION_VIEW =
     "/api/user-positions/{0}?projection=view";
 
+  private static final String TERRITORY_PROJECTION_VIEW =
+    "/api/territories/{0}?projection=view";
+
   @Autowired
   private MockMvc mvc;
+
+  @Test
+  @WithMockUser(username = SITMUN_ADMIN_USERNAME)
+  public void territoryProjectionViewHasGroupTypeProperties() throws Exception {
+    mvc.perform(get(TERRITORY_PROJECTION_VIEW, 322))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.groupTypeId").value(1))
+      .andExpect(jsonPath("$.groupTypeName").value("Consell Comarcal"));
+  }
 
   @Test
   @WithMockUser(username = SITMUN_ADMIN_USERNAME)
