@@ -6,7 +6,7 @@ package org.sitmun.plugin.core.web.exceptions;
 public class ApiError {
 
   private String error;
-  private String cause;
+  private String message;
 
   public String getError() {
     return error;
@@ -16,11 +16,11 @@ public class ApiError {
     this.error = error;
   }
 
-  public String getCause() {
-    return cause;
+  public String getMessage() {
+    return message;
   }
 
-  public void setCause(String cause) {
-    this.cause = cause;
+  public void setMessage(String message) {
+    this.message = message;
   }
 }

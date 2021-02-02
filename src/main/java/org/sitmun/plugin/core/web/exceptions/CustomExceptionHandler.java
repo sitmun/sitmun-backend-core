@@ -23,7 +23,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ApiError> databaseConnectionDriverNotFound(DatabaseConnectionDriverNotFoundException exception) {
     ApiError error = new ApiError();
     error.setError("Driver not found");
-    error.setCause(exception.getCause().getLocalizedMessage());
+    error.setMessage(exception.getCause().getLocalizedMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
   }
 
@@ -37,7 +37,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ApiError> databaseSQLException(DatabaseSQLException exception) {
     ApiError error = new ApiError();
     error.setError("SQL exception");
-    error.setCause(exception.getCause().getLocalizedMessage());
+    error.setMessage(exception.getCause().getLocalizedMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
   }
 }

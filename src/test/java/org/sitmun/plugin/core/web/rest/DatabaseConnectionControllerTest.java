@@ -41,7 +41,7 @@ public class DatabaseConnectionControllerTest {
     mockMvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Driver not found"))
-      .andExpect(jsonPath("$.cause").value("org.h2.DriverX"));
+      .andExpect(jsonPath("$.message").value("org.h2.DriverX"));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class DatabaseConnectionControllerTest {
     mockMvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("SQL exception"))
-      .andExpect(jsonPath("$.cause").value("No suitable driver found for jdb:h2:mem:testdb"));
+      .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test
