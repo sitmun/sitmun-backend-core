@@ -96,12 +96,6 @@ public interface CartographyProjection {
   String getType();
 
   /**
-   * Portrayal service.
-   */
-  @Value("#{target.service.name}")
-  String getServiceName();
-
-  /**
    * If <code>true</code>, the contents of some layers are can be selected.
    */
   @Value("#{target.selectableFeatureEnabled}")
@@ -178,6 +172,12 @@ public interface CartographyProjection {
    */
   @Value("#{target.service != null? target.service.id : null}")
   Integer getServiceId();
+
+  /**
+   * Portrayal service name.
+   */
+  @Value("#{target.service != null? target.service.name : null}")
+  String getServiceName();
 
   /**
    * Selection service id.

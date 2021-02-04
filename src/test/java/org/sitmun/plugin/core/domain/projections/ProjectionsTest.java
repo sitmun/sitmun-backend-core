@@ -56,12 +56,22 @@ public class ProjectionsTest {
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.serviceId").value(43))
+      .andExpect(jsonPath("$.serviceName").value("DIBA PRIVAT MUNI_DB_BASE"))
       .andExpect(jsonPath("$.spatialSelectionServiceId").value(47))
       .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"));
+
+    mvc.perform(get("/api/cartographies/85/availabilities?projection=view")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartography-availabilities", hasSize(32)))
+      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryCode", hasSize(32)))
+      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
   }
 
+
   @Test
-  public void territoryProjectionViewHasGroupTypeProperties() throws Exception {
+  public void territoryProjectionView() throws Exception {
     mvc.perform(get(TERRITORY_PROJECTION_VIEW, 322))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groupTypeId").value(1))
@@ -69,36 +79,29 @@ public class ProjectionsTest {
   }
 
   @Test
-  public void applicationBackgroundHasBackgroundName() throws Exception {
+  public void applicationBackgroundProjectionView() throws Exception {
     mvc.perform(get(APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"));
-  }
-
-  @Test
-  public void applicationBackgroundHasBackgroundDescription() throws Exception {
-    mvc.perform(get(APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
-      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"))
       .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
   }
 
-
   @Test
-  public void projectionHasTerritoryNames() throws Exception {
+  public void userPositionProjectionView() throws Exception {
     mvc.perform(get(USER_POSITION_PROJECTION_VIEW, 2124))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"));
   }
 
   @Test
-  public void filterByProjectedProperty() throws Exception {
+  public void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
+      .andExpect(
+        jsonPath("$._embedded.user-configurations[*].id", hasSize(34)))
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
 
@@ -112,34 +115,19 @@ public class ProjectionsTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.user-configurations", hasSize(7)))
       .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
+
   }
 
   @Test
-  public void ensureIdIsPresent() throws Exception {
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
-      .andExpect(
-        jsonPath("$._embedded.user-configurations[*].id", hasSize(34)));
-  }
-
-
-  @Test
-  public void checkCartographyGroupNameExistsInProjection() throws Exception {
+  public void backgroundProjectionView() throws Exception {
     mvc.perform(get("/api/backgrounds?projection=view"))
       .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)))
       .andExpect(jsonPath("$._embedded.backgrounds[?(@.cartographyGroupName)]", hasSize(6)));
   }
 
   @Test
-  public void checkCartographyGroupIdExistsInProjection() throws Exception {
-    mvc.perform(get("/api/backgrounds?projection=view"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)));
-  }
-
-  @Test
-  public void projectionHasSituationMapId() throws Exception {
+  public void applicationProjectionView() throws Exception {
     mvc.perform(get(APPLICATION_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
@@ -148,42 +136,18 @@ public class ProjectionsTest {
   }
 
   @Test
-  public void checkTaskGroupNameExistsInTasksProjection() throws Exception {
+  public void tasksProjectionView() throws Exception {
     mvc.perform(get("/api/tasks?projection=view&size=10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(10)))
-      .andExpect(jsonPath("$._embedded.*.[?(@.groupName)]", hasSize(10)));
-  }
-
-  @Test
-  public void checkCartographyGroupIdExistsInTasksProjection() throws Exception {
-    mvc.perform(get("/api/tasks?projection=view&size=10"))
-      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.*.[?(@.groupName)]", hasSize(10)))
       .andExpect(jsonPath("$._embedded.*[*]", hasSize(10)))
       .andExpect(jsonPath("$._embedded.*[?(@.groupId)]", hasSize(10)));
   }
 
-  @Test
-  public void checkTerritoryIdExistsInAvailabilityProjection() throws Exception {
-    mvc.perform(get("/api/cartographies/85/availabilities?projection=view")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartography-availabilities", hasSize(32)))
-      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryCode", hasSize(32)))
-      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
-  }
 
   @Test
-  public void checkServiceNamesInCartographiesProjection() throws Exception {
-    mvc.perform(get("/api/cartographies?projection=view&size=10"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartographies", hasSize(10)))
-      .andExpect(jsonPath("$._embedded.cartographies[?(@.serviceName)]", hasSize(10)));
-  }
-
-  @Test
-  public void checkTreeNodesExposesCartographyNameAndId() throws Exception {
+  public void treeNodesProjectionView() throws Exception {
     mvc.perform(get("/api/tree-nodes/208?projection=view"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true))
