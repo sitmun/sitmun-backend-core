@@ -16,9 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,6 +54,9 @@ public class ProjectionsTest {
   private static final String TASK_PROJECTION_VIEW =
     "/api/tasks/{0}?projection=view";
 
+  private static final String CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW =
+    "/api/cartography-availabilities/{0}?projection=view";
+
   @Autowired
   private MockMvc mvc;
 
@@ -76,16 +81,20 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.serviceName").value("DIBA PRIVAT MUNI_DB_BASE"))
       .andExpect(jsonPath("$.spatialSelectionServiceId").value(47))
       .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"));
-
-    mvc.perform(get("/api/cartographies/85/availabilities?projection=view")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartography-availabilities", hasSize(32)))
-      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryCode", hasSize(32)))
-      .andExpect(jsonPath("$._embedded.cartography-availabilities[*].territoryName", hasSize(32)));
   }
 
+  @Test
+  public void cartographyAvailabiltiesProjectionView() throws Exception {
+    mvc.perform(get(CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andDo(print())
+      .andExpect(jsonPath("$.cartographyId").value(1208))
+      .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
+      .andExpect(jsonPath("$.cartographyLayers").value(contains("NGE50_111P_EDI")))
+      .andExpect(jsonPath("$.territoryId").value(35))
+      .andExpect(jsonPath("$.territoryName").value("Aguilar de Segarra"))
+      .andExpect(jsonPath("$.territoryCode").value("8002"));
+  }
 
   @Test
   public void territoryProjectionView() throws Exception {
