@@ -46,8 +46,25 @@ public class ProjectionsTest {
   private static final String CARTOGRAPHY_PROJECTION_VIEW =
     "/api/cartographies/{0}?projection=view";
 
+  private static final String TASK_AVAILABILITY_PROJECTION_VIEW =
+    "/api/task-availabilities/{0}?projection=view";
+
+  private static final String TASK_PROJECTION_VIEW =
+    "/api/tasks/{0}?projection=view";
+
   @Autowired
   private MockMvc mvc;
+
+  @Test
+  public void taskAvailabilityProjectionView() throws Exception {
+    mvc.perform(get(TASK_AVAILABILITY_PROJECTION_VIEW, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isOk())
+      .andExpect(jsonPath("$.territoryId").value(7))
+      .andExpect(jsonPath("$.territoryName").value("Teià"))
+      .andExpect(jsonPath("$.taskId").value(31963))
+      .andExpect(jsonPath("$.taskGroupName").value("NOMENCLÀTOR"));
+  }
 
   @Test
   public void cartographyProjectionView() throws Exception {
@@ -137,12 +154,11 @@ public class ProjectionsTest {
 
   @Test
   public void tasksProjectionView() throws Exception {
-    mvc.perform(get("/api/tasks?projection=view&size=10"))
+    mvc.perform(get(TASK_PROJECTION_VIEW, 2))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.*.*", hasSize(10)))
-      .andExpect(jsonPath("$._embedded.*.[?(@.groupName)]", hasSize(10)))
-      .andExpect(jsonPath("$._embedded.*[*]", hasSize(10)))
-      .andExpect(jsonPath("$._embedded.*[?(@.groupId)]", hasSize(10)));
+      .andExpect(jsonPath("$.groupName").value("SITXELL"))
+      .andExpect(jsonPath("$.groupId").value(28))
+      .andExpect(jsonPath("$.uiId").value(13));
   }
 
 
