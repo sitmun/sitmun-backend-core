@@ -173,4 +173,21 @@ public interface CartographyProjection {
   @Value("#{target.blocked}")
   Boolean getBlocked();
 
+  /**
+   * Portrayal service id.
+   */
+  @Value("#{target.service != null? target.service.id : null}")
+  Integer getServiceId();
+
+  /**
+   * Selection service id.
+   */
+  @Value("#{target.spatialSelectionService != null? target.spatialSelectionService.id : null}")
+  Integer getSpatialSelectionServiceId();
+
+  /**
+   * Selection service name.
+   */
+  @Value("#{target.spatialSelectionService != null? target.spatialSelectionService.name : null}")
+  String getSpatialSelectionServiceName();
 }

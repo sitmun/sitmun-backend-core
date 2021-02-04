@@ -43,8 +43,22 @@ public class ProjectionsTest {
   private static final String TERRITORY_PROJECTION_VIEW =
     "/api/territories/{0}?projection=view";
 
+  private static final String CARTOGRAPHY_PROJECTION_VIEW =
+    "/api/cartographies/{0}?projection=view";
+
   @Autowired
   private MockMvc mvc;
+
+  @Test
+  public void cartographyProjectionView() throws Exception {
+    mvc.perform(get(CARTOGRAPHY_PROJECTION_VIEW, 87)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.serviceId").value(43))
+      .andExpect(jsonPath("$.spatialSelectionServiceId").value(47))
+      .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"));
+  }
 
   @Test
   public void territoryProjectionViewHasGroupTypeProperties() throws Exception {
