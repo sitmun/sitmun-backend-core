@@ -147,7 +147,7 @@ public class CodeListsTest {
   public void checkTaskParameterType() {
     assertThat(select(TASK_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("CAMPO", "CAPA", "EDIT", "FILTRO", "FME", "GEOM", "LABEL",
-        "RELM", "RELS", "SQL", "TIPO", "VISTA");
+        "RELM", "RELS", "SQL", "TIPO", "VISTA", "DATAINPUT", "VALOR");
   }
 
   @Test

@@ -149,6 +149,10 @@ INSERT INTO STM_CODELIST
 VALUES (56, 'taskParameter.type', 'TIPO', 'TIPO');
 INSERT INTO STM_CODELIST
 VALUES (57, 'taskParameter.type', 'VISTA', 'VISTA');
+INSERT INTO STM_CODELIST
+VALUES (87, 'taskParameter.type', 'DATAINPUT', 'DATAINPUT');
+INSERT INTO STM_CODELIST
+VALUES (88, 'taskParameter.type', 'VALOR', 'VALOR');
 
 -- STM_PAR_TSK.PTT_FORMAT
 -- TODO Validate description of code list taskParameter.format
@@ -235,4 +239,4 @@ INSERT INTO STM_CODELIST
 VALUES (86, 'application.type', 'E', 'External');
 
 INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
-VALUES ('COD_ID', 86);
+VALUES ('COD_ID', 88);
