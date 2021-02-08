@@ -25,7 +25,7 @@ public interface DatabaseConnectionRepository extends PagingAndSortingRepository
   void delete(@P("entity") @NonNull DatabaseConnection entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DatabaseConnection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DatabaseConnection', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
@@ -34,7 +34,7 @@ public interface DatabaseConnectionRepository extends PagingAndSortingRepository
   Iterable<DatabaseConnection> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DatabaseConnection','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DatabaseConnection', 'read')")
   @NonNull
   Optional<DatabaseConnection> findById(@P("entityId") @NonNull Integer entityId);
 

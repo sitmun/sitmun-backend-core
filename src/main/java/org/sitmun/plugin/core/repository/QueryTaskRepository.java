@@ -25,7 +25,7 @@ public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTas
   void delete(@P("entity") @NonNull QueryTask entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
@@ -34,7 +34,7 @@ public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTas
   Iterable<QueryTask> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.QueryTask', 'read')")
   @NonNull
   Optional<QueryTask> findById(@P("entityId") @NonNull Integer entityId);
 

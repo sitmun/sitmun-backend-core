@@ -27,7 +27,7 @@ public interface DownloadTaskRepository extends
   void delete(@P("entity") @NonNull DownloadTask entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
@@ -36,7 +36,7 @@ public interface DownloadTaskRepository extends
   Iterable<DownloadTask> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.DownloadTask', 'read')")
   @NonNull
   Optional<DownloadTask> findById(@P("entityId") @NonNull Integer entityId);
 

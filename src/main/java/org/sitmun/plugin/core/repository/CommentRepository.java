@@ -25,7 +25,7 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, I
   void delete(@P("entity") @NonNull Comment entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
@@ -34,7 +34,7 @@ public interface CommentRepository extends PagingAndSortingRepository<Comment, I
   Iterable<Comment> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Connection', 'read')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Comment', 'read')")
   @NonNull
   Optional<Comment> findById(@P("entityId") @NonNull Integer entityId);
 
