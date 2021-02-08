@@ -13,7 +13,10 @@ import org.springframework.security.core.parameters.P;
 import java.util.Optional;
 
 @Tag(name = "cartography parameter")
-@RepositoryRestResource(collectionResourceRel = "cartography-parameters", path = "cartography-parameters")
+@RepositoryRestResource(
+  collectionResourceRel = "cartography-parameters",
+  itemResourceRel = "cartography-parameter",
+  path = "cartography-parameters")
 public interface CartographyParameterRepository
   extends PagingAndSortingRepository<CartographyParameter, Integer> {
 

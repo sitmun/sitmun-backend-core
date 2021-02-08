@@ -13,7 +13,10 @@ import org.springframework.security.core.parameters.P;
 import java.util.Optional;
 
 @Tag(name = "cartography")
-@RepositoryRestResource(collectionResourceRel = "cartographies", path = "cartographies"/*, excerptProjection = CartographyProjection.class*/)
+@RepositoryRestResource(
+  collectionResourceRel = "cartographies",
+  itemResourceRel = "cartography",
+  path = "cartographies")
 public interface CartographyRepository extends PagingAndSortingRepository<Cartography, Integer> {
 
   @Override

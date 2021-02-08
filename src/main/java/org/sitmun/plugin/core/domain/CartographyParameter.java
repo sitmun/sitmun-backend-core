@@ -1,6 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -68,7 +67,6 @@ public class CartographyParameter {
   @ManyToOne
   @JoinColumn(name = "PGI_GIID")
   @NotNull
-  @JsonIgnore
   private Cartography cartography;
 
   /**
