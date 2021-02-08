@@ -57,6 +57,12 @@ public interface UserConfigurationProjection {
   Integer getRoleId();
 
   /**
+   * Role children ID or {@code null} if not set.
+   */
+  @Value("#{target.roleChildren != null ? target.roleChildren.id : null}")
+  String getRoleChildrenId();
+
+  /**
    * Role children name or {@code null} if not set.
    */
   @Value("#{target.roleChildren != null ? target.roleChildren.name : null}")

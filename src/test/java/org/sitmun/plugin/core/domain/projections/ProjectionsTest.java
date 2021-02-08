@@ -18,6 +18,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -38,6 +39,9 @@ public class ProjectionsTest {
 
   private static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
     "/api/user-configurations?projection=view&{0}={1}";
+
+  private static final String USER_CONFIGURATION_PROJECTION_VIEW =
+    "/api/user-configurations/{0}?projection=view";
 
   private static final String USER_POSITION_PROJECTION_VIEW =
     "/api/user-positions/{0}?projection=view";
@@ -125,23 +129,23 @@ public class ProjectionsTest {
   public void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(34)))
-      .andExpect(
-        jsonPath("$._embedded.user-configurations[*].id", hasSize(34)))
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
 
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(9)))
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(9)));
 
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.user-configurations", hasSize(7)))
       .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
 
+    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW, "0"))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.roleChildrenId").value(nullValue()))
+      .andExpect(jsonPath("$.roleChildren").value(nullValue()));
   }
 
   @Test
