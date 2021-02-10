@@ -29,10 +29,10 @@ public interface BackgroundProjection {
   @Value("#{target.createdDate}")
   Date getCreatedDate();
 
-  @Value("#{target.cartographyGroup.name}")
+  @Value("#{target.cartographyGroup != null? target.cartographyGroup.name : null}")
   String getCartographyGroupName();
 
-  @Value("#{target.cartographyGroup.id}")
+  @Value("#{target.cartographyGroup != null? target.cartographyGroup.id : null}")
   @JsonProperty("cartographyGroupId")
   Long getCartographyGroupId();
 }

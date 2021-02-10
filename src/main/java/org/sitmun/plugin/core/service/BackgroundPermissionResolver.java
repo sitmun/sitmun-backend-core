@@ -27,8 +27,12 @@ public class BackgroundPermissionResolver implements PermissionResolver<Backgrou
 
       return false;
     } else if (permission.equalsIgnoreCase(SecurityConstants.READ_PERMISSION)) {
-      return (permissions.stream().map(UserConfiguration::getRole)
-        .anyMatch(entity.getCartographyGroup().getRoles()::contains));
+
+      if (entity.getCartographyGroup() != null) {
+        return (permissions.stream().map(UserConfiguration::getRole).anyMatch(entity.getCartographyGroup().getRoles()::contains));
+      } else {
+        return false;
+      }
     }
 
     return false;

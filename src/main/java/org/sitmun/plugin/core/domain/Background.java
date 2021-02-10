@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -61,7 +60,6 @@ public class Background {
    */
   @ManyToOne
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
-  @NotNull
   private BackgroundMap cartographyGroup;
 
   public Integer getId() {
