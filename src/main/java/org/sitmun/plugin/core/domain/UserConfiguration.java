@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "STM_USR_CONF", uniqueConstraints = {
   @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
-    "UCO_ROLEMID"})})
+    "UCO_ROLEM"})})
 public class UserConfiguration {
 
   /**
@@ -59,13 +59,14 @@ public class UserConfiguration {
   private Role role;
 
   /**
-   * Role for its children territories in case the user can access the territory through
+   * Role applies to children territories in case the user can access the territory through
    * its children.
+   * <p>
+   * This role only applies when {@link Application#accessChildrenTerritory} is {@code true}.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinColumn(name = "UCO_ROLEMID", foreignKey = @ForeignKey(name = "STM_UCF_FK_ROL_M"))
-  private Role roleChildren;
+  @Column(name = "UCO_ROLEM")
+  @NotNull
+  private Boolean appliesToChildrenTerritories;
 
   public Integer getId() {
     return id;
@@ -99,11 +100,63 @@ public class UserConfiguration {
     this.role = role;
   }
 
-  public Role getRoleChildren() {
-    return roleChildren;
+  public UserConfiguration() {
   }
 
-  public void setRoleChildren(Role roleChildren) {
-    this.roleChildren = roleChildren;
+  private UserConfiguration(Integer id, @NotNull User user, @NotNull Territory territory, @NotNull Role role, @NotNull Boolean appliesToChildrenTerritories) {
+    this.id = id;
+    this.user = user;
+    this.territory = territory;
+    this.role = role;
+    this.appliesToChildrenTerritories = appliesToChildrenTerritories;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Boolean getAppliesToChildrenTerritories() {
+    return appliesToChildrenTerritories;
+  }
+
+  public void setAppliesToChildrenTerritories(Boolean appliesToChildrenTerritories) {
+    this.appliesToChildrenTerritories = appliesToChildrenTerritories;
+  }
+
+  public static class Builder {
+    private Integer id;
+    private @NotNull User user;
+    private @NotNull Territory territory;
+    private @NotNull Role role;
+    private @NotNull Boolean appliesToChildrenTerritories;
+
+    public Builder setId(Integer id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setUser(@NotNull User user) {
+      this.user = user;
+      return this;
+    }
+
+    public Builder setTerritory(@NotNull Territory territory) {
+      this.territory = territory;
+      return this;
+    }
+
+    public Builder setRole(@NotNull Role role) {
+      this.role = role;
+      return this;
+    }
+
+    public Builder setAppliesToChildrenTerritories(@NotNull Boolean appliesToChildrenTerritories) {
+      this.appliesToChildrenTerritories = appliesToChildrenTerritories;
+      return this;
+    }
+
+    public UserConfiguration build() {
+      return new UserConfiguration(id, user, territory, role, appliesToChildrenTerritories);
+    }
   }
 }

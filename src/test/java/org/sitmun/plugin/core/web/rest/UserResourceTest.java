@@ -153,24 +153,30 @@ public class UserResourceTest {
 
       userConfigurations = new ArrayList<>();
 
-      UserConfiguration userConf = new UserConfiguration();
-      userConf.setTerritory(territory1);
-      userConf.setRole(organizacionAdminRole);
-      userConf.setUser(organizacionAdmin);
+      UserConfiguration userConf = UserConfiguration.builder()
+        .setTerritory(territory1)
+        .setRole(organizacionAdminRole)
+        .setUser(organizacionAdmin)
+        .setAppliesToChildrenTerritories(false)
+        .build();
       userConfigurations.add(userConf);
       this.userConfigurationRepository.save(userConf);
 
-      userConf = new UserConfiguration();
-      userConf.setTerritory(territory1);
-      userConf.setRole(territorialRole);
-      userConf.setUser(territory1User);
+      userConf = UserConfiguration.builder()
+        .setTerritory(territory1)
+        .setRole(territorialRole)
+        .setUser(territory1User)
+        .setAppliesToChildrenTerritories(false)
+        .build();
       userConfigurations.add(userConf);
       this.userConfigurationRepository.save(userConf);
 
-      userConf = new UserConfiguration();
-      userConf.setTerritory(territory2);
-      userConf.setRole(territorialRole);
-      userConf.setUser(territory2User);
+      userConf = UserConfiguration.builder()
+        .setTerritory(territory2)
+        .setRole(territorialRole)
+        .setUser(territory2User)
+        .setAppliesToChildrenTerritories(false)
+        .build();
       userConfigurations.add(userConf);
 
       userConfigurationRepository.saveAll(userConfigurations);

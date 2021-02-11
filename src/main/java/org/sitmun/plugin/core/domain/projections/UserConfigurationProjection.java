@@ -57,14 +57,9 @@ public interface UserConfigurationProjection {
   Integer getRoleId();
 
   /**
-   * Role children ID or {@code null} if not set.
+   * Role applies to children territories.
    */
-  @Value("#{target.roleChildren != null ? target.roleChildren.id : null}")
-  String getRoleChildrenId();
+  @Value("#{target.appliesToChildrenTerritories}")
+  Boolean getAppliesToChildrenTerritories();
 
-  /**
-   * Role children name or {@code null} if not set.
-   */
-  @Value("#{target.roleChildren != null ? target.roleChildren.name : null}")
-  String getRoleChildren();
 }

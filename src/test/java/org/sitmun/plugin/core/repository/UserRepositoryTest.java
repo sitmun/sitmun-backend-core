@@ -49,10 +49,12 @@ public class UserRepositoryTest {
       .setName("rol-admin")
       .setDescription("rol de administrador")
       .build();
-    UserConfiguration conf = new UserConfiguration();
-    conf.setUser(user);
-    conf.setRole(role);
-    conf.setTerritory(territory);
+    UserConfiguration conf = UserConfiguration.builder()
+      .setUser(user)
+      .setRole(role)
+      .setTerritory(territory)
+      .setAppliesToChildrenTerritories(false)
+      .build();
 
   }
 

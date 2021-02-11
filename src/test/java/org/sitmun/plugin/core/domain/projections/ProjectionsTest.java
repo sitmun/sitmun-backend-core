@@ -18,7 +18,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -144,8 +143,7 @@ public class ProjectionsTest {
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW, "0"))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.roleChildrenId").value(nullValue()))
-      .andExpect(jsonPath("$.roleChildren").value(nullValue()));
+      .andExpect(jsonPath("$.appliesToChildrenTerritories").value(false));
   }
 
   @Test
