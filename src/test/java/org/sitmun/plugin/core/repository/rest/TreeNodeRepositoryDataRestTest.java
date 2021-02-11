@@ -37,6 +37,8 @@ public class TreeNodeRepositoryDataRestTest {
 
   private static final String TREE_NODE_TREE_URI = TREE_NODE_URI + "/tree";
 
+  private static final String TREE_NODE_PARENT_URI = TREE_NODE_URI + "/parent";
+
   private static final String TREE_NODE_URI_PROJECTION = TREE_NODE_URI + "?projection=view";
 
   private static final String TREE_NODE_CARTOGRAPHY_URI = TREE_NODE_URI + "/cartography";
@@ -99,6 +101,33 @@ public class TreeNodeRepositoryDataRestTest {
       .andReturn();
   }
 
+  @Test
+  public void newTreeNodesWithParentCanBePosted() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/2\",\"parent\":\"http://localhost/api/tree-nodes/416\"}";
+
+    MvcResult result = mvc.perform(
+      post(TREE_NODES_URI)
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isCreated())
+      .andDo(print())
+      .andExpect(jsonPath("$.name").value("test"))
+      .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+
+    mvc.perform(get(TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+      .andExpect(status().isOk());
+
+    mvc.perform(get(TREE_NODE_PARENT_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+      .andExpect(status().isOk());
+
+    mvc.perform(delete(TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isNoContent())
+      .andReturn();
+  }
 
   @TestConfiguration
   static class ContextConfiguration {
