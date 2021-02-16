@@ -40,6 +40,7 @@ public class UserService implements PermissionResolver<User> {
     this.roleRepository = roleRepository;
   }
 
+  @Deprecated
   public User createUser(User user) {
     if (user.getPassword() != null) {
       user.setPassword(bcryptPasswordEncoder.encode(user.getPassword()));

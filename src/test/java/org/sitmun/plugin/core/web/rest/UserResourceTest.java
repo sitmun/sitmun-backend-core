@@ -14,10 +14,10 @@ import org.sitmun.plugin.core.repository.RoleRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.repository.UserConfigurationRepository;
 import org.sitmun.plugin.core.repository.UserRepository;
+import org.sitmun.plugin.core.repository.handlers.UserEventHandler;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
-import org.sitmun.plugin.core.web.rest.dto.PasswordDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,10 +34,12 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
@@ -90,6 +92,9 @@ public class UserResourceTest {
   private ArrayList<User> users;
   private ArrayList<UserConfiguration> userConfigurations;
 
+  @Autowired
+  private UserEventHandler userEventHandler;
+
   @Before
   public void init() {
     withMockSitmunAdmin(() -> {
@@ -127,6 +132,8 @@ public class UserResourceTest {
       organizacionAdmin.setLastName(USER_LASTNAME);
       organizacionAdmin.setPassword(USER_PASSWORD);
       organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
+      userEventHandler.handleUserCreate(organizacionAdmin);
+      organizacionAdmin = userRepository.save(organizacionAdmin);
       users.add(organizacionAdmin);
 
       // Territory 1 user
@@ -137,6 +144,7 @@ public class UserResourceTest {
       territory1User.setLastName(USER_LASTNAME);
       territory1User.setPassword(USER_PASSWORD);
       territory1User.setUsername(TERRITORY1_USER_USERNAME);
+      territory1User = userRepository.save(territory1User);
       users.add(territory1User);
 
       // Territory 2 user
@@ -147,9 +155,9 @@ public class UserResourceTest {
       territory2User.setLastName(USER_LASTNAME);
       territory2User.setPassword(USER_PASSWORD);
       territory2User.setUsername(TERRITORY2_USER_USERNAME);
+      territory2User = userRepository.save(territory2User);
       users.add(territory2User);
 
-      userRepository.saveAll(users);
 
       userConfigurations = new ArrayList<>();
 
@@ -234,15 +242,18 @@ public class UserResourceTest {
 
   @Test
   public void updateUser() throws Exception {
-    UserDTO userDTO = new UserDTO(organizacionAdmin);
-    userDTO.setFirstName(USER_CHANGEDFIRSTNAME);
-    userDTO.setLastName(USER_CHANGEDLASTNAME);
+    String content = "{" +
+      "\"username\":\"user\"," +
+      "\"firstName\":\"" + USER_CHANGEDFIRSTNAME + "\"," +
+      "\"lastName\":\"" + USER_CHANGEDLASTNAME + "\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
 
     mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(userDTO))
+      .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andExpect(status().isNoContent());
+    ).andExpect(status().isOk());
 
     mvc.perform(get(USER_URI + "/" + organizacionAdmin.getId()))
       .andExpect(status().isOk())
@@ -273,26 +284,51 @@ public class UserResourceTest {
 
   @Test
   public void updateUserPassword() throws Exception {
-    PasswordDTO passwordDTO = new PasswordDTO();
-    passwordDTO.setPassword(USER_CHANGEDPASSWORD);
+    String content = "{" +
+      "\"username\":\"user\"," +
+      "\"firstName\":\"NameChanged\"," +
+      "\"lastName\":\"NameChanged\"," +
+      "\"password\":\"new-password\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
 
-    mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
+    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(passwordDTO))
+      .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
+
+    String oldPassword = organizacionAdmin.getPassword();
+    assertNotNull(oldPassword);
+    withMockSitmunAdmin(() -> {
+      Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
+      assertTrue(updatedUser.isPresent());
+      assertNotEquals(oldPassword, updatedUser.get().getPassword());
+    });
   }
 
   @Test
-  public void updateUserPasswordAsSitmunAdmin() throws Exception {
-    PasswordDTO passwordDTO = new PasswordDTO();
-    passwordDTO.setPassword(USER_CHANGEDPASSWORD);
+  public void keepPassword() throws Exception {
+    String content = "{" +
+      "\"username\":\"user\"," +
+      "\"firstName\":\"NameChanged\"," +
+      "\"lastName\":\"NameChanged\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
 
-    mvc.perform(post(USER_URI + "/" + organizacionAdmin.getId() + "/change-password")
+    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(passwordDTO))
+      .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
+
+    String oldPassword = organizacionAdmin.getPassword();
+    assertNotNull(oldPassword);
+    withMockSitmunAdmin(() -> {
+      Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
+      assertTrue(updatedUser.isPresent());
+      assertEquals(oldPassword, updatedUser.get().getPassword());
+    });
   }
 
   @Test

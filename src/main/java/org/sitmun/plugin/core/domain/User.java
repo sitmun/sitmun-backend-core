@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -42,7 +44,12 @@ public class User {
    * User password hash.
    */
   @Column(name = "USE_PWD", length = 128)
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
+
+  @JsonIgnore
+  @Transient
+  private String storedPassword;
 
   /**
    * User first name.
@@ -125,6 +132,14 @@ public class User {
     this.password = password;
   }
 
+  public String getStoredPassword() {
+    return storedPassword;
+  }
+
+  public void setStoredPassword(String storedPassword) {
+    this.storedPassword = storedPassword;
+  }
+
   public String getFirstName() {
     return firstName;
   }
@@ -195,5 +210,10 @@ public class User {
 
   public void setPermissions(Set<UserConfiguration> permissions) {
     this.permissions = permissions;
+  }
+
+  @PostLoad
+  public void postLoad() {
+    storedPassword = password;
   }
 }
