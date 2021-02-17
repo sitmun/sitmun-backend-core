@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
@@ -90,7 +89,6 @@ public class CartographyFilter {
   @ManyToOne
   @JoinColumn(name = "FGI_GIID")
   @NotNull
-  @JsonIgnore
   private Cartography cartography;
 
   public Integer getId() {

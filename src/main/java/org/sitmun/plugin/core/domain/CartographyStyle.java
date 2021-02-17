@@ -1,7 +1,5 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -67,7 +65,6 @@ public class CartographyStyle {
   @ManyToOne
   @JoinColumn(name = "SGI_GIID")
   @NotNull
-  @JsonIgnore
   private Cartography cartography;
 
   public Integer getId() {
