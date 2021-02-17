@@ -16,14 +16,14 @@ public class ApplicationBackground {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_APPFON_GEN",
+    name = "STM_APP_BCKG_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "ABC_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPFON_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APP_BCKG_GEN")
   @Column(name = "ABC_ID")
   private Integer id;
 

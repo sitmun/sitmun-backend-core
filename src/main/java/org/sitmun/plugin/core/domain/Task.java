@@ -21,14 +21,14 @@ public class Task {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_TAREA_GEN",
+    name = "STM_TASK_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "TAS_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TAREA_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TASK_GEN")
   @Column(name = "TAS_ID")
   private Integer id;
 

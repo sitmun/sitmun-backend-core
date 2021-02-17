@@ -27,14 +27,14 @@ public class Territory {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_ETERRIT_GEN",
+    name = "STM_TERRITORY_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "TER_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ETERRIT_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TERRITORY_GEN")
   @Column(name = "TER_ID")
   private Integer id;
 

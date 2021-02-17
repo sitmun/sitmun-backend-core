@@ -17,14 +17,14 @@ public class TaskType {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_TIPOTAREA_GEN",
+    name = "STM_TSK_TYP_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "TTY_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOTAREA_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TSK_TYP_GEN")
   @Column(name = "TTY_ID")
   private Integer id;
 

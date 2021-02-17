@@ -28,14 +28,14 @@ public class Service {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_SERVICIO_GEN",
+    name = "STM_SERVICE_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "SER_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICIO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICE_GEN")
   @Column(name = "SER_ID")
   private Integer id;
 

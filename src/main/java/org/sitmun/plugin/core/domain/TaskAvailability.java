@@ -17,14 +17,14 @@ public class TaskAvailability {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_DISPTAREA_GEN",
+    name = "STM_AVAIL_TSK_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "ATS_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPTAREA_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_AVAIL_TSK_GEN")
   @Column(name = "ATS_ID")
   private Integer id;
 

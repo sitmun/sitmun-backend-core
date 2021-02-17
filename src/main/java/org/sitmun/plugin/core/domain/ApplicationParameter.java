@@ -23,14 +23,14 @@ public class ApplicationParameter {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_PARAMAPP_GEN",
+    name = "STM_PAR_APP_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "PAP_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMAPP_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PAR_APP_GEN")
   @Column(name = "PAP_ID")
   private Integer id;
 

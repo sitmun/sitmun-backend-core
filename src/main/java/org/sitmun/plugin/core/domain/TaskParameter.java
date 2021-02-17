@@ -22,14 +22,14 @@ public class TaskParameter {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_PARAMTTA_GEN",
+    name = "STM_PAR_TSK_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "PTT_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMTTA_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PAR_TSK_GEN")
   @Column(name = "PTT_ID")
   private Integer id;
 

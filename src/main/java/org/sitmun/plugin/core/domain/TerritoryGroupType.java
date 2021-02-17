@@ -17,14 +17,14 @@ public class TerritoryGroupType {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_TIPOGRP_GEN",
+    name = "STM_GTER_TYP_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "GTT_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TIPOGRP_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GTER_TYP_GEN")
   @Column(name = "GTT_ID")
   private Integer id;
 

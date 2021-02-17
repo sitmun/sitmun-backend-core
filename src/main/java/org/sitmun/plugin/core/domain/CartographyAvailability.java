@@ -22,14 +22,14 @@ public class CartographyAvailability {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_DISPCARTO_GEN",
+    name = "STM_AVAIL_GI_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "AGI_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_DISPCARTO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_AVAIL_GI_GEN")
   @Column(name = "AGI_ID")
   private Integer id;
 

@@ -23,14 +23,14 @@ public class ServiceParameter {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_PARAMSER_GEN",
+    name = "STM_PAR_SER_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "PSE_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PARAMSER_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PAR_SER_GEN")
   @Column(name = "PSE_ID")
   private Integer id;
 

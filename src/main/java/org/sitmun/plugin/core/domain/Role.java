@@ -20,14 +20,14 @@ public class Role {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_ROLES_GEN",
+    name = "STM_ROLE_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "ROL_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLES_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLE_GEN")
   @Column(name = "ROL_ID")
   private Integer id;
 

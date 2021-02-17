@@ -19,14 +19,14 @@ public class DatabaseConnection {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_CONEXION_GEN",
+    name = "STM_CONNECT_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "CON_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CONEXION_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CONNECT_GEN")
   @Column(name = "CON_ID")
   private Integer id;
 

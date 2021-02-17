@@ -28,8 +28,8 @@ public class Application {
    */
   @Id
   @Column(name = "APP_ID")
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APPS_GEN")
-  @TableGenerator(name = "STM_APPS_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APP_GEN")
+  @TableGenerator(name = "STM_APP_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
   private Integer id;
 

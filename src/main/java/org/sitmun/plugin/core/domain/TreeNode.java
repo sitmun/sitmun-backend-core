@@ -20,14 +20,14 @@ public class TreeNode {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_ARBOLNOD_GEN",
+    name = "STM_TREE_NOD_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "TNO_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOLNOD_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_NOD_GEN")
   @Column(name = "TNO_ID")
   private Integer id;
 

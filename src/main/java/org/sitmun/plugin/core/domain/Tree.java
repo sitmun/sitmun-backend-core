@@ -19,14 +19,14 @@ public class Tree {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_ARBOL_GEN",
+    name = "STM_TREE_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "TRE_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ARBOL_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_GEN")
   @Column(name = "TRE_ID")
   private Integer id;
 

@@ -25,14 +25,14 @@ public class CartographyPermission {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_GRPCARTO_GEN",
+    name = "STM_GRP_GI_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "GGI_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRPCARTO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_GI_GEN")
   @Column(name = "GGI_ID")
   private Integer id;
 

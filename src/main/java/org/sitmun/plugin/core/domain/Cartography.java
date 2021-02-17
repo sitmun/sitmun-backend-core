@@ -29,14 +29,14 @@ public class Cartography {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_CARTO_GEN",
+    name = "STM_GEOINFO_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "GEO_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARTO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GEOINFO_GEN")
   @Column(name = "GEO_ID")
   private Integer id;
 

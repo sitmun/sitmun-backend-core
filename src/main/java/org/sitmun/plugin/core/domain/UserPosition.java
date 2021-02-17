@@ -23,14 +23,14 @@ public class UserPosition {
    * Unique identifier.
    */
   @TableGenerator(
-    name = "STM_CARGO_GEN",
+    name = "STM_POST_GEN",
     table = "STM_SEQUENCE",
     pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT",
     pkColumnValue = "POS_ID",
     allocationSize = 1)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CARGO_GEN")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_POST_GEN")
   @Column(name = "POS_ID")
   private Integer id;
 
