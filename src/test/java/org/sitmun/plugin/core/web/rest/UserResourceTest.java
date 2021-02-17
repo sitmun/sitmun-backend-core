@@ -18,6 +18,7 @@ import org.sitmun.plugin.core.repository.handlers.UserEventHandler;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.service.UserService;
 import org.sitmun.plugin.core.service.dto.UserDTO;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -64,7 +65,6 @@ public class UserResourceTest {
   private static final String USER_CHANGEDLASTNAME = "Territory 1";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
-  private static final String USER_URI = "http://localhost/api/users";
   @Autowired
   UserRepository userRepository;
   @Autowired
@@ -249,13 +249,13 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
+    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
 
-    mvc.perform(get(USER_URI + "/" + organizacionAdmin.getId()))
+    mvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId()))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
@@ -264,7 +264,7 @@ public class UserResourceTest {
 
   @Test
   public void getUsersAsSitmunAdmin() throws Exception {
-    mvc.perform(get(USER_URI + "?size=10")
+    mvc.perform(get(URIConstants.USER_URI + "?size=10")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
@@ -276,7 +276,7 @@ public class UserResourceTest {
   @Test
   @Ignore
   public void getUsersAsOrganizationAdmin() throws Exception {
-    mvc.perform(get(USER_URI))
+    mvc.perform(get(URIConstants.USER_URI))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$._embedded.users", hasSize(5)));
@@ -292,7 +292,7 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
+    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -316,7 +316,7 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(USER_URI + "/" + organizacionAdmin.getId())
+    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))

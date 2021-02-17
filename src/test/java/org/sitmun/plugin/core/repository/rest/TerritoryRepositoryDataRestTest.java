@@ -8,6 +8,7 @@ import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.test.TestUtils;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class TerritoryRepositoryDataRestTest {
 
-  private static final String TERRITORIES_URI = "http://localhost/api/territories";
-  private static final String TERRITORY_URI = TERRITORIES_URI + "/{0}";
-
   @Autowired
   TerritoryRepository territoryRepository;
   @Autowired
@@ -51,13 +49,13 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   public void getTerritoriesAsPublic() throws Exception {
-    mvc.perform(get(TERRITORIES_URI))
+    mvc.perform(get(URIConstants.TERRITORIES_URI))
       .andExpect(status().isOk());
   }
 
   @Test
   public void createTerritoriesAsPublicFails() throws Exception {
-    mvc.perform(post(TERRITORIES_URI)
+    mvc.perform(post(URIConstants.TERRITORIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(territory))
     ).andExpect(status().is4xxClientError()).andReturn();
@@ -66,20 +64,20 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   public void hasLinkToCartographyAvailability() throws Exception {
-    mvc.perform(get(TERRITORIES_URI))
+    mvc.perform(get(URIConstants.TERRITORIES_URI))
       .andExpect(status().isOk());
   }
 
   @Test
   public void hasLinkToTaskAvailability() throws Exception {
-    mvc.perform(get(TERRITORY_URI, 0))
+    mvc.perform(get(URIConstants.TERRITORY_URI, 0))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.taskAvailabilities").exists());
   }
 
   @Test
   public void hasLinkToCartographyAvailabilities() throws Exception {
-    mvc.perform(get(TERRITORY_URI, 0))
+    mvc.perform(get(URIConstants.TERRITORY_URI, 0))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
   }

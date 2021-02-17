@@ -16,6 +16,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.URIConstants.SITUATION_MAPS_URI;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,9 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 public class SituationMapsRepositoryDataRestTest {
-
-  private static final String SITUATION_MAPS_URI =
-    "http://localhost/api/situation-maps";
 
   @Autowired
   private MockMvc mvc;

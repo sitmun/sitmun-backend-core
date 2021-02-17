@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,15 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class ApplicationParameterRepositoryDataRestTest {
 
-  private static final String APPLICATION_PARAMETERS_URI_FILTERED =
-    "http://localhost/api/applications/{0}/parameters?{1}={2}";
-
   @Autowired
   private MockMvc mvc;
 
   @Test
   public void retrieveAll() throws Exception {
-    mvc.perform(get(APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE")
+    mvc.perform(get(URIConstants.APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())

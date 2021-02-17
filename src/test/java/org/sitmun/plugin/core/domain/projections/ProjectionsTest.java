@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.domain.projections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,42 +30,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class ProjectionsTest {
 
-  private static final String APPLICATION_PROJECTION_VIEW =
-    "/api/applications/{0}?projection=view";
-
-  private static final String APPLICATION_BACKGROUND_PROJECTION_VIEW =
-    "/api/application-backgrounds/{0}?projection=view";
-
-  private static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
-    "/api/user-configurations?projection=view&{0}={1}";
-
-  private static final String USER_CONFIGURATION_PROJECTION_VIEW =
-    "/api/user-configurations/{0}?projection=view";
-
-  private static final String USER_POSITION_PROJECTION_VIEW =
-    "/api/user-positions/{0}?projection=view";
-
-  private static final String TERRITORY_PROJECTION_VIEW =
-    "/api/territories/{0}?projection=view";
-
-  private static final String CARTOGRAPHY_PROJECTION_VIEW =
-    "/api/cartographies/{0}?projection=view";
-
-  private static final String TASK_AVAILABILITY_PROJECTION_VIEW =
-    "/api/task-availabilities/{0}?projection=view";
-
-  private static final String TASK_PROJECTION_VIEW =
-    "/api/tasks/{0}?projection=view";
-
-  private static final String CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW =
-    "/api/cartography-availabilities/{0}?projection=view";
-
   @Autowired
   private MockMvc mvc;
 
   @Test
   public void taskAvailabilityProjectionView() throws Exception {
-    mvc.perform(get(TASK_AVAILABILITY_PROJECTION_VIEW, 1)
+    mvc.perform(get(URIConstants.TASK_AVAILABILITY_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryId").value(7))
@@ -75,7 +46,7 @@ public class ProjectionsTest {
 
   @Test
   public void cartographyProjectionView() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PROJECTION_VIEW, 87)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PROJECTION_VIEW, 87)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
@@ -87,7 +58,7 @@ public class ProjectionsTest {
 
   @Test
   public void cartographyAvailabiltiesProjectionView() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(jsonPath("$.cartographyId").value(1208))
       .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
@@ -99,7 +70,7 @@ public class ProjectionsTest {
 
   @Test
   public void territoryProjectionView() throws Exception {
-    mvc.perform(get(TERRITORY_PROJECTION_VIEW, 322))
+    mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groupTypeId").value(1))
       .andExpect(jsonPath("$.groupTypeName").value("Consell Comarcal"));
@@ -107,7 +78,7 @@ public class ProjectionsTest {
 
   @Test
   public void applicationBackgroundProjectionView() throws Exception {
-    mvc.perform(get(APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
+    mvc.perform(get(URIConstants.APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
@@ -117,7 +88,7 @@ public class ProjectionsTest {
 
   @Test
   public void userPositionProjectionView() throws Exception {
-    mvc.perform(get(USER_POSITION_PROJECTION_VIEW, 2124))
+    mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 2124))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"))
       .andExpect(jsonPath("$.userId").value(6));
@@ -125,21 +96,21 @@ public class ProjectionsTest {
 
   @Test
   public void userConfigurationProjectionView() throws Exception {
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
+    mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
       .andExpect(status().isOk())
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
 
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777"))
+    mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777"))
       .andExpect(status().isOk())
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(9)));
 
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10"))
+    mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
 
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW, "0"))
+    mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW, "0"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.appliesToChildrenTerritories").value(false));
   }
@@ -154,7 +125,7 @@ public class ProjectionsTest {
 
   @Test
   public void applicationProjectionView() throws Exception {
-    mvc.perform(get(APPLICATION_PROJECTION_VIEW, 1)
+    mvc.perform(get(URIConstants.APPLICATION_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
@@ -163,7 +134,7 @@ public class ProjectionsTest {
 
   @Test
   public void tasksProjectionView() throws Exception {
-    mvc.perform(get(TASK_PROJECTION_VIEW, 2))
+    mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groupName").value("SITXELL"))
       .andExpect(jsonPath("$.groupId").value(28))

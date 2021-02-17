@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,21 +27,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class CodeListValueRepositoryDataRestTest {
 
-  private static final String CARTOGRAPHY_PERMISSIONS_URI =
-    "http://localhost/api/codelist-values?codeListName={0}";
-
   @Autowired
   private MockMvc mvc;
 
   @Test
   public void filterType() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "cartographyPermission.type"))
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI, "cartographyPermission.type"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
       .andExpect(jsonPath(
         "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
         hasSize(4)));
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI, "territory.scope"))
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI, "territory.scope"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",

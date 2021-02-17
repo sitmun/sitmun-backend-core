@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,19 +36,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class RepositoryDataRestUpdateTest {
 
-  private static final String SITUATION_MAPS_URI =
-    "http://localhost/api/situation-maps";
-
-  private static final String SITUATION_MAP_URI = SITUATION_MAPS_URI + "/{0}";
-
-  private static final String SITUATION_MAP_ROLES_URI = SITUATION_MAP_URI + "/roles";
-
   @Autowired
   private MockMvc mvc;
 
   @Test
   public void itemResourceUpdate() throws Exception {
-    String item = mvc.perform(get(SITUATION_MAP_URI, 132))
+    String item = mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -55,30 +49,30 @@ public class RepositoryDataRestUpdateTest {
     String oldName = json.getString("name");
     json.put("name", "New name");
 
-    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.SITUATION_MAP_URI, 132).content(json.toString())
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk());
 
-    mvc.perform(get(SITUATION_MAP_URI, 132))
+    mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value("New name"));
 
     json.put("name", oldName);
 
-    mvc.perform(put(SITUATION_MAP_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.SITUATION_MAP_URI, 132).content(json.toString())
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk());
 
-    mvc.perform(get(SITUATION_MAP_URI, 132))
+    mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value(oldName));
   }
 
   @Test
   public void associationResourceUpdate() throws Exception {
-    String item = mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
+    String item = mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -87,21 +81,21 @@ public class RepositoryDataRestUpdateTest {
 
     String update = links.stream().skip(1).collect(Collectors.joining("\n"));
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
 
-    mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
+    mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size() - 1)));
 
     update = String.join("\n", links);
 
-    mvc.perform(put(SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
 
-    mvc.perform(get(SITUATION_MAP_ROLES_URI, 132))
+    mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size())))
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", containsInAnyOrder(links.toArray())));

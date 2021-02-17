@@ -16,6 +16,7 @@ import org.sitmun.plugin.core.repository.CartographyRepository;
 import org.sitmun.plugin.core.repository.ServiceRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.test.TestUtils;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,8 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CartographyRepositoryDataRestTest {
 
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
-  private static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
-  private static final String CARTOGRAPHY_PERMISSION_URI = "http://localhost/api/cartographies/{0}/permissions";
 
   @Autowired
   private CartographyRepository cartographyRepository;
@@ -150,7 +149,7 @@ public class CartographyRepositoryDataRestTest {
       .put("blocked", false)
       .toString();
 
-    String location = mvc.perform(post(CARTOGRAPHIES_URI)
+    String location = mvc.perform(post(URIConstants.CARTOGRAPHIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -174,13 +173,13 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void getCartographiesAsPublic() throws Exception {
-    mvc.perform(get(CARTOGRAPHIES_URI))
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI))
       .andExpect(status().isOk());
   }
 
   @Test
   public void postCartographyAsPublicUserFails() throws Exception {
-    mvc.perform(post(CARTOGRAPHIES_URI)
+    mvc.perform(post(URIConstants.CARTOGRAPHIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(cartography)))
       .andExpect(status().is4xxClientError()).andReturn();
@@ -188,7 +187,7 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void hasTreeNodeListProperty() throws Exception {
-    mvc.perform(get(CARTOGRAPHIES_URI + "?size=10"))
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI + "?size=10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
       .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));
@@ -196,7 +195,7 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void hasAccessToCartographyGroups() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PERMISSION_URI, 85)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_CARTOGRAPHT_PERMISSION_URI, 85)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));

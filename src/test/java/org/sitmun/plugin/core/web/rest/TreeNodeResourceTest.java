@@ -13,6 +13,7 @@ import org.sitmun.plugin.core.repository.RoleRepository;
 import org.sitmun.plugin.core.repository.TreeNodeRepository;
 import org.sitmun.plugin.core.repository.TreeRepository;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class TreeNodeResourceTest {
 
-  private static final String TREE_URI = "http://localhost/api/trees";
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-public Tree Node";
   private static final String PUBLIC_TREENODE_NAME = "Public Tree Node";
   private static final String PUBLIC_TREE_NAME = "Public Tree";
@@ -117,7 +117,7 @@ public class TreeNodeResourceTest {
   public void getPublicTreesAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(TREE_URI))
+    mvc.perform(get(URIConstants.TREE_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
   }
@@ -127,7 +127,7 @@ public class TreeNodeResourceTest {
   public void getPublicTreeNodesAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(TREE_URI + "/" + publicTree.getId() + "/nodes"))
+    mvc.perform(get(URIConstants.TREE_URI + "/" + publicTree.getId() + "/nodes"))
       .andExpect(status().isOk());
   }
 
@@ -140,7 +140,7 @@ public class TreeNodeResourceTest {
 
   @Test
   public void getTreesAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TREE_URI))
+    mvc.perform(get(URIConstants.TREE_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
   }

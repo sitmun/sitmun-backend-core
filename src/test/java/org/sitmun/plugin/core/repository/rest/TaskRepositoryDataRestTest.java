@@ -14,6 +14,7 @@ import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
 import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +40,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
+import static org.sitmun.plugin.core.test.URIConstants.DOWNLOAD_TASKS_URI;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -50,14 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TaskRepositoryDataRestTest {
 
   private static final String TASK_NAME = "Task Name";
-  private static final String TASKS_URI = "http://localhost/api/tasks";
-  private static final String DOWNLOAD_TASKS_URI = "http://localhost/api/download-tasks";
-  private static final String QUERY_TASKS_URI = "http://localhost/api/query-tasks";
-  private static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}&size=10";
-  private static final String TASK_URI = TASKS_URI + "/{0}";
-  private static final String TASK_ROLE_URI = TASK_URI + "/roles";
-  private static final String TASK_PARAMETERS_URI = TASK_URI + "/parameters";
-  private static final String PUBLIC_USERNAME = "public";
+
   @Autowired
   TaskRepository taskRepository;
   @Autowired
@@ -128,7 +123,7 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void postTask() throws Exception {
-    String location = mvc.perform(post(TASKS_URI)
+    String location = mvc.perform(post(URIConstants.TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -152,21 +147,21 @@ public class TaskRepositoryDataRestTest {
 
   @Ignore
   public void getTasksAsPublic() throws Exception {
-    mvc.perform(get(TASKS_URI))
+    mvc.perform(get(URIConstants.TASKS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
   }
 
   @Test
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI))
+    mvc.perform(get(URIConstants.TASKS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(115)));
   }
 
   @Test
   public void getQueryTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(QUERY_TASKS_URI + "?size=10"))
+    mvc.perform(get(URIConstants.QUERY_TASKS_URI + "?size=10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.query-tasks", hasSize(10)));
   }
@@ -180,21 +175,21 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(TASKS_URI_FILTER, "type.id", "2", "10"))
+    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
 
   @Test
   public void getTaskParamsAsPublic() throws Exception {
-    mvc.perform(get(TASK_PARAMETERS_URI, task.getId()))
+    mvc.perform(get(URIConstants.TASK_PARAMETERS_URI, task.getId()))
       .andExpect(status().isOk());
   }
 
   @Test
   public void postTaskAsPublicUserFails() throws Exception {
 
-    mvc.perform(post(TASKS_URI)
+    mvc.perform(post(URIConstants.TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
     ).andExpect(status().is4xxClientError()).andReturn();
@@ -202,14 +197,14 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void getRolesOfATask() throws Exception {
-    mvc.perform(get(TASK_ROLE_URI, 1))
+    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }
 
   @Test
   public void getPermissionsOfATask() throws Exception {
-    mvc.perform(get(TASK_ROLE_URI, 1))
+    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }

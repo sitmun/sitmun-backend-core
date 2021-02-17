@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class CartographyFiltersRepositoryDataRestTest {
 
-  private static final String CARTOGRAPHY_FILTERS_URI = "/api/cartography-filters";
-
   @Autowired
   private MockMvc mvc;
 
@@ -43,7 +42,7 @@ public class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     String location = mvc.perform(
-      post(CARTOGRAPHY_FILTERS_URI)
+      post(URIConstants.CARTOGRAPHY_FILTERS_URI)
         .content(content)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
@@ -70,7 +69,7 @@ public class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     mvc.perform(
-      post(CARTOGRAPHY_FILTERS_URI)
+      post(URIConstants.CARTOGRAPHY_FILTERS_URI)
         .content(content)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isBadRequest())

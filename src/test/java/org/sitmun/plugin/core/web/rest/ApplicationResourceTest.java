@@ -9,6 +9,7 @@ import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.*;
 import org.sitmun.plugin.core.repository.*;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,8 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class ApplicationResourceTest {
 
-  private static final String APP_URI = "http://localhost/api/applications";
-  private static final String CARTOGRAPHY_GROUP_URI = "http://localhost/api/cartography-groups";
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
   private static final String PUBLIC_APPLICATION_NAME = "Public Application";
   private static final String NON_PUBLIC_APPLICATION_PARAM_NAME = "Non-public Application Param";
@@ -57,9 +56,7 @@ public class ApplicationResourceTest {
   private static final String PUBLIC_CARTOGRAPHY_NAME = "Public Cartography Name";
   private static final String PUBLIC_TREE_NODE_NAME = "Tree Node Name";
   private static final String TREE_NODE_URI = "http://localhost/api/tree-nodes";
-  private static final String APP_BACKGROUNDS_URI = "http://localhost/api/application-backgrounds";
   private static final String PUBLIC_SERVICE_NAME = "Public Service Name";
-  private static final String SERVICE_URI = "http://localhost/api/services";
   @Autowired
   ApplicationRepository applicationRepository;
   @Autowired
@@ -294,7 +291,7 @@ public class ApplicationResourceTest {
   public void getPublicApplicationsAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(APP_URI))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
   }
@@ -303,14 +300,14 @@ public class ApplicationResourceTest {
   public void getPublicApplicationParamsAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/parameters"))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/parameters"))
       .andExpect(status().isOk());
   }
 
   @Test
   @Ignore
   public void getInformationAboutAnApp() throws Exception {
-    mvc.perform(get(APP_URI + "/" + appId))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/" + appId))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value("Non-public Application"))
       .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
@@ -318,7 +315,7 @@ public class ApplicationResourceTest {
 
   @Test
   public void getInformationAboutBackgrounds() throws Exception {
-    mvc.perform(get(APP_BACKGROUNDS_URI + "/" + backAppId)
+    mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + "/" + backAppId)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.order").value(1));
@@ -329,7 +326,7 @@ public class ApplicationResourceTest {
   public void getPublicApplicationTreesAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/trees"))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/trees"))
       .andExpect(status().isOk());
   }
 
@@ -338,7 +335,7 @@ public class ApplicationResourceTest {
   public void getPublicApplicationBackgroundsAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/backgrounds"))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/backgrounds"))
       .andExpect(status().isOk());
   }
 
@@ -347,7 +344,7 @@ public class ApplicationResourceTest {
   public void getPublicApplicationSituationMapsAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(APP_URI + "/2/situationMap"))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/situationMap"))
       .andExpect(status().isOk());
   }
 
@@ -356,7 +353,7 @@ public class ApplicationResourceTest {
   public void getCartographyGroupMembersAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(CARTOGRAPHY_GROUP_URI + "/1/members"))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI + "/1/members"))
       .andExpect(status().isOk());
   }
 
@@ -373,7 +370,7 @@ public class ApplicationResourceTest {
   public void getServiceLayersAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(SERVICE_URI + "/1/layers"))
+    mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers"))
       .andExpect(status().isOk());
   }
 
@@ -387,7 +384,7 @@ public class ApplicationResourceTest {
   @Test
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(get(APP_URI))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }

@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,11 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class BackgroundRepositoryDataRestTest {
 
-  private static final String BACKGROUNDS_URI =
-    "http://localhost/api/backgrounds";
-
-  private static final String BACKGROUND_URI = BACKGROUNDS_URI + "/{0}";
-
   @Autowired
   private MockMvc mvc;
 
@@ -41,14 +37,14 @@ public class BackgroundRepositoryDataRestTest {
   public void backgroundIsNotDependentOfBackgroundMap() throws Exception {
     String content = "{\"name\":\"test \",\"description\":\"test\",\"active\":\"true\"}";
 
-    MvcResult result = mvc.perform(post(BACKGROUNDS_URI)
+    MvcResult result = mvc.perform(post(URIConstants.BACKGROUNDS_URI)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isCreated())
       .andReturn();
     String response = result.getResponse().getContentAsString();
-    mvc.perform(delete(BACKGROUND_URI, JsonPath.parse(response).read("$.id", Integer.class))
+    mvc.perform(delete(URIConstants.BACKGROUND_URI, JsonPath.parse(response).read("$.id", Integer.class))
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isNoContent())

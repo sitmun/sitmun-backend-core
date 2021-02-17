@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,15 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class DatabaseConnectionRepositoryDataRestTest {
 
-  private static final String CONNECTIONS_URI =
-    "http://localhost/api/connections";
-
   @Autowired
   private MockMvc mvc;
 
   @Test
   public void tasksLinksExist() throws Exception {
-    mvc.perform(get(CONNECTIONS_URI))
+    mvc.perform(get(URIConstants.CONNECTIONS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
@@ -42,7 +40,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   public void cartographiesLinksExist() throws Exception {
-    mvc.perform(get(CONNECTIONS_URI))
+    mvc.perform(get(URIConstants.CONNECTIONS_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));

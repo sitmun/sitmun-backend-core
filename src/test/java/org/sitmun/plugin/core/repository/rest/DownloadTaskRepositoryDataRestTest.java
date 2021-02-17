@@ -7,6 +7,7 @@ import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
 import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class DownloadTaskRepositoryDataRestTest {
 
-  private static final String TASK_URI = "http://localhost/api/download-tasks";
   private static final String PUBLIC_USERNAME = "public";
   @Autowired
   TaskRepository taskRepository;
@@ -45,15 +45,15 @@ public class DownloadTaskRepositoryDataRestTest {
 
   @Test
   public void filterScope() throws Exception {
-    mvc.perform(get(TASK_URI + "?scope=U&size=10"))
+    mvc.perform(get(URIConstants.DOWNLOAD_TASKS_URI + "?scope=U&size=10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(10)))
       .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'U')]", hasSize(10)));
-    mvc.perform(get(TASK_URI + "?scope=A"))
+    mvc.perform(get(URIConstants.DOWNLOAD_TASKS_URI + "?scope=A"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(38)))
       .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)));
-    mvc.perform(get(TASK_URI + "?scope=C"))
+    mvc.perform(get(URIConstants.DOWNLOAD_TASKS_URI + "?scope=C"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(47)))
       .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'C')]", hasSize(47)));
@@ -61,7 +61,7 @@ public class DownloadTaskRepositoryDataRestTest {
 
   @Test
   public void filterScopeOr() throws Exception {
-    mvc.perform(get(TASK_URI + "?scope=A&scope=C"))
+    mvc.perform(get(URIConstants.DOWNLOAD_TASKS_URI + "?scope=A&scope=C"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.download-tasks", hasSize(85)))
       .andExpect(jsonPath("$._embedded.download-tasks[?(@.scope == 'A')]", hasSize(38)))

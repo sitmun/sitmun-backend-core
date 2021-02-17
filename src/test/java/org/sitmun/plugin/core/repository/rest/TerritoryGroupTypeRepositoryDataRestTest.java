@@ -6,6 +6,7 @@ import org.sitmun.plugin.core.config.RepositoryRestConfig;
 import org.sitmun.plugin.core.domain.TerritoryGroupType;
 import org.sitmun.plugin.core.repository.TerritoryGroupTypeRepository;
 import org.sitmun.plugin.core.test.TestUtils;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,8 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("dev")
 public class TerritoryGroupTypeRepositoryDataRestTest {
 
-  private static final String TERRITORY_URI = "http://localhost/api/territory-group-types";
-
   @Autowired
   private MockMvc mvc;
 
@@ -44,7 +43,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   public void mustNotBeNull() throws Exception {
-    mvc.perform(post(TERRITORY_URI)
+    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
     ).andExpect(status().is4xxClientError())
@@ -54,7 +53,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   public void mustNotBeBlank() throws Exception {
-    mvc.perform(post(TERRITORY_URI)
+    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("   ").build()))
     ).andExpect(status().is4xxClientError())
@@ -65,7 +64,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   @Test
   public void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
-    MvcResult result = mvc.perform(post(TERRITORY_URI)
+    MvcResult result = mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))

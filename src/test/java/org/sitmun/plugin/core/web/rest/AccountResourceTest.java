@@ -11,6 +11,7 @@ import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.repository.handlers.UserEventHandler;
 import org.sitmun.plugin.core.security.TokenProvider;
+import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +52,6 @@ public class AccountResourceTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = false;
-  private static final String ACCOUNT_URI = "http://localhost/api/account";
 
   @Autowired
   TokenProvider tokenProvider;
@@ -94,7 +94,7 @@ public class AccountResourceTest {
 
   @Test
   public void readAccount() throws Exception {
-    mvc.perform(get(ACCOUNT_URI)
+    mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
     ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -104,7 +104,7 @@ public class AccountResourceTest {
 
   @Test
   public void readAccountWithExpiredToken() throws Exception {
-    mvc.perform(get(ACCOUNT_URI)
+    mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + expiredToken)
     ).andExpect(status().isUnauthorized());
   }
@@ -118,13 +118,13 @@ public class AccountResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(ACCOUNT_URI)
+    mvc.perform(put(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
     ).andExpect(status().isOk());
 
-    mvc.perform(get(ACCOUNT_URI)
+    mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
     ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -151,7 +151,7 @@ public class AccountResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(ACCOUNT_URI)
+    mvc.perform(put(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
