@@ -424,3 +424,11 @@ databaseChangeLog:
             tableName: STM_THE_RANK
             quotchar: "\""
             usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TER_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_TER_TYP
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TET_ID', 7);
