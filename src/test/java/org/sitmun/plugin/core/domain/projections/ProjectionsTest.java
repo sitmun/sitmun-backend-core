@@ -119,7 +119,8 @@ public class ProjectionsTest {
   public void userPositionProjectionView() throws Exception {
     mvc.perform(get(USER_POSITION_PROJECTION_VIEW, 2124))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"));
+      .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"))
+      .andExpect(jsonPath("$.userId").value(6));
   }
 
   @Test
