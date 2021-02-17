@@ -30,12 +30,12 @@ public class UserService implements PermissionResolver<User> {
   private final PasswordEncoder bcryptPasswordEncoder;
 
   public UserService(UserRepository applicationUserRepository,
-                     PasswordEncoder bcryptPasswordEncoder,
+                     PasswordEncoder passwordEncoder,
                      UserConfigurationRepository userConfigurationRepository,
                      RoleRepository roleRepository) {
     super();
     this.applicationUserRepository = applicationUserRepository;
-    this.bcryptPasswordEncoder = bcryptPasswordEncoder;
+    this.bcryptPasswordEncoder = passwordEncoder;
     this.userConfigurationRepository = userConfigurationRepository;
     this.roleRepository = roleRepository;
   }
