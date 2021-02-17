@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,8 +89,7 @@ public class ProjectionsTest {
   public void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andDo(print())
-      .andExpect(jsonPath("$.cartographyId").value(1208))
+    ).andExpect(jsonPath("$.cartographyId").value(1208))
       .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
       .andExpect(jsonPath("$.cartographyLayers").value(contains("NGE50_111P_EDI")))
       .andExpect(jsonPath("$.territoryId").value(35))
@@ -141,7 +139,6 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
 
     mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW, "0"))
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.appliesToChildrenTerritories").value(false));
   }

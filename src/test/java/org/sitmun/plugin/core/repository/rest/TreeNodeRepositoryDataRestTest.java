@@ -21,7 +21,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,7 +83,6 @@ public class TreeNodeRepositoryDataRestTest {
         .content(content)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
-      .andDo(print())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
 
@@ -110,7 +108,6 @@ public class TreeNodeRepositoryDataRestTest {
         .content(content)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
-      .andDo(print())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
 
