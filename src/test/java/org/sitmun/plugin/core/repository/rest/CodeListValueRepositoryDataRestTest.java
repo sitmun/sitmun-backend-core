@@ -17,7 +17,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,17 +32,37 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   public void filterType() throws Exception {
-    mvc.perform(get(URIConstants.CODELIST_VALUES_URI, "cartographyPermission.type"))
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
       .andExpect(jsonPath(
         "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
         hasSize(4)));
-    mvc.perform(get(URIConstants.CODELIST_VALUES_URI, "territory.scope"))
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "territory.scope"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",
         hasSize(3)));
+  }
+
+  @Test
+  public void cantCreateSystemCodeListValue() throws Exception {
+    String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":true}";
+    mvc.perform(post(URIConstants.CODELIST_VALUES_URI).content(body))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void cantModifySystemCodeListValue() throws Exception {
+    String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":false}";
+    mvc.perform(put(URIConstants.CODELIST_VALUE_URI, 31).content(body))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void cantDeleteCodeListValue() throws Exception {
+    mvc.perform(delete(URIConstants.CODELIST_VALUE_URI, 31))
+      .andExpect(status().isBadRequest());
   }
 
   @TestConfiguration

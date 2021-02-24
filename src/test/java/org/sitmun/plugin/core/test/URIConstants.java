@@ -49,8 +49,11 @@ public class URIConstants {
 
   public static final String CARTOGRAPHY_FILTERS_URI = "/api/cartography-filters";
 
-  public static final String CODELIST_VALUES_URI =
-    "http://localhost/api/codelist-values?codeListName={0}";
+  public static final String CODELIST_VALUES_URI = "http://localhost/api/codelist-values";
+
+  public static final String CODELIST_VALUES_URI_FILTER = CODELIST_VALUES_URI + "?codeListName={0}";
+
+  public static final String CODELIST_VALUE_URI = CODELIST_VALUES_URI + "/{0}";
 
   public static final String CONNECTIONS_URI =
     "http://localhost/api/connections";
