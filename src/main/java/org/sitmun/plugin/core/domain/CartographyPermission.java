@@ -15,10 +15,6 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_GRP_GI")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "GGI_TYPE",
-  discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorValue("C")
 public class CartographyPermission {
 
   /**
@@ -46,7 +42,7 @@ public class CartographyPermission {
   /**
    * Permissions type.
    */
-  @Column(name = "GGI_TYPE", length = IDENTIFIER, insertable = false, updatable = false)
+  @Column(name = "GGI_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 

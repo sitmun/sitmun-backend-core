@@ -35,7 +35,7 @@ public interface CartographyPermissionRepository extends
   void delete(@P("entity") @NonNull CartographyPermission entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyPermission','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyPermission', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
@@ -45,14 +45,14 @@ public interface CartographyPermissionRepository extends
   Iterable<CartographyPermission> findAll();
 
   @Override
-  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyGroup', 'read')")
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyPermission','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.CartographyPermission', 'read')")
   @NonNull
   Optional<CartographyPermission> findById(@P("entityId") @NonNull Integer entityId);
 
   @RestResource(exported = false)
   @PostAuthorize("hasPermission(returnObject, 'administration')")
   @PostFilter("hasPermission(filterObject, 'read')")
-  @Query("select cartographyGroup.members from CartographyPermission cartographyGroup where cartographyGroup.id =:id")
+  @Query("select CartographyPermission.members from CartographyPermission CartographyPermission where CartographyPermission.id =:id")
   List<Cartography> findCartographyMembers(@Param("id") Integer id);
 
 

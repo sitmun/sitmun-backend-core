@@ -180,7 +180,7 @@ public class ApplicationResourceTest {
       //Cartography group
       cartographyPermissions = new HashSet<>();
 
-      BackgroundMap publicBackgroundMap = new BackgroundMap();
+      CartographyPermission publicBackgroundMap = new CartographyPermission();
       publicBackgroundMap.setName(PUBLIC_BACKGROUND_MAP_NAME);
       publicBackgroundMap.setRoles(availableRoles);
       publicBackgroundMap.setMembers(cartographies);
@@ -211,7 +211,7 @@ public class ApplicationResourceTest {
       }
       applications.add(application);
 
-      SituationMap publicSituaionMap = new SituationMap();
+      CartographyPermission publicSituaionMap = new CartographyPermission();
       publicSituaionMap.setName(PUBLIC_SITUATION_MAP_NAME);
       publicSituaionMap.setRoles(availableRoles);
       publicSituaionMap.setMembers(cartographies);

@@ -32,10 +32,10 @@ public class BackgroundMapsRepositoryDataRestTest {
 
   @Test
   public void retrieveAll() throws Exception {
-    mvc.perform(get(URIConstants.BACKGROUND_MAPS_URI))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, "F"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
-      .andExpect(jsonPath("$._embedded.background-maps", hasSize(6)));
+      .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(6)));
   }
 
   @TestConfiguration

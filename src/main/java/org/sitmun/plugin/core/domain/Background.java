@@ -60,7 +60,7 @@ public class Background {
    */
   @ManyToOne
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
-  private BackgroundMap cartographyGroup;
+  private CartographyPermission cartographyGroup;
 
   public Integer getId() {
     return id;
@@ -102,11 +102,11 @@ public class Background {
     this.createdDate = createdDate;
   }
 
-  public BackgroundMap getCartographyGroup() {
+  public CartographyPermission getCartographyGroup() {
     return cartographyGroup;
   }
 
-  public void setCartographyGroup(BackgroundMap cartographyGroup) {
+  public void setCartographyGroup(CartographyPermission cartographyGroup) {
     this.cartographyGroup = cartographyGroup;
   }
 

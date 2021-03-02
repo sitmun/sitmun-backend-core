@@ -41,7 +41,9 @@ public class RepositoryDataRestUpdateTest {
 
   @Test
   public void itemResourceUpdate() throws Exception {
-    String item = mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
+    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -49,30 +51,36 @@ public class RepositoryDataRestUpdateTest {
     String oldName = json.getString("name");
     json.put("name", "New name");
 
-    mvc.perform(put(URIConstants.SITUATION_MAP_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value("New name"));
 
     json.put("name", oldName);
 
-    mvc.perform(put(URIConstants.SITUATION_MAP_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.SITUATION_MAP_URI, 132))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value(oldName));
   }
 
   @Test
   public void associationResourceUpdate() throws Exception {
-    String item = mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
+    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -81,21 +89,25 @@ public class RepositoryDataRestUpdateTest {
 
     String update = links.stream().skip(1).collect(Collectors.joining("\n"));
 
-    mvc.perform(put(URIConstants.SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132).content(update).contentType("text/uri-list")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
 
-    mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size() - 1)));
 
     update = String.join("\n", links);
 
-    mvc.perform(put(URIConstants.SITUATION_MAP_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132).content(update).contentType("text/uri-list")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     );
 
-    mvc.perform(get(URIConstants.SITUATION_MAP_ROLES_URI, 132))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size())))
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", containsInAnyOrder(links.toArray())));

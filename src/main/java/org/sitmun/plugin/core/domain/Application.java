@@ -106,7 +106,7 @@ public class Application {
    */
   @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
-  private SituationMap situationMap;
+  private CartographyPermission situationMap;
 
   /**
    * Created date.
@@ -157,7 +157,7 @@ public class Application {
                       List<String> scales, String srs,
                       @NotNull String jspTemplate, Boolean treeAutoRefresh,
                       Boolean accessParentTerritory, Boolean accessChildrenTerritory,
-                      SituationMap situationMap,
+                      CartographyPermission situationMap,
                       @NotNull Date createdDate,
                       Set<ApplicationParameter> parameters,
                       Set<Role> availableRoles,
@@ -277,11 +277,11 @@ public class Application {
     this.accessChildrenTerritory = accessChildrenTerritory;
   }
 
-  public SituationMap getSituationMap() {
+  public CartographyPermission getSituationMap() {
     return situationMap;
   }
 
-  public void setSituationMap(SituationMap situationMap) {
+  public void setSituationMap(CartographyPermission situationMap) {
     this.situationMap = situationMap;
   }
 
@@ -338,7 +338,7 @@ public class Application {
     private Boolean treeAutoRefresh;
     private Boolean accessParentTerritory;
     private Boolean accessChildrenTerritory;
-    private SituationMap situationMap;
+    private CartographyPermission situationMap;
     private @NotNull Date createdDate;
     private Set<ApplicationParameter> parameters;
     private Set<Role> availableRoles;
@@ -400,7 +400,7 @@ public class Application {
       return this;
     }
 
-    public Builder setSituationMap(SituationMap situationMap) {
+    public Builder setSituationMap(CartographyPermission situationMap) {
       this.situationMap = situationMap;
       return this;
     }

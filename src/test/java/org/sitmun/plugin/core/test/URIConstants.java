@@ -22,15 +22,15 @@ public class URIConstants {
 
   public static final String BACKGROUND_URI = BACKGROUNDS_URI + "/{0}";
 
-  public static final String BACKGROUND_MAPS_URI =
-    "http://localhost/api/background-maps";
-
   public static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
 
   public static final String CARTOGRAPHY_CARTOGRAPHT_PERMISSION_URI = "http://localhost/api/cartographies/{0}/permissions";
 
   public static final String CARTOGRAPHY_PERMISSIONS_URI =
     "http://localhost/api/cartography-groups";
+
+  public static final String CARTOGRAPHY_PERMISSION_URI =
+    CARTOGRAPHY_PERMISSIONS_URI + "/{0}";
 
   public static final String CARTOGRAPHY_PERMISSION_ROLES_URI =
     CARTOGRAPHY_PERMISSIONS_URI + "/{0}/roles";
@@ -61,43 +61,68 @@ public class URIConstants {
   public static final String DOWNLOAD_TASKS_URI = "http://localhost/api/download-tasks";
 
   public static final String QUERY_TASKS_URI = "http://localhost/api/query-tasks";
+
   public static final String SERVICE_URI = "http://localhost/api/services";
-  public static final String SITUATION_MAPS_URI =
-    "http://localhost/api/situation-maps";
-  public static final String SITUATION_MAP_URI = SITUATION_MAPS_URI + "/{0}";
-  public static final String SITUATION_MAP_ROLES_URI = SITUATION_MAP_URI + "/roles";
+
   public static final String TASKS_URI = "http://localhost/api/tasks";
+
   public static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}&size=10";
+
   public static final String TASK_PROJECTION_VIEW = "/api/tasks/{0}?projection=view";
+
   public static final String TASK_AVAILABILITY_PROJECTION_VIEW =
     "/api/task-availabilities/{0}?projection=view";
+
   public static final String TERRITORIES_URI = "http://localhost/api/territories";
+
   public static final String TERRITORY_URI = TERRITORIES_URI + "/{0}";
+
   public static final String TERRITORY_PROJECTION_VIEW =
     "/api/territories/{0}?projection=view";
+
   public static final String TERRITORY_GROUP_TYPES_URI = "http://localhost/api/territory-group-types";
+
   public static final String TREE_URI = "http://localhost/api/trees";
+
   public static final String TREE_ALL_NODES_URI = "http://localhost/api/trees/{0}/allNodes?projection=view";
+
   public static final String TREE_NODES_URI = "http://localhost/api/tree-nodes";
+
   public static final String TREE_NODE_URI = TREE_NODES_URI + "/{0}";
+
   public static final String TREE_NODE_CARTOGRAPHY_URI = TREE_NODE_URI + "/cartography";
+
   public static final String TREE_NODE_URI_PROJECTION = TREE_NODE_URI + "?projection=view";
+
   public static final String TREE_NODE_PARENT_URI = TREE_NODE_URI + "/parent";
+
   public static final String TREE_NODE_TREE_URI = TREE_NODE_URI + "/tree";
+
   public static final String USER_URI = "http://localhost/api/users";
+
   public static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
     "/api/user-configurations?projection=view&{0}={1}";
+
   public static final String USER_CONFIGURATION_PROJECTION_VIEW =
     "/api/user-configurations/{0}?projection=view";
+
   public static final String USER_POSITION_PROJECTION_VIEW =
     "/api/user-positions/{0}?projection=view";
+
   private static final String ROLES_URI = "http://localhost/api/roles";
+
   private static final String ROLE_URI = ROLES_URI + "/{0}";
+
   public static final String ROLE_TASKS_URI = ROLE_URI + "/tasks";
+
   public static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
+
   public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
+
   private static final String TASK_URI = TASKS_URI + "/{0}";
+
   public static final String TASK_PARAMETERS_URI = TASK_URI + "/parameters";
+
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
 
 }
