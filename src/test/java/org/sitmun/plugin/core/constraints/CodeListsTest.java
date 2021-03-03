@@ -2,6 +2,7 @@ package org.sitmun.plugin.core.constraints;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sitmun.plugin.core.domain.CartographyPermission;
 import org.sitmun.plugin.core.domain.CodeListValue;
 import org.sitmun.plugin.core.domain.QCodeListValue;
 import org.sitmun.plugin.core.repository.CodeListValueRepository;
@@ -116,7 +117,7 @@ public class CodeListsTest {
   @Test
   public void checkCartographyPermissionType() {
     assertThat(select(CARTOGRAPHY_PERMISSION_TYPE))
-      .containsExactlyInAnyOrder("C", "F", "M", "I");
+      .containsExactlyInAnyOrder("C", CartographyPermission.TYPE_SITUATION_MAP, CartographyPermission.TYPE_BACKGROUND_MAP, "I");
   }
 
   @Test

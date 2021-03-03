@@ -5,10 +5,12 @@ import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
+@Component
 @RepositoryEventHandler
 public class CodeListValueEventHandler {
 

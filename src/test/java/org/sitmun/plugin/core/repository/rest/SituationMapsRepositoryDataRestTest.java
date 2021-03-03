@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.domain.CartographyPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,7 +33,7 @@ public class SituationMapsRepositoryDataRestTest {
 
   @Test
   public void retrieveAll() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, "M"))
+    mvc.perform(get(CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_SITUATION_MAP))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(1)))
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(1)));

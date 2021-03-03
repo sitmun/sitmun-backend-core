@@ -59,8 +59,9 @@ public class ApplicationRepositoryTest {
     application.getAvailableRoles().add(rol);
 
     CartographyPermission backgroundMap;
-    backgroundMap = new CartographyPermission();
-    backgroundMap.setName("Background map");
+    backgroundMap = CartographyPermission.builder()
+      .setName("Background map")
+      .build();
     cartographyPermissionRepository.save(backgroundMap);
 
     Background background = new Background();

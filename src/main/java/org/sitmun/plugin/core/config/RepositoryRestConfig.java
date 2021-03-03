@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.config;
 
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
@@ -8,12 +9,35 @@ import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
+  private static final List<String> EVENTS;
+
+  static {
+    List<String> events = new ArrayList<>();
+    events.add("beforeCreate");
+    // events.add("afterCreate");
+    events.add("beforeSave");
+    // events.add("afterSave");
+    events.add("beforeLinkSave");
+    //events.add("afterLinkSave");
+    // events.add("beforeDelete");
+    // events.add("afterDelete");
+    EVENTS = Collections.unmodifiableList(events);
+  }
+
   private final Validator validator;
+
   @Autowired
   private EntityManager entityManager;
+
+  @Autowired
+  ListableBeanFactory beanFactory;
 
   public RepositoryRestConfig(Validator validator) {
     this.validator = validator;
@@ -25,8 +49,13 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   @Override
   public void configureValidatingRepositoryEventListener(
     ValidatingRepositoryEventListener validatingListener) {
-    validatingListener.addValidator("beforeSave", validator);
-    validatingListener.addValidator("beforeCreate", validator);
+    EVENTS.forEach(event -> validatingListener.addValidator(event, validator));
+
+    Map<String, Validator> validators = beanFactory.getBeansOfType(Validator.class);
+    for (Map.Entry<String, Validator> entry : validators.entrySet()) {
+      EVENTS.stream().filter(p -> entry.getKey().startsWith(p)).findFirst()
+        .ifPresent(p -> validatingListener.addValidator(p, entry.getValue()));
+    }
   }
 
   @Override

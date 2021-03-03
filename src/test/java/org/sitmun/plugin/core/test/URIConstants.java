@@ -6,11 +6,13 @@ public class URIConstants {
 
   public static final String APPLICATIONS_URI = "http://localhost/api/applications";
 
-  public static final String APPLICATION_PARAMETERS_URI_FILTERED =
-    "http://localhost/api/applications/{0}/parameters?{1}={2}";
+  public static final String APPLICATION_URI = APPLICATIONS_URI + "/{0}";
 
-  public static final String APPLICATION_PROJECTION_VIEW =
-    "/api/applications/{0}?projection=view";
+  public static final String APPLICATION_PARAMETERS_URI_FILTERED = APPLICATION_URI + "/parameters?{1}={2}";
+
+  public static final String APPLICATION_PROJECTION_VIEW = APPLICATION_URI + "?projection=view";
+
+  public static final String APPLICATION_URI_SITUATION_MAP = APPLICATION_URI + "/situationMap";
 
   public static final String APPLICATION_BACKGROUNDS_URI = "http://localhost/api/application-backgrounds";
 
@@ -21,6 +23,8 @@ public class URIConstants {
     "http://localhost/api/backgrounds";
 
   public static final String BACKGROUND_URI = BACKGROUNDS_URI + "/{0}";
+
+  public static final String BACKGROUND_URI_CARTOGRAPHY_GROUP = BACKGROUND_URI + "/cartographyGroup";
 
   public static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
 

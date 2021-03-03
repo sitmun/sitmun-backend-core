@@ -5,15 +5,19 @@ import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
 
+@Component
 @RepositoryEventHandler
 public class UserEventHandler {
 
   private final PasswordEncoder passwordEncoder;
 
   public UserEventHandler(PasswordEncoder passwordEncoder) {
+    Assert.notNull(passwordEncoder, "PasswordEncoder must be set");
     this.passwordEncoder = passwordEncoder;
   }
 

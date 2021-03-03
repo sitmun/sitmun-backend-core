@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository.rest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.sitmun.plugin.core.domain.CartographyPermission;
 import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,7 +33,7 @@ public class BackgroundMapsRepositoryDataRestTest {
 
   @Test
   public void retrieveAll() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, "F"))
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_BACKGROUND_MAP))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(6)));

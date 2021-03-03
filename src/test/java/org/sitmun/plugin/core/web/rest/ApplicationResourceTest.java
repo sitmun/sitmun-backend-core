@@ -180,10 +180,11 @@ public class ApplicationResourceTest {
       //Cartography group
       cartographyPermissions = new HashSet<>();
 
-      CartographyPermission publicBackgroundMap = new CartographyPermission();
-      publicBackgroundMap.setName(PUBLIC_BACKGROUND_MAP_NAME);
-      publicBackgroundMap.setRoles(availableRoles);
-      publicBackgroundMap.setMembers(cartographies);
+      CartographyPermission publicBackgroundMap = CartographyPermission.builder()
+        .setName(PUBLIC_BACKGROUND_MAP_NAME)
+        .setRoles(availableRoles)
+        .setMembers(cartographies)
+        .build();
       publicBackgroundMap = cartographyPermissionRepository.save(publicBackgroundMap);
       cartographyPermissions.add(publicBackgroundMap);
 
@@ -211,10 +212,11 @@ public class ApplicationResourceTest {
       }
       applications.add(application);
 
-      CartographyPermission publicSituaionMap = new CartographyPermission();
-      publicSituaionMap.setName(PUBLIC_SITUATION_MAP_NAME);
-      publicSituaionMap.setRoles(availableRoles);
-      publicSituaionMap.setMembers(cartographies);
+      CartographyPermission publicSituaionMap = CartographyPermission.builder()
+        .setName(PUBLIC_SITUATION_MAP_NAME)
+        .setRoles(availableRoles)
+        .setMembers(cartographies)
+        .build();
       publicSituaionMap = cartographyPermissionRepository.save(publicSituaionMap);
       cartographyPermissions.add(publicSituaionMap);
 
