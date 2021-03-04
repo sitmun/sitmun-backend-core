@@ -25,8 +25,7 @@ public class CoreConfig {
 
   @Bean
   public RepositoryRestConfig repositoryRestConfigurer(EntityManager entityManager,
-                                                       ListableBeanFactory beanFactory,
-                                                       WebConfig webConfig) {
-    return new RepositoryRestConfig(validator(), entityManager, beanFactory, webConfig);
+                                                       ListableBeanFactory beanFactory) {
+    return new RepositoryRestConfig(validator(), entityManager, beanFactory);
   }
 }

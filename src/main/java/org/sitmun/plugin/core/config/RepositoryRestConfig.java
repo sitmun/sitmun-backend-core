@@ -37,17 +37,13 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
   private final ListableBeanFactory beanFactory;
 
-  private final WebConfig webConfig;
-
   public RepositoryRestConfig(Validator validator,
                               EntityManager entityManager,
-                              ListableBeanFactory beanFactory,
-                              WebConfig webConfig
+                              ListableBeanFactory beanFactory
   ) {
     this.validator = validator;
     this.entityManager = entityManager;
     this.beanFactory = beanFactory;
-    this.webConfig = webConfig;
   }
 
   /**
@@ -71,6 +67,5 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
     config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
       .map(Type::getJavaType)
       .toArray(Class[]::new));
-    webConfig.addCorsMappings(corsRegistry);
   }
 }
