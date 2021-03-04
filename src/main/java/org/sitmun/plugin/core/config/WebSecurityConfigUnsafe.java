@@ -55,12 +55,12 @@ public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     JWTFilter customFilter = new JWTFilter(tokenProvider);
     http
+      .cors()
+      .and()
       .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
       .exceptionHandling()
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
       //.accessDeniedHandler(problemSupport)
-      .and()
-      .cors()
       .and()
       .csrf()
       .disable()

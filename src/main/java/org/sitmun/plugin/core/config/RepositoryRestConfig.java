@@ -1,7 +1,6 @@
 package org.sitmun.plugin.core.config;
 
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -34,14 +33,21 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
 
   private final Validator validator;
 
-  @Autowired
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
 
-  @Autowired
-  ListableBeanFactory beanFactory;
+  private final ListableBeanFactory beanFactory;
 
-  public RepositoryRestConfig(Validator validator) {
+  private final WebConfig webConfig;
+
+  public RepositoryRestConfig(Validator validator,
+                              EntityManager entityManager,
+                              ListableBeanFactory beanFactory,
+                              WebConfig webConfig
+  ) {
     this.validator = validator;
+    this.entityManager = entityManager;
+    this.beanFactory = beanFactory;
+    this.webConfig = webConfig;
   }
 
   /**
@@ -65,7 +71,6 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
     config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
       .map(Type::getJavaType)
       .toArray(Class[]::new));
-    corsRegistry.addMapping("/**");
+    webConfig.addCorsMappings(corsRegistry);
   }
-
 }
