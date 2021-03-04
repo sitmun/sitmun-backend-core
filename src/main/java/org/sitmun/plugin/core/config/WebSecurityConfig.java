@@ -3,7 +3,7 @@ package org.sitmun.plugin.core.config;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
-import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
+import org.sitmun.plugin.core.security.jwt.JWTFilter;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -21,6 +21,7 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.PostConstruct;
 
@@ -52,10 +53,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
+    JWTFilter customFilter = new JWTFilter(tokenProvider);
     http
+      .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
       .exceptionHandling()
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
       //.accessDeniedHandler(problemSupport)
+      .and()
+      .cors()
       .and()
       .csrf()
       .disable()
@@ -73,13 +78,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .antMatchers("/api/connections/test").authenticated()
       .antMatchers("/api/**").permitAll()
       .and()
-      .apply(securityConfigurerAdapter())
-      .and()
       .anonymous().authenticationFilter(anonymousAuthenticationFilter);
-  }
-
-  private JWTConfigurer securityConfigurerAdapter() {
-    return new JWTConfigurer(tokenProvider);
   }
 
   private AuthenticationEntryPoint getRestAuthenticationEntryPoint() {

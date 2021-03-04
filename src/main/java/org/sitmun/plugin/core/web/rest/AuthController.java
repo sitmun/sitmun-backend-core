@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.security.TokenProvider;
-import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
 import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,7 +54,7 @@ public class AuthController {
     JWTToken jwtToken = new JWTToken(jwt);
 
     return ResponseEntity.ok()
-      .header(JWTConfigurer.AUTHORIZATION_HEADER, "Bearer " + jwt)
+      .header("Authorization", "Bearer " + jwt)
       .body(jwtToken);
   }
 

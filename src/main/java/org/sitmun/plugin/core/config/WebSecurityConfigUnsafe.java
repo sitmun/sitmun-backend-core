@@ -3,7 +3,7 @@ package org.sitmun.plugin.core.config;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
-import org.sitmun.plugin.core.security.jwt.JWTConfigurer;
+import org.sitmun.plugin.core.security.jwt.JWTFilter;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -22,9 +22,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import javax.annotation.PostConstruct;
 
@@ -37,8 +34,7 @@ public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-  public WebSecurityConfigUnsafe(UserDetailsService userDetailsService,
-                                 PasswordEncoder passwordEncoder,
+  public WebSecurityConfigUnsafe(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
                                  TokenProvider tokenProvider,
                                  AuthenticationManagerBuilder authenticationManagerBuilder) {
     super();
@@ -48,7 +44,7 @@ public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
     this.tokenProvider = tokenProvider;
     anonymousAuthenticationFilter = new AnonymousAuthenticationFilter(
       "anonymous",
-      SecurityConstants.SITMUN_ADMIN_USERNAME,
+      SecurityConstants.SITMUN_PUBLIC_USERNAME,
       AuthorityUtils.createAuthorityList(AuthoritiesConstants.USUARIO_PUBLICO));
   }
 
@@ -57,11 +53,14 @@ public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
+    JWTFilter customFilter = new JWTFilter(tokenProvider);
     http
-      .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
+      .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
       .exceptionHandling()
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
       //.accessDeniedHandler(problemSupport)
+      .and()
+      .cors()
       .and()
       .csrf()
       .disable()
@@ -75,28 +74,7 @@ public class WebSecurityConfigUnsafe extends WebSecurityConfigurerAdapter {
       .authorizeRequests()
       .antMatchers("/api/**").permitAll()
       .and()
-      .apply(securityConfigurerAdapter())
-      .and()
       .anonymous().authenticationFilter(anonymousAuthenticationFilter);
-  }
-
-  @Bean
-  public CorsFilter corsFilter() {
-    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    CorsConfiguration corsConfig = new CorsConfiguration().applyPermitDefaultValues();
-    corsConfig.addAllowedOrigin("http://localhost:4200");
-    corsConfig.addAllowedMethod("POST");
-    corsConfig.addAllowedMethod("PUT");
-    corsConfig.addAllowedMethod("DELETE");
-    corsConfig.addAllowedMethod("HEAD");
-    corsConfig.addAllowedMethod("OPTIONS");
-    corsConfig.setAllowCredentials(true);
-    source.registerCorsConfiguration("/**", corsConfig);
-    return new CorsFilter(source);
-  }
-
-  private JWTConfigurer securityConfigurerAdapter() {
-    return new JWTConfigurer(tokenProvider);
   }
 
   private AuthenticationEntryPoint getRestAuthenticationEntryPoint() {
