@@ -21,10 +21,6 @@ import org.springframework.security.data.repository.query.SecurityEvaluationCont
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import javax.annotation.PostConstruct;
 
@@ -57,7 +53,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     http
-      .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
       .exceptionHandling()
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
       //.accessDeniedHandler(problemSupport)
@@ -81,21 +76,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .apply(securityConfigurerAdapter())
       .and()
       .anonymous().authenticationFilter(anonymousAuthenticationFilter);
-  }
-
-  @Bean
-  public CorsFilter corsFilter() {
-    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    CorsConfiguration corsConfig = new CorsConfiguration().applyPermitDefaultValues();
-    corsConfig.addAllowedOrigin("http://localhost:4200");
-    corsConfig.addAllowedMethod("POST");
-    corsConfig.addAllowedMethod("PUT");
-    corsConfig.addAllowedMethod("DELETE");
-    corsConfig.addAllowedMethod("HEAD");
-    corsConfig.addAllowedMethod("OPTIONS");
-    corsConfig.setAllowCredentials(true);
-    source.registerCorsConfiguration("/**", corsConfig);
-    return new CorsFilter(source);
   }
 
   private JWTConfigurer securityConfigurerAdapter() {
