@@ -5,10 +5,10 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.DatabaseConnection;
 import org.sitmun.plugin.core.repository.DatabaseConnectionRepository;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
@@ -22,7 +22,8 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -38,8 +39,9 @@ import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_PASSWORD;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 public class DatabaseConnectionRepositoryIntegrationTest {
 
   @Autowired
@@ -49,7 +51,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   @LocalServerPort
   private int port;
 
-  @Before
+  @BeforeEach
   public void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
@@ -72,7 +74,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
     });
   }
 
-  @After
+  @AfterEach
   public void cleanup() {
     withMockSitmunAdmin(() -> connectionRepository.deleteAll(connections));
   }

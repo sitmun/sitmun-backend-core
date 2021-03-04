@@ -2,7 +2,6 @@ package org.sitmun.plugin.core.config;
 
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +19,8 @@ public class HerokuLiquibaseConfig {
   private String changeLog;
 
   @Bean
-  public SpringLiquibase liquibase(DataSource datasource) {
-    SpringLiquibase liquibase = new AsyncSpringLiquibase();
+  public SpringLiquibase liquibase(DataSource datasource, TaskExecutor taskExecutor) {
+    SpringLiquibase liquibase = new AsyncSpringLiquibase(taskExecutor);
     liquibase.setChangeLog(changeLog);
     liquibase.setDataSource(datasource);
     return liquibase;
@@ -30,8 +29,12 @@ public class HerokuLiquibaseConfig {
 
 class AsyncSpringLiquibase extends SpringLiquibase {
 
-  @Autowired
-  private TaskExecutor taskExecutor;
+  private final TaskExecutor taskExecutor;
+
+  public AsyncSpringLiquibase(TaskExecutor taskExecutor) {
+    super();
+    this.taskExecutor = taskExecutor;
+  }
 
   @Override
   public void afterPropertiesSet() {

@@ -1,20 +1,20 @@
 package org.sitmun.plugin.core.converters;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.persistence.AttributeConverter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringListAttributeConverterTest {
 
   private AttributeConverter<List<String>, String> converter;
 
-  @Before
+  @BeforeEach
   public void before() {
     converter = new StringListAttributeConverter();
   }

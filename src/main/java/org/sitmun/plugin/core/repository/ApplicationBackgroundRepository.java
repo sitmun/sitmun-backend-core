@@ -30,7 +30,7 @@ public interface ApplicationBackgroundRepository
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
-  @PostFilter("hasPermission(returnObject, 'administration') or hasPermission(filterObject, 'read')")
+  @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @NonNull
   Iterable<ApplicationBackground> findAll();
 

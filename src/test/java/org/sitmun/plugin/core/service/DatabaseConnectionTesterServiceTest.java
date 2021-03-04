@@ -1,18 +1,18 @@
 package org.sitmun.plugin.core.service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sitmun.plugin.core.domain.DatabaseConnection;
 import org.sitmun.plugin.core.web.exceptions.DatabaseConnectionDriverNotFoundException;
 import org.sitmun.plugin.core.web.exceptions.DatabaseSQLException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseConnectionTesterServiceTest {
 
   private DatabaseConnectionTesterService sut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     sut = new DatabaseConnectionTesterService();
   }

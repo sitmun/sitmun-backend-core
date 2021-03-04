@@ -1,11 +1,10 @@
 package org.sitmun.plugin.core.web.rest;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Role;
 import org.sitmun.plugin.core.domain.Tree;
 import org.sitmun.plugin.core.domain.TreeNode;
@@ -17,14 +16,9 @@ import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -61,7 +55,7 @@ public class TreeNodeResourceTest {
   private ArrayList<TreeNode> nodes;
   private Role publicRole;
 
-  @Before
+  @BeforeEach
   public void init() {
     withMockSitmunAdmin(() -> {
 
@@ -99,7 +93,7 @@ public class TreeNodeResourceTest {
     });
   }
 
-  @After
+  @AfterEach
   public void cleanup() {
     withMockSitmunAdmin(() -> {
       for (TreeNode node : nodes) {
@@ -113,7 +107,7 @@ public class TreeNodeResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void getPublicTreesAsPublic() throws Exception {
     // TODO
     // ok is expected
@@ -123,7 +117,7 @@ public class TreeNodeResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void getPublicTreeNodesAsPublic() throws Exception {
     // TODO
     // ok is expected
@@ -132,7 +126,7 @@ public class TreeNodeResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void getTreesAsTerritorialUser() {
     // TODO
     // ok is expected
@@ -146,100 +140,87 @@ public class TreeNodeResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void getTreesAsOrganizationAdmin() {
     // TODO
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setAvailableRolesAsPublicFails() {
     // TODO
     // fail is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setAvailableRolesAsTerritorialUserFails() {
     // TODO
     // fail is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setAvailableRolesAsSitmunAdmin() {
     // TODO: Update available roles for the app as an admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setTreeAsSitmunAdmin() {
     // TODO: Update tree for the app as an admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setBackgroundAsSitmunAdmin() {
     // TODO: Update background for the app as an admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setAvailableRolesAsOrganizationAdmin() {
     // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setTreeAsOrganizationAdmin() {
     // TODO: Update tree for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setBackgroundAsOrganizationAdmin() {
     // TODO: Update background for the app (linked to the same organization) as an organization admin user
     // ok is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setAvailableRolesAsOtherOrganizationAdminFails() {
     // TODO: Update available roles for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setTreeAsOtherOrganizationAdminFails() {
     // TODO: Update tree for the app (linked to another organization) as an organization admin user
     // fail is expected
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void setBackgroundAsOtherOrganizationAdminFails() {
     // TODO: Update background for the app (linked to another organization) as an organization admin user
     // fail is expected
-  }
-
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
   }
 
 }

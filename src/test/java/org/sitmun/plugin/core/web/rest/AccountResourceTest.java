@@ -2,11 +2,10 @@ package org.sitmun.plugin.core.web.rest;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.repository.handlers.UserEventHandler;
@@ -15,16 +14,10 @@ import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -32,7 +25,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
@@ -40,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -65,7 +58,7 @@ public class AccountResourceTest {
   private User user;
   private String expiredToken;
 
-  @Before
+  @BeforeEach
   public void init() {
     withMockSitmunAdmin(() -> {
       Date expiredDate =
@@ -87,7 +80,7 @@ public class AccountResourceTest {
     });
   }
 
-  @After
+  @AfterEach
   public void cleanup() {
     withMockSitmunAdmin(() -> userRepository.delete(user));
   }
@@ -163,20 +156,6 @@ public class AccountResourceTest {
       assertTrue(updatedUser.isPresent());
       assertNull(updatedUser.get().getPassword());
     });
-  }
-
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    @Primary
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
   }
 
 }

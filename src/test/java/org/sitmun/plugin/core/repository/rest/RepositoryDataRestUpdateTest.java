@@ -2,22 +2,14 @@ package org.sitmun.plugin.core.repository.rest;
 
 import com.jayway.jsonpath.JsonPath;
 import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.junit.jupiter.api.Test;
 import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -113,18 +104,5 @@ public class RepositoryDataRestUpdateTest {
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", containsInAnyOrder(links.toArray())));
   }
 
-
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
 
 }

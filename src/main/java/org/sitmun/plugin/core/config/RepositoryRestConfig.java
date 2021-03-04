@@ -6,6 +6,7 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.validation.Validator;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Type;
@@ -59,7 +60,7 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   }
 
   @Override
-  public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
+  public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
     config.setReturnBodyForPutAndPost(true);
     config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
       .map(Type::getJavaType)

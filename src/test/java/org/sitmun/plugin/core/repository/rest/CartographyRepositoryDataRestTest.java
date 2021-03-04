@@ -2,11 +2,10 @@ package org.sitmun.plugin.core.repository.rest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.CartographyAvailability;
 import org.sitmun.plugin.core.domain.Service;
@@ -20,17 +19,12 @@ import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -47,7 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -72,7 +66,7 @@ public class CartographyRepositoryDataRestTest {
   private ArrayList<Cartography> cartographies;
   private ArrayList<CartographyAvailability> availabilities;
 
-  @Before
+  @BeforeEach
   public void init() {
 
     withMockSitmunAdmin(() -> {
@@ -127,7 +121,7 @@ public class CartographyRepositoryDataRestTest {
     });
   }
 
-  @After
+  @AfterEach
   public void after() {
     withMockSitmunAdmin(() -> {
       cartographyAvailabilityRepository.deleteAll(availabilities);
@@ -199,19 +193,6 @@ public class CartographyRepositoryDataRestTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));
-  }
-
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
   }
 
 }

@@ -25,11 +25,11 @@ public interface TreeRepository extends PagingAndSortingRepository<Tree, Integer
   void delete(@P("entity") @NonNull Tree entity);
 
   @Override
-  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Tree', 'delete')")
+  @PreAuthorize("hasPermission(#entityId, 'administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.Tree', 'delete')")
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
-  @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
+  @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @NonNull
   Iterable<Tree> findAll();
 

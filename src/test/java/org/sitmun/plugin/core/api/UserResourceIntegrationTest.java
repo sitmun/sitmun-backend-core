@@ -1,8 +1,9 @@
 package org.sitmun.plugin.core.api;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
@@ -19,7 +20,8 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -32,8 +34,9 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 public class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
@@ -52,7 +55,7 @@ public class UserResourceIntegrationTest {
   private RestTemplate restTemplate;
   private User organizacionAdmin;
 
-  @Before
+  @BeforeEach
   public void init() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
@@ -118,14 +121,14 @@ public class UserResourceIntegrationTest {
     }
   }
 
-  @Test(expected = HttpClientErrorException.Unauthorized.class)
+  @Test
   public void cannotPostWithoutLogin() {
     UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
     newUser.setUsername(NEW_USER_USERNAME);
 
-    restTemplate
-      .postForEntity("http://localhost:{port}/api/users", newUser, UserDTO.class, port);
+    Assertions.assertThrows(HttpClientErrorException.Unauthorized.class, () -> restTemplate
+      .postForEntity("http://localhost:{port}/api/users", newUser, UserDTO.class, port));
   }
 
   @Test

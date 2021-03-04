@@ -31,12 +31,12 @@ public interface TerritoryGroupTypeRepository
   void deleteById(@P("entityId") @NonNull Integer entityId);
 
   @Override
-  @PostFilter("hasPermission(#entity, 'administration') or hasPermission(filterObject, 'read')")
+  @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @NonNull
   Iterable<TerritoryGroupType> findAll();
 
   @Override
-  @PostAuthorize("hasPermission(#entity, 'administration') or hasPermission(returnObject, 'read')")
+  @PostAuthorize("hasPermission(returnObject, 'administration') or hasPermission(returnObject, 'read')")
   @NonNull
   Optional<TerritoryGroupType> findById(@NonNull Integer id);
 

@@ -1,11 +1,10 @@
 package org.sitmun.plugin.core.web.rest;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sitmun.plugin.core.config.RepositoryRestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Role;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.domain.User;
@@ -22,17 +21,12 @@ import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -40,14 +34,14 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -95,7 +89,7 @@ public class UserResourceTest {
   @Autowired
   private UserEventHandler userEventHandler;
 
-  @Before
+  @BeforeEach
   public void init() {
     withMockSitmunAdmin(() -> {
 
@@ -191,7 +185,7 @@ public class UserResourceTest {
     });
   }
 
-  @After
+  @AfterEach
   public void cleanup() {
     withMockSitmunAdmin(() -> {
       userConfigurationRepository.deleteAll(userConfigurations);
@@ -274,7 +268,7 @@ public class UserResourceTest {
 
   @Deprecated
   @Test
-  @Ignore
+  @Disabled
   public void getUsersAsOrganizationAdmin() throws Exception {
     mvc.perform(get(URIConstants.USER_URI))
       .andExpect(status().isOk())
@@ -332,21 +326,21 @@ public class UserResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void createNewUserAsOrganizationAdmin() {
     // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
     // ok is expected. The new user has roles linked to my organization territory
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void assignRoleToUserAsOrganizationAdmin() {
     // TODO
     // ok is expected. The new user has roles linked to my organization territory
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void updateUserAsOrganizationAdmin() {
     // TODO
     // Update user (linked to the same organization) by an organization admin user
@@ -355,7 +349,7 @@ public class UserResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void updateUserPasswordAsOrganizationAdmin() {
     // TODO
     // Update user password (linked to the same organization) by an organization
@@ -364,7 +358,7 @@ public class UserResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void assignRoleToUserAsOtherOrganizationAdminFails() {
     // TODO
     // fail is expected. No permission to assign territory role to user if don't
@@ -372,7 +366,7 @@ public class UserResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void updateUserAsOtherOrganizationAdminFails() {
     // TODO
     // Update user (linked to another organization) by an organization admin user
@@ -381,7 +375,7 @@ public class UserResourceTest {
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void updateUserPasswordAsOtherOrganizationAdminFails() {
     // TODO
     // Update user password (linked to another organization) by an organization
@@ -389,16 +383,4 @@ public class UserResourceTest {
     // fail is expected (no permission)
   }
 
-  @TestConfiguration
-  static class ContextConfiguration {
-    @Bean
-    public Validator validator() {
-      return new LocalValidatorFactoryBean();
-    }
-
-    @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer() {
-      return new RepositoryRestConfig(validator());
-    }
-  }
 }

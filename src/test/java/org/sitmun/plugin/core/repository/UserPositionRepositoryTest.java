@@ -1,22 +1,24 @@
 package org.sitmun.plugin.core.repository;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.domain.UserPosition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
+@ActiveProfiles("dev")
 public class UserPositionRepositoryTest {
 
   @Autowired
@@ -30,7 +32,7 @@ public class UserPositionRepositoryTest {
   private UserPosition userPosition;
 
 
-  @Before
+  @BeforeEach
   public void init() {
 
     User user = new User();
