@@ -65,7 +65,7 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.cartographyLayers").value(contains("NGE50_111P_EDI")))
       .andExpect(jsonPath("$.territoryId").value(35))
       .andExpect(jsonPath("$.territoryName").value("Aguilar de Segarra"))
-      .andExpect(jsonPath("$.territoryCode").value("8002"));
+      .andExpect(jsonPath("$.territoryCode").value("08002"));
   }
 
   @Test
