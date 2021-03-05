@@ -27,7 +27,7 @@ databaseChangeLog:
             tableName: STM_ROLE
             usePreparedStatements: true
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 151);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 179);
         - loadData:
             encoding: UTF-8
             file: 03_initial_data_dev/STM_GTER_TYP.csv
@@ -104,7 +104,14 @@ databaseChangeLog:
             tableName: STM_TREE
             usePreparedStatements: true
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 22);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 30);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_TREE_ROL.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE_ROL
+            usePreparedStatements: true
+            quotchar: "\""
         - loadData:
             encoding: UTF-8
             file: 03_initial_data_dev/STM_SERVICE.csv
@@ -409,6 +416,14 @@ databaseChangeLog:
             usePreparedStatements: true
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSE_ID', 533);
+        - loadData:
+            encoding: UTF-8
+            file: 03_initial_data_dev/STM_PAR_TSK.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_TSK
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PTT_ID', 9366);
         - loadData:
             encoding: UTF-8
             file: 03_initial_data_dev/STM_THEMATIC.csv

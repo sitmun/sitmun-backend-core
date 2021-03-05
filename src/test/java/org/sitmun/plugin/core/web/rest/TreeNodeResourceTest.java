@@ -136,7 +136,7 @@ public class TreeNodeResourceTest {
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TREE_URI))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.trees", hasSize(14)));
+      .andExpect(jsonPath("$._embedded.trees", hasSize(19)));
   }
 
   @Test
