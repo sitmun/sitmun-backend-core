@@ -12,6 +12,15 @@ logging:
     ROOT: INFO
     org.sitmun.plugin.core: INFO
 
+management:
+  metrics:
+    enable:
+      all: false
+      sitmun: true
+  endpoints:
+    web:
+      base-path: /api/dashboard
+
 spring:
   jackson:
     serialization:

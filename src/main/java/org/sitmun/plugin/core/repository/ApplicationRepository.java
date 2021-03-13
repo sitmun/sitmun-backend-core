@@ -65,5 +65,18 @@ public interface ApplicationRepository extends PagingAndSortingRepository<Applic
   @Query("select application.situationMap from Application application where application.id =:id")
   List<CartographyPermission> findSituationMap(@Param("id") Integer id);
 
+  /**
+   * The SQL equivalent is:
+   * <pre>
+   * SELECT DISTINCT app.app_id, uc.uco_terid
+   * FROM STM_APP app CROSS JOIN STM_USR_CONF uc
+   * WHERE uc.uco_roleid IN (SELECT app_rol.aro_roleid
+   *                         FROM STM_APP_ROL app_rol
+   *                         WHERE app.app_id=app_rol.aro_appid)
+   * </pre>
+   */
+  @RestResource(exported = false)
+  @Query("select distinct app.id, uc.territory.id from Application app, UserConfiguration uc where uc.role member app.availableRoles")
+  List<Object[]> listIdApplicationsPerTerritories();
 
 }

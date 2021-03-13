@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "cartography")
@@ -44,5 +45,9 @@ public interface CartographyRepository extends PagingAndSortingRepository<Cartog
 
   @Query("select cartography from Cartography cartography left join fetch cartography.service where cartography.id =:id")
   Cartography findOneWithEagerRelationships(Integer id);
+
+  @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
+  @Query("select year(c.createdDate), month(c.createdDate), day(c.createdDate), count(c) from Cartography c group by year(c.createdDate), month(c.createdDate), day(c.createdDate)")
+  List<Object[]> countByCreatedDate();
 
 }
