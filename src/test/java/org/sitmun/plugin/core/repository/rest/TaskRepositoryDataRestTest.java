@@ -70,9 +70,9 @@ public class TaskRepositoryDataRestTest {
     withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
-        .setName("Territorio 1")
-        .setCode("")
-        .setBlocked(false)
+        .name("Territorio 1")
+        .code("")
+        .blocked(false)
         .build();
       territoryRepository.save(territory);
       tasks = new ArrayList<>();

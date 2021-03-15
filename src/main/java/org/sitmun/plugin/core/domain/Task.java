@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
@@ -15,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_TASK")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Task {
 
   /**
@@ -43,7 +50,7 @@ public class Task {
    * Children tasks.
    */
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-  private Set<Task> children = new HashSet<>();
+  private Set<Task> children;
 
   /**
    * Name.
@@ -126,132 +133,31 @@ public class Task {
    * Territorial availability of this task.
    */
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
   private Set<TaskAvailability> availabilities = new HashSet<>();
 
   /**
    * Task parameters.
    */
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
   private Set<TaskParameter> parameters = new HashSet<>();
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Task))
+      return false;
+
+    Task other = (Task) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Task getParent() {
-    return parent;
-  }
-
-  public void setParent(Task parent) {
-    this.parent = parent;
-  }
-
-  public Set<Task> getChildren() {
-    return children;
-  }
-
-  public void setChildren(Set<Task> children) {
-    this.children = children;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public Integer getOrder() {
-    return order;
-  }
-
-  public void setOrder(Integer order) {
-    this.order = order;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
-  }
-
-  public Service getService() {
-    return service;
-  }
-
-  public void setService(Service service) {
-    this.service = service;
-  }
-
-  public TaskGroup getGroup() {
-    return group;
-  }
-
-  public void setGroup(TaskGroup group) {
-    this.group = group;
-  }
-
-  public TaskType getType() {
-    return type;
-  }
-
-  public void setType(TaskType type) {
-    this.type = type;
-  }
-
-  public TaskUI getUi() {
-    return ui;
-  }
-
-  public void setUi(TaskUI ui) {
-    this.ui = ui;
-  }
-
-  public DatabaseConnection getConnection() {
-    return connection;
-  }
-
-  public void setConnection(DatabaseConnection connection) {
-    this.connection = connection;
-  }
-
-  public Set<Role> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(Set<Role> roles) {
-    this.roles = roles;
-  }
-
-  public Set<TaskAvailability> getAvailabilities() {
-    return availabilities;
-  }
-
-  public void setAvailabilities(
-    Set<TaskAvailability> availabilities) {
-    this.availabilities = availabilities;
-  }
-
-  public Set<TaskParameter> getParameters() {
-    return parameters;
-  }
-
-  public void setParameters(Set<TaskParameter> parameters) {
-    this.parameters = parameters;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

@@ -52,7 +52,6 @@ public class UserResourceTest {
   private static final String TERRITORY2_USER_USERNAME = "territory2-user";
   private static final String NEW_USER_USERNAME = "admin_new";
   private static final String USER_PASSWORD = "admin";
-  private static final String USER_CHANGEDPASSWORD = "nimda";
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";
   private static final String USER_LASTNAME = "Admin";
@@ -94,24 +93,24 @@ public class UserResourceTest {
     withMockSitmunAdmin(() -> {
 
       organizacionAdminRole =
-        Role.builder().setName(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
+        Role.builder().name(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
       roleRepository.save(organizacionAdminRole);
 
-      territorialRole = Role.builder().setName(AuthoritiesConstants.USUARIO_TERRITORIAL).build();
+      territorialRole = Role.builder().name(AuthoritiesConstants.USUARIO_TERRITORIAL).build();
       roleRepository.save(territorialRole);
 
       territories = new ArrayList<>();
       users = new ArrayList<>();
       territory1 = Territory.builder()
-        .setName("Territorio 1")
-        .setCode("")
-        .setBlocked(false)
+        .name("Territorio 1")
+        .code("")
+        .blocked(false)
         .build();
 
       territory2 = Territory.builder()
-        .setName("Territorio 2")
-        .setCode("")
-        .setBlocked(false)
+        .name("Territorio 2")
+        .code("")
+        .blocked(false)
         .build();
       territories.add(territory1);
       territories.add(territory2);
@@ -156,28 +155,28 @@ public class UserResourceTest {
       userConfigurations = new ArrayList<>();
 
       UserConfiguration userConf = UserConfiguration.builder()
-        .setTerritory(territory1)
-        .setRole(organizacionAdminRole)
-        .setUser(organizacionAdmin)
-        .setAppliesToChildrenTerritories(false)
+        .territory(territory1)
+        .role(organizacionAdminRole)
+        .user(organizacionAdmin)
+        .appliesToChildrenTerritories(false)
         .build();
       userConfigurations.add(userConf);
       this.userConfigurationRepository.save(userConf);
 
       userConf = UserConfiguration.builder()
-        .setTerritory(territory1)
-        .setRole(territorialRole)
-        .setUser(territory1User)
-        .setAppliesToChildrenTerritories(false)
+        .territory(territory1)
+        .role(territorialRole)
+        .user(territory1User)
+        .appliesToChildrenTerritories(false)
         .build();
       userConfigurations.add(userConf);
       this.userConfigurationRepository.save(userConf);
 
       userConf = UserConfiguration.builder()
-        .setTerritory(territory2)
-        .setRole(territorialRole)
-        .setUser(territory2User)
-        .setAppliesToChildrenTerritories(false)
+        .territory(territory2)
+        .role(territorialRole)
+        .user(territory2User)
+        .appliesToChildrenTerritories(false)
         .build();
       userConfigurations.add(userConf);
 

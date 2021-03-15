@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
@@ -22,6 +23,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_SERVICE")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Service {
 
   /**
@@ -118,230 +124,31 @@ public class Service {
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", orphanRemoval = true, fetch = FetchType.LAZY)
-  private Set<Cartography> layers = new HashSet<>();
+  private Set<Cartography> layers;
 
   /**
    * Service parameters.
    */
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
   private Set<ServiceParameter> parameters = new HashSet<>();
 
-  public Service() {
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Service))
+      return false;
+
+    Service other = (Service) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  private Service(Integer id, @NotBlank String name, String description,
-                  @NotNull String serviceURL, List<String> supportedSRS, String legendURL,
-                  String getInformationURL, Date createdDate,
-                  @NotNull String type, String nativeProtocol,
-                  @NotNull Boolean blocked,
-                  Set<Cartography> layers,
-                  Set<ServiceParameter> parameters) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.serviceURL = serviceURL;
-    this.supportedSRS = supportedSRS;
-    this.legendURL = legendURL;
-    this.getInformationURL = getInformationURL;
-    this.createdDate = createdDate;
-    this.type = type;
-    this.nativeProtocol = nativeProtocol;
-    this.blocked = blocked;
-    this.layers = layers;
-    this.parameters = parameters;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getServiceURL() {
-    return serviceURL;
-  }
-
-  public void setServiceURL(String serviceURL) {
-    this.serviceURL = serviceURL;
-  }
-
-  public List<String> getSupportedSRS() {
-    return supportedSRS;
-  }
-
-  public void setSupportedSRS(List<String> srs) {
-    this.supportedSRS = srs;
-  }
-
-  public String getLegendURL() {
-    return legendURL;
-  }
-
-  public void setLegendURL(String legendURL) {
-    this.legendURL = legendURL;
-  }
-
-  public String getGetInformationURL() {
-    return getInformationURL;
-  }
-
-  public void setGetInformationURL(String getInformationURL) {
-    this.getInformationURL = getInformationURL;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getNativeProtocol() {
-    return nativeProtocol;
-  }
-
-  public void setNativeProtocol(String nativeProtocol) {
-    this.nativeProtocol = nativeProtocol;
-  }
-
-  public Set<Cartography> getLayers() {
-    return layers;
-  }
-
-  public void setLayers(Set<Cartography> layers) {
-    this.layers = layers;
-  }
-
-  public Set<ServiceParameter> getParameters() {
-    return parameters;
-  }
-
-  public void setParameters(Set<ServiceParameter> parameters) {
-    this.parameters = parameters;
-  }
-
-  public Boolean getBlocked() {
-    return blocked;
-  }
-
-  public void setBlocked(Boolean blocked) {
-    this.blocked = blocked;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String name;
-    private String description;
-    private @NotNull String serviceURL;
-    private List<String> supportedSRS;
-    private String legendURL;
-    private String getInformationURL;
-    private Date createdDate;
-    private @NotNull String type;
-    private String nativeProtocol;
-    private @NotNull Boolean blocked;
-    private Set<Cartography> layers;
-    private Set<ServiceParameter> parameters;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setDescription(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder setServiceURL(@NotNull String serviceURL) {
-      this.serviceURL = serviceURL;
-      return this;
-    }
-
-    public Builder setSupportedSRS(List<String> supportedSRS) {
-      this.supportedSRS = supportedSRS;
-      return this;
-    }
-
-    public Builder setLegendURL(String legendURL) {
-      this.legendURL = legendURL;
-      return this;
-    }
-
-    public Builder setGetInformationURL(String getInformationURL) {
-      this.getInformationURL = getInformationURL;
-      return this;
-    }
-
-    public Builder setCreatedDate(Date createdDate) {
-      this.createdDate = createdDate;
-      return this;
-    }
-
-    public Builder setType(@NotNull String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder setNativeProtocol(String nativeProtocol) {
-      this.nativeProtocol = nativeProtocol;
-      return this;
-    }
-
-    public Builder setBlocked(@NotNull Boolean blocked) {
-      this.blocked = blocked;
-      return this;
-    }
-
-    public Builder setLayers(Set<Cartography> layers) {
-      this.layers = layers;
-      return this;
-    }
-
-    public Builder setParameters(Set<ServiceParameter> parameters) {
-      this.parameters = parameters;
-      return this;
-    }
-
-    public Service build() {
-      return new Service(id, name, description, serviceURL, supportedSRS, legendURL,
-        getInformationURL, createdDate, type, nativeProtocol, blocked, layers, parameters);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

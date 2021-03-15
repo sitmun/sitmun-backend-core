@@ -71,10 +71,11 @@ public class UserService implements PermissionResolver<User> {
           if (!isAdminSitmun && baseConfiguration.isPresent() && territorialRole.isPresent()) {
             // get the first territory with ADMIN_ORGANIZACION role
             Territory territory = baseConfiguration.get().getTerritory();
-            UserConfiguration userConfiguration = new UserConfiguration.Builder().build();
-            userConfiguration.setTerritory(territory);
-            userConfiguration.setUser(user);
-            userConfiguration.setRole(territorialRole.get());
+            UserConfiguration userConfiguration = UserConfiguration.builder()
+              .territory(territory)
+              .user(user)
+              .role(territorialRole.get())
+              .build();
             this.userConfigurationRepository.save(userConfiguration);
           }
         }

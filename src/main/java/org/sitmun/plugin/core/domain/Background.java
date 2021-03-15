@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
@@ -12,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_BACKGRD")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Background {
 
   /**
@@ -62,52 +69,21 @@ public class Background {
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
   private CartographyPermission cartographyGroup;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Background))
+      return false;
+
+    Background other = (Background) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Boolean getActive() {
-    return active;
-  }
-
-  public void setActive(Boolean active) {
-    this.active = active;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public CartographyPermission getCartographyGroup() {
-    return cartographyGroup;
-  }
-
-  public void setCartographyGroup(CartographyPermission cartographyGroup) {
-    this.cartographyGroup = cartographyGroup;
-  }
-
 }

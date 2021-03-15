@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
@@ -16,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_THEMATIC")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ThematicMap {
 
   /**
@@ -161,330 +167,21 @@ public class ThematicMap {
   @Temporal(TemporalType.TIMESTAMP)
   private Date expirationDate;
 
-  public ThematicMap() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof ThematicMap))
+      return false;
+
+    ThematicMap other = (ThematicMap) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  private ThematicMap(Integer id, String name, String description, String type,
-                      Integer ranges, String startColor, String endColor,
-                      Integer borderMinSize, Integer borderMaxSize,
-                      @Min(0) @Max(100) Integer transparency, Boolean refreshData,
-                      Boolean recreateRanges, User user,
-                      Cartography cartography, Task task, Boolean taggable, String valueType,
-                      String url, String destination, Date expirationDate) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.type = type;
-    this.ranges = ranges;
-    this.startColor = startColor;
-    this.endColor = endColor;
-    this.borderMinSize = borderMinSize;
-    this.borderMaxSize = borderMaxSize;
-    this.transparency = transparency;
-    this.refreshData = refreshData;
-    this.recreateRanges = recreateRanges;
-    this.user = user;
-    this.cartography = cartography;
-    this.task = task;
-    this.taggable = taggable;
-    this.valueType = valueType;
-    this.url = url;
-    this.destination = destination;
-    this.expirationDate = expirationDate;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public Integer getRanges() {
-    return ranges;
-  }
-
-  public void setRanges(Integer ranges) {
-    this.ranges = ranges;
-  }
-
-  public String getStartColor() {
-    return startColor;
-  }
-
-  public void setStartColor(String startColor) {
-    this.startColor = startColor;
-  }
-
-  public String getEndColor() {
-    return endColor;
-  }
-
-  public void setEndColor(String endColor) {
-    this.endColor = endColor;
-  }
-
-  public Integer getBorderMinSize() {
-    return borderMinSize;
-  }
-
-  public void setBorderMinSize(Integer borderMinSize) {
-    this.borderMinSize = borderMinSize;
-  }
-
-  public Integer getBorderMaxSize() {
-    return borderMaxSize;
-  }
-
-  public void setBorderMaxSize(Integer borderMaxSize) {
-    this.borderMaxSize = borderMaxSize;
-  }
-
-  public Integer getTransparency() {
-    return transparency;
-  }
-
-  public void setTransparency(Integer transparency) {
-    this.transparency = transparency;
-  }
-
-  public Boolean getRefreshData() {
-    return refreshData;
-  }
-
-  public void setRefreshData(Boolean refreshData) {
-    this.refreshData = refreshData;
-  }
-
-  public Boolean getRecreateRanges() {
-    return recreateRanges;
-  }
-
-  public void setRecreateRanges(Boolean recreateRanges) {
-    this.recreateRanges = recreateRanges;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
-  }
-
-  public Task getTask() {
-    return task;
-  }
-
-  public void setTask(Task task) {
-    this.task = task;
-  }
-
-  public Boolean getTaggable() {
-    return taggable;
-  }
-
-  public void setTaggable(Boolean taggable) {
-    this.taggable = taggable;
-  }
-
-  public String getValueType() {
-    return valueType;
-  }
-
-  public void setValueType(String valueType) {
-    this.valueType = valueType;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public String getDestination() {
-    return destination;
-  }
-
-  public void setDestination(String destination) {
-    this.destination = destination;
-  }
-
-  public Date getExpirationDate() {
-    return expirationDate;
-  }
-
-  public void setExpirationDate(Date expirationDate) {
-    this.expirationDate = expirationDate;
-  }
-
-  private static class Builder {
-    private Integer id;
-    private String name;
-    private String description;
-    private String type;
-    private Integer ranges;
-    private String startColor;
-    private String endColor;
-    private Integer borderMinSize;
-    private Integer borderMaxSize;
-    private @Min(0) @Max(100) Integer transparency;
-    private Boolean refreshData;
-    private Boolean recreateRanges;
-    private User user;
-    private Cartography cartography;
-    private Task task;
-    private Boolean taggable;
-    private String valueType;
-    private String url;
-    private String destination;
-    private Date expirationDate;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setDescription(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder setType(String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder setRanges(Integer ranges) {
-      this.ranges = ranges;
-      return this;
-    }
-
-    public Builder setStartColor(String startColor) {
-      this.startColor = startColor;
-      return this;
-    }
-
-    public Builder setEndColor(String endColor) {
-      this.endColor = endColor;
-      return this;
-    }
-
-    public Builder setBorderMinSize(Integer borderMinSize) {
-      this.borderMinSize = borderMinSize;
-      return this;
-    }
-
-    public Builder setBorderMaxSize(Integer borderMaxSize) {
-      this.borderMaxSize = borderMaxSize;
-      return this;
-    }
-
-    public Builder setTransparency(@Min(0) @Max(100) Integer transparency) {
-      this.transparency = transparency;
-      return this;
-    }
-
-    public Builder setRefreshData(Boolean refreshData) {
-      this.refreshData = refreshData;
-      return this;
-    }
-
-    public Builder setRecreateRanges(Boolean recreateRanges) {
-      this.recreateRanges = recreateRanges;
-      return this;
-    }
-
-    public Builder setUser(User user) {
-      this.user = user;
-      return this;
-    }
-
-    public Builder setCartography(Cartography cartography) {
-      this.cartography = cartography;
-      return this;
-    }
-
-    public Builder setTask(Task task) {
-      this.task = task;
-      return this;
-    }
-
-    public Builder setTaggable(Boolean taggable) {
-      this.taggable = taggable;
-      return this;
-    }
-
-    public Builder setValueType(String valueType) {
-      this.valueType = valueType;
-      return this;
-    }
-
-    public Builder setUrl(String url) {
-      this.url = url;
-      return this;
-    }
-
-    public Builder setDestination(String destination) {
-      this.destination = destination;
-      return this;
-    }
-
-    public Builder setExpirationDate(Date expirationDate) {
-      this.expirationDate = expirationDate;
-      return this;
-    }
-
-    public ThematicMap build() {
-      return new ThematicMap(id, name, description, type, ranges, startColor, endColor,
-        borderMinSize,
-        borderMaxSize, transparency, refreshData, recreateRanges, user, cartography, task,
-        taggable,
-        valueType, url, destination, expirationDate);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

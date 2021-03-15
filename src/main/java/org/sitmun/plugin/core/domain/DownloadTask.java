@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
@@ -18,6 +19,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_DOWNLOAD")
 @PrimaryKeyJoinColumn(name = "DOW_ID")
+@Builder(builderMethodName = "downloadBuilder")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DownloadTask extends Task {
 
   /**
@@ -44,27 +50,21 @@ public class DownloadTask extends Task {
   @HttpURL
   private String path;
 
-  public String getFormat() {
-    return format;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof DownloadTask))
+      return false;
+
+    DownloadTask other = (DownloadTask) o;
+
+    return getId() != null &&
+      getId().equals(other.getId());
   }
 
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getScope() {
-    return scope;
-  }
-
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
-
-  public String getPath() {
-    return path;
-  }
-
-  public void setPath(String path) {
-    this.path = path;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

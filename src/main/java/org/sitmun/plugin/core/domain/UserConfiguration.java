@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -14,6 +15,11 @@ import javax.validation.constraints.NotNull;
 @Table(name = "STM_USR_CONF", uniqueConstraints = {
   @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
     "UCO_ROLEM"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserConfiguration {
 
   /**
@@ -68,95 +74,22 @@ public class UserConfiguration {
   @NotNull
   private Boolean appliesToChildrenTerritories;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof UserConfiguration))
+      return false;
+
+    UserConfiguration other = (UserConfiguration) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public Territory getTerritory() {
-    return territory;
-  }
-
-  public void setTerritory(Territory territory) {
-    this.territory = territory;
-  }
-
-  public Role getRole() {
-    return role;
-  }
-
-  public void setRole(Role role) {
-    this.role = role;
-  }
-
-  public UserConfiguration() {
-  }
-
-  private UserConfiguration(Integer id, @NotNull User user, @NotNull Territory territory, @NotNull Role role, @NotNull Boolean appliesToChildrenTerritories) {
-    this.id = id;
-    this.user = user;
-    this.territory = territory;
-    this.role = role;
-    this.appliesToChildrenTerritories = appliesToChildrenTerritories;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Boolean getAppliesToChildrenTerritories() {
-    return appliesToChildrenTerritories;
-  }
-
-  public void setAppliesToChildrenTerritories(Boolean appliesToChildrenTerritories) {
-    this.appliesToChildrenTerritories = appliesToChildrenTerritories;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotNull User user;
-    private @NotNull Territory territory;
-    private @NotNull Role role;
-    private @NotNull Boolean appliesToChildrenTerritories;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setUser(@NotNull User user) {
-      this.user = user;
-      return this;
-    }
-
-    public Builder setTerritory(@NotNull Territory territory) {
-      this.territory = territory;
-      return this;
-    }
-
-    public Builder setRole(@NotNull Role role) {
-      this.role = role;
-      return this;
-    }
-
-    public Builder setAppliesToChildrenTerritories(@NotNull Boolean appliesToChildrenTerritories) {
-      this.appliesToChildrenTerritories = appliesToChildrenTerritories;
-      return this;
-    }
-
-    public UserConfiguration build() {
-      return new UserConfiguration(id, user, territory, role, appliesToChildrenTerritories);
-    }
-  }
 }

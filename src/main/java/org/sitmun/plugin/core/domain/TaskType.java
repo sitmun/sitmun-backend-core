@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -11,6 +13,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_TSK_TYP")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TaskType {
 
   /**
@@ -35,20 +42,21 @@ public class TaskType {
   @NotBlank
   private String name;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof TaskType))
+      return false;
+
+    TaskType other = (TaskType) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
 }

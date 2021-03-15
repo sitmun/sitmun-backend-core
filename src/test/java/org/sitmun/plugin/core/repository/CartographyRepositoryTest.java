@@ -38,16 +38,16 @@ public class CartographyRepositoryTest {
     assertThat(cartographyRepository.findById(cartography.getId())).isNotNull();
   }
 
-  private Cartography.Builder cartographyBuilder() {
+  private Cartography.CartographyBuilder cartographyBuilder() {
     return Cartography.builder()
-      .setName("Test")
-      .setCreatedDate(new Date())
-      .setOrder(0)
-      .setQueryableFeatureAvailable(true)
-      .setQueryableFeatureEnabled(true)
-      .setSelectableFeatureEnabled(true)
-      .setThematic(true)
-      .setTransparency(0);
+      .name("Test")
+      .createdDate(new Date())
+      .order(0)
+      .queryableFeatureAvailable(true)
+      .queryableFeatureEnabled(true)
+      .selectableFeatureEnabled(true)
+      .thematic(true)
+      .transparency(0);
   }
 }
 

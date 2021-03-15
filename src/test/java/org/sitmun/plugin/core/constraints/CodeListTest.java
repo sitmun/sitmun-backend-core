@@ -69,43 +69,43 @@ public class CodeListTest {
     withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
-        .setName("Some territory")
-        .setCode("")
-        .setBlocked(false)
+        .name("Some territory")
+        .code("")
+        .blocked(false)
         .build();
       territoryRepository.save(territory);
 
       service = Service.builder()
-        .setName("Service")
-        .setServiceURL("")
-        .setType("")
-        .setBlocked(false)
+        .name("Service")
+        .serviceURL("")
+        .type("")
+        .blocked(false)
         .build();
       serviceRepository.save(service);
 
       cartographies = new ArrayList<>();
 
       Cartography cartography = Cartography.builder()
-        .setName(CARTOGRAPHY_NAME)
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .setBlocked(false)
+        .name(CARTOGRAPHY_NAME)
+        .layers(Collections.emptyList())
+        .applyFilterToGetMap(false)
+        .applyFilterToGetFeatureInfo(false)
+        .applyFilterToSpatialSelection(false)
+        .service(service)
+        .availabilities(Collections.emptySet())
+        .blocked(false)
         .build();
       cartographies.add(cartography);
 
       Cartography cartographyWithAvailabilities = Cartography.builder()
-        .setName("Cartography with availabilities")
-        .setLayers(Collections.emptyList())
-        .setApplyFilterToGetMap(false)
-        .setApplyFilterToGetFeatureInfo(false)
-        .setApplyFilterToSpatialSelection(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .setBlocked(false)
+        .name("Cartography with availabilities")
+        .layers(Collections.emptyList())
+        .applyFilterToGetMap(false)
+        .applyFilterToGetFeatureInfo(false)
+        .applyFilterToSpatialSelection(false)
+        .service(service)
+        .availabilities(Collections.emptySet())
+        .blocked(false)
         .build();
 
       cartographies.add(cartographyWithAvailabilities);

@@ -1,9 +1,10 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * Type of grouping of territorial entities.
@@ -11,6 +12,11 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "STM_GTER_TYP", uniqueConstraints = {
   @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = {"GTT_NAME"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TerritoryGroupType {
 
   /**
@@ -35,51 +41,21 @@ public class TerritoryGroupType {
   @Column(name = "GTT_NAME", length = 250)
   private String name;
 
-  public TerritoryGroupType() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof TerritoryGroupType))
+      return false;
+
+    TerritoryGroupType other = (TerritoryGroupType) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  private TerritoryGroupType(Integer id,
-                             @NotNull String name) {
-    this.id = id;
-    this.name = name;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotNull String name;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public TerritoryGroupType build() {
-      return new TerritoryGroupType(id, name);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

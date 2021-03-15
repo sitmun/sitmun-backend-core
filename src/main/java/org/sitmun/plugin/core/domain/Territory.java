@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
@@ -10,7 +11,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -21,6 +21,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_TERRITORY", uniqueConstraints = {
   @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Territory {
 
   /**
@@ -137,7 +142,7 @@ public class Territory {
     inverseJoinColumns = @JoinColumn(
       name = "GTE_TERMID",
       foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
-  private Set<Territory> members = new HashSet<>();
+  private Set<Territory> members;
 
   /**
    * Territories of which this territory is part of.
@@ -151,336 +156,35 @@ public class Territory {
     inverseJoinColumns = @JoinColumn(
       name = "GTE_TERID",
       foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
-  private Set<Territory> memberOf = new HashSet<>();
+  private Set<Territory> memberOf;
 
   /**
    * Task availabilities.
    */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
-  private Set<TaskAvailability> taskAvailabilities = new HashSet<>();
+  private Set<TaskAvailability> taskAvailabilities;
 
   /**
    * Cartography availabilities.
    */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
-  private Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
-
-  public Territory() {
-  }
-
-  private Territory(Integer id, @NotBlank String code,
-                    @NotBlank String name, String territorialAuthorityName,
-                    String territorialAuthorityAddress, String territorialAuthorityEmail,
-                    String scope, String territorialAuthorityLogo, String extent,
-                    @NotNull Boolean blocked, TerritoryType type, String note,
-                    Date createdDate, TerritoryGroupType groupType,
-                    Set<Territory> members,
-                    Set<Territory> memberOf,
-                    Set<TaskAvailability> taskAvailabilities,
-                    Set<CartographyAvailability> cartographyAvailabilities) {
-    this.id = id;
-    this.code = code;
-    this.name = name;
-    this.territorialAuthorityName = territorialAuthorityName;
-    this.territorialAuthorityAddress = territorialAuthorityAddress;
-    this.territorialAuthorityEmail = territorialAuthorityEmail;
-    this.scope = scope;
-    this.territorialAuthorityLogo = territorialAuthorityLogo;
-    this.extent = extent;
-    this.blocked = blocked;
-    this.type = type;
-    this.note = note;
-    this.createdDate = createdDate;
-    this.groupType = groupType;
-    this.members = members;
-    this.memberOf = memberOf;
-    this.taskAvailabilities = taskAvailabilities;
-    this.cartographyAvailabilities = cartographyAvailabilities;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getTerritorialAuthorityName() {
-    return territorialAuthorityName;
-  }
-
-  public void setTerritorialAuthorityName(String territorialAuthorityName) {
-    this.territorialAuthorityName = territorialAuthorityName;
-  }
-
-  public String getTerritorialAuthorityAddress() {
-    return territorialAuthorityAddress;
-  }
-
-  public void setTerritorialAuthorityAddress(String territorialAuthorityAddress) {
-    this.territorialAuthorityAddress = territorialAuthorityAddress;
-  }
-
-  public String getTerritorialAuthorityEmail() {
-    return territorialAuthorityEmail;
-  }
-
-  public void setTerritorialAuthorityEmail(String territorialAuthorityEmail) {
-    this.territorialAuthorityEmail = territorialAuthorityEmail;
-  }
-
-  public String getScope() {
-    return scope;
-  }
-
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
-
-  public String getTerritorialAuthorityLogo() {
-    return territorialAuthorityLogo;
-  }
-
-  public void setTerritorialAuthorityLogo(String territorialAuthorityLogo) {
-    this.territorialAuthorityLogo = territorialAuthorityLogo;
-  }
-
-  public String getExtent() {
-    return extent;
-  }
-
-  public void setExtent(String extent) {
-    this.extent = extent;
-  }
-
-  public Boolean getBlocked() {
-    return blocked;
-  }
-
-  public void setBlocked(Boolean blocked) {
-    this.blocked = blocked;
-  }
-
-  public TerritoryType getType() {
-    return type;
-  }
-
-  public void setType(TerritoryType type) {
-    this.type = type;
-  }
-
-  public String getNote() {
-    return note;
-  }
-
-  public void setNote(String note) {
-    this.note = note;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public TerritoryGroupType getGroupType() {
-    return groupType;
-  }
-
-  public void setGroupType(TerritoryGroupType groupType) {
-    this.groupType = groupType;
-  }
-
-  public Set<Territory> getMembers() {
-    return members;
-  }
-
-  public void setMembers(Set<Territory> members) {
-    this.members = members;
-  }
-
-  public Set<Territory> getMemberOf() {
-    return memberOf;
-  }
-
-  public void setMemberOf(Set<Territory> memberOf) {
-    this.memberOf = memberOf;
-  }
-
-  public Set<TaskAvailability> getTaskAvailabilities() {
-    return taskAvailabilities;
-  }
-
-  public void setTaskAvailabilities(
-    Set<TaskAvailability> taskAvailabilities) {
-    this.taskAvailabilities = taskAvailabilities;
-  }
-
-  public Set<CartographyAvailability> getCartographyAvailabilities() {
-    return cartographyAvailabilities;
-  }
-
-  public void setCartographyAvailabilities(
-    Set<CartographyAvailability> cartographyAvailabilities) {
-    this.cartographyAvailabilities = cartographyAvailabilities;
-  }
+  private Set<CartographyAvailability> cartographyAvailabilities;
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof Territory) {
-      return ((Territory) o).getId().equals(this.getId());
-    }
-    return false;
+    if (this == o) return true;
+
+    if (!(o instanceof Territory))
+      return false;
+
+    Territory other = (Territory) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
   @Override
   public int hashCode() {
-    return super.hashCode();
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String code;
-    private @NotBlank String name;
-    private String territorialAuthorityName;
-    private String territorialAuthorityAddress;
-    private String territorialAuthorityEmail;
-    private String scope;
-    private String territorialAuthorityLogo;
-    private String extent;
-    private @NotNull Boolean blocked;
-    private TerritoryType type;
-    private String note;
-    private Date createdDate;
-    private TerritoryGroupType groupType;
-    private Set<Territory> members;
-    private Set<Territory> memberOf;
-    private Set<TaskAvailability> taskAvailabilities;
-    private Set<CartographyAvailability> cartographyAvailabilities;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setCode(String code) {
-      this.code = code;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setTerritorialAuthorityName(String territorialAuthorityName) {
-      this.territorialAuthorityName = territorialAuthorityName;
-      return this;
-    }
-
-    public Builder setTerritorialAuthorityAddress(String territorialAuthorityAddress) {
-      this.territorialAuthorityAddress = territorialAuthorityAddress;
-      return this;
-    }
-
-    public Builder setTerritorialAuthorityEmail(String territorialAuthorityEmail) {
-      this.territorialAuthorityEmail = territorialAuthorityEmail;
-      return this;
-    }
-
-    public Builder setScope(String scope) {
-      this.scope = scope;
-      return this;
-    }
-
-    public Builder setTerritorialAuthorityLogo(String territorialAuthorityLogo) {
-      this.territorialAuthorityLogo = territorialAuthorityLogo;
-      return this;
-    }
-
-    public Builder setExtent(String extent) {
-      this.extent = extent;
-      return this;
-    }
-
-    public Builder setBlocked(@NotNull Boolean blocked) {
-      this.blocked = blocked;
-      return this;
-    }
-
-    public Builder setType(TerritoryType type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder setNote(String note) {
-      this.note = note;
-      return this;
-    }
-
-    public Builder setCreatedDate(Date createdDate) {
-      this.createdDate = createdDate;
-      return this;
-    }
-
-    public Builder setGroupType(TerritoryGroupType groupType) {
-      this.groupType = groupType;
-      return this;
-    }
-
-    public Builder setMembers(Set<Territory> members) {
-      this.members = members;
-      return this;
-    }
-
-    public Builder setMemberOf(Set<Territory> memberOf) {
-      this.memberOf = memberOf;
-      return this;
-    }
-
-    public Builder setTaskAvailabilities(Set<TaskAvailability> taskAvailabilities) {
-      this.taskAvailabilities = taskAvailabilities;
-      return this;
-    }
-
-    public Builder setCartographyAvailabilities(
-      Set<CartographyAvailability> cartographyAvailabilities) {
-      this.cartographyAvailabilities = cartographyAvailabilities;
-      return this;
-    }
-
-    /**
-     * Builds a Territory.
-     *
-     * @return a new territory instance
-     */
-    public Territory build() {
-      return new Territory(id, code, name, territorialAuthorityName, territorialAuthorityAddress,
-        territorialAuthorityEmail, scope, territorialAuthorityLogo, extent, blocked, type, note,
-        createdDate, groupType, members, memberOf, taskAvailabilities, cartographyAvailabilities);
-    }
+    return getClass().hashCode();
   }
 }

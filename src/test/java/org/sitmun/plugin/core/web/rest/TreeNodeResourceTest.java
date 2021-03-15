@@ -61,7 +61,7 @@ public class TreeNodeResourceTest {
 
       nodes = new ArrayList<>();
 
-      publicRole = Role.builder().setName(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      publicRole = Role.builder().name(AuthoritiesConstants.USUARIO_PUBLICO).build();
       roleRepository.save(publicRole);
 
       Set<Role> availableRoles = new HashSet<>();

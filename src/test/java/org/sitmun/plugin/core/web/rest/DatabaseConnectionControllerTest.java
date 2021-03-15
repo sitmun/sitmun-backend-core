@@ -38,7 +38,7 @@ public class DatabaseConnectionControllerTest {
 
   @Test
   public void failIfDatabaseConnectionDriverNotFound() throws Exception {
-    when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().setDriver("org.h2.DriverX").build()));
+    when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
     mockMvc.perform(get("/api/connections/0/test")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
@@ -49,10 +49,10 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void failIfDatabaseConnectionException() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
-      .setDriver("org.h2.Driver")
-      .setUrl("jdb:h2:mem:testdb")
-      .setName("sa")
-      .setPassword("password")
+      .driver("org.h2.Driver")
+      .url("jdb:h2:mem:testdb")
+      .name("sa")
+      .password("password")
       .build()));
     mockMvc.perform(get("/api/connections/0/test")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -64,10 +64,10 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void databaseConnectionSuccess() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
-      .setDriver("org.h2.Driver")
-      .setUrl("jdbc:h2:mem:testdb")
-      .setName("sa")
-      .setPassword("password")
+      .driver("org.h2.Driver")
+      .url("jdbc:h2:mem:testdb")
+      .name("sa")
+      .password("password")
       .build()));
     mockMvc.perform(get("/api/connections/0/test")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -85,10 +85,10 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void failIfNoCredentials() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
-      .setDriver("org.h2.Driver")
-      .setUrl("jdbc:h2:mem:testdb")
-      .setName("sa")
-      .setPassword("password")
+      .driver("org.h2.Driver")
+      .url("jdbc:h2:mem:testdb")
+      .name("sa")
+      .password("password")
       .build()));
     mockMvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isUnauthorized());

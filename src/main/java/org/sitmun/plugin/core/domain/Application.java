@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
@@ -10,7 +11,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +21,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_APP")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Application {
 
   /**
@@ -120,7 +125,7 @@ public class Application {
    * Application parameters.
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ApplicationParameter> parameters = new HashSet<>();
+  private Set<ApplicationParameter> parameters;
 
   /**
    * Roles granted in this application.
@@ -132,7 +137,7 @@ public class Application {
       name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
     inverseJoinColumns = @JoinColumn(
       name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
-  private Set<Role> availableRoles = new HashSet<>();
+  private Set<Role> availableRoles;
 
   /**
    * Trees assigned to this application.
@@ -150,294 +155,24 @@ public class Application {
    * Backgrounds maps.
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ApplicationBackground> backgrounds = new HashSet<>();
+  private Set<ApplicationBackground> backgrounds;
 
-  private Application(Integer id, @NotBlank String name,
-                      @NotNull String type, String title, String theme,
-                      List<String> scales, String srs,
-                      @NotNull String jspTemplate, Boolean treeAutoRefresh,
-                      Boolean accessParentTerritory, Boolean accessChildrenTerritory,
-                      CartographyPermission situationMap,
-                      @NotNull Date createdDate,
-                      Set<ApplicationParameter> parameters,
-                      Set<Role> availableRoles,
-                      Set<Tree> trees,
-                      Set<ApplicationBackground> backgrounds) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.title = title;
-    this.theme = theme;
-    this.scales = scales;
-    this.srs = srs;
-    this.jspTemplate = jspTemplate;
-    this.treeAutoRefresh = treeAutoRefresh;
-    this.accessParentTerritory = accessParentTerritory;
-    this.accessChildrenTerritory = accessChildrenTerritory;
-    this.situationMap = situationMap;
-    this.createdDate = createdDate;
-    this.parameters = parameters;
-    this.availableRoles = availableRoles;
-    this.trees = trees;
-    this.backgrounds = backgrounds;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Application))
+      return false;
+
+    Application other = (Application) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public Application() {
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getTheme() {
-    return theme;
-  }
-
-  public void setTheme(String theme) {
-    this.theme = theme;
-  }
-
-  public List<String> getScales() {
-    return scales;
-  }
-
-  public void setScales(List<String> scales) {
-    this.scales = scales;
-  }
-
-  public String getSrs() {
-    return srs;
-  }
-
-  public void setSrs(String srs) {
-    this.srs = srs;
-  }
-
-  public String getJspTemplate() {
-    return jspTemplate;
-  }
-
-  public void setJspTemplate(String jspTemplate) {
-    this.jspTemplate = jspTemplate;
-  }
-
-  public Boolean getTreeAutoRefresh() {
-    return treeAutoRefresh;
-  }
-
-  public void setTreeAutoRefresh(Boolean treeAutoRefresh) {
-    this.treeAutoRefresh = treeAutoRefresh;
-  }
-
-  public Boolean getAccessParentTerritory() {
-    return accessParentTerritory;
-  }
-
-  public void setAccessParentTerritory(Boolean accessParentTerritory) {
-    this.accessParentTerritory = accessParentTerritory;
-  }
-
-  public Boolean getAccessChildrenTerritory() {
-    return accessChildrenTerritory;
-  }
-
-  public void setAccessChildrenTerritory(Boolean accessChildrenTerritory) {
-    this.accessChildrenTerritory = accessChildrenTerritory;
-  }
-
-  public CartographyPermission getSituationMap() {
-    return situationMap;
-  }
-
-  public void setSituationMap(CartographyPermission situationMap) {
-    this.situationMap = situationMap;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date dateCreated) {
-    this.createdDate = dateCreated;
-  }
-
-  public Set<ApplicationParameter> getParameters() {
-    return parameters;
-  }
-
-  public void setParameters(Set<ApplicationParameter> parameters) {
-    this.parameters = parameters;
-  }
-
-  public Set<Role> getAvailableRoles() {
-    return availableRoles;
-  }
-
-  public void setAvailableRoles(Set<Role> availableRoles) {
-    this.availableRoles = availableRoles;
-  }
-
-  public Set<Tree> getTrees() {
-    return trees;
-  }
-
-  public void setTrees(Set<Tree> trees) {
-    this.trees = trees;
-  }
-
-  public Set<ApplicationBackground> getBackgrounds() {
-    return backgrounds;
-  }
-
-  public void setBackgrounds(
-    Set<ApplicationBackground> backgrounds) {
-    this.backgrounds = backgrounds;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String name;
-    private @NotNull String type;
-    private String title;
-    private String theme;
-    private List<String> scales;
-    private String srs;
-    private @NotNull String jspTemplate;
-    private Boolean treeAutoRefresh;
-    private Boolean accessParentTerritory;
-    private Boolean accessChildrenTerritory;
-    private CartographyPermission situationMap;
-    private @NotNull Date createdDate;
-    private Set<ApplicationParameter> parameters;
-    private Set<Role> availableRoles;
-    private Set<Tree> trees;
-    private Set<ApplicationBackground> backgrounds;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setType(@NotNull String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder setTitle(String title) {
-      this.title = title;
-      return this;
-    }
-
-    public Builder setTheme(String theme) {
-      this.theme = theme;
-      return this;
-    }
-
-    public Builder setScales(List<String> scales) {
-      this.scales = scales;
-      return this;
-    }
-
-    public Builder setSrs(String srs) {
-      this.srs = srs;
-      return this;
-    }
-
-    public Builder setJspTemplate(@NotNull String jspTemplate) {
-      this.jspTemplate = jspTemplate;
-      return this;
-    }
-
-    public Builder setTreeAutoRefresh(Boolean treeAutoRefresh) {
-      this.treeAutoRefresh = treeAutoRefresh;
-      return this;
-    }
-
-    public Builder setAccessParentTerritory(Boolean accessParentTerritory) {
-      this.accessParentTerritory = accessParentTerritory;
-      return this;
-    }
-
-    public Builder setAccessChildrenTerritory(Boolean accessChildrenTerritory) {
-      this.accessChildrenTerritory = accessChildrenTerritory;
-      return this;
-    }
-
-    public Builder setSituationMap(CartographyPermission situationMap) {
-      this.situationMap = situationMap;
-      return this;
-    }
-
-    public Builder setCreatedDate(@NotNull Date createdDate) {
-      this.createdDate = createdDate;
-      return this;
-    }
-
-    public Builder setParameters(Set<ApplicationParameter> parameters) {
-      this.parameters = parameters;
-      return this;
-    }
-
-    public Builder setAvailableRoles(Set<Role> availableRoles) {
-      this.availableRoles = availableRoles;
-      return this;
-    }
-
-    public Builder setTrees(Set<Tree> trees) {
-      this.trees = trees;
-      return this;
-    }
-
-    public Builder setBackgrounds(Set<ApplicationBackground> backgrounds) {
-      this.backgrounds = backgrounds;
-      return this;
-    }
-
-    /**
-     * Build the application.
-     */
-    public Application build() {
-      return new Application(id, name, type, title, theme, scales, srs, jspTemplate,
-        treeAutoRefresh,
-        accessParentTerritory, accessChildrenTerritory, situationMap, createdDate, parameters,
-        availableRoles, trees, backgrounds);
-    }
-  }
 }

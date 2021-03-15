@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -17,6 +18,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_POST", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserPosition {
 
   /**
@@ -90,161 +96,21 @@ public class UserPosition {
   @NotNull
   private Territory territory;
 
-  public UserPosition() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof UserPosition))
+      return false;
+
+    UserPosition other = (UserPosition) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  private UserPosition(Integer id, String name, String organization,
-                       @Email String email, Date createdDate, Date expirationDate,
-                       String type,
-                       @NotNull User user,
-                       @NotNull Territory territory) {
-    this.id = id;
-    this.name = name;
-    this.organization = organization;
-    this.email = email;
-    this.createdDate = createdDate;
-    this.expirationDate = expirationDate;
-    this.type = type;
-    this.user = user;
-    this.territory = territory;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
-
-  public void setOrganization(String organization) {
-    this.organization = organization;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public Date getExpirationDate() {
-    return expirationDate;
-  }
-
-  public void setExpirationDate(Date datedDate) {
-    this.expirationDate = datedDate;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public Territory getTerritory() {
-    return territory;
-  }
-
-  public void setTerritory(Territory territory) {
-    this.territory = territory;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private String name;
-    private String organization;
-    private @Email String email;
-    private Date createdDate;
-    private Date expirationDate;
-    private String type;
-    private @NotNull User user;
-    private @NotNull Territory territory;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setOrganization(String organization) {
-      this.organization = organization;
-      return this;
-    }
-
-    public Builder setEmail(@Email String email) {
-      this.email = email;
-      return this;
-    }
-
-    public Builder setCreatedDate(Date createdDate) {
-      this.createdDate = createdDate;
-      return this;
-    }
-
-    public Builder setExpirationDate(Date expirationDate) {
-      this.expirationDate = expirationDate;
-      return this;
-    }
-
-    public Builder setType(String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Builder setUser(@NotNull User user) {
-      this.user = user;
-      return this;
-    }
-
-    public Builder setTerritory(@NotNull Territory territory) {
-      this.territory = territory;
-      return this;
-    }
-
-    public UserPosition build() {
-      return new UserPosition(id, name, organization, email, createdDate, expirationDate, type,
-        user,
-        territory);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

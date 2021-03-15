@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -16,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_PAR_TSK")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TaskParameter {
 
   /**
@@ -131,131 +137,21 @@ public class TaskParameter {
   @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAR"))
   private Task task;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof TaskParameter))
+      return false;
+
+    TaskParameter other = (TaskParameter) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public Integer getOrder() {
-    return order;
-  }
-
-  public void setOrder(Integer order) {
-    this.order = order;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getHelp() {
-    return help;
-  }
-
-  public void setHelp(String help) {
-    this.help = help;
-  }
-
-  public String getSelect() {
-    return select;
-  }
-
-  public void setSelect(String select) {
-    this.select = select;
-  }
-
-  public Boolean getSelectable() {
-    return selectable;
-  }
-
-  public void setSelectable(Boolean selectable) {
-    this.selectable = selectable;
-  }
-
-  public Boolean getEditable() {
-    return editable;
-  }
-
-  public void setEditable(Boolean editable) {
-    this.editable = editable;
-  }
-
-  public Boolean getRequired() {
-    return required;
-  }
-
-  public void setRequired(Boolean required) {
-    this.required = required;
-  }
-
-  public String getDefaultValue() {
-    return defaultValue;
-  }
-
-  public void setDefaultValue(String defaultValue) {
-    this.defaultValue = defaultValue;
-  }
-
-  public Integer getMaxLength() {
-    return maxLength;
-  }
-
-  public void setMaxLength(Integer maxLength) {
-    this.maxLength = maxLength;
-  }
-
-  public String getRelationAttributes() {
-    return relationAttributes;
-  }
-
-  public void setRelationAttributes(String relationAttributes) {
-    this.relationAttributes = relationAttributes;
-  }
-
-  public String getRelationAttributesRole() {
-    return relationAttributesRole;
-  }
-
-  public void setRelationAttributesRole(String relationAttributesRole) {
-    this.relationAttributesRole = relationAttributesRole;
-  }
-
-  public Task getTask() {
-    return task;
-  }
-
-  public void setTask(Task task) {
-    this.task = task;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

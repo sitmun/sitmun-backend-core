@@ -29,17 +29,17 @@ public class TerritoryRepositoryTest {
 
   @BeforeEach
   public void init() {
-    TerritoryType type = new TerritoryType.Builder().build();
+    TerritoryType type = TerritoryType.builder().build();
     type.setName("tipo Territorio 1");
     territoryTypeRepository.save(type);
 
     territory = Territory.builder()
-      .setName("Admin")
-      .setBlocked(false)
-      .setTerritorialAuthorityEmail("email@email.org")
-      .setCreatedDate(new Date())
-      .setTerritorialAuthorityName("Test")
-      .setType(type)
+      .name("Admin")
+      .blocked(false)
+      .territorialAuthorityEmail("email@email.org")
+      .createdDate(new Date())
+      .territorialAuthorityName("Test")
+      .type(type)
       .build();
   }
 

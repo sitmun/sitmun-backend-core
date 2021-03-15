@@ -1,9 +1,10 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -14,6 +15,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_ROLE", uniqueConstraints = {
   @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Role {
 
   /**
@@ -55,7 +61,7 @@ public class Role {
       name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")),
     inverseJoinColumns = @JoinColumn(
       name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")))
-  private Set<Application> applications = new HashSet<>();
+  private Set<Application> applications;
 
   /**
    * Tasks that have this role.
@@ -85,124 +91,21 @@ public class Role {
       foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
   private Set<CartographyPermission> permissions;
 
-  public Role() {
-  }
-
-  private Role(Integer id, @NotBlank String name, String description, Set<Application> applications,
-               Set<Task> tasks, Set<CartographyPermission> permissions) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.applications = applications;
-    this.tasks = tasks;
-    this.permissions = permissions;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String comments) {
-    this.description = comments;
-  }
-
-  public Set<Application> getApplications() {
-    return applications;
-  }
-
-  public void setApplications(Set<Application> applications) {
-    this.applications = applications;
-  }
-
-  public Set<Task> getTasks() {
-    return tasks;
-  }
-
-  public void setTasks(Set<Task> tasks) {
-    this.tasks = tasks;
-  }
-
-  public Set<CartographyPermission> getPermissions() {
-    return permissions;
-  }
-
-  public void setPermissions(Set<CartographyPermission> permissions) {
-    this.permissions = permissions;
-  }
-
   @Override
   public boolean equals(Object o) {
-    if (o instanceof Role) {
-      return ((Role) o).getId().equals(this.getId());
-    }
-    return false;
+    if (this == o) return true;
+
+    if (!(o instanceof Role))
+      return false;
+
+    Role other = (Role) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
   @Override
   public int hashCode() {
-    return super.hashCode();
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String name;
-    private String description;
-    private Set<Application> applications = new HashSet<>();
-    private Set<Task> tasks = new HashSet<>();
-    private Set<CartographyPermission> permissions = new HashSet<>();
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Builder setDescription(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder setApplications(Set<Application> applications) {
-      this.applications = applications;
-      return this;
-    }
-
-    public Builder setTasks(Set<Task> tasks) {
-      this.tasks = tasks;
-      return this;
-    }
-
-    public Builder setPermissions(Set<CartographyPermission> permissions) {
-      this.permissions = permissions;
-      return this;
-    }
-
-    public Role build() {
-      return new Role(id, name, description, applications, tasks, permissions);
-    }
+    return getClass().hashCode();
   }
 }

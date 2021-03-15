@@ -39,30 +39,30 @@ public class ApplicationRepositoryTest {
   public void init() {
 
     application = Application.builder()
-      .setName("Test")
-      .setCreatedDate(Date.from(Instant.now()))
-      .setTrees(null)
-      .setTreeAutoRefresh(true)
-      .setScales(null)
-      .setSituationMap(null)
-      .setParameters(null)
-      .setSrs(null)
-      .setParameters(new HashSet<>())
-      .setTheme(null)
-      .setType(null)
-      .setTitle("Test")
-      .setAvailableRoles(new HashSet<>())
-      .setBackgrounds(new HashSet<>())
+      .name("Test")
+      .createdDate(Date.from(Instant.now()))
+      .trees(null)
+      .treeAutoRefresh(true)
+      .scales(null)
+      .situationMap(null)
+      .parameters(null)
+      .srs(null)
+      .parameters(new HashSet<>())
+      .theme(null)
+      .type(null)
+      .title("Test")
+      .availableRoles(new HashSet<>())
+      .backgrounds(new HashSet<>())
       .build();
 
     Role rol = Role.builder()
-      .setName("Rol 1")
+      .name("Rol 1")
       .build();
     application.getAvailableRoles().add(rol);
 
     CartographyPermission backgroundMap;
     backgroundMap = CartographyPermission.builder()
-      .setName("Background map")
+      .name("Background map")
       .build();
     cartographyPermissionRepository.save(backgroundMap);
 

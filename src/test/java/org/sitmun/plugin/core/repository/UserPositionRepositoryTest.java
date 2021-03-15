@@ -47,22 +47,20 @@ public class UserPositionRepositoryTest {
     userRepository.save(user);
 
     Territory territory = Territory.builder()
-      .setName("Admin")
-      .setBlocked(false)
-      .setTerritorialAuthorityEmail("email@email.org")
-      .setCreatedDate(new Date())
-      .setTerritorialAuthorityName("Test")
+      .name("Admin")
+      .blocked(false)
+      .territorialAuthorityEmail("email@email.org")
+      .createdDate(new Date())
+      .territorialAuthorityName("Test")
       .build();
     territorioRepository.save(territory);
 
     userPosition = UserPosition.builder()
-      .setName("Test")
-      .setEmail(null)
-      .setCreatedDate(new Date())
-      .setExpirationDate(null)
-      .setOrganization("Test")
-      .setTerritory(territory)
-      .setUser(user)
+      .name("Test")
+      .createdDate(new Date())
+      .organization("Test")
+      .territory(territory)
+      .user(user)
       .build();
 
   }

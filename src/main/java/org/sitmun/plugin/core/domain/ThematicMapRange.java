@@ -1,11 +1,13 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
@@ -15,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_THE_RANK")
 @IdClass(ThematicMapRangeId.class)
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ThematicMapRange {
 
   /**
@@ -102,108 +109,21 @@ public class ThematicMapRange {
   @Column(name = "TRK_DESC", length = 250)
   private String description;
 
-  public ThematicMap getMap() {
-    return map;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof ThematicMapRange))
+      return false;
+
+    ThematicMapRange other = (ThematicMapRange) o;
+
+    return Objects.equals(map, other.map) && Objects.equals(position, other.position);
   }
 
-  public void setMap(ThematicMap map) {
-    this.map = map;
-  }
-
-  public Integer getPosition() {
-    return position;
-  }
-
-  public void setPosition(Integer position) {
-    this.position = position;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Boolean getAllowNullValues() {
-    return allowNullValues;
-  }
-
-  public void setAllowNullValues(Boolean allowNullValues) {
-    this.allowNullValues = allowNullValues;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public BigDecimal getMinimumValue() {
-    return minimumValue;
-  }
-
-  public void setMinimumValue(BigDecimal minimumValue) {
-    this.minimumValue = minimumValue;
-  }
-
-  public BigDecimal getMaximumValue() {
-    return maximumValue;
-  }
-
-  public void setMaximumValue(BigDecimal maximumValue) {
-    this.maximumValue = maximumValue;
-  }
-
-  public String getFillStyle() {
-    return fillStyle;
-  }
-
-  public void setFillStyle(String fillStyle) {
-    this.fillStyle = fillStyle;
-  }
-
-  public String getFillColor() {
-    return fillColor;
-  }
-
-  public void setFillColor(String fillColor) {
-    this.fillColor = fillColor;
-  }
-
-  public String getBorderStyle() {
-    return borderStyle;
-  }
-
-  public void setBorderStyle(String borderStyle) {
-    this.borderStyle = borderStyle;
-  }
-
-  public String getBorderColor() {
-    return borderColor;
-  }
-
-  public void setBorderColor(String borderColor) {
-    this.borderColor = borderColor;
-  }
-
-  public Integer getBorderSize() {
-    return borderSize;
-  }
-
-  public void setBorderSize(Integer borderSize) {
-    this.borderSize = borderSize;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }
 

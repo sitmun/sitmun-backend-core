@@ -98,16 +98,16 @@ public class ApplicationResourceTest {
     withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
-        .setName("Territorio 1")
-        .setCode("")
-        .setBlocked(false)
+        .name("Territorio 1")
+        .code("")
+        .blocked(false)
         .build();
       territoryRepository.save(territory);
 
       applications = new ArrayList<>();
       applicationParameters = new ArrayList<>();
 
-      publicRole = Role.builder().setName(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      publicRole = Role.builder().name(AuthoritiesConstants.USUARIO_PUBLICO).build();
       roleRepository.save(publicRole);
 
       Set<Role> availableRoles = new HashSet<>();
@@ -125,10 +125,10 @@ public class ApplicationResourceTest {
 
       //Services
       Service publicService = Service.builder()
-        .setName(PUBLIC_SERVICE_NAME)
-        .setType("")
-        .setServiceURL("")
-        .setBlocked(false)
+        .name(PUBLIC_SERVICE_NAME)
+        .type("")
+        .serviceURL("")
+        .blocked(false)
         .build();
       //publicService.setLayers(cartographies);
 
@@ -138,12 +138,12 @@ public class ApplicationResourceTest {
 
       //Cartographies
       Cartography publicCartography = Cartography.builder()
-        .setName(PUBLIC_CARTOGRAPHY_NAME)
-        .setService(publicService)
-        .setLayers(Collections.emptyList())
-        .setQueryableFeatureAvailable(false)
-        .setQueryableFeatureEnabled(false)
-        .setBlocked(false)
+        .name(PUBLIC_CARTOGRAPHY_NAME)
+        .service(publicService)
+        .layers(Collections.emptyList())
+        .queryableFeatureAvailable(false)
+        .queryableFeatureEnabled(false)
+        .blocked(false)
         .build();
 
       cartographies = new HashSet<>();
@@ -175,9 +175,9 @@ public class ApplicationResourceTest {
       cartographyPermissions = new HashSet<>();
 
       CartographyPermission publicBackgroundMap = CartographyPermission.builder()
-        .setName(PUBLIC_BACKGROUND_MAP_NAME)
-        .setRoles(availableRoles)
-        .setMembers(cartographies)
+        .name(PUBLIC_BACKGROUND_MAP_NAME)
+        .roles(availableRoles)
+        .members(cartographies)
         .build();
       publicBackgroundMap = cartographyPermissionRepository.save(publicBackgroundMap);
       cartographyPermissions.add(publicBackgroundMap);
@@ -193,9 +193,9 @@ public class ApplicationResourceTest {
       publicBackground = backgrounds.iterator().next();
 
       Application application = Application.builder()
-        .setName(NON_PUBLIC_APPLICATION_NAME)
-        .setType("I")
-        .setJspTemplate("")
+        .name(NON_PUBLIC_APPLICATION_NAME)
+        .type("I")
+        .jspTemplate("")
         .build();
       SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
       String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
@@ -207,21 +207,21 @@ public class ApplicationResourceTest {
       applications.add(application);
 
       CartographyPermission publicSituaionMap = CartographyPermission.builder()
-        .setName(PUBLIC_SITUATION_MAP_NAME)
-        .setRoles(availableRoles)
-        .setMembers(cartographies)
+        .name(PUBLIC_SITUATION_MAP_NAME)
+        .roles(availableRoles)
+        .members(cartographies)
         .build();
       publicSituaionMap = cartographyPermissionRepository.save(publicSituaionMap);
       cartographyPermissions.add(publicSituaionMap);
 
       Application publicApplication = Application.builder()
-        .setType("I")
-        .setName(PUBLIC_APPLICATION_NAME)
-        .setAvailableRoles(availableRoles)
-        .setTrees(trees)
-        .setSituationMap(publicSituaionMap)
-        .setJspTemplate("")
-        .setCreatedDate(Date.from(Instant.now()))
+        .type("I")
+        .name(PUBLIC_APPLICATION_NAME)
+        .availableRoles(availableRoles)
+        .trees(trees)
+        .situationMap(publicSituaionMap)
+        .jspTemplate("")
+        .createdDate(Date.from(Instant.now()))
         .build();
 
       applications.add(publicApplication);
@@ -292,6 +292,7 @@ public class ApplicationResourceTest {
       .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
   }
 
+  @Test
   @Disabled
   public void getPublicApplicationParamsAsPublic() throws Exception {
     // TODO

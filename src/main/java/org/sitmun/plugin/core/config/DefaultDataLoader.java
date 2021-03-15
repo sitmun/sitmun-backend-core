@@ -78,7 +78,7 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role sitmunAdminRole;
     if (!optRole.isPresent()) {
       sitmunAdminRole = Role.builder()
-        .setName(AuthoritiesConstants.ADMIN_SITMUN)
+        .name(AuthoritiesConstants.ADMIN_SITMUN)
         .build();
       roleRepository.save(sitmunAdminRole);
     } else {
@@ -88,7 +88,7 @@ public class DefaultDataLoader implements ApplicationRunner {
     optRole = roleRepository.findOneByName(AuthoritiesConstants.ADMIN_ORGANIZACION);
     if (!optRole.isPresent()) {
       organizacionAdminRole = Role.builder()
-        .setName(AuthoritiesConstants.ADMIN_ORGANIZACION)
+        .name(AuthoritiesConstants.ADMIN_ORGANIZACION)
         .build();
       roleRepository.save(organizacionAdminRole);
     }
@@ -96,7 +96,7 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role territorialRole;
     if (!optRole.isPresent()) {
       territorialRole = Role.builder()
-        .setName(AuthoritiesConstants.USUARIO_TERRITORIAL)
+        .name(AuthoritiesConstants.USUARIO_TERRITORIAL)
         .build();
       roleRepository.save(territorialRole);
     } else {
@@ -107,7 +107,7 @@ public class DefaultDataLoader implements ApplicationRunner {
     Role publicRole;
     if (!optRole.isPresent()) {
       publicRole = Role.builder()
-        .setName(AuthoritiesConstants.USUARIO_PUBLICO)
+        .name(AuthoritiesConstants.USUARIO_PUBLICO)
         .build();
       roleRepository.save(publicRole);
     } else {
@@ -117,9 +117,9 @@ public class DefaultDataLoader implements ApplicationRunner {
     Territory defaultTerritory;
     if (!optTerritory.isPresent()) {
       defaultTerritory = Territory.builder()
-        .setName(this.defaultTerritoryName)
-        .setCode("")
-        .setBlocked(false)
+        .name(this.defaultTerritoryName)
+        .code("")
+        .blocked(false)
         .build();
       territoryRepository.save(defaultTerritory);
     } else {
@@ -139,20 +139,23 @@ public class DefaultDataLoader implements ApplicationRunner {
       sitmunAdmin.setUsername(SecurityConstants.SITMUN_ADMIN_USERNAME);
       sitmunAdmin.setPassword("admin");
       sitmunAdmin = userService.createUser(sitmunAdmin);
-      UserConfiguration userConf = new UserConfiguration.Builder().build();
-      userConf.setTerritory(defaultTerritory);
-      userConf.setRole(sitmunAdminRole);
-      userConf.setUser(sitmunAdmin);
+      UserConfiguration userConf = UserConfiguration.builder()
+        .territory(defaultTerritory)
+        .role(sitmunAdminRole)
+        .user(sitmunAdmin)
+        .build();
       this.userConfigurationRepository.save(userConf);
-      userConf = new UserConfiguration.Builder().build();
-      userConf.setTerritory(defaultTerritory);
-      userConf.setRole(territorialRole);
-      userConf.setUser(sitmunAdmin);
+      userConf = UserConfiguration.builder()
+        .territory(defaultTerritory)
+        .role(territorialRole)
+        .user(sitmunAdmin)
+        .build();
       this.userConfigurationRepository.save(userConf);
-      userConf = new UserConfiguration.Builder().build();
-      userConf.setTerritory(defaultTerritory);
-      userConf.setRole(publicRole);
-      userConf.setUser(sitmunAdmin);
+      userConf = UserConfiguration.builder()
+        .territory(defaultTerritory)
+        .role(publicRole)
+        .user(sitmunAdmin)
+        .build();
       this.userConfigurationRepository.save(userConf);
     }
 
@@ -168,10 +171,11 @@ public class DefaultDataLoader implements ApplicationRunner {
       sitmunPublicUser.setUsername(SecurityConstants.SITMUN_PUBLIC_USERNAME);
       sitmunPublicUser.setPassword("public");
       sitmunPublicUser = userService.createUser(sitmunPublicUser);
-      UserConfiguration userConf = new UserConfiguration.Builder().build();
-      userConf.setTerritory(defaultTerritory);
-      userConf.setRole(publicRole);
-      userConf.setUser(sitmunPublicUser);
+      UserConfiguration userConf = UserConfiguration.builder()
+        .territory(defaultTerritory)
+        .role(publicRole)
+        .user(sitmunPublicUser)
+        .build();
       this.userConfigurationRepository.save(userConf);
     }
 

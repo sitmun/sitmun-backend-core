@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -11,6 +13,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_LANGUAGE",
   uniqueConstraints = {@UniqueConstraint(columnNames = {"LAN_SHORTNAME"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Language {
 
   /**
@@ -42,27 +49,21 @@ public class Language {
   @NotBlank
   private String name;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Language))
+      return false;
+
+    Language other = (Language) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getShortname() {
-    return shortname;
-  }
-
-  public void setShortname(String shortname) {
-    this.shortname = shortname;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

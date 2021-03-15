@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
@@ -17,6 +18,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_FIL_GI")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CartographyFilter {
 
   /**
@@ -91,75 +97,21 @@ public class CartographyFilter {
   @NotNull
   private Cartography cartography;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof CartographyFilter))
+      return false;
+
+    CartographyFilter other = (CartographyFilter) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Boolean getRequired() {
-    return required;
-  }
-
-  public void setRequired(Boolean required) {
-    this.required = required;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public TerritoryType getTerritorialLevel() {
-    return territorialLevel;
-  }
-
-  public void setTerritorialLevel(TerritoryType territorialLevel) {
-    this.territorialLevel = territorialLevel;
-  }
-
-  public String getColumn() {
-    return column;
-  }
-
-  public void setColumn(String column) {
-    this.column = column;
-  }
-
-  public List<String> getValues() {
-    return values;
-  }
-
-  public void setValues(List<String> value) {
-    this.values = value;
-  }
-
-  public String getValueType() {
-    return valueType;
-  }
-
-  public void setValueType(String valueType) {
-    this.valueType = valueType;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

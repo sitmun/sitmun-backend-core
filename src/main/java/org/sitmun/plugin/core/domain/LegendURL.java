@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.Column;
@@ -13,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  * Legend provider.
  */
 @Embeddable
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LegendURL {
 
   /**
@@ -40,36 +46,4 @@ public class LegendURL {
   @NotNull
   @HttpURL
   private String onlineResource;
-
-  public Integer getWidth() {
-    return width;
-  }
-
-  public void setWidth(Integer width) {
-    this.width = width;
-  }
-
-  public Integer getHeight() {
-    return height;
-  }
-
-  public void setHeight(Integer height) {
-    this.height = height;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getOnlineResource() {
-    return onlineResource;
-  }
-
-  public void setOnlineResource(String onlineResource) {
-    this.onlineResource = onlineResource;
-  }
 }

@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_TRANSLATION", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"TRA_ELEID", "TRA_COLUMN", "TRA_LANID"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Translation {
 
   /**
@@ -58,43 +65,21 @@ public class Translation {
   @NotBlank
   private String translation;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Translation))
+      return false;
+
+    Translation other = (Translation) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Integer getElement() {
-    return element;
-  }
-
-  public void setElement(Integer element) {
-    this.element = element;
-  }
-
-  public String getColumn() {
-    return column;
-  }
-
-  public void setColumn(String column) {
-    this.column = column;
-  }
-
-  public Language getLanguage() {
-    return language;
-  }
-
-  public void setLanguage(Language language) {
-    this.language = language;
-  }
-
-  public String getTranslation() {
-    return translation;
-  }
-
-  public void setTranslation(String translation) {
-    this.translation = translation;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

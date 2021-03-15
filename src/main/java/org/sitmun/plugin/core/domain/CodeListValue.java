@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -13,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_CODELIST",
   uniqueConstraints = {@UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CodeListValue {
 
   /**
@@ -68,74 +74,28 @@ public class CodeListValue {
   @Column(name = "COD_DESCRIPTION")
   private String description;
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getCodeListName() {
-    return codeListName;
-  }
-
-  public void setCodeListName(String codeListName) {
-    this.codeListName = codeListName;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public Boolean getSystem() {
-    return system;
-  }
-
-  public void setSystem(Boolean system) {
-    this.system = system;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getStoredCodeListName() {
-    return storedCodeListName;
-  }
-
-  public void setStoredCodeListName(String storedCodeListName) {
-    this.storedCodeListName = storedCodeListName;
-  }
-
-  public String getStoredValue() {
-    return storedValue;
-  }
-
-  public void setStoredValue(String storedValue) {
-    this.storedValue = storedValue;
-  }
-
-  public Boolean getStoredSystem() {
-    return storedSystem;
-  }
-
-  public void setStoredSystem(Boolean storedSystem) {
-    this.storedSystem = storedSystem;
-  }
-
   @PostLoad
   public void postLoad() {
     storedCodeListName = codeListName;
     storedValue = value;
     storedSystem = system;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof CodeListValue))
+      return false;
+
+    CodeListValue other = (CodeListValue) o;
+
+    return id != null &&
+      id.equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

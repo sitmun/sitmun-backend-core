@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -12,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_TSK_UI")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TaskUI {
 
   /**
@@ -49,36 +56,21 @@ public class TaskUI {
   @Min(0)
   private Integer order;
 
-  public String getTooltip() {
-    return tooltip;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof TaskType))
+      return false;
+
+    TaskType other = (TaskType) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setTooltip(String tooltip) {
-    this.tooltip = tooltip;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
-
-  public Integer getOrder() {
-    return order;
-  }
-
-  public void setOrder(Integer order) {
-    this.order = order;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
 }

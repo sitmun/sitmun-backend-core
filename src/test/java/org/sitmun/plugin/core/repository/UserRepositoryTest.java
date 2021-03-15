@@ -25,16 +25,16 @@ public class UserRepositoryTest {
 
   @BeforeEach
   public void init() {
-    TerritoryType type = new TerritoryType.Builder().build();
+    TerritoryType type = TerritoryType.builder().build();
     type.setName("tipo Territorio 1");
 
     Territory territory = Territory.builder()
-      .setName("Admin")
-      .setBlocked(false)
-      .setTerritorialAuthorityEmail("email@email.org")
-      .setCreatedDate(new Date())
-      .setTerritorialAuthorityName("Test")
-      .setType(type)
+      .name("Admin")
+      .blocked(false)
+      .territorialAuthorityEmail("email@email.org")
+      .createdDate(new Date())
+      .territorialAuthorityName("Test")
+      .type(type)
       .build();
 
     user = new User();
@@ -48,14 +48,14 @@ public class UserRepositoryTest {
     user.setPermissions(null);
 
     Role role = Role.builder()
-      .setName("rol-admin")
-      .setDescription("rol de administrador")
+      .name("rol-admin")
+      .description("rol de administrador")
       .build();
     UserConfiguration conf = UserConfiguration.builder()
-      .setUser(user)
-      .setRole(role)
-      .setTerritory(territory)
-      .setAppliesToChildrenTerritories(false)
+      .user(user)
+      .role(role)
+      .territory(territory)
+      .appliesToChildrenTerritories(false)
       .build();
 
   }

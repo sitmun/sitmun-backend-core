@@ -72,40 +72,40 @@ public class CartographyRepositoryDataRestTest {
     withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
-        .setName("Territorio 1")
-        .setCode("")
-        .setBlocked(false)
+        .name("Territorio 1")
+        .code("")
+        .blocked(false)
         .build();
       territoryRepository.save(territory);
 
       service = Service.builder()
-        .setName("Service")
-        .setServiceURL("")
-        .setType("")
-        .setBlocked(false)
+        .name("Service")
+        .serviceURL("")
+        .type("")
+        .blocked(false)
         .build();
       serviceRepository.save(service);
 
       cartographies = new ArrayList<>();
       availabilities = new ArrayList<>();
 
-      Cartography.Builder cartographyDefaults = Cartography.builder()
-        .setType("I")
-        .setName(CARTOGRAPHY_NAME)
-        .setLayers(Collections.emptyList())
-        .setQueryableFeatureAvailable(false)
-        .setQueryableFeatureEnabled(false)
-        .setService(service)
-        .setAvailabilities(Collections.emptySet())
-        .setBlocked(false);
+      Cartography.CartographyBuilder cartographyDefaults = Cartography.builder()
+        .type("I")
+        .name(CARTOGRAPHY_NAME)
+        .layers(Collections.emptyList())
+        .queryableFeatureAvailable(false)
+        .queryableFeatureEnabled(false)
+        .service(service)
+        .availabilities(Collections.emptySet())
+        .blocked(false);
 
       cartography = cartographyDefaults
-        .setName(CARTOGRAPHY_NAME)
+        .name(CARTOGRAPHY_NAME)
         .build();
       cartographies.add(cartography);
 
       Cartography cartographyWithAvailabilities = cartographyDefaults
-        .setName("Cartography with availabilities")
+        .name("Cartography with availabilities")
         .build();
 
       cartographies.add(cartographyWithAvailabilities);

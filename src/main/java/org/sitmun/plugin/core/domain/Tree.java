@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
@@ -13,6 +15,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_TREE")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Tree {
 
   /**
@@ -50,6 +57,7 @@ public class Tree {
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL,
     orphanRemoval = true, fetch = FetchType.LAZY)
+  @Builder.Default
   private Set<TreeNode> allNodes = new HashSet<>();
 
   @ManyToMany
@@ -60,46 +68,23 @@ public class Tree {
     inverseJoinColumns = @JoinColumn(
       name = "TRO_ROLEID",
       foreignKey = @ForeignKey(name = "STM_ARR_FK_ROL")))
-  private Set<Role> availableRoles = new HashSet<>();
+  private Set<Role> availableRoles;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Tree))
+      return false;
+
+    Tree other = (Tree) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public User getOwner() {
-    return owner;
-  }
-
-  public void setOwner(User owner) {
-    this.owner = owner;
-  }
-
-  public Set<TreeNode> getAllNodes() {
-    return allNodes;
-  }
-
-  public void setAllNodes(Set<TreeNode> roots) {
-    this.allNodes = roots;
-  }
-
-  public Set<Role> getAvailableRoles() {
-    return availableRoles;
-  }
-
-  public void setAvailableRoles(Set<Role> availableRoles) {
-    this.availableRoles = availableRoles;
-  }
-
 }

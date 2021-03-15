@@ -58,9 +58,9 @@ public class RoleRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       roles = new ArrayList<>();
       roles.add(roleRepository
-        .save(Role.builder().setName("RoleRepositoryTest_1").build()));
+        .save(Role.builder().name("RoleRepositoryTest_1").build()));
       roles.add(roleRepository
-        .save(Role.builder().setName("RoleRepositoryTest_2").build()));
+        .save(Role.builder().name("RoleRepositoryTest_2").build()));
     });
   }
 

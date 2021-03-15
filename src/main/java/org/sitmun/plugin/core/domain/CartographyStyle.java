@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_STY_GI")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CartographyStyle {
 
   /**
@@ -67,52 +74,22 @@ public class CartographyStyle {
   @NotNull
   private Cartography cartography;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof CartographyStyle))
+      return false;
+
+    CartographyStyle other = (CartographyStyle) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public LegendURL getLegendURL() {
-    return legendURL;
-  }
-
-  public void setLegendURL(LegendURL legendURL) {
-    this.legendURL = legendURL;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }
 

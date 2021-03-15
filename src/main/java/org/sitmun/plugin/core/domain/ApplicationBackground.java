@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +12,11 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "STM_APP_BCKG", uniqueConstraints = {
   @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationBackground {
 
   /**
@@ -50,37 +57,21 @@ public class ApplicationBackground {
   @Column(name = "ABC_ORDER", precision = 6)
   private Integer order;
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-  public Integer getId() {
-    return id;
+    if (!(o instanceof ApplicationBackground))
+      return false;
+
+    ApplicationBackground other = (ApplicationBackground) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
-
-  public Integer getOrder() {
-    return order;
-  }
-
-  public void setOrder(Integer order) {
-    this.order = order;
-  }
-
-  public Application getApplication() {
-    return application;
-  }
-
-  public void setApplication(Application application) {
-    this.application = application;
-  }
-
-  public Background getBackground() {
-    return background;
-  }
-
-  public void setBackground(Background background) {
-    this.background = background;
-  }
-
 }

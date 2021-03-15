@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -12,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_TER_TYP", uniqueConstraints = {
   @UniqueConstraint(name = "STM_TET_NOM_UK", columnNames = {"TET_NAME"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TerritoryType {
 
   /**
@@ -36,50 +43,21 @@ public class TerritoryType {
   @NotBlank
   private String name;
 
-  public TerritoryType() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof TerritoryType))
+      return false;
+
+    TerritoryType other = (TerritoryType) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  private TerritoryType(Integer id, @NotBlank String name) {
-    this.id = id;
-    this.name = name;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String name;
-
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
-
-    public TerritoryType build() {
-      return new TerritoryType(id, name);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

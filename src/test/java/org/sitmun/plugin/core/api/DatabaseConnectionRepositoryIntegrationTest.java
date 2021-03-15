@@ -66,10 +66,10 @@ public class DatabaseConnectionRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       connections = new ArrayList<>();
       connections.add(connectionRepository
-        .save(DatabaseConnection.builder().setName("ConnectionRepositoryTest_1").setDriver("driver1")
+        .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_1").driver("driver1")
           .build()));
       connections.add(connectionRepository
-        .save(DatabaseConnection.builder().setName("ConnectionRepositoryTest_2").setDriver("driver2")
+        .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_2").driver("driver2")
           .build()));
     });
   }

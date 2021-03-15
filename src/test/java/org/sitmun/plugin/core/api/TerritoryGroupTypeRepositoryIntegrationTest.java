@@ -58,9 +58,9 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
     withMockSitmunAdmin(() -> {
       territoryGroupTypes = new ArrayList<>();
       territoryGroupTypes.add(territoryGroupTypeRepository
-        .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_1").build()));
+        .save(TerritoryGroupType.builder().name("TerritoryGroupTypeTest_1").build()));
       territoryGroupTypes.add(territoryGroupTypeRepository
-        .save(TerritoryGroupType.builder().setName("TerritoryGroupTypeTest_2").build()));
+        .save(TerritoryGroupType.builder().name("TerritoryGroupTypeTest_2").build()));
     });
   }
 

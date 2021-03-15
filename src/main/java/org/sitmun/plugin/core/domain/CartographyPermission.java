@@ -2,6 +2,7 @@ package org.sitmun.plugin.core.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -16,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_GRP_GI")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CartographyPermission {
 
   public static final String TYPE_SITUATION_MAP = "M";
@@ -89,145 +95,26 @@ public class CartographyPermission {
   @OneToMany(mappedBy = "situationMap")
   private Set<Application> applications;
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public Set<Cartography> getMembers() {
-    return members;
-  }
-
-  public void setMembers(Set<Cartography> members) {
-    this.members = members;
-  }
-
-  public Set<Role> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(Set<Role> roles) {
-    this.roles = roles;
-  }
-
-  public CartographyPermission() {
-  }
-
-  private CartographyPermission(Integer id, @NotBlank String name, String type, String storedType, Set<Cartography> members, Set<Role> roles, Set<Background> backgrounds, Set<Application> applications) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.storedType = storedType;
-    this.members = members;
-    this.roles = roles;
-    this.backgrounds = backgrounds;
-    this.applications = applications;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public String getStoredType() {
-    return storedType;
-  }
-
-  public void setStoredType(String storedType) {
-    this.storedType = storedType;
-  }
-
-  public Set<Background> getBackgrounds() {
-    return backgrounds;
-  }
-
-  public void setBackgrounds(Set<Background> backgrounds) {
-    this.backgrounds = backgrounds;
-  }
-
-  public Set<Application> getApplications() {
-    return applications;
-  }
-
-  public void setApplications(Set<Application> applications) {
-    this.applications = applications;
-  }
-
   @PostLoad
   public void postLoad() {
     storedType = type;
   }
 
-  public static class Builder {
-    private Integer id;
-    private @NotBlank String name;
-    private String type;
-    private String storedType;
-    private Set<Cartography> members;
-    private Set<Role> roles;
-    private Set<Background> backgrounds;
-    private Set<Application> applications;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-    public Builder setId(Integer id) {
-      this.id = id;
-      return this;
-    }
+    if (!(o instanceof CartographyPermission))
+      return false;
 
-    public Builder setName(@NotBlank String name) {
-      this.name = name;
-      return this;
-    }
+    CartographyPermission other = (CartographyPermission) o;
 
-    public Builder setType(String type) {
-      this.type = type;
-      return this;
-    }
+    return id != null &&
+      id.equals(other.getId());
+  }
 
-    public Builder setStoredType(String storedType) {
-      this.storedType = storedType;
-      return this;
-    }
-
-    public Builder setMembers(Set<Cartography> members) {
-      this.members = members;
-      return this;
-    }
-
-    public Builder setRoles(Set<Role> roles) {
-      this.roles = roles;
-      return this;
-    }
-
-    public Builder setBackgrounds(Set<Background> backgrounds) {
-      this.backgrounds = backgrounds;
-      return this;
-    }
-
-    public Builder setApplications(Set<Application> applications) {
-      this.applications = applications;
-      return this;
-    }
-
-    public CartographyPermission build() {
-      return new CartographyPermission(id, name, type, storedType, members, roles, backgrounds, applications);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

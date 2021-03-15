@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -20,6 +21,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_USER", uniqueConstraints = {
   @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
 
   @TableGenerator(
@@ -100,120 +106,37 @@ public class User {
    * User positions.
    */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @Builder.Default
   private Set<UserPosition> positions = new HashSet<>();
 
   /**
    * User permissions.
    */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @Builder.Default
   private Set<UserConfiguration> permissions = new HashSet<>();
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getStoredPassword() {
-    return storedPassword;
-  }
-
-  public void setStoredPassword(String storedPassword) {
-    this.storedPassword = storedPassword;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public String getIdentificationNumber() {
-    return identificationNumber;
-  }
-
-  public void setIdentificationNumber(String identificationNumber) {
-    this.identificationNumber = identificationNumber;
-  }
-
-  public String getIdentificationType() {
-    return identificationType;
-  }
-
-  public void setIdentificationType(String identificationType) {
-    this.identificationType = identificationType;
-  }
-
-  public Boolean getAdministrator() {
-    return administrator;
-  }
-
-  public void setAdministrator(Boolean administrator) {
-    this.administrator = administrator;
-  }
-
-  public Boolean getBlocked() {
-    return blocked;
-  }
-
-  public void setBlocked(Boolean blocked) {
-    this.blocked = blocked;
-  }
-
-  public Boolean getGeneric() {
-    return generic;
-  }
-
-  public void setGeneric(Boolean generic) {
-    this.generic = generic;
-  }
-
-  public Set<UserPosition> getPositions() {
-    return positions;
-  }
-
-  public void setPositions(Set<UserPosition> positions) {
-    this.positions = positions;
-  }
-
-  public Set<UserConfiguration> getPermissions() {
-    return permissions;
-  }
-
-  public void setPermissions(Set<UserConfiguration> permissions) {
-    this.permissions = permissions;
-  }
 
   @PostLoad
   public void postLoad() {
     storedPassword = password;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof User))
+      return false;
+
+    User other = (User) o;
+
+    return id != null &&
+      id.equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
 }

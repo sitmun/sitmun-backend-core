@@ -49,7 +49,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   public void mustNotBeBlank() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("   ").build()))
+      .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("   ").build()))
     ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property").value("name"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
@@ -60,7 +60,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
     long count = repository.count();
     MvcResult result = mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(TerritoryGroupType.builder().setName("Example").build()))
+      .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("Example").build()))
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn();

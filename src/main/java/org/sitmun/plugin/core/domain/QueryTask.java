@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -13,6 +14,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_QUERY")
 @PrimaryKeyJoinColumn(name = "QUE_ID")
+@Builder(builderMethodName = "queryBuilder")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class QueryTask extends Task {
 
   /**
@@ -42,35 +48,21 @@ public class QueryTask extends Task {
   @JoinColumn(name = "QUE_TASKID")
   private Task reportTask;
 
-  public String getCommand() {
-    return command;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof QueryTask))
+      return false;
+
+    QueryTask other = (QueryTask) o;
+
+    return getId() != null &&
+      getId().equals(other.getId());
   }
 
-  public void setCommand(String command) {
-    this.command = command;
-  }
-
-  public String getScope() {
-    return scope;
-  }
-
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Task getReportTask() {
-    return reportTask;
-  }
-
-  public void setReportTask(Task reportTask) {
-    this.reportTask = reportTask;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

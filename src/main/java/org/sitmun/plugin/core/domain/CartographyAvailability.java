@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +16,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_AVAIL_GI", uniqueConstraints = {
   @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CartographyAvailability {
 
   /**
@@ -63,57 +68,23 @@ public class CartographyAvailability {
   @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_DCA_FK_CAR"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
-  @JsonBackReference
   private Cartography cartography;
 
-  /**
-   * Provides a human readable description of the grant.
-   *
-   * @return a short description of the grant
-   */
-  public String toString() {
-    return "Cartography=" + this.cartography.getId()
-      + ",Territorio=" + this.territory.getId()
-      + "fechaAlta=" + this.createdDate;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof CartographyAvailability))
+      return false;
+
+    CartographyAvailability other = (CartographyAvailability) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public String getOwner() {
-    return owner;
-  }
-
-  public void setOwner(String owner) {
-    this.owner = owner;
-  }
-
-  public Territory getTerritory() {
-    return territory;
-  }
-
-  public void setTerritory(Territory territory) {
-    this.territory = territory;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }

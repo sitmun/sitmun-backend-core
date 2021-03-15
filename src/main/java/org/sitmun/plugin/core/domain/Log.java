@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import lombok.*;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
 
@@ -16,6 +17,11 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_LOG")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Log {
 
   /**
@@ -139,139 +145,21 @@ public class Log {
   @Column(name = "LOG_OTHER", length = 4000)
   private String other;
 
-  public Integer getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof Log))
+      return false;
+
+    Log other = (Log) o;
+
+    return id != null &&
+      id.equals(other.getId());
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public Date getDate() {
-    return date;
-  }
-
-  public void setDate(Date date) {
-    this.date = date;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public Application getApplication() {
-    return application;
-  }
-
-  public void setApplication(Application application) {
-    this.application = application;
-  }
-
-  public Territory getTerritory() {
-    return territory;
-  }
-
-  public void setTerritory(Territory territory) {
-    this.territory = territory;
-  }
-
-  public Task getTask() {
-    return task;
-  }
-
-  public void setTask(Task task) {
-    this.task = task;
-  }
-
-  public Cartography getCartography() {
-    return cartography;
-  }
-
-  public void setCartography(Cartography cartography) {
-    this.cartography = cartography;
-  }
-
-  public Integer getCounter() {
-    return counter;
-  }
-
-  public void setCounter(Integer counter) {
-    this.counter = counter;
-  }
-
-  public String getTerritoryCode() {
-    return territoryCode;
-  }
-
-  public void setTerritoryCode(String territoryCode) {
-    this.territoryCode = territoryCode;
-  }
-
-  public List<String> getTerritories() {
-    return territories;
-  }
-
-  public void setTerritories(List<String> territoryExtent) {
-    this.territories = territoryExtent;
-  }
-
-  public String getData() {
-    return data;
-  }
-
-  public void setData(String data) {
-    this.data = data;
-  }
-
-  public String getSrs() {
-    return srs;
-  }
-
-  public void setSrs(String srs) {
-    this.srs = srs;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public Boolean getBuffer() {
-    return buffer;
-  }
-
-  public void setBuffer(Boolean buffer) {
-    this.buffer = buffer;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getOther() {
-    return other;
-  }
-
-  public void setOther(String other) {
-    this.other = other;
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 }
