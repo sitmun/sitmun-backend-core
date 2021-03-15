@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Geographic Information style.
@@ -51,7 +52,7 @@ public class CartographyStyle {
   /**
    * Style abstract.
    */
-  @Column(name = "SGI_ABSTRACT", length = 250)
+  @Column(name = "SGI_ABSTRACT", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

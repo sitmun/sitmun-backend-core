@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Service.
@@ -55,7 +56,7 @@ public class Service {
   /**
    * Service description.
    */
-  @Column(name = "SER_ABSTRACT", length = 250)
+  @Column(name = "SER_ABSTRACT", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

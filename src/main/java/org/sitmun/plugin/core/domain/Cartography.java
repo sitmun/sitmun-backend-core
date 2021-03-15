@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Geographic information.
@@ -55,7 +56,7 @@ public class Cartography {
   /**
    * Cartography description.
    */
-  @Column(name = "GEO_ABSTRACT", length = 250)
+  @Column(name = "GEO_ABSTRACT", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Tree node.
@@ -54,7 +55,7 @@ public class TreeNode {
   /**
    * Description.
    */
-  @Column(name = "TNO_ABSTRACT", length = 250)
+  @Column(name = "TNO_ABSTRACT", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

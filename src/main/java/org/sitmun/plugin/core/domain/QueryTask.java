@@ -7,6 +7,7 @@ import org.sitmun.plugin.core.constraints.CodeLists;
 import javax.persistence.*;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Query task.
@@ -38,7 +39,7 @@ public class QueryTask extends Task {
   /**
    * Command description.
    */
-  @Column(name = "QUE_DESC", length = 250)
+  @Column(name = "QUE_DESC", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

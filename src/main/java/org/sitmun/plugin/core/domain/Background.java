@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Background.
@@ -46,7 +47,7 @@ public class Background {
   /**
    * Description.
    */
-  @Column(name = "BAC_DESC", length = 250)
+  @Column(name = "BAC_DESC", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

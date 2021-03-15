@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * A range defined in a thematic map.
@@ -106,7 +107,7 @@ public class ThematicMapRange {
   /**
    * Range description.
    */
-  @Column(name = "TRK_DESC", length = 250)
+  @Column(name = "TRK_DESC", length = SHORT_DESCRIPTION)
   private String description;
 
   @Override

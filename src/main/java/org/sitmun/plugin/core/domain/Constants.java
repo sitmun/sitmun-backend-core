@@ -10,6 +10,15 @@ public class Constants {
    */
   public static final int IDENTIFIER = 50;
 
+  /**
+   * Abstract or short description.
+   */
+  public static final int SHORT_DESCRIPTION = 250;
+
+  /**
+   *
+   */
+
   private Constants() {
   }
 

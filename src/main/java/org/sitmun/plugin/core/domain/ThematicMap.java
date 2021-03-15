@@ -11,6 +11,7 @@ import javax.validation.constraints.Min;
 import java.util.Date;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Thematic map.
@@ -48,7 +49,7 @@ public class ThematicMap {
   /**
    * Description.
    */
-  @Column(name = "THE_DESC", length = 250)
+  @Column(name = "THE_DESC", length = SHORT_DESCRIPTION)
   private String description;
 
   /**

@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Code list value.
@@ -71,7 +72,7 @@ public class CodeListValue {
   /**
    * Value description.
    */
-  @Column(name = "COD_DESCRIPTION")
+  @Column(name = "COD_DESCRIPTION", length = SHORT_DESCRIPTION)
   private String description;
 
   @PostLoad
