@@ -23,12 +23,12 @@ public interface ApplicationBackgroundProjection {
   /**
    * Background name.
    */
-  @Value("#{target.background != null ? target.background.name : null}")
+  @Value("#{target.background?.name}")
   String getBackgroundName();
 
   /**
    * Background description.
    */
-  @Value("#{target.background != null ? target.background.description : null}")
+  @Value("#{target.background?.description}")
   String getBackgroundDescription();
 }

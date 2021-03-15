@@ -65,12 +65,12 @@ public interface TreeNodeProjection {
   /**
    * Cartography name.
    */
-  @Value("#{target.cartography != null? target.cartography.name : null}")
+  @Value("#{target.cartography?.name}")
   String getCartographyName();
 
   /**
    * Cartography identifier.
    */
-  @Value("#{target.cartography != null? target.cartography.id : null}")
+  @Value("#{target.cartography?.id}")
   Integer getCartographyId();
 }

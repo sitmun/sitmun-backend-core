@@ -20,40 +20,40 @@ public interface UserConfigurationProjection {
   /**
    * Username of the user.
    */
-  @Value("#{target.user.username}")
+  @Value("#{target.user?.username}")
   String getUser();
 
   /**
    * User identifier.
    */
   @JsonProperty("userId")
-  @Value("#{target.user.id}")
+  @Value("#{target.user?.id}")
   Integer getUserId();
 
   /**
    * Territory name.
    */
-  @Value("#{target.territory.name}")
+  @Value("#{target.territory?.name}")
   String getTerritory();
 
   /**
    * Territory identifier.
    */
   @JsonProperty("territoryId")
-  @Value("#{target.territory.id}")
+  @Value("#{target.territory?.id}")
   Integer getTerritoryId();
 
   /**
    * Role name.
    */
-  @Value("#{target.role.name}")
+  @Value("#{target.role?.name}")
   String getRole();
 
   /**
    * Role identifier.
    */
   @JsonProperty("roleId")
-  @Value("#{target.role.id}")
+  @Value("#{target.role?.id}")
   Integer getRoleId();
 
   /**

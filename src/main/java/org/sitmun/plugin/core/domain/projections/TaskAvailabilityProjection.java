@@ -21,24 +21,24 @@ public interface TaskAvailabilityProjection {
   /**
    * Id of the territory allowed to access to the task.
    */
-  @Value("#{target.territory != null? target.territory.id : null}")
+  @Value("#{target.territory?.id}")
   Integer getTerritoryId();
 
   /**
    * Name of the territory allowed to access to the task.
    */
-  @Value("#{target.territory != null? target.territory.name : null}")
+  @Value("#{target.territory?.name}")
   String getTerritoryName();
 
   /**
    * Id of the task allowed to the territory.
    */
-  @Value("#{target.task != null? target.task.id : null}")
+  @Value("#{target.task?.id}")
   Integer getTaskId();
 
   /**
    * Name of the group of the task allowed to the territory.
    */
-  @Value("#{target.task != null? (target.task.group != null? target.task.group.name : null) : null}")
+  @Value("#{target.task?.group?.name}")
   String getTaskGroupName();
 }

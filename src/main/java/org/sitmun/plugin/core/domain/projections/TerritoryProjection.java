@@ -84,12 +84,12 @@ public interface TerritoryProjection {
   /**
    * Group type identifier.
    */
-  @Value("#{target.groupType != null? target.groupType.id : null}")
+  @Value("#{target.groupType?.id}")
   Integer getGroupTypeId();
 
   /**
    * Group type name.
    */
-  @Value("#{target.groupType != null? target.groupType.name : null}")
+  @Value("#{target.groupType?.name}")
   String getGroupTypeName();
 }

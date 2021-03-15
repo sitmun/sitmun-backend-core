@@ -32,37 +32,37 @@ public interface CartographyAvailabilityProjection {
   /**
    * Id of the territory allowed to access to the cartography.
    */
-  @Value("#{target.territory != null? target.territory.id : null}")
+  @Value("#{target.territory?.id}")
   String getTerritoryId();
 
   /**
    * Geographic code of the territory allowed to access to the cartography.
    */
-  @Value("#{target.territory != null? target.territory.code : null}")
+  @Value("#{target.territory?.code}")
   String getTerritoryCode();
 
   /**
    * Name of the territory allowed to access to the cartography.
    */
-  @Value("#{target.territory != null? target.territory.name : null}")
+  @Value("#{target.territory?.name}")
   String getTerritoryName();
 
   /**
    * Id of the cartography allowed to access.
    */
-  @Value("#{target.cartography != null? target.cartography.id : null}")
+  @Value("#{target.cartography?.id}")
   Integer getCartographyId();
 
   /**
    * Name of the cartography allowed to access.
    */
-  @Value("#{target.cartography != null? target.cartography.name : null}")
+  @Value("#{target.cartography?.name}")
   String getCartographyName();
 
   /**
    * Layers of the cartography allowed to access.
    */
-  @Value("#{target.cartography != null? target.cartography.layers : null}")
+  @Value("#{target.cartography?.layers}")
   List<String> getCartographyLayers();
 
 }

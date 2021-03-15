@@ -81,7 +81,7 @@ public interface ApplicationProjection {
   /**
    * Situation map when the application is internal.
    */
-  @Value("#{target.situationMap != null? target.situationMap.id : null}")
+  @Value("#{target.situationMap?.id}")
   Integer getSituationMapId();
 
   /**

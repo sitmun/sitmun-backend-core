@@ -170,24 +170,24 @@ public interface CartographyProjection {
   /**
    * Portrayal service id.
    */
-  @Value("#{target.service != null? target.service.id : null}")
+  @Value("#{target.service?.id}")
   Integer getServiceId();
 
   /**
    * Portrayal service name.
    */
-  @Value("#{target.service != null? target.service.name : null}")
+  @Value("#{target.service?.name}")
   String getServiceName();
 
   /**
    * Selection service id.
    */
-  @Value("#{target.spatialSelectionService != null? target.spatialSelectionService.id : null}")
+  @Value("#{target.spatialSelectionService?.id}")
   Integer getSpatialSelectionServiceId();
 
   /**
    * Selection service name.
    */
-  @Value("#{target.spatialSelectionService != null? target.spatialSelectionService.name : null}")
+  @Value("#{target.spatialSelectionService?.name}")
   String getSpatialSelectionServiceName();
 }

@@ -25,13 +25,13 @@ public interface TaskProjection {
   @Value("#{target.order}")
   Integer getOrder();
 
-  @Value("#{target.group != null? target.group.name : null }")
+  @Value("#{target.group?.name }")
   String getGroupName();
 
-  @Value("#{target.group != null? target.group.id : null }")
+  @Value("#{target.group?.id}")
   Integer getGroupId();
 
-  @Value("#{target.ui != null? target.ui.id : null }")
+  @Value("#{target.ui?.id}")
   Integer getUiId();
 
 }
