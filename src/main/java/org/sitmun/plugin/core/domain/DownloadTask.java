@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.URL;
 
 /**
  * Download file task.
@@ -45,7 +46,7 @@ public class DownloadTask extends Task {
   /**
    * Location of the file to be downloaded.
    */
-  @Column(name = "DOW_PATH", length = 5)
+  @Column(name = "DOW_PATH", length = URL)
   @NotNull
   @HttpURL
   private String path;

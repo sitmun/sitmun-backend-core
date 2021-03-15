@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.URL;
 
 /**
  * Territorial entity.
@@ -86,7 +87,7 @@ public class Territory {
   /**
    * Link to the territorial authority logo.
    */
-  @Column(name = "TER_LOGO", length = 250)
+  @Column(name = "TER_LOGO", length = URL)
   @HttpURL
   private String territorialAuthorityLogo;
 

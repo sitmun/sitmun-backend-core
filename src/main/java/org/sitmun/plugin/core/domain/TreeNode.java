@@ -8,8 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Tree node.
@@ -85,14 +84,14 @@ public class TreeNode {
   /**
    * URL to metadata.
    */
-  @Column(name = "TNO_METAURL", length = 250)
+  @Column(name = "TNO_METAURL", length = URL)
   @HttpURL
   private String metadataURL;
 
   /**
    * URL to downloadable (zip) dataset.
    */
-  @Column(name = "TNO_DATAURL", length = 4000)
+  @Column(name = "TNO_DATAURL", length = URL)
   @HttpURL
   private String datasetURL;
 

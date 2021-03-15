@@ -16,8 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Geographic information.
@@ -177,7 +176,7 @@ public class Cartography {
   /**
    * Legend URL.
    */
-  @Column(name = "GEO_LEGENDURL", length = 250)
+  @Column(name = "GEO_LEGENDURL", length = URL)
   @HttpURL
   private String legendURL;
 
@@ -198,14 +197,14 @@ public class Cartography {
   /**
    * Direct link to a metadata document.
    */
-  @Column(name = "GEO_METAURL", length = 250)
+  @Column(name = "GEO_METAURL", length = URL)
   @HttpURL
   private String metadataURL;
 
   /**
    * Direct link to a dataset file.
    */
-  @Column(name = "GEO_DATAURL", length = 4000)
+  @Column(name = "GEO_DATAURL", length = URL)
   @HttpURL
   private String datasetURL;
 

@@ -16,8 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Service.
@@ -62,7 +61,7 @@ public class Service {
   /**
    * Service endpoint.
    */
-  @Column(name = "SER_URL", length = 250)
+  @Column(name = "SER_URL", length = URL)
   @NotNull
   @HttpURL
   private String serviceURL;
@@ -78,14 +77,14 @@ public class Service {
   /**
    * Legend endpoint.
    */
-  @Column(name = "SER_LEGEND", length = 250)
+  @Column(name = "SER_LEGEND", length = URL)
   @HttpURL
   private String legendURL;
 
   /**
    * Get information endpoint.
    */
-  @Column(name = "SER_INFOURL", length = 250)
+  @Column(name = "SER_INFOURL", length = URL)
   @HttpURL
   private String getInformationURL;
 

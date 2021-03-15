@@ -10,8 +10,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Thematic map.
@@ -150,7 +149,7 @@ public class ThematicMap {
   /**
    * Webservice URL that brings data to represent (in JSON format).
    */
-  @Column(name = "THE_URLWS", length = 250)
+  @Column(name = "THE_URLWS", length = URL)
   @HttpURL
   private String url;
 

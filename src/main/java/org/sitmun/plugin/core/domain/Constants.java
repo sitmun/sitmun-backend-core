@@ -16,8 +16,9 @@ public class Constants {
   public static final int SHORT_DESCRIPTION = 250;
 
   /**
-   *
+   * URL.
    */
+  public static final int URL = 4000;
 
   private Constants() {
   }

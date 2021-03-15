@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.URL;
 
 /**
  * Legend provider.
@@ -42,7 +43,7 @@ public class LegendURL {
   /**
    * Legend URL.
    */
-  @Column(length = 250)
+  @Column(length = URL)
   @NotNull
   @HttpURL
   private String onlineResource;
