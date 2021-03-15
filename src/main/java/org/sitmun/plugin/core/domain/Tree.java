@@ -2,13 +2,14 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Tree.
@@ -43,6 +44,19 @@ public class Tree {
   @Column(name = "TRE_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
+
+  /**
+   * Representative image or icon.
+   */
+  @Column(name = "TRE_IMAGE", length = URL)
+  @HttpURL
+  private String image;
+
+  /**
+   * Description.
+   */
+  @Column(name = "TRE_ABSTRACT", length = SHORT_DESCRIPTION)
+  private String description;
 
   /**
    * Tree owner.
