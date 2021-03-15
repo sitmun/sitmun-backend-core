@@ -2,13 +2,13 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Background.
@@ -43,6 +43,14 @@ public class Background {
   @Column(name = "BAC_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
+
+  /**
+   * Representative image or icon.
+   */
+  @Column(name = "BAC_IMAGE", length = URL)
+  @HttpURL
+  private String image;
+
 
   /**
    * Description.
