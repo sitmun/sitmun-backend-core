@@ -35,4 +35,7 @@ public interface BackgroundProjection {
   @Value("#{target.cartographyGroup?.id}")
   @JsonProperty("cartographyGroupId")
   Long getCartographyGroupId();
+
+  @Value("#{target.image}")
+  String getImage();
 }
