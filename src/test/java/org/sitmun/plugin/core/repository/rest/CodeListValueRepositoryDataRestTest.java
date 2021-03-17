@@ -25,6 +25,26 @@ public class CodeListValueRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
+  public void obtainOriginalVersion() throws Exception {
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Cartography group"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Background map"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 34)].description").value("Report"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Location map"));
+  }
+
+  @Test
+  public void obtainTranslatedVersionSpa() throws Exception {
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=spa", "cartographyPermission.type"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Grupo de cartografía"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Mapa de fondo"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 34)].description").value("Informe"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Mapa de situación"));
+  }
+
+  @Test
   public void filterType() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
       .andExpect(status().isOk())

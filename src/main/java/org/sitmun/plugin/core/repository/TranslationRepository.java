@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.Translation;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "translation")
@@ -40,4 +42,6 @@ public interface TranslationRepository
   @NonNull
   Optional<Translation> findById(@P("entityId") @NonNull Integer entityId);
 
+  @Query("select tr from Translation tr where tr.element = ?1 and tr.language.shortname = ?2")
+  List<Translation> findByEntityIdAndLocale(Integer element, String locale);
 }

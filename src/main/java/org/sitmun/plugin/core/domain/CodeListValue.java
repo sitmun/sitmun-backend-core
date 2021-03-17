@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.sitmun.plugin.core.i18n.I18n;
+import org.sitmun.plugin.core.i18n.InternationalizationListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -20,6 +22,7 @@ import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EntityListeners(InternationalizationListener.class)
 public class CodeListValue {
 
   /**
@@ -73,6 +76,7 @@ public class CodeListValue {
    * Value description.
    */
   @Column(name = "COD_DESCRIPTION", length = SHORT_DESCRIPTION)
+  @I18n
   private String description;
 
   @PostLoad
