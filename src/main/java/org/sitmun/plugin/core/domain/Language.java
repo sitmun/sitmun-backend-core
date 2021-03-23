@@ -1,11 +1,13 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.sitmun.plugin.core.i18n.I18n;
+import org.sitmun.plugin.core.i18n.InternationalizationListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.BCP47_LANGUAGE_TAG;
 
 /**
  * Available languages.
@@ -18,6 +20,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EntityListeners(InternationalizationListener.class)
 public class Language {
 
   /**
@@ -36,9 +39,9 @@ public class Language {
   private Integer id;
 
   /**
-   * Language identifier.
+   * BCP 47 language tag.
    */
-  @Column(name = "LAN_SHORTNAME", length = IDENTIFIER)
+  @Column(name = "LAN_SHORTNAME", length = BCP47_LANGUAGE_TAG)
   @NotBlank
   private String shortname;
 
@@ -47,6 +50,7 @@ public class Language {
    */
   @Column(name = "LAN_NAME", length = 80)
   @NotBlank
+  @I18n
   private String name;
 
   @Override

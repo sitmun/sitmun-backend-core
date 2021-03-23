@@ -6,6 +6,11 @@ package org.sitmun.plugin.core.domain;
 public class Constants {
 
   /**
+   * Identifier for BCP 47 Language Tag
+   */
+  public static final int BCP47_LANGUAGE_TAG = 20;
+
+  /**
    * Machine and human readable identifiers, code lists.
    */
   public static final int IDENTIFIER = 50;

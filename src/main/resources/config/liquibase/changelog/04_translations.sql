@@ -1,19 +1,53 @@
 -- Languages
 INSERT INTO STM_LANGUAGE
-VALUES (1, 'spa', 'Español');
+VALUES (1, 'en', 'English');
+INSERT INTO STM_LANGUAGE
+VALUES (2, 'es', 'Spanish');
+INSERT INTO STM_LANGUAGE
+VALUES (3, 'ca', 'Catalan');
+INSERT INTO STM_LANGUAGE
+VALUES (4, 'oc-aranese', 'Aranese');
 
 INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
 VALUES ('LAN_ID', 1);
 
 -- Translations
 INSERT INTO STM_TRANSLATION
-VALUES (1, 31, 'description', 1, 'Grupo de cartografía');
+VALUES (1, 31, 'description', 2, 'Grupo de cartografía');
 INSERT INTO STM_TRANSLATION
-VALUES (2, 32, 'description', 1, 'Mapa de fondo');
+VALUES (2, 32, 'description', 2, 'Mapa de fondo');
 INSERT INTO STM_TRANSLATION
-VALUES (3, 33, 'description', 1, 'Mapa de situación');
+VALUES (3, 33, 'description', 2, 'Mapa de situación');
 INSERT INTO STM_TRANSLATION
-VALUES (4, 34, 'description', 1, 'Informe');
+VALUES (4, 34, 'description', 2, 'Informe');
+
+-- Language translations
+INSERT INTO STM_TRANSLATION
+VALUES (5, 1, 'name', 2, 'Inglés');
+INSERT INTO STM_TRANSLATION
+VALUES (6, 2, 'name', 2, 'Español');
+INSERT INTO STM_TRANSLATION
+VALUES (7, 3, 'name', 2, 'Catalán');
+INSERT INTO STM_TRANSLATION
+VALUES (8, 4, 'name', 2, 'Aranés');
+
+INSERT INTO STM_TRANSLATION
+VALUES (9, 1, 'name', 3, 'Anglès');
+INSERT INTO STM_TRANSLATION
+VALUES (10, 2, 'name', 3, 'Espanyol');
+INSERT INTO STM_TRANSLATION
+VALUES (11, 3, 'name', 3, 'Català');
+INSERT INTO STM_TRANSLATION
+VALUES (12, 4, 'name', 3, 'Aranès');
+
+INSERT INTO STM_TRANSLATION
+VALUES (13, 1, 'name', 4, 'Anglés');
+INSERT INTO STM_TRANSLATION
+VALUES (14, 2, 'name', 4, 'Espanhòl');
+INSERT INTO STM_TRANSLATION
+VALUES (15, 3, 'name', 4, 'Catalan');
+INSERT INTO STM_TRANSLATION
+VALUES (16, 4, 'name', 4, 'Aranés');
 
 INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT)
-VALUES ('TRA_ID', 4);
+VALUES ('TRA_ID', 16);

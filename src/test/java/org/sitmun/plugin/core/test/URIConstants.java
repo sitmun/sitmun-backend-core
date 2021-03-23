@@ -64,6 +64,8 @@ public class URIConstants {
 
   public static final String DOWNLOAD_TASKS_URI = "http://localhost/api/download-tasks";
 
+  public static final String LANGUAGES_URI = "http://localhost/api/languages";
+
   public static final String QUERY_TASKS_URI = "http://localhost/api/query-tasks";
 
   public static final String SERVICE_URI = "http://localhost/api/services";

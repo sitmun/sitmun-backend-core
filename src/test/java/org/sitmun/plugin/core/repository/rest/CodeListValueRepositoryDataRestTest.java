@@ -36,7 +36,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   public void obtainTranslatedVersionSpa() throws Exception {
-    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=spa", "cartographyPermission.type"))
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Grupo de cartografía"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Mapa de fondo"))
