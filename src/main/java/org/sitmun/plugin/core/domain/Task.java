@@ -2,11 +2,13 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.sitmun.plugin.core.converters.HashMapConverter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -73,6 +75,11 @@ public class Task {
   @Column(name = "TAS_ORDER", precision = 6)
   private Integer order;
 
+  @Lob
+  @Column(name = "TAS_PARAMS")
+  @Convert(converter = HashMapConverter.class)
+  private Map<String, Object> parameters;
+
   /**
    * Associated cartography.
    */
@@ -135,13 +142,6 @@ public class Task {
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<TaskAvailability> availabilities = new HashSet<>();
-
-  /**
-   * Task parameters.
-   */
-  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-  @Builder.Default
-  private Set<TaskParameter> parameters = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

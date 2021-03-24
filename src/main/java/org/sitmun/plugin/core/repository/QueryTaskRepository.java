@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.repository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.QueryTask;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +11,6 @@ import org.springframework.security.core.parameters.P;
 import java.util.Optional;
 
 @Tag(name = "query task")
-@RepositoryRestResource(collectionResourceRel = "query-tasks", path = "query-tasks")
 public interface QueryTaskRepository extends PagingAndSortingRepository<QueryTask, Integer> {
 
   @Override

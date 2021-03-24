@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Projections for REST views of a task.
@@ -34,4 +35,6 @@ public interface TaskProjection {
   @Value("#{target.ui?.id}")
   Integer getUiId();
 
+  @Value("#{target.parameters}")
+  Map<String, Object> getParameters();
 }

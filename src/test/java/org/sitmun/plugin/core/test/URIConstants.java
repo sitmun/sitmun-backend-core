@@ -62,11 +62,7 @@ public class URIConstants {
   public static final String CONNECTIONS_URI =
     "http://localhost/api/connections";
 
-  public static final String DOWNLOAD_TASKS_URI = "http://localhost/api/download-tasks";
-
   public static final String LANGUAGES_URI = "http://localhost/api/languages";
-
-  public static final String QUERY_TASKS_URI = "http://localhost/api/query-tasks";
 
   public static final String SERVICE_URI = "http://localhost/api/services";
 
@@ -126,8 +122,6 @@ public class URIConstants {
   public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
 
   private static final String TASK_URI = TASKS_URI + "/{0}";
-
-  public static final String TASK_PARAMETERS_URI = TASK_URI + "/parameters";
 
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
 

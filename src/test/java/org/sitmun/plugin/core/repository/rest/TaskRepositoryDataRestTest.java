@@ -7,10 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Task;
 import org.sitmun.plugin.core.domain.TaskAvailability;
-import org.sitmun.plugin.core.domain.TaskParameter;
 import org.sitmun.plugin.core.domain.Territory;
 import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
-import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
 import org.sitmun.plugin.core.repository.TerritoryRepository;
 import org.sitmun.plugin.core.test.URIConstants;
@@ -27,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -34,9 +34,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.asJsonString;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.sitmun.plugin.core.test.URIConstants.DOWNLOAD_TASKS_URI;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -52,8 +52,6 @@ public class TaskRepositoryDataRestTest {
   @Autowired
   TaskAvailabilityRepository taskAvailabilityRepository;
   @Autowired
-  TaskParameterRepository taskParameterRepository;
-  @Autowired
   TerritoryRepository territoryRepository;
   @Autowired
   private MockMvc mvc;
@@ -62,7 +60,6 @@ public class TaskRepositoryDataRestTest {
   private Task task;
   private ArrayList<Task> tasks;
   private ArrayList<TaskAvailability> availabilities;
-  private ArrayList<TaskParameter> parameters;
 
   @BeforeEach
   public void init() {
@@ -76,8 +73,17 @@ public class TaskRepositoryDataRestTest {
         .build();
       territoryRepository.save(territory);
       tasks = new ArrayList<>();
-      task = new Task();
-      task.setName(TASK_NAME);
+
+      Map<String, Object> parameters = new HashMap<>();
+      parameters.put("string", "value");
+      parameters.put("real", 1.0);
+      parameters.put("integer", 1);
+      parameters.put("array", new String[]{"one", "two", "three"});
+
+      task = Task.builder()
+        .name(TASK_NAME)
+        .parameters(parameters)
+        .build();
       tasks.add(task);
       Task taskWithAvailabilities = new Task();
       taskWithAvailabilities.setName("Task with availabilities");
@@ -91,24 +97,12 @@ public class TaskRepositoryDataRestTest {
       taskAvailability1.setCreatedDate(new Date());
       availabilities.add(taskAvailability1);
       taskAvailabilityRepository.saveAll(availabilities);
-
-      parameters = new ArrayList<>();
-      TaskParameter taskParam1 = new TaskParameter();
-      taskParam1.setTask(task);
-      taskParam1.setName("Task Param 1");
-      parameters.add(taskParam1);
-      TaskParameter taskParam2 = new TaskParameter();
-      taskParam2.setTask(taskWithAvailabilities);
-      taskParam2.setName("Task Param 2");
-      parameters.add(taskParam2);
-      taskParameterRepository.saveAll(parameters);
     });
   }
 
   @AfterEach
   public void cleanup() {
     withMockSitmunAdmin(() -> {
-      taskParameterRepository.deleteAll(parameters);
       taskAvailabilityRepository.deleteAll(availabilities);
       taskRepository.deleteAll(tasks);
       territoryRepository.delete(territory);
@@ -128,9 +122,11 @@ public class TaskRepositoryDataRestTest {
 
     mvc.perform(get(location)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.name", equalTo(TASK_NAME)));
+      .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
+      .andExpect(jsonPath("$.parameters.string", equalTo("value")));
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
@@ -150,21 +146,7 @@ public class TaskRepositoryDataRestTest {
   public void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(115)));
-  }
-
-  @Test
-  public void getQueryTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.QUERY_TASKS_URI + "?size=10"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.query-tasks", hasSize(10)));
-  }
-
-  @Test
-  public void getDownloadTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(DOWNLOAD_TASKS_URI + "?size=10"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.download-tasks", hasSize(10)));
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(1758)));
   }
 
   @Test
@@ -172,12 +154,6 @@ public class TaskRepositoryDataRestTest {
     mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
-  }
-
-  @Test
-  public void getTaskParamsAsPublic() throws Exception {
-    mvc.perform(get(URIConstants.TASK_PARAMETERS_URI, task.getId()))
-      .andExpect(status().isOk());
   }
 
   @Test

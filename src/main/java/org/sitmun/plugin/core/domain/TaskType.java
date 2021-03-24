@@ -2,9 +2,11 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.sitmun.plugin.core.converters.HashMapConverter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Map;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
@@ -41,6 +43,11 @@ public class TaskType {
   @Column(name = "TTY_NAME", length = IDENTIFIER)
   @NotBlank
   private String name;
+
+  @Lob
+  @Column(name = "TTY_SPEC")
+  @Convert(converter = HashMapConverter.class)
+  private Map<String, Object> specification;
 
   @Override
   public boolean equals(Object o) {

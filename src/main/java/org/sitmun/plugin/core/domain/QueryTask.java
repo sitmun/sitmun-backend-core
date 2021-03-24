@@ -14,13 +14,16 @@ import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
  */
 @Entity
 @Table(name = "STM_QUERY")
-@PrimaryKeyJoinColumn(name = "QUE_ID")
 @Builder(builderMethodName = "queryBuilder")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class QueryTask extends Task {
+public class QueryTask {
+
+  @Id
+  @Column(name = "QUE_ID")
+  private Integer id;
 
   /**
    * Command depending on the {@link #scope} (a SQL query sentence, a URL,

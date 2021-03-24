@@ -3,7 +3,6 @@ package org.sitmun.plugin.core.repository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.ThematicMap;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
@@ -13,7 +12,6 @@ import org.springframework.security.core.parameters.P;
 import java.util.Optional;
 
 @Tag(name = "thematic map")
-@RepositoryRestResource(collectionResourceRel = "thematic-maps", path = "thematic-maps")
 public interface ThematicMapRepository extends PagingAndSortingRepository<ThematicMap, Integer> {
 
   @Override

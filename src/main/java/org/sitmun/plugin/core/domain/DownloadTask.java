@@ -7,7 +7,7 @@ import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -19,13 +19,16 @@ import static org.sitmun.plugin.core.domain.Constants.URL;
  */
 @Entity
 @Table(name = "STM_DOWNLOAD")
-@PrimaryKeyJoinColumn(name = "DOW_ID")
 @Builder(builderMethodName = "downloadBuilder")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DownloadTask extends Task {
+public class DownloadTask {
+
+  @Id
+  @Column(name = "DOW_ID")
+  private Integer id;
 
   /**
    * Download extension.
