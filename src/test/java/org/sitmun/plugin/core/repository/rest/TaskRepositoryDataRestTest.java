@@ -82,7 +82,7 @@ public class TaskRepositoryDataRestTest {
 
       task = Task.builder()
         .name(TASK_NAME)
-        .parameters(parameters)
+        .properties(parameters)
         .build();
       tasks.add(task);
       Task taskWithAvailabilities = new Task();
@@ -126,7 +126,7 @@ public class TaskRepositoryDataRestTest {
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
-      .andExpect(jsonPath("$.parameters.string", equalTo("value")));
+      .andExpect(jsonPath("$.properties.string", equalTo("value")));
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");

@@ -35,6 +35,6 @@ public interface TaskProjection {
   @Value("#{target.ui?.id}")
   Integer getUiId();
 
-  @Value("#{target.parameters}")
-  Map<String, Object> getParameters();
+  @Value("#{target.properties}")
+  Map<String, Object> getProperties();
 }

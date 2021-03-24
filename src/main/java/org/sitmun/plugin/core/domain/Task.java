@@ -78,7 +78,7 @@ public class Task {
   @Lob
   @Column(name = "TAS_PARAMS")
   @Convert(converter = HashMapConverter.class)
-  private Map<String, Object> parameters;
+  private Map<String, Object> properties;
 
   /**
    * Associated cartography.
