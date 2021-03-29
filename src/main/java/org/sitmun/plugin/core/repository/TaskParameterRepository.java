@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.plugin.core.domain.Task;
 import org.sitmun.plugin.core.domain.TaskParameter;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.lang.NonNull;
@@ -36,4 +37,8 @@ public interface TaskParameterRepository extends
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.TaskParameter', 'read')")
   @NonNull
   Optional<TaskParameter> findById(@P("entityId") @NonNull Integer entityId);
+
+  void deleteAllByTask(@NonNull Task task);
+
+  Iterable<TaskParameter> findAllByTask(@NonNull Task task);
 }

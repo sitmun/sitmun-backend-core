@@ -21,9 +21,9 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   static {
     List<String> events = new ArrayList<>();
     events.add("beforeCreate");
-    // events.add("afterCreate");
+    events.add("afterCreate");
     events.add("beforeSave");
-    // events.add("afterSave");
+    events.add("afterSave");
     events.add("beforeLinkSave");
     //events.add("afterLinkSave");
     // events.add("beforeDelete");

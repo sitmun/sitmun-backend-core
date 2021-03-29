@@ -45,6 +45,8 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
   @NonNull
   Optional<Task> findById(@P("entityId") @NonNull Integer entityId);
 
+  Iterable<Task> findAllByTypeId(@NonNull Integer typeId);
+
   @Override
   default void customize(QuerydslBindings bindings, QTask root) {
     //noinspection NullableProblems

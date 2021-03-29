@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,11 @@ public class TaskRepositoryTest {
   @BeforeEach
   public void init() {
     task = new Task();
+  }
 
+  @AfterEach
+  public void cleanup() {
+    taskRepository.delete(task);
   }
 
   @Test
