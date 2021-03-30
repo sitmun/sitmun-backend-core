@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -46,7 +48,8 @@ public class TaskAvailability {
    * Territory allowed to access to the task.
    */
   @ManyToOne
-  @JoinColumn(name = "ATS_TERID", foreignKey = @ForeignKey(name = "STM_DTA_FK_TER"))
+  @JoinColumn(name = "ATS_TERID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TER"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Territory territory;
 
@@ -54,7 +57,8 @@ public class TaskAvailability {
    * Task allowed to the territory.
    */
   @ManyToOne
-  @JoinColumn(name = "ATS_TASKID", foreignKey = @ForeignKey(name = "STM_DTA_FK_TAR"))
+  @JoinColumn(name = "ATS_TASKID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TAS"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Task task;
 

@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -73,13 +74,15 @@ public class DatabaseConnection {
    * Tasks that use this connection.
    */
   @OneToMany(mappedBy = "connection", cascade = CascadeType.ALL)
-  private Set<Task> tasks;
+  @Builder.Default
+  private Set<Task> tasks = new HashSet<>();
 
   /**
    * Cartographies that use this connection.
    */
   @OneToMany(mappedBy = "spatialSelectionConnection", cascade = CascadeType.ALL)
-  private Set<Cartography> cartographies;
+  @Builder.Default
+  private Set<Cartography> cartographies = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

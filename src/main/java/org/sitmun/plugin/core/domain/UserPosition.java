@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -84,7 +86,8 @@ public class UserPosition {
    * User.
    */
   @ManyToOne
-  @JoinColumn(name = "POS_USERID", foreignKey = @ForeignKey(name = "STM_CGO_FK_USU"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "POS_USERID", foreignKey = @ForeignKey(name = "STM_POS_FK_USE"))
   @NotNull
   private User user;
 
@@ -92,7 +95,8 @@ public class UserPosition {
    * Territory.
    */
   @ManyToOne
-  @JoinColumn(name = "POS_TERID", foreignKey = @ForeignKey(name = "STM_CGO_FK_TER"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "POS_TERID", foreignKey = @ForeignKey(name = "STM_POS_FK_TER"))
   @NotNull
   private Territory territory;
 

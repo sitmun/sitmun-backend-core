@@ -71,13 +71,15 @@ public class TreeNodeResourceTest {
 
       publicTree = new Tree();
       publicTree.setName(PUBLIC_TREE_NAME);
-      publicTree.setAvailableRoles(availableRoles);
       trees.add(publicTree);
 
       Tree tree = new Tree();
       tree.setName(NON_PUBLIC_TREE_NAME);
       trees.add(tree);
       treeRepository.saveAll(trees);
+
+      publicTree.getAvailableRoles().addAll(availableRoles);
+      treeRepository.save(publicTree);
 
       TreeNode treeNode1 = new TreeNode();
       treeNode1.setName(NON_PUBLIC_TREENODE_NAME);

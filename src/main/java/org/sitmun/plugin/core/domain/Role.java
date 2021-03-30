@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -54,42 +55,66 @@ public class Role {
   /**
    * Applications that have this role granted.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_APP_ROL",
     joinColumns = @JoinColumn(
-      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")),
+      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_ARO_FK_ROL")),
     inverseJoinColumns = @JoinColumn(
-      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")))
-  private Set<Application> applications;
+      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_ARO_FK_APP")))
+  @Builder.Default
+  private Set<Application> applications = new HashSet<>();
 
   /**
    * Tasks that have this role.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_ROL_TSK",
     joinColumns = @JoinColumn(
       name = "RTS_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")),
+      foreignKey = @ForeignKey(name = "STM_RTS_FK_ROL")),
     inverseJoinColumns = @JoinColumn(
       name = "RTS_TASKID",
-      foreignKey = @ForeignKey(name = "STM_RTA_FK_T")))
-  private Set<Task> tasks;
+      foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")))
+  @Builder.Default
+  private Set<Task> tasks = new HashSet<>();
 
   /**
    * Permissions that have this role.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_ROL_GGI",
     joinColumns = @JoinColumn(
       name = "RGG_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")),
+      foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")),
     inverseJoinColumns = @JoinColumn(
       name = "RGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")))
-  private Set<CartographyPermission> permissions;
+      foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")))
+  @Builder.Default
+  private Set<CartographyPermission> permissions = new HashSet<>();
+
+  /**
+   * Trees that have this role.
+   */
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @JoinTable(name = "STM_TREE_ROL",
+    joinColumns = @JoinColumn(
+      name = "TRO_ROLEID",
+      foreignKey = @ForeignKey(name = "STM_TRO_FK_ROL")),
+    inverseJoinColumns = @JoinColumn(
+      name = "TRO_TREEID",
+      foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")))
+  @Builder.Default
+  private Set<Tree> trees = new HashSet<>();
+
+  /**
+   * Users that use this role in a territory.
+   */
+  @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

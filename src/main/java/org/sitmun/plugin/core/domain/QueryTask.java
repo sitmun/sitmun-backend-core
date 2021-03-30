@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -22,7 +24,8 @@ import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 public class QueryTask {
 
   @Id
-  @Column(name = "QUE_ID")
+  @JoinColumn(name = "QUE_ID", foreignKey = @ForeignKey(name = "STM_QUE_FK_TAS"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Integer id;
 
   /**
@@ -49,7 +52,7 @@ public class QueryTask {
    * Report task.
    */
   @ManyToOne
-  @JoinColumn(name = "QUE_TASKID")
+  @JoinColumn(name = "QUE_TASKID", foreignKey = @ForeignKey(name = "STM_QUE_FK_TASM"))
   private Task reportTask;
 
   @Override

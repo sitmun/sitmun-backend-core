@@ -63,26 +63,42 @@ public class Tree {
    * If a tree is owned by a user, the owner is the only user authorized to view it.
    */
   @ManyToOne
-  @JoinColumn(name = "TRE_USERID")
+  @JoinColumn(name = "TRE_USERID", foreignKey = @ForeignKey(name = "STM_TRE_FK_USE"))
   private User owner;
 
   /**
    * All three nodes.
    */
-  @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL,
-    orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<TreeNode> allNodes = new HashSet<>();
 
-  @ManyToMany
+  /**
+   * Roles that can access to this three.
+   */
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(name = "STM_TREE_ROL",
     joinColumns = @JoinColumn(
       name = "TRO_TREEID",
-      foreignKey = @ForeignKey(name = "STM_ARR_FK_ARB")),
+      foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")),
     inverseJoinColumns = @JoinColumn(
       name = "TRO_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_ARR_FK_ROL")))
-  private Set<Role> availableRoles;
+      foreignKey = @ForeignKey(name = "STM_TRO_FK_ROL")))
+  @Builder.Default
+  private Set<Role> availableRoles = new HashSet<>();
+
+  /**
+   * Applications that can use this three.
+   */
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @JoinTable(
+    name = "STM_APP_TREE",
+    joinColumns = @JoinColumn(
+      name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")),
+    inverseJoinColumns = @JoinColumn(
+      name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")))
+  @Builder.Default
+  private Set<Application> availableApplications = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
@@ -66,7 +68,7 @@ public class CartographyFilter {
    * Territorial level.
    */
   @ManyToOne
-  @JoinColumn(name = "FGI_TYPID")
+  @JoinColumn(name = "FGI_TYPID", foreignKey = @ForeignKey(name = "STM_FGI_FK_TET"))
   private TerritoryType territorialLevel;
 
   /**
@@ -93,7 +95,8 @@ public class CartographyFilter {
    * Cartography on which this filter can be applied.
    */
   @ManyToOne
-  @JoinColumn(name = "FGI_GIID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "FGI_GIID", foreignKey = @ForeignKey(name = "STM_FGI_FK_GEO"))
   @NotNull
   private Cartography cartography;
 

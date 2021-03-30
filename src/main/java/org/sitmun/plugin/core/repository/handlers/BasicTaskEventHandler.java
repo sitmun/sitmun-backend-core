@@ -12,6 +12,7 @@ import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -64,6 +65,13 @@ public class BasicTaskEventHandler {
           ).collect(Collectors.toList());
       taskParameterRepository.saveAll(parameters);
     }
+  }
+
+  @HandleBeforeDelete
+  @Transactional
+  public void deleteParameters(@NonNull Task task) {
+    if (!accept(task)) return;
+    taskParameterRepository.deleteAllByTask(task);
   }
 
   public Boolean accept(@NonNull Task task) {

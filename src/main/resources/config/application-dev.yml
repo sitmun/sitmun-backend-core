@@ -39,6 +39,14 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+    properties:
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: create.sql
+              create-source: metadata
   liquibase:
     change-log: classpath:config/liquibase/master.xml
     contexts: dev

@@ -13,6 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -137,7 +138,7 @@ public class Cartography {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
-  @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SER"))
+  @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
   private Service service;
 
   /**
@@ -163,7 +164,7 @@ public class Cartography {
    * Selection service.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_CAR_FK_SERSEL"))
+  @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SERSEL"))
   private Service spatialSelectionService;
 
   /**
@@ -191,7 +192,7 @@ public class Cartography {
    * Connection for spatial selection listbox queries.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_CAR_FK_CON"))
+  @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_GEO_FK_CON"))
   private DatabaseConnection spatialSelectionConnection;
 
   /**
@@ -232,19 +233,21 @@ public class Cartography {
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true,
     fetch = FetchType.LAZY)
-  private Set<CartographyAvailability> availabilities;
+  @Builder.Default
+  private Set<CartographyAvailability> availabilities = new HashSet<>();
 
   /**
    * Styles.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CartographyStyle> styles;
+  @Builder.Default
+  private Set<CartographyStyle> styles = new HashSet<>();
 
   /**
    * Default style.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "GEO_STYID")
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "GEO_STYID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SGI"))
   private CartographyStyle defaultStyle;
 
   /**
@@ -258,33 +261,37 @@ public class Cartography {
    * Filters.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CartographyFilter> filters;
+  @Builder.Default
+  private Set<CartographyFilter> filters = new HashSet<>();
 
   /**
    * Parameters.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<CartographyParameter> parameters;
+  @Builder.Default
+  private Set<CartographyParameter> parameters = new HashSet<>();
 
   /**
    * Tree nodes.
    */
   @OneToMany(mappedBy = "cartography")
-  private Set<TreeNode> treeNodes;
+  @Builder.Default
+  private Set<TreeNode> treeNodes = new HashSet<>();
 
   /**
    * The permissions that this cartography has.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_GGI_GI",
     joinColumns = @JoinColumn(
       name = "GGG_GIID",
-      foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")),
+      foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")),
     inverseJoinColumns = @JoinColumn(
       name = "GGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")))
-  private Set<CartographyPermission> permissions;
+      foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")))
+  @Builder.Default
+  private Set<CartographyPermission> permissions = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

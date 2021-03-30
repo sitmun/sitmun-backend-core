@@ -117,9 +117,12 @@ public class ApplicationResourceTest {
       trees = new ArrayList<>();
       Tree publicTree = new Tree();
       publicTree.setName(PUBLIC_TREE_NAME);
-      publicTree.setAvailableRoles(availableRoles);
       trees.add(publicTree);
       this.treeRepository.saveAll(trees);
+
+      publicTree.setAvailableRoles(availableRoles);
+      treeRepository.save(publicTree);
+
       Set<Tree> trees = new HashSet<>();
       trees.add(publicTree);
 
@@ -176,10 +179,13 @@ public class ApplicationResourceTest {
 
       CartographyPermission publicBackgroundMap = CartographyPermission.builder()
         .name(PUBLIC_BACKGROUND_MAP_NAME)
-        .roles(availableRoles)
-        .members(cartographies)
         .build();
       publicBackgroundMap = cartographyPermissionRepository.save(publicBackgroundMap);
+
+      publicBackgroundMap.getRoles().addAll(availableRoles);
+      publicBackgroundMap.getMembers().addAll(cartographies);
+      cartographyPermissionRepository.save(publicBackgroundMap);
+
       cartographyPermissions.add(publicBackgroundMap);
 
 
@@ -206,26 +212,31 @@ public class ApplicationResourceTest {
       }
       applications.add(application);
 
-      CartographyPermission publicSituaionMap = CartographyPermission.builder()
+      CartographyPermission publicSituationMap = CartographyPermission.builder()
         .name(PUBLIC_SITUATION_MAP_NAME)
-        .roles(availableRoles)
-        .members(cartographies)
         .build();
-      publicSituaionMap = cartographyPermissionRepository.save(publicSituaionMap);
-      cartographyPermissions.add(publicSituaionMap);
+      publicSituationMap = cartographyPermissionRepository.save(publicSituationMap);
+
+      publicSituationMap.getRoles().addAll(availableRoles);
+      publicSituationMap.getMembers().addAll(cartographies);
+      cartographyPermissionRepository.save(publicSituationMap);
+
+      cartographyPermissions.add(publicSituationMap);
 
       Application publicApplication = Application.builder()
         .type("I")
         .name(PUBLIC_APPLICATION_NAME)
-        .availableRoles(availableRoles)
-        .trees(trees)
-        .situationMap(publicSituaionMap)
+        .situationMap(publicSituationMap)
         .jspTemplate("")
         .createdDate(Date.from(Instant.now()))
         .build();
 
       applications.add(publicApplication);
       applicationRepository.saveAll(applications);
+
+      publicApplication.getAvailableRoles().addAll(availableRoles);
+      publicApplication.getTrees().addAll(trees);
+      applicationRepository.save(publicApplication);
 
       appId = applications.get(0).getId();
 

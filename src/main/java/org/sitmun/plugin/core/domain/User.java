@@ -105,14 +105,14 @@ public class User {
   /**
    * User positions.
    */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<UserPosition> positions = new HashSet<>();
 
   /**
    * User permissions.
    */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<UserConfiguration> permissions = new HashSet<>();
 

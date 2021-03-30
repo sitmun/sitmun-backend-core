@@ -11,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -139,11 +140,12 @@ public class Territory {
     name = "STM_GRP_TER",
     joinColumns = @JoinColumn(
       name = "GTE_TERID",
-      foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")),
+      foreignKey = @ForeignKey(name = "STM_GTE_FK_TER")),
     inverseJoinColumns = @JoinColumn(
       name = "GTE_TERMID",
-      foreignKey = @ForeignKey(name = "STM_GRT_FK_TEM")))
-  private Set<Territory> members;
+      foreignKey = @ForeignKey(name = "STM_GTE_FK_TERM")))
+  @Builder.Default
+  private Set<Territory> members = new HashSet<>();
 
   /**
    * Territories of which this territory is part of.
@@ -153,23 +155,40 @@ public class Territory {
     name = "STM_GRP_TER",
     joinColumns = @JoinColumn(
       name = "GTE_TERMID",
-      foreignKey = @ForeignKey(name = "STM_GRT_FK_TERM")),
+      foreignKey = @ForeignKey(name = "STM_GTE_FK_TERM")),
     inverseJoinColumns = @JoinColumn(
       name = "GTE_TERID",
-      foreignKey = @ForeignKey(name = "STM_GRT_FK_TER")))
-  private Set<Territory> memberOf;
+      foreignKey = @ForeignKey(name = "STM_GTE_FK_TER")))
+  @Builder.Default
+  private Set<Territory> memberOf = new HashSet<>();
 
   /**
    * Task availabilities.
    */
-  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
-  private Set<TaskAvailability> taskAvailabilities;
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<TaskAvailability> taskAvailabilities = new HashSet<>();
 
   /**
    * Cartography availabilities.
    */
-  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL)
-  private Set<CartographyAvailability> cartographyAvailabilities;
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
+
+  /**
+   * Positions available.
+   */
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<UserPosition> positions = new HashSet<>();
+
+  /**
+   * Users that can access to this territory a role.
+   */
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

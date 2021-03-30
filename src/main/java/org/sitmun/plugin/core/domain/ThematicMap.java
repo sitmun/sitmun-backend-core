@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
@@ -116,21 +118,22 @@ public class ThematicMap {
    * User.
    */
   @ManyToOne
-  @JoinColumn(name = "THE_USERID")
+  @JoinColumn(name = "THE_USERID", foreignKey = @ForeignKey(name = "STM_THE_FK_USE"))
   private User user;
 
   /**
    * Cartography.
    */
   @ManyToOne
-  @JoinColumn(name = "THE_GIID")
+  @JoinColumn(name = "THE_GIID", foreignKey = @ForeignKey(name = "STM_THE_FK_GEO"))
   private Cartography cartography;
 
   /**
    * Task.
    */
   @ManyToOne
-  @JoinColumn(name = "THE_TASKID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "THE_TASKID", foreignKey = @ForeignKey(name = "STM_THE_FK_TAS"))
   private Task task;
 
   /**

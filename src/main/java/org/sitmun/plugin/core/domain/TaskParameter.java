@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -134,7 +136,8 @@ public class TaskParameter {
    */
   @ManyToOne
   @NotNull
-  @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAR"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAS"))
   private Task task;
 
   @Override

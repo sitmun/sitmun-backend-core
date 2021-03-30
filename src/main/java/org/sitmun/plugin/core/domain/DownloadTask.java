@@ -27,7 +27,6 @@ import static org.sitmun.plugin.core.domain.Constants.URL;
 public class DownloadTask {
 
   @Id
-  @Column(name = "DOW_ID")
   private Integer id;
 
   /**

@@ -45,14 +45,15 @@ public class Task {
    * Parent task.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "TAS_PARENTID")
+  @JoinColumn(name = "TAS_PARENTID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TAS"))
   private Task parent;
 
   /**
    * Children tasks.
    */
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-  private Set<Task> children;
+  @Builder.Default
+  private Set<Task> children = new HashSet<>();
 
   /**
    * Name.
@@ -84,57 +85,58 @@ public class Task {
    * Associated cartography.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_PARENTID", insertable = false, updatable = false)
+  @JoinColumn(name = "TAS_GIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GEO"))
   private Cartography cartography;
 
   /**
    * Associated service.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_SERID")
+  @JoinColumn(name = "TAS_SERID", foreignKey = @ForeignKey(name = "STM_TAS_FK_SER"))
   private Service service;
 
   /**
    * Task group.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAR_FK_GTA"))
+  @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GTS"))
   private TaskGroup group;
 
   /**
    * Task type.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TTA"))
+  @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TTY"))
   private TaskType type;
 
   /**
    * Task UI.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TUI"))
+  @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TUI"))
   private TaskUI ui;
 
   /**
    * Associated connection.
    */
   @ManyToOne
-  @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAR_FK_CON"))
+  @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAS_FK_CON"))
   private DatabaseConnection connection;
 
   /**
    * Roles allowed to access to this task.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_ROL_TSK",
     joinColumns = @JoinColumn(
       name = "RTS_TASKID",
-      foreignKey = @ForeignKey(name = "STM_RTA_FK_T")),
+      foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")),
     inverseJoinColumns = @JoinColumn(
       name = "RTS_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_RTA_FK_ROL")))
-  private Set<Role> roles;
+      foreignKey = @ForeignKey(name = "STM_RTS_FK_ROL")))
+  @Builder.Default
+  private Set<Role> roles = new HashSet<>();
 
   /**
    * Territorial availability of this task.

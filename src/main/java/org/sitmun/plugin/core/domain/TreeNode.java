@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.HttpURL;
 
 import javax.persistence.*;
@@ -40,7 +42,7 @@ public class TreeNode {
   /**
    * Parent node.
    */
-  @JoinColumn(name = "TNO_PARENTID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARN"))
+  @JoinColumn(name = "TNO_PARENTID", foreignKey = @ForeignKey(name = "STM_TNO_FK_TNO"))
   @ManyToOne
   private TreeNode parent;
 
@@ -122,7 +124,8 @@ public class TreeNode {
   /**
    * Tree.
    */
-  @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_ARN_FK_ARB"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_TNO_FK_TRE"))
   @ManyToOne
   @NotNull
   private Tree tree;
@@ -130,7 +133,7 @@ public class TreeNode {
   /**
    * Cartography associated to this node.
    */
-  @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_ARN_FK_CAR"))
+  @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_TNO_FK_GEO"))
   @ManyToOne
   private Cartography cartography;
 

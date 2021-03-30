@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -29,7 +31,8 @@ public class ThematicMapRange {
    * Thematic map.
    */
   @ManyToOne
-  @JoinColumn(name = "TRK_THEID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "TRK_THEID", foreignKey = @ForeignKey(name = "STM_TRK_FK_THE"))
   @Id
   private ThematicMap map;
 

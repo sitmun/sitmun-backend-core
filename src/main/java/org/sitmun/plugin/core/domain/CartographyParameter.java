@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 
@@ -71,7 +73,8 @@ public class CartographyParameter {
    * Cartography that owns this parameter.
    */
   @ManyToOne
-  @JoinColumn(name = "PGI_GIID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "PGI_GIID", foreignKey = @ForeignKey(name = "STM_PGI_FK_GEO"))
   @NotNull
   private Cartography cartography;
 

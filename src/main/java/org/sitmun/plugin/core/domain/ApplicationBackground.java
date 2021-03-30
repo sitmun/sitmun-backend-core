@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -38,7 +40,8 @@ public class ApplicationBackground {
    * Application.
    */
   @ManyToOne
-  @JoinColumn(name = "ABC_APPID", foreignKey = @ForeignKey(name = "STM_APF_FK_APP"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ABC_APPID", foreignKey = @ForeignKey(name = "STM_ABC_FK_APP"))
   @NotNull
   private Application application;
 
@@ -46,7 +49,8 @@ public class ApplicationBackground {
    * Background.
    */
   @ManyToOne
-  @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_APF_FK_FON"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_ABC_FK_FON"))
   @NotNull
   private Background background;
 

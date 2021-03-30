@@ -8,6 +8,7 @@ import org.sitmun.plugin.core.constraints.CodeLists;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
@@ -64,36 +65,40 @@ public class CartographyPermission {
   /**
    * The geographic information that the roles can access.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_GGI_GI",
     joinColumns = @JoinColumn(
       name = "GGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_GCC_FK_GCA")),
+      foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
     inverseJoinColumns = @JoinColumn(
       name = "GGG_GIID",
-      foreignKey = @ForeignKey(name = "STM_GCC_FK_CAR")))
-  private Set<Cartography> members;
+      foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
+  @Builder.Default
+  private Set<Cartography> members = new HashSet<>();
 
   /**
    * The the roles allowed to access the members.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_ROL_GGI",
     joinColumns = @JoinColumn(
       name = "RGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_RGC_FK_GCA")),
+      foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
     inverseJoinColumns = @JoinColumn(
       name = "RGG_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_RGC_FK_ROL")))
-  private Set<Role> roles;
+      foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
+  @Builder.Default
+  private Set<Role> roles = new HashSet<>();
 
   @OneToMany(mappedBy = "cartographyGroup")
-  private Set<Background> backgrounds;
+  @Builder.Default
+  private Set<Background> backgrounds = new HashSet<>();
 
   @OneToMany(mappedBy = "situationMap")
-  private Set<Application> applications;
+  @Builder.Default
+  private Set<Application> applications = new HashSet<>();
 
   @PostLoad
   public void postLoad() {

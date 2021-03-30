@@ -7,6 +7,8 @@ import org.sitmun.plugin.core.constraints.HttpURL;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.*;
 
@@ -51,7 +53,6 @@ public class Background {
   @HttpURL
   private String image;
 
-
   /**
    * Description.
    */
@@ -75,8 +76,15 @@ public class Background {
    * Cartography group used as background.
    */
   @ManyToOne
-  @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_FON_FK_GCA"))
+  @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
   private CartographyPermission cartographyGroup;
+
+  /**
+   * Backgrounds maps.
+   */
+  @OneToMany(mappedBy = "background", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

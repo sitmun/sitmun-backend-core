@@ -56,7 +56,7 @@ public class CartographyAvailability {
    * Territory allowed to access to the cartography.
    */
   @ManyToOne
-  @JoinColumn(name = "AGI_TERID", foreignKey = @ForeignKey(name = "STM_DCA_FK_TER"))
+  @JoinColumn(name = "AGI_TERID", foreignKey = @ForeignKey(name = "STM_AGI_FK_TER"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Territory territory;
@@ -65,7 +65,7 @@ public class CartographyAvailability {
    * Cartography allowed to the territory.
    */
   @ManyToOne
-  @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_DCA_FK_CAR"))
+  @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_AGI_FK_GEO"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Cartography cartography;

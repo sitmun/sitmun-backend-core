@@ -11,6 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -110,7 +111,7 @@ public class Application {
    * Situation map when the application is internal.
    */
   @ManyToOne
-  @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GCA"))
+  @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GGI"))
   private CartographyPermission situationMap;
 
   /**
@@ -125,37 +126,41 @@ public class Application {
    * Application parameters.
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ApplicationParameter> parameters;
+  @Builder.Default
+  private Set<ApplicationParameter> parameters = new HashSet<>();
 
   /**
    * Roles granted in this application.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_APP_ROL",
     joinColumns = @JoinColumn(
-      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_APR_FK_APP")),
+      name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_ARO_FK_APP")),
     inverseJoinColumns = @JoinColumn(
-      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_APR_FK_ROL")))
-  private Set<Role> availableRoles;
+      name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_ARO_FK_ROL")))
+  @Builder.Default
+  private Set<Role> availableRoles = new HashSet<>();
 
   /**
    * Trees assigned to this application.
    */
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
     name = "STM_APP_TREE",
     joinColumns = @JoinColumn(
-      name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_APA_FK_APP")),
+      name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")),
     inverseJoinColumns = @JoinColumn(
-      name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_APA_FK_ARB")))
-  private Set<Tree> trees;
+      name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")))
+  @Builder.Default
+  private Set<Tree> trees = new HashSet<>();
 
   /**
    * Backgrounds maps.
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ApplicationBackground> backgrounds;
+  @Builder.Default
+  private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

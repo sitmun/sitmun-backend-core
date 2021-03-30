@@ -124,7 +124,8 @@ public class Service {
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", orphanRemoval = true, fetch = FetchType.LAZY)
-  private Set<Cartography> layers;
+  @Builder.Default
+  private Set<Cartography> layers = new HashSet<>();
 
   /**
    * Service parameters.
