@@ -73,14 +73,14 @@ public class DatabaseConnection {
   /**
    * Tasks that use this connection.
    */
-  @OneToMany(mappedBy = "connection", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "connection")
   @Builder.Default
   private Set<Task> tasks = new HashSet<>();
 
   /**
    * Cartographies that use this connection.
    */
-  @OneToMany(mappedBy = "spatialSelectionConnection", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "spatialSelectionConnection")
   @Builder.Default
   private Set<Cartography> cartographies = new HashSet<>();
 

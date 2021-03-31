@@ -70,7 +70,7 @@ public class CartographyStyle {
   /**
    * Cartography that owns the style.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "SGI_GIID", foreignKey = @ForeignKey(name = "STM_SGI_FK_GEO"))
   @NotNull
   private Cartography cartography;

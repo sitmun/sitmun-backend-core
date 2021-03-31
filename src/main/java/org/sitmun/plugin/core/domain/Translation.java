@@ -53,7 +53,7 @@ public class Translation {
   /**
    * Translation language.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TRA_LANID", foreignKey = @ForeignKey(name = "STM_TRA_FK_LAN"))
   @NotNull
   private Language language;

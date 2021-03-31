@@ -39,7 +39,7 @@ public class ApplicationBackground {
   /**
    * Application.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ABC_APPID", foreignKey = @ForeignKey(name = "STM_ABC_FK_APP"))
   @NotNull
@@ -48,7 +48,7 @@ public class ApplicationBackground {
   /**
    * Background.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_ABC_FK_FON"))
   @NotNull

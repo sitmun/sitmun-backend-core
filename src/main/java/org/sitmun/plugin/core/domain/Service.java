@@ -123,7 +123,7 @@ public class Service {
   /**
    * Layers provided by this service.
    */
-  @OneToMany(mappedBy = "service", orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<Cartography> layers = new HashSet<>();
 

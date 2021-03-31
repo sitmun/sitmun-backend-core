@@ -51,7 +51,7 @@ public class Task {
   /**
    * Children tasks.
    */
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+  @OneToMany(mappedBy = "parent")
   @Builder.Default
   private Set<Task> children = new HashSet<>();
 
@@ -84,42 +84,42 @@ public class Task {
   /**
    * Associated cartography.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GEO"))
   private Cartography cartography;
 
   /**
    * Associated service.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_SERID", foreignKey = @ForeignKey(name = "STM_TAS_FK_SER"))
   private Service service;
 
   /**
    * Task group.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GTS"))
   private TaskGroup group;
 
   /**
    * Task type.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TTY"))
   private TaskType type;
 
   /**
    * Task UI.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TUI"))
   private TaskUI ui;
 
   /**
    * Associated connection.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAS_FK_CON"))
   private DatabaseConnection connection;
 

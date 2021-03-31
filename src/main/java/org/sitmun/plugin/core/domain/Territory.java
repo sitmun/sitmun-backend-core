@@ -108,7 +108,7 @@ public class Territory {
   /**
    * Territory typology.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
   private TerritoryType type;
 
@@ -128,7 +128,7 @@ public class Territory {
   /**
    * Territory typology.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
   private TerritoryGroupType groupType;
 

@@ -75,7 +75,7 @@ public class Background {
   /**
    * Cartography group used as background.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
   private CartographyPermission cartographyGroup;
 

@@ -117,21 +117,21 @@ public class ThematicMap {
   /**
    * User.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "THE_USERID", foreignKey = @ForeignKey(name = "STM_THE_FK_USE"))
   private User user;
 
   /**
    * Cartography.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "THE_GIID", foreignKey = @ForeignKey(name = "STM_THE_FK_GEO"))
   private Cartography cartography;
 
   /**
    * Task.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "THE_TASKID", foreignKey = @ForeignKey(name = "STM_THE_FK_TAS"))
   private Task task;

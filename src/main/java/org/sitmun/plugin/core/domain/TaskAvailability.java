@@ -47,7 +47,7 @@ public class TaskAvailability {
   /**
    * Territory allowed to access to the task.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ATS_TERID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TER"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
@@ -56,7 +56,7 @@ public class TaskAvailability {
   /**
    * Task allowed to the territory.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ATS_TASKID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TAS"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull

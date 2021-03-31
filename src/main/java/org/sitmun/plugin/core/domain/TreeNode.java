@@ -43,7 +43,7 @@ public class TreeNode {
    * Parent node.
    */
   @JoinColumn(name = "TNO_PARENTID", foreignKey = @ForeignKey(name = "STM_TNO_FK_TNO"))
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private TreeNode parent;
 
   /**
@@ -126,7 +126,7 @@ public class TreeNode {
    */
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "TNO_TREEID", foreignKey = @ForeignKey(name = "STM_TNO_FK_TRE"))
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   private Tree tree;
 
@@ -134,7 +134,7 @@ public class TreeNode {
    * Cartography associated to this node.
    */
   @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_TNO_FK_GEO"))
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Cartography cartography;
 
   @Override

@@ -62,7 +62,7 @@ public class Tree {
    * Tree owner.
    * If a tree is owned by a user, the owner is the only user authorized to view it.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TRE_USERID", foreignKey = @ForeignKey(name = "STM_TRE_FK_USE"))
   private User owner;
 

@@ -55,7 +55,7 @@ public class CartographyAvailability {
   /**
    * Territory allowed to access to the cartography.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "AGI_TERID", foreignKey = @ForeignKey(name = "STM_AGI_FK_TER"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
@@ -64,7 +64,7 @@ public class CartographyAvailability {
   /**
    * Cartography allowed to the territory.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "AGI_GIID", foreignKey = @ForeignKey(name = "STM_AGI_FK_GEO"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull

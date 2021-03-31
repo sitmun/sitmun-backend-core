@@ -83,14 +83,14 @@ public class Comment {
   /**
    * User logged.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "COM_USERID")
   private User user;
 
   /**
    * Application used.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "COM_APPID")
   private Application application;
 
