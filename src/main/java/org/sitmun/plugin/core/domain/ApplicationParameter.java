@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.VALUE;
 
 /**
  * Application parameter.
@@ -50,7 +51,7 @@ public class ApplicationParameter {
   /**
    * Parameter value.
    */
-  @Column(name = "PAP_VALUE", length = 250)
+  @Column(name = "PAP_VALUE", length = VALUE)
   @NotNull
   private String value;
 

@@ -16,9 +16,24 @@ public class Constants {
   public static final int IDENTIFIER = 50;
 
   /**
+   * Titles.
+   */
+  public static final int TITLE = 50;
+
+  /**
    * Abstract or short description.
    */
   public static final int SHORT_DESCRIPTION = 250;
+
+  /**
+   * Abstract or short description.
+   */
+  public static final int LONG_DESCRIPTION = 4000;
+
+  /**
+   * The literal representation of a value.
+   */
+  public static final int VALUE = 250;
 
   /**
    * URL.

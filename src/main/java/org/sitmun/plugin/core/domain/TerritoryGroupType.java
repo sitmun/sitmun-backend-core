@@ -6,6 +6,8 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+
 /**
  * Type of grouping of territorial entities.
  */
@@ -38,7 +40,7 @@ public class TerritoryGroupType {
    * Name.
    */
   @NotBlank
-  @Column(name = "GTT_NAME", length = 250)
+  @Column(name = "GTT_NAME", length = SHORT_DESCRIPTION)
   private String name;
 
   @Override

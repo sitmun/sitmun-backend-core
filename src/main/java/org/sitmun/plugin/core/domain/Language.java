@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 import static org.sitmun.plugin.core.domain.Constants.BCP47_LANGUAGE_TAG;
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
 /**
  * Available languages.
@@ -48,7 +49,7 @@ public class Language {
   /**
    * Language name.
    */
-  @Column(name = "LAN_NAME", length = 80)
+  @Column(name = "LAN_NAME", length = IDENTIFIER)
   @NotBlank
   @I18n
   private String name;

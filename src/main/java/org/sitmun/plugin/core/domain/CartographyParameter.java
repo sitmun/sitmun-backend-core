@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.VALUE;
 
 /**
  * Geographic Information parameter.
@@ -50,7 +51,7 @@ public class CartographyParameter {
   /**
    * Value.
    */
-  @Column(name = "PGI_VALUE", length = 250)
+  @Column(name = "PGI_VALUE", length = VALUE)
   @NotNull
   private String value;
 

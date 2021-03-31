@@ -14,8 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-import static org.sitmun.plugin.core.domain.Constants.URL;
+import static org.sitmun.plugin.core.domain.Constants.*;
 
 /**
  * Territorial entity.
@@ -55,26 +54,26 @@ public class Territory {
   /**
    * Territory name.
    */
-  @Column(name = "TER_NAME", length = 250)
+  @Column(name = "TER_NAME", length = SHORT_DESCRIPTION)
   @NotBlank
   private String name;
 
   /**
    * Territorial authority name.
    */
-  @Column(name = "TER_ADMNAME", length = 250)
+  @Column(name = "TER_ADMNAME", length = SHORT_DESCRIPTION)
   private String territorialAuthorityName;
 
   /**
    * Territorial authority address.
    */
-  @Column(name = "TER_ADDRESS", length = 250)
+  @Column(name = "TER_ADDRESS", length = SHORT_DESCRIPTION)
   private String territorialAuthorityAddress;
 
   /**
    * Territorial authority email.
    */
-  @Column(name = "TER_EMAIL", length = 250)
+  @Column(name = "TER_EMAIL", length = IDENTIFIER)
   @Email
   private String territorialAuthorityEmail;
 
@@ -115,7 +114,7 @@ public class Territory {
   /**
    * Notes.
    */
-  @Column(name = "TER_NOTE", length = 250)
+  @Column(name = "TER_NOTE", length = SHORT_DESCRIPTION)
   private String note;
 
   /**

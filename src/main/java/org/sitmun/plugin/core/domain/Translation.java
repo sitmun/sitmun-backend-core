@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * Available translations.
@@ -61,7 +62,7 @@ public class Translation {
   /**
    * Translation.
    */
-  @Column(name = "TRA_NAME", length = 250)
+  @Column(name = "TRA_NAME", length = SHORT_DESCRIPTION)
   @NotBlank
   private String translation;
 

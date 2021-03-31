@@ -117,7 +117,7 @@ public class Cartography {
   /**
    * List of queryable layers.
    */
-  @Column(name = "GEO_QUERYLAY", length = 500)
+  @Column(name = "GEO_QUERYLAY", length = 10 * IDENTIFIER)
   @Convert(converter = StringListAttributeConverter.class)
   private List<String> queryableLayers;
 
@@ -150,7 +150,7 @@ public class Cartography {
   /**
    * Layer available for spatial selection.
    */
-  @Column(name = "GEO_SELECTLAY", length = 500)
+  @Column(name = "GEO_SELECTLAY", length = 10 * IDENTIFIER)
   @Convert(converter = StringListAttributeConverter.class)
   private List<String> selectableLayers;
 

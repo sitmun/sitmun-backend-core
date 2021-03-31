@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.VALUE;
 
 /**
  * Service parameter.
@@ -50,7 +51,7 @@ public class ServiceParameter {
   /**
    * Parameter value.
    */
-  @Column(name = "PSE_VALUE", length = 250)
+  @Column(name = "PSE_VALUE", length = VALUE)
   private String value;
 
   /**
