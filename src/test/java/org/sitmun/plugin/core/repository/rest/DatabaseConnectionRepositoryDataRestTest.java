@@ -6,11 +6,13 @@ import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,7 +28,8 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   public void tasksLinksExist() throws Exception {
-    mvc.perform(get(URIConstants.CONNECTIONS_URI))
+    mvc.perform(get(URIConstants.CONNECTIONS_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
@@ -34,7 +37,8 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   public void cartographiesLinksExist() throws Exception {
-    mvc.perform(get(URIConstants.CONNECTIONS_URI))
+    mvc.perform(get(URIConstants.CONNECTIONS_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));

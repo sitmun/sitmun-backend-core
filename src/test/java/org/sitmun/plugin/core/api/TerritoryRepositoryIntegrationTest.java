@@ -9,8 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -24,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.test.TestUtils.requestAuthorization;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -50,10 +51,13 @@ public class TerritoryRepositoryIntegrationTest {
 
   @Test
   public void requestMembers() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
     ResponseEntity<String> response =
       restTemplate
-        .getForEntity("http://localhost:{port}/api/territories/330/members", String.class,
-          port);
+        .exchange("http://localhost:" + port + "/api/territories/330/members", HttpMethod.GET, entity, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
@@ -63,10 +67,13 @@ public class TerritoryRepositoryIntegrationTest {
 
   @Test
   public void requestMemberOf() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
     ResponseEntity<String> response =
       restTemplate
-        .getForEntity("http://localhost:{port}/api/territories/74/memberOf", String.class,
-          port);
+        .exchange("http://localhost:" + port + "/api/territories/74/memberOf", HttpMethod.GET, entity, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 

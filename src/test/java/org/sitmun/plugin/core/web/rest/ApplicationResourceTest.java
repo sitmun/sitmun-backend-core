@@ -378,7 +378,8 @@ public class ApplicationResourceTest {
   public void getServiceLayersAsPublic() throws Exception {
     // TODO
     // ok is expected
-    mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers"))
+    mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
@@ -392,7 +393,8 @@ public class ApplicationResourceTest {
   @Test
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI))
+    mvc.perform(get(URIConstants.APPLICATIONS_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }

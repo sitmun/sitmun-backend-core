@@ -41,7 +41,8 @@ public class CartographyParametersRepositoryDataRestTest {
     assertNotNull(location);
     String id = new UriTemplate("http://localhost/api/cartography-parameters/{id}").match(location).get("id");
 
-    mvc.perform(get("/api/cartography-parameters/{id}/cartography", id))
+    mvc.perform(get("/api/cartography-parameters/{id}/cartography", id)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(0));
 

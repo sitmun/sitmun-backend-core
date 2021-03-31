@@ -45,7 +45,8 @@ public class CartographyFiltersRepositoryDataRestTest {
 
     assertNotNull(location);
 
-    mvc.perform(get(location + "/cartography"))
+    mvc.perform(get(location + "/cartography")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(1228));
 

@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,7 +47,8 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   public void getTerritoriesAsPublic() throws Exception {
-    mvc.perform(get(URIConstants.TERRITORIES_URI))
+    mvc.perform(get(URIConstants.TERRITORIES_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
@@ -60,20 +63,23 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   public void hasLinkToCartographyAvailability() throws Exception {
-    mvc.perform(get(URIConstants.TERRITORIES_URI))
+    mvc.perform(get(URIConstants.TERRITORIES_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void hasLinkToTaskAvailability() throws Exception {
-    mvc.perform(get(URIConstants.TERRITORY_URI, 0))
+    mvc.perform(get(URIConstants.TERRITORY_URI, 0)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.taskAvailabilities").exists());
   }
 
   @Test
   public void hasLinkToCartographyAvailabilities() throws Exception {
-    mvc.perform(get(URIConstants.TERRITORY_URI, 0))
+    mvc.perform(get(URIConstants.TERRITORY_URI, 0)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
   }

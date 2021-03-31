@@ -211,7 +211,8 @@ public class UserResourceTest {
 
     assertThat(uri).isNotNull();
 
-    mvc.perform(get(uri)).andExpect(status().isOk())
+    mvc.perform(get(uri)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
 
@@ -248,7 +249,8 @@ public class UserResourceTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId()))
+    mvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))

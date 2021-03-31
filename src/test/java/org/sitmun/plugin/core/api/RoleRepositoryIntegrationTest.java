@@ -13,8 +13,7 @@ import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -29,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
+import static org.sitmun.plugin.core.test.TestUtils.requestAuthorization;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
 @ExtendWith(SpringExtension.class)
@@ -71,8 +72,14 @@ public class RoleRepositoryIntegrationTest {
 
   @Test
   public void requestRoles() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
     ResponseEntity<String> response =
-      restTemplate.getForEntity("http://localhost:" + port + "/api/roles", String.class);
+      restTemplate
+        .exchange("http://localhost:" + port + "/api/roles", HttpMethod.GET, entity, String.class);
+
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 

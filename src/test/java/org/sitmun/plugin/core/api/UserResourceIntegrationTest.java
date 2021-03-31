@@ -7,8 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
-import org.sitmun.plugin.core.web.rest.AuthController.JWTToken;
-import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -32,7 +30,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.sitmun.plugin.core.test.TestUtils.requestAuthorization;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,8 +39,6 @@ public class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String NEW_USER_USERNAME = "admin_new";
-  private static final String ADMIN_USERNAME = "admin";
-  private static final String ADMIN_PASSWORD = "admin";
   private static final String USER_PASSWORD = "admin";
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_LASTNAME = "Admin";
@@ -80,15 +76,8 @@ public class UserResourceIntegrationTest {
 
   @Test
   public void createNewUserAndDelete() {
-    LoginRequest login = new LoginRequest();
-    login.setUsername(ADMIN_USERNAME);
-    login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<JWTToken> loginResponse =
-      restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
-    assertThat(loginResponse.getBody()).isNotNull();
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TOKEN_PREFIX + loginResponse.getBody().getIdToken());
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
 
     UserDTO newUser = new UserDTO(organizacionAdmin);
     newUser.setId(null);
@@ -133,16 +122,8 @@ public class UserResourceIntegrationTest {
 
   @Test
   public void getAllUsers() {
-    LoginRequest login = new LoginRequest();
-    login.setUsername(ADMIN_USERNAME);
-    login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<JWTToken> loginResponse =
-      restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, JWTToken.class, port);
-    assertThat(loginResponse.getBody()).isNotNull();
-
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TOKEN_PREFIX + loginResponse.getBody().getIdToken());
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
 
     ResponseEntity<CollectionModel<User>> response = restTemplate
       .exchange("http://localhost:{port}/api/users", HttpMethod.GET,

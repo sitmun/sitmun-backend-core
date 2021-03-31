@@ -294,8 +294,8 @@ public class TaskRepositoryDataRestTest {
       basicTaskEventHandler.syncTaskProperties();
     });
 
-    mvc.perform(get(location))
-      .andDo(print())
+    mvc.perform(get(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 1')]").exists())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 2')]").exists());
@@ -317,14 +317,16 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI))
+    mvc.perform(get(URIConstants.TASKS_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1758)));
   }
 
   @Test
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
+    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
@@ -339,14 +341,16 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void getRolesOfATask() throws Exception {
-    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
+    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }
 
   @Test
   public void getPermissionsOfATask() throws Exception {
-    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
+    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }

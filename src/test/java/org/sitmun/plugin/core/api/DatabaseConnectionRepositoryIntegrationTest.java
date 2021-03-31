@@ -35,8 +35,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_PASSWORD;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.TestUtils.requestAuthorization;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
 @ExtendWith(SpringExtension.class)
@@ -81,8 +83,12 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
   @Test
   public void requestConnections() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
     ResponseEntity<String> response =
-      restTemplate.getForEntity("http://localhost:" + port + "/api/connections", String.class);
+      restTemplate.exchange("http://localhost:" + port + "/api/connections", HttpMethod.GET, entity, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
@@ -167,16 +173,24 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
 
   private JSONObject getConnection(int id) throws JSONException {
-    String uri = "http://localhost:{0}/api/connections/{1}";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+    String uri = "http://localhost:" + port + "/api/connections/" + id;
     String oldValue =
-      restTemplate.getForEntity(uri, String.class, port, id).getBody();
+      restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
     return new JSONObject(oldValue);
   }
 
   private JSONObject getConnectionCartographies(int id) throws JSONException {
-    String uri = "http://localhost:{0}/api/connections/{1}/cartographies";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+    String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";
     String oldValue =
-      restTemplate.getForEntity(uri, String.class, port, id).getBody();
+      restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
     return new JSONObject(oldValue);
   }
 

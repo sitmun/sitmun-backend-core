@@ -7,6 +7,7 @@ import org.sitmun.plugin.core.security.jwt.JWTFilter;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,6 +29,12 @@ import javax.annotation.PostConstruct;
 @EnableWebSecurity
 @Profile("!unsafe")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  private static final String[] AUTH_WHITELIST = {
+    "/v3/api-docs/**",
+    "/swagger-ui/**"
+  };
+
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
   private final TokenProvider tokenProvider;
   private final UserDetailsService userDetailsService;
@@ -72,11 +79,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       .and()
       .authorizeRequests()
-      .antMatchers("/api/users").authenticated()
-      .antMatchers("/api/account").authenticated()
-      .antMatchers("/api/connections/*/test").authenticated()
-      .antMatchers("/api/connections/test").authenticated()
-      .antMatchers("/api/**").permitAll()
+      .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
+      .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
+      .anyRequest().authenticated()
       .and()
       .anonymous().authenticationFilter(anonymousAuthenticationFilter);
   }

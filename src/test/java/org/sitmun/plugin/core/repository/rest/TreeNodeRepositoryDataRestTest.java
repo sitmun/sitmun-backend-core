@@ -30,25 +30,30 @@ public class TreeNodeRepositoryDataRestTest {
 
   @Test
   public void retrieveFolder() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345))
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true));
-    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5345))
+    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5345)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isNotFound());
   }
 
   @Test
   public void retrieveLeaf() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5351))
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5351)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false));
-    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5351))
+    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5351)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
   @Test
   public void retrieveNodesFromTree() throws Exception {
-    mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1))
+    mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(489)))
       .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(80)))
@@ -69,7 +74,8 @@ public class TreeNodeRepositoryDataRestTest {
 
     String response = result.getResponse().getContentAsString();
 
-    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
 
 
@@ -94,10 +100,12 @@ public class TreeNodeRepositoryDataRestTest {
 
     String response = result.getResponse().getContentAsString();
 
-    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.TREE_NODE_PARENT_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+    mvc.perform(get(URIConstants.TREE_NODE_PARENT_URI, JsonPath.parse(response).read("$.id", Integer.class))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
 
     mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))

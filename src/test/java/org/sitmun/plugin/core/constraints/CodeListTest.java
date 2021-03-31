@@ -177,6 +177,7 @@ public class CodeListTest {
     mvc.perform(post(CARTOGRAPHY_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
       .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));

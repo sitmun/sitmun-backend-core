@@ -37,7 +37,7 @@ public class DocumentationGenerationIntegrationTest {
   public void generateSwagger() throws IOException {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String response =
-      restTemplate.getForObject("http://localhost:" + port + "/v2/api-docs", String.class);
+      restTemplate.getForObject("http://localhost:" + port + "/v3/api-docs", String.class);
     File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.json").toFile();
     Files.createParentDirs(file);
     Files.asCharSink(file, Charset.defaultCharset()).write(response);

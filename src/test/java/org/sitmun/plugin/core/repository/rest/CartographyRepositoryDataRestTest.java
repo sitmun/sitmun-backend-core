@@ -167,7 +167,8 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void getCartographiesAsPublic() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI))
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
@@ -181,7 +182,8 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void hasTreeNodeListProperty() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI + "?size=10"))
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_URI + "?size=10")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
       .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));

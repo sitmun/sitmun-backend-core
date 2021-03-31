@@ -54,7 +54,8 @@ public class SpatialReferenceSystemTest {
   public void singleOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
-      .content(serviceFixture("other")))
+      .content(serviceFixture("other"))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
@@ -81,7 +82,8 @@ public class SpatialReferenceSystemTest {
   public void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1", "other")))
+      .content(serviceFixture("EPSG:1", "other"))
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))
