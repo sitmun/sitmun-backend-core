@@ -4,6 +4,7 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.sitmun.plugin.core.domain.DownloadTask;
 import org.sitmun.plugin.core.domain.Task;
 import org.sitmun.plugin.core.repository.DownloadTaskRepository;
@@ -24,6 +25,7 @@ import java.util.stream.StreamSupport;
 
 @Component
 @RepositoryEventHandler
+@Slf4j
 public class DownloadTaskEventHandler implements SyncEntityHandler {
 
   private final static Integer DOWNLOAD_TASK = 2;
@@ -78,12 +80,14 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
   }
 
   public void synchronize() {
+    log.info("Rebuilding properties for Download tasks (task type = " + DOWNLOAD_TASK + ")");
     taskRepository.saveAll(
       StreamSupport.stream(taskRepository.findAllByTypeId(DOWNLOAD_TASK).spliterator(), false)
         .map(this::updateTask)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(Collectors.toList()));
+    log.info("Rebuilding properties for Attachment tasks (task type = " + ATTACHMENT_TASK + ")");
     taskRepository.saveAll(
       StreamSupport.stream(taskRepository.findAllByTypeId(ATTACHMENT_TASK).spliterator(), false)
         .map(this::updateTask)

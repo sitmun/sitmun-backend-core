@@ -66,6 +66,8 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.security:spring-security-data'
 
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
 
   annotationProcessor 'com.querydsl:querydsl-apt::jpa'

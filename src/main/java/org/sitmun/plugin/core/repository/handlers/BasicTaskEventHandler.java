@@ -6,6 +6,7 @@ import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.sitmun.plugin.core.domain.Task;
 import org.sitmun.plugin.core.domain.TaskParameter;
 import org.sitmun.plugin.core.repository.TaskParameterRepository;
@@ -26,6 +27,7 @@ import java.util.stream.StreamSupport;
 
 @Component
 @RepositoryEventHandler
+@Slf4j
 public class BasicTaskEventHandler implements SyncEntityHandler {
 
   public final static String PARAMETERS = "parameters";
@@ -79,6 +81,7 @@ public class BasicTaskEventHandler implements SyncEntityHandler {
   }
 
   public void synchronize() {
+    log.info("Rebuilding properties for Basic tasks (task type = " + BASIC_TASK + ")");
     taskRepository.findAllByTypeId(BASIC_TASK).forEach(task -> {
       List<BasicParameter> parameters = StreamSupport.stream(taskParameterRepository.findAllByTask(task).spliterator(), false)
         .map(parameter -> BasicParameter.builder()

@@ -11,6 +11,8 @@
 sitmun:
   module: SITMUN Core
   version: 3.0-SNAPSHOT
+  tasks:
+    rebuild-properties-on-startup: true
 
 spring:
   application:
