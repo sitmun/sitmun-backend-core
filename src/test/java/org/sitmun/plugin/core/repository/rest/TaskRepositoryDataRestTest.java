@@ -5,15 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.plugin.core.domain.Task;
-import org.sitmun.plugin.core.domain.TaskAvailability;
-import org.sitmun.plugin.core.domain.TaskParameter;
-import org.sitmun.plugin.core.domain.Territory;
-import org.sitmun.plugin.core.repository.TaskAvailabilityRepository;
-import org.sitmun.plugin.core.repository.TaskParameterRepository;
-import org.sitmun.plugin.core.repository.TaskRepository;
-import org.sitmun.plugin.core.repository.TerritoryRepository;
+import org.sitmun.plugin.core.domain.*;
+import org.sitmun.plugin.core.repository.*;
 import org.sitmun.plugin.core.repository.handlers.BasicTaskEventHandler;
+import org.sitmun.plugin.core.repository.handlers.DownloadTaskEventHandler;
 import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -51,13 +46,19 @@ public class TaskRepositoryDataRestTest {
   @Autowired
   TaskParameterRepository taskParameterRepository;
   @Autowired
-  BasicTaskEventHandler basicTaskEventHandler;
-  @Autowired
   TaskRepository taskRepository;
+  @Autowired
+  DownloadTaskRepository downloadTaskRepository;
   @Autowired
   TaskAvailabilityRepository taskAvailabilityRepository;
   @Autowired
   TerritoryRepository territoryRepository;
+
+  @Autowired
+  BasicTaskEventHandler basicTaskEventHandler;
+  @Autowired
+  DownloadTaskEventHandler downloadTaskEventHandler;
+
   @Autowired
   private MockMvc mvc;
 
@@ -223,7 +224,7 @@ public class TaskRepositoryDataRestTest {
 
     assertNotNull(location);
 
-    String updatedTAsk = "{" +
+    String updatedTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/1\"," +
       "\"properties\": {" +
@@ -237,7 +238,7 @@ public class TaskRepositoryDataRestTest {
       "}";
 
     mvc.perform(put(location)
-      .content(updatedTAsk)
+      .content(updatedTask)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk());
@@ -291,7 +292,7 @@ public class TaskRepositoryDataRestTest {
       TaskParameter param2 = TaskParameter.builder().name("title 2").value("A title 2").value("ANY").order(2).task(task).build();
       taskParameterRepository.save(param2);
 
-      basicTaskEventHandler.syncTaskProperties();
+      basicTaskEventHandler.synchronize();
     });
 
     mvc.perform(get(location)
@@ -299,6 +300,140 @@ public class TaskRepositoryDataRestTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 1')]").exists())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 2')]").exists());
+
+    // Cleanup
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
+
+  }
+
+  @Test
+  public void postDownloadTask() throws Exception {
+    String newTask = "{" +
+      "\"name\": \"A name\"," +
+      "\"type\": \"http://localhost/api/task-types/2\"," +
+      "\"properties\": {" +
+      "\"format\": \"SHP\"," +
+      "\"path\": \"http://www.example.com/\"," +
+      "\"scope\": \"U\"}" +
+      "}";
+
+    String location = mvc.perform(post(URIConstants.TASKS_URI)
+      .content(newTask)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
+
+    assertNotNull(location);
+    withMockSitmunAdmin(() -> {
+      String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
+      Integer taskId = Integer.parseInt(id);
+      Optional<DownloadTask> opTask = downloadTaskRepository.findById(taskId);
+      assertTrue(opTask.isPresent());
+
+      assertEquals("SHP", opTask.get().getFormat());
+      assertEquals("http://www.example.com/", opTask.get().getPath());
+      assertEquals("U", opTask.get().getScope());
+    });
+    // Cleanup
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
+
+  }
+
+  @Test
+  public void updateDownloadTask() throws Exception {
+    String newTask = "{" +
+      "\"name\": \"A name\"," +
+      "\"type\": \"http://localhost/api/task-types/2\"," +
+      "\"properties\": {" +
+      "\"format\": \"SHP\"," +
+      "\"path\": \"http://www.example.com/\"," +
+      "\"scope\": \"U\"}" +
+      "}";
+
+    String location = mvc.perform(post(URIConstants.TASKS_URI)
+      .content(newTask)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
+
+    assertNotNull(location);
+
+    String updatedTAsk = "{" +
+      "\"name\": \"A name\"," +
+      "\"type\": \"http://localhost/api/task-types/2\"," +
+      "\"properties\": {" +
+      "\"format\": \"ZIP\"," +
+      "\"path\": \"http://www.example2.com/\"," +
+      "\"scope\": \"U\"}" +
+      "}";
+
+    mvc.perform(put(location)
+      .content(updatedTAsk)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isOk());
+
+    withMockSitmunAdmin(() -> {
+      String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
+      Integer taskId = Integer.parseInt(id);
+      Optional<DownloadTask> opTask = downloadTaskRepository.findById(taskId);
+      assertTrue(opTask.isPresent());
+
+      assertEquals("ZIP", opTask.get().getFormat());
+      assertEquals("http://www.example2.com/", opTask.get().getPath());
+      assertEquals("U", opTask.get().getScope());
+    });
+
+    // Cleanup
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
+
+  }
+
+  @Test
+  public void syncDownloadTasks() throws Exception {
+    String newTask = "{" +
+      "\"name\": \"A name\"," +
+      "\"type\": \"http://localhost/api/task-types/2\"" +
+      "}";
+
+    String location = mvc.perform(post(URIConstants.TASKS_URI)
+      .content(newTask)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
+
+    assertNotNull(location);
+    withMockSitmunAdmin(() -> {
+      String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
+      Integer taskId = Integer.parseInt(id);
+      Optional<Task> opTask = taskRepository.findById(taskId);
+      assertTrue(opTask.isPresent());
+
+      DownloadTask downloadTask = DownloadTask.downloadBuilder()
+        .id(taskId)
+        .format("DXF")
+        .path("http://www.example3.com/")
+        .scope("U").build();
+      downloadTaskRepository.save(downloadTask);
+
+      downloadTaskEventHandler.synchronize();
+    });
+
+    mvc.perform(get(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.properties.format").value("DXF"))
+      .andExpect(jsonPath("$.properties.path").value("http://www.example3.com/"))
+      .andExpect(jsonPath("$.properties.scope").value("U"));
 
     // Cleanup
     mvc.perform(delete(location)

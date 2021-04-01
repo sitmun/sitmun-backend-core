@@ -26,7 +26,7 @@ import java.util.stream.StreamSupport;
 
 @Component
 @RepositoryEventHandler
-public class BasicTaskEventHandler {
+public class BasicTaskEventHandler implements SyncEntityHandler {
 
   public final static String PARAMETERS = "parameters";
   private final static Integer BASIC_TASK = 1;
@@ -78,32 +78,16 @@ public class BasicTaskEventHandler {
     return task.getType() != null && task.getType().getId().equals(BASIC_TASK);
   }
 
-  public void updateTaskProperties() {
-    taskRepository.findAllByTypeId(BASIC_TASK).forEach(task ->
-      taskParameterRepository.saveAll(StreamSupport.stream(
-        taskParameterRepository.findAllByTask(task).spliterator(), false)
-        .map(parameter ->
-          TaskParameter.builder()
-            .task(task)
-            .type(parameter.getType())
-            .name(parameter.getName())
-            .value(parameter.getValue())
-            .order(parameter.getOrder())
-            .build()
-        ).collect(Collectors.toList()))
-    );
-  }
-
-  public void syncTaskProperties() {
+  public void synchronize() {
     taskRepository.findAllByTypeId(BASIC_TASK).forEach(task -> {
-        List<BasicParameter> parameters = StreamSupport.stream(taskParameterRepository.findAllByTask(task).spliterator(), false)
-          .map(parameter -> BasicParameter.builder()
-            .name(parameter.getName())
-            .value(parameter.getValue())
-            .type(parameter.getType())
-            .order(parameter.getOrder()).build())
-          .collect(Collectors.toList());
-        Map<String, Object> properties = task.getProperties();
+      List<BasicParameter> parameters = StreamSupport.stream(taskParameterRepository.findAllByTask(task).spliterator(), false)
+        .map(parameter -> BasicParameter.builder()
+          .name(parameter.getName())
+          .value(parameter.getValue())
+          .type(parameter.getType())
+          .order(parameter.getOrder()).build())
+        .collect(Collectors.toList());
+      Map<String, Object> properties = task.getProperties();
 
         if (parameters.isEmpty() && properties != null) {
           properties.remove(PARAMETERS);
