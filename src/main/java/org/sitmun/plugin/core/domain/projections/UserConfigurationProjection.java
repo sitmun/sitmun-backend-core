@@ -5,6 +5,8 @@ import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.Date;
+
 /**
  * Projections for REST views of user configuration.
  */
@@ -61,5 +63,11 @@ public interface UserConfigurationProjection {
    */
   @Value("#{target.appliesToChildrenTerritories}")
   Boolean getAppliesToChildrenTerritories();
+
+  /**
+   * Creation date.
+   */
+  @Value("#{target.createdDate}")
+  Date getCreatedDate();
 
 }

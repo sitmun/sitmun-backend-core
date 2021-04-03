@@ -1,15 +1,14 @@
 package org.sitmun.plugin.core.dashboard;
 
 import com.google.common.collect.Maps;
-import io.micrometer.core.instrument.*;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.search.Search;
-import org.sitmun.plugin.core.repository.CartographyRepository;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,40 +22,12 @@ import static org.sitmun.plugin.core.config.MetricsConfig.METRICS_PREFIX;
 @Component
 public class DashboardInfoContributor implements InfoContributor {
 
-  static private final String TAG = "dashboard";
+  static final String TAG = "dashboard";
 
   private final MeterRegistry meterRegistry;
 
-  private final MultiGauge createdCartographiesGauge;
-
-  private final CartographyRepository cartographyRepository;
-
-  public DashboardInfoContributor(MeterRegistry meterRegistry,
-                                  MultiGauge createdCartographiesGauge,
-                                  CartographyRepository cartographyRepository) {
-    this.createdCartographiesGauge = createdCartographiesGauge;
+  public DashboardInfoContributor(MeterRegistry meterRegistry) {
     this.meterRegistry = meterRegistry;
-    this.cartographyRepository = cartographyRepository;
-  }
-
-  @Scheduled(fixedRate = 60000)
-  public void updateMetrics() {
-    createdCartographiesGauge.register(
-      cartographyRepository.countByCreatedDate().stream()
-        .map(this::getNumberRow)
-        .filter(Objects::nonNull)
-        .collect(toList())
-    );
-  }
-
-  private MultiGauge.Row<Number> getNumberRow(Object[] entry) {
-    if (entry[0] != null) {
-      String key = MessageFormat.format("{0,number,0000}-{1,number,00}-{2,number,00}", entry[0], entry[1], entry[2]);
-      Number value = (Number) entry[3];
-      return MultiGauge.Row.of(Tags.of(TAG, key), value);
-    } else {
-      return null;
-    }
   }
 
   @Override

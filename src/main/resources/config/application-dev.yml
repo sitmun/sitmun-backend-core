@@ -7,6 +7,14 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
+sitmun:
+  dashboard:
+    fetchMetrics: 60000
+    initialDelay: 60000
+    cartographies-by-created-date.size: 30
+    users-by-created-date.size: 30
+    user-configurations-by-created-date.size: 30
+
 logging:
   level:
     ROOT: INFO

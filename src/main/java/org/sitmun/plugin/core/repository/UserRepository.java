@@ -2,7 +2,10 @@ package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -48,4 +51,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
   @EntityGraph(attributePaths = "permissions")
   Optional<User> findOneWithPermissionsByUsername(String name);
 
+  @Query(name = "dashboard.usersByCreatedDate")
+  Page<Object[]> usersByCreatedDate(Pageable pageable);
 }

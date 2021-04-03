@@ -2,6 +2,8 @@ package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.Cartography;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -10,7 +12,6 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
-import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "cartography")
@@ -46,8 +47,7 @@ public interface CartographyRepository extends PagingAndSortingRepository<Cartog
   @Query("select cartography from Cartography cartography left join fetch cartography.service where cartography.id =:id")
   Cartography findOneWithEagerRelationships(Integer id);
 
-  @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-  @Query("select year(c.createdDate), month(c.createdDate), day(c.createdDate), count(c) from Cartography c group by year(c.createdDate), month(c.createdDate), day(c.createdDate)")
-  List<Object[]> countByCreatedDate();
+  @Query(name = "dashboard.cartographiesByCreatedDate")
+  Page<Object[]> cartographiesByCreatedDate(Pageable pageable);
 
 }

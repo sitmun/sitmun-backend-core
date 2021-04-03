@@ -6,19 +6,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-// import org.springframework.hateoas.Identifiable;
 
 /**
  * User.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_USER", uniqueConstraints = {
   @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
 @Builder
@@ -101,6 +104,15 @@ public class User {
    */
   @Column(name = "USE_GENERIC")
   private Boolean generic;
+
+
+  /**
+   * Creation date.
+   */
+  @Column(name = "USE_CREATED")
+  @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
+  private Date createdDate;
 
   /**
    * User positions.

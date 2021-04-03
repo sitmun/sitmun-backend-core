@@ -4,14 +4,18 @@ package org.sitmun.plugin.core.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * User role in a territory.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_USR_CONF", uniqueConstraints = {
   @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
     "UCO_ROLEM"})})
@@ -73,6 +77,14 @@ public class UserConfiguration {
   @Column(name = "UCO_ROLEM")
   @NotNull
   private Boolean appliesToChildrenTerritories;
+
+  /**
+   * Creation date.
+   */
+  @Column(name = "UCO_CREATED")
+  @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
+  private Date createdDate;
 
   @Override
   public boolean equals(Object o) {

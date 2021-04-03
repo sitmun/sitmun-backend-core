@@ -4,6 +4,10 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import org.sitmun.plugin.core.dashboard.CartographiesByCreatedDate;
+import org.sitmun.plugin.core.dashboard.DashboardMetricsContributor;
+import org.sitmun.plugin.core.dashboard.UserConfigurationsByCreatedDate;
+import org.sitmun.plugin.core.dashboard.UsersByCreatedDate;
 import org.sitmun.plugin.core.repository.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,14 +20,28 @@ public class MetricsConfig {
   public static final String METRICS_PREFIX = "sitmun.";
 
   @Bean
-  public MultiGauge createdCartographiesGauge(MeterRegistry registry) {
-    return MultiGauge.builder(METRICS_PREFIX + "cartographies-created-on-date").register(registry);
+  public DashboardMetricsContributor cartographiesCreatedByDate(MeterRegistry registry, CartographyRepository cartographyRepository, MetricsProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "cartographies-created-on-date").register(registry);
+    return new CartographiesByCreatedDate(gauge, cartographyRepository, metricsProperties.getCartographiesByCreatedDate());
   }
 
+  @Bean
+  public DashboardMetricsContributor usersCreatedByDate(MeterRegistry registry, UserRepository userRepository, MetricsProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "users-created-on-date").register(registry);
+    return new UsersByCreatedDate(gauge, userRepository, metricsProperties.getUsersByCreatedDate());
+  }
+
+  @Bean
+  public DashboardMetricsContributor userConfigurationssCreatedByDate(MeterRegistry registry, UserConfigurationRepository userConfigurationRepository, MetricsProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "user-configurations-created-on-date").register(registry);
+    return new UserConfigurationsByCreatedDate(gauge, userConfigurationRepository, metricsProperties.getUserConfigurationsByCreatedDate());
+  }
 
   @Bean
   public MeterBinder totalApplicationsGauge(ApplicationRepository applicationRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.applications", applicationRepository::count).register(registry);
+    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.applications", applicationRepository::count)
+      .description("Total of applications")
+      .register(registry);
   }
 
   @Bean
@@ -70,7 +88,7 @@ public class MetricsConfig {
    */
   @Bean
   public MeterBinder sumApplicationTerritoriesMetric(ApplicationRepository applicationRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "sum.applications-territories", () -> applicationRepository.listIdApplicationsPerTerritories().size())
+    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.applications-territories", () -> applicationRepository.listIdApplicationsPerTerritories().size())
       .description("Sum of applications available in territories")
       .register(registry);
   }
