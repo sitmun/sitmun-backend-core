@@ -16,7 +16,6 @@ import org.sitmun.plugin.core.repository.UserRepository;
 import org.sitmun.plugin.core.repository.handlers.UserEventHandler;
 import org.sitmun.plugin.core.security.AuthoritiesConstants;
 import org.sitmun.plugin.core.service.UserService;
-import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -198,9 +197,7 @@ public class UserResourceTest {
 
   @Test
   public void createNewUserAndDelete() throws Exception {
-    UserDTO newUser = new UserDTO(organizacionAdmin);
-    newUser.setId(null);
-    newUser.setUsername(NEW_USER_USERNAME);
+    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
     String uri = mvc.perform(post("/api/users")
       .contentType(MediaType.APPLICATION_JSON)
@@ -223,8 +220,7 @@ public class UserResourceTest {
 
   @Test
   public void createDuplicatedUserFails() throws Exception {
-    UserDTO newUser = new UserDTO(organizacionAdmin);
-    newUser.setId(null);
+    User newUser = organizacionAdmin.toBuilder().id(null).build();
 
     mvc.perform(post("/api/users")
       .contentType(MediaType.APPLICATION_JSON)

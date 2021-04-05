@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.User;
-import org.sitmun.plugin.core.service.dto.UserDTO;
 import org.sitmun.plugin.core.test.ClientHttpLoggerRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,21 +78,19 @@ public class UserResourceIntegrationTest {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
 
-    UserDTO newUser = new UserDTO(organizacionAdmin);
-    newUser.setId(null);
-    newUser.setUsername(NEW_USER_USERNAME);
-    HttpEntity<UserDTO> entity = new HttpEntity<>(newUser, headers);
+    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
+    HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
 
-    ResponseEntity<UserDTO> createdUser =
+    ResponseEntity<User> createdUser =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/users", entity, UserDTO.class, port);
+        .postForEntity("http://localhost:{port}/api/users", entity, User.class, port);
 
     assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdUser.getHeaders().getLocation()).isNotNull();
 
-    ResponseEntity<UserDTO> exists = restTemplate
+    ResponseEntity<User> exists = restTemplate
       .exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET, new HttpEntity<>(headers),
-        UserDTO.class);
+        User.class);
     assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     ResponseEntity<String> deleted = restTemplate
@@ -103,7 +100,7 @@ public class UserResourceIntegrationTest {
 
     try {
       restTemplate.exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET,
-        new HttpEntity<>(headers), UserDTO.class);
+        new HttpEntity<>(headers), User.class);
       fail("404 is expected");
     } catch (HttpClientErrorException e) {
       assertThat(e.getRawStatusCode()).isEqualTo(404);
@@ -112,12 +109,10 @@ public class UserResourceIntegrationTest {
 
   @Test
   public void cannotPostWithoutLogin() {
-    UserDTO newUser = new UserDTO(organizacionAdmin);
-    newUser.setId(null);
-    newUser.setUsername(NEW_USER_USERNAME);
+    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
     Assertions.assertThrows(HttpClientErrorException.Unauthorized.class, () -> restTemplate
-      .postForEntity("http://localhost:{port}/api/users", newUser, UserDTO.class, port));
+      .postForEntity("http://localhost:{port}/api/users", newUser, User.class, port));
   }
 
   @Test

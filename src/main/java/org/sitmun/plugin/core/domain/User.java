@@ -24,7 +24,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_USER", uniqueConstraints = {
   @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
