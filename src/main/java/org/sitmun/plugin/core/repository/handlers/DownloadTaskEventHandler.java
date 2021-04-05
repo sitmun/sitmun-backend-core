@@ -1,9 +1,5 @@
 package org.sitmun.plugin.core.repository.handlers;
 
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.TypeRef;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.plugin.core.domain.DownloadTask;
 import org.sitmun.plugin.core.domain.Task;
@@ -49,13 +45,7 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
     }
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
-      TypeRef<DownloadTask> typeRef = new TypeRef<DownloadTask>() {
-      };
-      Configuration conf = Configuration.defaultConfiguration()
-        .mappingProvider(new JacksonMappingProvider());
-      DownloadTask downloadTask =
-        JsonPath.using(conf).parse(properties)
-          .read("$", typeRef);
+      DownloadTask downloadTask = ParameterUtils.obtain(properties, "$", DownloadTask.class);
       downloadTask.setId(task.getId());
       if (task.getType().getId().equals(DOWNLOAD_TASK)) {
         downloadTask.setScope("U");
@@ -87,6 +77,7 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
         .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(Collectors.toList()));
+
     log.info("Rebuilding properties for Attachment tasks (task type = " + ATTACHMENT_TASK + ")");
     taskRepository.saveAll(
       StreamSupport.stream(taskRepository.findAllByTypeId(ATTACHMENT_TASK).spliterator(), false)

@@ -8,6 +8,8 @@
 # =====================================================================================================================
 
 sitmun:
+  tasks:
+    rebuild-properties-on-startup: true
   dashboard:
     fetchMetrics: 60000
     initialDelay: 60000

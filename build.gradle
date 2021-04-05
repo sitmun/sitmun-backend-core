@@ -257,3 +257,7 @@ openApi {
   waitTimeInSeconds.set(50)
 }
 
+test {
+  useJUnitPlatform()
+}
+
