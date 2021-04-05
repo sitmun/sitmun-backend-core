@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "sitmun.dashboard.fetchMetrics",
+      "type": "java.lang.String",
+      "description": "Fetch rate for metrics (msecs)."
+    },
+    {
+      "name": "sitmun.dashboard.initialDelay",
+      "type": "java.lang.String",
+      "description": "Initial delay for fetching metrics (msecs)."
+    },
+    {
+      "name": "security.authentication.jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT secret."
+    },
+    {
+      "name": "security.authentication.jwt.token-validity-in-miliseconds",
+      "type": "java.lang.String",
+      "description": "JWT token validity (msecs)."
+    }
+  ]
+}

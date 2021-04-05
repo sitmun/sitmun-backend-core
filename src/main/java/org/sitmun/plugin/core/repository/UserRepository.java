@@ -2,11 +2,10 @@ package org.sitmun.plugin.core.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.lang.NonNull;
@@ -15,6 +14,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Tag(name = "user")
@@ -51,6 +51,9 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
   @EntityGraph(attributePaths = "permissions")
   Optional<User> findOneWithPermissionsByUsername(String name);
 
+  @Query(name = "dashboard.usersPerApplicationSinceDate")
+  Iterable<Object[]> usersPerApplicationSinceDate(@Param("sinceDate") Date sinceDate);
+
   @Query(name = "dashboard.usersByCreatedDate")
-  Page<Object[]> usersByCreatedDate(Pageable pageable);
+  Iterable<Object[]> usersByCreatedDateSinceDate(@Param("sinceDate") Date sinceDate);
 }

@@ -109,6 +109,7 @@ SOLUTION:
 }
 
 compileJava.dependsOn checkJavaVersion
+compileJava.inputs.files(processResources)
 
 publishing {
   repositories {

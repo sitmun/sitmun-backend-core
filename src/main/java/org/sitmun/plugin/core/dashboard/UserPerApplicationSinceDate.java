@@ -2,23 +2,25 @@ package org.sitmun.plugin.core.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
 import org.sitmun.plugin.core.config.MetricsProperties.MetricDefinition;
-import org.sitmun.plugin.core.repository.UserConfigurationRepository;
-import org.springframework.data.domain.PageRequest;
+import org.sitmun.plugin.core.repository.UserRepository;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
-public class UserConfigurationsByCreatedDate implements DashboardMetricsContributor {
+public class UserPerApplicationSinceDate implements DashboardMetricsContributor {
 
 
   private final MultiGauge gauge;
 
-  private final UserConfigurationRepository userRepository;
+  private final UserRepository userRepository;
 
   private final MetricDefinition definition;
 
-  public UserConfigurationsByCreatedDate(MultiGauge gauge, UserConfigurationRepository userRepository, MetricDefinition definition) {
+  public UserPerApplicationSinceDate(MultiGauge gauge, UserRepository userRepository, MetricDefinition definition) {
     this.gauge = gauge;
     this.userRepository = userRepository;
     this.definition = definition;
@@ -28,8 +30,9 @@ public class UserConfigurationsByCreatedDate implements DashboardMetricsContribu
   public void run() {
     if (definition.getSize() > 0) {
       gauge.register(
-        userRepository.userConfigurationsByCreatedDate(PageRequest.of(0, definition.getSize())).stream()
-          .map(this::getNumberRow)
+        StreamSupport
+          .stream(userRepository.usersPerApplicationSinceDate(Date.valueOf(LocalDate.now().minusDays(definition.getSize()))).spliterator(), false)
+          .map(this::getStringNumberRow)
           .filter(Objects::nonNull)
           .collect(toList())
       );

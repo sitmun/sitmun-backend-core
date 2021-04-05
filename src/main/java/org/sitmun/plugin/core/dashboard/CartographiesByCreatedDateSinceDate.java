@@ -3,13 +3,15 @@ package org.sitmun.plugin.core.dashboard;
 import io.micrometer.core.instrument.MultiGauge;
 import org.sitmun.plugin.core.config.MetricsProperties.MetricDefinition;
 import org.sitmun.plugin.core.repository.CartographyRepository;
-import org.springframework.data.domain.PageRequest;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
-public class CartographiesByCreatedDate implements DashboardMetricsContributor {
+public class CartographiesByCreatedDateSinceDate implements DashboardMetricsContributor {
 
   private final MultiGauge gauge;
 
@@ -17,7 +19,7 @@ public class CartographiesByCreatedDate implements DashboardMetricsContributor {
 
   private final MetricDefinition definition;
 
-  public CartographiesByCreatedDate(MultiGauge gauge, CartographyRepository cartographyRepository, MetricDefinition definition) {
+  public CartographiesByCreatedDateSinceDate(MultiGauge gauge, CartographyRepository cartographyRepository, MetricDefinition definition) {
     this.gauge = gauge;
     this.cartographyRepository = cartographyRepository;
     this.definition = definition;
@@ -27,8 +29,9 @@ public class CartographiesByCreatedDate implements DashboardMetricsContributor {
   public void run() {
     if (definition.getSize() > 0) {
       gauge.register(
-        cartographyRepository.cartographiesByCreatedDate(PageRequest.of(0, definition.getSize())).stream()
-          .map(this::getNumberRow)
+        StreamSupport
+          .stream(cartographyRepository.cartographiesByCreatedDateSinceDate(Date.valueOf(LocalDate.now().minusDays(definition.getSize()))).spliterator(), false)
+          .map(this::getDateNumberRow)
           .filter(Objects::nonNull)
           .collect(toList())
       );

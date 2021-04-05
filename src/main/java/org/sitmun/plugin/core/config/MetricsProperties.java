@@ -15,7 +15,7 @@ public class MetricsProperties {
 
   private MetricDefinition usersByCreatedDate = new MetricDefinition();
 
-  private MetricDefinition userConfigurationsByCreatedDate = new MetricDefinition();
+  private MetricDefinition usersPerApplication = new MetricDefinition();
 
   @Setter
   @Getter

@@ -3,13 +3,15 @@ package org.sitmun.plugin.core.dashboard;
 import io.micrometer.core.instrument.MultiGauge;
 import org.sitmun.plugin.core.config.MetricsProperties.MetricDefinition;
 import org.sitmun.plugin.core.repository.UserRepository;
-import org.springframework.data.domain.PageRequest;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
-public class UsersByCreatedDate implements DashboardMetricsContributor {
+public class UsersByCreatedDateSinceDate implements DashboardMetricsContributor {
 
 
   private final MultiGauge gauge;
@@ -18,7 +20,7 @@ public class UsersByCreatedDate implements DashboardMetricsContributor {
 
   private final MetricDefinition definition;
 
-  public UsersByCreatedDate(MultiGauge gauge, UserRepository userRepository, MetricDefinition definition) {
+  public UsersByCreatedDateSinceDate(MultiGauge gauge, UserRepository userRepository, MetricDefinition definition) {
     this.gauge = gauge;
     this.userRepository = userRepository;
     this.definition = definition;
@@ -28,8 +30,9 @@ public class UsersByCreatedDate implements DashboardMetricsContributor {
   public void run() {
     if (definition.getSize() > 0) {
       gauge.register(
-        userRepository.usersByCreatedDate(PageRequest.of(0, definition.getSize())).stream()
-          .map(this::getNumberRow)
+        StreamSupport
+          .stream(userRepository.usersByCreatedDateSinceDate(Date.valueOf(LocalDate.now().minusDays(definition.getSize()))).spliterator(), false)
+          .map(this::getDateNumberRow)
           .filter(Objects::nonNull)
           .collect(toList())
       );

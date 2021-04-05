@@ -4,9 +4,6 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.QUserConfiguration;
 import org.sitmun.plugin.core.domain.UserConfiguration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
@@ -49,9 +46,6 @@ public interface UserConfigurationRepository extends
   @PostAuthorize("hasPermission(returnObject, 'read')")
   @NonNull
   Optional<UserConfiguration> findById(@NonNull Integer id);
-
-  @Query(name = "dashboard.userConfigurationsByCreatedDate")
-  Page<Object[]> userConfigurationsByCreatedDate(Pageable pageable);
 
   @Override
   default void customize(QuerydslBindings bindings, QUserConfiguration root) {
