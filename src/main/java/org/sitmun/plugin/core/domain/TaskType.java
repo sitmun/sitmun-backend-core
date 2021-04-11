@@ -2,11 +2,15 @@ package org.sitmun.plugin.core.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.converters.HashMapConverter;
+import org.sitmun.plugin.core.i18n.I18n;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 
@@ -41,13 +45,54 @@ public class TaskType {
    * Task type name.
    */
   @Column(name = "TTY_NAME", length = IDENTIFIER)
-  @NotBlank
   private String name;
 
+  /**
+   * Task type title.
+   */
+  @Column(name = "TTY_TITLE", length = Constants.TITLE)
+  @I18n
+  private String title;
+
+  /**
+   * Is active.
+   */
+  @Column(name = "TTY_ENABLED")
+  private Boolean enabled;
+
+  /**
+   * Task type parent.
+   */
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "TTY_PARENTID", foreignKey = @ForeignKey(name = "STM_TSK_TYP_TTY"))
+  @ManyToOne
+  private TaskType parent;
+
+  /**
+   * Order in the UI.
+   */
+  @Column(name = "TTY_ORDER")
+  private Integer order;
+
+  /**
+   *
+   */
+  @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<TaskType> children = new HashSet<>();
+
+  /**
+   * Task type specification
+   */
   @Lob
   @Column(name = "TTY_SPEC")
   @Convert(converter = HashMapConverter.class)
   private Map<String, Object> specification;
+
+  public Boolean getFolder() {
+    if (children != null) return !children.isEmpty();
+    return false;
+  }
 
   @Override
   public boolean equals(Object o) {
