@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: sitmun
+      context: dev
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 04_translations/STM_LANGUAGE.csv
+            relativeToChangelogFile: true
+            tableName: STM_LANGUAGE
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('LAN_ID', 5);
+        - loadData:
+            encoding: UTF-8
+            file: 04_translations/STM_TRANSLATION.csv
+            relativeToChangelogFile: true
+            tableName: STM_TRANSLATION
+            usePreparedStatements: true
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRA_ID', 24);
