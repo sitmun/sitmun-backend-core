@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository.handlers;
+package org.sitmun.plugin.core.repository.handlers.stm2;
 
 import lombok.*;
 

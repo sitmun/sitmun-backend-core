@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: sitmun
+      context: dev
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 03_task_types/STM_TSK_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_TSK_TYP
+            usePreparedStatements: true
+            quotchar: "\""
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/01_BasicTaskDefinition.json
+            where: TTY_ID=1
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/02_DownloadTaskDefinition.json
+            where: TTY_ID=2
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/03_DocumentTaskDefinition.json
+            where: TTY_ID=3
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/04_LocatorTaskDefinition.json
+            where: TTY_ID=4
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/05_QueryTaskDefinition.json
+            where: TTY_ID=5
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/06_MoreInformationTaskDefinition.json
+            where: TTY_ID=6
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TTY_ID', 14);

@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository.handlers;
+package org.sitmun.plugin.core.repository.handlers.stm2;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,7 @@ import org.sitmun.plugin.core.domain.TaskParameter;
 import org.sitmun.plugin.core.repository.QueryTaskRepository;
 import org.sitmun.plugin.core.repository.TaskParameterRepository;
 import org.sitmun.plugin.core.repository.TaskRepository;
+import org.sitmun.plugin.core.repository.handlers.SyncEntityHandler;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
@@ -92,7 +93,7 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
       TaskParameter.builder()
         .task(task)
         .name(parameter.getKey())
-        .value(parameter.getSelect())
+        .value(parameter.getValue())
         .type("SQL")
         .order(parameter.getOrder()).build()
     );
@@ -171,18 +172,18 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
           } else if ("LABEL".equals(row.getType())) {
             qp.setLabel(row.getValue());
           } else if ("SQL".equals(row.getType())) {
-            qp.setSelect(row.getValue());
+            qp.setValue(row.getValue());
           }
           qp.setOrder(row.getOrder());
         });
         Optional<QueryParameter> result;
-        if (qp.getType() != null && qp.getLabel() != null && qp.getSelect() != null) {
+        if (qp.getType() != null && qp.getLabel() != null && qp.getValue() != null) {
           result = Optional.of(qp);
         } else {
           String fail = ImmutableMap.of(
             "TIPO", Optional.ofNullable(qp.getType()),
             "LABEL", Optional.ofNullable(qp.getLabel()),
-            "SQL", Optional.ofNullable(qp.getSelect())).entrySet().stream().map(
+            "SQL", Optional.ofNullable(qp.getValue())).entrySet().stream().map(
             it -> {
               Optional<String> r;
               if (it.getValue().isPresent()) r = Optional.empty();

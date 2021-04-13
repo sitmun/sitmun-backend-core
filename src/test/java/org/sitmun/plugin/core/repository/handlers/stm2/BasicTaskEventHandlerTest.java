@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository.handlers;
+package org.sitmun.plugin.core.repository.handlers.stm2;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,6 +92,41 @@ public class BasicTaskEventHandlerTest {
       assertEquals("ANY", parameters.get(1).getType());
       assertEquals(2, parameters.get(1).getOrder());
     });
+    // Cleanup
+    mvc.perform(delete(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
+
+  }
+
+  @Test
+  public void postBasicTaskWithNullValues() throws Exception {
+    String newTask = "{" +
+      "\"name\": \"A name\"," +
+      "\"type\": \"http://localhost/api/task-types/1\"," +
+      "\"properties\": {" +
+      "\"parameters\": [{" +
+      "\"name\": \"title 1\"," +
+      "\"value\": \"A title 1\"," +
+      "\"type\": null," +
+      "\"order\": 1" +
+      "}]" +
+      "}" +
+      "}";
+
+    String location = mvc.perform(post(URIConstants.TASKS_URI)
+      .content(newTask)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
+
+    assertNotNull(location);
+
+    mvc.perform(get(location)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(jsonPath("$.properties.parameters[?(@.type)]").exists());
+
     // Cleanup
     mvc.perform(delete(location)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))

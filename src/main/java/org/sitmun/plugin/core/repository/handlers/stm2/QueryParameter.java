@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository.handlers;
+package org.sitmun.plugin.core.repository.handlers.stm2;
 
 import lombok.*;
 
@@ -11,6 +11,6 @@ class QueryParameter {
   private String key;
   private String type;
   private String label;
-  private String select;
+  private String value;
   private Integer order;
 }

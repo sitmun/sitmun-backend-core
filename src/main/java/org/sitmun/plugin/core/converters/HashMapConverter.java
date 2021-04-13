@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.converters;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,12 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HashMapConverter.class);
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
+
+  public HashMapConverter() {
+    objectMapper = new ObjectMapper();
+    objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+  }
 
   @Override
   public String convertToDatabaseColumn(Map<String, Object> attribute) {

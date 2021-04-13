@@ -3,8 +3,9 @@
                    logicalFilePath="master.xml"
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
-    <include file="changelog/01_schema.h2.sql" relativeToChangelogFile="true"/>
-    <include file="changelog/02_codelists.sql" relativeToChangelogFile="true"/>
-    <include file="changelog/03_initial_data_dev.yaml" relativeToChangelogFile="true"/>
-    <include file="changelog/04_translations.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/01_schema.h2.sql" relativeToChangelogFile="true"/>
+  <include file="changelog/02_codelists.sql" relativeToChangelogFile="true"/>
+  <include file="changelog/03_task_types.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/04_initial_data_dev.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/05_translations.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.repository.handlers;
+package org.sitmun.plugin.core.repository.handlers.stm2;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
