@@ -59,6 +59,8 @@ public class URIConstants {
 
   public static final String CODELIST_VALUE_URI = CODELIST_VALUES_URI + "/{0}";
 
+  public static final String CONFIGURATION_PARAMETERS_URI = "http://localhost/api/configuration-parameters";
+
   public static final String CONNECTIONS_URI =
     "http://localhost/api/connections";
 

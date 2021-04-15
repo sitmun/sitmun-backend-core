@@ -8,4 +8,5 @@
   <include file="changelog/03_task_types.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/04_initial_data_dev.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/05_translations.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/06_params.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
