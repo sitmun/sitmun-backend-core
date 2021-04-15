@@ -8,6 +8,7 @@ import org.sitmun.plugin.core.dashboard.CartographiesByCreatedDateSinceDate;
 import org.sitmun.plugin.core.dashboard.DashboardMetricsContributor;
 import org.sitmun.plugin.core.dashboard.UserPerApplicationSinceDate;
 import org.sitmun.plugin.core.dashboard.UsersByCreatedDateSinceDate;
+import org.sitmun.plugin.core.properties.DashboardProperties;
 import org.sitmun.plugin.core.repository.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,24 +16,24 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-public class MetricsConfig {
+public class DashboardConfig {
 
   public static final String METRICS_PREFIX = "sitmun.";
 
   @Bean
-  public DashboardMetricsContributor cartographiesCreatedByDate(MeterRegistry registry, CartographyRepository cartographyRepository, MetricsProperties metricsProperties) {
+  public DashboardMetricsContributor cartographiesCreatedByDate(MeterRegistry registry, CartographyRepository cartographyRepository, DashboardProperties metricsProperties) {
     MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "cartographies-created-on-date").register(registry);
     return new CartographiesByCreatedDateSinceDate(gauge, cartographyRepository, metricsProperties.getCartographiesByCreatedDate());
   }
 
   @Bean
-  public DashboardMetricsContributor usersCreatedByDate(MeterRegistry registry, UserRepository userRepository, MetricsProperties metricsProperties) {
+  public DashboardMetricsContributor usersCreatedByDate(MeterRegistry registry, UserRepository userRepository, DashboardProperties metricsProperties) {
     MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "users-created-on-date").register(registry);
     return new UsersByCreatedDateSinceDate(gauge, userRepository, metricsProperties.getUsersByCreatedDate());
   }
 
   @Bean
-  public DashboardMetricsContributor usersPerApplication(MeterRegistry registry, UserRepository userRepository, MetricsProperties metricsProperties) {
+  public DashboardMetricsContributor usersPerApplication(MeterRegistry registry, UserRepository userRepository, DashboardProperties metricsProperties) {
     MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "users-per-application").register(registry);
     return new UserPerApplicationSinceDate(gauge, userRepository, metricsProperties.getUsersPerApplication());
   }

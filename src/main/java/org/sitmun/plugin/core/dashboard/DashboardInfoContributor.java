@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.sitmun.plugin.core.config.MetricsConfig.METRICS_PREFIX;
+import static org.sitmun.plugin.core.config.DashboardConfig.METRICS_PREFIX;
 
 @Component
 public class DashboardInfoContributor implements InfoContributor {

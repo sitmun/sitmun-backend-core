@@ -1,7 +1,7 @@
 package org.sitmun.plugin.core.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
-import org.sitmun.plugin.core.config.MetricsProperties.MetricDefinition;
+import org.sitmun.plugin.core.properties.DashboardProperties.MetricDefinition;
 import org.sitmun.plugin.core.repository.UserRepository;
 
 import java.sql.Date;

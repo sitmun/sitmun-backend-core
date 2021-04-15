@@ -1,4 +1,4 @@
-package org.sitmun.plugin.core.config;
+package org.sitmun.plugin.core.properties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "sitmun.dashboard")
 @Setter
 @Getter
-public class MetricsProperties {
+public class DashboardProperties {
 
   private MetricDefinition cartographiesByCreatedDate = new MetricDefinition();
 
