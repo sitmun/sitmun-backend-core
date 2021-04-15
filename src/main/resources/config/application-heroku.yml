@@ -8,8 +8,6 @@
 # =====================================================================================================================
 
 sitmun:
-  tasks:
-    rebuild-properties-on-startup: true
   dashboard:
     fetchMetrics: 86400000
     initialDelay: 120000
@@ -52,7 +50,8 @@ spring:
   liquibase:
     change-log: classpath:config/liquibase/master.xml
     contexts: dev
-    enabled: false
+    run-async: true
+    sync-entity: true
 
 security:
   authentication:

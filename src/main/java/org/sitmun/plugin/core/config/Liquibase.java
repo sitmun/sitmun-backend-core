@@ -19,6 +19,10 @@ class Liquibase extends SpringLiquibase {
 
   private final TaskExecutor taskExecutor;
 
+  private Boolean runAsync = false;
+
+  private Boolean syncLegacy = false;
+
   public Liquibase(TaskExecutor taskExecutor, List<SyncEntityHandler> syncEntityHandlers) {
     super();
     this.taskExecutor = taskExecutor;
@@ -27,7 +31,7 @@ class Liquibase extends SpringLiquibase {
 
   @Override
   public void afterPropertiesSet() {
-    if (taskExecutor != null) {
+    if (runAsync) {
       taskExecutor.execute(() -> {
         try {
           log.info("Starting Liquibase asynchronously, your database might not be ready at startup!");
@@ -50,12 +54,30 @@ class Liquibase extends SpringLiquibase {
     StopWatch watch = new StopWatch();
     watch.start();
     super.afterPropertiesSet();
-    SecurityContext sc = SecurityContextHolder.getContext();
-    sc.setAuthentication(new AdminAuthentication());
-    syncEntityHandlers.forEach(SyncEntityHandler::synchronize);
-    SecurityContextHolder.clearContext();
+    if (syncLegacy) {
+      SecurityContext sc = SecurityContextHolder.getContext();
+      sc.setAuthentication(new AdminAuthentication());
+      syncEntityHandlers.forEach(SyncEntityHandler::synchronize);
+      SecurityContextHolder.clearContext();
+    }
     watch.stop();
     log.info("Started Liquibase in " + watch.getTotalTimeMillis() + "ms");
+  }
+
+  public Boolean getRunAsync() {
+    return runAsync;
+  }
+
+  public void setRunAsync(Boolean runAsync) {
+    this.runAsync = runAsync;
+  }
+
+  public Boolean getSyncLegacy() {
+    return syncLegacy;
+  }
+
+  public void setSyncLegacy(Boolean syncLegacy) {
+    this.syncLegacy = syncLegacy;
   }
 
   private static class AdminAuthentication implements Authentication {
