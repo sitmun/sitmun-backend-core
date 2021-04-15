@@ -17,13 +17,33 @@
     },
     {
       "name": "security.authentication.jwt.token-validity-in-miliseconds",
-      "type": "java.lang.String",
+      "type": "java.lang.Long",
       "description": "JWT token validity (msecs)."
     },
     {
       "name": "sitmun.tasks.rebuild-properties-on-startup",
       "type": "java.lang.String",
       "description": "Rebuild properties from legacy tables on Startup."
+    },
+    {
+      "name": "spring.liquibase.run-async",
+      "type": "java.lang.Boolean",
+      "description": "Run liquibase asynchronously."
+    },
+    {
+      "name": "spring.liquibase.sync-entity",
+      "type": "java.lang.Boolean",
+      "description": "Run synchronization code."
+    },
+    {
+      "name": "sitmun.module",
+      "type": "java.lang.String",
+      "description": "SITMUN module name."
+    },
+    {
+      "name": "sitmun.version",
+      "type": "java.lang.String",
+      "description": "SITMUN version."
     }
   ]
 }
