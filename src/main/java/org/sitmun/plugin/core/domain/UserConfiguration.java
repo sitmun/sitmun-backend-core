@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -66,6 +67,7 @@ public class UserConfiguration {
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   @JoinColumn(name = "UCO_ROLEID", foreignKey = @ForeignKey(name = "STM_UCF_FK_ROL"))
+  @JsonView(Workspace.View.class)
   private Role role;
 
   /**

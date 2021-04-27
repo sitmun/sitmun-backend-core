@@ -64,6 +64,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http
       .cors()
       .and()
+      .anonymous().principal("public")
+      .and()
       .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
       .exceptionHandling()
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
@@ -81,10 +83,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .authorizeRequests()
       .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
       .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/workspace").permitAll()
       .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
-      .anyRequest().authenticated()
-      .and()
-      .anonymous().authenticationFilter(anonymousAuthenticationFilter);
+      .anyRequest().authenticated();
   }
 
   private AuthenticationEntryPoint getRestAuthenticationEntryPoint() {

@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -36,6 +37,7 @@ public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLE_GEN")
   @Column(name = "ROL_ID")
+  @JsonView(Workspace.View.class)
   private Integer id;
 
   /**
@@ -44,6 +46,7 @@ public class Role {
    */
   @Column(name = "ROL_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(Workspace.View.class)
   private String name;
 
   /**
@@ -63,6 +66,7 @@ public class Role {
     inverseJoinColumns = @JoinColumn(
       name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_ARO_FK_APP")))
   @Builder.Default
+  @JsonView(Workspace.View.class)
   private Set<Application> applications = new HashSet<>();
 
   /**

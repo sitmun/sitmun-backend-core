@@ -3,6 +3,7 @@ package org.sitmun.plugin.core.repository;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.QUserConfiguration;
+import org.sitmun.plugin.core.domain.User;
 import org.sitmun.plugin.core.domain.UserConfiguration;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "user configuration")
@@ -52,4 +54,6 @@ public interface UserConfigurationRepository extends
     //noinspection NullableProblems
     bindings.bind(root.role.id).first(SimpleExpression::eq);
   }
+
+  List<UserConfiguration> findByUser(User currentUser);
 }

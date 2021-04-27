@@ -102,7 +102,7 @@ public class ProjectionsTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(
-        jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(9)));
+        jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(2)));
 
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

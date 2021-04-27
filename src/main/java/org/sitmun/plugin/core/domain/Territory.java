@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -22,7 +23,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
 @Entity
 @Table(name = "STM_TERRITORY", uniqueConstraints = {
   @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,6 +43,7 @@ public class Territory {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TERRITORY_GEN")
   @Column(name = "TER_ID")
+  @JsonView(Workspace.View.class)
   private Integer id;
 
   /**
@@ -56,6 +58,7 @@ public class Territory {
    */
   @Column(name = "TER_NAME", length = SHORT_DESCRIPTION)
   @NotBlank
+  @JsonView(Workspace.View.class)
   private String name;
 
   /**
@@ -187,6 +190,7 @@ public class Territory {
    */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @JsonView(Workspace.View.class)
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
   @Override

@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -41,12 +42,14 @@ public class ConfigurationParameter {
    */
   @Column(name = "CNF_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(Workspace.View.class)
   private String name;
 
   /**
    * Parameter value.
    */
   @Column(name = "CNF_VALUE", length = VALUE)
+  @JsonView(Workspace.View.class)
   private String value;
 
   @Override

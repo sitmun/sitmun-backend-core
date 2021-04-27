@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -37,6 +38,7 @@ public class Application {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APP_GEN")
   @TableGenerator(name = "STM_APP_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
+  @JsonView(Workspace.View.class)
   private Integer id;
 
   /**
@@ -58,6 +60,7 @@ public class Application {
    * Title to be shown in the browser and in the application when it is internal.
    */
   @Column(name = "APP_TITLE", length = TITLE)
+  @JsonView(Workspace.View.class)
   private String title;
 
   /**
@@ -89,7 +92,7 @@ public class Application {
   private String jspTemplate;
 
   /**
-   * When the appliction is internal {@code True} if the application refreshes automatically;
+   * When the application is internal {@code True} if the application refreshes automatically;
    * {@code False} if an "update map" button is required.
    */
   @Column(name = "APP_REFRESH")

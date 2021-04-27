@@ -123,6 +123,8 @@ public class URIConstants {
 
   public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
 
+  public static final String WORKSPACE_URI = "http://localhost/api/workspace";
+
   private static final String TASK_URI = TASKS_URI + "/{0}";
 
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";

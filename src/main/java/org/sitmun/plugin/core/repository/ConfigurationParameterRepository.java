@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "configuration parameter")
@@ -32,7 +33,7 @@ public interface ConfigurationParameterRepository
   @Override
   @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
   @NonNull
-  Iterable<ConfigurationParameter> findAll();
+  List<ConfigurationParameter> findAll();
 
   @Override
   @PreAuthorize("hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ConfigurationParameter','administration') or hasPermission(#entityId, 'org.sitmun.plugin.core.domain.ConfigurationParameter', 'read')")
