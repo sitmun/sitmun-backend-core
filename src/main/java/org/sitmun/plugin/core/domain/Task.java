@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.converters.HashMapConverter;
 
@@ -39,6 +40,7 @@ public class Task {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TASK_GEN")
   @Column(name = "TAS_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -60,6 +62,7 @@ public class Task {
    */
   @Column(name = "TAS_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -100,6 +103,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GTS"))
+  @JsonView(WorkspaceApplication.View.class)
   private TaskGroup group;
 
   /**
@@ -107,6 +111,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TTY"))
+  @JsonView(WorkspaceApplication.View.class)
   private TaskType type;
 
   /**

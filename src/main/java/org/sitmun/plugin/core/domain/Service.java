@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -43,6 +44,7 @@ public class Service {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICE_GEN")
   @Column(name = "SER_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -50,6 +52,7 @@ public class Service {
    */
   @Column(name = "SER_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -64,6 +67,7 @@ public class Service {
   @Column(name = "SER_URL", length = URL)
   @NotNull
   @HttpURL
+  @JsonView(WorkspaceApplication.View.class)
   private String serviceURL;
 
   /**
@@ -72,6 +76,7 @@ public class Service {
   @Column(name = "SER_PROJECTS", length = 1000)
   @Convert(converter = StringListAttributeConverter.class)
   @SpatialReferenceSystem
+  @JsonView(WorkspaceApplication.View.class)
   private List<String> supportedSRS;
 
   /**
@@ -79,6 +84,7 @@ public class Service {
    */
   @Column(name = "SER_LEGEND", length = URL)
   @HttpURL
+  @JsonView(WorkspaceApplication.View.class)
   private String legendURL;
 
   /**
@@ -86,6 +92,7 @@ public class Service {
    */
   @Column(name = "SER_INFOURL", length = URL)
   @HttpURL
+  @JsonView(WorkspaceApplication.View.class)
   private String getInformationURL;
 
   /**
@@ -102,6 +109,7 @@ public class Service {
   @Column(name = "SER_PROTOCOL", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.SERVICE_TYPE)
+  @JsonView(WorkspaceApplication.View.class)
   private String type;
 
   /**
@@ -132,6 +140,7 @@ public class Service {
    */
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<ServiceParameter> parameters = new HashSet<>();
 
 

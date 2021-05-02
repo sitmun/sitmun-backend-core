@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -37,6 +38,7 @@ public class TreeNode {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_NOD_GEN")
   @Column(name = "TNO_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -51,6 +53,7 @@ public class TreeNode {
    */
   @Column(name = "TNO_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -136,6 +139,22 @@ public class TreeNode {
   @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_TNO_FK_GEO"))
   @ManyToOne(fetch = FetchType.LAZY)
   private Cartography cartography;
+
+  @JsonView(WorkspaceApplication.View.class)
+  public Integer getParentId() {
+    if (parent != null) {
+      return parent.id;
+    }
+    return null;
+  }
+
+  @JsonView(WorkspaceApplication.View.class)
+  public Integer getCartographyId() {
+    if (cartography != null) {
+      return cartography.getId();
+    }
+    return null;
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -32,7 +32,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private static final String[] AUTH_WHITELIST = {
     "/v3/api-docs/**",
-    "/swagger-ui/**"
+    "/swagger-ui/**",
+    "/dist/**",
+    "/workspace.html"
   };
 
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -84,6 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
       .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
       .antMatchers(HttpMethod.GET, "/api/workspace").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/workspace/**").permitAll()
       .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
       .anyRequest().authenticated();
   }

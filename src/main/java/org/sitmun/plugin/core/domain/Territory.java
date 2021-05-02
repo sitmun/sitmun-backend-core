@@ -43,7 +43,7 @@ public class Territory {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TERRITORY_GEN")
   @Column(name = "TER_ID")
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private Integer id;
 
   /**
@@ -58,19 +58,21 @@ public class Territory {
    */
   @Column(name = "TER_NAME", length = SHORT_DESCRIPTION)
   @NotBlank
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String name;
 
   /**
    * Territorial authority name.
    */
   @Column(name = "TER_ADMNAME", length = SHORT_DESCRIPTION)
+  @JsonView({WorkspaceApplication.View.class})
   private String territorialAuthorityName;
 
   /**
    * Territorial authority address.
    */
   @Column(name = "TER_ADDRESS", length = SHORT_DESCRIPTION)
+  @JsonView({WorkspaceApplication.View.class})
   private String territorialAuthorityAddress;
 
   /**
@@ -78,26 +80,30 @@ public class Territory {
    */
   @Column(name = "TER_EMAIL", length = IDENTIFIER)
   @Email
+  @JsonView({WorkspaceApplication.View.class})
   private String territorialAuthorityEmail;
-
-  /**
-   * Territory scope.
-   */
-  @Column(name = "TER_SCOPE", length = IDENTIFIER)
-  @CodeList(CodeLists.TERRITORY_SCOPE)
-  private String scope;
 
   /**
    * Link to the territorial authority logo.
    */
   @Column(name = "TER_LOGO", length = URL)
   @HttpURL
+  @JsonView({WorkspaceApplication.View.class})
   private String territorialAuthorityLogo;
+
+  /**
+   * Territory scope.
+   */
+  @Column(name = "TER_SCOPE", length = IDENTIFIER)
+  @CodeList(CodeLists.TERRITORY_SCOPE)
+  @JsonView({WorkspaceApplication.View.class})
+  private String scope;
 
   /**
    * Bounding box of the territory.
    */
   @Column(name = "TER_EXTENT", length = 250)
+  @JsonView({WorkspaceApplication.View.class})
   private String extent;
 
   /**
@@ -112,6 +118,7 @@ public class Territory {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
+  @JsonView({WorkspaceApplication.View.class})
   private TerritoryType type;
 
   /**
@@ -132,6 +139,7 @@ public class Territory {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
+  @JsonView({WorkspaceApplication.View.class})
   private TerritoryGroupType groupType;
 
   /**

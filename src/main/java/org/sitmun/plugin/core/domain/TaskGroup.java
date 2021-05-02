@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,6 +34,7 @@ public class TaskGroup {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_TSK_GEN")
   @Column(name = "GTS_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -40,6 +42,7 @@ public class TaskGroup {
    */
   @Column(name = "GTS_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   @Override

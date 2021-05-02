@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -44,6 +45,7 @@ public class Cartography {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GEOINFO_GEN")
   @Column(name = "GEO_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -51,12 +53,14 @@ public class Cartography {
    */
   @Column(name = "GEO_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
    * Cartography description.
    */
   @Column(name = "GEO_ABSTRACT", length = SHORT_DESCRIPTION)
+  @JsonView(WorkspaceApplication.View.class)
   private String description;
 
   /**
@@ -65,24 +69,28 @@ public class Cartography {
   @Column(name = "GEO_LAYERS", length = 800)
   @NotNull
   @Convert(converter = StringListAttributeConverter.class)
+  @JsonView(WorkspaceApplication.View.class)
   private List<String> layers;
 
   /**
    * Minimum scale visibility.
    */
   @Column(name = "GEO_MINSCALE")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer minimumScale;
 
   /**
    * Maximum visibility.
    */
   @Column(name = "GEO_MAXSCALE")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer maximumScale;
 
   /**
    * Cartography order appearance.
    */
   @Column(name = "GEO_ORDER")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer order;
 
   /**
@@ -91,6 +99,7 @@ public class Cartography {
   @Column(name = "GEO_TRANSP")
   @Min(0)
   @Max(100)
+  @JsonView(WorkspaceApplication.View.class)
   private Integer transparency;
 
   /**
@@ -139,6 +148,7 @@ public class Cartography {
   @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
+  @JsonView(WorkspaceApplication.View.class)
   private Service service;
 
   /**

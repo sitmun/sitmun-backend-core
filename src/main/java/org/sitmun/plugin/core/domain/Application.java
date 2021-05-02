@@ -38,7 +38,7 @@ public class Application {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APP_GEN")
   @TableGenerator(name = "STM_APP_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private Integer id;
 
   /**
@@ -46,6 +46,7 @@ public class Application {
    */
   @Column(name = "APP_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView({WorkspaceApplication.View.class})
   private String name;
 
   /**
@@ -54,13 +55,14 @@ public class Application {
   @Column(name = "APP_TYPE", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.APPLICATION_TYPE)
+  @JsonView({WorkspaceApplication.View.class})
   private String type;
 
   /**
    * Title to be shown in the browser and in the application when it is internal.
    */
   @Column(name = "APP_TITLE", length = TITLE)
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String title;
 
   /**
@@ -74,6 +76,7 @@ public class Application {
    */
   @Column(name = "APP_SCALES", length = 250)
   @Convert(converter = StringListAttributeConverter.class)
+  @JsonView({WorkspaceApplication.View.class})
   private List<String> scales;
 
   /**
@@ -81,6 +84,7 @@ public class Application {
    */
   @Column(name = "APP_PROJECT", length = IDENTIFIER)
   @SpatialReferenceSystem
+  @JsonView({WorkspaceApplication.View.class})
   private String srs;
 
   /**

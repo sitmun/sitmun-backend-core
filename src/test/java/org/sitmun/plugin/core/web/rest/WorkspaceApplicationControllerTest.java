@@ -12,9 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
-public class WorkspaceControllerTest {
+public class WorkspaceApplicationControllerTest {
 
   @Autowired
   TokenProvider tokenProvider;
@@ -34,27 +32,24 @@ public class WorkspaceControllerTest {
 
   @Test
   public void readPublicUser() throws Exception {
-    mvc.perform(get(URIConstants.WORKSPACE_URI))
+    mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41))
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(7)));
+      .andExpect(jsonPath("$.territory.name").value("Argentona"))
+      .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))
+      .andExpect(jsonPath("$.roles[*].id", containsInAnyOrder(10)));
   }
 
   @Test
   public void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.WORKSPACE_URI)
+    mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
       .with(SecurityMockMvcRequestPostProcessors.user("user12"))
     )
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
+      .andExpect(jsonPath("$.territory.name").value("Argentona"))
+      .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))
+      .andExpect(jsonPath("$.roles[*].id", containsInAnyOrder(14, 17)));
   }
 
-  @Test
-  public void readOtherUserWithToken() throws Exception {
-    mvc.perform(get(URIConstants.WORKSPACE_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + tokenProvider.createToken("user12"))
-    ).andExpect(status().isOk())
-      .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
-  }
 }

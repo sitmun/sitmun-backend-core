@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -39,6 +40,7 @@ public class ServiceParameter {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PAR_SER_GEN")
   @Column(name = "PSE_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -46,12 +48,14 @@ public class ServiceParameter {
    */
   @Column(name = "PSE_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
    * Parameter value.
    */
   @Column(name = "PSE_VALUE", length = VALUE)
+  @JsonView(WorkspaceApplication.View.class)
   private String value;
 
   /**
@@ -60,6 +64,7 @@ public class ServiceParameter {
   @Column(name = "PSE_TYPE", length = IDENTIFIER)
   @CodeList(CodeLists.SERVICE_PARAMETER_TYPE)
   @NotNull
+  @JsonView(WorkspaceApplication.View.class)
   private String type;
 
   /**

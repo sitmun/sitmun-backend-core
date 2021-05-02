@@ -343,12 +343,12 @@ databaseChangeLog:
             relativeToChangelogFile: true
             tableName: STM_AVAIL_TSK
             usePreparedStatements: true
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_AVAIL_TSK_10000.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_AVAIL_TSK_10000.csv
+            relativeToChangelogFile: true
+            tableName: STM_AVAIL_TSK
+            usePreparedStatements: true
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_20000.csv

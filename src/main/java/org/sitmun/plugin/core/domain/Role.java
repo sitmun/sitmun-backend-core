@@ -17,7 +17,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 @Entity
 @Table(name = "STM_ROLE", uniqueConstraints = {
   @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,7 +37,7 @@ public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLE_GEN")
   @Column(name = "ROL_ID")
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private Integer id;
 
   /**
@@ -46,7 +46,7 @@ public class Role {
    */
   @Column(name = "ROL_NAME", length = IDENTIFIER)
   @NotBlank
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String name;
 
   /**
@@ -82,6 +82,7 @@ public class Role {
       name = "RTS_TASKID",
       foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")))
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<Task> tasks = new HashSet<>();
 
   /**
@@ -97,6 +98,7 @@ public class Role {
       name = "RGG_GGIID",
       foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")))
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<CartographyPermission> permissions = new HashSet<>();
 
   /**
@@ -111,6 +113,7 @@ public class Role {
       name = "TRO_TREEID",
       foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")))
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<Tree> trees = new HashSet<>();
 
   /**

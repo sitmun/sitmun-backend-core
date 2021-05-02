@@ -40,6 +40,7 @@ public class UserConfiguration {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USR_CONF_GEN")
   @Column(name = "UCO_ID")
+  @JsonView(Workspace.View.class)
   private Integer id;
 
   /**

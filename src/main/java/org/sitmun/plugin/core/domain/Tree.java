@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.HttpURL;
 
@@ -16,7 +17,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
  */
 @Entity
 @Table(name = "STM_TREE")
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,6 +37,7 @@ public class Tree {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_GEN")
   @Column(name = "TRE_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -43,6 +45,7 @@ public class Tree {
    */
   @Column(name = "TRE_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -50,12 +53,14 @@ public class Tree {
    */
   @Column(name = "TRE_IMAGE", length = URL)
   @HttpURL
+  @JsonView(WorkspaceApplication.View.class)
   private String image;
 
   /**
    * Description.
    */
   @Column(name = "TRE_ABSTRACT", length = SHORT_DESCRIPTION)
+  @JsonView(WorkspaceApplication.View.class)
   private String description;
 
   /**
@@ -71,6 +76,7 @@ public class Tree {
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<TreeNode> allNodes = new HashSet<>();
 
   /**

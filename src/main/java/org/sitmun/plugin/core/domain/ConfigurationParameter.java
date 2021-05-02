@@ -42,14 +42,14 @@ public class ConfigurationParameter {
    */
   @Column(name = "CNF_NAME", length = IDENTIFIER)
   @NotBlank
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String name;
 
   /**
    * Parameter value.
    */
   @Column(name = "CNF_VALUE", length = VALUE)
-  @JsonView(Workspace.View.class)
+  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String value;
 
   @Override

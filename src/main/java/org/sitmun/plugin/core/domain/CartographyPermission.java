@@ -2,6 +2,7 @@ package org.sitmun.plugin.core.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
@@ -18,7 +19,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  */
 @Entity
 @Table(name = "STM_GRP_GI")
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,6 +43,7 @@ public class CartographyPermission {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_GI_GEN")
   @Column(name = "GGI_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
@@ -49,6 +51,7 @@ public class CartographyPermission {
    */
   @Column(name = "GGI_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -75,6 +78,7 @@ public class CartographyPermission {
       name = "GGG_GIID",
       foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
   @Builder.Default
+  @JsonView(WorkspaceApplication.View.class)
   private Set<Cartography> members = new HashSet<>();
 
   /**

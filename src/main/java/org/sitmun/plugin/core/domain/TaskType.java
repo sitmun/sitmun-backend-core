@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -39,12 +40,14 @@ public class TaskType {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TSK_TYP_GEN")
   @Column(name = "TTY_ID")
+  @JsonView(WorkspaceApplication.View.class)
   private Integer id;
 
   /**
    * Task type name.
    */
   @Column(name = "TTY_NAME", length = IDENTIFIER)
+  @JsonView(WorkspaceApplication.View.class)
   private String name;
 
   /**
@@ -52,6 +55,7 @@ public class TaskType {
    */
   @Column(name = "TTY_TITLE", length = Constants.TITLE)
   @I18n
+  @JsonView(WorkspaceApplication.View.class)
   private String title;
 
   /**

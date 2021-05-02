@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 import javax.persistence.*;
@@ -41,6 +42,7 @@ public class TerritoryGroupType {
    */
   @NotBlank
   @Column(name = "GTT_NAME", length = SHORT_DESCRIPTION)
+  @JsonView({WorkspaceApplication.View.class})
   private String name;
 
   @Override
