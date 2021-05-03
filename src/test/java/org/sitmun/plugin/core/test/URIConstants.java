@@ -28,7 +28,9 @@ public class URIConstants {
 
   public static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
 
-  public static final String CARTOGRAPHY_CARTOGRAPHT_PERMISSION_URI = "http://localhost/api/cartographies/{0}/permissions";
+  public static final String CARTOGRAPHY_URI = CARTOGRAPHIES_URI + "/{0}";
+
+  public static final String CARTOGRAPHY_URI_PERMISSION_URI = CARTOGRAPHY_URI + "/permissions";
 
   public static final String CARTOGRAPHY_PERMISSIONS_URI =
     "http://localhost/api/cartography-groups";

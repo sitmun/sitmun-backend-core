@@ -1,11 +1,19 @@
 package org.sitmun.plugin.core.web.exceptions;
 
 import org.sitmun.plugin.core.domain.DatabaseConnection;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * Controller advice.
@@ -20,11 +28,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
    * @return a 500 error
    */
   @ExceptionHandler(DatabaseConnectionDriverNotFoundException.class)
-  public ResponseEntity<ApiError> databaseConnectionDriverNotFound(DatabaseConnectionDriverNotFoundException exception) {
-    ApiError error = new ApiError();
-    error.setError("Driver not found");
-    error.setMessage(exception.getCause().getLocalizedMessage());
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+  public ResponseEntity<ApiErrorResponse> databaseConnectionDriverNotFound(DatabaseConnectionDriverNotFoundException exception, @NonNull WebRequest request) {
+    ApiErrorResponse response = ApiErrorResponse.builder()
+      .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+      .message(exception.getLocalizedMessage())
+      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+      .path(((ServletWebRequest) request).getRequest().getRequestURI())
+      .build();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
   /**
@@ -34,10 +46,28 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
    * @return a 500 error
    */
   @ExceptionHandler(DatabaseSQLException.class)
-  public ResponseEntity<ApiError> databaseSQLException(DatabaseSQLException exception) {
-    ApiError error = new ApiError();
-    error.setError("SQL exception");
-    error.setMessage(exception.getCause().getLocalizedMessage());
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+  public ResponseEntity<ApiErrorResponse> databaseSQLException(DatabaseSQLException exception, @NonNull WebRequest request) {
+    ApiErrorResponse response = ApiErrorResponse.builder()
+      .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+      .message(exception.getLocalizedMessage())
+      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+      .path(((ServletWebRequest) request).getRequest().getRequestURI())
+      .build();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
+
+  @Override
+  @NonNull
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(
+    HttpMessageNotReadableException exception, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+    ApiErrorResponse response = ApiErrorResponse.builder()
+      .error(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
+      .message(exception.getLocalizedMessage())
+      .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+      .path(((ServletWebRequest) request).getRequest().getRequestURI())
+      .build();
+    return handleExceptionInternal(exception, response, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
   }
 }

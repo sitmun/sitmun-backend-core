@@ -42,8 +42,8 @@ public class DatabaseConnectionControllerTest {
     mockMvc.perform(get("/api/connections/0/test")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.error").value("Driver not found"))
-      .andExpect(jsonPath("$.message").value("org.h2.DriverX"));
+      .andExpect(jsonPath("$.error").value("Internal Server Error"))
+      .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
   }
 
   @Test
@@ -57,8 +57,8 @@ public class DatabaseConnectionControllerTest {
     mockMvc.perform(get("/api/connections/0/test")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.error").value("SQL exception"))
-      .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
+      .andExpect(jsonPath("$.error").value("Internal Server Error"))
+      .andExpect(jsonPath("$.message").value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test
@@ -101,8 +101,8 @@ public class DatabaseConnectionControllerTest {
       .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.error").value("Driver not found"))
-      .andExpect(jsonPath("$.message").value("org.h2.DriverX"));
+      .andExpect(jsonPath("$.error").value("Internal Server Error"))
+      .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
   }
 
   @Test
@@ -112,8 +112,8 @@ public class DatabaseConnectionControllerTest {
       .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.error").value("SQL exception"))
-      .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
+      .andExpect(jsonPath("$.error").value("Internal Server Error"))
+      .andExpect(jsonPath("$.message").value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test

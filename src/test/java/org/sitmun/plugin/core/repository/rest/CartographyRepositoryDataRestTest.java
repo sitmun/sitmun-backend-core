@@ -37,8 +37,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -191,10 +191,62 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   public void hasAccessToCartographyGroups() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_CARTOGRAPHT_PERMISSION_URI, 85)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 85)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));
+  }
+
+  /**
+   * This requeste must be rejected because applyFilterXXX should
+   * be a boolean instead of a number.
+   *
+   * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
+   */
+  //
+  @Test
+  public void checkIssueSitmunAdminApp41() throws Exception {
+    String badRequest = "{\"name\":\"SEE1M - Recollida selectiva\"," +
+      "\"layers\":[\"SEE1M_111P_MA\"]," +
+      "\"minimumScale\":null," +
+      "\"maximumScale\":85000," +
+      "\"order\":3577," +
+      "\"transparency\":0," +
+      "\"metadataURL\":\"http://sitmun.diba.cat/sitmun2/metadada.jsp?title=SE${MUN_INE}&lang=${LANG}\"," +
+      "\"legendType\":\"CAPABILITIES\"," +
+      "\"legendURL\":null," +
+      "\"description\":null," +
+      "\"datasetURL\":null," +
+      "\"applyFilterToGetFeatureInfo\":\"0\"," +
+      "\"applyFilterToSpatialSelection\":\"1\"," +
+      "\"queryableFeatureEnabled\":true," +
+      "\"queryableFeatureAvailable\":false," +
+      "\"queryableLayers\":[\"SEE1M_111P_MA\"]," +
+      "\"thematic\":false," +
+      "\"blocked\":false," +
+      "\"selectableFeatureEnabled\":true," +
+      "\"selectableLayers\":[\"DIBA:SIT_SEE1MV1_111P_MA\"]," +
+      "\"_links\":{" +
+      "\"self\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724\"}," +
+      "\"cartography\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724{?projection}\",\"templated\":true}," +
+      "\"filters\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/filters\"}," +
+      "\"spatialSelectionConnection\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/spatialSelectionConnection\"}," +
+      "\"availabilities\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/availabilities{?projection}\",\"templated\":true}," +
+      "\"parameters\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/parameters\"}," +
+      "\"service\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/service\"}," +
+      "\"spatialSelectionService\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/spatialSelectionService\"}," +
+      "\"defaultStyle\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/defaultStyle\"}," +
+      "\"permissions\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/permissions\"}," +
+      "\"styles\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/styles\"}," +
+      "\"treeNodes\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/treeNodes{?projection}\",\"templated\":true}}" +
+      "}";
+    mvc.perform(put(URIConstants.CARTOGRAPHY_URI, 724)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(badRequest)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andDo(print())
+      .andExpect(status().isUnprocessableEntity());
+
   }
 
 }
