@@ -25,4 +25,5 @@ database/
 /authorization-service-ad.txt
 /todo.txt
 /docs-build
+/node_modules/
 swagger.json
