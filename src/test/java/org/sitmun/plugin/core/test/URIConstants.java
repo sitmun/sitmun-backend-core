@@ -30,6 +30,8 @@ public class URIConstants {
 
   public static final String CARTOGRAPHY_URI = CARTOGRAPHIES_URI + "/{0}";
 
+  public static final String CARTOGRAPHY_URI_PROJECTION = CARTOGRAPHY_URI + "?projection=view";
+
   public static final String CARTOGRAPHY_URI_PERMISSION_URI = CARTOGRAPHY_URI + "/permissions";
 
   public static final String CARTOGRAPHY_PERMISSIONS_URI =

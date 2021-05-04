@@ -198,12 +198,11 @@ public class CartographyRepositoryDataRestTest {
   }
 
   /**
-   * This requeste must be rejected because applyFilterXXX should
+   * This request must be rejected because applyFilterXXX should
    * be a boolean instead of a number.
    *
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
-  //
   @Test
   public void checkIssueSitmunAdminApp41() throws Exception {
     String badRequest = "{\"name\":\"SEE1M - Recollida selectiva\"," +
@@ -247,6 +246,28 @@ public class CartographyRepositoryDataRestTest {
       .andDo(print())
       .andExpect(status().isUnprocessableEntity());
 
+  }
+
+  /**
+   * Booleans values are returned always as boolean values.
+   *
+   * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
+   */
+  @Test
+  public void applyFilterMustBeBoolean() throws Exception {
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI, 724)
+      .contentType(MediaType.APPLICATION_JSON)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo").value(false))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection").value(true));
+
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 724)
+      .contentType(MediaType.APPLICATION_JSON)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo").value(false))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection").value(true));
   }
 
 }
