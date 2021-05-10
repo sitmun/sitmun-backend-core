@@ -81,6 +81,8 @@ public class URIConstants {
   public static final String TASK_AVAILABILITY_PROJECTION_VIEW =
     "/api/task-availabilities/{0}?projection=view";
 
+  public static final String TASK_TYPES_URI = "http://localhost/api/task-types";
+
   public static final String TERRITORIES_URI = "http://localhost/api/territories";
 
   public static final String TERRITORY_URI = TERRITORIES_URI + "/{0}";

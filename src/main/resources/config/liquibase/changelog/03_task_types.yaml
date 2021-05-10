@@ -53,5 +53,26 @@ databaseChangeLog:
                   name: TTY_SPEC
                   valueClobFile: 03_task_types/06_MoreInformationTaskDefinition.json
             where: TTY_ID=6
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/07_ReportDefinition.json
+            where: TTY_ID=7
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/09_ThematicTaskDefinition.json
+            where: TTY_ID=9
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/10_ExtractFMETaskDefinition.json
+            where: TTY_ID=10
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TTY_ID', 14);

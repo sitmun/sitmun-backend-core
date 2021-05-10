@@ -4,7 +4,7 @@
     "elements": {
       "type": {
         "hidden": true,
-        "value": 5,
+        "value": 4,
         "required": true
       },
       "name": {
