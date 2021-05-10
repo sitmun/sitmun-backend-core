@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,7 +32,6 @@ public class WorkspaceApplicationControllerTest {
   @Test
   public void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41))
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territory.name").value("Argentona"))
       .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))
@@ -45,7 +43,6 @@ public class WorkspaceApplicationControllerTest {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
       .with(SecurityMockMvcRequestPostProcessors.user("user12"))
     )
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territory.name").value("Argentona"))
       .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))

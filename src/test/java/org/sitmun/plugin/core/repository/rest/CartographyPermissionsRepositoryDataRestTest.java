@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,7 +77,6 @@ public class CartographyPermissionsRepositoryDataRestTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isCreated())
-      .andDo(print())
       .andReturn().getResponse().getHeader("Location");
 
     assertNotNull(location);
@@ -90,11 +88,11 @@ public class CartographyPermissionsRepositoryDataRestTest {
 
     mvc.perform(put(location).content(changedContent)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andExpect(status().isOk()).andDo(print());
+    ).andExpect(status().isOk());
 
     mvc.perform(delete(location)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andExpect(status().isNoContent()).andDo(print());
+    ).andExpect(status().isNoContent());
   }
 
   @Test

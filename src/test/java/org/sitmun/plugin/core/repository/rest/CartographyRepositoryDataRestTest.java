@@ -31,14 +31,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -243,31 +241,30 @@ public class CartographyRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .content(badRequest)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
-      .andDo(print())
       .andExpect(status().isUnprocessableEntity());
 
   }
 
   /**
-   * Booleans values are returned always as boolean values.
+   * Test values are null.
    *
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
-  public void applyFilterMustBeBoolean() throws Exception {
+  public void applyFilterTestDataIsNull() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI, 724)
       .contentType(MediaType.APPLICATION_JSON)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo").value(false))
-      .andExpect(jsonPath("$.applyFilterToSpatialSelection").value(true));
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(nullValue())))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(nullValue())));
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 724)
       .contentType(MediaType.APPLICATION_JSON)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo").value(false))
-      .andExpect(jsonPath("$.applyFilterToSpatialSelection").value(true));
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(nullValue())))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(nullValue())));
   }
 
 }

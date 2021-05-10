@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.security.SecurityConstants.HEADER_STRING;
 import static org.sitmun.plugin.core.security.SecurityConstants.TOKEN_PREFIX;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +34,6 @@ public class WorkspaceControllerTest {
   @Test
   public void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI))
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(7)));
   }
@@ -45,7 +43,6 @@ public class WorkspaceControllerTest {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
       .with(SecurityMockMvcRequestPostProcessors.user("user12"))
     )
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
   }
