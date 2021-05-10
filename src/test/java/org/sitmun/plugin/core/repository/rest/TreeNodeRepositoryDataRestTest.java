@@ -29,6 +29,14 @@ public class TreeNodeRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
+  public void retrieveTreeName() throws Exception {
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.treeName").value("Mòdul consulta municipal"));
+  }
+
+  @Test
   public void retrieveFolder() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

@@ -14,7 +14,7 @@ public interface TreeNodeProjection {
   /**
    * Make accesible the parent node.
    */
-  @Value("#{target.parent != null? target.parent.id : null}")
+  @Value("#{target.parent?.id}")
   Integer getParent();
 
   @Value("#{target.id}")
@@ -73,4 +73,11 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.cartography?.id}")
   Integer getCartographyId();
+
+  /**
+   * Tree name projection.
+   */
+  @Value("#{target.tree?.name}")
+  String getTreeName();
+
 }
