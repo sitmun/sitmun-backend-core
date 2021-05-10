@@ -49,7 +49,6 @@ public class UserResourceTest {
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String TERRITORY1_USER_USERNAME = "territory1-user";
   private static final String TERRITORY2_USER_USERNAME = "territory2-user";
-  private static final String NEW_USER_USERNAME = "admin_new";
   private static final String USER_PASSWORD = "admin";
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";
@@ -68,7 +67,7 @@ public class UserResourceTest {
   @Autowired
   UserService userService;
   @Autowired
-  private MockMvc mvc;
+  private MockMvc mockMvc;
   private User organizacionAdmin;
   private User territory1User;
   private User territory2User;
@@ -117,36 +116,41 @@ public class UserResourceTest {
       territoryRepository.saveAll(territories);
 
       // Territory 1 Admin
-      organizacionAdmin = new User();
-      organizacionAdmin.setAdministrator(USER_ADMINISTRATOR);
-      organizacionAdmin.setBlocked(USER_BLOCKED);
-      organizacionAdmin.setFirstName(USER_FIRSTNAME);
-      organizacionAdmin.setLastName(USER_LASTNAME);
-      organizacionAdmin.setPassword(USER_PASSWORD);
-      organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
+      organizacionAdmin = User.builder()
+        .administrator(USER_ADMINISTRATOR)
+        .blocked(USER_BLOCKED)
+        .firstName(USER_FIRSTNAME)
+        .lastName(USER_LASTNAME)
+        .password(USER_PASSWORD)
+        .username(TERRITORY1_ADMIN_USERNAME)
+        .build();
+
       userEventHandler.handleUserCreate(organizacionAdmin);
       organizacionAdmin = userRepository.save(organizacionAdmin);
       users.add(organizacionAdmin);
 
       // Territory 1 user
-      territory1User = new User();
-      territory1User.setAdministrator(false);
-      territory1User.setBlocked(USER_BLOCKED);
-      territory1User.setFirstName(USER_FIRSTNAME);
-      territory1User.setLastName(USER_LASTNAME);
-      territory1User.setPassword(USER_PASSWORD);
-      territory1User.setUsername(TERRITORY1_USER_USERNAME);
+      territory1User = User.builder()
+        .administrator(false)
+        .blocked(USER_BLOCKED)
+        .firstName(USER_FIRSTNAME)
+        .lastName(USER_LASTNAME)
+        .password(USER_PASSWORD)
+        .username(TERRITORY1_USER_USERNAME)
+        .build();
+
       territory1User = userRepository.save(territory1User);
       users.add(territory1User);
 
       // Territory 2 user
-      territory2User = new User();
-      territory2User.setAdministrator(false);
-      territory2User.setBlocked(USER_BLOCKED);
-      territory2User.setFirstName(USER_FIRSTNAME);
-      territory2User.setLastName(USER_LASTNAME);
-      territory2User.setPassword(USER_PASSWORD);
-      territory2User.setUsername(TERRITORY2_USER_USERNAME);
+      territory2User = User.builder()
+        .administrator(false)
+        .blocked(USER_BLOCKED)
+        .firstName(USER_FIRSTNAME)
+        .lastName(USER_LASTNAME)
+        .password(USER_PASSWORD)
+        .username(TERRITORY2_USER_USERNAME)
+        .build();
       territory2User = userRepository.save(territory2User);
       users.add(territory2User);
 
@@ -197,23 +201,114 @@ public class UserResourceTest {
 
   @Test
   public void createNewUserAndDelete() throws Exception {
-    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
+    String content = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"password\":\"new password\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
 
-    String uri = mvc.perform(post("/api/users")
+    String uri = mockMvc.perform(post(URIConstants.USER_URI)
       .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(newUser))
+      .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(uri).isNotNull();
 
-    mvc.perform(get(uri)
+    mockMvc.perform(get(uri)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.username", equalTo(NEW_USER_USERNAME)));
+      .andExpect(jsonPath("$.username", equalTo("new user")))
+      .andExpect(jsonPath("$.passwordSet").value(true));
 
-    mvc.perform(delete(uri)
+    mockMvc.perform(delete(uri)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isNoContent());
+  }
+
+  @Test
+  public void clearPassword() throws Exception {
+    String content = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"password\":\"new password\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
+
+    String uri = mockMvc.perform(post(URIConstants.USER_URI)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(content)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    ).andExpect(status().isCreated())
+      .andReturn().getResponse().getHeader("Location");
+
+    assertThat(uri).isNotNull();
+
+    mockMvc.perform(get(uri)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.passwordSet").value(true));
+
+    String withNullPassword = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"password\": null," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
+
+    mockMvc.perform(put(uri)
+      .content(withNullPassword)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.passwordSet").value(true));
+
+    String withoutField = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
+
+    mockMvc.perform(put(uri)
+      .content(withoutField)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.passwordSet").value(true));
+
+    String withEmptyPassword = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"password\": \"\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
+
+    mockMvc.perform(put(uri)
+      .content(withEmptyPassword)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.passwordSet").value(false));
+
+    String withNonEmptyPassword = "{" +
+      "\"username\":\"new user\"," +
+      "\"firstName\":\"new name\"," +
+      "\"lastName\":\"new name\"," +
+      "\"password\": \"some value\"," +
+      "\"administrator\": false," +
+      "\"blocked\": false}";
+
+    mockMvc.perform(put(uri)
+      .content(withNonEmptyPassword)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))).andExpect(status().isOk())
+      .andExpect(content().contentType(MediaTypes.HAL_JSON))
+      .andExpect(jsonPath("$.passwordSet").value(true));
+
+    mockMvc.perform(delete(uri)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isNoContent());
   }
@@ -222,7 +317,7 @@ public class UserResourceTest {
   public void createDuplicatedUserFails() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).build();
 
-    mvc.perform(post("/api/users")
+    mockMvc.perform(post(URIConstants.USER_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(newUser))
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -239,23 +334,24 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
+    mockMvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
+    mockMvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
-      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)));
+      .andExpect(jsonPath("$.lastName", equalTo(USER_CHANGEDLASTNAME)))
+      .andExpect(jsonPath("$.passwordSet").value(true));
   }
 
   @Test
   public void getUsersAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.USER_URI + "?size=10")
+    mockMvc.perform(get(URIConstants.USER_URI + "?size=10")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
@@ -267,7 +363,7 @@ public class UserResourceTest {
   @Test
   @Disabled
   public void getUsersAsOrganizationAdmin() throws Exception {
-    mvc.perform(get(URIConstants.USER_URI))
+    mockMvc.perform(get(URIConstants.USER_URI))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$._embedded.users", hasSize(5)));
@@ -283,7 +379,7 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
+    mockMvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -307,7 +403,7 @@ public class UserResourceTest {
       "\"administrator\": false," +
       "\"blocked\": false}";
 
-    mvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
+    mockMvc.perform(put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))

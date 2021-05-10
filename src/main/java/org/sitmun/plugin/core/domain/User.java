@@ -133,6 +133,15 @@ public class User {
     storedPassword = password;
   }
 
+  /**
+   * True if the password is set.
+   *
+   * @return true if password is not empty
+   */
+  public Boolean getPasswordSet() {
+    return password != null && !password.isEmpty();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

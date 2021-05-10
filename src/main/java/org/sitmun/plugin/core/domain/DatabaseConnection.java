@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -61,7 +63,12 @@ public class DatabaseConnection {
    * Password.
    */
   @Column(name = "CON_PWD", length = 50)
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
+
+  @JsonIgnore
+  @Transient
+  private String storedPassword;
 
   /**
    * JDBC connection string.
@@ -83,6 +90,20 @@ public class DatabaseConnection {
   @OneToMany(mappedBy = "spatialSelectionConnection")
   @Builder.Default
   private Set<Cartography> cartographies = new HashSet<>();
+
+  /**
+   * True if the password is set.
+   *
+   * @return true if password is not empty
+   */
+  public Boolean getPasswordSet() {
+    return password != null && !password.isEmpty();
+  }
+
+  @PostLoad
+  public void postLoad() {
+    storedPassword = password;
+  }
 
   @Override
   public boolean equals(Object o) {
