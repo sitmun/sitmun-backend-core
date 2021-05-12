@@ -267,4 +267,16 @@ public class CartographyRepositoryDataRestTest {
       .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(nullValue())));
   }
 
+  @Test
+  public void getCartographiesAvailableForApplication() throws Exception {
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartographies", hasSize(449)));
+
+    mvc.perform(get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 2)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartographies", hasSize(500)));
+  }
 }

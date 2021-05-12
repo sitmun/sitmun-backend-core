@@ -50,4 +50,7 @@ public interface CartographyRepository extends PagingAndSortingRepository<Cartog
   @Query(name = "dashboard.cartographiesByCreatedDate")
   Iterable<Object[]> cartographiesByCreatedDateSinceDate(@Param("sinceDate") Date sinceDate);
 
+  @Query("select distinct cartography from Cartography cartography, Application app, Role role, CartographyPermission permission " +
+    "where app.id = :applicationId and role member of app.availableRoles and role member of permission.roles and permission member of cartography.permissions")
+  Iterable<Cartography> available(@P("applicationId") @NonNull Integer applicationId);
 }

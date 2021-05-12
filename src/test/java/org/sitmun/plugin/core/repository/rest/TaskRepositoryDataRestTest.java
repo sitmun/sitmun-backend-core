@@ -137,6 +137,19 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
+  public void getTasksAvailableForApplication() throws Exception {
+    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(1289)));
+
+    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(446)));
+  }
+
+  @Test
   @Disabled
   public void getTasksAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI))

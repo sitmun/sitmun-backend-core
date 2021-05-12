@@ -28,6 +28,8 @@ public class URIConstants {
 
   public static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
 
+  public static final String CARTOGRAPHIES_AVAILABLE_URI = CARTOGRAPHIES_URI + "/search/available?applicationId={0}";
+
   public static final String CARTOGRAPHY_URI = CARTOGRAPHIES_URI + "/{0}";
 
   public static final String CARTOGRAPHY_URI_PROJECTION = CARTOGRAPHY_URI + "?projection=view";
@@ -48,9 +50,6 @@ public class URIConstants {
 
   public static final String CARTOGRAPHY_PERMISSIONS_URI_FILTER =
     CARTOGRAPHY_PERMISSIONS_URI + "?type={0}";
-
-  public static final String CARTOGRAPHY_PROJECTION_VIEW =
-    "/api/cartographies/{0}?projection=view";
 
   public static final String CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW =
     "/api/cartography-availabilities/{0}?projection=view";
@@ -74,9 +73,11 @@ public class URIConstants {
 
   public static final String TASKS_URI = "http://localhost/api/tasks";
 
-  public static final String TASKS_URI_FILTER = "http://localhost/api/tasks?{0}={1}&size=10";
+  public static final String TASKS_AVAILABLE_URI = TASKS_URI + "/search/available?applicationId={0}";
 
-  public static final String TASK_PROJECTION_VIEW = "/api/tasks/{0}?projection=view";
+  public static final String TASKS_URI_FILTER = TASKS_URI + "?{0}={1}&size=10";
+
+  public static final String TASK_PROJECTION_VIEW = TASKS_URI + "/{0}?projection=view";
 
   public static final String TASK_AVAILABILITY_PROJECTION_VIEW =
     "/api/task-availabilities/{0}?projection=view";

@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.plugin.core.domain.QTask;
 import org.sitmun.plugin.core.domain.Task;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
@@ -46,6 +47,9 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
   Optional<Task> findById(@P("entityId") @NonNull Integer entityId);
 
   Iterable<Task> findAllByTypeId(@NonNull Integer typeId);
+
+  @Query("select distinct task from Task task, Application app, Role role where app.id = :applicationId and role member of app.availableRoles and role member of task.roles")
+  Iterable<Task> available(@P("applicationId") @NonNull Integer applicationId);
 
   @Override
   default void customize(QuerydslBindings bindings, QTask root) {

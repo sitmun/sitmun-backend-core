@@ -40,7 +40,7 @@ public class ProjectionsTest {
 
   @Test
   public void cartographyProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PROJECTION_VIEW, 87)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 87)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     )
       .andExpect(status().isOk())
