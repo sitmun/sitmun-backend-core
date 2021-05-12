@@ -123,7 +123,7 @@ public class CodeListsTest {
   @Test
   public void checkCartographyParameterFormat() {
     assertThat(select(CARTOGRAPHY_PARAMETER_FORMAT))
-      .containsExactlyInAnyOrder("Imagen", "número", "porcentaje", "texto", "URL", "fecha");
+      .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F");
   }
 
   @Test

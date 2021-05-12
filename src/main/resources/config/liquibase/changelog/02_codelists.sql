@@ -43,24 +43,24 @@ VALUES (14, 'cartographyFilter.type', 'D', false, 'Defined');
 INSERT INTO STM_CODELIST
 VALUES (15, 'cartographyFilter.valueType', 'A', false, 'Alphanumeric');
 INSERT INTO STM_CODELIST
-VALUES (16, 'cartographyFilter.valueType', 'N', false, 'Numeric');
+VALUES (16, 'cartographyFilter.valueType', 'N', false, 'Number');
 INSERT INTO STM_CODELIST
 VALUES (17, 'cartographyFilter.valueType', 'D', false, 'Date');
 
 -- STM_PAR_GI.PGI_FORMAT
 -- TODO Validate value and description of code list cartographyParameter.format
 INSERT INTO STM_CODELIST
-VALUES (18, 'cartographyParameter.format', 'Imagen', false, 'Imagen');
+VALUES (18, 'cartographyParameter.format', 'I', false, 'Image');
 INSERT INTO STM_CODELIST
-VALUES (19, 'cartographyParameter.format', 'número', false, 'número');
+VALUES (19, 'cartographyParameter.format', 'N', false, 'Number');
 INSERT INTO STM_CODELIST
-VALUES (20, 'cartographyParameter.format', 'porcentaje', false, 'porcentaje');
+VALUES (20, 'cartographyParameter.format', 'P', false, 'Percentage');
 INSERT INTO STM_CODELIST
-VALUES (21, 'cartographyParameter.format', 'texto', false, 'texto');
+VALUES (21, 'cartographyParameter.format', 'T', false, 'Text');
 INSERT INTO STM_CODELIST
-VALUES (22, 'cartographyParameter.format', 'URL', false, 'URL');
+VALUES (22, 'cartographyParameter.format', 'U', false, 'URL');
 INSERT INTO STM_CODELIST
-VALUES (23, 'cartographyParameter.format', 'fecha', false, 'fecha');
+VALUES (23, 'cartographyParameter.format', 'F', false, 'Date');
 
 -- STM_PAR_GI.PGI_TYPE
 -- TODO Validate description of code list cartographyParameter.type

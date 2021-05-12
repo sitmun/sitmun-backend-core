@@ -28,7 +28,7 @@ public class CartographyParametersRepositoryDataRestTest {
 
   @Test
   public void newCartographyParametersCanBePosted() throws Exception {
-    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"Imagen\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\", \"cartography\":\"http://localhost/api/cartographies/0\"}";
+    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\", \"cartography\":\"http://localhost/api/cartographies/0\"}";
 
     String location = mvc.perform(
       post("/api/cartography-parameters")
@@ -53,7 +53,7 @@ public class CartographyParametersRepositoryDataRestTest {
 
   @Test
   public void newCartographyParameterRequiresCartographyLink() throws Exception {
-    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"Imagen\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\"}";
+    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\"}";
 
     mvc.perform(
       post("/api/cartography-parameters")

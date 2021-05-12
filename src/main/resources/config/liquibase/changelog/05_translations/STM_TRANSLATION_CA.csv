@@ -1,0 +1,17 @@
+TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
+301001,1,name,3,Anglès
+301002,2,name,3,Espanyol
+301003,3,name,3,Català
+301004,4,name,3,Aranès
+301005,5,name,3,Francès
+302013,13,description,3,Personalitzat
+302014,14,description,3,Predefinit
+302015,15,description,3,Alfanumèric
+302016,16,description,3,Data
+302017,17,description,3,Número
+302018,18,description,3,Imatge
+302019,19,description,3,Número
+302020,20,description,3,Percentatge
+302021,21,description,3,Text
+302022,22,description,3,URL
+302023,23,description,3,Data
