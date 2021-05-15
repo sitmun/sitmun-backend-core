@@ -51,7 +51,7 @@ public class TaskParameter {
   /**
    * Parameter value.
    */
-  @Column(name = "PTT_VALUE", length = 512)
+  @Column(name = "PTT_VALUE", length = 4000)
   private String value;
 
   /**

@@ -11,6 +11,25 @@ databaseChangeLog:
             tableName: STM_TSK_TYP
             usePreparedStatements: true
             quotchar: "\""
+            columns:
+              - column:
+                  name: TTY_ID
+                  type: NUMERIC
+              - column:
+                  name: TTY_NAME
+                  type: STRING
+              - column:
+                  name: TTY_TITLE
+                  type: STRING
+              - column:
+                  name: TTY_ENABLED
+                  type: BOOLEAN
+              - column:
+                  name: TTY_PARENTID
+                  type: NUMERIC
+              - column:
+                  name: TTY_ORDER
+                  type: NUMERIC
         - update:
             tableName: STM_TSK_TYP
             columns:

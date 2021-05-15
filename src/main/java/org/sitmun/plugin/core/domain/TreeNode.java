@@ -11,7 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.plugin.core.domain.Constants.*;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.plugin.core.domain.Constants.URL;
 
 /**
  * Tree node.
@@ -51,7 +52,7 @@ public class TreeNode {
   /**
    * Name.
    */
-  @Column(name = "TNO_NAME", length = IDENTIFIER)
+  @Column(name = "TNO_NAME", length = 80)
   @NotBlank
   @JsonView(WorkspaceApplication.View.class)
   private String name;

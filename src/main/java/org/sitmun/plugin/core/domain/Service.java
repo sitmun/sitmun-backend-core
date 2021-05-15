@@ -50,7 +50,7 @@ public class Service {
   /**
    * Service name.
    */
-  @Column(name = "SER_NAME", length = IDENTIFIER)
+  @Column(name = "SER_NAME", length = 60)
   @NotBlank
   @JsonView(WorkspaceApplication.View.class)
   private String name;

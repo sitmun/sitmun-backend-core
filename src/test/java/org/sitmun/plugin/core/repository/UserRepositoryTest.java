@@ -7,14 +7,13 @@ import org.sitmun.plugin.core.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+
 public class UserRepositoryTest {
 
   @Autowired

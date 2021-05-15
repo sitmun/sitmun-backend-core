@@ -17,7 +17,6 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -33,7 +32,7 @@ import static org.sitmun.plugin.core.test.TestUtils.requestAuthorization;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
+
 public class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";

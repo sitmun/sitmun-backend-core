@@ -12,8 +12,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
-
 /**
  * Task.
  */
@@ -60,7 +58,7 @@ public class Task {
   /**
    * Name.
    */
-  @Column(name = "TAS_NAME", length = IDENTIFIER)
+  @Column(name = "TAS_NAME", length = 512)
   @NotBlank
   @JsonView(WorkspaceApplication.View.class)
   private String name;

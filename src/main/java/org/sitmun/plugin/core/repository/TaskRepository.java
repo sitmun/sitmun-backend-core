@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Tag(name = "task")
 @RepositoryRestResource(collectionResourceRel = "tasks", path = "tasks")
@@ -48,8 +49,8 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
 
   Iterable<Task> findAllByTypeId(@NonNull Integer typeId);
 
-  @Query("select distinct task from Task task, Application app, Role role where app.id = :applicationId and role member of app.availableRoles and role member of task.roles")
-  Iterable<Task> available(@P("applicationId") @NonNull Integer applicationId);
+  @Query("select task from Task task, Application app, Role role where app.id = :applicationId and role member of app.availableRoles and role member of task.roles")
+  Set<Task> available(@P("applicationId") @NonNull Integer applicationId);
 
   @Override
   default void customize(QuerydslBindings bindings, QTask root) {

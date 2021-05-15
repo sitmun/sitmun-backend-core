@@ -51,7 +51,7 @@ public class Cartography {
   /**
    * Cartography name.
    */
-  @Column(name = "GEO_NAME", length = IDENTIFIER)
+  @Column(name = "GEO_NAME", length = 100)
   @NotBlank
   @JsonView(WorkspaceApplication.View.class)
   private String name;

@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@ActiveProfiles("dev")
+
 public class CartographyRepositoryTest {
 
   @TestConfiguration

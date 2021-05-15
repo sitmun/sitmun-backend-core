@@ -16,7 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.plugin.core.domain.Constants.*;
+import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
+import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 
 /**
  * A SITMUN application.
@@ -61,7 +62,7 @@ public class Application {
   /**
    * Title to be shown in the browser and in the application when it is internal.
    */
-  @Column(name = "APP_TITLE", length = TITLE)
+  @Column(name = "APP_TITLE", length = SHORT_DESCRIPTION)
   @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
   private String title;
 

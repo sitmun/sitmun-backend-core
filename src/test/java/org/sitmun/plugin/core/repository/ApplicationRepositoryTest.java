@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@ActiveProfiles("dev")
+
 public class ApplicationRepositoryTest {
 
   @TestConfiguration
