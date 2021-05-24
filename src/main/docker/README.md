@@ -48,7 +48,7 @@
 Oracle image has a slow start, so the run must be done in three stages. In a terminal open at `src/main/docker`:
 
 ```
-$ docker-compose up -d oracle
+$ docker-compose -f docker-compose-dev-oracle.yml up -d oracle
 ```
 
 Use a console provided by a docker tool to monitor this container. When the log console outputs:
@@ -62,7 +62,7 @@ DATABASE IS READY TO USE!
 we can proceed with the next step. Run:
 
 ```
-$ docker-compose up -d backend
+$ docker-compose -f docker-compose-dev-oracle.yml up -d backend
 ```
 
 Monitor this container and wait until a message similar to:
@@ -74,7 +74,7 @@ Started Application in nnn seconds (JVM running for mmm)
 Finally, we can run the front:
 
 ```
-$ docker-compose up -d admin
+$ docker-compose -f docker-compose-dev-oracle.yml up -d admin
 ```
 
 Admin is fast, so you can open your browser and navigate to localhost:8000 to the **Sitmun Admin App**.
