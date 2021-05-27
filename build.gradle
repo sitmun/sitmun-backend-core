@@ -95,7 +95,9 @@ dependencies {
 
   implementation 'org.reflections:reflections:0.9.12'
   implementation 'com.h2database:h2'
+
   runtime 'com.oracle.database.jdbc:ojdbc8:12.2.0.1'
+  runtime 'org.postgresql:postgresql:42.2.20'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.springframework.security:spring-security-test'

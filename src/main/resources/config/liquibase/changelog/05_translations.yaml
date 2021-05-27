@@ -9,7 +9,6 @@ databaseChangeLog:
             file: 05_translations/STM_LANGUAGE.csv
             relativeToChangelogFile: true
             tableName: STM_LANGUAGE
-            usePreparedStatements: true
             columns:
               - column:
                   name: LAN_ID
@@ -27,7 +26,6 @@ databaseChangeLog:
             file: 05_translations/STM_TRANSLATION_ES.csv
             relativeToChangelogFile: true
             tableName: STM_TRANSLATION
-            usePreparedStatements: true
             columns:
               - column:
                   name: TRA_ID
@@ -49,7 +47,6 @@ databaseChangeLog:
             file: 05_translations/STM_TRANSLATION_CA.csv
             relativeToChangelogFile: true
             tableName: STM_TRANSLATION
-            usePreparedStatements: true
             columns:
               - column:
                   name: TRA_ID
@@ -71,7 +68,6 @@ databaseChangeLog:
             file: 05_translations/STM_TRANSLATION_OC.csv
             relativeToChangelogFile: true
             tableName: STM_TRANSLATION
-            usePreparedStatements: true
             columns:
               - column:
                   name: TRA_ID
@@ -93,7 +89,6 @@ databaseChangeLog:
             file: 05_translations/STM_TRANSLATION_FR.csv
             relativeToChangelogFile: true
             tableName: STM_TRANSLATION
-            usePreparedStatements: true
             columns:
               - column:
                   name: TRA_ID

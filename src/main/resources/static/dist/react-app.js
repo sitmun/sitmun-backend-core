@@ -1413,7 +1413,7 @@
                         });
                       }
 
-                      fetch("/api/workspace", requestOptions).then(function (res) {
+                      fetch("api/workspace", requestOptions).then(function (res) {
                         return res.json();
                       }).then(function (response) {
                         if (!isCancelled) {
@@ -1521,7 +1521,7 @@
         var token = _ref.token,
           applicationId = _ref.applicationId,
           territoryId = _ref.territoryId;
-        var target = "/api/workspace/application/" + applicationId + "/territory/" + territoryId;
+        var target = "api/workspace/application/" + applicationId + "/territory/" + territoryId;
 
         var _useState = (0, react__WEBPACK_IMPORTED_MODULE_3__.useState)(),
           _useState2 = (0, _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__.default)(_useState, 2),

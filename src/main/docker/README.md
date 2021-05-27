@@ -43,7 +43,7 @@
   ```
   Next, copy the contents of `dist/admin-app` to Backend Core `src/main/docker/admin/build`
 
-## Running the containers
+## Oracle-backed run
 
 Oracle image has a slow start, so the run must be done in three stages. In a terminal open at `src/main/docker`:
 
@@ -78,3 +78,13 @@ $ docker-compose -f docker-compose-dev-oracle.yml up -d admin
 ```
 
 Admin is fast, so you can open your browser and navigate to localhost:8000 to the **Sitmun Admin App**.
+
+## Postgres-backed run
+
+In a terminal open at `src/main/docker`:
+
+```
+$ docker-compose -f docker-compose-dev-postgres.yml up -d
+```
+
+The bootstrap is quick. Next, you can open your browser and navigate to localhost:8000 to the **Sitmun Admin App**.

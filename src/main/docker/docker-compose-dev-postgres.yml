@@ -1,0 +1,38 @@
+version: "3.5"
+services:
+  admin:
+    image: nginx:stable
+    ports:
+      - "8000:80"
+    volumes:
+      - ./admin/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./admin/build:/usr/share/nginx/html
+    depends_on:
+      - backend
+  backend:
+    image: openjdk:11
+    volumes:
+      - ./backend/sitmun-backend-core.jar:/opt/sitmun/backend.jar
+    ports:
+      - "8001:8080"
+    environment:
+      - "spring.profiles.active=dev"
+      - "spring.datasource.url=jdbc:postgresql://postgres:5432/stm3"
+      - "spring.datasource.username=stm3"
+      - "spring.datasource.password=stm3"
+      - "spring.datasource.hikari.auto-commit=false"
+      - "spring.jpa.properties.hibernate.dialect=org.sitmun.plugin.core.tools.PostgresSQL93DialectFixed"
+      - "server.forward-headers-strategy=framework"
+      - "TZ=CET"
+    command: [ 'java', '-jar', '/opt/sitmun/backend.jar' ]
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:9.3-alpine
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./postgres/scripts/:/docker-entrypoint-initdb.d

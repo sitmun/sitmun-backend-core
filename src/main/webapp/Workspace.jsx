@@ -18,7 +18,7 @@ export function Workspace({token, onSelect}) {
           'Authorization': 'Bearer ' + token
         })
       }
-      fetch("/api/workspace", requestOptions)
+      fetch("api/workspace", requestOptions)
         .then(res => res.json())
         .then(
           (response) => {

@@ -9,7 +9,6 @@ databaseChangeLog:
             file: 03_task_types/STM_TSK_TYP.csv
             relativeToChangelogFile: true
             tableName: STM_TSK_TYP
-            usePreparedStatements: true
             quotchar: "\""
             columns:
               - column:

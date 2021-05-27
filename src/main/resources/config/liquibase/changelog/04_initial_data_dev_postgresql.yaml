@@ -3,14 +3,15 @@ databaseChangeLog:
       id: 4
       author: sitmun
       context: dev
-      dbms: oracle,h2
+      dbms: postgresql
       changes:
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_USER.csv
             relativeToChangelogFile: true
             tableName: STM_USER
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: USE_ID
@@ -46,7 +47,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_CONNECT.csv
             relativeToChangelogFile: true
             tableName: STM_CONNECT
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: CON_ID
@@ -73,7 +75,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_ROLE.csv
             relativeToChangelogFile: true
             tableName: STM_ROLE
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: ROL_ID
@@ -91,7 +94,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GTER_TYP.csv
             relativeToChangelogFile: true
             tableName: STM_GTER_TYP
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GTT_ID
@@ -106,7 +110,7 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TERRITORY.csv
             relativeToChangelogFile: true
             tableName: STM_TERRITORY
-            usePreparedStatements: true
+            usePreparedStatements: false
             quotchar: "\""
             columns:
               - column:
@@ -158,7 +162,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GRP_TER.csv
             relativeToChangelogFile: true
             tableName: STM_GRP_TER
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GTE_TERID
@@ -171,7 +176,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_USR_CONF_00000.csv
             relativeToChangelogFile: true
             tableName: STM_USR_CONF
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: UCO_ID
@@ -196,31 +202,36 @@ databaseChangeLog:
         #            file: 04_initial_data_dev/STM_USR_CONF_10000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_USR_CONF
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_USR_CONF_20000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_USR_CONF
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_USR_CONF_30000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_USR_CONF
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_USR_CONF_40000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_USR_CONF
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_USR_CONF_50000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_USR_CONF
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('UCO_ID', 51863);
         - loadData:
@@ -228,7 +239,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GRP_GI.csv
             relativeToChangelogFile: true
             tableName: STM_GRP_GI
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GGI_ID
@@ -246,7 +258,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TREE.csv
             relativeToChangelogFile: true
             tableName: STM_TREE
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TRE_ID
@@ -261,8 +274,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TREE_ROL.csv
             relativeToChangelogFile: true
             tableName: STM_TREE_ROL
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TRO_TREEID
@@ -275,8 +288,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_SERVICE.csv
             relativeToChangelogFile: true
             tableName: STM_SERVICE
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: SER_ID
@@ -309,8 +322,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GEOINFO.csv
             relativeToChangelogFile: true
             tableName: STM_GEOINFO
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GEO_ID
@@ -382,8 +395,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_PAR_GI.csv
             relativeToChangelogFile: true
             tableName: STM_PAR_GI
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: PGI_ID
@@ -413,7 +426,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GGI_GI.csv
             relativeToChangelogFile: true
             tableName: STM_GGI_GI
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GGG_GGIID
@@ -426,7 +440,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_ROL_GGI.csv
             relativeToChangelogFile: true
             tableName: STM_ROL_GGI
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: RGG_ROLEID
@@ -439,8 +454,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_APP.csv
             relativeToChangelogFile: true
             tableName: STM_APP
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: APP_ID
@@ -482,7 +497,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_APP_TREE.csv
             relativeToChangelogFile: true
             tableName: STM_APP_TREE
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: ATR_APPID
@@ -495,7 +511,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_APP_ROL.csv
             relativeToChangelogFile: true
             tableName: STM_APP_ROL
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: ARO_ROLEID
@@ -508,7 +525,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_PAR_APP.csv
             relativeToChangelogFile: true
             tableName: STM_PAR_APP
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: PAP_ID
@@ -532,7 +550,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_BACKGRD.csv
             relativeToChangelogFile: true
             tableName: STM_BACKGRD
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: BAC_ID
@@ -559,7 +578,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_APP_BCKG.csv
             relativeToChangelogFile: true
             tableName: STM_APP_BCKG
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: ABC_ID
@@ -580,7 +600,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_AVAIL_GI_00000.csv
             relativeToChangelogFile: true
             tableName: STM_AVAIL_GI
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: AGI_ID
@@ -599,55 +620,64 @@ databaseChangeLog:
         #            file: 04_initial_data_dev/STM_AVAIL_GI_10000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_20000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #             quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_30000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #           quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_40000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #             quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_50000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #              quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_60000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #               quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_70000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #             quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_80000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #             quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI_90000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #           quotchar: '"'
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
         - sql:
@@ -657,8 +687,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TREE_NOD.csv
             relativeToChangelogFile: true
             tableName: STM_TREE_NOD
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TNO_ID
@@ -696,8 +726,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_GRP_TSK.csv
             relativeToChangelogFile: true
             tableName: STM_GRP_TSK
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: GTS_ID
@@ -712,8 +742,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TSK_UI.csv
             relativeToChangelogFile: true
             tableName: STM_TSK_UI
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TUI_ID
@@ -734,8 +764,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TASK.csv
             relativeToChangelogFile: true
             tableName: STM_TASK
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TAS_ID
@@ -766,8 +796,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_DOWNLOAD.csv
             relativeToChangelogFile: true
             tableName: STM_DOWNLOAD
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: DOW_ID
@@ -786,8 +816,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_QUERY.csv
             relativeToChangelogFile: true
             tableName: STM_QUERY
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: QUE_ID
@@ -808,8 +838,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_ROL_TSK.csv
             relativeToChangelogFile: true
             tableName: STM_ROL_TSK
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: RTS_ROLEID
@@ -822,8 +852,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_POST.csv
             relativeToChangelogFile: true
             tableName: STM_POST
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: POS_ID
@@ -856,8 +886,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_COMMENT.csv
             relativeToChangelogFile: true
             tableName: STM_COMMENT
-            usePreparedStatements: true
-            quotchar: "\""
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: COM_ID
@@ -896,13 +926,15 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_AVAIL_TSK_00000.csv
             relativeToChangelogFile: true
             tableName: STM_AVAIL_TSK
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_AVAIL_TSK_10000.csv
             relativeToChangelogFile: true
             tableName: STM_AVAIL_TSK
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: ATS_ID
@@ -918,49 +950,57 @@ databaseChangeLog:
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_20000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_30000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_40000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_50000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_60000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_70000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_80000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_TSK_90000.csv
         #            relativeToChangelogFile: true
         #            tableName: STM_AVAIL_TSK
-        #            usePreparedStatements: true
+        #            usePreparedStatements: false
+        #            quotchar: '"'
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 97338);
         - loadData:
@@ -968,7 +1008,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_PAR_SER.csv
             relativeToChangelogFile: true
             tableName: STM_PAR_SER
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: PSE_ID
@@ -992,7 +1033,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_PAR_TSK.csv
             relativeToChangelogFile: true
             tableName: STM_PAR_TSK
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: PTT_ID
@@ -1019,7 +1061,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_THEMATIC.csv
             relativeToChangelogFile: true
             tableName: STM_THEMATIC
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: THE_ID
@@ -1076,8 +1119,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_THE_RANK.csv
             relativeToChangelogFile: true
             tableName: STM_THE_RANK
-            quotchar: "\""
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TRK_THEID
@@ -1126,7 +1169,8 @@ databaseChangeLog:
             file: 04_initial_data_dev/STM_TER_TYP.csv
             relativeToChangelogFile: true
             tableName: STM_TER_TYP
-            usePreparedStatements: true
+            usePreparedStatements: false
+            quotchar: '"'
             columns:
               - column:
                   name: TET_ID

@@ -12,7 +12,7 @@ import {Tree} from "./Tree";
 
 export function WorkspaceApplication({token, applicationId, territoryId}) {
 
-  const target = "/api/workspace/application/" + applicationId + "/territory/" + territoryId
+  const target = "api/workspace/application/" + applicationId + "/territory/" + territoryId
   const [workspace, setWorkspace] = useState()
   const [isLoading, setIsLoading] = useState(true);
 
