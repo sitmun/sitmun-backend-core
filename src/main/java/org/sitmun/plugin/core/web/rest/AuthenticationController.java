@@ -21,16 +21,16 @@ import javax.validation.Valid;
  * Controller to authenticate users.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/authenticate")
 @Tag(name = "authentication", description = "authentication with JWT")
-public class AuthController {
+public class AuthenticationController {
 
   private final TokenProvider tokenProvider;
 
   private final AuthenticationManager authenticationManager;
 
-  public AuthController(TokenProvider tokenProvider,
-                        AuthenticationManager authenticationManager) {
+  public AuthenticationController(TokenProvider tokenProvider,
+                                  AuthenticationManager authenticationManager) {
     this.tokenProvider = tokenProvider;
     this.authenticationManager = authenticationManager;
   }
@@ -41,7 +41,7 @@ public class AuthController {
    * @param loginRequest user login and password
    * @return JWT token
    */
-  @PostMapping("/authenticate")
+  @PostMapping
   @SecurityRequirements
   public ResponseEntity<JWTToken> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(

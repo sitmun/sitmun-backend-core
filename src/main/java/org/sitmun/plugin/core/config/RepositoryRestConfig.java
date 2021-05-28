@@ -64,6 +64,7 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   @Override
   public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
     config.setReturnBodyForPutAndPost(true);
+    config.setBasePath("/api");
     config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
       .map(Type::getJavaType)
       .toArray(Class[]::new));

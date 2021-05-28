@@ -1,7 +1,7 @@
 package org.sitmun.plugin.core.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.sitmun.plugin.core.web.rest.AuthController;
+import org.sitmun.plugin.core.web.rest.AuthenticationController;
 import org.sitmun.plugin.core.web.rest.dto.LoginRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,9 +46,9 @@ public class TestUtils {
     LoginRequest login = new LoginRequest();
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<AuthController.JWTToken> loginResponse =
+    ResponseEntity<AuthenticationController.JWTToken> loginResponse =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthController.JWTToken.class, port);
+        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationController.JWTToken.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
     return TOKEN_PREFIX + loginResponse.getBody().getIdToken();
   }

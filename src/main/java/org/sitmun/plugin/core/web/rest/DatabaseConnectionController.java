@@ -4,15 +4,14 @@ import org.sitmun.plugin.core.domain.DatabaseConnection;
 import org.sitmun.plugin.core.repository.DatabaseConnectionRepository;
 import org.sitmun.plugin.core.service.DatabaseConnectionTesterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
-@RepositoryRestController
-@RequestMapping("/api")
+@BasePathAwareController
 public class DatabaseConnectionController {
 
   private final DatabaseConnectionRepository repository;

@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class AccountResourceTest {
+public class AccountControllerTest {
 
   private static final String USER_USERNAME = "user";
   private static final String USER_PASSWORD = "user";

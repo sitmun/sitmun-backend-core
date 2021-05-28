@@ -10,7 +10,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeSaveEvent;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.rest.webmvc.support.RepositoryConstraintViolationExceptionMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,10 +23,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Validator;
 import java.util.Optional;
 
-@RepositoryRestController
+@RestController
 @RequestMapping("/api/account")
 @Tag(name = "account", description = "user account management")
-public class AccountResource {
+public class AccountController {
 
   private final SpringValidatorAdapter springValidator;
 
@@ -40,7 +39,7 @@ public class AccountResource {
   /**
    * Constructor.
    */
-  public AccountResource(MessageSource messageSource, Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
+  public AccountController(MessageSource messageSource, Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
     Assert.notNull(messageSource, "MessageSource must not be null!");
     this.messageSourceAccessor = new MessageSourceAccessor(messageSource);
     this.springValidator = new SpringValidatorAdapter(validator);

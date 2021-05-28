@@ -35,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
 public class ApplicationResourceTest {
 
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
