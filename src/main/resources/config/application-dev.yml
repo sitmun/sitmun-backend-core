@@ -70,6 +70,11 @@ security:
 server:
   port: 8080
 
+springdoc:
+  swagger-ui:
+    url: /v3/api-docs.yaml
+  api-docs:
+    enabled: false
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================

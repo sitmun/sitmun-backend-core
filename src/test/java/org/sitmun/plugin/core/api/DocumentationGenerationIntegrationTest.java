@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
@@ -16,7 +17,7 @@ import java.nio.file.FileSystems;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
+@Profile({"openapi"})
 public class DocumentationGenerationIntegrationTest {
 
   @LocalServerPort
@@ -36,8 +37,8 @@ public class DocumentationGenerationIntegrationTest {
   public void generateSwagger() throws IOException {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String response =
-      restTemplate.getForObject("http://localhost:" + port + "/v3/api-docs", String.class);
-    File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.json").toFile();
+      restTemplate.getForObject("http://localhost:" + port + "/v3/api-docs.yaml", String.class);
+    File file = FileSystems.getDefault().getPath("build", "swagger", "swagger.yaml").toFile();
     Files.createParentDirs(file);
     Files.asCharSink(file, Charset.defaultCharset()).write(response);
   }

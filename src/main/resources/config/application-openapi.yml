@@ -1,5 +1,5 @@
 # =====================================================================================================================
-# Spring Boot configuration for the "diba" profile.
+# Spring Boot configuration for the "openapi" profile.
 #
 # This configuration overrides the application.yml file.
 #
@@ -7,10 +7,10 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
+springdoc:
+  api-docs:
+    enabled: true
+
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================
-
-default:
-  territory:
-    name: Diputació de Barcelona
