@@ -15,13 +15,13 @@ import org.springframework.util.StringUtils;
 import static java.util.Collections.emptyList;
 
 @Configuration
-@Profile({"openapi-annotation"})
-public class OpenApi30Config {
+@Profile({"openapi"})
+public class OpenApi30EnabledConfig {
 
   private final String moduleName;
   private final String apiVersion;
 
-  public OpenApi30Config(
+  public OpenApi30EnabledConfig(
     @Value("${sitmun.module}") String moduleName,
     @Value("${sitmun.version}") String apiVersion) {
     this.moduleName = moduleName;
