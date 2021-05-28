@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Cartography;
@@ -33,6 +34,7 @@ import java.util.Date;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.test.DateTimeMatchers.isIso8601DateAndTime;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
+@DisplayName("Cartography Repository Data REST test")
 public class CartographyRepositoryDataRestTest {
 
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
@@ -129,6 +131,7 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: minimum set of properties")
   public void postCartography() throws Exception {
 
     String content = new JSONObject()
@@ -153,7 +156,8 @@ public class CartographyRepositoryDataRestTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
+      .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)))
+      .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()));
 
     withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
@@ -163,13 +167,15 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
-  public void getCartographiesAsPublic() throws Exception {
+  @DisplayName("GET: all as admin")
+  public void getCartographiesAsAdmin() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_URI)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk());
   }
 
   @Test
+  @DisplayName("POST: fail as public user")
   public void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(post(URIConstants.CARTOGRAPHIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
@@ -178,6 +184,7 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("GET: has treeNodes property")
   public void hasTreeNodeListProperty() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_URI + "?size=10")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -187,6 +194,7 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("GET: has cartography-groups property")
   public void hasAccessToCartographyGroups() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 85)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -201,6 +209,7 @@ public class CartographyRepositoryDataRestTest {
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
+  @DisplayName("PUT: applyFilterXXX must not be a number")
   public void checkIssueSitmunAdminApp41() throws Exception {
     String badRequest = "{\"name\":\"SEE1M - Recollida selectiva\"," +
       "\"layers\":[\"SEE1M_111P_MA\"]," +
@@ -250,6 +259,7 @@ public class CartographyRepositoryDataRestTest {
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
+  @DisplayName("GET: for Cartography 724 applyFilterXXX are null")
   public void applyFilterTestDataIsNull() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI, 724)
       .contentType(MediaType.APPLICATION_JSON)
@@ -267,6 +277,7 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("GET: Cartography available per application are different")
   public void getCartographiesAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

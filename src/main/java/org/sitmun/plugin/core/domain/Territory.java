@@ -6,6 +6,8 @@ import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -21,6 +23,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
  * Territorial entity.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_TERRITORY", uniqueConstraints = {
   @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
 @Builder(toBuilder = true)
@@ -132,6 +135,7 @@ public class Territory {
    */
   @Column(name = "TER_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

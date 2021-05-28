@@ -7,6 +7,8 @@ import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -23,6 +25,7 @@ import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
  * A SITMUN application.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_APP")
 @Builder
 @Getter
@@ -127,7 +130,7 @@ public class Application {
    */
   @Column(name = "APP_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
-  @NotNull
+  @CreatedDate
   private Date createdDate;
 
   /**

@@ -8,6 +8,8 @@ import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.constraints.SpatialReferenceSystem;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -23,6 +25,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
  * Service.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_SERVICE")
 @Builder
 @Getter
@@ -100,6 +103,7 @@ public class Service {
    */
   @Column(name = "SER_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

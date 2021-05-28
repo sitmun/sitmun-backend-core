@@ -7,6 +7,8 @@ import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.StringListAttributeConverter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -24,6 +26,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
  * Geographic information.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_GEOINFO")
 @Builder
 @Getter
@@ -196,6 +199,7 @@ public class Cartography {
    */
   @Column(name = "GEO_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**
