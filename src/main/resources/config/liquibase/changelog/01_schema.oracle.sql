@@ -346,19 +346,26 @@ create table stm_sty_gi
 );
 create table stm_task
 (
-    tas_id       number(10,0) not null,
-    tas_created  timestamp,
-    tas_name     varchar2(512 char),
-    tas_order    number(10,0),
-    tas_params   clob,
-    tas_giid     number(10,0),
-    tas_connid   number(10,0),
-    tas_gtaskid  number(10,0),
-    tas_parentid number(10,0),
-    tas_serid    number(10,0),
-    tas_ttaskid  number(10,0),
-    tas_tuiid    number(10,0),
+    tas_id      number(10,0) not null,
+    tas_name    varchar2(512 char),
+    tas_created timestamp,
+    tas_order   number(10,0),
+    tas_giid    number(10,0),
+    tas_serid   number(10,0),
+    tas_gtaskid number(10,0),
+    tas_ttaskid number(10,0),
+    tas_tuiid   number(10,0),
+    tas_connid  number(10,0),
+    tas_params  clob,
     primary key (tas_id)
+);
+create table stm_taskrel
+(
+    tar_id        number(10,0) not null,
+    tar_type      varchar2(50 char),
+    tar_taskid    number(10,0),
+    tar_taskrelid number(10,0),
+    primary key (tar_id)
 );
 create table stm_ter_typ
 (
@@ -624,20 +631,25 @@ alter table stm_rol_tsk
     add constraint STM_RTS_FK_TAS foreign key (rts_taskid) references stm_task;
 alter table stm_sty_gi
     add constraint STM_SGI_FK_GEO foreign key (sgi_giid) references stm_geoinfo;
+
 alter table stm_task
     add constraint STM_TAS_FK_GEO foreign key (tas_giid) references stm_geoinfo;
 alter table stm_task
-    add constraint STM_TAS_FK_CON foreign key (tas_connid) references stm_connect;
+    add constraint STM_TAS_FK_SER foreign key (tas_serid) references stm_service;
 alter table stm_task
     add constraint STM_TAS_FK_GTS foreign key (tas_gtaskid) references stm_grp_tsk;
-alter table stm_task
-    add constraint STM_TAS_FK_TAS foreign key (tas_parentid) references stm_task;
-alter table stm_task
-    add constraint STM_TAS_FK_SER foreign key (tas_serid) references stm_service;
 alter table stm_task
     add constraint STM_TAS_FK_TTY foreign key (tas_ttaskid) references stm_tsk_typ;
 alter table stm_task
     add constraint STM_TAS_FK_TUI foreign key (tas_tuiid) references stm_tsk_ui;
+alter table stm_task
+    add constraint STM_TAS_FK_CON foreign key (tas_connid) references stm_connect;
+
+alter table stm_taskrel
+    add constraint STM_TAR_FK_TAS foreign key (tar_taskid) references stm_task (tas_id) on delete cascade;
+alter table stm_taskrel
+    add constraint STM_TAR_FK_TAS_REL foreign key (tar_taskrelid) references stm_task (tas_id);
+
 alter table stm_territory
     add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
 alter table stm_territory

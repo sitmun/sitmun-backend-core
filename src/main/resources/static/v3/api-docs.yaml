@@ -7,7 +7,7 @@ info:
   version: 3.0-SNAPSHOT
 servers:
   - url: /
-    description: Generated server url
+  description: Generated server url
 security:
   - bearerAuth: [ ]
 tags:
@@ -9330,7 +9330,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-types:
+  /api/profile/task-relations:
     get:
       tags:
         - hal profile
@@ -9349,7 +9349,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/task-uis:
+  /api/profile/task-types:
     get:
       tags:
         - hal profile
@@ -9368,7 +9368,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/taskParameters:
+  /api/profile/task-uis:
     get:
       tags:
         - hal profile
@@ -9387,7 +9387,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/tasks:
+  /api/profile/taskParameters:
     get:
       tags:
         - hal profile
@@ -9406,7 +9406,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territories:
+  /api/profile/tasks:
     get:
       tags:
         - hal profile
@@ -9425,7 +9425,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territory-group-types:
+  /api/profile/territories:
     get:
       tags:
         - hal profile
@@ -9444,7 +9444,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/territory-types:
+  /api/profile/territory-group-types:
     get:
       tags:
         - hal profile
@@ -9463,7 +9463,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/thematicMapRanges:
+  /api/profile/territory-types:
     get:
       tags:
         - hal profile
@@ -9482,7 +9482,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/thematicMaps:
+  /api/profile/thematicMapRanges:
     get:
       tags:
         - hal profile
@@ -9501,7 +9501,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/translations:
+  /api/profile/thematicMaps:
     get:
       tags:
         - hal profile
@@ -9520,7 +9520,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/tree-nodes:
+  /api/profile/translations:
     get:
       tags:
         - hal profile
@@ -9539,7 +9539,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/trees:
+  /api/profile/tree-nodes:
     get:
       tags:
         - hal profile
@@ -9558,7 +9558,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/user-configurations:
+  /api/profile/trees:
     get:
       tags:
         - hal profile
@@ -9577,7 +9577,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/user-positions:
+  /api/profile/user-configurations:
     get:
       tags:
         - hal profile
@@ -9596,11 +9596,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonSchema'
       security: [ ]
-  /api/profile/users:
+  /api/profile/user-positions:
     get:
       tags:
         - hal profile
       operationId: descriptor_38
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: '#/components/schemas/JsonSchema'
+      security: [ ]
+  /api/profile/users:
+    get:
+      tags:
+        - hal profile
+      operationId: descriptor_39
       responses:
         "200":
           description: OK
@@ -12250,6 +12269,471 @@ paths:
                 $ref: '#/components/schemas/EntityModelTaskGroup'
         "204":
           description: No Content
+  /api/task-relations:
+    get:
+      tags:
+        - task relation
+      description: get-taskrelation
+      operationId: getCollectionResource-taskrelation-get_1
+      parameters:
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            minimum: 0
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          description: "Sorting criteria in the format: property(,asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelEntityModelTaskRelation'
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelEntityModelTaskRelation'
+            text/uri-list:
+              schema:
+                $ref: '#/components/schemas/CollectionModelEntityModelTaskRelation'
+    post:
+      tags:
+        - task relation
+      description: create-taskrelation
+      operationId: postCollectionResource-taskrelation-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRelation'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTaskRelation'
+  /api/task-relations/{id}:
+    get:
+      tags:
+        - task relation
+      description: get-taskrelation
+      operationId: getItemResource-taskrelation-get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTaskRelation'
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - task relation
+      description: update-taskrelation
+      operationId: putItemResource-taskrelation-put
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRelation'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTaskRelation'
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTaskRelation'
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - task relation
+      description: delete-taskrelation
+      operationId: deleteItemResource-taskrelation-delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - task relation
+      description: patch-taskrelation
+      operationId: patchItemResource-taskrelation-patch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRelation'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTaskRelation'
+        "204":
+          description: No Content
+  /api/task-relations/{id}/relatedTask:
+    get:
+      tags:
+        - task relation
+      description: get-task-by-taskrelation-Id
+      operationId: followPropertyReference-taskrelation-get_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+            text/uri-list:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - task relation
+      description: update-task-by-taskrelation-Id
+      operationId: createPropertyReference-taskrelation-put
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - task relation
+      description: delete-task-by-taskrelation-Id
+      operationId: deletePropertyReference-taskrelation-delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - task relation
+      description: patch-task-by-taskrelation-Id
+      operationId: createPropertyReference-taskrelation-patch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "204":
+          description: No Content
+  /api/task-relations/{id}/relatedTask/{propertyId}:
+    get:
+      tags:
+        - task relation
+      description: get-task-by-taskrelation-Id
+      operationId: followPropertyReference-taskrelation-get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - task relation
+      description: delete-task-by-taskrelation-Id
+      operationId: deletePropertyReferenceId-taskrelation-delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+  /api/task-relations/{id}/task:
+    get:
+      tags:
+        - task relation
+      description: get-task-by-taskrelation-Id
+      operationId: followPropertyReference-taskrelation-get_2_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+            text/uri-list:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - task relation
+      description: update-task-by-taskrelation-Id
+      operationId: createPropertyReference-taskrelation-put_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - task relation
+      description: delete-task-by-taskrelation-Id
+      operationId: deletePropertyReference-taskrelation-delete_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - task relation
+      description: patch-task-by-taskrelation-Id
+      operationId: createPropertyReference-taskrelation-patch_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "204":
+          description: No Content
+  /api/task-relations/{id}/task/{propertyId}:
+    get:
+      tags:
+        - task relation
+      description: get-task-by-taskrelation-Id
+      operationId: followPropertyReference-taskrelation-get_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTask'
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - task relation
+      description: delete-task-by-taskrelation-Id
+      operationId: deletePropertyReferenceId-taskrelation-delete_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
   /api/task-types:
     get:
       tags:
@@ -13719,167 +14203,12 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/children:
-    get:
-      tags:
-        - task
-      description: get-task-by-task-Id
-      operationId: followPropertyReference-task-get_3_1
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/hal+json:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-            text/uri-list:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-        "404":
-          description: Not Found
-    put:
-      tags:
-        - task
-      description: update-task-by-task-Id
-      operationId: createPropertyReference-task-put_2
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-          application/x-spring-data-compact+json:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-          text/uri-list:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/hal+json:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-        "201":
-          description: Created
-          content:
-            application/hal+json:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-        "204":
-          description: No Content
-    delete:
-      tags:
-        - task
-      description: delete-task-by-task-Id
-      operationId: deletePropertyReference-task-delete_2
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-    patch:
-      tags:
-        - task
-      description: patch-task-by-task-Id
-      operationId: createPropertyReference-task-patch_2
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-          application/x-spring-data-compact+json:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-          text/uri-list:
-            schema:
-              $ref: '#/components/schemas/CollectionModelObject'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/hal+json:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-        "204":
-          description: No Content
-  /api/tasks/{id}/children/{propertyId}:
-    get:
-      tags:
-        - task
-      description: get-task-by-task-Id
-      operationId: followPropertyReference-task-get_3
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: propertyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/hal+json:
-              schema:
-                $ref: '#/components/schemas/CollectionModelTask'
-        "404":
-          description: Not Found
-    delete:
-      tags:
-        - task
-      description: delete-task-by-task-Id
-      operationId: deletePropertyReferenceId-task-delete_2
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: propertyId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
   /api/tasks/{id}/connection:
     get:
       tags:
         - task
       description: get-databaseconnection-by-task-Id
-      operationId: followPropertyReference-task-get_4_1
+      operationId: followPropertyReference-task-get_3_1
       parameters:
         - name: id
           in: path
@@ -13902,7 +14231,7 @@ paths:
       tags:
         - task
       description: update-databaseconnection-by-task-Id
-      operationId: createPropertyReference-task-put_3
+      operationId: createPropertyReference-task-put_2
       parameters:
         - name: id
           in: path
@@ -13939,7 +14268,7 @@ paths:
       tags:
         - task
       description: delete-databaseconnection-by-task-Id
-      operationId: deletePropertyReference-task-delete_3
+      operationId: deletePropertyReference-task-delete_2
       parameters:
         - name: id
           in: path
@@ -13955,7 +14284,7 @@ paths:
       tags:
         - task
       description: patch-databaseconnection-by-task-Id
-      operationId: createPropertyReference-task-patch_3
+      operationId: createPropertyReference-task-patch_2
       parameters:
         - name: id
           in: path
@@ -13987,7 +14316,7 @@ paths:
       tags:
         - task
       description: get-databaseconnection-by-task-Id
-      operationId: followPropertyReference-task-get_4
+      operationId: followPropertyReference-task-get_3
       parameters:
         - name: id
           in: path
@@ -14012,7 +14341,7 @@ paths:
       tags:
         - task
       description: delete-databaseconnection-by-task-Id
-      operationId: deletePropertyReferenceId-task-delete_3
+      operationId: deletePropertyReferenceId-task-delete_2
       parameters:
         - name: id
           in: path
@@ -14034,7 +14363,7 @@ paths:
       tags:
         - task
       description: get-taskgroup-by-task-Id
-      operationId: followPropertyReference-task-get_5_1
+      operationId: followPropertyReference-task-get_4_1
       parameters:
         - name: id
           in: path
@@ -14057,7 +14386,7 @@ paths:
       tags:
         - task
       description: update-taskgroup-by-task-Id
-      operationId: createPropertyReference-task-put_4
+      operationId: createPropertyReference-task-put_3
       parameters:
         - name: id
           in: path
@@ -14094,7 +14423,7 @@ paths:
       tags:
         - task
       description: delete-taskgroup-by-task-Id
-      operationId: deletePropertyReference-task-delete_4
+      operationId: deletePropertyReference-task-delete_3
       parameters:
         - name: id
           in: path
@@ -14110,7 +14439,7 @@ paths:
       tags:
         - task
       description: patch-taskgroup-by-task-Id
-      operationId: createPropertyReference-task-patch_4
+      operationId: createPropertyReference-task-patch_3
       parameters:
         - name: id
           in: path
@@ -14142,7 +14471,7 @@ paths:
       tags:
         - task
       description: get-taskgroup-by-task-Id
-      operationId: followPropertyReference-task-get_5
+      operationId: followPropertyReference-task-get_4
       parameters:
         - name: id
           in: path
@@ -14167,6 +14496,161 @@ paths:
       tags:
         - task
       description: delete-taskgroup-by-task-Id
+      operationId: deletePropertyReferenceId-task-delete_3
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+  /api/tasks/{id}/relatedBy:
+    get:
+      tags:
+        - task
+      description: get-taskrelation-by-task-Id
+      operationId: followPropertyReference-task-get_5_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+            text/uri-list:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - task
+      description: update-taskrelation-by-task-Id
+      operationId: createPropertyReference-task-put_4
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+        "201":
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+        "204":
+          description: No Content
+    delete:
+      tags:
+        - task
+      description: delete-taskrelation-by-task-Id
+      operationId: deletePropertyReference-task-delete_4
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - task
+      description: patch-taskrelation-by-task-Id
+      operationId: createPropertyReference-task-patch_4
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+          text/uri-list:
+            schema:
+              $ref: '#/components/schemas/CollectionModelObject'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+        "204":
+          description: No Content
+  /api/tasks/{id}/relatedBy/{propertyId}:
+    get:
+      tags:
+        - task
+      description: get-taskrelation-by-task-Id
+      operationId: followPropertyReference-task-get_5
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - task
+      description: delete-taskrelation-by-task-Id
       operationId: deletePropertyReferenceId-task-delete_4
       parameters:
         - name: id
@@ -14184,11 +14668,11 @@ paths:
           description: No Content
         "404":
           description: Not Found
-  /api/tasks/{id}/parent:
+  /api/tasks/{id}/relations:
     get:
       tags:
         - task
-      description: get-task-by-task-Id
+      description: get-taskrelation-by-task-Id
       operationId: followPropertyReference-task-get_6_1
       parameters:
         - name: id
@@ -14202,16 +14686,16 @@ paths:
           content:
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
             text/uri-list:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
         "404":
           description: Not Found
     put:
       tags:
         - task
-      description: update-task-by-task-Id
+      description: update-taskrelation-by-task-Id
       operationId: createPropertyReference-task-put_5
       parameters:
         - name: id
@@ -14236,19 +14720,19 @@ paths:
           content:
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
         "201":
           description: Created
           content:
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
         "204":
           description: No Content
     delete:
       tags:
         - task
-      description: delete-task-by-task-Id
+      description: delete-taskrelation-by-task-Id
       operationId: deletePropertyReference-task-delete_5
       parameters:
         - name: id
@@ -14264,7 +14748,7 @@ paths:
     patch:
       tags:
         - task
-      description: patch-task-by-task-Id
+      description: patch-taskrelation-by-task-Id
       operationId: createPropertyReference-task-patch_5
       parameters:
         - name: id
@@ -14289,14 +14773,14 @@ paths:
           content:
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
         "204":
           description: No Content
-  /api/tasks/{id}/parent/{propertyId}:
+  /api/tasks/{id}/relations/{propertyId}:
     get:
       tags:
         - task
-      description: get-task-by-task-Id
+      description: get-taskrelation-by-task-Id
       operationId: followPropertyReference-task-get_6
       parameters:
         - name: id
@@ -14315,13 +14799,13 @@ paths:
           content:
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/EntityModelTask'
+                $ref: '#/components/schemas/CollectionModelTaskRelation'
         "404":
           description: Not Found
     delete:
       tags:
         - task
-      description: delete-task-by-task-Id
+      description: delete-taskrelation-by-task-Id
       operationId: deletePropertyReferenceId-task-delete_5
       parameters:
         - name: id
@@ -20956,7 +21440,6 @@ components:
   schemas:
     Application:
       required:
-        - createdDate
         - jspTemplate
         - name
         - type
@@ -21466,13 +21949,6 @@ components:
         id:
           type: integer
           format: int32
-        parent:
-          $ref: '#/components/schemas/Task'
-        children:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Task'
         name:
           type: string
         createdDate:
@@ -21507,6 +21983,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskAvailability'
+        relations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation'
+        relatedBy:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation'
     TaskAvailability:
       required:
         - task
@@ -21533,6 +22019,22 @@ components:
           format: int32
         name:
           type: string
+    TaskRelation:
+      required:
+        - relatedTask
+        - relationType
+        - task
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        task:
+          $ref: '#/components/schemas/Task'
+        relationType:
+          type: string
+        relatedTask:
+          $ref: '#/components/schemas/Task'
     TaskType:
       type: object
       properties:
@@ -21735,10 +22237,10 @@ components:
           $ref: '#/components/schemas/Tree'
         cartography:
           $ref: '#/components/schemas/Cartography'
-        cartographyId:
+        parentId:
           type: integer
           format: int32
-        parentId:
+        cartographyId:
           type: integer
           format: int32
     User:
@@ -21891,7 +22393,6 @@ components:
           $ref: '#/components/schemas/Application_View'
     Application_View:
       required:
-        - createdDate
         - jspTemplate
       type: object
       properties:
@@ -22274,6 +22775,19 @@ components:
           $ref: '#/components/schemas/Territory_View'
         task:
           $ref: '#/components/schemas/Task_View'
+    TaskRelation_View:
+      required:
+        - relatedTask
+        - relationType
+        - task
+      type: object
+      properties:
+        task:
+          $ref: '#/components/schemas/Task_View'
+        relationType:
+          type: string
+        relatedTask:
+          $ref: '#/components/schemas/Task_View'
     TaskUI_View:
       required:
         - name
@@ -22293,13 +22807,6 @@ components:
     Task_View:
       type: object
       properties:
-        parent:
-          $ref: '#/components/schemas/Task_View'
-        children:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Task_View'
         createdDate:
           type: string
           format: date-time
@@ -22328,6 +22835,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskAvailability_View'
+        relations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation_View'
+        relatedBy:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation_View'
     TerritoryType_View:
       type: object
       properties:
@@ -22621,7 +23138,53 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    EntityModelCartographyStyle:
+    QueryTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        command:
+          type: string
+        scope:
+          type: string
+        description:
+          type: string
+        reportTask:
+          $ref: '#/components/schemas/Task'
+    EntityModelQueryTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        command:
+          type: string
+        scope:
+          type: string
+        description:
+          type: string
+        reportTask:
+          $ref: '#/components/schemas/Task'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelQueryTask:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            queryTasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelQueryTask'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTask:
       type: object
       properties:
         id:
@@ -22629,28 +23192,437 @@ components:
           format: int32
         name:
           type: string
-        title:
+        createdDate:
           type: string
-        description:
-          type: string
-        legendURL:
-          $ref: '#/components/schemas/LegendURL'
+          format: date-time
+        order:
+          type: integer
+          format: int32
+        properties:
+          type: object
+          additionalProperties:
+            type: object
         cartography:
           $ref: '#/components/schemas/Cartography'
+        service:
+          $ref: '#/components/schemas/Service'
+        group:
+          $ref: '#/components/schemas/TaskGroup'
+        type:
+          $ref: '#/components/schemas/TaskType'
+        ui:
+          $ref: '#/components/schemas/TaskUI'
+        connection:
+          $ref: '#/components/schemas/DatabaseConnection'
+        roles:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        availabilities:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAvailability'
+        relations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation'
+        relatedBy:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRelation'
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartographyStyle:
+    CollectionModelObject:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            cartography-styles:
+            objects:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelCartographyStyle'
+                type: object
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTaskAvailability:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdDate:
+          type: string
+          format: date-time
+        territory:
+          $ref: '#/components/schemas/Territory'
+        task:
+          $ref: '#/components/schemas/Task'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTaskAvailability:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            task-availabilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTaskAvailability'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTerritory:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        code:
+          type: string
+        name:
+          type: string
+        territorialAuthorityName:
+          type: string
+        territorialAuthorityAddress:
+          type: string
+        territorialAuthorityEmail:
+          type: string
+        territorialAuthorityLogo:
+          type: string
+        scope:
+          type: string
+        extent:
+          type: string
+        blocked:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/TerritoryType'
+        note:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        groupType:
+          $ref: '#/components/schemas/TerritoryGroupType'
+        members:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        memberOf:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Territory'
+        taskAvailabilities:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAvailability'
+        cartographyAvailabilities:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/CartographyAvailability'
+        positions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPosition'
+        userConfigurations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserConfiguration'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelApplicationBackground:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        application:
+          $ref: '#/components/schemas/Application'
+        background:
+          $ref: '#/components/schemas/Background'
+        order:
+          type: integer
+          format: int32
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelApplicationBackground:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            application-backgrounds:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelApplicationBackground'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        theme:
+          type: string
+        scales:
+          type: array
+          items:
+            type: string
+        srs:
+          type: string
+        jspTemplate:
+          type: string
+        treeAutoRefresh:
+          type: boolean
+        accessParentTerritory:
+          type: boolean
+        accessChildrenTerritory:
+          type: boolean
+        situationMap:
+          $ref: '#/components/schemas/CartographyPermission'
+        createdDate:
+          type: string
+          format: date-time
+        parameters:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationParameter'
+        availableRoles:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        trees:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Tree'
+        backgrounds:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationBackground'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelBackground:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        image:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+        cartographyGroup:
+          $ref: '#/components/schemas/CartographyPermission'
+        backgrounds:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationBackground'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        applications:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        tasks:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        permissions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/CartographyPermission'
+        trees:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Tree'
+        userConfigurations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserConfiguration'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelRole:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelRole'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelApplication:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            applications:
+              type: array
+              items:
+                $ref: '#/components/schemas/Application'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelUserConfiguration:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            user-configurations:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserConfiguration'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTask:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartographyPermission:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartographyPermission'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTree:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            trees:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tree'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelCartographyParameter:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        value:
+          type: string
+        format:
+          type: string
+        type:
+          type: string
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        order:
+          minimum: 0
+          type: integer
+          format: int32
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCartographyParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCartographyParameter'
         _links:
           type: array
           items:
@@ -22766,1015 +23738,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelObject:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            objects:
-              type: array
-              items:
-                type: object
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartography:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartographies:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelCartography'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelDatabaseConnection:
+    EntityModelTaskRelation:
       type: object
       properties:
         id:
           type: integer
           format: int32
-        name:
-          type: string
-        driver:
-          type: string
-        user:
-          type: string
-        password:
-          type: string
-          writeOnly: true
-        url:
-          type: string
-        tasks:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Task'
-        cartographies:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Cartography'
-        passwordSet:
-          type: boolean
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartographyPermission:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-groups:
-              type: array
-              items:
-                $ref: '#/components/schemas/CartographyPermission'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTreeNode:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            tree-nodes:
-              type: array
-              items:
-                $ref: '#/components/schemas/TreeNode'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelService:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        description:
-          type: string
-        serviceURL:
-          type: string
-        supportedSRS:
-          type: array
-          items:
-            type: string
-        legendURL:
-          type: string
-        getInformationURL:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        type:
-          type: string
-        nativeProtocol:
-          type: string
-        blocked:
-          type: boolean
-        layers:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Cartography'
-        parameters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartographyAvailability:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-availabilities:
-              type: array
-              items:
-                $ref: '#/components/schemas/CartographyAvailability'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartographyFilter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-filters:
-              type: array
-              items:
-                $ref: '#/components/schemas/CartographyFilter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartographyParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/CartographyParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartographyStyle:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-styles:
-              type: array
-              items:
-                $ref: '#/components/schemas/CartographyStyle'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelCartography:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartographies:
-              type: array
-              items:
-                $ref: '#/components/schemas/Cartography'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelRole:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        description:
-          type: string
-        applications:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Application'
-        tasks:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Task'
-        permissions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyPermission'
-        trees:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Tree'
-        userConfigurations:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserConfiguration'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelRole:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            roles:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelRole'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelUserConfiguration:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            user-configurations:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserConfiguration'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelApplication:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            applications:
-              type: array
-              items:
-                $ref: '#/components/schemas/Application'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTask:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            tasks:
-              type: array
-              items:
-                $ref: '#/components/schemas/Task'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTree:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            trees:
-              type: array
-              items:
-                $ref: '#/components/schemas/Tree'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    DownloadTask:
-      required:
-        - format
-        - path
-        - scope
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        format:
-          type: string
-        scope:
-          type: string
-        path:
-          type: string
-    EntityModelDownloadTask:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        format:
-          type: string
-        scope:
-          type: string
-        path:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelDownloadTask:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            downloadTasks:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelDownloadTask'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelCartographyFilter:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        required:
-          type: boolean
-        type:
-          type: string
-        territorialLevel:
-          $ref: '#/components/schemas/TerritoryType'
-        column:
-          type: string
-        values:
-          type: array
-          items:
-            type: string
-        valueType:
-          type: string
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartographyFilter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-filters:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelCartographyFilter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTerritoryType:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelCartographyAvailability:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        createdDate:
-          type: string
-          format: date-time
-        owner:
-          type: string
-        territory:
-          $ref: '#/components/schemas/Territory'
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartographyAvailability:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-availabilities:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelCartographyAvailability'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTerritory:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        code:
-          type: string
-        name:
-          type: string
-        territorialAuthorityName:
-          type: string
-        territorialAuthorityAddress:
-          type: string
-        territorialAuthorityEmail:
-          type: string
-        territorialAuthorityLogo:
-          type: string
-        scope:
-          type: string
-        extent:
-          type: string
-        blocked:
-          type: boolean
-        type:
-          $ref: '#/components/schemas/TerritoryType'
-        note:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        groupType:
-          $ref: '#/components/schemas/TerritoryGroupType'
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        memberOf:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Territory'
-        taskAvailabilities:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/TaskAvailability'
-        cartographyAvailabilities:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/CartographyAvailability'
-        positions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserPosition'
-        userConfigurations:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserConfiguration'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelServiceParameter:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        value:
-          type: string
-        type:
-          type: string
-        service:
-          $ref: '#/components/schemas/Service'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelServiceParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            service-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelServiceParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelUser:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        username:
-          type: string
-        password:
-          type: string
-          writeOnly: true
-        firstName:
-          type: string
-        lastName:
-          type: string
-        identificationNumber:
-          type: string
-        identificationType:
-          type: string
-        administrator:
-          type: boolean
-        blocked:
-          type: boolean
-        generic:
-          type: boolean
-        createdDate:
-          type: string
-          format: date-time
-        positions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserPosition'
-        permissions:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/UserConfiguration'
-        passwordSet:
-          type: boolean
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelUser:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            users:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelUser'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelUserPosition:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            user-positions:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserPosition'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelUser:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            users:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTaskGroup:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTaskGroup:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            task-groups:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTaskGroup'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelUserConfiguration:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        user:
-          $ref: '#/components/schemas/User'
-        territory:
-          $ref: '#/components/schemas/Territory'
-        role:
-          $ref: '#/components/schemas/Role'
-        appliesToChildrenTerritories:
-          type: boolean
-        createdDate:
-          type: string
-          format: date-time
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelUserConfiguration:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            user-configurations:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelUserConfiguration'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelApplication:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        type:
-          type: string
-        title:
-          type: string
-        theme:
-          type: string
-        scales:
-          type: array
-          items:
-            type: string
-        srs:
-          type: string
-        jspTemplate:
-          type: string
-        treeAutoRefresh:
-          type: boolean
-        accessParentTerritory:
-          type: boolean
-        accessChildrenTerritory:
-          type: boolean
-        situationMap:
-          $ref: '#/components/schemas/CartographyPermission'
-        createdDate:
-          type: string
-          format: date-time
-        parameters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationParameter'
-        availableRoles:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-        trees:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Tree'
-        backgrounds:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationBackground'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelApplication:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            applications:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelApplication'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelApplicationBackground:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            application-backgrounds:
-              type: array
-              items:
-                $ref: '#/components/schemas/ApplicationBackground'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelApplicationParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            application-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/ApplicationParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelCartographyPermission:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        type:
-          type: string
-        members:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Cartography'
-        roles:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-        backgrounds:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Background'
-        applications:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Application'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelRole:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            roles:
-              type: array
-              items:
-                $ref: '#/components/schemas/Role'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTreeNode:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        parent:
-          $ref: '#/components/schemas/TreeNode'
-        name:
-          type: string
-        description:
-          type: string
-        tooltip:
-          type: string
-        active:
-          type: boolean
-        radio:
-          type: boolean
-        order:
-          type: integer
-          format: int32
-        metadataURL:
-          type: string
-        datasetURL:
-          type: string
-        filterGetMap:
-          type: boolean
-        filterGetFeatureInfo:
-          type: boolean
-        queryableActive:
-          type: boolean
-        filterSelectable:
-          type: boolean
-        tree:
-          $ref: '#/components/schemas/Tree'
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        cartographyId:
-          type: integer
-          format: int32
-        parentId:
-          type: integer
-          format: int32
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTreeNode:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            tree-nodes:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTreeNode'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTree:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        image:
-          type: string
-        description:
-          type: string
-        owner:
-          $ref: '#/components/schemas/User'
-        allNodes:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/TreeNode'
-        availableRoles:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-        availableApplications:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Application'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTaskAvailability:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        createdDate:
-          type: string
-          format: date-time
-        territory:
-          $ref: '#/components/schemas/Territory'
         task:
           $ref: '#/components/schemas/Task'
+        relationType:
+          type: string
+        relatedTask:
+          $ref: '#/components/schemas/Task'
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTaskAvailability:
+    CollectionModelEntityModelTaskRelation:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            task-availabilities:
+            task-relations:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelTaskAvailability'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTask:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        parent:
-          $ref: '#/components/schemas/Task'
-        children:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Task'
-        name:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        order:
-          type: integer
-          format: int32
-        properties:
-          type: object
-          additionalProperties:
-            type: object
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        service:
-          $ref: '#/components/schemas/Service'
-        group:
-          $ref: '#/components/schemas/TaskGroup'
-        type:
-          $ref: '#/components/schemas/TaskType'
-        ui:
-          $ref: '#/components/schemas/TaskUI'
-        connection:
-          $ref: '#/components/schemas/DatabaseConnection'
-        roles:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/Role'
-        availabilities:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/TaskAvailability'
+                $ref: '#/components/schemas/EntityModelTaskRelation'
         _links:
           type: array
           items:
@@ -23894,104 +23883,61 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    Log:
+    EntityModelCartographyAvailability:
       type: object
       properties:
         id:
           type: integer
           format: int32
-        date:
+        createdDate:
           type: string
           format: date-time
-        type:
+        owner:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
-        application:
-          $ref: '#/components/schemas/Application'
         territory:
           $ref: '#/components/schemas/Territory'
-        task:
-          $ref: '#/components/schemas/Task'
         cartography:
           $ref: '#/components/schemas/Cartography'
-        counter:
-          type: integer
-          format: int32
-        territoryCode:
-          type: string
-        territories:
-          type: array
-          items:
-            type: string
-        data:
-          type: string
-        srs:
-          type: string
-        format:
-          type: string
-        buffer:
-          type: boolean
-        email:
-          type: string
-        other:
-          type: string
-    EntityModelLog:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        date:
-          type: string
-          format: date-time
-        type:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        application:
-          $ref: '#/components/schemas/Application'
-        territory:
-          $ref: '#/components/schemas/Territory'
-        task:
-          $ref: '#/components/schemas/Task'
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        counter:
-          type: integer
-          format: int32
-        territoryCode:
-          type: string
-        territories:
-          type: array
-          items:
-            type: string
-        data:
-          type: string
-        srs:
-          type: string
-        format:
-          type: string
-        buffer:
-          type: boolean
-        email:
-          type: string
-        other:
-          type: string
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelLog:
+    CollectionModelEntityModelCartographyAvailability:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            logs:
+            cartography-availabilities:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelLog'
+                $ref: '#/components/schemas/EntityModelCartographyAvailability'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTaskGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTaskGroup:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            task-groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTaskGroup'
         _links:
           type: array
           items:
@@ -24122,6 +24068,907 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
+    EntityModelUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        firstName:
+          type: string
+        lastName:
+          type: string
+        identificationNumber:
+          type: string
+        identificationType:
+          type: string
+        administrator:
+          type: boolean
+        blocked:
+          type: boolean
+        generic:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+        positions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPosition'
+        permissions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserConfiguration'
+        passwordSet:
+          type: boolean
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    Language:
+      required:
+        - name
+        - shortname
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        shortname:
+          type: string
+        name:
+          type: string
+    EntityModelLanguage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        shortname:
+          type: string
+        name:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelLanguage:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            languages:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelLanguage'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    Translation:
+      required:
+        - column
+        - element
+        - language
+        - translation
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        element:
+          type: integer
+          format: int32
+        column:
+          type: string
+        language:
+          $ref: '#/components/schemas/Language'
+        translation:
+          type: string
+    EntityModelTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        element:
+          type: integer
+          format: int32
+        column:
+          type: string
+        language:
+          $ref: '#/components/schemas/Language'
+        translation:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTranslation:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            translations:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTranslation'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTranslation:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            translations:
+              type: array
+              items:
+                $ref: '#/components/schemas/Translation'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelBackground:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            backgrounds:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelBackground'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelCartographyPermission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        type:
+          type: string
+        members:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Cartography'
+        roles:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        backgrounds:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Background'
+        applications:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelApplicationBackground:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            application-backgrounds:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationBackground'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    DownloadTask:
+      required:
+        - format
+        - path
+        - scope
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        format:
+          type: string
+        scope:
+          type: string
+        path:
+          type: string
+    EntityModelDownloadTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        format:
+          type: string
+        scope:
+          type: string
+        path:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelDownloadTask:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            downloadTasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelDownloadTask'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelUserPosition:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        organization:
+          type: string
+        email:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        expirationDate:
+          type: string
+          format: date-time
+        type:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        territory:
+          $ref: '#/components/schemas/Territory'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelUserPosition:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            user-positions:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelUserPosition'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTerritory:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            territories:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTerritory'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTerritory:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            territories:
+              type: array
+              items:
+                $ref: '#/components/schemas/Territory'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTerritoryType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelUserPosition:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            user-positions:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserPosition'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTaskAvailability:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            task-availabilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskAvailability'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTerritoryGroupType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartographyAvailability:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-availabilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartographyAvailability'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelApplicationParameter:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+        application:
+          $ref: '#/components/schemas/Application'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelApplicationParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            application-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelApplicationParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelDatabaseConnection:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        driver:
+          type: string
+        user:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        url:
+          type: string
+        tasks:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        cartographies:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Cartography'
+        passwordSet:
+          type: boolean
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelDatabaseConnection:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            connections:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelDatabaseConnection'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartography:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartographies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cartography'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTree:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        image:
+          type: string
+        description:
+          type: string
+        owner:
+          $ref: '#/components/schemas/User'
+        allNodes:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/TreeNode'
+        availableRoles:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        availableApplications:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTree:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            trees:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTree'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelTreeNode:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            tree-nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/TreeNode'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelRole:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: '#/components/schemas/Role'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelTreeNode:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        parent:
+          $ref: '#/components/schemas/TreeNode'
+        name:
+          type: string
+        description:
+          type: string
+        tooltip:
+          type: string
+        active:
+          type: boolean
+        radio:
+          type: boolean
+        order:
+          type: integer
+          format: int32
+        metadataURL:
+          type: string
+        datasetURL:
+          type: string
+        filterGetMap:
+          type: boolean
+        filterGetFeatureInfo:
+          type: boolean
+        queryableActive:
+          type: boolean
+        filterSelectable:
+          type: boolean
+        tree:
+          $ref: '#/components/schemas/Tree'
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        parentId:
+          type: integer
+          format: int32
+        cartographyId:
+          type: integer
+          format: int32
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTreeNode:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            tree-nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTreeNode'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelServiceParameter:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+        service:
+          $ref: '#/components/schemas/Service'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelServiceParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            service-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelServiceParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelService:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        serviceURL:
+          type: string
+        supportedSRS:
+          type: array
+          items:
+            type: string
+        legendURL:
+          type: string
+        getInformationURL:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        type:
+          type: string
+        nativeProtocol:
+          type: string
+        blocked:
+          type: boolean
+        layers:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Cartography'
+        parameters:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    Comment:
+      required:
+        - coordinateX
+        - coordinateY
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        coordinateX:
+          type: number
+          format: double
+        coordinateY:
+          type: number
+          format: double
+        name:
+          type: string
+        email:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        application:
+          $ref: '#/components/schemas/Application'
+    EntityModelComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        coordinateX:
+          type: number
+          format: double
+        coordinateY:
+          type: number
+          format: double
+        name:
+          type: string
+        email:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        application:
+          $ref: '#/components/schemas/Application'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelComment:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            comments:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelComment'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCartographyPermission:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCartographyPermission'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelBackground:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            backgrounds:
+              type: array
+              items:
+                $ref: '#/components/schemas/Background'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CodeListValue:
+      required:
+        - codeListName
+        - value
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        codeListName:
+          type: string
+        value:
+          type: string
+        system:
+          type: boolean
+        description:
+          type: string
+    EntityModelCodeListValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        codeListName:
+          type: string
+        value:
+          type: string
+        system:
+          type: boolean
+        description:
+          type: string
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCodeListValue:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            codelist-values:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCodeListValue'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCodeListValue:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            codelist-values:
+              type: array
+              items:
+                $ref: '#/components/schemas/CodeListValue'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelUserConfiguration:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        user:
+          $ref: '#/components/schemas/User'
+        territory:
+          $ref: '#/components/schemas/Territory'
+        role:
+          $ref: '#/components/schemas/Role'
+        appliesToChildrenTerritories:
+          type: boolean
+        createdDate:
+          type: string
+          format: date-time
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelUserConfiguration:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            user-configurations:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelUserConfiguration'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
     ThematicMapRange:
       type: object
       properties:
@@ -24204,246 +25051,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    Comment:
-      required:
-        - coordinateX
-        - coordinateY
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        coordinateX:
-          type: number
-          format: double
-        coordinateY:
-          type: number
-          format: double
-        name:
-          type: string
-        email:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        user:
-          $ref: '#/components/schemas/User'
-        application:
-          $ref: '#/components/schemas/Application'
-    EntityModelComment:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        coordinateX:
-          type: number
-          format: double
-        coordinateY:
-          type: number
-          format: double
-        name:
-          type: string
-        email:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        user:
-          $ref: '#/components/schemas/User'
-        application:
-          $ref: '#/components/schemas/Application'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelComment:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            comments:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelComment'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelDatabaseConnection:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            connections:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelDatabaseConnection'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelCartographyParameter:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        value:
-          type: string
-        format:
-          type: string
-        type:
-          type: string
-        cartography:
-          $ref: '#/components/schemas/Cartography'
-        order:
-          minimum: 0
-          type: integer
-          format: int32
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartographyParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelCartographyParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelApplicationBackground:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        application:
-          $ref: '#/components/schemas/Application'
-        background:
-          $ref: '#/components/schemas/Background'
-        order:
-          type: integer
-          format: int32
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelApplicationBackground:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            application-backgrounds:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelApplicationBackground'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelBackground:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        image:
-          type: string
-        description:
-          type: string
-        active:
-          type: boolean
-        createdDate:
-          type: string
-          format: date-time
-        cartographyGroup:
-          $ref: '#/components/schemas/CartographyPermission'
-        backgrounds:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicationBackground'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTerritory:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            territories:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTerritory'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTerritoryGroupType:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTerritory:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            territories:
-              type: array
-              items:
-                $ref: '#/components/schemas/Territory'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTaskAvailability:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            task-availabilities:
-              type: array
-              items:
-                $ref: '#/components/schemas/TaskAvailability'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
     ConfigurationParameter:
       required:
         - name
@@ -24484,149 +25091,236 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CodeListValue:
-      required:
-        - codeListName
-        - value
+    EntityModelCartographyStyle:
       type: object
       properties:
         id:
           type: integer
           format: int32
-        codeListName:
+        name:
           type: string
-        value:
+        title:
           type: string
-        system:
-          type: boolean
         description:
           type: string
-    EntityModelCodeListValue:
+        legendURL:
+          $ref: '#/components/schemas/LegendURL'
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCartographyStyle:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-styles:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCartographyStyle'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTerritoryType:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            territory-types:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTerritoryType'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCartography:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartographies:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCartography'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartographyFilter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-filters:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartographyFilter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartographyParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartographyParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelCartographyStyle:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-styles:
+              type: array
+              items:
+                $ref: '#/components/schemas/CartographyStyle'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    Log:
       type: object
       properties:
         id:
           type: integer
           format: int32
-        codeListName:
+        date:
           type: string
-        value:
+          format: date-time
+        type:
           type: string
-        system:
+        user:
+          $ref: '#/components/schemas/User'
+        application:
+          $ref: '#/components/schemas/Application'
+        territory:
+          $ref: '#/components/schemas/Territory'
+        task:
+          $ref: '#/components/schemas/Task'
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        counter:
+          type: integer
+          format: int32
+        territoryCode:
+          type: string
+        territories:
+          type: array
+          items:
+            type: string
+        data:
+          type: string
+        srs:
+          type: string
+        format:
+          type: string
+        buffer:
           type: boolean
-        description:
+        email:
+          type: string
+        other:
+          type: string
+    EntityModelLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        date:
+          type: string
+          format: date-time
+        type:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        application:
+          $ref: '#/components/schemas/Application'
+        territory:
+          $ref: '#/components/schemas/Territory'
+        task:
+          $ref: '#/components/schemas/Task'
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        counter:
+          type: integer
+          format: int32
+        territoryCode:
+          type: string
+        territories:
+          type: array
+          items:
+            type: string
+        data:
+          type: string
+        srs:
+          type: string
+        format:
+          type: string
+        buffer:
+          type: boolean
+        email:
+          type: string
+        other:
           type: string
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCodeListValue:
+    CollectionModelEntityModelLog:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            codelist-values:
+            logs:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelCodeListValue'
+                $ref: '#/components/schemas/EntityModelLog'
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelCodeListValue:
+    CollectionModelEntityModelTask:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            codelist-values:
+            tasks:
               type: array
               items:
-                $ref: '#/components/schemas/CodeListValue'
+                $ref: '#/components/schemas/EntityModelTask'
         _links:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelBackground:
+    CollectionModelTaskRelation:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            backgrounds:
+            task-relations:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelBackground'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTerritoryGroupType:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            territory-group-types:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTerritoryGroupType'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelCartographyPermission:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            cartography-groups:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelCartographyPermission'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelBackground:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            backgrounds:
-              type: array
-              items:
-                $ref: '#/components/schemas/Background'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelService:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            services:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelService'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelServiceParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            service-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/ServiceParameter'
+                $ref: '#/components/schemas/TaskRelation'
         _links:
           type: array
           items:
@@ -24663,6 +25357,164 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
+    EntityModelTaskUI:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        tooltip:
+          type: string
+        order:
+          minimum: 0
+          type: integer
+          format: int32
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelService:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            services:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelService'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelServiceParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            service-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelTaskUI:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            task-uis:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTaskUI'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelApplication:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            applications:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelApplication'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelApplicationParameter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            application-parameters:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationParameter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    EntityModelCartographyFilter:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        required:
+          type: boolean
+        type:
+          type: string
+        territorialLevel:
+          $ref: '#/components/schemas/TerritoryType'
+        column:
+          type: string
+        values:
+          type: array
+          items:
+            type: string
+        valueType:
+          type: string
+        cartography:
+          $ref: '#/components/schemas/Cartography'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelCartographyFilter:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            cartography-filters:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelCartographyFilter'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelEntityModelUser:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelUser'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    CollectionModelUser:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
     CollectionModelEntityModelTaskType:
       type: object
       properties:
@@ -24691,304 +25543,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTask:
+    CollectionModelEntityModelTerritoryGroupType:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            tasks:
+            territory-group-types:
               type: array
               items:
-                $ref: '#/components/schemas/EntityModelTask'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelTaskUI:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        tooltip:
-          type: string
-        order:
-          minimum: 0
-          type: integer
-          format: int32
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    Language:
-      required:
-        - name
-        - shortname
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        shortname:
-          type: string
-        name:
-          type: string
-    Translation:
-      required:
-        - column
-        - element
-        - language
-        - translation
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        element:
-          type: integer
-          format: int32
-        column:
-          type: string
-        language:
-          $ref: '#/components/schemas/Language'
-        translation:
-          type: string
-    EntityModelTranslation:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        element:
-          type: integer
-          format: int32
-        column:
-          type: string
-        language:
-          $ref: '#/components/schemas/Language'
-        translation:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTranslation:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            translations:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTranslation'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelLanguage:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        shortname:
-          type: string
-        name:
-          type: string
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelTranslation:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            translations:
-              type: array
-              items:
-                $ref: '#/components/schemas/Translation'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTaskUI:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            task-uis:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTaskUI'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTree:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            trees:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTree'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelLanguage:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            languages:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelLanguage'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    QueryTask:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        command:
-          type: string
-        scope:
-          type: string
-        description:
-          type: string
-        reportTask:
-          $ref: '#/components/schemas/Task'
-    EntityModelQueryTask:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        command:
-          type: string
-        scope:
-          type: string
-        description:
-          type: string
-        reportTask:
-          $ref: '#/components/schemas/Task'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelQueryTask:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            queryTasks:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelQueryTask'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelUserPosition:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        organization:
-          type: string
-        email:
-          type: string
-        createdDate:
-          type: string
-          format: date-time
-        expirationDate:
-          type: string
-          format: date-time
-        type:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        territory:
-          $ref: '#/components/schemas/Territory'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelUserPosition:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            user-positions:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelUserPosition'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    EntityModelApplicationParameter:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        name:
-          type: string
-        value:
-          type: string
-        type:
-          type: string
-        application:
-          $ref: '#/components/schemas/Application'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelApplicationParameter:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            application-parameters:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelApplicationParameter'
-        _links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    CollectionModelEntityModelTerritoryType:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            territory-types:
-              type: array
-              items:
-                $ref: '#/components/schemas/EntityModelTerritoryType'
+                $ref: '#/components/schemas/EntityModelTerritoryGroupType'
         _links:
           type: array
           items:

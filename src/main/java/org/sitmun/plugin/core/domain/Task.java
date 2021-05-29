@@ -17,7 +17,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "STM_TASK")
-@Inheritance(strategy = InheritanceType.JOINED)
 @Builder
 @Getter
 @Setter
@@ -40,20 +39,6 @@ public class Task {
   @Column(name = "TAS_ID")
   @JsonView(WorkspaceApplication.View.class)
   private Integer id;
-
-  /**
-   * Parent task.
-   */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "TAS_PARENTID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TAS"))
-  private Task parent;
-
-  /**
-   * Children tasks.
-   */
-  @OneToMany(mappedBy = "parent")
-  @Builder.Default
-  private Set<Task> children = new HashSet<>();
 
   /**
    * Name.
@@ -147,6 +132,20 @@ public class Task {
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<TaskAvailability> availabilities = new HashSet<>();
+
+  /**
+   * Relations of where this task is the subject of the relation.
+   */
+  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<TaskRelation> relations = new HashSet<>();
+
+  /**
+   * Relations of where this task is the target of the relation.
+   */
+  @OneToMany(mappedBy = "relatedTask")
+  @Builder.Default
+  private Set<TaskRelation> relatedBy = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {
