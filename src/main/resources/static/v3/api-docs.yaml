@@ -7,7 +7,7 @@ info:
   version: 3.0-SNAPSHOT
 servers:
   - url: /
-  description: Generated server url
+    description: Generated server url
 security:
   - bearerAuth: [ ]
 tags:
