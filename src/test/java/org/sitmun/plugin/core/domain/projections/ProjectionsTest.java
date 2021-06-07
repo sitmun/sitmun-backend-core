@@ -66,6 +66,7 @@ public class ProjectionsTest {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
+      .andExpect(jsonPath("$.extent.maxX").value(467600.0))
       .andExpect(jsonPath("$.groupTypeId").value(1))
       .andExpect(jsonPath("$.groupTypeName").value("Consell Comarcal"));
   }

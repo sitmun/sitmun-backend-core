@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain.projections;
 
+import org.sitmun.plugin.core.domain.Envelope;
 import org.sitmun.plugin.core.domain.Territory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -61,7 +62,7 @@ public interface TerritoryProjection {
    * Bounding box of the territory.
    */
   @Value("#{target.extent}")
-  String getExtent();
+  Envelope getExtent();
 
   /**
    * <code>true</code> if the territory is blocked.

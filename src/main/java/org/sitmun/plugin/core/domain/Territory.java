@@ -3,9 +3,11 @@ package org.sitmun.plugin.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.plugin.core.constraints.BoundingBox;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
+import org.sitmun.plugin.core.converters.EnvelopeToStringConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -107,7 +109,9 @@ public class Territory {
    */
   @Column(name = "TER_EXTENT", length = 250)
   @JsonView({WorkspaceApplication.View.class})
-  private String extent;
+  @Convert(converter = EnvelopeToStringConverter.class)
+  @BoundingBox
+  private Envelope extent;
 
   /**
    * <code>true</code> if the territory is blocked.
