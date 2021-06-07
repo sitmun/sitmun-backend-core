@@ -41,7 +41,7 @@ public class Tree {
   private Integer id;
 
   /**
-   * Tree name.
+   * Tree name.na
    */
   @Column(name = "TRE_NAME", length = IDENTIFIER)
   @NotBlank

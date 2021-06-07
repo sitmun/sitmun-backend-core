@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
 /**
@@ -19,18 +20,22 @@ public class Envelope {
   /**
    * The envelope minimum y-value.
    */
+  @JsonView({WorkspaceApplication.View.class})
   public Double minY;
   /**
    * The envelope maximum x-value.
    */
+  @JsonView({WorkspaceApplication.View.class})
   private Double maxX;
   /**
    * The envelope maximum y-value.
    */
+  @JsonView({WorkspaceApplication.View.class})
   private Double maxY;
   /**
    * The envelope minimum x-value.
    */
+  @JsonView({WorkspaceApplication.View.class})
   private Double minX;
 
 }

@@ -67,7 +67,7 @@ public class Cartography {
   private String description;
 
   /**
-   * List of layer identifiers, separated by comas in case of multiple layers.
+   * List of layer identifiers.
    */
   @Column(name = "GEO_LAYERS", length = 800)
   @NotNull

@@ -171,6 +171,7 @@ public class Application {
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @JsonView({WorkspaceApplication.View.class})
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   @Override

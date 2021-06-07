@@ -60,11 +60,16 @@ public class Task {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "TAS_ORDER", precision = 6)
+  @JsonView(WorkspaceApplication.View.class)
   private Integer order;
 
+  /**
+   * Task properties.
+   */
   @Lob
   @Column(name = "TAS_PARAMS")
   @Convert(converter = HashMapConverter.class)
+  @JsonView(WorkspaceApplication.View.class)
   private Map<String, Object> properties;
 
   /**
@@ -72,6 +77,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GEO"))
+  @JsonView(WorkspaceApplication.View.class)
   private Cartography cartography;
 
   /**
@@ -79,6 +85,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_SERID", foreignKey = @ForeignKey(name = "STM_TAS_FK_SER"))
+  @JsonView(WorkspaceApplication.View.class)
   private Service service;
 
   /**
@@ -102,6 +109,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TUI"))
+  @JsonView(WorkspaceApplication.View.class)
   private TaskUI ui;
 
   /**

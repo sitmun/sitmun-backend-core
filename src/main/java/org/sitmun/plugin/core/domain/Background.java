@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.HttpURL;
 
@@ -44,6 +45,7 @@ public class Background {
    */
   @Column(name = "BAC_NAME", length = IDENTIFIER)
   @NotBlank
+  @JsonView({WorkspaceApplication.View.class})
   private String name;
 
   /**
@@ -51,6 +53,7 @@ public class Background {
    */
   @Column(name = "BAC_IMAGE", length = URL)
   @HttpURL
+  @JsonView({WorkspaceApplication.View.class})
   private String image;
 
   /**
@@ -77,6 +80,7 @@ public class Background {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
+  @JsonView({WorkspaceApplication.View.class})
   private CartographyPermission cartographyGroup;
 
   /**
