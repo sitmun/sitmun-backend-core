@@ -4,6 +4,8 @@ package org.sitmun.plugin.core.domain;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.HttpURL;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +19,7 @@ import static org.sitmun.plugin.core.domain.Constants.*;
  * Background.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_BACKGRD")
 @Builder
 @Getter
@@ -73,6 +76,7 @@ public class Background {
    */
   @Column(name = "BAC_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

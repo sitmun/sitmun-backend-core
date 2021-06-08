@@ -3,6 +3,8 @@ package org.sitmun.plugin.core.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,6 +16,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  * Grants availability of a Geographic Information in a Territory.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_AVAIL_GI", uniqueConstraints = {
   @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
 @Builder
@@ -43,6 +46,7 @@ public class CartographyAvailability {
    */
   @Column(name = "AGI_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

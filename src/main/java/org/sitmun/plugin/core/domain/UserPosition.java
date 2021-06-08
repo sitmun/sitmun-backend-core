@@ -6,6 +6,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -18,6 +20,7 @@ import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
  * User position in a territory.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_POST", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
 @Builder
@@ -66,6 +69,7 @@ public class UserPosition {
    */
   @Column(name = "POS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

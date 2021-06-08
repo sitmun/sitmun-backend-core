@@ -4,6 +4,8 @@ package org.sitmun.plugin.core.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +15,7 @@ import java.util.Date;
  * Availability of Tasks in a Territory.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_AVAIL_TSK", uniqueConstraints = {
   @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"ATS_TERID", "ATS_TASKID"})})
 @Builder
@@ -42,6 +45,7 @@ public class TaskAvailability {
    */
   @Column(name = "ATS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

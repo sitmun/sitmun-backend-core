@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -11,6 +13,7 @@ import java.util.Date;
  * Comment or user's suggestion.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_COMMENT")
 @Builder
 @Getter
@@ -78,6 +81,7 @@ public class Comment {
    */
   @Column(name = "COM_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**

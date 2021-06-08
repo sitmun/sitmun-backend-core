@@ -4,6 +4,8 @@ package org.sitmun.plugin.core.domain;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.converters.HashMapConverter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -16,6 +18,7 @@ import java.util.Set;
  * Task.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_TASK")
 @Builder
 @Getter
@@ -53,6 +56,7 @@ public class Task {
    */
   @Column(name = "TAS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
+  @CreatedDate
   private Date createdDate;
 
   /**
