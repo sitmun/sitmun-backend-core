@@ -15,7 +15,7 @@ import java.util.Map;
 public interface TaskProjection {
 
   @Value("#{target.id}")
-  Long getId();
+  Integer getId();
 
   @Value("#{target.name}")
   String getName();
@@ -37,4 +37,16 @@ public interface TaskProjection {
 
   @Value("#{target.properties}")
   Map<String, Object> getProperties();
+
+  @Value("#{target.service?.id}")
+  Integer getServiceId();
+
+  @Value("#{target.service?.name}")
+  String getServiceName();
+
+  @Value("#{target.cartography?.id}")
+  Integer getCartographyId();
+
+  @Value("#{target.cartography?.name}")
+  String getCartographyName();
 }
