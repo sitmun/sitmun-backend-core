@@ -26,5 +26,19 @@ public interface SyncEntityHandler {
     }
   }
 
+  default void updateProperty(Task task, String property, Object value) {
+    Map<String, Object> properties = task.getProperties();
+    if (value == null && properties != null) {
+      properties.remove(property);
+      task.setProperties(properties);
+    } else if (value != null && properties != null) {
+      properties.put(property, value);
+      task.setProperties(properties);
+    } else if (value != null) {
+      properties = new HashMap<>();
+      properties.put(property, value);
+      task.setProperties(properties);
+    }
+  }
 
 }

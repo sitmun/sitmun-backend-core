@@ -31,7 +31,7 @@
       "description": "Run liquibase asynchronously."
     },
     {
-      "name": "spring.liquibase.sync-entity",
+      "name": "spring.liquibase.sync-legacy",
       "type": "java.lang.Boolean",
       "description": "Run synchronization code."
     },

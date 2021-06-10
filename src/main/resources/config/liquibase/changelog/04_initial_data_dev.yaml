@@ -1013,7 +1013,7 @@ databaseChangeLog:
                   name: PTT_TASKID
                   type: NUMERIC
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PTT_ID', 9366);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PTT_ID', 9390);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_THEMATIC.csv
