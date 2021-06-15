@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.domain.projections;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.test.URIConstants;
@@ -13,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
+import static org.sitmun.plugin.core.test.URIConstants.BACKGROUNDS_URI_PROJECTION_VIEW;
+import static org.sitmun.plugin.core.test.URIConstants.TREE_NODE_URI_PROJECTION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,12 +24,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
+@DisplayName("Projections test")
 public class ProjectionsTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("TaskAvailability view")
   public void taskAvailabilityProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_AVAILABILITY_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -38,6 +43,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Cartography view")
   public void cartographyProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 87)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -50,6 +56,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("CartographyAvailability view")
   public void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -62,6 +69,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Territory view")
   public void territoryProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -72,6 +80,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("ApplicationBackground view")
   public void applicationBackgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -82,6 +91,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("UserPosition view")
   public void userPositionProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 2124)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -91,6 +101,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("UserConfiguration view")
   public void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -116,8 +127,9 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Backgrounds view")
   public void backgroundProjectionView() throws Exception {
-    mvc.perform(get("/api/backgrounds?projection=view")
+    mvc.perform(get(BACKGROUNDS_URI_PROJECTION_VIEW)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)))
@@ -125,6 +137,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Application view")
   public void applicationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PROJECTION_VIEW, 1)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
@@ -134,6 +147,7 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Tasks view")
   public void tasksProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -141,19 +155,26 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.groupName").value("SITXELL"))
       .andExpect(jsonPath("$.groupId").value(28))
       .andExpect(jsonPath("$.uiId").value(13));
+
+    mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.cartographyName").value("CRE5M - Illes"))
+      .andExpect(jsonPath("$.cartographyId").value(87));
   }
 
 
   @Test
+  @DisplayName("Tree Nodes view")
   public void treeNodesProjectionView() throws Exception {
-    mvc.perform(get("/api/tree-nodes/208?projection=view")
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 288)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true))
       .andExpect(jsonPath("$.cartographyName").isEmpty())
       .andExpect(jsonPath("$.cartographyId").isEmpty());
 
-    mvc.perform(get("/api/tree-nodes/2546?projection=view")
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 2546)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false))

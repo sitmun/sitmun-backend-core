@@ -791,6 +791,9 @@ databaseChangeLog:
               - column:
                   name: TAS_CONNID
                   type: NUMERIC
+              - column:
+                  name: TAS_GIID
+                  type: NUMERIC
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_DOWNLOAD.csv

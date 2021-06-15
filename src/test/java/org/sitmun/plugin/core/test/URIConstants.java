@@ -22,6 +22,8 @@ public class URIConstants {
   public static final String BACKGROUNDS_URI =
     "http://localhost/api/backgrounds";
 
+  public static final String BACKGROUNDS_URI_PROJECTION_VIEW = BACKGROUNDS_URI + "/?projection=view";
+
   public static final String BACKGROUND_URI = BACKGROUNDS_URI + "/{0}";
 
   public static final String BACKGROUND_URI_CARTOGRAPHY_GROUP = BACKGROUND_URI + "/cartographyGroup";
