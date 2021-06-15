@@ -35,7 +35,25 @@
         },
         "required": true
       },
-      "layout": {
+      "cartography": {
+        "label": "tasksEntity.cartography",
+        "control": "selectorPopup",
+        "selectorPopup": {
+          "data": "cartography",
+          "value": "name",
+          "columns": {
+            "id": {
+              "label": "tasksEntity.id",
+              "editable": "false"
+            },
+            "name": {
+              "label": "tasksEntity.name",
+              "editable": "true"
+            }
+          }
+        }
+      },
+      "layers": {
         "label": "tasksEntity.layer",
         "control": "input",
         "required": true
@@ -88,6 +106,10 @@
         "id": {
           "label": "tasksEntity.id",
           "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "true"
         }
       }
     }

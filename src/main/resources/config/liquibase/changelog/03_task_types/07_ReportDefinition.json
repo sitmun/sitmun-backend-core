@@ -37,8 +37,7 @@
       },
       "layer": {
         "label": "tasksEntity.layer",
-        "control": "input",
-        "required": true
+        "control": "input"
       },
       "task": {
         "label": "tasksEntity.locator",
@@ -101,6 +100,10 @@
         "id": {
           "label": "tasksEntity.id",
           "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "true"
         }
       }
     }

@@ -72,12 +72,11 @@
               "editable": "true"
             }
           }
-        },
-        "required": true
+        }
       },
-      "value": {
+      "command": {
         "condition": "scope",
-        "label": "tasksEntity.label",
+        "label": "tasksEntity.sql",
         "control": [
           {
             "scope": "SQL",
@@ -129,7 +128,7 @@
             "label": "tasksEntity.key",
             "required": true,
             "control": "enumBySQLElement",
-            "element": "value",
+            "element": "command",
             "patternToSearch": "${*}"
           },
           "label": {
@@ -148,7 +147,7 @@
                   "value": "A"
                 },
                 {
-                  "label": "tasksEntity.anput",
+                  "label": "tasksEntity.input",
                   "value": "I"
                 },
                 {
@@ -160,7 +159,7 @@
           },
           "value": {
             "condition": "type",
-            "label": "tasksEntity.label",
+            "label": "taskEntity.value",
             "control": "textArea",
             "required": [
               {
@@ -229,6 +228,10 @@
         "id": {
           "label": "tasksEntity.id",
           "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "true"
         }
       }
     }

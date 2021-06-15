@@ -48,8 +48,7 @@
               "editable": "true"
             }
           }
-        },
-        "required": true
+        }
       }
     }
   },
@@ -99,6 +98,10 @@
         "id": {
           "label": "tasksEntity.id",
           "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "true"
         }
       }
     },
@@ -185,4 +188,3 @@
     }
   ]
 }
-

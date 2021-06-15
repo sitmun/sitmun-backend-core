@@ -11,10 +11,6 @@
         "label": "tasksEntity.name",
         "control": "input",
         "required": true
-      },
-      "description": {
-        "label": "tasksEntity.description",
-        "control": "input"
       }
     }
   },
@@ -64,6 +60,10 @@
         "id": {
           "label": "tasksEntity.id",
           "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "true"
         }
       }
     }
