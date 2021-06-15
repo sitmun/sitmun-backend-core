@@ -154,7 +154,9 @@ public class ProjectionsTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groupName").value("SITXELL"))
       .andExpect(jsonPath("$.groupId").value(28))
-      .andExpect(jsonPath("$.uiId").value(13));
+      .andExpect(jsonPath("$.uiId").value(13))
+      .andExpect(jsonPath("$.typeId").value(2))
+      .andExpect(jsonPath("$.typeName").value("descarga"));
 
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
