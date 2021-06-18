@@ -99,6 +99,10 @@
           "id": {
             "label": "tasksEntity.id",
             "editable": "false"
+          },
+          "territoryName": {
+            "label": "tasksEntity.name",
+            "editable": "true"
           }
         }
       },
@@ -107,7 +111,7 @@
           "label": "tasksEntity.id",
           "editable": "false"
         },
-        "name": {
+        "territoryName": {
           "label": "tasksEntity.name",
           "editable": "true"
         }

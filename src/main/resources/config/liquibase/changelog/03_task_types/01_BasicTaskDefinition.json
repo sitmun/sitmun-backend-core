@@ -106,6 +106,34 @@
       }
     },
     {
+      "link": "availabilities",
+      "label": "tasksEntity.territory",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "availabilities",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "territoryName": {
+            "label": "tasksEntity.name",
+            "editable": "true"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "territoryName": {
+          "label": "tasksEntity.name",
+          "editable": "true"
+        }
+      }
+    },
+    {
       "link": "parameters",
       "label": "tasksEntity.parameters",
       "columns": {

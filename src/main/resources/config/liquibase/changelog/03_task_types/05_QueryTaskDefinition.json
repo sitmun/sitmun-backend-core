@@ -159,7 +159,7 @@
           },
           "value": {
             "condition": "type",
-            "label": "taskEntity.value",
+            "label": "tasksEntity.value",
             "control": "textArea",
             "required": [
               {
@@ -221,6 +221,10 @@
           "id": {
             "label": "tasksEntity.id",
             "editable": "false"
+          },
+          "territoryName": {
+            "label": "tasksEntity.name",
+            "editable": "true"
           }
         }
       },
@@ -229,7 +233,7 @@
           "label": "tasksEntity.id",
           "editable": "false"
         },
-        "name": {
+        "territoryName": {
           "label": "tasksEntity.name",
           "editable": "true"
         }
