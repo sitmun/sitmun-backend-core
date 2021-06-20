@@ -86,4 +86,14 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DESCRIPTION
 85,user.identificationType,DNI,FALSE,DNI
 86,user.identificationType,NIE,FALSE,NIE
 87,user.identificationType,PAS,FALSE,Passport
-88,userPosition.type,RE,FALSE,RE
+88,userPosition.type,AJ,FALSE,City Council
+89,userPosition.type,AR,FALSE,City Council SITMUN point of contact
+90,userPosition.type,DB,FALSE,Diputació de Barcelona
+91,userPosition.type,DM,FALSE,Demo
+92,userPosition.type,EM,FALSE,Company
+93,userPosition.type,EN,FALSE,Territorial Entity  (no City Council)
+94,userPosition.type,ER,FALSE,Territorial Entity  (no City Council) point of contact
+95,userPosition.type,EX,FALSE,External
+96,userPosition.type,GN,FALSE,Generalitat de Catalunya
+97,userPosition.type,PR,FALSE,Project
+98,userPosition.type,TS,FALSE,Test

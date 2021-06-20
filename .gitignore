@@ -34,3 +34,4 @@ tasks.md
 src/main/resources/config/application-local.yml
 src/main/resources/config/application-oracle.yml
 src/main/resources/config/application-postgres.yml
+*.xlsx

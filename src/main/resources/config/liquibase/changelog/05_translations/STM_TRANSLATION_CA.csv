@@ -15,3 +15,14 @@ TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
 302021,21,description,3,Text
 302022,22,description,3,URL
 302023,23,description,3,Data
+302088,88,description,3,Ajuntament
+302089,89,description,3,Ajuntament referent SITMUN
+302090,90,description,3,Diputació de Barcelona
+302091,91,description,3,Demo
+302092,92,description,3,Empresa
+302093,93,description,3,Ens local (no ajuntament)
+302094,94,description,3,Ens local (no ajuntament) referent SITMUN
+302095,95,description,3,Externs
+302096,96,description,3,Generalitat de Catalunya
+302097,97,description,3,Projecte
+302098,98,description,3,Test

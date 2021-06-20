@@ -26,4 +26,4 @@ databaseChangeLog:
                   name: COD_DESCRIPTION
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COD_ID', 88);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COD_ID', 98);

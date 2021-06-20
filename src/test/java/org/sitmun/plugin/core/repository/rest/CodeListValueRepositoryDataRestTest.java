@@ -36,10 +36,15 @@ public class CodeListValueRepositoryDataRestTest {
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Background map"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Report"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Location map"));
+
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "userPosition.type")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("City Council"));
   }
 
   @Test
-  @DisplayName("GET: Description translated")
+  @DisplayName("GET: Description translated in ES")
   public void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -48,6 +53,15 @@ public class CodeListValueRepositoryDataRestTest {
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Mapa de fondo"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Informe"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Mapa de situación"));
+  }
+
+  @Test
+  @DisplayName("GET: Description translated in CA")
+  public void obtainTranslatedVersionCat() throws Exception {
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("Ajuntament"));
   }
 
   @Test
