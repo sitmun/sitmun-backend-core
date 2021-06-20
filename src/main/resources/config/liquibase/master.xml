@@ -6,9 +6,7 @@
   <include file="changelog/01_schema.h2.sql" relativeToChangelogFile="true"/>
   <include file="changelog/01_schema.oracle.sql" relativeToChangelogFile="true"/>
   <include file="changelog/01_schema.postgresql.sql" relativeToChangelogFile="true"/>
-  <include file="changelog/02_codelists.h2.sql" relativeToChangelogFile="true"/>
-  <include file="changelog/02_codelists.oracle.sql" relativeToChangelogFile="true"/>
-  <include file="changelog/02_codelists.postgresql.sql" relativeToChangelogFile="true"/>
+  <include file="changelog/02_codelists.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/03_task_types.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/04_initial_data_dev.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/04_initial_data_dev_postgresql.yaml" relativeToChangelogFile="true"/>

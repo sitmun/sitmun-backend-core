@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository.rest;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.test.URIConstants;
@@ -19,35 +20,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
+@DisplayName("CodeListValueRepository Data REST test")
 public class CodeListValueRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("GET: Description in the original language")
   public void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Cartography group"))
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Background map"))
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 34)].description").value("Report"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 30)].description").value("Cartography group"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Background map"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Report"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Location map"));
   }
 
   @Test
+  @DisplayName("GET: Description translated")
   public void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Grupo de cartografía"))
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Mapa de fondo"))
-      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 34)].description").value("Informe"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 30)].description").value("Grupo de cartografía"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Mapa de fondo"))
+      .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Informe"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Mapa de situación"));
   }
 
   @Test
+  @DisplayName("GET: Filter by code list")
   public void filterType() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
@@ -65,6 +69,7 @@ public class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: System codes can't be created")
   public void cantCreateSystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":true}";
     mvc.perform(post(URIConstants.CODELIST_VALUES_URI)
@@ -74,6 +79,7 @@ public class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("PUT: Normal codes can be updated")
   public void cantModifySystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":false}";
     mvc.perform(put(URIConstants.CODELIST_VALUE_URI, 31)
@@ -83,6 +89,7 @@ public class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("DELETE: System codes can't be deleted")
   public void cantDeleteCodeListValue() throws Exception {
     mvc.perform(delete(URIConstants.CODELIST_VALUE_URI, 31)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

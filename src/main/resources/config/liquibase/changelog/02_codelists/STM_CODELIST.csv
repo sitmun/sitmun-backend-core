@@ -1,0 +1,89 @@
+COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DESCRIPTION
+1,application.type,E,FALSE,External
+2,application.type,I,FALSE,Internal
+3,applicationParameter.type,MOBILE,FALSE,Mobile app parameter
+4,applicationParameter.type,Nomenclator,FALSE,Nomenclator parameter
+5,applicationParameter.type,PRINT_TEMPLATE,FALSE,Print template
+6,cartography.geometryType,LINE,FALSE,Line
+7,cartography.geometryType,POINT,FALSE,Point
+8,cartography.geometryType,POLYGON,FALSE,Polygon
+9,cartography.legendType,CAPABILITIES,FALSE,GetCapabilities
+10,cartography.legendType,LEGENDGRAPHIC,FALSE,Get Legend Graphic
+11,cartography.legendType,LINK,FALSE,Static link
+12,cartographyFilter.type,C,FALSE,Custom
+13,cartographyFilter.type,D,FALSE,Defined
+14,cartographyFilter.valueType,A,FALSE,Alphanumeric
+15,cartographyFilter.valueType,D,FALSE,Date
+16,cartographyFilter.valueType,N,FALSE,Number
+17,cartographyParameter.format,F,FALSE,Date
+18,cartographyParameter.format,I,FALSE,Image
+19,cartographyParameter.format,N,FALSE,Number
+20,cartographyParameter.format,P,FALSE,Percentage
+21,cartographyParameter.format,T,FALSE,Text
+22,cartographyParameter.format,U,FALSE,URL
+23,cartographyParameter.type,EDIT,FALSE,EDIT
+24,cartographyParameter.type,FILTRO,FALSE,FILTRO
+25,cartographyParameter.type,FILTRO_ESPACIAL,FALSE,FILTRO_SPACIAL
+26,cartographyParameter.type,FILTRO_INFO,FALSE,FILTRO_INFO
+27,cartographyParameter.type,INFO,FALSE,INFO
+28,cartographyParameter.type,INFOSELECT,FALSE,INFOSELECT
+29,cartographyParameter.type,SELECT,FALSE,SELECT
+30,cartographyPermission.type,C,TRUE,Cartography group
+31,cartographyPermission.type,F,TRUE,Background map
+32,cartographyPermission.type,I,TRUE,Report
+33,cartographyPermission.type,M,TRUE,Location map
+34,downloadTask.scope,A,FALSE,Application
+35,downloadTask.scope,C,FALSE,Layer
+36,downloadTask.scope,U,FALSE,Isolated
+37,queryTask.scope,INFORME,FALSE,INFORME
+38,queryTask.scope,SQL,FALSE,SQL
+39,queryTask.scope,TAREA,FALSE,TAREA
+40,queryTask.scope,URL,FALSE,URL
+41,queryTask.scope,WS,FALSE,WS
+42,service.type,AIMS,FALSE,AIMS
+43,service.type,FME,FALSE,FME
+44,service.type,TC,FALSE,TC
+45,service.type,WFS,FALSE,WFS
+46,service.type,WMS,FALSE,WMS
+47,serviceParameter.type,INFO,FALSE,GetFeatureInfo
+48,serviceParameter.type,OLPARAM,FALSE,OpenLayers
+49,serviceParameter.type,WMS,FALSE,GetMap
+50,taskParameter.format,B,FALSE,Database (trigger)
+51,taskParameter.format,C,FALSE,Email
+52,taskParameter.format,F,FALSE,Date
+53,taskParameter.format,I,FALSE,Image
+54,taskParameter.format,L,FALSE,List (from a query)
+55,taskParameter.format,N,FALSE,Number
+56,taskParameter.format,R,FALSE,Relation attribute between tables
+57,taskParameter.format,S,FALSE,Select for assigning a value
+58,taskParameter.format,T,FALSE,Text
+59,taskParameter.format,U,FALSE,URL
+60,taskParameter.type,CAMPO,FALSE,CAMPO
+61,taskParameter.type,CAPA,FALSE,CAPA
+62,taskParameter.type,DATAINPUT,FALSE,DATAINPUT
+63,taskParameter.type,EDIT,FALSE,EDIT
+64,taskParameter.type,FILTRO,FALSE,FILTRO
+65,taskParameter.type,FME,FALSE,FME
+66,taskParameter.type,GEOM,FALSE,GEOM
+67,taskParameter.type,LABEL,FALSE,LABEL
+68,taskParameter.type,RELM,FALSE,RELM
+69,taskParameter.type,RELS,FALSE,RELS
+70,taskParameter.type,SQL,FALSE,SQL
+71,taskParameter.type,TIPO,FALSE,TIPO
+72,taskParameter.type,VALOR,FALSE,VALOR
+73,taskParameter.type,VISTA,FALSE,VISTA
+74,territory.scope,M,FALSE,Municipality
+75,territory.scope,R,FALSE,Regional
+76,territory.scope,T,FALSE,Total
+77,thematicMap.destination,UPLOADED,FALSE,Uploaded JSON file
+78,thematicMap.destination,WS,FALSE,Web Service
+79,thematicMap.destination,WS_HERMES,FALSE,Hermes Web Service
+80,thematicMap.type,RE,FALSE,Equal record count
+81,thematicMap.type,RL,FALSE,Equal interval size
+82,thematicMap.type,VU,FALSE,Unique values
+83,thematicMap.valueType,DOU,FALSE,Double
+84,thematicMap.valueType,STR,FALSE,String
+85,user.identificationType,DNI,FALSE,DNI
+86,user.identificationType,NIE,FALSE,NIE
+87,user.identificationType,PAS,FALSE,Passport
+88,userPosition.type,RE,FALSE,RE
