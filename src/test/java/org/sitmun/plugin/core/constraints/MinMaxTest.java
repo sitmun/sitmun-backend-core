@@ -54,7 +54,7 @@ public class MinMaxTest {
 
   private ResultActions postEntityWithMinMaxValue(Integer value) throws Exception {
     JSONObject entity = new JSONObject()
-      .put("id", null);
+      .put("id", (Integer) null);
     return mvc.perform(post(ENTITY_WITH_MIN_MAX_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(entity.put(PROPERTY_WITH_MIN_MAX, value).toString())

@@ -95,10 +95,18 @@ dependencies {
   implementation 'org.reflections:reflections:0.9.12'
   implementation 'com.h2database:h2'
 
+  implementation platform("com.squareup.okhttp3:okhttp-bom:4.9.0")
+  implementation 'com.squareup.okhttp3:okhttp'
+  implementation 'com.squareup.okhttp3:logging-interceptor'
+  implementation 'org.json:json:20210307'
+
+
   runtime 'com.oracle.database.jdbc:ojdbc8:12.2.0.1'
   runtime 'org.postgresql:postgresql:42.2.20'
 
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation('org.springframework.boot:spring-boot-starter-test') {
+    exclude group: "com.vaadin.external.google", module: "android-json"
+  }
   testImplementation 'org.springframework.security:spring-security-test'
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation 'com.google.guava:guava:28.0-jre'
