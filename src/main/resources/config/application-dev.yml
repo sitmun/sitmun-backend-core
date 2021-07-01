@@ -62,7 +62,6 @@ spring:
     sync-legacy: true
 
 security:
-  enable-csrf: false
   authentication:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
