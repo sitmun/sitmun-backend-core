@@ -44,6 +44,11 @@
       "name": "sitmun.version",
       "type": "java.lang.String",
       "description": "SITMUN version."
+    },
+    {
+      "name": "security.enable-csrf",
+      "type": "java.lang.String",
+      "description": "Disables CSRF - use only for running tests."
     }
   ]
 }

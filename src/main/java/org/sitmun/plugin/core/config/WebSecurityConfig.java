@@ -5,6 +5,7 @@ import org.sitmun.plugin.core.security.SecurityConstants;
 import org.sitmun.plugin.core.security.TokenProvider;
 import org.sitmun.plugin.core.security.jwt.JWTFilter;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -45,6 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private final PasswordEncoder passwordEncoder;
   private final AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
+  @Value("${security.enable-csrf:true}")
+  private boolean csrfEnabled;
+
   public WebSecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
                            TokenProvider tokenProvider,
                            AuthenticationManagerBuilder authenticationManagerBuilder) {
@@ -75,8 +79,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .authenticationEntryPoint(getRestAuthenticationEntryPoint())
       //.accessDeniedHandler(problemSupport)
       .and()
-      .csrf()
-      .disable()
       .headers()
       .frameOptions()
       .disable()
@@ -91,6 +93,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.GET, "/api/workspace/**").permitAll()
       .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
       .anyRequest().authenticated();
+
+    http.csrf(csrf -> {
+      if (!csrfEnabled) {
+        csrf.disable();
+      }
+    });
   }
 
   private AuthenticationEntryPoint getRestAuthenticationEntryPoint() {
