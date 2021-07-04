@@ -45,6 +45,30 @@ public class TerritoryType {
   @JsonView({WorkspaceApplication.View.class})
   private String name;
 
+  /**
+   * `true` if this is an official type.
+   */
+  @Column(name = "TET_OFFICIAL")
+  @NotBlank
+  @JsonView({WorkspaceApplication.View.class})
+  private Boolean official = false;
+
+  /**
+   * If {@code true}, the territory is root in the territories hierarchy.
+   */
+  @Column(name = "TET_TOP")
+  @NotBlank
+  @JsonView({WorkspaceApplication.View.class})
+  private Boolean topType = false;
+
+  /**
+   * If {@code true}, the territory is leaf in the territories hierarchy.
+   */
+  @Column(name = "TET_BOTTOM")
+  @NotBlank
+  @JsonView({WorkspaceApplication.View.class})
+  private Boolean bottomType = false;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

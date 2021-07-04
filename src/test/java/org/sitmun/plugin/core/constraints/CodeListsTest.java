@@ -88,6 +88,7 @@ public class CodeListsTest {
 
   @Test
   @DisplayName("Check territory.scope")
+  @Deprecated
   public void checkTerritoryScope() {
     assertThat(select(TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
   }

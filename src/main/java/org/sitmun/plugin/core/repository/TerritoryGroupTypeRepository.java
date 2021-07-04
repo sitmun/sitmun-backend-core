@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Tag(name = "territory group type")
 @RepositoryRestResource(collectionResourceRel = "territory-group-types", path = "territory-group-types")
+@Deprecated
 public interface TerritoryGroupTypeRepository
   extends PagingAndSortingRepository<TerritoryGroupType, Integer> {
   @Override

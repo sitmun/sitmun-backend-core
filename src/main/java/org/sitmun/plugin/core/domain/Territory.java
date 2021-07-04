@@ -102,6 +102,7 @@ public class Territory {
   @Column(name = "TER_SCOPE", length = IDENTIFIER)
   @CodeList(CodeLists.TERRITORY_SCOPE)
   @JsonView({WorkspaceApplication.View.class})
+  @Deprecated
   private String scope;
 
   /**
@@ -148,6 +149,7 @@ public class Territory {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
   @JsonView({WorkspaceApplication.View.class})
+  @Deprecated
   private TerritoryGroupType groupType;
 
   /**

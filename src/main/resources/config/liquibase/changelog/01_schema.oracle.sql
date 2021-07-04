@@ -369,8 +369,11 @@ create table stm_taskrel
 );
 create table stm_ter_typ
 (
-    tet_id   number(10,0) not null,
-    tet_name varchar2(50 char),
+    tet_id       number(10,0) not null,
+    tet_name     varchar2(50 char),
+    ter_official number(1,0) not null,
+    ter_top      number(1,0) not null,
+    ter_bottom   number(1,0) not null,
     primary key (tet_id)
 );
 create table stm_territory

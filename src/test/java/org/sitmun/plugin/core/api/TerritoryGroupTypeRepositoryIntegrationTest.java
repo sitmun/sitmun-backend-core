@@ -33,7 +33,7 @@ import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
+@Deprecated
 public class TerritoryGroupTypeRepositoryIntegrationTest {
 
   @Autowired

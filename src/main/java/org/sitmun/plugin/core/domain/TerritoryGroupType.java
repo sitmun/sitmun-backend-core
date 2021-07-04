@@ -20,6 +20,7 @@ import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Deprecated
 public class TerritoryGroupType {
 
   /**

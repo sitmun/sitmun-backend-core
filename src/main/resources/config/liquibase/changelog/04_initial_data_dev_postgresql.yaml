@@ -1181,5 +1181,14 @@ databaseChangeLog:
               - column:
                   name: TET_NAME
                   type: STRING
+              - column:
+                  name: TET_OFFICIAL
+                  type: BOOLEAN
+              - column:
+                  name: TET_TOP
+                  type: BOOLEAN
+              - column:
+                  name: TET_BOTTOM
+                  type: BOOLEAN
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TET_ID', 7);
