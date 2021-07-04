@@ -95,6 +95,10 @@ public class URIConstants {
 
   public static final String TERRITORY_GROUP_TYPES_URI = "http://localhost/api/territory-group-types";
 
+  public static final String TRANSLATIONS_URI = "http://localhost/api/translations";
+  public static final String TRANSLATION_URI = TRANSLATIONS_URI + "/{0}";
+  public static final String TRANSLATION_URI_PROJECTION = TRANSLATION_URI + "?projection=view";
+
   public static final String TREE_URI = "http://localhost/api/trees";
 
   public static final String TREE_ALL_NODES_URI = "http://localhost/api/trees/{0}/allNodes?projection=view";

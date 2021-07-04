@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
-import static org.sitmun.plugin.core.test.URIConstants.BACKGROUNDS_URI_PROJECTION_VIEW;
-import static org.sitmun.plugin.core.test.URIConstants.TREE_NODE_URI_PROJECTION;
+import static org.sitmun.plugin.core.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -165,7 +164,6 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.cartographyId").value(87));
   }
 
-
   @Test
   @DisplayName("Tree Nodes view")
   public void treeNodesProjectionView() throws Exception {
@@ -182,5 +180,19 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.isFolder").value(false))
       .andExpect(jsonPath("$.cartographyName").value("BUE1M - Planimetria (punts)"))
       .andExpect(jsonPath("$.cartographyId").value(178));
+  }
+
+  @Test
+  @DisplayName("Translations view")
+  public void translationProjectionView() throws Exception {
+    mvc.perform(get(TRANSLATION_URI_PROJECTION, 301001)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id").value(301001))
+      .andExpect(jsonPath("$.element").value(1))
+      .andExpect(jsonPath("$.column").value("name"))
+      .andExpect(jsonPath("$.languageName").value("Catalan"))
+      .andExpect(jsonPath("$.languageShortname").value("ca"))
+      .andExpect(jsonPath("$.translation").value("Anglès"));
   }
 }

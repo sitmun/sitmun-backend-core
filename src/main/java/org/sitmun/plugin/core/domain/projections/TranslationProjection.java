@@ -32,6 +32,12 @@ public interface TranslationProjection {
   String getLanguageName();
 
   /**
+   * Translation language.
+   */
+  @Value("#{target.language?.shortname}")
+  String getLanguageShortname();
+
+  /**
    * Translation.
    */
   @Value("#{target.translation}")
