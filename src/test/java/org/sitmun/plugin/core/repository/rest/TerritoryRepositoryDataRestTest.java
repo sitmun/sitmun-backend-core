@@ -58,6 +58,24 @@ public class TerritoryRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: center without extension")
+  public void centerWithoutExtension() throws Exception {
+    response = mvc.perform(post(URIConstants.TERRITORIES_URI)
+      .content("{" +
+        "\"name\":\"test\"," +
+        "\"code\":\"test\"," +
+        "\"blocked\":false," +
+        "\"center\": {\"x\": 10, \"y\": 20}" +
+        "}")
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+    )
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.center.x").value(10))
+      .andExpect(jsonPath("$.center.y").value(20))
+      .andReturn().getResponse();
+  }
+
+  @Test
   @DisplayName("GET: can list as admin")
   public void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TERRITORIES_URI)
@@ -84,6 +102,17 @@ public class TerritoryRepositoryDataRestTest {
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.taskAvailabilities").exists());
+  }
+
+  @Test
+  @DisplayName("GET: has computed center")
+  public void hasComputedCenter() throws Exception {
+    mvc.perform(get(URIConstants.TERRITORY_URI, 0)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.center.x").value(433957.5))
+      .andExpect(jsonPath("$.center.y").value(4615120.5))
+    ;
   }
 
   @Test

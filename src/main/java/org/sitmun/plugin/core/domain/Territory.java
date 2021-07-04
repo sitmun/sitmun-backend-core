@@ -8,6 +8,7 @@ import org.sitmun.plugin.core.constraints.CodeList;
 import org.sitmun.plugin.core.constraints.CodeLists;
 import org.sitmun.plugin.core.constraints.HttpURL;
 import org.sitmun.plugin.core.converters.EnvelopeToStringConverter;
+import org.sitmun.plugin.core.converters.PointToStringConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -115,6 +116,22 @@ public class Territory {
   private Envelope extent;
 
   /**
+   * Center of the territory.
+   */
+  @Column(name = "TER_CENTER", length = VALUE)
+  @JsonView({WorkspaceApplication.View.class})
+  @Convert(converter = PointToStringConverter.class)
+  private Point center;
+
+  /**
+   * Center of the territory.
+   */
+  @Column(name = "TER_ZOOM")
+  @JsonView({WorkspaceApplication.View.class})
+  private Integer defaultZoomLevel;
+
+
+  /**
    * <code>true</code> if the territory is blocked.
    */
   @Column(name = "TER_BLOCKED")
@@ -210,6 +227,16 @@ public class Territory {
   @Builder.Default
   @JsonView(Workspace.View.class)
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
+
+  @PostLoad
+  public void postLoad() {
+    if (center == null && extent != null) {
+      center = Point.builder()
+        .x((extent.getMaxX() - extent.getMinX()) / 2 + extent.getMinX())
+        .y((extent.getMaxY() - extent.getMinY()) / 2 + extent.getMinY())
+        .build();
+    }
+  }
 
   @Override
   public boolean equals(Object o) {

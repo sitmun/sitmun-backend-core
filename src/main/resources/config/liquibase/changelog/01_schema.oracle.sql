@@ -383,6 +383,8 @@ create table stm_territory
     ter_codmun  varchar2(50 char),
     ter_created timestamp,
     ter_extent  varchar2(250 char),
+    ter_center  varchar2(250 char),
+    ter_zoom    number(10,0),
     ter_name    varchar2(250 char),
     ter_note    varchar2(250 char),
     ter_scope   varchar2(50 char),
