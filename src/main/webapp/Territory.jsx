@@ -45,7 +45,9 @@ export function Territory({territory}) {
       </tr>
       <tr>
         <td><code>extent</code></td>
-        <td><code>{territory.extent}</code></td>
+        <td>
+          <code>{territory.extent?.minX} {territory.extent?.minY} {territory.extent?.maxX} {territory.extent?.maxY}</code>
+        </td>
       </tr>
       <tr>
         <td><code>type.name</code></td>
