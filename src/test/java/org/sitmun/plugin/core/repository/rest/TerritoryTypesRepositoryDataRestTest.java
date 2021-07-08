@@ -34,7 +34,7 @@ public class TerritoryTypesRepositoryDataRestTest {
       .contentType(MediaType.APPLICATION_JSON)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
     ).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.territory-types", hasSize(7)));
+      .andExpect(jsonPath("$._embedded.territory-types", hasSize(8)));
   }
 
   @Test

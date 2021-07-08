@@ -50,6 +50,7 @@ public interface TerritoryProjection {
    * Territory scope.
    */
   @Value("#{target.scope}")
+  @Deprecated
   String getScope();
 
   /**
@@ -86,11 +87,25 @@ public interface TerritoryProjection {
    * Group type identifier.
    */
   @Value("#{target.groupType?.id}")
+  @Deprecated
   Integer getGroupTypeId();
 
   /**
    * Group type name.
    */
   @Value("#{target.groupType?.name}")
+  @Deprecated
   String getGroupTypeName();
+
+  /**
+   * Type identifier.
+   */
+  @Value("#{target.type?.id}")
+  Integer getTypeId();
+
+  /**
+   * Type name.
+   */
+  @Value("#{target.type?.name}")
+  String getTypeName();
 }
