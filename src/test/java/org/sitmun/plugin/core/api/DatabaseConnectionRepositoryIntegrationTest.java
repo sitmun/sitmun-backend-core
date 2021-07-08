@@ -107,6 +107,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
     String auth = getAuthorization();
 
     updatedValueJson.put("user", "User3");
+    updatedValueJson.put("user", "User3");
     updateConnection(2, updatedValueJson, auth);
 
     assertThat(getConnection(2).get("user")).isEqualTo("User3");

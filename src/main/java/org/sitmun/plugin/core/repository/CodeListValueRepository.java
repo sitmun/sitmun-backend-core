@@ -15,7 +15,10 @@ public interface CodeListValueRepository extends
 
   boolean existsByCodeListNameAndValue(String codeList, String code);
 
+  boolean deleteByCodeListName(String name);
+
   @Query("select distinct codeListName from CodeListValue")
   Iterable<String> findDistinctCodeListName();
 
+  Iterable<CodeListValue> findAllByCodeListName(String codeListaName);
 }

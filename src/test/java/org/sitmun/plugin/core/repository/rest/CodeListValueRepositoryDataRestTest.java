@@ -11,7 +11,9 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.constraints.CodeLists.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,6 +27,16 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
+
+  @Test
+  @DisplayName("Check availability of databaseConnection.driver")
+  public void obtainDrivers() throws Exception {
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.codelist-values[*].value",
+        containsInAnyOrder("org.h2.Driver", "oracle.jdbc.OracleDriver", "org.postgresql.Driver")));
+  }
 
   @Test
   @DisplayName("GET: Description in the original language")

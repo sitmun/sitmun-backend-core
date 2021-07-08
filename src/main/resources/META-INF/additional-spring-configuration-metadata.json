@@ -44,6 +44,11 @@
       "name": "sitmun.version",
       "type": "java.lang.String",
       "description": "SITMUN version."
+    },
+    {
+      "name": "spring.liquibase.on-startup-update",
+      "type": "java.lang.Boolean",
+      "description": "Run on startup updates."
     }
   ]
 }

@@ -43,32 +43,34 @@ public class CodeListsTest {
   private CodeListValueRepository codeListValueRepository;
 
   @Test
+  @DisplayName("Check availability of CodeLists")
   public void checkAvailableCodeLists() {
     assertThat(codeListValueRepository.findDistinctCodeListName()).containsExactlyInAnyOrder(
+      APPLICATION_PARAMETER_TYPE,
       APPLICATION_TYPE,
-      TERRITORY_SCOPE,
-      USER_IDENTIFICATION_TYPE,
-      CARTOGRAPHY_LEGEND_TYPE,
-      CARTOGRAPHY_GEOMETRY_TYPE,
       CARTOGRAPHY_FILTER_TYPE,
       CARTOGRAPHY_FILTER_VALUE_TYPE,
+      CARTOGRAPHY_GEOMETRY_TYPE,
+      CARTOGRAPHY_LEGEND_TYPE,
       CARTOGRAPHY_PARAMETER_FORMAT,
       CARTOGRAPHY_PARAMETER_TYPE,
       CARTOGRAPHY_PERMISSION_TYPE,
-      APPLICATION_PARAMETER_TYPE,
-      SERVICE_TYPE,
-      // SERVICE_NATIVE_PROTOCOL,
-      SERVICE_PARAMETER_TYPE,
-      TASK_PARAMETER_TYPE,
-      TASK_PARAMETER_FORMAT,
+      // DATABASE_CONNECTION_DRIVER,
       // DOWNLOAD_TASK_FORMAT,
       DOWNLOAD_TASK_SCOPE,
       QUERY_TASK_SCOPE,
-      USER_POSITION_TYPE,
+      // SERVICE_NATIVE_PROTOCOL,
+      SERVICE_PARAMETER_TYPE,
+      SERVICE_TYPE,
+      TASK_PARAMETER_FORMAT,
+      TASK_PARAMETER_TYPE,
+      TERRITORY_SCOPE,
+      THEMATIC_MAP_DESTINATION,
       THEMATIC_MAP_TYPE,
       THEMATIC_MAP_VALUE_TYPE,
-      THEMATIC_MAP_DESTINATION
-      // THEMATIC_MAP_RANGE_STYLE
+      // THEMATIC_MAP_RANGE_STYLE,
+      USER_IDENTIFICATION_TYPE,
+      USER_POSITION_TYPE
     );
   }
 
@@ -87,24 +89,10 @@ public class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Check territory.scope")
-  @Deprecated
-  public void checkTerritoryScope() {
-    assertThat(select(TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
-  }
-
-  @Test
-  @DisplayName("Check user.identificationType")
-  public void checkUserIdentificationType() {
-    assertThat(select(USER_IDENTIFICATION_TYPE))
-      .containsExactlyInAnyOrder("DNI", "NIE", "PAS");
-  }
-
-  @Test
-  @DisplayName("Check cartography.legendType")
-  public void checkCartographyLegendType() {
-    assertThat(select(CARTOGRAPHY_LEGEND_TYPE))
-      .containsExactlyInAnyOrder("LINK", "LEGENDGRAPHIC", "CAPABILITIES");
+  @DisplayName("Check applicationParameter.type")
+  public void checkApplicationParameterType() {
+    assertThat(select(APPLICATION_PARAMETER_TYPE))
+      .containsExactlyInAnyOrder("MOBILE", "Nomenclator", "PRINT_TEMPLATE");
   }
 
   @Test
@@ -112,6 +100,13 @@ public class CodeListsTest {
   public void checkCartographyGeometryType() {
     assertThat(select(CARTOGRAPHY_GEOMETRY_TYPE))
       .containsExactlyInAnyOrder("POINT", "LINE", "POLYGON");
+  }
+
+  @Test
+  @DisplayName("Check cartography.legendType")
+  public void checkCartographyLegendType() {
+    assertThat(select(CARTOGRAPHY_LEGEND_TYPE))
+      .containsExactlyInAnyOrder("LINK", "LEGENDGRAPHIC", "CAPABILITIES");
   }
 
   @Test
@@ -151,49 +146,6 @@ public class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Check applicationParameter.type")
-  public void checkApplicationParameterType() {
-    assertThat(select(APPLICATION_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("MOBILE", "Nomenclator", "PRINT_TEMPLATE");
-  }
-
-  @Test
-  @DisplayName("Check service.type")
-  public void checkServiceType() {
-    assertThat(select(SERVICE_TYPE))
-      .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
-  }
-
-  @Test
-  @DisplayName("Check service.nativeProtocol")
-  public void checkServiceNativeProtocol() {
-    assertThat(select(SERVICE_NATIVE_PROTOCOL))
-      .isEmpty();
-  }
-
-  @Test
-  @DisplayName("Check service.parameterType")
-  public void checkServiceParameterType() {
-    assertThat(select(SERVICE_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM");
-  }
-
-  @Test
-  @DisplayName("Check taskParameter.type")
-  public void checkTaskParameterType() {
-    assertThat(select(TASK_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("CAMPO", "CAPA", "EDIT", "FILTRO", "FME", "GEOM", "LABEL",
-        "RELM", "RELS", "SQL", "TIPO", "VISTA", "DATAINPUT", "VALOR");
-  }
-
-  @Test
-  @DisplayName("Check taskParameter.format")
-  public void checkTaskParameterFormat() {
-    assertThat(select(TASK_PARAMETER_FORMAT))
-      .containsExactlyInAnyOrder("T", "F", "N", "L", "U", "I", "C", "R", "S", "B");
-  }
-
-  @Test
   @DisplayName("Check downloadTask.format")
   public void checkDownloadTaskFormat() {
     assertThat(select(DOWNLOAD_TASK_FORMAT)).isEmpty();
@@ -214,10 +166,46 @@ public class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Check userPosition.type")
-  public void checkUserPositionType() {
-    assertThat(select(USER_POSITION_TYPE))
-      .containsExactlyInAnyOrder("AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
+  @DisplayName("Check service.nativeProtocol")
+  public void checkServiceNativeProtocol() {
+    assertThat(select(SERVICE_NATIVE_PROTOCOL))
+      .isEmpty();
+  }
+
+  @Test
+  @DisplayName("Check service.parameterType")
+  public void checkServiceParameterType() {
+    assertThat(select(SERVICE_PARAMETER_TYPE))
+      .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM");
+  }
+
+  @Test
+  @DisplayName("Check service.type")
+  public void checkServiceType() {
+    assertThat(select(SERVICE_TYPE))
+      .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
+  }
+
+  @Test
+  @DisplayName("Check taskParameter.type")
+  public void checkTaskParameterType() {
+    assertThat(select(TASK_PARAMETER_TYPE))
+      .containsExactlyInAnyOrder("CAMPO", "CAPA", "EDIT", "FILTRO", "FME", "GEOM", "LABEL",
+        "RELM", "RELS", "SQL", "TIPO", "VISTA", "DATAINPUT", "VALOR");
+  }
+
+  @Test
+  @DisplayName("Check taskParameter.format")
+  public void checkTaskParameterFormat() {
+    assertThat(select(TASK_PARAMETER_FORMAT))
+      .containsExactlyInAnyOrder("T", "F", "N", "L", "U", "I", "C", "R", "S", "B");
+  }
+
+  @Test
+  @DisplayName("Check territory.scope")
+  @Deprecated
+  public void checkTerritoryScope() {
+    assertThat(select(TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
   }
 
   @Test
@@ -228,13 +216,6 @@ public class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Check thematicMap.valueType")
-  public void checkThematicMapValueType() {
-    assertThat(select(THEMATIC_MAP_VALUE_TYPE))
-      .containsExactlyInAnyOrder("STR", "DOU");
-  }
-
-  @Test
   @DisplayName("Check thematicMap.destination")
   public void checkThematicMapDestination() {
     assertThat(select(THEMATIC_MAP_DESTINATION))
@@ -242,9 +223,30 @@ public class CodeListsTest {
   }
 
   @Test
+  @DisplayName("Check thematicMap.valueType")
+  public void checkThematicMapValueType() {
+    assertThat(select(THEMATIC_MAP_VALUE_TYPE))
+      .containsExactlyInAnyOrder("STR", "DOU");
+  }
+
+  @Test
   @DisplayName("Check thematicMapRange.style")
   public void checkThematicMapRangeStyle() {
     assertThat(select(THEMATIC_MAP_RANGE_STYLE))
       .isEmpty();
+  }
+
+  @Test
+  @DisplayName("Check user.identificationType")
+  public void checkUserIdentificationType() {
+    assertThat(select(USER_IDENTIFICATION_TYPE))
+      .containsExactlyInAnyOrder("DNI", "NIE", "PAS");
+  }
+
+  @Test
+  @DisplayName("Check userPosition.type")
+  public void checkUserPositionType() {
+    assertThat(select(USER_POSITION_TYPE))
+      .containsExactlyInAnyOrder("AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
   }
 }

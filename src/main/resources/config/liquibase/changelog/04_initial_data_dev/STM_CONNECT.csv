@@ -5,7 +5,7 @@ CON_ID,CON_NAME,CON_DRIVER,CON_USER,CON_PWD,CON_CONNECTION
 30,Name of Connection 30,driver.jdbc.DatabaseDriver30,User30,Password30,jdbc:database:@host:schema30
 31,Name of Connection 31,driver.jdbc.DatabaseDriver31,User31,Password31,jdbc:database:@host:schema31
 3,Name of Connection 3,driver.jdbc.DatabaseDriver3,User3,Password3,jdbc:database:@host:schema3
-2,Name of Connection 2,driver.jdbc.DatabaseDriver2,User2,Password2,jdbc:database:@host:schema2
+2,Name of Connection 2,org.h2.Driver,User2,Password2,jdbc:database:@host:schema2
 4,Name of Connection 4,driver.jdbc.DatabaseDriver4,User4,Password4,jdbc:database:@host:schema4
 5,Name of Connection 5,driver.jdbc.DatabaseDriver5,User5,Password5,jdbc:database:@host:schema5
 6,Name of Connection 6,driver.jdbc.DatabaseDriver6,User6,Password6,jdbc:database:@host:schema6

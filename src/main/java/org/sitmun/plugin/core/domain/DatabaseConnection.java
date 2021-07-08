@@ -4,6 +4,8 @@ package org.sitmun.plugin.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.sitmun.plugin.core.constraints.CodeList;
+import org.sitmun.plugin.core.constraints.CodeLists;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -50,7 +52,7 @@ public class DatabaseConnection {
    * JDBC driver.
    */
   @Column(name = "CON_DRIVER", length = IDENTIFIER)
-  @NotBlank
+  @CodeList(CodeLists.DATABASE_CONNECTION_DRIVER)
   private String driver;
 
   /**

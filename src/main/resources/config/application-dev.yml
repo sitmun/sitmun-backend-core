@@ -60,6 +60,7 @@ spring:
     contexts: dev
     run-async: false
     sync-legacy: true
+    on-startup-update: true
 
 security:
   authentication:
