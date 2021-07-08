@@ -51,6 +51,7 @@ public class TerritoryType {
   @Column(name = "TET_OFFICIAL")
   @NotBlank
   @JsonView({WorkspaceApplication.View.class})
+  @Builder.Default
   private Boolean official = false;
 
   /**
@@ -59,6 +60,7 @@ public class TerritoryType {
   @Column(name = "TET_TOP")
   @NotBlank
   @JsonView({WorkspaceApplication.View.class})
+  @Builder.Default
   private Boolean topType = false;
 
   /**
@@ -67,6 +69,7 @@ public class TerritoryType {
   @Column(name = "TET_BOTTOM")
   @NotBlank
   @JsonView({WorkspaceApplication.View.class})
+  @Builder.Default
   private Boolean bottomType = false;
 
   @Override

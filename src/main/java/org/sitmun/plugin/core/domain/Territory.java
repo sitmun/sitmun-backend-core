@@ -124,7 +124,7 @@ public class Territory {
   private Point center;
 
   /**
-   * Center of the territory.
+   * Default zoom level.
    */
   @Column(name = "TER_ZOOM")
   @JsonView({WorkspaceApplication.View.class})
