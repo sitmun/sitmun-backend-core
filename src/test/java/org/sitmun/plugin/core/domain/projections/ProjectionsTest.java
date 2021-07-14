@@ -75,7 +75,9 @@ public class ProjectionsTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.extent.maxX").value(467600.0))
       .andExpect(jsonPath("$.typeId").value(2))
-      .andExpect(jsonPath("$.typeName").value("Consell Comarcal"));
+      .andExpect(jsonPath("$.typeName").value("Consell Comarcal"))
+      .andExpect(jsonPath("$.typeTopType").value(false))
+      .andExpect(jsonPath("$.typeBottomType").value(false));
   }
 
   @Test

@@ -108,4 +108,17 @@ public interface TerritoryProjection {
    */
   @Value("#{target.type?.name}")
   String getTypeName();
+
+
+  /**
+   * Type is top.
+   */
+  @Value("#{target.type?.topType}")
+  Boolean getTypeTopType();
+
+  /**
+   * Type is bottom.
+   */
+  @Value("#{target.type?.bottomType}")
+  Boolean getTypeBottomType();
 }
