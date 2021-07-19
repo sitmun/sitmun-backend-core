@@ -53,6 +53,8 @@ public class URIConstants {
   public static final String CARTOGRAPHY_PERMISSIONS_URI_FILTER =
     CARTOGRAPHY_PERMISSIONS_URI + "?type={0}";
 
+  public static final String CARTOGRAPHY_STYLES_URI = "/api/cartography-styles";
+
   public static final String CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW =
     "/api/cartography-availabilities/{0}?projection=view";
 

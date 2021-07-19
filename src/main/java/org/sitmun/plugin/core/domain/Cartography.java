@@ -258,10 +258,19 @@ public class Cartography {
   private Set<CartographyStyle> styles = new HashSet<>();
 
   /**
+   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by an style.
+   */
+  @NotNull
+  @Column(name = "GEO_STYUSEALL")
+  @Builder.Default
+  private Boolean useAllStyles = false;
+
+  /**
    * Default style.
    */
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_STYID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SGI"))
+  @Deprecated
   private CartographyStyle defaultStyle;
 
   /**

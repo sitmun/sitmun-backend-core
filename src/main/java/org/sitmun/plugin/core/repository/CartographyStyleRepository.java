@@ -2,7 +2,9 @@ package org.sitmun.plugin.core.repository;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.plugin.core.domain.Cartography;
 import org.sitmun.plugin.core.domain.CartographyStyle;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
@@ -41,4 +43,9 @@ public interface CartographyStyleRepository
   @NonNull
   Optional<CartographyStyle> findById(@P("entityId") @NonNull Integer entityId);
 
+  @Query("select count(cs) from CartographyStyle cs where cs.defaultStyle = true and cs.cartography = ?1")
+  Integer countDefaultStyles(Cartography cartography);
+
+  @Query("select count(cs) from CartographyStyle cs where cs.defaultStyle = true and cs.cartography = ?1 and cs <> ?2")
+  Integer countDefaultStylesButThis(Cartography cartography, CartographyStyle style);
 }

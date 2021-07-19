@@ -156,6 +156,7 @@ create table stm_geoinfo
     geo_transp     number(10,0),
     geo_type       varchar2(50 char),
     geo_styid      number(10,0),
+    geo_styuseall  number(1,0) default 0 not null,
     geo_serid      number(10,0),
     geo_connid     number(10,0),
     geo_serselid   number(10,0),
@@ -342,6 +343,7 @@ create table stm_sty_gi
     sgi_name        varchar2(50 char),
     sgi_title       varchar2(50 char),
     sgi_giid        number(10,0),
+    sgi_default     number(1,0) default 0 not null,
     primary key (sgi_id)
 );
 create table stm_task

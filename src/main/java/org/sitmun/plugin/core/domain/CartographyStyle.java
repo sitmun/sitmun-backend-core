@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -67,9 +69,19 @@ public class CartographyStyle {
   private LegendURL legendURL;
 
   /**
+   * This is the preferred style. At most one is preferred per Cartography.
+   * <p>
+   * If more than one is set as preferred, the behaviour is undefined.
+   */
+  @Column(name = "SGI_DEFAULT")
+  @NotNull
+  private Boolean defaultStyle;
+
+  /**
    * Cartography that owns the style.
    */
   @ManyToOne(fetch = FetchType.LAZY)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "SGI_GIID", foreignKey = @ForeignKey(name = "STM_SGI_FK_GEO"))
   @NotNull
   private Cartography cartography;

@@ -129,7 +129,7 @@ create table stm_fil_gi
 );
 create table stm_geoinfo
 (
-    geo_id         int4 not null,
+    geo_id         int4    not null,
     geo_filter_gfi boolean,
     geo_filter_gm  boolean,
     geo_filter_se  boolean,
@@ -157,6 +157,7 @@ create table stm_geoinfo
     geo_type       varchar(50),
     geo_styid      int4,
     geo_serid      int4,
+    geo_styuseall  boolean not null default false,
     geo_connid     int4,
     geo_serselid   int4,
     primary key (geo_id)
@@ -333,7 +334,7 @@ create table stm_service
 );
 create table stm_sty_gi
 (
-    sgi_id          int4 not null,
+    sgi_id          int4    not null,
     sgi_abstract    varchar(250),
     sgi_lurl_format varchar(255),
     sgi_lurl_height int4,
@@ -341,6 +342,7 @@ create table stm_sty_gi
     sgi_lurl_width  int4,
     sgi_name        varchar(50),
     sgi_title       varchar(50),
+    sgi_default     boolean not null default false,
     sgi_giid        int4,
     primary key (sgi_id)
 );
