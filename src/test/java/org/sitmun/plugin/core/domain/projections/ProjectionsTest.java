@@ -51,7 +51,8 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.serviceId").value(43))
       .andExpect(jsonPath("$.serviceName").value("DIBA PRIVAT MUNI_DB_BASE"))
       .andExpect(jsonPath("$.spatialSelectionServiceId").value(47))
-      .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"));
+      .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"))
+      .andExpect(jsonPath("$.useAllStyles").value(false));
   }
 
   @Test

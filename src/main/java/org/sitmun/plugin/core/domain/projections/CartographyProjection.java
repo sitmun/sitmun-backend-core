@@ -190,4 +190,10 @@ public interface CartographyProjection {
    */
   @Value("#{target.spatialSelectionService?.name}")
   String getSpatialSelectionServiceName();
+
+  /**
+   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by an style.
+   */
+  @Value("#{target.useAllStyles}")
+  Boolean getUseAllStyles();
 }
