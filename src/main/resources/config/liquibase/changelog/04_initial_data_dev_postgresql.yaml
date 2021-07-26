@@ -448,6 +448,37 @@ databaseChangeLog:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PGI_ID', 5437);
         - loadData:
             encoding: UTF-8
+            file: 04_initial_data_dev/STM_PAR_SGI.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_SGI
+            usePreparedStatements: false
+            quotchar: '"'
+            columns:
+              - column:
+                  name: PSG_ID
+                  type: NUMERIC
+              - column:
+                  name: PSG_NAME
+                  type: STRING
+              - column:
+                  name: PSG_VALUE
+                  type: STRING
+              - column:
+                  name: PSG_FORMAT
+                  type: STRING
+              - column:
+                  name: PSG_TYPE
+                  type: STRING
+              - column:
+                  name: PSG_GIID
+                  type: NUMERIC
+              - column:
+                  name: PSG_ORDER
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSG_ID', 5437);
+        - loadData:
+            encoding: UTF-8
             file: 04_initial_data_dev/STM_GGI_GI.csv
             relativeToChangelogFile: true
             tableName: STM_GGI_GI

@@ -70,7 +70,9 @@ public class CodeListsTest {
       THEMATIC_MAP_VALUE_TYPE,
       // THEMATIC_MAP_RANGE_STYLE,
       USER_IDENTIFICATION_TYPE,
-      USER_POSITION_TYPE
+      USER_POSITION_TYPE,
+      CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
+      CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE
     );
   }
 
@@ -134,8 +136,14 @@ public class CodeListsTest {
   @DisplayName("Check cartographyParameter.type")
   public void checkCartographyParameterType() {
     assertThat(select(CARTOGRAPHY_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("INFO", "SELECT", "INFOSELECT", "FILTRO_INFO", "FILTRO_ESPACIAL",
-        "FILTRO", "EDIT");
+      .containsExactlyInAnyOrder("INFO", "FILTRO_INFO");
+  }
+
+  @Test
+  @DisplayName("Check cartographySpatialSelectionParameter.type")
+  public void checkCartographySpatialSelectionParameterType() {
+    assertThat(select(CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE))
+      .containsExactlyInAnyOrder("SELECT", "FILTRO_ESPACIAL", "EDIT");
   }
 
   @Test

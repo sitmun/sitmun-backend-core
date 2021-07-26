@@ -35,6 +35,7 @@ public class DatabaseConnectionDriverUpdateHandler implements OnStartupUpdateHan
           .value(driver)
           .system(true)
           .description(driver)
+          .defaultCode(false)
           .build();
         toAdd.add(newCodeListValue);
       }

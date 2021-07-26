@@ -72,6 +72,7 @@ create table stm_codelist
     cod_list        varchar2(50 char),
     cod_description varchar2(250 char),
     cod_system      number(1,0),
+    cod_default     number(1,0),
     cod_value       varchar2(50 char),
     primary key (cod_id)
 );
@@ -240,6 +241,17 @@ create table stm_par_gi
     pgi_value  varchar2(250 char),
     pgi_giid   number(10,0),
     primary key (pgi_id)
+);
+create table stm_par_sgi
+(
+    psg_id     number(10,0) not null,
+    psg_format varchar2(50 char),
+    psg_name   varchar2(50 char),
+    psg_order  number(10,0),
+    psg_type   varchar2(50 char),
+    psg_value  varchar2(250 char),
+    psg_giid   number(10,0),
+    primary key (psg_id)
 );
 create table stm_par_ser
 (
@@ -618,6 +630,8 @@ alter table stm_par_app
     add constraint STM_PAP_FK_APP foreign key (pap_appid) references stm_app on delete cascade;
 alter table stm_par_gi
     add constraint STM_PGI_FK_GEO foreign key (pgi_giid) references stm_geoinfo on delete cascade;
+alter table stm_par_sgi
+    add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
 alter table stm_par_ser
     add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
 alter table stm_par_tsk

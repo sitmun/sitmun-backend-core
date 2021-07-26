@@ -7,6 +7,7 @@ import org.sitmun.plugin.core.i18n.InternationalizationListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import static org.sitmun.plugin.core.domain.Constants.IDENTIFIER;
 import static org.sitmun.plugin.core.domain.Constants.SHORT_DESCRIPTION;
@@ -78,6 +79,14 @@ public class CodeListValue {
   @Column(name = "COD_DESCRIPTION", length = SHORT_DESCRIPTION)
   @I18n
   private String description;
+
+
+  /**
+   * The code should be used as a default value.
+   */
+  @Column(name = "COD_DEFAULT")
+  @NotNull
+  private Boolean defaultCode;
 
   @PostLoad
   public void postLoad() {

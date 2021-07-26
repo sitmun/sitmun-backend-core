@@ -72,6 +72,7 @@ create table stm_codelist
     cod_list        varchar(50),
     cod_description varchar(250),
     cod_system      boolean,
+    cod_default     boolean,
     cod_value       varchar(50),
     primary key (cod_id)
 );
@@ -240,6 +241,17 @@ create table stm_par_gi
     pgi_value  varchar(250),
     pgi_giid   int4,
     primary key (pgi_id)
+);
+create table stm_par_sgi
+(
+    psg_id     int4 not null,
+    psg_format varchar(50),
+    psg_name   varchar(50),
+    psg_order  int4,
+    psg_type   varchar(50),
+    psg_value  varchar(250),
+    psg_giid   int4,
+    primary key (psg_id)
 );
 create table stm_par_ser
 (
@@ -572,6 +584,7 @@ alter table if exists stm_log add constraint FKm77t0wvsov0pqy99pfbyedip7 foreign
 alter table if exists stm_log add constraint FK2p47bcwkdbn91h2oxuf5csir8 foreign key (log_userid) references stm_user;
 alter table if exists stm_par_app add constraint STM_PAP_FK_APP foreign key (pap_appid) references stm_app on delete cascade;
 alter table if exists stm_par_gi add constraint STM_PGI_FK_GEO foreign key (pgi_giid) references stm_geoinfo on delete cascade;
+alter table if exists stm_par_sgi add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
 alter table if exists stm_par_ser add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
 alter table if exists stm_par_tsk add constraint STM_PTT_FK_TAS foreign key (ptt_taskid) references stm_task on delete cascade;
 alter table if exists stm_post add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;

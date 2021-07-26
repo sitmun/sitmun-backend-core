@@ -294,6 +294,15 @@ public class Cartography {
   @Builder.Default
   private Set<CartographyParameter> parameters = new HashSet<>();
 
+
+  /**
+   * Spatial selection parameters.
+   */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<CartographySpatialSelectionParameter> spatialSelectionParameters = new HashSet<>();
+
+
   /**
    * Tree nodes.
    */
