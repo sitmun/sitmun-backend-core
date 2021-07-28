@@ -8,6 +8,7 @@ import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.sitmun.plugin.core.domain.TaskParameter;
 
 import java.lang.reflect.Type;
@@ -17,12 +18,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class ParameterUtils {
 
   private static final Configuration conf = Configuration.builder()
     .mappingProvider(new JacksonMappingProvider())
     .jsonProvider(new JacksonJsonProvider())
     .build()
+    .addOptions(Option.SUPPRESS_EXCEPTIONS)
     .addOptions(Option.ALWAYS_RETURN_LIST);
 
   static public <T> List<TaskParameter> collect(Map<String, Object> properties, String s, Class<T> type, Function<T, TaskParameter> builder) {
@@ -34,10 +37,9 @@ public class ParameterUtils {
       .collect(Collectors.toList());
   }
 
-  static public <T> List<TaskParameter> flatCollect(Map<String, Object> properties, String s, Class<T> type, Function<T, Stream<TaskParameter>> builder) {
-
+  static public <T> List<TaskParameter> flatCollect(Map<String, Object> properties, String jsonPath, Class<T> type, Function<T, Stream<TaskParameter>> builder) {
     return JsonPath.using(conf).parse(properties)
-      .read(s, new TokenRef<>(type))
+      .read(jsonPath, new TokenRef<>(type))
       .stream()
       .flatMap(builder).collect(Collectors.toList());
   }
