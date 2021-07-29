@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.plugin.core.constraints.CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
 import static org.sitmun.plugin.core.constraints.CodeLists.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -92,6 +93,23 @@ public class CodeListValueRepositoryDataRestTest {
       .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",
         hasSize(3)));
+  }
+
+  /**
+   * Check carefully code translations.
+   *
+   * @see <a href="https://github.com/sitmun/sitmun-backend-core/issues/122#issuecomment-888841191">Issue #122</a>
+   */
+  @Test
+  @DisplayName("GET: Check translated descriptions")
+  public void checkMangledValues() throws Exception {
+    mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
+      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath(
+        "$._embedded.codelist-values[?(@.id == 23)].value").value("EDIT"))
+      .andExpect(jsonPath(
+        "$._embedded.codelist-values[?(@.id == 23)].description").value("EDIT"));
   }
 
   @Test

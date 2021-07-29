@@ -19,10 +19,10 @@ TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
 202031,31,description,2,Mapa de fondo
 202032,32,description,2,Informe
 202033,33,description,2,Mapa de situación
-
-
-
-
-
-
+202099,99,description,2,Fecha
+2020100,100,description,2,Imagen
+2020101,101,description,2,Número
+2020102,102,description,2,Porcentaje
+2020103,103,description,2,Texto
+2020104,104,description,2,URL
 
