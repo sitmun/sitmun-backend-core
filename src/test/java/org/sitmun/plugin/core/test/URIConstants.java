@@ -146,7 +146,7 @@ public class URIConstants {
 
   public static final String WORKSPACE_APPLICATION_URI = WORKSPACE_URI + "/application/{0}/territory/{1}";
 
-  private static final String TASK_URI = TASKS_URI + "/{0}";
+  public static final String TASK_URI = TASKS_URI + "/{0}";
 
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
 

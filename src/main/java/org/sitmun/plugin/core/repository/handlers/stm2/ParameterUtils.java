@@ -1,5 +1,7 @@
 package org.sitmun.plugin.core.repository.handlers.stm2;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import com.jayway.jsonpath.Configuration;
@@ -46,7 +48,7 @@ public class ParameterUtils {
 
   static public <T> T obtain(Map<String, Object> properties, String s, Class<T> clazz) {
     Configuration conf = Configuration.defaultConfiguration()
-      .mappingProvider(new JacksonMappingProvider());
+      .mappingProvider(new JacksonMappingProvider(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)));
     return JsonPath.using(conf).parse(properties)
       .read(s, clazz);
   }
