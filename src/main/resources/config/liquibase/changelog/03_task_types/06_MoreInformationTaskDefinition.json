@@ -158,7 +158,7 @@
           "typeColumn": "string",
           "editable": "false"
         },
-        "name": {
+        "label": {
           "label": "tasksEntity.parameter",
           "typeColumn": "string",
           "editable": "false"
@@ -276,7 +276,7 @@
             "label": "tasksEntity.id",
             "editable": "false"
           },
-          "territoryName": {
+          "name": {
             "label": "tasksEntity.name",
             "editable": "true"
           }

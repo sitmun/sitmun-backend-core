@@ -91,32 +91,8 @@
           "id": {
             "label": "tasksEntity.id",
             "editable": "false"
-          }
-        }
-      },
-      "columns": {
-        "id": {
-          "label": "tasksEntity.id",
-          "editable": "false"
-        },
-        "name": {
-          "label": "tasksEntity.name",
-          "editable": "true"
-        }
-      }
-    },
-    {
-      "link": "availabilities",
-      "label": "tasksEntity.territory",
-      "controlAdd": {
-        "control": "selectorPopup",
-        "data": "availabilities",
-        "columns": {
-          "id": {
-            "label": "tasksEntity.id",
-            "editable": "false"
           },
-          "territoryName": {
+          "name": {
             "label": "tasksEntity.name",
             "editable": "true"
           }

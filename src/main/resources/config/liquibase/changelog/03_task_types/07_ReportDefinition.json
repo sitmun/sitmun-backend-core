@@ -94,7 +94,7 @@
             "label": "tasksEntity.id",
             "editable": "false"
           },
-          "territoryName": {
+          "name": {
             "label": "tasksEntity.name",
             "editable": "true"
           }
