@@ -413,6 +413,12 @@ databaseChangeLog:
               - column:
                   name: GEO_BLOCKED
                   type: BOOLEAN
+              - column:
+                  name: GEO_FILTER_GFI
+                  type: BOOLEAN
+              - column:
+                  name: GEO_FILTER_SE
+                  type: BOOLEAN
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GEO_ID', 1255);
         - loadData:

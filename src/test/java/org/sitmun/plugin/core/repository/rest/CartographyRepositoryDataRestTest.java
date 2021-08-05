@@ -262,18 +262,18 @@ public class CartographyRepositoryDataRestTest {
   @DisplayName("GET: for Cartography 724 applyFilterXXX are null")
   public void applyFilterTestDataIsNull() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI, 724)
-      .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(nullValue())))
-      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(nullValue())));
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 724)
-      .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(nullValue())))
-      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(nullValue())));
+      .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
+      .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
   }
 
   @Test

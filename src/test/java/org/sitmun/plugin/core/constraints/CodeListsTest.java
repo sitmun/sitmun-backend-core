@@ -136,14 +136,14 @@ public class CodeListsTest {
   @DisplayName("Check cartographyParameter.type")
   public void checkCartographyParameterType() {
     assertThat(select(CARTOGRAPHY_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("INFO", "FILTRO_INFO");
+      .containsExactlyInAnyOrder("INFO");
   }
 
   @Test
   @DisplayName("Check cartographySpatialSelectionParameter.type")
   public void checkCartographySpatialSelectionParameterType() {
     assertThat(select(CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("SELECT", "FILTRO_ESPACIAL", "EDIT");
+      .containsExactlyInAnyOrder("SELECT", "EDIT");
   }
 
   @Test

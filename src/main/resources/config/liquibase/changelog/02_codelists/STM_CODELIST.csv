@@ -22,8 +22,6 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 21,cartographyParameter.format,T,FALSE,FALSE,Text
 22,cartographyParameter.format,U,FALSE,FALSE,URL
 23,cartographySpatialSelectionParameter.type,EDIT,FALSE,TRUE,EDIT
-25,cartographySpatialSelectionParameter.type,FILTRO_ESPACIAL,FALSE,FALSE,FILTRO_SPACIAL
-26,cartographyParameter.type,FILTRO_INFO,FALSE,FALSE,FILTRO_INFO
 27,cartographyParameter.type,INFO,FALSE,TRUE,INFO
 29,cartographySpatialSelectionParameter.type,SELECT,FALSE,FALSE,SELECT
 30,cartographyPermission.type,C,TRUE,FALSE,Cartography group
