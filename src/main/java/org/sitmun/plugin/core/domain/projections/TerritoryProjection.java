@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.domain.projections;
 
 import org.sitmun.plugin.core.domain.Envelope;
+import org.sitmun.plugin.core.domain.Point;
 import org.sitmun.plugin.core.domain.Territory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -121,4 +122,18 @@ public interface TerritoryProjection {
    */
   @Value("#{target.type?.bottomType}")
   Boolean getTypeBottomType();
+
+
+  /**
+   * Center of the territory.
+   */
+  @Value("#{target.center}")
+  Point getCenter();
+
+  /**
+   * Default zoom level.
+   */
+  @Value("#{target.defaultZoomLevel}")
+  Integer getDefaultZoomLevel();
+
 }

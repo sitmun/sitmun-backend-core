@@ -11,8 +11,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -72,13 +71,15 @@ public class ProjectionsTest {
   @DisplayName("Territory view")
   public void territoryProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.extent.maxX").value(467600.0))
       .andExpect(jsonPath("$.typeId").value(2))
       .andExpect(jsonPath("$.typeName").value("Consell Comarcal"))
       .andExpect(jsonPath("$.typeTopType").value(false))
-      .andExpect(jsonPath("$.typeBottomType").value(false));
+      .andExpect(jsonPath("$.typeBottomType").value(false))
+      .andExpect(jsonPath("$.center.x").value(442875.0))
+      .andExpect(jsonPath("$.defaultZoomLevel", is(nullValue())));
   }
 
   @Test
