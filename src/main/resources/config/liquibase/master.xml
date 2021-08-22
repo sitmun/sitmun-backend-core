@@ -10,6 +10,8 @@
   <include file="changelog/03_task_types.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/04_initial_data_dev.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/04_initial_data_dev_postgresql.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/04_initial_data_prod.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/04_initial_data_prod_postgresql.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/05_translations.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/06_params.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: 3
       author: sitmun
-      context: dev
+      context: dev,prod
       changes:
         - loadData:
             encoding: UTF-8
