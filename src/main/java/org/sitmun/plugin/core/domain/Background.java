@@ -88,11 +88,11 @@ public class Background {
   private CartographyPermission cartographyGroup;
 
   /**
-   * Backgrounds maps.
+   * Applications where it is used.
    */
   @OneToMany(mappedBy = "background", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  private Set<ApplicationBackground> backgrounds = new HashSet<>();
+  private Set<ApplicationBackground> applications = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {
