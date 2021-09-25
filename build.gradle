@@ -1,6 +1,6 @@
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
   }
   dependencies {
     classpath 'io.github.swagger2markup:swagger2markup-spring-restdocs-ext:1.3.3'
@@ -93,7 +93,7 @@ dependencies {
   implementation 'org.reflections:reflections:0.9.12'
   implementation 'com.h2database:h2'
 
-  implementation platform("com.squareup.okhttp3:okhttp-bom:4.9.0")
+  implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
   implementation 'com.squareup.okhttp3:okhttp'
   implementation 'com.squareup.okhttp3:logging-interceptor'
   implementation 'org.json:json:20210307'
@@ -107,7 +107,7 @@ dependencies {
   }
   testImplementation 'org.springframework.security:spring-security-test'
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
-  testImplementation 'com.google.guava:guava:28.0-jre'
+  testImplementation "com.google.guava:guava:${guava_version}"
 }
 
 task checkJavaVersion {
