@@ -32,8 +32,8 @@ public class ProjectionsTest {
   @DisplayName("TaskAvailability view")
   public void taskAvailabilityProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_AVAILABILITY_PROJECTION_VIEW, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andExpect(status().isOk())
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryId").value(7))
       .andExpect(jsonPath("$.territoryName").value("Teià"))
       .andExpect(jsonPath("$.taskId").value(31963))
@@ -44,8 +44,8 @@ public class ProjectionsTest {
   @DisplayName("Cartography view")
   public void cartographyProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 87)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.serviceId").value(43))
       .andExpect(jsonPath("$.serviceName").value("DIBA PRIVAT MUNI_DB_BASE"))
@@ -58,8 +58,8 @@ public class ProjectionsTest {
   @DisplayName("CartographyAvailability view")
   public void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    ).andExpect(jsonPath("$.cartographyId").value(1208))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      ).andExpect(jsonPath("$.cartographyId").value(1208))
       .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
       .andExpect(jsonPath("$.cartographyLayers").value(contains("NGE50_111P_EDI")))
       .andExpect(jsonPath("$.territoryId").value(35))
@@ -86,8 +86,8 @@ public class ProjectionsTest {
   @DisplayName("ApplicationBackground view")
   public void applicationBackgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"))
       .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
@@ -97,7 +97,7 @@ public class ProjectionsTest {
   @DisplayName("UserPosition view")
   public void userPositionProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 2124)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"))
       .andExpect(jsonPath("$.userId").value(6));
@@ -107,24 +107,24 @@ public class ProjectionsTest {
   @DisplayName("UserConfiguration view")
   public void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
 
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(
         jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(2)));
 
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
 
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW, "0")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.appliesToChildrenTerritories").value(false));
   }
@@ -133,7 +133,7 @@ public class ProjectionsTest {
   @DisplayName("Backgrounds view")
   public void backgroundProjectionView() throws Exception {
     mvc.perform(get(BACKGROUNDS_URI_PROJECTION_VIEW)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)))
       .andExpect(jsonPath("$._embedded.backgrounds[?(@.cartographyGroupName)]", hasSize(6)));
@@ -143,8 +143,8 @@ public class ProjectionsTest {
   @DisplayName("Application view")
   public void applicationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PROJECTION_VIEW, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.situationMapId").value(132));
   }
@@ -153,7 +153,7 @@ public class ProjectionsTest {
   @DisplayName("Tasks view")
   public void tasksProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groupName").value("SITXELL"))
       .andExpect(jsonPath("$.groupId").value(28))
@@ -162,7 +162,7 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.typeName").value("descarga"));
 
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.cartographyName").value("CRE5M - Illes"))
       .andExpect(jsonPath("$.cartographyId").value(87));
@@ -172,14 +172,14 @@ public class ProjectionsTest {
   @DisplayName("Tree Nodes view")
   public void treeNodesProjectionView() throws Exception {
     mvc.perform(get(TREE_NODE_URI_PROJECTION, 288)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true))
       .andExpect(jsonPath("$.cartographyName").isEmpty())
       .andExpect(jsonPath("$.cartographyId").isEmpty());
 
     mvc.perform(get(TREE_NODE_URI_PROJECTION, 2546)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false))
       .andExpect(jsonPath("$.cartographyName").value("BUE1M - Planimetria (punts)"))
@@ -190,7 +190,7 @@ public class ProjectionsTest {
   @DisplayName("Translations view")
   public void translationProjectionView() throws Exception {
     mvc.perform(get(TRANSLATION_URI_PROJECTION, 301001)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(301001))
       .andExpect(jsonPath("$.element").value(1))
@@ -198,5 +198,18 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.languageName").value("Catalan"))
       .andExpect(jsonPath("$.languageShortname").value("ca"))
       .andExpect(jsonPath("$.translation").value("Anglès"));
+  }
+
+  @Test
+  @DisplayName("Permissions projection view")
+  public void permissionsProjectionView() throws Exception {
+    mvc.perform(get(CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 90)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartography-groups").exists())
+      .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].name").value("Cartography Permisions Group 6"))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", hasSize(9)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", containsInAnyOrder("Name of Role 10", "Name of Role 14", "Name of Role 17", "Name of Role 18", "Name of Role 19", "Name of Role 21", "Name of Role 23", "Name of Role 31", "Name of Role 147")));
   }
 }
