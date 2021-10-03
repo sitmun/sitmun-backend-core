@@ -27,6 +27,12 @@ public interface ApplicationBackgroundProjection {
   String getBackgroundName();
 
   /**
+   * Application name.
+   */
+  @Value("#{target.application?.name}")
+  String getApplicationName();
+
+  /**
    * Background description.
    */
   @Value("#{target.background?.description}")

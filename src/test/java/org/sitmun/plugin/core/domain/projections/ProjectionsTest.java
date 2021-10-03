@@ -89,6 +89,7 @@ public class ProjectionsTest {
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
       )
       .andExpect(status().isOk())
+      .andExpect(jsonPath("$.applicationName").value("TEST"))
       .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"))
       .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
   }
