@@ -45,7 +45,7 @@
         "selector": {
           "data": "tasks",
           "queryParams": {
-            "tasksType": "4",
+            "type.id": "4",
             "projection": "view"
           },
           "name": "name",

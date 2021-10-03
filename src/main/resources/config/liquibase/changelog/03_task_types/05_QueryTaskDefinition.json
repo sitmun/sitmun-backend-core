@@ -76,7 +76,20 @@
       },
       "command": {
         "condition": "scope",
-        "label": "tasksEntity.sql",
+        "label": [
+          {
+            "scope": "SQL",
+            "text": "tasksEntity.sql"
+          },
+          {
+            "scope": "WS",
+            "text": "tasksEntity.url"
+          },
+          {
+            "scope": "URL",
+            "text": "tasksEntity.url"
+          }
+        ],
         "control": [
           {
             "scope": "SQL",
