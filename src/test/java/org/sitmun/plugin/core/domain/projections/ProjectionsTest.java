@@ -202,9 +202,22 @@ public class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Permissions projection view")
+  @DisplayName("Permissions projection view through cartography")
   public void permissionsProjectionView() throws Exception {
     mvc.perform(get(CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 90)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$._embedded.cartography-groups").exists())
+      .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].name").value("Cartography Permisions Group 6"))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", hasSize(9)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", containsInAnyOrder("Name of Role 10", "Name of Role 14", "Name of Role 17", "Name of Role 18", "Name of Role 19", "Name of Role 21", "Name of Role 23", "Name of Role 31", "Name of Role 147")));
+  }
+
+  @Test
+  @DisplayName("Permissions projection view through background")
+  public void permissionsProjectionView2() throws Exception {
+    mvc.perform(get(BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups").exists())

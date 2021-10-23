@@ -28,6 +28,8 @@ public class URIConstants {
 
   public static final String BACKGROUND_URI_CARTOGRAPHY_GROUP = BACKGROUND_URI + "/cartographyGroup";
 
+  public static final String BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION = BACKGROUND_URI_CARTOGRAPHY_GROUP + "?projection=view";
+
   public static final String CARTOGRAPHIES_URI = "http://localhost/api/cartographies";
 
   public static final String CARTOGRAPHIES_AVAILABLE_URI = CARTOGRAPHIES_URI + "/search/available?applicationId={0}";
