@@ -55,6 +55,17 @@ public class ProjectionsTest {
   }
 
   @Test
+  @DisplayName("Cartography view - styles")
+  public void cartographyProjectionStylesView() throws Exception {
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 0)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.stylesNames", hasSize(3)))
+      .andExpect(jsonPath("$.stylesNames", containsInAnyOrder("Style A", "Style B", "Style C")));
+  }
+
+  @Test
   @DisplayName("CartographyAvailability view")
   public void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)

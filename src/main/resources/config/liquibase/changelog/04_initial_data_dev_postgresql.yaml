@@ -1229,3 +1229,22 @@ databaseChangeLog:
               - column:
                   name: TRK_DESC
                   type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_STY_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_STY_GI
+            quotchar: '"'
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: SGI_ID
+                  type: NUMERIC
+              - column:
+                  name: SGI_NAME
+                  type: STRING
+              - column:
+                  name: SGI_GIID
+                  type: NUMERIC

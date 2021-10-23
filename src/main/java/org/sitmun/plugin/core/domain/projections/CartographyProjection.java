@@ -196,4 +196,11 @@ public interface CartographyProjection {
    */
   @Value("#{target.useAllStyles}")
   Boolean getUseAllStyles();
+
+  /**
+   * Style names.
+   */
+  @Value("#{target.styles.![name]}")
+  List<String> getStylesNames();
+
 }
