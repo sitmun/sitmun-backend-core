@@ -9,7 +9,7 @@ import java.util.Map;
 @Builder
 @Getter
 @Setter
-public class ServiceCapabilities {
+public class ExtractedMetadata {
   private Boolean success;
   private String reason;
   private String type;
