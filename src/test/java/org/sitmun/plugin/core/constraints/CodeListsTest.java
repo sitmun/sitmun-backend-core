@@ -62,6 +62,7 @@ public class CodeListsTest {
       // SERVICE_NATIVE_PROTOCOL,
       SERVICE_PARAMETER_TYPE,
       SERVICE_TYPE,
+      SERVICE_AUTHENTICATION_MODE,
       TASK_PARAMETER_FORMAT,
       TASK_PARAMETER_TYPE,
       TERRITORY_SCOPE,
@@ -192,6 +193,13 @@ public class CodeListsTest {
   public void checkServiceType() {
     assertThat(select(SERVICE_TYPE))
       .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
+  }
+
+  @Test
+  @DisplayName("Check service.authenticationMode")
+  public void checkServiceAuthenticationMode() {
+    assertThat(select(SERVICE_AUTHENTICATION_MODE))
+      .containsExactlyInAnyOrder("None", "HTTP Basic authentication");
   }
 
   @Test

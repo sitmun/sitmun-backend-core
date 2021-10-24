@@ -331,18 +331,21 @@ create table stm_sequence
 );
 create table stm_service
 (
-    ser_id       number(10,0) not null,
-    ser_blocked  number(1,0),
-    ser_created  timestamp,
-    ser_abstract varchar2(250 char),
-    ser_infourl  varchar2(4000 char),
-    ser_legend   varchar2(4000 char),
-    ser_name     varchar2(60 char),
-    ser_nat_prot varchar2(50 char),
-    ser_url      varchar2(4000 char),
-    ser_projects varchar2(1000 char),
-    ser_protocol varchar2(50 char),
-    primary key (ser_id)
+  ser_id       number(10,0) not null,
+  ser_blocked  number(1,0),
+  ser_created  timestamp,
+  ser_abstract varchar2(250 char),
+  ser_infourl  varchar2(4000 char),
+  ser_legend   varchar2(4000 char),
+  ser_name     varchar2(60 char),
+  ser_nat_prot varchar2(50 char),
+  ser_url      varchar2(4000 char),
+  ser_projects varchar2(1000 char),
+  ser_protocol varchar2(50 char),
+  ser_auth_mod varchar2(50 char),
+  ser_user     varchar2(50 char),
+  ser_pwd      varchar2(50 char),
+  primary key (ser_id)
 );
 create table stm_sty_gi
 (

@@ -136,6 +136,7 @@ public class TreeNodeResourceTest {
   }
 
   @Test
+  @Disabled
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TREE_URI)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

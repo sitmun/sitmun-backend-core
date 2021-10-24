@@ -100,6 +100,6 @@ public class FeatureTypeExtractorControllerTest {
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
-      .andExpect(jsonPath("$.reason").value("fake: nodename nor servname provided, or not known"));
+      .andExpect(jsonPath("$.reason", startsWith("UnknownHostException: fake")));
   }
 }

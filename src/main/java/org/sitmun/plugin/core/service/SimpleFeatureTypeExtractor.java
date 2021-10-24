@@ -62,10 +62,10 @@ class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
           }
         }
       } catch (IOException e) {
-        builder.success(false).reason(e.getMessage());
+        builder.success(false).reason(e.getClass().getSimpleName() + ": " + e.getMessage());
       }
     } catch (Exception e) {
-      builder.success(false).reason(e.getMessage());
+      builder.success(false).reason(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
     return builder.build();
   }

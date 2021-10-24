@@ -17,6 +17,7 @@ public class CodeLists {
   public static final String DOWNLOAD_TASK_FORMAT = "downloadTask.format";
   public static final String DOWNLOAD_TASK_SCOPE = "downloadTask.scope";
   public static final String SERVICE_NATIVE_PROTOCOL = "service.nativeProtocol";
+  public static final String SERVICE_AUTHENTICATION_MODE = "service.authenticationMode";
   public static final String SERVICE_PARAMETER_TYPE = "serviceParameter.type";
   public static final String SERVICE_TYPE = "service.type";
   public static final String TASK_PARAMETER_FORMAT = "taskParameter.format";

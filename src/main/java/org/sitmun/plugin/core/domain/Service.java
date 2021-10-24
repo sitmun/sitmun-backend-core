@@ -1,6 +1,8 @@
 package org.sitmun.plugin.core.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.plugin.core.constraints.CodeList;
@@ -147,6 +149,43 @@ public class Service {
   @JsonView(WorkspaceApplication.View.class)
   private Set<ServiceParameter> parameters = new HashSet<>();
 
+  /**
+   * Service authentication mode.
+   */
+  @Column(name = "SER_AUTH_MOD", length = IDENTIFIER)
+  @CodeList(CodeLists.SERVICE_AUTHENTICATION_MODE)
+  private String authenticationMode;
+
+  /**
+   * User.
+   */
+  @Column(name = "SER_USER", length = IDENTIFIER)
+  private String user;
+
+  /**
+   * Password.
+   */
+  @Column(name = "SER_PWD", length = 50)
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  private String password;
+
+  @JsonIgnore
+  @Transient
+  private String storedPassword;
+
+  /**
+   * True if the password is set.
+   *
+   * @return true if password is not empty
+   */
+  public Boolean getPasswordSet() {
+    return password != null && !password.isEmpty();
+  }
+
+  @PostLoad
+  public void postLoad() {
+    storedPassword = password;
+  }
 
   @Override
   public boolean equals(Object o) {

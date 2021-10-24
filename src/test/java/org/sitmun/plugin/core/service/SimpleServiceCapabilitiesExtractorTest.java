@@ -80,7 +80,8 @@ class SimpleServiceCapabilitiesExtractorTest {
     ExtractedMetadata doc = extractor.extract("https://fake");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
-    assertEquals("fake: nodename nor servname provided, or not known", doc.getReason());
+    assertNotNull(doc.getReason());
+    assertTrue(doc.getReason().startsWith("UnknownHostException: fake"));
     assertNull(doc.getAsText());
     assertNull(doc.getAsJson());
   }
