@@ -1,6 +1,6 @@
 package org.sitmun.plugin.core.web.rest;
 
-import org.sitmun.plugin.core.service.ServiceCapabilities;
+import org.sitmun.plugin.core.service.ExtractedMetadata;
 import org.sitmun.plugin.core.service.ServiceCapabilitiesExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -32,9 +32,9 @@ public class ServiceCapabilitiesExtractorController {
    */
   @RequestMapping(method = RequestMethod.GET, path = "/helpers/capabilities")
   public @ResponseBody
-  ResponseEntity<ServiceCapabilities> extractCapabilities(@RequestParam("url") String url) {
+  ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<ServiceCapabilitiesExtractor> iterator = extractors.iterator();
-    ServiceCapabilities capabilities = ServiceCapabilities.builder().success(false).reason("No available extractor").build();
+    ExtractedMetadata capabilities = ExtractedMetadata.builder().success(false).reason("No available extractor").build();
     while (iterator.hasNext()) {
       ServiceCapabilitiesExtractor extractor = iterator.next();
       capabilities = extractor.extract(url);

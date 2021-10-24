@@ -20,8 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-
 public class ServiceCapabilitiesExtractorControllerTest {
+
+  private static final String URI_TEMPLATE = "/api/helpers/capabilities?url={0}";
 
   @Autowired
   private MockMvc mockMvc;
@@ -29,10 +30,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
   public void extractKnownWMSService130() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
       .andExpect(jsonPath("$.type").value("OGC:WMS 1.3.0"))
@@ -43,10 +44,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.1.1")
   public void extractKnownWMSService111() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
       .andExpect(jsonPath("$.type").value("OGC:WMS 1.1.1"))
@@ -57,10 +58,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a bad request to a WMS")
   public void extractFailedService() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://www.ign.es/wms-inspire/ign-base?"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://www.ign.es/wms-inspire/ign-base?"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
@@ -71,10 +72,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a request to HTML page")
   public void extractHtmlPage() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://www.ign.es/"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://www.ign.es/"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
@@ -84,10 +85,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a request to a not found page")
   public void extract404Page() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://www.ign.es/not-found"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://www.ign.es/not-found"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a well formed XML"))
@@ -97,10 +98,10 @@ public class ServiceCapabilitiesExtractorControllerTest {
   @Test
   @DisplayName("Extract from a request to an nonexistent domain")
   public void extractNonExistentDomain() throws Exception {
-    mockMvc.perform(get("/api/helpers/capabilities?url={0}",
-      "https://fake"
-    )
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mockMvc.perform(get(URI_TEMPLATE,
+        "https://fake"
+      )
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("fake: nodename nor servname provided, or not known"));

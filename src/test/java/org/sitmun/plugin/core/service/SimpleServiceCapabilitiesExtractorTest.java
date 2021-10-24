@@ -14,7 +14,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
   public void extractKnownWMSService130() {
-    ServiceCapabilities doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities");
+    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("OGC:WMS 1.3.0", doc.getType());
@@ -28,7 +28,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.1.1")
   public void extractKnownWMSService111() {
-    ServiceCapabilities doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1");
+    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("OGC:WMS 1.1.1", doc.getType());
@@ -42,7 +42,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a bad request to a WMS")
   public void extractFailedService() {
-    ServiceCapabilities doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?");
+    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a standard OGC:WMS Capabilities response", doc.getReason());
@@ -55,7 +55,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to HTML page")
   public void extractHtmlPage() {
-    ServiceCapabilities doc = extractor.extract("https://www.ign.es/");
+    ExtractedMetadata doc = extractor.extract("https://www.ign.es/");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a standard OGC:WMS Capabilities response", doc.getReason());
@@ -66,7 +66,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to a not found page")
   public void extract404Page() {
-    ServiceCapabilities doc = extractor.extract("https://www.ign.es/not-found");
+    ExtractedMetadata doc = extractor.extract("https://www.ign.es/not-found");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a well formed XML", doc.getReason());
@@ -77,7 +77,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to an nonexistent domain")
   public void extractNonExistentDomain() {
-    ServiceCapabilities doc = extractor.extract("https://fake");
+    ExtractedMetadata doc = extractor.extract("https://fake");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("fake: nodename nor servname provided, or not known", doc.getReason());

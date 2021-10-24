@@ -6,6 +6,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import org.json.XML;
+import org.sitmun.plugin.core.service.ExtractedMetadata.ExtractedMetadataBuilder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.io.IOException;
 class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor {
 
   @Override
-  public ServiceCapabilities extract(String url) {
+  public ExtractedMetadata extract(String url) {
     OkHttpClient client = new OkHttpClient();
-    ServiceCapabilities.ServiceCapabilitiesBuilder builder = new ServiceCapabilities.ServiceCapabilitiesBuilder();
+    ExtractedMetadataBuilder builder = new ExtractedMetadataBuilder();
 
     try {
       Request request = new Request.Builder()
