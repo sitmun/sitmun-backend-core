@@ -126,6 +126,12 @@ public class TreeNode {
   private Boolean filterSelectable;
 
   /**
+   * Style name.
+   */
+  @Column(name = "TNO_STYLE")
+  private String style;
+
+  /**
    * Tree.
    */
   @OnDelete(action = OnDeleteAction.CASCADE)

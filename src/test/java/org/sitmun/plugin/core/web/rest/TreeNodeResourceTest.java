@@ -1,9 +1,7 @@
 package org.sitmun.plugin.core.web.rest;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.json.JSONObject;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.Role;
 import org.sitmun.plugin.core.domain.Tree;
@@ -28,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.plugin.core.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.plugin.core.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -107,6 +106,35 @@ public class TreeNodeResourceTest {
       }
       roleRepository.delete(publicRole);
     });
+  }
+
+  @DisplayName("Tree nodes cannot be created with non existent styles")
+  @Test
+  public void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
+    TreeNode node = nodes.get(0);
+    JSONObject json = new JSONObject();
+    json.put("name", node.getName());
+    json.put("tree", "/" + node.getTree().getId());
+    json.put("cartography", "/0");
+    json.put("style", "Style D");
+    mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("Tree node style not found in the tree node cartography's styles"));
+  }
+
+  @DisplayName("Tree nodes styles require a cartography")
+  @Test
+  public void nodesStylesRequireCartography() throws Exception {
+    TreeNode node = nodes.get(0);
+    JSONObject json = new JSONObject();
+    json.put("name", node.getName());
+    json.put("tree", "/" + node.getTree().getId());
+    json.put("style", "Style D");
+    mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
   }
 
   @Test

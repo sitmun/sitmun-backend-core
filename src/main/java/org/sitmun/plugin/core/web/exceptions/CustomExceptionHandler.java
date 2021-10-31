@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.web.exceptions;
 
 import org.sitmun.plugin.core.domain.DatabaseConnection;
+import org.sitmun.plugin.core.repository.handlers.RequirementException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,24 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
       .path(((ServletWebRequest) request).getRequest().getRequestURI())
       .build();
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
+
+  /**
+   * Handles a {@link org.sitmun.plugin.core.repository.handlers.RequirementException} SQL exception.
+   *
+   * @param exception the exception.
+   * @return a 400 error
+   */
+  @ExceptionHandler(RequirementException.class)
+  public ResponseEntity<ApiErrorResponse> databaseSQLException(RequirementException exception, @NonNull WebRequest request) {
+    ApiErrorResponse response = ApiErrorResponse.builder()
+      .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+      .message(exception.getLocalizedMessage())
+      .status(HttpStatus.BAD_REQUEST.value())
+      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+      .path(((ServletWebRequest) request).getRequest().getRequestURI())
+      .build();
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @Override

@@ -474,23 +474,24 @@ create table stm_tree
 );
 create table stm_tree_nod
 (
-    tno_id         number(10,0) not null,
-    tno_active     number(1,0),
-    tno_dataurl    varchar2(4000 char),
-    tno_abstract   varchar2(250 char),
-    tno_filter_gfi number(1,0),
-    tno_filter_gm  number(1,0),
-    tno_filter_se  number(1,0),
-    tno_metaurl    varchar2(4000 char),
-    tno_name       varchar2(80 char),
-    tno_order      number(10,0),
-    tno_queryact   number(1,0),
-    tno_radio      number(1,0),
-    tno_tooltip    varchar2(100 char),
-    tno_giid       number(10,0),
-    tno_parentid   number(10,0),
-    tno_treeid     number(10,0),
-    primary key (tno_id)
+  tno_id         number(10,0) not null,
+  tno_active     number(1,0),
+  tno_dataurl    varchar2(4000 char),
+  tno_abstract   varchar2(250 char),
+  tno_filter_gfi number(1,0),
+  tno_filter_gm  number(1,0),
+  tno_filter_se  number(1,0),
+  tno_metaurl    varchar2(4000 char),
+  tno_name       varchar2(80 char),
+  tno_order      number(10,0),
+  tno_queryact   number(1,0),
+  tno_radio      number(1,0),
+  tno_tooltip    varchar2(100 char),
+  tno_giid       number(10,0),
+  tno_parentid   number(10,0),
+  tno_treeid     number(10,0),
+  tno_style      varchar2(50 char),
+  primary key (tno_id)
 );
 create table stm_tree_rol
 (
