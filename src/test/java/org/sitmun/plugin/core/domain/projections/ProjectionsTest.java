@@ -234,4 +234,13 @@ public class ProjectionsTest {
       .andExpect(jsonPath("$.name").value("Background Map 130"))
       .andExpect(jsonPath("$.roleNames", hasSize(0)));
   }
+
+  @Test
+  @DisplayName("Permissions projection view type")
+  public void permissionsProjectionType() throws Exception {
+    mvc.perform(get(BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.type").value("F"));
+  }
 }

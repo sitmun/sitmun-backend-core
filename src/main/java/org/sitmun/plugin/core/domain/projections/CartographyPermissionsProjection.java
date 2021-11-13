@@ -15,6 +15,9 @@ public interface CartographyPermissionsProjection {
   @Value("#{target.id}")
   Integer getId();
 
+  @Value("#{target.type}")
+  String getType();
+
   @Value("#{target.name}")
   String getName();
 
