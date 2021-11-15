@@ -80,4 +80,10 @@ public interface TreeNodeProjection {
   @Value("#{target.tree?.name}")
   String getTreeName();
 
+  /**
+   * Tree node style
+   */
+  @Value("#{target.style}")
+  String getStyle();
+
 }
