@@ -81,6 +81,8 @@ public class URIConstants {
 
   public static final String TASKS_URI = "http://localhost/api/tasks";
 
+  public static final String TASKS_URI_PROJECTION_VIEW = TASKS_URI + "?projection=view";
+
   public static final String TASKS_AVAILABLE_URI = TASKS_URI + "/search/available?applicationId={0}";
 
   public static final String TASKS_URI_FILTER = TASKS_URI + "?{0}={1}&size=10";

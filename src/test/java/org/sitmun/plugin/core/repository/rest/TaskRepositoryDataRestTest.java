@@ -158,8 +158,8 @@ public class TaskRepositoryDataRestTest {
 
   @Test
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW)
+        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1758)));
   }
