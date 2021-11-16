@@ -7,6 +7,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,6 +17,7 @@ public class TreeNodeEventHandler {
 
   @HandleBeforeSave
   @HandleBeforeCreate
+  @Transactional(rollbackFor = RequirementException.class)
   public void handleTreeNodeCreate(@NotNull TreeNode treeNode) {
     Cartography cartography = treeNode.getCartography();
     String style = treeNode.getStyle();

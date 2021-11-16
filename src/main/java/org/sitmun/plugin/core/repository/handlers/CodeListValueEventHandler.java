@@ -6,6 +6,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import java.util.Objects;
 public class CodeListValueEventHandler {
 
   @HandleBeforeCreate
+  @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueCreate(@NotNull CodeListValue codeListValue) {
     if (codeListValue.getSystem()) {
       throw new ImmutableSystemCodeListValueException("System field cannot be set true");
@@ -23,6 +25,7 @@ public class CodeListValueEventHandler {
   }
 
   @HandleBeforeSave
+  @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueUpdate(@NotNull CodeListValue codeListValue) {
     if (codeListValue.getStoredSystem() != codeListValue.getSystem()) {
       throw new ImmutableSystemCodeListValueException("System field cannot be changed");
@@ -39,6 +42,7 @@ public class CodeListValueEventHandler {
   }
 
   @HandleBeforeDelete
+  @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueDelete(@NotNull CodeListValue codeListValue) {
     if (codeListValue.getSystem()) {
       throw new ImmutableSystemCodeListValueException("System field cannot be deleted");
