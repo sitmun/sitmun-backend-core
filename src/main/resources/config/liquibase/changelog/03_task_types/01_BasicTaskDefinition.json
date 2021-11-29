@@ -121,17 +121,17 @@
         "name": {
           "label": "tasksEntity.parameter",
           "typeColumn": "string",
-          "editable": "false"
+          "editable": "true"
         },
         "value": {
           "label": "tasksEntity.value",
           "typeColumn": "string",
-          "editable": "false"
+          "editable": "true"
         },
         "order": {
           "label": "tasksEntity.order",
           "typeColumn": "integer",
-          "editable": "false"
+          "editable": "true"
         }
       },
       "controlAdd": {

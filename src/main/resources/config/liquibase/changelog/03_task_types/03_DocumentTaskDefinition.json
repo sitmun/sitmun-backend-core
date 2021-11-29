@@ -51,6 +51,19 @@
       "cartography": {
         "label": "tasksEntity.cartography",
         "control": "selectorPopup",
+        "required": true,
+        "hidden": [
+          {
+            "scope": "A",
+            "hidden": true,
+            "ignore": true
+          },
+          {
+            "scope": "U",
+            "hidden": true,
+            "ignore": true
+          }
+        ],
         "selectorPopup": {
           "data": "cartography",
           "value": "name",
