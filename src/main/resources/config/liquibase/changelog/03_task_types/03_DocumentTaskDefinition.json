@@ -52,6 +52,7 @@
         "label": "tasksEntity.cartography",
         "control": "selectorPopup",
         "required": true,
+        "condition": "scope",
         "hidden": [
           {
             "scope": "A",
