@@ -112,7 +112,8 @@
         "value": {
           "label": "tasksEntity.value",
           "typeColumn": "string",
-          "editable": "true"
+          "editable": "true",
+          "textAreaSelector": true
         },
         "order": {
           "label": "tasksEntity.order",
