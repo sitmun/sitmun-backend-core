@@ -55,8 +55,7 @@
       },
       "layers": {
         "label": "tasksEntity.layer",
-        "control": "input",
-        "required": true
+        "control": "input"
       }
     }
   },
