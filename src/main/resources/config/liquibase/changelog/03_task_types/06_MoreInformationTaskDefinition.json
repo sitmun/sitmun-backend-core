@@ -163,16 +163,16 @@
           "typeColumn": "string",
           "editable": "true"
         },
+        "order": {
+          "label": "tasksEntity.order",
+          "typeColumn": "integer",
+          "editable": "true"
+        },
         "value": {
           "label": "tasksEntity.value",
           "typeColumn": "string",
           "editable": "true",
           "textAreaSelector": true
-        },
-        "order": {
-          "label": "tasksEntity.order",
-          "typeColumn": "integer",
-          "editable": "true"
         }
       },
       "controlAdd": {
