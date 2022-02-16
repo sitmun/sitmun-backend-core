@@ -45,11 +45,6 @@ ext {
 }
 
 group = 'org.sitmun'
-if (project.hasProperty('customVersion')) {
-  version = project.customVersion
-} else {
-  version = "${sitmun_version}"
-}
 
 repositories {
   mavenLocal()

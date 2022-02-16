@@ -27,7 +27,7 @@ public class CodeListValueEventHandler {
   @HandleBeforeSave
   @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueUpdate(@NotNull CodeListValue codeListValue) {
-    if (codeListValue.getStoredSystem() != codeListValue.getSystem()) {
+    if (!Objects.equals(codeListValue.getStoredSystem(), codeListValue.getSystem())) {
       throw new ImmutableSystemCodeListValueException("System field cannot be changed");
     }
     if (codeListValue.getStoredSystem()) {
