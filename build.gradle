@@ -1,0 +1,15 @@
+plugins {
+  id('java')
+}
+
+tasks.register('stage') {
+  dependsOn 'library:build'
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+  if (taskGraph.hasTask(stage)) {
+    subprojects {
+      test.enabled = false
+    }
+  }
+}
