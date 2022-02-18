@@ -1,1 +1,5 @@
 rootProject.name = 'sitmun-backend-core'
+
+include 'library'
+include 'application-heroku-dev'
+include 'application-heroku-dev-client'

@@ -157,6 +157,7 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled
   public void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW)
         .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))

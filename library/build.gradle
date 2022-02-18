@@ -1,13 +1,3 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'io.github.swagger2markup:swagger2markup-spring-restdocs-ext:1.3.3'
-    classpath 'io.github.swagger2markup:swagger2markup-gradle-plugin:1.3.3'
-  }
-}
-
 plugins {
   id('org.springframework.boot') version '2.4.3'
   id('java')
@@ -15,7 +5,6 @@ plugins {
 
   id('maven-publish')
   id('jacoco')
-  id('checkstyle')
 
   id('org.sonarqube') version '3.0'
   id('org.ajoberstar.git-publish') version '2.1.3'
@@ -32,16 +21,8 @@ def targetJavaVersion = JavaVersion.VERSION_1_8
 sourceCompatibility = "${targetJavaVersion}"
 targetCompatibility = "${targetJavaVersion}"
 
-apply plugin: 'io.github.swagger2markup'
-
 node {
   version = '14.15.5'
-}
-
-ext {
-  asciiDocOutputDir = file("${buildDir}/asciidoc/generated")
-  swaggerOutputDir = file("${buildDir}/swagger")
-  snippetsOutputDir = file("${buildDir}/asciidoc/snippets")
 }
 
 group = 'org.sitmun'
@@ -93,10 +74,6 @@ dependencies {
   implementation 'com.squareup.okhttp3:logging-interceptor'
   implementation 'org.json:json:20210307'
 
-
-  runtime 'com.oracle.database.jdbc:ojdbc8:12.2.0.1'
-  runtime 'org.postgresql:postgresql:42.2.20'
-
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: "com.vaadin.external.google", module: "android-json"
   }
@@ -104,20 +81,6 @@ dependencies {
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation "com.google.guava:guava:${guava_version}"
 }
-
-task checkJavaVersion {
-  if (JavaVersion.current() < targetJavaVersion) {
-    String message = """
-ERROR: Java ${targetJavaVersion} JDK required but ${JavaVersion.current()} found. 
-SOLUTION: 
-  a) Point JAVA_HOME to a ${targetJavaVersion} JDK and then run gradle, or
-  b) Run ./gradlew -Dorg.gradle.java.home=/path_to_jdk_${targetJavaVersion}_directory"""
-    throw new GradleException(message)
-  }
-}
-
-compileJava.dependsOn checkJavaVersion
-compileJava.inputs.files(processResources)
 
 publishing {
   repositories {
@@ -144,13 +107,14 @@ sonarqube {
   }
 }
 
-
 jacocoTestReport {
   reports {
     xml.enabled true
   }
 }
+
 test.finalizedBy jacocoTestReport
+
 tasks['sonarqube'].dependsOn test
 
 def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
@@ -160,90 +124,6 @@ task install(dependsOn: 'publishToMavenLocal')
 clean {
   delete 'dist'
   delete "${cacheDir}"
-}
-
-//
-// Documentation
-//
-
-convertSwagger2markup {
-  if (!file("${swaggerOutputDir}/swagger.json").exists()) {
-    dependsOn test
-  }
-  swaggerInput "${swaggerOutputDir}/swagger.json"
-  outputDir asciiDocOutputDir
-  config = [
-    'swagger2markup.pathsGroupedBy'                          : 'TAGS',
-    'swagger2markup.extensions.springRestDocs.snippetBaseUri': snippetsOutputDir.getAbsolutePath()]
-}
-
-javadoc {
-  source = sourceSets.main.allJava
-  classpath = configurations.compile
-}
-
-//
-// Code quality tasks
-//
-
-checkstyle {
-  toolVersion = '8.36'
-  configFile = file("${project.rootDir}/checkstyle.xml")
-}
-
-//
-// SQL tasks
-//
-
-task oracle8iSchemaExport(type: JavaExec) {
-  mkdir 'src/main/sql/'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
-  args '-d', 'org.hibernate.dialect.Oracle8iDialect', '-f', 'src/main/sql/oracle8i.sql'
-}
-
-task oracle9iSchemaExport(type: JavaExec) {
-  mkdir 'src/main/sql/'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
-  args '-d', 'org.hibernate.dialect.Oracle9iDialect', '-f', 'src/main/sql/oracle9i.sql'
-}
-
-task oracle10gSchemaExport(type: JavaExec) {
-  mkdir 'src/main/sql/'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
-  args '-d', 'org.hibernate.dialect.Oracle10gDialect', '-f', 'src/main/sql/oracle10g.sql'
-}
-
-
-task postgreSQLSchemaExport(type: JavaExec) {
-  mkdir 'src/main/sql/'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
-  args '-d', 'org.hibernate.dialect.PostgreSQLDialect', '-f', 'src/main/sql/postgresql.sql'
-}
-
-task h2SchemaExport(type: JavaExec) {
-  mkdir 'src/main/sql/'
-  classpath = sourceSets.main.runtimeClasspath
-  main = 'org.sitmun.plugin.core.tools.SitmunSchemaExport'
-  args '-d', 'org.hibernate.dialect.H2Dialect', '-f', 'src/main/sql/h2.sql'
-}
-
-task exportSchemas(dependsOn: [
-  oracle8iSchemaExport,
-  oracle9iSchemaExport,
-  oracle10gSchemaExport,
-  postgreSQLSchemaExport,
-  h2SchemaExport])
-
-openApi {
-  apiDocsUrl.set("http://localhost:8080/v3/api-docs.yaml")
-  outputDir.set(file(projectDir))
-  outputFileName.set("openapi.yaml")
-  forkProperties.set("-Dspring.profiles.active=dev,openapi-annotation")
-  waitTimeInSeconds.set(50)
 }
 
 test {

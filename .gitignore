@@ -27,11 +27,11 @@ database/
 /docs-build
 /node_modules/
 swagger.json
-src/main/docker/backend
+library/src/main/docker/backend
 create.sql
 heroku.md
 tasks.md
-src/main/resources/config/application-local.yml
-src/main/resources/config/application-oracle.yml
-src/main/resources/config/application-postgres.yml
+library/src/main/resources/config/application-local.yml
+library/src/main/resources/config/application-oracle.yml
+library/src/main/resources/config/application-postgres.yml
 *.xlsx

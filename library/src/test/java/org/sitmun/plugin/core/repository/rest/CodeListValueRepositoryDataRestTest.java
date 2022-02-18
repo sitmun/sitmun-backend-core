@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository.rest;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("Check availability of databaseConnection.driver")
+  @Disabled
   public void obtainDrivers() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
       .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
