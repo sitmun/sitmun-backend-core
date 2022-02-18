@@ -3,7 +3,31 @@ plugins {
 }
 
 tasks.register('stage') {
-  dependsOn 'library:build'
+  dependsOn ':web:build', ':library:build'
+}
+
+project(':library') {
+  apply plugin: 'java'
+  tasks.named('processResources') {
+    it.dependsOn ':web:build'
+  }
+}
+
+project(':web') {
+  apply plugin: 'java'
+  tasks.named('build') {
+    dependsOn 'buildApp'
+    it.doLast {
+      copy {
+        from 'public'
+        into '../library/build/resources/main/static'
+      }
+      copy {
+        from 'build/resources/main/static'
+        into '../library/build/resources/main/static'
+      }
+    }
+  }
 }
 
 gradle.taskGraph.whenReady { taskGraph ->

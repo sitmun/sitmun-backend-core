@@ -25,7 +25,7 @@ database/
 /authorization-service-ad.txt
 /todo.txt
 /docs-build
-/node_modules/
+node_modules
 swagger.json
 library/src/main/docker/backend
 create.sql
