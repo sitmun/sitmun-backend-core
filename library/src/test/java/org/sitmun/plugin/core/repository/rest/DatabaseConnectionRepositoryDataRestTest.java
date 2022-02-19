@@ -1,5 +1,6 @@
 package org.sitmun.plugin.core.repository.rest;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.DatabaseConnection;
@@ -56,6 +57,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)
@@ -97,6 +99,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)
@@ -138,6 +141,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void clearUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)

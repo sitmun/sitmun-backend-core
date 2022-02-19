@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.constraints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,7 @@ public class BoundingBoxTest {
 
   @Test
   @DisplayName("Pass if meets conditions of BoundingBox")
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void passIfBoundingBoxIsValid() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)

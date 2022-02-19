@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.domain.User;
@@ -85,6 +86,7 @@ public class AccountControllerTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void readAccount() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
@@ -102,6 +104,7 @@ public class AccountControllerTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void updateAccountButKeepThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +

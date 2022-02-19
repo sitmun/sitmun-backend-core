@@ -1,0 +1,13 @@
+apply plugin: "org.sonarqube"
+
+sonarqube {
+  properties {
+    property 'sonar.host.url', 'https://sonarcloud.io'
+    property 'sonar.organization', 'sitmun'
+    property 'sonar.projectKey', 'org.sitmun:sitmun-backend-core'
+    property 'sonar.links.homepage', 'https://github.com/sitmun/sitmun-backend-core'
+    property 'sonar.links.scm', 'https://github.com/sitmun/sitmun-backend-core'
+    property 'sonar.links.issue', 'https://github.com/sitmun/sitmun-backend-core/issues'
+    property 'sonar.verbose', 'true'
+  }
+}

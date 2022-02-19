@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.constraints;
 
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class EmailTest {
   private MockMvc mvc;
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
       .andExpect(status().isCreated())

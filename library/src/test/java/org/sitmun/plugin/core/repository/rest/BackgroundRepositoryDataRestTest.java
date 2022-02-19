@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository.rest;
 
 import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.test.URIConstants;
@@ -28,6 +29,7 @@ public class BackgroundRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void backgroundIsNotDependentOfBackgroundMap() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
@@ -50,6 +52,7 @@ public class BackgroundRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void createBackgroundWithMap() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +

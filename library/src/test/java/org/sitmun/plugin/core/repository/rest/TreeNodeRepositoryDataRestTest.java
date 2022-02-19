@@ -1,6 +1,7 @@
 package org.sitmun.plugin.core.repository.rest;
 
 import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.plugin.core.test.URIConstants;
@@ -68,6 +69,7 @@ public class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void newTreeNodesCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\"}";
 
@@ -94,6 +96,7 @@ public class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void newTreeNodesWithParentCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/2\",\"parent\":\"http://localhost/api/tree-nodes/416\"}";
 
