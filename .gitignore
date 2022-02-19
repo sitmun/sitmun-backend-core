@@ -35,3 +35,6 @@ library/src/main/resources/config/application-local.yml
 library/src/main/resources/config/application-oracle.yml
 library/src/main/resources/config/application-postgres.yml
 *.xlsx
+
+# Exclude intermediate files
+sitmun.jar

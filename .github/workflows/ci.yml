@@ -37,20 +37,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build -x test
-
       - name: Deploy to Heroku
         env:
           HEROKU_EMAIL: ${{secrets.HEROKU_EMAIL}}
           HEROKU_TOKEN: ${{secrets.HEROKU_TOKEN}}
         run: |
           cat <<EOF >~/.netrc
-          machine git.heroku.com
+          machine api.heroku.com
             login $HEROKU_EMAIL
             password $HEROKU_TOKEN
           EOF
-          git config --global user.name "Automated Heroku Deploy"
-          git config --global user.email $HEROKU_EMAIL
-          git remote add heroku https://git.heroku.com/sitmun-backend-core.git
-          git push --force heroku master
+          ./gradlew deployHeroku

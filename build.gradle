@@ -1,6 +1,14 @@
 plugins {
   id('java')
+  id("com.heroku.sdk.heroku-gradle") version "2.0.0"
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Stage task:
+// - build web module and copies output to library/build/resources/main/static
+// - build library module
+// - do not run tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tasks.register('stage') {
   dependsOn ':web:build', ':library:build'
@@ -35,5 +43,33 @@ gradle.taskGraph.whenReady { taskGraph ->
     subprojects {
       test.enabled = false
     }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Heroku deployment:
+// - contributes the task deployHeroku
+// - expects the stage task has been successfully executed
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+heroku {
+  def procFile = ["web": "java -Dserver.port=\$PORT \$JAVA_OPTS -jar sitmun.jar"]
+  appName = "sitmun-backend-core"
+  includes = ["sitmun.jar"]
+  includeBuildDir = false
+  processTypes(procFile)
+}
+
+tasks.named("deployHeroku") {
+  it.dependsOn 'stage'
+  it.doFirst {
+    copy {
+      from "library/build/libs/library-${version}.jar"
+      into "."
+      rename "library-${version}.jar", "sitmun.jar"
+    }
+  }
+  it.doLast {
+    delete "sitmun.jar"
   }
 }
