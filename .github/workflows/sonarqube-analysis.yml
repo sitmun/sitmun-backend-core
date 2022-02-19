@@ -1,4 +1,4 @@
-name: CI
+name: Sonarqube
 
 on:
   push:
@@ -19,6 +19,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Gradle
         uses: actions/cache@v2
         with:
@@ -37,7 +44,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run sonarqube
+      - name: Analyze
         env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOWS }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube
+        run: ./gradlew sonarqube --info
