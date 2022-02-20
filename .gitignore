@@ -29,8 +29,8 @@ node_modules
 swagger.json
 library/src/main/docker/backend
 create.sql
-heroku.md
-tasks.md
+docs/heroku.md
+docs/tasks.md
 library/src/main/resources/config/application-local.yml
 library/src/main/resources/config/application-oracle.yml
 library/src/main/resources/config/application-postgres.yml
