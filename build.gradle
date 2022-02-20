@@ -1,8 +1,20 @@
 plugins {
-  id('java')
-  id('com.heroku.sdk.heroku-gradle') version '2.0.0'
-  id('jacoco')
-  id('org.sonarqube') version '3.3'
+  id 'java'
+  id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
+  id 'jacoco'
+  id 'org.sonarqube' version '3.3'
+
+  id 'com.github.node-gradle.node' version '3.0.1' apply false
+
+  id 'org.springframework.boot' version '2.4.3' apply false
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+
+  id 'org.ajoberstar.git-publish' version '2.1.3' apply false
+
+  id 'com.github.johnrengelman.processes' version '0.5.0' apply false
+  id 'org.springdoc.openapi-gradle-plugin' version '1.3.0' apply false
+
+  id 'io.freefair.lombok' version '5.3.0' apply false
 }
 
 allprojects {
@@ -15,38 +27,167 @@ allprojects {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Stage task:
-// - build web module and copies output to library/build/resources/main/static
-// - build library module
-// - do not run tests
+// Project app
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-tasks.register('stage') {
-  dependsOn ':web:build', ':library:build'
-}
-
-project(':library') {
+project(':app') {
   apply plugin: 'java'
+  apply plugin: 'org.springframework.boot'
+  apply plugin: 'io.spring.dependency-management'
+
+  apply plugin: 'maven-publish'
+  apply plugin: 'org.ajoberstar.git-publish'
+
+  apply plugin: 'com.github.johnrengelman.processes'
+  apply plugin: 'org.springdoc.openapi-gradle-plugin'
+
+  apply plugin: 'io.freefair.lombok'
+  apply plugin: 'jacoco'
+
   tasks.named('processResources') {
     it.dependsOn ':web:build'
   }
+
+  def targetJavaVersion = JavaVersion.VERSION_1_8
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
+
+  configurations {
+    annotationProcessor.extendsFrom implementation
+  }
+
+  dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.data:spring-data-rest-hal-explorer'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.security:spring-security-data'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+    annotationProcessor 'com.querydsl:querydsl-apt::jpa'
+    implementation 'com.querydsl:querydsl-jpa'
+
+    implementation 'org.liquibase:liquibase-core'
+
+    implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+    implementation "org.springdoc:springdoc-openapi-data-rest:${springdoc_openapi_version}"
+    implementation "org.springdoc:springdoc-openapi-security:${springdoc_openapi_version}"
+    implementation "org.springdoc:springdoc-openapi-hateoas:${springdoc_openapi_version}"
+
+    implementation 'com.zaxxer:HikariCP'
+
+    implementation "info.picocli:picocli:${picocli_version}"
+
+    implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
+
+    implementation 'org.reflections:reflections:0.9.12'
+    implementation 'com.h2database:h2'
+
+    implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'com.squareup.okhttp3:logging-interceptor'
+    implementation 'org.json:json:20210307'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+      exclude group: "com.vaadin.external.google", module: "android-json"
+    }
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation "org.assertj:assertj-core:${assertj_core_version}"
+    testImplementation "com.google.guava:guava:${guava_version}"
+  }
+
+  publishing {
+    repositories {
+      maven {
+        name = 'GitHubPackages'
+        url = uri('https://maven.pkg.github.com/sitmun/sitmun-backend-core')
+        credentials {
+          username = project.findProperty('gpr.user') ?: System.getenv('USERNAME')
+          password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_API_KEY')
+        }
+      }
+    }
+    publications {
+      gpr(MavenPublication) {
+        from(components.java)
+      }
+    }
+  }
+
+  def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
+
+  task install(dependsOn: 'publishToMavenLocal')
+
+  clean {
+    delete 'dist'
+    delete "${cacheDir}"
+  }
+
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+    }
+  }
+
+  test.finalizedBy jacocoTestReport
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Project web
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 project(':web') {
   apply plugin: 'java'
+  apply plugin: 'com.github.node-gradle.node'
+
+  node {
+    version = '14.15.5'
+  }
+
+  task buildApp(type: NodeTask, dependsOn: 'npmInstall') {
+    script = project.file('node_modules/webpack/bin/webpack.js')
+    args = [
+      '--mode', 'development',
+      '--entry', './src/App.jsx',
+      '-o', "${buildDir}/resources/main/static"
+    ]
+  }
+
+  clean.doFirst {
+    delete 'build', 'node_modules'
+  }
+
   tasks.named('build') {
     dependsOn 'buildApp'
     it.doLast {
       copy {
         from 'public'
-        into '../library/build/resources/main/static'
+        into '../app/build/resources/main/static'
       }
       copy {
         from 'build/resources/main/static'
-        into '../library/build/resources/main/static'
+        into '../app/build/resources/main/static'
       }
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Stage task:
+// - build web module and copies output to app/build/resources/main/static
+// - build app module
+// - do not run tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+tasks.register('stage') {
+  dependsOn ':web:build', ':app:build'
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
@@ -75,9 +216,9 @@ tasks.named("deployHeroku") {
   it.dependsOn 'stage'
   it.doFirst {
     copy {
-      from "library/build/libs/library-${version}.jar"
+      from "app/build/libs/app-${version}.jar"
       into "."
-      rename "library-${version}.jar", "sitmun.jar"
+      rename "app-${version}.jar", "sitmun.jar"
     }
   }
   it.doLast {
@@ -88,7 +229,6 @@ tasks.named("deployHeroku") {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // QA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 subprojects {
   apply plugin: 'org.sonarqube'
