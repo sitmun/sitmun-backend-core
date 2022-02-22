@@ -1,0 +1,47 @@
+package org.sitmun.repository;
+
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.domain.Translation;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
+
+import java.util.List;
+import java.util.Optional;
+
+@Tag(name = "translation")
+@RepositoryRestResource(collectionResourceRel = "translations", path = "translations")
+public interface TranslationRepository
+  extends PagingAndSortingRepository<Translation, Integer> {
+
+  @Override
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")
+  @NonNull
+  <S extends Translation> S save(@P("entity") @NonNull S entity);
+
+  @Override
+  @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity,  'delete')")
+  void delete(@P("entity") @NonNull Translation entity);
+
+  @Override
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.domain.Translation','administration') or hasPermission(#entityId, 'org.sitmun.domain.Cartography', 'delete')")
+  void deleteById(@P("entityId") @NonNull Integer entityId);
+
+  @Override
+  @PostFilter("hasPermission(filterObject, 'administration') or hasPermission(filterObject, 'read')")
+  @NonNull
+  Iterable<Translation> findAll();
+
+  @Override
+  @PreAuthorize("hasPermission(#entityId, 'org.sitmun.domain.Translation','administration') or hasPermission(#entityId, 'org.sitmun.domain.Cartography', 'read')")
+  @NonNull
+  Optional<Translation> findById(@P("entityId") @NonNull Integer entityId);
+
+  @Query("select tr from Translation tr where tr.element = ?1 and tr.language.shortname = ?2")
+  List<Translation> findByEntityIdAndLocale(Integer element, String locale);
+}

@@ -1,0 +1,23 @@
+package org.sitmun.config;
+
+import org.springdoc.core.SpringDocConfigProperties;
+import org.springdoc.core.SpringDocConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+@Configuration
+@Profile({"!openapi"})
+public class OpenApi30DisabledConfig {
+
+  @Bean
+  SpringDocConfiguration springDocConfiguration() {
+    return new SpringDocConfiguration();
+  }
+
+  @Bean
+  public SpringDocConfigProperties springDocConfigProperties() {
+    return new SpringDocConfigProperties();
+  }
+
+}
