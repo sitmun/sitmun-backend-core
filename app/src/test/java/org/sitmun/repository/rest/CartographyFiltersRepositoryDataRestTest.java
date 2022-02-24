@@ -3,6 +3,7 @@ package org.sitmun.repository.rest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +40,7 @@ public class CartographyFiltersRepositoryDataRestTest {
     String location = mvc.perform(
       MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHY_FILTERS_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
@@ -48,12 +48,12 @@ public class CartographyFiltersRepositoryDataRestTest {
     assertNotNull(location);
 
     mvc.perform(get(location + "/cartography")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(1228));
 
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -68,7 +68,7 @@ public class CartographyFiltersRepositoryDataRestTest {
     mvc.perform(
       post(URIConstants.CARTOGRAPHY_FILTERS_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("cartography"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be null"));

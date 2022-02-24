@@ -3,6 +3,7 @@ package org.sitmun.constraints;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.URIConstants.CARTOGRAPHIES_URI;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,7 +58,7 @@ public class MinMaxTest {
     return mvc.perform(post(ENTITY_WITH_MIN_MAX_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(entity.put(PROPERTY_WITH_MIN_MAX, value).toString())
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     );
   }
 

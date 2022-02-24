@@ -14,6 +14,7 @@ import org.springframework.data.rest.webmvc.support.RepositoryConstraintViolatio
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -58,7 +59,7 @@ public class AccountController {
   public ResponseEntity<User> saveAccount(@RequestBody User user) {
     Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
     if (optLogin.isPresent()) {
-      Optional<User> storedUser = userRepository.findOneByUsername(optLogin.get());
+      Optional<User> storedUser = userRepository.findByUsername(optLogin.get());
       if (storedUser.isPresent()) {
         user.setId(storedUser.get().getId());
         user.setStoredPassword(storedUser.get().getStoredPassword());
@@ -91,10 +92,11 @@ public class AccountController {
    */
   @GetMapping
   @ResponseBody
+  @Transactional(readOnly = true)
   public ResponseEntity<User> getAccount() {
     Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
     if (optLogin.isPresent()) {
-      Optional<User> storedUser = userRepository.findOneByUsername(optLogin.get());
+      Optional<User> storedUser = userRepository.findByUsername(optLogin.get());
       return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     } else {
       return ResponseEntity.notFound().build();

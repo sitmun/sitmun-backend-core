@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,7 +41,7 @@ public class CartographyStylesRepositoryDataRestTest {
     String location = mvc.perform(
       post(URIConstants.CARTOGRAPHY_STYLES_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
@@ -49,7 +49,7 @@ public class CartographyStylesRepositoryDataRestTest {
     assertNotNull(location);
 
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -66,7 +66,7 @@ public class CartographyStylesRepositoryDataRestTest {
     String location = mvc.perform(
       post(URIConstants.CARTOGRAPHY_STYLES_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
@@ -76,13 +76,13 @@ public class CartographyStylesRepositoryDataRestTest {
     mvc.perform(
       post(URIConstants.CARTOGRAPHY_STYLES_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("defaultStyle"))
       .andExpect(jsonPath("$.errors[0].message").value("Already a default style exists for the cartography."));
 
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 

@@ -11,11 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.DatabaseConnection;
 import org.sitmun.repository.DatabaseConnectionRepository;
+import org.sitmun.security.web.AuthenticationController;
+import org.sitmun.security.web.LoginRequest;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
-import org.sitmun.test.TestConstants;
 import org.sitmun.test.TestUtils;
-import org.sitmun.web.rest.AuthenticationController;
-import org.sitmun.web.rest.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -160,8 +159,8 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
   private String getAuthorization() {
     LoginRequest login = new LoginRequest();
-    login.setUsername(TestConstants.SITMUN_ADMIN_USERNAME);
-    login.setPassword(TestConstants.SITMUN_ADMIN_PASSWORD);
+    login.setUsername("admin");
+    login.setPassword("admin");
     ResponseEntity<AuthenticationController.JWTToken> loginResponse =
       restTemplate
         .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationController.JWTToken.class, port);

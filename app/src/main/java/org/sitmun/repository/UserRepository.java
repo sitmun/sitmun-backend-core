@@ -22,7 +22,7 @@ import java.util.Optional;
 public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
 
   @RestResource(exported = false)
-  Optional<User> findOneByUsername(String username);
+  Optional<User> findByUsername(String username);
 
   @Override
   @PreAuthorize("hasPermission(#entity, 'administration') or hasPermission(#entity, 'write')")

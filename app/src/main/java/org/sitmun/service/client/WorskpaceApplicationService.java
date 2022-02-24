@@ -34,7 +34,7 @@ public class WorskpaceApplicationService {
   }
 
   public Optional<WorkspaceApplication> describeFor(String username, Integer applicationId, Integer territoryId) {
-    Optional<User> user = userRepository.findOneByUsername(username);
+    Optional<User> user = userRepository.findByUsername(username);
     if (user.isPresent()) {
       User effectiveUser = user.get();
       if (!effectiveUser.getBlocked()) {

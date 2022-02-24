@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,13 +40,13 @@ public class SpatialReferenceSystemTest {
     String location = mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
       .content(serviceFixture("EPSG:1"))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -56,7 +56,7 @@ public class SpatialReferenceSystemTest {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
       .content(serviceFixture("other"))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
@@ -69,13 +69,13 @@ public class SpatialReferenceSystemTest {
     String location = mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
       .content(serviceFixture("EPSG:1", "EPSG:2"))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -85,7 +85,7 @@ public class SpatialReferenceSystemTest {
     mvc.perform(post("/api/services")
       .contentType(APPLICATION_JSON)
       .content(serviceFixture("EPSG:1", "other"))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))

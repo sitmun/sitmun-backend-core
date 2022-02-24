@@ -10,6 +10,7 @@ import org.sitmun.repository.RoleRepository;
 import org.sitmun.repository.TreeNodeRepository;
 import org.sitmun.repository.TreeRepository;
 import org.sitmun.security.AuthoritiesConstants;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,7 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -119,7 +119,7 @@ public class TreeNodeResourceTest {
     json.put("cartography", "/0");
     json.put("style", "Style D");
     mvc.perform(MockMvcRequestBuilders.post(URIConstants.TREE_NODES_URI).content(json.toString())
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.message").value("Tree node style not found in the tree node cartography's styles"));
   }
@@ -133,7 +133,7 @@ public class TreeNodeResourceTest {
     json.put("tree", "/" + node.getTree().getId());
     json.put("style", "Style D");
     mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
   }
@@ -168,7 +168,7 @@ public class TreeNodeResourceTest {
   @Disabled
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TREE_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.trees", hasSize(19)));
   }

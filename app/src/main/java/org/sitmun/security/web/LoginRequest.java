@@ -1,4 +1,4 @@
-package org.sitmun.web.rest.dto;
+package org.sitmun.security.web;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

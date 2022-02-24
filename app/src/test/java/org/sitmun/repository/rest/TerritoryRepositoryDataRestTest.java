@@ -3,6 +3,7 @@ package org.sitmun.repository.rest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.repository.TerritoryRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.TestUtils;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,7 +49,7 @@ public class TerritoryRepositoryDataRestTest {
         "\"code\":\"test\"," +
         "\"blocked\":false" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
@@ -67,7 +67,7 @@ public class TerritoryRepositoryDataRestTest {
         "\"blocked\":false," +
         "\"center\": {\"x\": 10, \"y\": 20}" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.center.x").value(10))
@@ -79,7 +79,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: can list as admin")
   public void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TERRITORIES_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -99,7 +99,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has link to task availabilities")
   public void hasLinkToTaskAvailability() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.taskAvailabilities").exists());
   }
@@ -108,7 +108,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has computed center")
   public void hasComputedCenter() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.center.x").value(433957.5))
       .andExpect(jsonPath("$.center.y").value(4615120.5))
@@ -119,7 +119,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has link to cartography availabilities")
   public void hasLinkToCartographyAvailabilities() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
   }
@@ -130,7 +130,7 @@ public class TerritoryRepositoryDataRestTest {
       String location = response.getHeader("Location");
       if (location != null) {
         mvc.perform(delete(location)
-          .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
         ).andExpect(status().isNoContent());
       }
     }

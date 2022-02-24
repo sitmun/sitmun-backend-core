@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.*;
 import org.sitmun.repository.*;
 import org.sitmun.security.AuthoritiesConstants;
-import org.sitmun.test.TestConstants;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -323,7 +323,7 @@ public class ApplicationResourceTest {
   @Test
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + "/" + backAppId)
-      .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.order").value(1));
   }
@@ -378,7 +378,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers")
-      .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -393,7 +393,7 @@ public class ApplicationResourceTest {
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(URIConstants.APPLICATIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }

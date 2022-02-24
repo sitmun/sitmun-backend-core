@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +16,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,13 +40,13 @@ public class BackgroundRepositoryDataRestTest {
 
     MvcResult result = mvc.perform(MockMvcRequestBuilders.post(URIConstants.BACKGROUNDS_URI)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn();
     String response = result.getResponse().getContentAsString();
     mvc.perform(delete(URIConstants.BACKGROUND_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isNoContent())
       .andReturn();
@@ -63,7 +63,7 @@ public class BackgroundRepositoryDataRestTest {
       "}";
     String location = mvc.perform(post(URIConstants.BACKGROUNDS_URI)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -71,7 +71,7 @@ public class BackgroundRepositoryDataRestTest {
     assertNotNull(location);
 
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -85,7 +85,7 @@ public class BackgroundRepositoryDataRestTest {
       "}";
     mvc.perform(post(URIConstants.BACKGROUNDS_URI)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
@@ -97,7 +97,7 @@ public class BackgroundRepositoryDataRestTest {
     mvc.perform(put(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP, 1)
       .content(content)
       .contentType("text/uri-list")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));

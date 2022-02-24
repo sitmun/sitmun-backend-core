@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.CartographyPermission;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,17 +31,17 @@ public class CartographyPermissionsRepositoryDataRestTest {
   @Test
   public void filterType() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_SITUATION_MAP)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(1)))
       .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == '" + CartographyPermission.TYPE_SITUATION_MAP + "')]", hasSize(1)));
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_BACKGROUND_MAP)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
       .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == '" + CartographyPermission.TYPE_BACKGROUND_MAP + "')]", hasSize(6)));
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, "C")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(112)))
       .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == 'C')]", hasSize(112)));
@@ -50,7 +50,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   @Test
   public void filterOrType() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_OR_FILTER, CartographyPermission.TYPE_SITUATION_MAP, "C")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(113)))
       .andExpect(jsonPath("$._embedded.cartography-groups[?(@.type == '" + CartographyPermission.TYPE_SITUATION_MAP + "')]", hasSize(1)))
@@ -60,7 +60,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   @Test
   public void rolesOfAPermissions() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 6)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(9)));
@@ -75,7 +75,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
       "}";
     String location = mvc.perform(post(URIConstants.CARTOGRAPHY_PERMISSIONS_URI)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -88,11 +88,11 @@ public class CartographyPermissionsRepositoryDataRestTest {
       "}";
 
     mvc.perform(put(location).content(changedContent)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -103,7 +103,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
       "\"type\":\"C\"" +
       "}";
     mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(changedContent)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }
@@ -115,7 +115,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
       "\"type\":\"C\"" +
       "}";
     mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 129).content(changedContent)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }

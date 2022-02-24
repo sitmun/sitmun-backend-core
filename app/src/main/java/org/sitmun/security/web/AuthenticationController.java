@@ -1,10 +1,9 @@
-package org.sitmun.web.rest;
+package org.sitmun.security.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.security.TokenProvider;
-import org.sitmun.web.rest.dto.LoginRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

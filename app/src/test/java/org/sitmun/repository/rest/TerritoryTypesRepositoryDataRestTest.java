@@ -3,6 +3,7 @@ package org.sitmun.repository.rest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,7 +33,7 @@ public class TerritoryTypesRepositoryDataRestTest {
   public void allTypes() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.TERRITORY_TYPES_URI)
       .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.territory-types", hasSize(8)));
   }
@@ -43,7 +43,7 @@ public class TerritoryTypesRepositoryDataRestTest {
   public void oneType() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_TYPE_URI, 2)
       .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(2))
       .andExpect(jsonPath("$.name").value("Consell Comarcal"))

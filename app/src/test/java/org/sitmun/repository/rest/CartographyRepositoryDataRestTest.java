@@ -12,6 +12,7 @@ import org.sitmun.repository.CartographyAvailabilityRepository;
 import org.sitmun.repository.CartographyRepository;
 import org.sitmun.repository.ServiceRepository;
 import org.sitmun.repository.TerritoryRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.TestUtils;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -145,14 +145,14 @@ public class CartographyRepositoryDataRestTest {
     String location = mvc.perform(MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)))
@@ -170,7 +170,7 @@ public class CartographyRepositoryDataRestTest {
   @Disabled
   public void getCartographiesAsAdmin() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -187,7 +187,7 @@ public class CartographyRepositoryDataRestTest {
   @DisplayName("GET: has treeNodes property")
   public void hasTreeNodeListProperty() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_URI + "?size=10")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
       .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));
@@ -197,7 +197,7 @@ public class CartographyRepositoryDataRestTest {
   @DisplayName("GET: has cartography-groups property")
   public void hasAccessToCartographyGroups() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 85)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));
   }
@@ -248,7 +248,7 @@ public class CartographyRepositoryDataRestTest {
     mvc.perform(put(URIConstants.CARTOGRAPHY_URI, 724)
       .contentType(MediaType.APPLICATION_JSON)
       .content(badRequest)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isUnprocessableEntity());
 
   }
@@ -263,14 +263,14 @@ public class CartographyRepositoryDataRestTest {
   public void applyFilterTestDataIsNull() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI, 724)
         .contentType(MediaType.APPLICATION_JSON)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
       .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 724)
         .contentType(MediaType.APPLICATION_JSON)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
       .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
@@ -281,12 +281,12 @@ public class CartographyRepositoryDataRestTest {
   @Disabled
   public void getCartographiesAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies", hasSize(449)));
 
     mvc.perform(get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 2)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartographies", hasSize(500)));
   }

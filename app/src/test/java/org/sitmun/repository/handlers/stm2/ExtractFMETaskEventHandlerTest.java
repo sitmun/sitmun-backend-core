@@ -8,6 +8,7 @@ import org.sitmun.domain.Task;
 import org.sitmun.domain.TaskParameter;
 import org.sitmun.repository.TaskParameterRepository;
 import org.sitmun.repository.TaskRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,7 +26,6 @@ import java.util.Optional;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -62,7 +62,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     String location = mvc.perform(MockMvcRequestBuilders.post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -81,7 +81,7 @@ public class ExtractFMETaskEventHandlerTest {
     });
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -99,7 +99,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -115,7 +115,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     mvc.perform(put(location)
       .content(updatedTAsk)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isOk());
 
@@ -133,7 +133,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -149,7 +149,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -173,7 +173,7 @@ public class ExtractFMETaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.layers").isArray())
       .andExpect(jsonPath("$.properties.layers", hasSize(2)))
@@ -182,7 +182,7 @@ public class ExtractFMETaskEventHandlerTest {
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }

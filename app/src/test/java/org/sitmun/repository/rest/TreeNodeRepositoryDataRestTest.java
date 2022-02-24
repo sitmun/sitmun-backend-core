@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,7 +31,7 @@ public class TreeNodeRepositoryDataRestTest {
   @Test
   public void retrieveTreeName() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.treeName").value("Mòdul consulta municipal"));
   }
@@ -39,29 +39,29 @@ public class TreeNodeRepositoryDataRestTest {
   @Test
   public void retrieveFolder() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true));
     mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5345)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isNotFound());
   }
 
   @Test
   public void retrieveLeaf() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5351)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false));
     mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5351)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
   @Test
   public void retrieveNodesFromTree() throws Exception {
     mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(489)))
       .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(80)))
@@ -76,7 +76,7 @@ public class TreeNodeRepositoryDataRestTest {
     MvcResult result = mvc.perform(
       post(URIConstants.TREE_NODES_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
@@ -84,12 +84,12 @@ public class TreeNodeRepositoryDataRestTest {
     String response = result.getResponse().getContentAsString();
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
 
 
     mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isNoContent())
       .andReturn();
@@ -103,7 +103,7 @@ public class TreeNodeRepositoryDataRestTest {
     MvcResult result = mvc.perform(
       post(URIConstants.TREE_NODES_URI)
         .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
@@ -111,15 +111,15 @@ public class TreeNodeRepositoryDataRestTest {
     String response = result.getResponse().getContentAsString();
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
 
     mvc.perform(get(URIConstants.TREE_NODE_PARENT_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
 
     mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isNoContent())
       .andReturn();

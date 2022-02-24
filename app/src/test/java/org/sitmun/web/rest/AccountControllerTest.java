@@ -4,15 +4,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.User;
 import org.sitmun.repository.UserRepository;
 import org.sitmun.repository.handlers.UserEventHandler;
-import org.sitmun.security.TokenProvider;
+import org.sitmun.security.jwt.JwtUtils;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
 public class AccountControllerTest {
 
   private static final String USER_USERNAME = "user";
@@ -47,8 +46,13 @@ public class AccountControllerTest {
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = false;
 
+  @Value("${security.authentication.jwt.secret}")
+  private String jwtSecret;
+
+  @Value("${security.authentication.jwt.token-validity-in-miliseconds}")
+  private int jwtExpirationMs;
   @Autowired
-  TokenProvider tokenProvider;
+  JwtUtils tokenProvider;
   @Autowired
   private MockMvc mvc;
   @Autowired
@@ -65,17 +69,24 @@ public class AccountControllerTest {
       Date expiredDate =
         Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
       expiredToken = Jwts.builder().setSubject(USER_USERNAME)
-        .signWith(SignatureAlgorithm.HS512, tokenProvider.getSecretKey().getBytes())
+        .signWith(SignatureAlgorithm.HS512, jwtSecret)
         .setExpiration(expiredDate)
         .compact();
-      validToken = tokenProvider.createToken(USER_USERNAME);
-      user = new User();
-      user.setAdministrator(USER_ADMINISTRATOR);
-      user.setBlocked(USER_BLOCKED);
-      user.setFirstName(USER_FIRSTNAME);
-      user.setLastName(USER_LASTNAME);
-      user.setPassword(USER_PASSWORD);
-      user.setUsername(USER_USERNAME);
+      validToken = Jwts.builder()
+        .setSubject(USER_USERNAME)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+        .signWith(SignatureAlgorithm.HS512, jwtSecret)
+        .compact();
+
+      user = User.builder()
+        .administrator(USER_ADMINISTRATOR)
+        .blocked(USER_BLOCKED)
+        .firstName(USER_FIRSTNAME)
+        .lastName(USER_LASTNAME)
+        .password(USER_PASSWORD)
+        .username(USER_USERNAME)
+        .build();
       userEventHandler.handleUserCreate(user);
       user = userRepository.save(user);
     });
@@ -87,7 +98,6 @@ public class AccountControllerTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void readAccount() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.ACCOUNT_URI)
       .header(HEADER_STRING, TOKEN_PREFIX + validToken)
@@ -105,7 +115,6 @@ public class AccountControllerTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void updateAccountButKeepThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +

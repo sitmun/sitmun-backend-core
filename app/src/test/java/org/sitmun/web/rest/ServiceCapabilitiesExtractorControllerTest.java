@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.Application;
-import org.sitmun.test.TestConstants;
+import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +33,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
       .andExpect(jsonPath("$.type").value("OGC:WMS 1.3.0"))
@@ -47,7 +47,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
       .andExpect(jsonPath("$.type").value("OGC:WMS 1.1.1"))
@@ -61,7 +61,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
@@ -75,7 +75,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
@@ -88,7 +88,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/not-found"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason").value("Not a well formed XML"))
@@ -101,7 +101,7 @@ public class ServiceCapabilitiesExtractorControllerTest {
     mockMvc.perform(get(URI_TEMPLATE,
         "https://fake"
       )
-        .with(SecurityMockMvcRequestPostProcessors.user(TestConstants.SITMUN_ADMIN_USERNAME)))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
       .andExpect(jsonPath("$.reason", startsWith("UnknownHostException: fake")));

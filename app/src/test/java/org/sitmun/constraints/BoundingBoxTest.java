@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.Envelope;
 import org.sitmun.domain.Territory;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -66,14 +66,14 @@ public class BoundingBoxTest {
     return mvc.perform(post(URIConstants.TERRITORIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asString)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     );
   }
 
   private void cleanup(ResultActions result) throws Exception {
     String location = result.andReturn().getResponse().getHeader("Location");
     assertNotNull(location);
-    mvc.perform(delete(location).with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)));
+    mvc.perform(delete(location).with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())));
   }
 
 }

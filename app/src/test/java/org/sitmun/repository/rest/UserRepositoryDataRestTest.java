@@ -2,6 +2,7 @@ package org.sitmun.repository.rest;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +43,7 @@ public class UserRepositoryDataRestTest {
         "\"administrator\":false," +
         "\"blocked\":false" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
@@ -57,7 +57,7 @@ public class UserRepositoryDataRestTest {
       String location = response.getHeader("Location");
       if (location != null) {
         mvc.perform(delete(location)
-          .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
         ).andExpect(status().isNoContent());
       }
     }

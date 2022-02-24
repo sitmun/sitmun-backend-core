@@ -7,6 +7,7 @@ import org.sitmun.domain.Task;
 import org.sitmun.domain.TaskParameter;
 import org.sitmun.repository.TaskParameterRepository;
 import org.sitmun.repository.TaskRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,7 +68,7 @@ public class BasicTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -95,7 +95,7 @@ public class BasicTaskEventHandlerTest {
     });
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -118,7 +118,7 @@ public class BasicTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -126,12 +126,12 @@ public class BasicTaskEventHandlerTest {
     assertNotNull(location);
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(jsonPath("$.properties.parameters[?(@.type)]").exists());
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -159,7 +159,7 @@ public class BasicTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -181,7 +181,7 @@ public class BasicTaskEventHandlerTest {
 
     mvc.perform(put(location)
       .content(updatedTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isOk());
 
@@ -202,7 +202,7 @@ public class BasicTaskEventHandlerTest {
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -217,7 +217,7 @@ public class BasicTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -239,14 +239,14 @@ public class BasicTaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 1')]").exists())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 2')]").exists());
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }

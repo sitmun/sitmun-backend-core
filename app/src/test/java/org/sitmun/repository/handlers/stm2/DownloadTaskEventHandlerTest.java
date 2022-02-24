@@ -7,6 +7,7 @@ import org.sitmun.domain.DownloadTask;
 import org.sitmun.domain.Task;
 import org.sitmun.repository.DownloadTaskRepository;
 import org.sitmun.repository.TaskRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,6 @@ import org.springframework.web.util.UriTemplate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,7 +57,7 @@ public class DownloadTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -75,7 +75,7 @@ public class DownloadTaskEventHandlerTest {
     });
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -94,7 +94,7 @@ public class DownloadTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -112,7 +112,7 @@ public class DownloadTaskEventHandlerTest {
 
     mvc.perform(put(location)
       .content(updatedTAsk)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isOk());
 
@@ -129,7 +129,7 @@ public class DownloadTaskEventHandlerTest {
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }
@@ -144,7 +144,7 @@ public class DownloadTaskEventHandlerTest {
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
       .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
@@ -167,7 +167,7 @@ public class DownloadTaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.format").value("DXF"))
       .andExpect(jsonPath("$.properties.path").value("http://www.example3.com/"))
@@ -175,7 +175,7 @@ public class DownloadTaskEventHandlerTest {
 
     // Cleanup
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
 
   }

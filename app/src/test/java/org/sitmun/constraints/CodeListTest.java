@@ -15,6 +15,7 @@ import org.sitmun.repository.CartographyAvailabilityRepository;
 import org.sitmun.repository.CartographyRepository;
 import org.sitmun.repository.ServiceRepository;
 import org.sitmun.repository.TerritoryRepository;
+import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +34,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -148,14 +148,14 @@ public class CodeListTest {
     String location = mvc.perform(post(CARTOGRAPHY_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
@@ -179,7 +179,7 @@ public class CodeListTest {
     mvc.perform(post(CARTOGRAPHY_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
       .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));

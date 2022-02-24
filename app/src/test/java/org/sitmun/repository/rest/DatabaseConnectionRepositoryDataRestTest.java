@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.DatabaseConnection;
 import org.sitmun.repository.DatabaseConnectionRepository;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,7 +21,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,7 +41,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Test
   public void tasksLinksExist() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CONNECTIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
@@ -50,7 +50,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Test
   public void cartographiesLinksExist() throws Exception {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));
@@ -63,7 +63,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");
@@ -84,7 +84,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     mvc.perform(put(uri)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -95,7 +95,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -105,7 +105,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");
@@ -126,7 +126,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     mvc.perform(put(uri)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -137,7 +137,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 
@@ -147,7 +147,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME)))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");
@@ -162,7 +162,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
     mvc.perform(put(uri)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -173,7 +173,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }
 

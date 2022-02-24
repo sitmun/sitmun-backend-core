@@ -2,9 +2,8 @@ package org.sitmun.web.rest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.test.TestConstants;
+import org.sitmun.security.web.LoginRequest;
 import org.sitmun.test.TestUtils;
-import org.sitmun.web.rest.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +27,8 @@ public class AuthenticationControllerTest {
   @Test
   public void successfulLogin() throws Exception {
     LoginRequest login = new LoginRequest();
-    login.setUsername(TestConstants.SITMUN_ADMIN_USERNAME);
-    login.setPassword(TestConstants.SITMUN_ADMIN_PASSWORD);
+    login.setUsername("admin");
+    login.setPassword("admin");
 
     mvc.perform(post("/api/authenticate")
       .contentType(MediaType.APPLICATION_JSON)
@@ -41,7 +40,7 @@ public class AuthenticationControllerTest {
   @Test
   public void loginFailure() throws Exception {
     LoginRequest login = new LoginRequest();
-    login.setUsername(TestConstants.SITMUN_ADMIN_USERNAME);
+    login.setUsername("admin");
     login.setPassword("other");
 
     mvc.perform(post("/api/authenticate")

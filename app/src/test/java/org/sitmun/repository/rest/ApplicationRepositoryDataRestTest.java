@@ -2,6 +2,7 @@ package org.sitmun.repository.rest;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.TestConstants.SITMUN_ADMIN_USERNAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +47,7 @@ public class ApplicationRepositoryDataRestTest {
         "\"type\":\"I\"," +
         "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
@@ -66,7 +66,7 @@ public class ApplicationRepositoryDataRestTest {
         "\"createdDate\":\"2020-01-01\"," +
         "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate").value(matchesPattern("^(?!2020-01-01.*$).*")))
@@ -84,7 +84,7 @@ public class ApplicationRepositoryDataRestTest {
         "\"type\":\"I\"," +
         "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andDo(print())
       .andExpect(status().isCreated())
@@ -101,7 +101,7 @@ public class ApplicationRepositoryDataRestTest {
         "\"createdDate\":\"2020-01-01\"," +
         "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andDo(print())
       .andExpect(status().isOk())
@@ -119,7 +119,7 @@ public class ApplicationRepositoryDataRestTest {
         "\"createdDate\":\"2020-01-01\"," +
         "\"situationMap\":\"http://localhost/api/cartography-group/6\"" +
         "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
@@ -131,7 +131,7 @@ public class ApplicationRepositoryDataRestTest {
     mvc.perform(put(URIConstants.APPLICATION_URI_SITUATION_MAP, 1)
       .content("http://localhost/api/cartography-group/6")
       .contentType("text/uri-list")
-      .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
     )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
@@ -143,7 +143,7 @@ public class ApplicationRepositoryDataRestTest {
       String location = response.getHeader("Location");
       if (location != null) {
         mvc.perform(delete(location)
-          .with(SecurityMockMvcRequestPostProcessors.user(SITMUN_ADMIN_USERNAME))
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
         ).andExpect(status().isNoContent());
       }
     }
