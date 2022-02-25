@@ -14,8 +14,6 @@ import org.sitmun.repository.TerritoryRepository;
 import org.sitmun.repository.UserConfigurationRepository;
 import org.sitmun.repository.UserRepository;
 import org.sitmun.repository.handlers.UserEventHandler;
-import org.sitmun.security.AuthoritiesConstants;
-import org.sitmun.service.UserService;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +62,6 @@ public class UserResourceTest {
   @Autowired
   TerritoryRepository territoryRepository;
   @Autowired
-  UserService userService;
-  @Autowired
   private MockMvc mockMvc;
   private User organizacionAdmin;
   private User territory1User;
@@ -90,10 +86,10 @@ public class UserResourceTest {
     withMockSitmunAdmin(() -> {
 
       organizacionAdminRole =
-        Role.builder().name(AuthoritiesConstants.ADMIN_ORGANIZACION).build();
+        Role.builder().name("ADMIN_ORGANIZACION").build();
       roleRepository.save(organizacionAdminRole);
 
-      territorialRole = Role.builder().name(AuthoritiesConstants.USUARIO_TERRITORIAL).build();
+      territorialRole = Role.builder().name("USUARIO_TERRITORIAL").build();
       roleRepository.save(territorialRole);
 
       territories = new ArrayList<>();

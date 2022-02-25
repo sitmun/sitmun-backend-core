@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.*;
 import org.sitmun.repository.*;
-import org.sitmun.security.AuthoritiesConstants;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +105,7 @@ public class ApplicationResourceTest {
       applications = new ArrayList<>();
       applicationParameters = new ArrayList<>();
 
-      publicRole = Role.builder().name(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      publicRole = Role.builder().name("USUARIO_PUBLICO").build();
       roleRepository.save(publicRole);
 
       Set<Role> availableRoles = new HashSet<>();

@@ -20,16 +20,20 @@ public class JwtUtils {
   @Value("${security.authentication.jwt.token-validity-in-miliseconds}")
   private int jwtExpirationMs;
 
-  public String generateJwtToken(Authentication authentication) {
+  public String generateBearerToken(String userName, Date date) {
+    return "Bearer " + Jwts.builder()
+      .setSubject(userName)
+      .setIssuedAt(date)
+      .setExpiration(new Date(date.getTime() + jwtExpirationMs))
+      .signWith(SignatureAlgorithm.HS512, jwtSecret)
+      .compact();
+  }
+
+  public String generateBearerToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
-    return Jwts.builder()
-      .setSubject((userPrincipal.getUsername()))
-      .setIssuedAt(new Date())
-      .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-      .signWith(SignatureAlgorithm.HS512, jwtSecret)
-      .compact();
+    return generateBearerToken(userPrincipal.getUsername(), new Date());
   }
 
   public String getUserNameFromJwtToken(String token) {

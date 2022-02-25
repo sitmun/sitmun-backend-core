@@ -29,7 +29,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sitmun.security.SecurityConstants.HEADER_STRING;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -77,7 +76,7 @@ public class UserResourceIntegrationTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void createNewUserAndDelete() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
 
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
     HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
@@ -120,7 +119,7 @@ public class UserResourceIntegrationTest {
   @Disabled
   public void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
 
     ResponseEntity<CollectionModel<User>> response = restTemplate
       .exchange("http://localhost:{port}/api/users", HttpMethod.GET,

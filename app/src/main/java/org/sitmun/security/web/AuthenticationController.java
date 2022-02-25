@@ -1,14 +1,16 @@
 package org.sitmun.security.web;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.security.TokenProvider;
+import org.sitmun.repository.UserRepository;
+import org.sitmun.security.jwt.JwtUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,14 +26,23 @@ import javax.validation.Valid;
 @Tag(name = "authentication", description = "authentication with JWT")
 public class AuthenticationController {
 
-  private final TokenProvider tokenProvider;
+  final
+  AuthenticationManager authenticationManager;
 
-  private final AuthenticationManager authenticationManager;
+  final
+  UserRepository userRepository;
 
-  public AuthenticationController(TokenProvider tokenProvider,
-                                  AuthenticationManager authenticationManager) {
-    this.tokenProvider = tokenProvider;
+  final
+  PasswordEncoder encoder;
+
+  final
+  JwtUtils jwtUtils;
+
+  public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
     this.authenticationManager = authenticationManager;
+    this.userRepository = userRepository;
+    this.encoder = encoder;
+    this.jwtUtils = jwtUtils;
   }
 
   /**
@@ -42,42 +53,14 @@ public class AuthenticationController {
    */
   @PostMapping
   @SecurityRequirements
-  public ResponseEntity<JWTToken> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(
-      new UsernamePasswordAuthenticationToken(
-        loginRequest.getUsername(),
-        loginRequest.getPassword()));
+      new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = tokenProvider.createToken(authentication);
-    JWTToken jwtToken = new JWTToken(jwt);
-
+    String token = jwtUtils.generateBearerToken(authentication);
     return ResponseEntity.ok()
-      .header("Authorization", "Bearer " + jwt)
-      .body(jwtToken);
-  }
-
-  /**
-   * Object to return as body in JWT Authentication.
-   */
-  public static class JWTToken {
-
-    private String idToken;
-
-    public JWTToken() {
-    }
-
-    public JWTToken(String idToken) {
-      this.idToken = idToken;
-    }
-
-    @JsonProperty("id_token")
-    public String getIdToken() {
-      return idToken;
-    }
-
-    void setIdToken(String idToken) {
-      this.idToken = idToken;
-    }
+      .header(HttpHeaders.AUTHORIZATION, token)
+      .body(new JwtResponse(token.substring(7)));
   }
 }

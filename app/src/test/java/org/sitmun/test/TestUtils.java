@@ -3,7 +3,7 @@ package org.sitmun.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.sitmun.security.Role;
-import org.sitmun.security.web.AuthenticationController;
+import org.sitmun.security.web.JwtResponse;
 import org.sitmun.security.web.LoginRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sitmun.security.SecurityConstants.TOKEN_PREFIX;
 
 public class TestUtils {
 
@@ -51,10 +50,10 @@ public class TestUtils {
     LoginRequest login = new LoginRequest();
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<AuthenticationController.JWTToken> loginResponse =
+    ResponseEntity<JwtResponse> loginResponse =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationController.JWTToken.class, port);
+        .postForEntity("http://localhost:{port}/api/authenticate", login, JwtResponse.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
-    return TOKEN_PREFIX + loginResponse.getBody().getIdToken();
+    return "Bearer " + loginResponse.getBody().getIdToken();
   }
 }

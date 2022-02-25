@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sitmun.security.SecurityConstants.HEADER_STRING;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -51,7 +50,7 @@ public class TerritoryRepositoryIntegrationTest {
   @Test
   public void requestMembers() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
@@ -67,7 +66,7 @@ public class TerritoryRepositoryIntegrationTest {
   @Test
   public void requestMemberOf() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =

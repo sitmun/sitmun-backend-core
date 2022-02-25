@@ -3,19 +3,20 @@ package org.sitmun.web.rest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.security.TokenProvider;
+import org.sitmun.security.jwt.JwtUtils;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Date;
+
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.security.SecurityConstants.TOKEN_PREFIX;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class WorkspaceControllerTest {
 
   @Autowired
-  TokenProvider tokenProvider;
+  private JwtUtils jwtUtils;
 
   @Autowired
   private MockMvc mvc;
@@ -51,7 +52,7 @@ public class WorkspaceControllerTest {
   @Test
   public void readOtherUserWithToken() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
-      .header(HEADER_STRING, TOKEN_PREFIX + tokenProvider.createToken("user12"))
+        .header(HttpHeaders.AUTHORIZATION, jwtUtils.generateBearerToken("user12", new Date()))
     ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
   }

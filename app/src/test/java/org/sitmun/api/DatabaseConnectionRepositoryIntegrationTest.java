@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.DatabaseConnection;
 import org.sitmun.repository.DatabaseConnectionRepository;
-import org.sitmun.security.web.AuthenticationController;
+import org.sitmun.security.web.JwtResponse;
 import org.sitmun.security.web.LoginRequest;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
 import org.sitmun.test.TestUtils;
@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sitmun.security.SecurityConstants.HEADER_STRING;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,7 +79,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   @Test
   public void requestConnections() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
@@ -161,9 +160,9 @@ public class DatabaseConnectionRepositoryIntegrationTest {
     LoginRequest login = new LoginRequest();
     login.setUsername("admin");
     login.setPassword("admin");
-    ResponseEntity<AuthenticationController.JWTToken> loginResponse =
+    ResponseEntity<JwtResponse> loginResponse =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationController.JWTToken.class, port);
+        .postForEntity("http://localhost:{port}/api/authenticate", login, JwtResponse.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
     return loginResponse.getBody().getIdToken();
   }
@@ -171,7 +170,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
   private JSONObject getConnection(int id) throws JSONException {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id;
@@ -182,7 +181,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
   private JSONObject getConnectionCartographies(int id) throws JSONException {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";

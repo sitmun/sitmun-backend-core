@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.security.web.AuthenticationController;
+import org.sitmun.security.web.JwtResponse;
 import org.sitmun.security.web.LoginRequest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -19,8 +19,6 @@ import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.security.SecurityConstants.HEADER_STRING;
-import static org.sitmun.security.SecurityConstants.TOKEN_PREFIX;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -40,11 +38,11 @@ public class ServiceCapabilitiesExtractorIntegrationTest {
     LoginRequest login = new LoginRequest();
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<AuthenticationController.JWTToken> loginResponse =
+    ResponseEntity<JwtResponse> loginResponse =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationController.JWTToken.class, port);
+        .postForEntity("http://localhost:{port}/api/authenticate", login, JwtResponse.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
-    return TOKEN_PREFIX + loginResponse.getBody().getIdToken();
+    return "Bearer " + loginResponse.getBody().getIdToken();
   }
 
   @BeforeEach
@@ -56,7 +54,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest {
   @DisplayName("A request with a percent-encoded ampersand succeeds")
   public void usePercentEncodedAmpersand() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
@@ -77,7 +75,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest {
   @DisplayName("A request with an ampersand fails")
   public void failWithAmpersand() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HEADER_STRING, requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.AUTHORIZATION, requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     try {

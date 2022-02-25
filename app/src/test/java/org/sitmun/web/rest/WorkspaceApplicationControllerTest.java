@@ -3,7 +3,6 @@ package org.sitmun.web.rest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.security.TokenProvider;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,9 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 
 public class WorkspaceApplicationControllerTest {
-
-  @Autowired
-  TokenProvider tokenProvider;
 
   @Autowired
   private MockMvc mvc;

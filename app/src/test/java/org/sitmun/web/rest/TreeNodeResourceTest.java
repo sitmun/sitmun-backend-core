@@ -9,7 +9,6 @@ import org.sitmun.domain.TreeNode;
 import org.sitmun.repository.RoleRepository;
 import org.sitmun.repository.TreeNodeRepository;
 import org.sitmun.repository.TreeRepository;
-import org.sitmun.security.AuthoritiesConstants;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +61,7 @@ public class TreeNodeResourceTest {
 
       nodes = new ArrayList<>();
 
-      publicRole = Role.builder().name(AuthoritiesConstants.USUARIO_PUBLICO).build();
+      publicRole = Role.builder().name("USUARIO_PUBLICO").build();
       roleRepository.save(publicRole);
 
       Set<Role> availableRoles = new HashSet<>();
