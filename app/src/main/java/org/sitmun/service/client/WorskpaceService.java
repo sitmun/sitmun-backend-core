@@ -1,5 +1,6 @@
 package org.sitmun.service.client;
 
+import com.google.common.collect.Lists;
 import org.sitmun.domain.Territory;
 import org.sitmun.domain.User;
 import org.sitmun.domain.UserConfiguration;
@@ -42,7 +43,7 @@ public class WorskpaceService {
       if (!effectiveUser.getBlocked()) {
         return Optional.of(Workspace.builder()
           .territories(territories(effectiveUser))
-          .config(configurationParameterRepository.findAll())
+          .config(Lists.newArrayList(configurationParameterRepository.findAll()))
           .build());
       }
     }

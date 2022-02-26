@@ -1,5 +1,6 @@
 package org.sitmun.service.client;
 
+import com.google.common.collect.Lists;
 import org.sitmun.domain.*;
 import org.sitmun.repository.ConfigurationParameterRepository;
 import org.sitmun.repository.UserConfigurationRepository;
@@ -84,7 +85,7 @@ public class WorskpaceApplicationService {
               .territory(territories.get(0))
               .application(application.get())
               .roles(roles)
-              .config(configurationParameterRepository.findAll())
+              .config(Lists.newArrayList(configurationParameterRepository.findAll()))
               .build());
           }
         }
