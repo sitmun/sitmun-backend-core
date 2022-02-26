@@ -113,10 +113,11 @@ public class AccountControllerTest {
 
     mvc.perform(get(URIConstants.ACCOUNT_URI)
         .header(HttpHeaders.AUTHORIZATION, validToken)
-    ).andExpect(status().isOk())
+      ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.firstName", equalTo("NameChanged")))
       .andExpect(jsonPath("$.lastName", equalTo("NameChanged")))
+      .andExpect(jsonPath("$.passwordSet", equalTo(true)))
       .andExpect(jsonPath("$.password").doesNotExist());
 
     String oldPassword = user.getPassword();

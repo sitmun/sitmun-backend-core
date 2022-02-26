@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.domain.User;
 import org.sitmun.repository.UserRepository;
 import org.sitmun.security.SecurityUtils;
+import org.sitmun.web.rest.dto.UserDTO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -51,18 +52,26 @@ public class AccountController {
   /**
    * Update en existing account.
    *
-   * @param user account to be updated
+   * @param updatedUser account to be updated
    * @return ok if the account has been updated
    */
   @PutMapping
   @ResponseBody
-  public ResponseEntity<User> saveAccount(@RequestBody User user) {
+  public ResponseEntity<UserDTO> saveAccount(@RequestBody UserDTO updatedUser) {
     Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
     if (optLogin.isPresent()) {
       Optional<User> storedUser = userRepository.findByUsername(optLogin.get());
       if (storedUser.isPresent()) {
-        user.setId(storedUser.get().getId());
-        user.setStoredPassword(storedUser.get().getStoredPassword());
+        User user = storedUser.get();
+        user.setUsername(updatedUser.getUsername());
+        user.setPassword(updatedUser.getPassword());
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setIdentificationNumber(user.getIdentificationNumber());
+        user.setIdentificationType(user.getIdentificationType());
+        user.setAdministrator(user.getAdministrator());
+        user.setBlocked(user.getBlocked());
+        user.setGeneric(user.getGeneric());
         BindingResult bindingResult = new BeanPropertyBindingResult(user, "user");
         springValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
@@ -71,7 +80,7 @@ public class AccountController {
         publisher.publishEvent(new BeforeSaveEvent(user));
         user = userRepository.save(user);
         publisher.publishEvent(new AfterSaveEvent(user));
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userToDto(user));
       } else {
         return ResponseEntity.notFound().build();
       }
@@ -93,13 +102,28 @@ public class AccountController {
   @GetMapping
   @ResponseBody
   @Transactional(readOnly = true)
-  public ResponseEntity<User> getAccount() {
+  public ResponseEntity<UserDTO> getAccount() {
     Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
     if (optLogin.isPresent()) {
-      Optional<User> storedUser = userRepository.findByUsername(optLogin.get());
+      Optional<UserDTO> storedUser = userRepository.findByUsername(optLogin.get()).map(this::userToDto);
       return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  private UserDTO userToDto(User user) {
+    return UserDTO.builder()
+      .id(user.getId())
+      .username(user.getUsername())
+      .passwordSet(user.getPassword() != null && !user.getPassword().isEmpty())
+      .firstName(user.getFirstName())
+      .lastName(user.getLastName())
+      .identificationNumber(user.getIdentificationNumber())
+      .identificationType(user.getIdentificationType())
+      .administrator(user.getAdministrator())
+      .blocked(user.getBlocked())
+      .generic(user.getGeneric())
+      .build();
   }
 }

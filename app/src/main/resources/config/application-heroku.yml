@@ -45,7 +45,6 @@ spring:
       enabled: false
   jpa:
     show-sql: true
-    open-in-view: true    # This must be false
     hibernate:
       ddl-auto: none
   liquibase:

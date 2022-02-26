@@ -40,7 +40,6 @@ spring:
       enabled: false
   jpa:
     show-sql: false
-    open-in-view: true    # This must be false
     hibernate:
       ddl-auto: validate
     properties:

@@ -34,7 +34,6 @@ spring:
     serialization:
       fail_on_empty_beans: false
   jpa:
-    open-in-view: true
     properties:
       hibernate.jdbc.time_zone: UTC
       hibernate.id.new_generator_mappings: true
