@@ -27,9 +27,6 @@ subprojects {
     mavenCentral()
   }
 
-  def targetJavaVersion = JavaVersion.VERSION_1_8
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +46,10 @@ project(':app') {
 
   apply plugin: 'io.freefair.lombok'
   apply plugin: 'jacoco'
+
+  def targetJavaVersion = JavaVersion.VERSION_1_8
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
 
   tasks.named('processResources') {
     it.dependsOn ':web:build'
@@ -150,6 +151,11 @@ project(':common') {
   apply plugin: 'java'
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'io.freefair.lombok'
+  apply plugin: 'jacoco'
+
+  def targetJavaVersion = JavaVersion.VERSION_1_8
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
 
   dependencyManagement {
     imports {
@@ -168,6 +174,14 @@ project(':common') {
 
     implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
   }
+
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+    }
+  }
+
+  test.finalizedBy jacocoTestReport
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
