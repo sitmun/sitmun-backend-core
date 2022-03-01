@@ -287,6 +287,7 @@ subprojects {
 apply from: "$project.rootDir/sonar.gradle"
 
 tasks.register("codeCoverageReport", JacocoReport) {
+  jacocoClasspath = project(":common").configurations.jacocoAnt
   subprojects { subproject ->
     subproject.plugins.withType(JacocoPlugin).configureEach {
       subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
