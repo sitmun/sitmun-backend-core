@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,7 +32,7 @@ public class TaskRelation {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TASKREL_GEN")
   @Column(name = "TAR_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -45,7 +47,7 @@ public class TaskRelation {
   /**
    * A string that denotes traits or aspects of the relation
    */
-  @Column(name = "TAR_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "TAR_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   private String relationType;
 

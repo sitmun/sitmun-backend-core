@@ -1,14 +1,12 @@
 package org.sitmun.domain;
 
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.i18n.I18n;
 import org.sitmun.i18n.InternationalizationListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-
-import static org.sitmun.domain.Constants.BCP47_LANGUAGE_TAG;
-import static org.sitmun.domain.Constants.IDENTIFIER;
 
 /**
  * Available languages.
@@ -42,14 +40,14 @@ public class Language {
   /**
    * BCP 47 language tag.
    */
-  @Column(name = "LAN_SHORTNAME", length = BCP47_LANGUAGE_TAG)
+  @Column(name = "LAN_SHORTNAME", length = PersistenceConstants.BCP47_LANGUAGE_TAG)
   @NotBlank
   private String shortname;
 
   /**
    * Language name.
    */
-  @Column(name = "LAN_NAME", length = IDENTIFIER)
+  @Column(name = "LAN_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @I18n
   private String name;

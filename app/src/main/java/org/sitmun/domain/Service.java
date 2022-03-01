@@ -10,6 +10,7 @@ import org.sitmun.constraints.CodeLists;
 import org.sitmun.constraints.HttpURL;
 import org.sitmun.constraints.SpatialReferenceSystem;
 import org.sitmun.converters.StringListAttributeConverter;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.*;
+import static org.sitmun.config.PersistenceConstants.*;
 
 /**
  * Service.
@@ -49,7 +50,7 @@ public class Service {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_SERVICE_GEN")
   @Column(name = "SER_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -57,7 +58,7 @@ public class Service {
    */
   @Column(name = "SER_NAME", length = 60)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
@@ -72,7 +73,7 @@ public class Service {
   @Column(name = "SER_URL", length = URL)
   @NotNull
   @HttpURL
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String serviceURL;
 
   /**
@@ -81,7 +82,7 @@ public class Service {
   @Column(name = "SER_PROJECTS", length = 1000)
   @Convert(converter = StringListAttributeConverter.class)
   @SpatialReferenceSystem
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private List<String> supportedSRS;
 
   /**
@@ -89,7 +90,7 @@ public class Service {
    */
   @Column(name = "SER_LEGEND", length = URL)
   @HttpURL
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String legendURL;
 
   /**
@@ -97,7 +98,7 @@ public class Service {
    */
   @Column(name = "SER_INFOURL", length = URL)
   @HttpURL
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String getInformationURL;
 
   /**
@@ -115,7 +116,7 @@ public class Service {
   @Column(name = "SER_PROTOCOL", length = IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.SERVICE_TYPE)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String type;
 
   /**
@@ -146,7 +147,7 @@ public class Service {
    */
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<ServiceParameter> parameters = new HashSet<>();
 
   /**

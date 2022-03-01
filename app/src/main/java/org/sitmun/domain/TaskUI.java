@@ -3,12 +3,13 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task UI.
@@ -35,7 +36,7 @@ public class TaskUI {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TSK_UI_GEN")
   @Column(name = "TUI_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -43,14 +44,14 @@ public class TaskUI {
    */
   @Column(name = "TUI_NAME", length = IDENTIFIER)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Tooltip.
    */
   @Column(name = "TUI_TOOLTIP", length = 100)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String tooltip;
 
   /**
@@ -58,7 +59,7 @@ public class TaskUI {
    */
   @Column(name = "TUI_ORDER", precision = 6)
   @Min(0)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer order;
 
   @Override

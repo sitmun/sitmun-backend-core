@@ -12,7 +12,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
 
-import static org.sitmun.domain.Constants.*;
+import static org.sitmun.config.PersistenceConstants.*;
 
 /**
  * Thematic map.

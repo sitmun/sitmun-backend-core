@@ -2,6 +2,8 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -37,16 +39,16 @@ public class ConfigurationParameter {
   /**
    * Application parameter name.
    */
-  @Column(name = "CNF_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "CNF_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private String name;
 
   /**
    * Parameter value.
    */
-  @Column(name = "CNF_VALUE", length = Constants.VALUE)
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @Column(name = "CNF_VALUE", length = PersistenceConstants.VALUE)
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private String value;
 
   @Override

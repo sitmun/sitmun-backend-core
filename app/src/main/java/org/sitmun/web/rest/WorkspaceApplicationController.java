@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.domain.WorkspaceApplication;
 import org.sitmun.security.SecurityUtils;
 import org.sitmun.service.client.WorskpaceApplicationService;
+import org.sitmun.views.Views;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class WorkspaceApplicationController {
   @SuppressWarnings("deprecation")
   @GetMapping(path = "/application/{applicationId}/territory/{territoryId}", produces = APPLICATION_JSON_UTF8_VALUE)
   @ResponseBody
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   public ResponseEntity<WorkspaceApplication> getDescription(
     @PathVariable("applicationId") Integer applicationId,
     @PathVariable("territoryId") Integer territoryId) {

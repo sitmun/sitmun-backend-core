@@ -7,6 +7,7 @@ import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
 import org.sitmun.constraints.HttpURL;
 import org.sitmun.converters.StringListAttributeConverter;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -20,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.*;
+import static org.sitmun.config.PersistenceConstants.*;
 
 /**
  * Geographic information.
@@ -48,7 +49,7 @@ public class Cartography {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GEOINFO_GEN")
   @Column(name = "GEO_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -56,14 +57,14 @@ public class Cartography {
    */
   @Column(name = "GEO_NAME", length = 100)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Cartography description.
    */
   @Column(name = "GEO_ABSTRACT", length = SHORT_DESCRIPTION)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String description;
 
   /**
@@ -72,28 +73,28 @@ public class Cartography {
   @Column(name = "GEO_LAYERS", length = 800)
   @NotNull
   @Convert(converter = StringListAttributeConverter.class)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private List<String> layers;
 
   /**
    * Minimum scale visibility.
    */
   @Column(name = "GEO_MINSCALE")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer minimumScale;
 
   /**
    * Maximum visibility.
    */
   @Column(name = "GEO_MAXSCALE")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer maximumScale;
 
   /**
    * Cartography order appearance.
    */
   @Column(name = "GEO_ORDER")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer order;
 
   /**
@@ -102,7 +103,7 @@ public class Cartography {
   @Column(name = "GEO_TRANSP")
   @Min(0)
   @Max(100)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer transparency;
 
   /**
@@ -151,7 +152,7 @@ public class Cartography {
   @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Service service;
 
   /**

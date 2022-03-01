@@ -4,6 +4,7 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
 import org.springframework.data.annotation.CreatedDate;
@@ -44,7 +45,7 @@ public class User {
   /**
    * User login.
    */
-  @Column(name = "USE_USER", length = Constants.IDENTIFIER)
+  @Column(name = "USE_USER", length = PersistenceConstants.IDENTIFIER)
   private String username;
 
   /**
@@ -73,13 +74,13 @@ public class User {
   /**
    * User identification number.
    */
-  @Column(name = "USE_IDENT", length = Constants.IDENTIFIER)
+  @Column(name = "USE_IDENT", length = PersistenceConstants.IDENTIFIER)
   private String identificationNumber;
 
   /**
    * User identification type.
    */
-  @Column(name = "USE_IDENTTYPE", length = Constants.IDENTIFIER)
+  @Column(name = "USE_IDENTTYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeLists.USER_IDENTIFICATION_TYPE)
   private String identificationType;
 

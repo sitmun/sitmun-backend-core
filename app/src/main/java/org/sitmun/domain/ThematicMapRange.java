@@ -11,8 +11,8 @@ import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
-import static org.sitmun.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * A range defined in a thematic map.

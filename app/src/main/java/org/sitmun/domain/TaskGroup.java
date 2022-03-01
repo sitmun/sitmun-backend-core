@@ -3,6 +3,8 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -32,15 +34,15 @@ public class TaskGroup {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_TSK_GEN")
   @Column(name = "GTS_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
    * Task group name.
    */
-  @Column(name = "GTS_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "GTS_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   @Override

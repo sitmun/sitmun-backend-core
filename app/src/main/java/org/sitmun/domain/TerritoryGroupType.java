@@ -3,11 +3,12 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.domain.Constants.SHORT_DESCRIPTION;
+import static org.sitmun.config.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * Type of grouping of territorial entities.
@@ -43,7 +44,7 @@ public class TerritoryGroupType {
    */
   @NotBlank
   @Column(name = "GTT_NAME", length = SHORT_DESCRIPTION)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String name;
 
   @Override

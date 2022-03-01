@@ -3,7 +3,9 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.HttpURL;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -35,30 +37,30 @@ public class Tree {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_GEN")
   @Column(name = "TRE_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
    * Tree name.na
    */
-  @Column(name = "TRE_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "TRE_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Representative image or icon.
    */
-  @Column(name = "TRE_IMAGE", length = Constants.URL)
+  @Column(name = "TRE_IMAGE", length = PersistenceConstants.URL)
   @HttpURL
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String image;
 
   /**
    * Description.
    */
-  @Column(name = "TRE_ABSTRACT", length = Constants.SHORT_DESCRIPTION)
-  @JsonView(WorkspaceApplication.View.class)
+  @Column(name = "TRE_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @JsonView(Views.WorkspaceApplication.class)
   private String description;
 
   /**
@@ -74,7 +76,7 @@ public class Tree {
    */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<TreeNode> allNodes = new HashSet<>();
 
   /**

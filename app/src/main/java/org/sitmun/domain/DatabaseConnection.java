@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Represents a JDBC database connection.

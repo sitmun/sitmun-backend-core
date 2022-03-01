@@ -4,8 +4,10 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -41,21 +43,21 @@ public class CartographyPermission {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_GI_GEN")
   @Column(name = "GGI_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
    * Permissions name.
    */
-  @Column(name = "GGI_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "GGI_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Permissions type.
    */
-  @Column(name = "GGI_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "GGI_TYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 
@@ -76,7 +78,7 @@ public class CartographyPermission {
       name = "GGG_GIID",
       foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<Cartography> members = new HashSet<>();
 
   /**

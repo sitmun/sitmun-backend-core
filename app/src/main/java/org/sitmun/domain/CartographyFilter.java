@@ -4,6 +4,7 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
 import org.sitmun.converters.StringListAttributeConverter;
@@ -43,7 +44,7 @@ public class CartographyFilter {
   /**
    * Filter name.
    */
-  @Column(name = "FGI_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "FGI_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String name;
 
@@ -57,7 +58,7 @@ public class CartographyFilter {
   /**
    * Type of filter: custom or required.
    */
-  @Column(name = "FGI_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "FGI_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.CARTOGRAPHY_FILTER_TYPE)
   private String type;
@@ -72,7 +73,7 @@ public class CartographyFilter {
   /**
    * Column where the filter applies.
    */
-  @Column(name = "FGI_COLUMN", length = Constants.IDENTIFIER)
+  @Column(name = "FGI_COLUMN", length = PersistenceConstants.IDENTIFIER)
   private String column;
 
   /**
@@ -85,7 +86,7 @@ public class CartographyFilter {
   /**
    * Type of filter value.
    */
-  @Column(name = "FGI_VALUETYPE", length = Constants.IDENTIFIER)
+  @Column(name = "FGI_VALUETYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeLists.CARTOGRAPHY_FILTER_VALUE_TYPE)
   private String valueType;
 

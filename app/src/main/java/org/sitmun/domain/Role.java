@@ -3,6 +3,8 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -35,16 +37,16 @@ public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_ROLE_GEN")
   @Column(name = "ROL_ID")
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private Integer id;
 
   /**
    * Role name.
    * Role names are unique and cannot be shared across applications.
    */
-  @Column(name = "ROL_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "ROL_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private String name;
 
   /**
@@ -80,7 +82,7 @@ public class Role {
       name = "RTS_TASKID",
       foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")))
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<Task> tasks = new HashSet<>();
 
   /**
@@ -96,7 +98,7 @@ public class Role {
       name = "RGG_GGIID",
       foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")))
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<CartographyPermission> permissions = new HashSet<>();
 
   /**
@@ -111,7 +113,7 @@ public class Role {
       name = "TRO_TREEID",
       foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")))
   @Builder.Default
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Set<Tree> trees = new HashSet<>();
 
   /**

@@ -3,6 +3,7 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -38,20 +39,20 @@ public class CartographyStyle {
   /**
    * Style name.
    */
-  @Column(name = "SGI_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "SGI_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String name;
 
   /**
    * Style title.
    */
-  @Column(name = "SGI_TITLE", length = Constants.TITLE)
+  @Column(name = "SGI_TITLE", length = PersistenceConstants.TITLE)
   private String title;
 
   /**
    * Style abstract.
    */
-  @Column(name = "SGI_ABSTRACT", length = Constants.SHORT_DESCRIPTION)
+  @Column(name = "SGI_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String description;
 
   /**

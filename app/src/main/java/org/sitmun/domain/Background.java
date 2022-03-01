@@ -4,6 +4,7 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.constraints.HttpURL;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -13,7 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.*;
+import static org.sitmun.config.PersistenceConstants.*;
 
 /**
  * Background.
@@ -48,7 +49,7 @@ public class Background {
    */
   @Column(name = "BAC_NAME", length = IDENTIFIER)
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String name;
 
   /**
@@ -56,7 +57,7 @@ public class Background {
    */
   @Column(name = "BAC_IMAGE", length = URL)
   @HttpURL
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String image;
 
   /**
@@ -84,7 +85,7 @@ public class Background {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private CartographyPermission cartographyGroup;
 
   /**

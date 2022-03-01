@@ -2,6 +2,7 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.views.Views;
 
 /**
  * Defines a rectangular region of the 2D coordinate plane.
@@ -20,22 +21,22 @@ public class Envelope {
   /**
    * The envelope minimum y-value.
    */
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   public Double minY;
   /**
    * The envelope maximum x-value.
    */
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Double maxX;
   /**
    * The envelope maximum y-value.
    */
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Double maxY;
   /**
    * The envelope minimum x-value.
    */
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Double minX;
 
 }

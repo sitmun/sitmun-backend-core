@@ -5,15 +5,17 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.converters.HashMapConverter;
 import org.sitmun.i18n.I18n;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task type.
@@ -40,22 +42,22 @@ public class TaskType {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TSK_TYP_GEN")
   @Column(name = "TTY_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
    * Task type name.
    */
   @Column(name = "TTY_NAME", length = IDENTIFIER)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Task type title.
    */
-  @Column(name = "TTY_TITLE", length = Constants.TITLE)
+  @Column(name = "TTY_TITLE", length = PersistenceConstants.TITLE)
   @I18n
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String title;
 
   /**

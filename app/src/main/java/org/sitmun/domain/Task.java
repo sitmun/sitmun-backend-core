@@ -4,6 +4,7 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.converters.HashMapConverter;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -40,7 +41,7 @@ public class Task {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TASK_GEN")
   @Column(name = "TAS_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -48,7 +49,7 @@ public class Task {
    */
   @Column(name = "TAS_NAME", length = 512)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
@@ -64,7 +65,7 @@ public class Task {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "TAS_ORDER", precision = 6)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer order;
 
   /**
@@ -73,7 +74,7 @@ public class Task {
   @Lob
   @Column(name = "TAS_PARAMS")
   @Convert(converter = HashMapConverter.class)
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Map<String, Object> properties;
 
   /**
@@ -81,7 +82,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GEO"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Cartography cartography;
 
   /**
@@ -89,7 +90,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_SERID", foreignKey = @ForeignKey(name = "STM_TAS_FK_SER"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Service service;
 
   /**
@@ -97,7 +98,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GTS"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private TaskGroup group;
 
   /**
@@ -105,7 +106,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TTY"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private TaskType type;
 
   /**
@@ -113,7 +114,7 @@ public class Task {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TUI"))
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private TaskUI ui;
 
   /**

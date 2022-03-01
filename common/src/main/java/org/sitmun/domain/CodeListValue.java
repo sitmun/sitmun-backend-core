@@ -2,6 +2,7 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.i18n.I18n;
 import org.sitmun.i18n.InternationalizationListener;
 
@@ -41,7 +42,7 @@ public class CodeListValue {
   /**
    * Code list name.
    */
-  @Column(name = "COD_LIST", length = Constants.IDENTIFIER)
+  @Column(name = "COD_LIST", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String codeListName;
 
@@ -52,7 +53,7 @@ public class CodeListValue {
   /**
    * Value.
    */
-  @Column(name = "COD_VALUE", length = Constants.IDENTIFIER)
+  @Column(name = "COD_VALUE", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String value;
 
@@ -73,7 +74,7 @@ public class CodeListValue {
   /**
    * Value description.
    */
-  @Column(name = "COD_DESCRIPTION", length = Constants.SHORT_DESCRIPTION)
+  @Column(name = "COD_DESCRIPTION", length = PersistenceConstants.SHORT_DESCRIPTION)
   @I18n
   private String description;
 

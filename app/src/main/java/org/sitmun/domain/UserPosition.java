@@ -14,7 +14,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * User position in a territory.

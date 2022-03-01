@@ -3,11 +3,12 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Type of territorial entities.
@@ -42,7 +43,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_NAME", length = IDENTIFIER)
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String name;
 
   /**
@@ -50,7 +51,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_OFFICIAL")
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Builder.Default
   private Boolean official = false;
 
@@ -59,7 +60,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_TOP")
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Builder.Default
   private Boolean topType = false;
 
@@ -68,7 +69,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_BOTTOM")
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Builder.Default
   private Boolean bottomType = false;
 

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.HttpURL;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -36,7 +38,7 @@ public class TreeNode {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TREE_NOD_GEN")
   @Column(name = "TNO_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
@@ -51,13 +53,13 @@ public class TreeNode {
    */
   @Column(name = "TNO_NAME", length = 80)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Description.
    */
-  @Column(name = "TNO_ABSTRACT", length = Constants.SHORT_DESCRIPTION)
+  @Column(name = "TNO_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String description;
 
   /**
@@ -87,14 +89,14 @@ public class TreeNode {
   /**
    * URL to metadata.
    */
-  @Column(name = "TNO_METAURL", length = Constants.URL)
+  @Column(name = "TNO_METAURL", length = PersistenceConstants.URL)
   @HttpURL
   private String metadataURL;
 
   /**
    * URL to downloadable (zip) dataset.
    */
-  @Column(name = "TNO_DATAURL", length = Constants.URL)
+  @Column(name = "TNO_DATAURL", length = PersistenceConstants.URL)
   @HttpURL
   private String datasetURL;
 
@@ -144,7 +146,7 @@ public class TreeNode {
   @ManyToOne(fetch = FetchType.LAZY)
   private Cartography cartography;
 
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   public Integer getParentId() {
     if (parent != null) {
       return parent.id;
@@ -152,7 +154,7 @@ public class TreeNode {
     return null;
   }
 
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   public Integer getCartographyId() {
     if (cartography != null) {
       return cartography.getId();

@@ -2,6 +2,7 @@ package org.sitmun.domain;
 
 
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.SpatialReferenceSystem;
 import org.sitmun.converters.StringListAttributeConverter;
 
@@ -94,7 +95,7 @@ public class Log {
   /**
    * Territory code.
    */
-  @Column(name = "LOG_TER", length = Constants.IDENTIFIER)
+  @Column(name = "LOG_TER", length = PersistenceConstants.IDENTIFIER)
   private String territoryCode;
 
   /**
@@ -114,14 +115,14 @@ public class Log {
   /**
    * SRS requested.
    */
-  @Column(name = "LOG_SRS", length = Constants.IDENTIFIER)
+  @Column(name = "LOG_SRS", length = PersistenceConstants.IDENTIFIER)
   @SpatialReferenceSystem
   private String srs;
 
   /**
    * Format requested.
    */
-  @Column(name = "LOG_FORMAT", length = Constants.IDENTIFIER)
+  @Column(name = "LOG_FORMAT", length = PersistenceConstants.IDENTIFIER)
   private String format;
 
   /**

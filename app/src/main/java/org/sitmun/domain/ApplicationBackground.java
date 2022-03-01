@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -53,7 +54,7 @@ public class ApplicationBackground {
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_ABC_FK_FON"))
   @NotNull
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Background background;
 
   /**
@@ -61,7 +62,7 @@ public class ApplicationBackground {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "ABC_ORDER", precision = 6)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Integer order;
 
   @Override

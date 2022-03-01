@@ -9,6 +9,7 @@ import org.sitmun.constraints.CodeLists;
 import org.sitmun.constraints.HttpURL;
 import org.sitmun.converters.EnvelopeToStringConverter;
 import org.sitmun.converters.PointToStringConverter;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -20,7 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.domain.Constants.*;
+import static org.sitmun.config.PersistenceConstants.*;
 
 /**
  * Territorial entity.
@@ -49,7 +50,7 @@ public class Territory {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TERRITORY_GEN")
   @Column(name = "TER_ID")
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private Integer id;
 
   /**
@@ -64,21 +65,21 @@ public class Territory {
    */
   @Column(name = "TER_NAME", length = SHORT_DESCRIPTION)
   @NotBlank
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private String name;
 
   /**
    * Territorial authority name.
    */
   @Column(name = "TER_ADMNAME", length = SHORT_DESCRIPTION)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String territorialAuthorityName;
 
   /**
    * Territorial authority address.
    */
   @Column(name = "TER_ADDRESS", length = SHORT_DESCRIPTION)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String territorialAuthorityAddress;
 
   /**
@@ -86,7 +87,7 @@ public class Territory {
    */
   @Column(name = "TER_EMAIL", length = IDENTIFIER)
   @Email
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String territorialAuthorityEmail;
 
   /**
@@ -94,7 +95,7 @@ public class Territory {
    */
   @Column(name = "TER_LOGO", length = URL)
   @HttpURL
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String territorialAuthorityLogo;
 
   /**
@@ -102,7 +103,7 @@ public class Territory {
    */
   @Column(name = "TER_SCOPE", length = IDENTIFIER)
   @CodeList(CodeLists.TERRITORY_SCOPE)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Deprecated
   private String scope;
 
@@ -110,7 +111,7 @@ public class Territory {
    * Bounding box of the territory.
    */
   @Column(name = "TER_EXTENT", length = 250)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Convert(converter = EnvelopeToStringConverter.class)
   @BoundingBox
   private Envelope extent;
@@ -119,7 +120,7 @@ public class Territory {
    * Center of the territory.
    */
   @Column(name = "TER_CENTER", length = VALUE)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Convert(converter = PointToStringConverter.class)
   private Point center;
 
@@ -127,7 +128,7 @@ public class Territory {
    * Default zoom level.
    */
   @Column(name = "TER_ZOOM")
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Integer defaultZoomLevel;
 
 
@@ -143,7 +144,7 @@ public class Territory {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private TerritoryType type;
 
   /**
@@ -165,7 +166,7 @@ public class Territory {
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   @Deprecated
   private TerritoryGroupType groupType;
 

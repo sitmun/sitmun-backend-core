@@ -1,9 +1,9 @@
-package org.sitmun.domain;
+package org.sitmun.config;
 
 /**
  * Constants and definitions.
  */
-public class Constants {
+public class PersistenceConstants {
 
   /**
    * Identifier for BCP 47 Language Tag
@@ -40,7 +40,7 @@ public class Constants {
    */
   public static final int URL = 4000;
 
-  private Constants() {
+  private PersistenceConstants() {
   }
 
 }

@@ -8,8 +8,8 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
-import static org.sitmun.domain.Constants.URL;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.URL;
 
 /**
  * Legend provider.

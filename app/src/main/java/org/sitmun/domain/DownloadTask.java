@@ -1,6 +1,7 @@
 package org.sitmun.domain;
 
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
 import org.sitmun.constraints.HttpURL;
@@ -30,7 +31,7 @@ public class DownloadTask {
   /**
    * Download extension.
    */
-  @Column(name = "DOW_EXT", length = Constants.IDENTIFIER)
+  @Column(name = "DOW_EXT", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.DOWNLOAD_TASK_FORMAT)
   private String format;
@@ -38,7 +39,7 @@ public class DownloadTask {
   /**
    * Download scope.
    */
-  @Column(name = "DOW_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "DOW_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.DOWNLOAD_TASK_SCOPE)
   private String scope;
@@ -46,7 +47,7 @@ public class DownloadTask {
   /**
    * Location of the file to be downloaded.
    */
-  @Column(name = "DOW_PATH", length = Constants.URL)
+  @Column(name = "DOW_PATH", length = PersistenceConstants.URL)
   @NotNull
   @HttpURL
   private String path;

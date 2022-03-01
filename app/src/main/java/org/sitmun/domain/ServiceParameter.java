@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
+import org.sitmun.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -37,31 +39,31 @@ public class ServiceParameter {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_PAR_SER_GEN")
   @Column(name = "PSE_ID")
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private Integer id;
 
   /**
    * Parameter name.
    */
-  @Column(name = "PSE_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "PSE_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String name;
 
   /**
    * Parameter value.
    */
-  @Column(name = "PSE_VALUE", length = Constants.VALUE)
-  @JsonView(WorkspaceApplication.View.class)
+  @Column(name = "PSE_VALUE", length = PersistenceConstants.VALUE)
+  @JsonView(Views.WorkspaceApplication.class)
   private String value;
 
   /**
    * Parameter type.
    */
-  @Column(name = "PSE_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "PSE_TYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeLists.SERVICE_PARAMETER_TYPE)
   @NotNull
-  @JsonView(WorkspaceApplication.View.class)
+  @JsonView(Views.WorkspaceApplication.class)
   private String type;
 
   /**

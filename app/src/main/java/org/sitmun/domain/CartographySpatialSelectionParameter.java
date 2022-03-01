@@ -11,8 +11,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.domain.Constants.IDENTIFIER;
-import static org.sitmun.domain.Constants.VALUE;
+import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.config.PersistenceConstants.VALUE;
 
 /**
  * Geographic Information parameter for spatial selection.

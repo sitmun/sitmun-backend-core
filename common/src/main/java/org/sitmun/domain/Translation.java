@@ -1,6 +1,7 @@
 package org.sitmun.domain;
 
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -44,7 +45,7 @@ public class Translation {
   /**
    * Table and Column identifier.
    */
-  @Column(name = "TRA_COLUMN", length = Constants.IDENTIFIER)
+  @Column(name = "TRA_COLUMN", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String column;
 
@@ -59,7 +60,7 @@ public class Translation {
   /**
    * Translation.
    */
-  @Column(name = "TRA_NAME", length = Constants.SHORT_DESCRIPTION)
+  @Column(name = "TRA_NAME", length = PersistenceConstants.SHORT_DESCRIPTION)
   @NotBlank
   private String translation;
 

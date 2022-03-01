@@ -3,10 +3,12 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import org.sitmun.config.PersistenceConstants;
 import org.sitmun.constraints.CodeList;
 import org.sitmun.constraints.CodeLists;
 import org.sitmun.constraints.SpatialReferenceSystem;
 import org.sitmun.converters.StringListAttributeConverter;
+import org.sitmun.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -39,31 +41,31 @@ public class Application {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_APP_GEN")
   @TableGenerator(name = "STM_APP_GEN", table = "STM_SEQUENCE", pkColumnName = "SEQ_NAME",
     valueColumnName = "SEQ_COUNT", pkColumnValue = "APP_ID", allocationSize = 1)
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private Integer id;
 
   /**
    * Application name.
    */
-  @Column(name = "APP_NAME", length = Constants.IDENTIFIER)
+  @Column(name = "APP_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String name;
 
   /**
    * Application type (external or internal).
    */
-  @Column(name = "APP_TYPE", length = Constants.IDENTIFIER)
+  @Column(name = "APP_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   @CodeList(CodeLists.APPLICATION_TYPE)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String type;
 
   /**
    * Title to be shown in the browser and in the application when it is internal.
    */
-  @Column(name = "APP_TITLE", length = Constants.SHORT_DESCRIPTION)
-  @JsonView({Workspace.View.class, WorkspaceApplication.View.class})
+  @Column(name = "APP_TITLE", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @JsonView({Workspace.View.class, Views.WorkspaceApplication.class})
   private String title;
 
   /**
@@ -77,22 +79,22 @@ public class Application {
    */
   @Column(name = "APP_SCALES", length = 250)
   @Convert(converter = StringListAttributeConverter.class)
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private List<String> scales;
 
   /**
    * Projection to be used in this application when it is internal.
    */
-  @Column(name = "APP_PROJECT", length = Constants.IDENTIFIER)
+  @Column(name = "APP_PROJECT", length = PersistenceConstants.IDENTIFIER)
   @SpatialReferenceSystem
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private String srs;
 
   /**
    * The JSP viewer to be loaded in this application when it is internal or a link to the
    * external application.
    */
-  @Column(name = "APP_TEMPLATE", length = Constants.SHORT_DESCRIPTION)
+  @Column(name = "APP_TEMPLATE", length = PersistenceConstants.SHORT_DESCRIPTION)
   @NotNull
   private String jspTemplate;
 
@@ -168,7 +170,7 @@ public class Application {
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  @JsonView({WorkspaceApplication.View.class})
+  @JsonView({Views.WorkspaceApplication.class})
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   @Override
