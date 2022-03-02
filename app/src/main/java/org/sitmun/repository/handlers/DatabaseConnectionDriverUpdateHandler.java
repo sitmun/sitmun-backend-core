@@ -1,8 +1,8 @@
 package org.sitmun.repository.handlers;
 
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.domain.CodeListValue;
-import org.sitmun.repository.CodeListValueRepository;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeListValue;
+import org.sitmun.common.types.codelist.CodeListValueRepository;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Component;
 

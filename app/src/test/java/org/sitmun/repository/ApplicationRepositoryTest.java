@@ -29,27 +29,13 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class ApplicationRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private ApplicationRepository applicationRepository;
-
   @Autowired
   private CartographyPermissionRepository cartographyPermissionRepository;
-
   @Autowired
   private BackgroundRepository backgroundRepository;
-
   private Application application;
-
 
   @BeforeEach
   public void init() {
@@ -135,5 +121,15 @@ public class ApplicationRepositoryTest {
     Integer id = application.getId();
     applicationRepository.delete(application);
     assertThat(applicationRepository.findById(id)).isEmpty();
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 }

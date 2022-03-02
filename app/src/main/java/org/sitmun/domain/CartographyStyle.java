@@ -3,7 +3,7 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.config.PersistenceConstants;
+import org.sitmun.common.config.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

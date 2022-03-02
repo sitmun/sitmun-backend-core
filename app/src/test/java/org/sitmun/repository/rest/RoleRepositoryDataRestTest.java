@@ -29,7 +29,7 @@ public class RoleRepositoryDataRestTest {
   @Test
   public void getApplicationsOfARole() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.ROLE_APPLICATIONS_URI, 10)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(1)))
       .andExpect(jsonPath("$._embedded.applications[0].id").value(1));
@@ -38,7 +38,7 @@ public class RoleRepositoryDataRestTest {
   @Test
   public void getTasksOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_TASKS_URI, 10)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(220)))
       .andExpect(jsonPath("$._embedded.tasks", hasSize(220)));
@@ -47,7 +47,7 @@ public class RoleRepositoryDataRestTest {
   @Test
   public void getPermissionsOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_PERMISSIONS_URI, 10)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(35)));
   }

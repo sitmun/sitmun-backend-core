@@ -3,331 +3,331 @@
 
 create table stm_app
 (
-    app_id       int4 not null,
-    app_entrym   boolean,
-    app_entrys   boolean,
-    app_created  timestamp,
-    app_template varchar(250),
-    app_name     varchar(50),
-    app_scales   varchar(250),
-    app_project  varchar(50),
-    app_theme    varchar(30),
-    app_title    varchar(250),
-    app_refresh  boolean,
-    app_type     varchar(50),
-    app_ggiid    int4,
-    primary key (app_id)
+  app_id       int4 not null,
+  app_entrym   boolean,
+  app_entrys   boolean,
+  app_created  timestamp,
+  app_template varchar(250),
+  app_name     varchar(50),
+  app_scales   varchar(250),
+  app_project  varchar(50),
+  app_theme    varchar(30),
+  app_title    varchar(250),
+  app_refresh  boolean,
+  app_type     varchar(50),
+  app_ggiid    int4,
+  primary key (app_id)
 );
 create table stm_app_bckg
 (
-    abc_id     int4 not null,
-    abc_order  int4,
-    abc_appid  int4,
-    abc_backid int4,
-    primary key (abc_id)
+  abc_id     int4 not null,
+  abc_order  int4,
+  abc_appid  int4,
+  abc_backid int4,
+  primary key (abc_id)
 );
 create table stm_app_rol
 (
-    aro_roleid int4 not null,
-    aro_appid  int4 not null,
-    primary key (aro_appid, aro_roleid)
+  aro_roleid int4 not null,
+  aro_appid  int4 not null,
+  primary key (aro_appid, aro_roleid)
 );
 create table stm_app_tree
 (
-    atr_treeid int4 not null,
-    atr_appid  int4 not null,
-    primary key (atr_appid, atr_treeid)
+  atr_treeid int4 not null,
+  atr_appid  int4 not null,
+  primary key (atr_appid, atr_treeid)
 );
 create table stm_avail_gi
 (
-    agi_id        int4 not null,
-    agi_created   timestamp,
-    agi_proprieta varchar(50),
-    agi_giid      int4,
-    agi_terid     int4,
-    primary key (agi_id)
+  agi_id        int4 not null,
+  agi_created   timestamp,
+  agi_proprieta varchar(50),
+  agi_giid      int4,
+  agi_terid     int4,
+  primary key (agi_id)
 );
 create table stm_avail_tsk
 (
-    ats_id      int4 not null,
-    ats_created timestamp,
-    ats_taskid  int4,
-    ats_terid   int4,
-    primary key (ats_id)
+  ats_id      int4 not null,
+  ats_created timestamp,
+  ats_taskid  int4,
+  ats_terid   int4,
+  primary key (ats_id)
 );
 create table stm_backgrd
 (
-    bac_id      int4 not null,
-    bac_active  boolean,
-    bac_created timestamp,
-    bac_desc    varchar(250),
-    bac_image   varchar(4000),
-    bac_name    varchar(50),
-    bac_ggiid   int4,
-    primary key (bac_id)
+  bac_id      int4 not null,
+  bac_active  boolean,
+  bac_created timestamp,
+  bac_desc    varchar(250),
+  bac_image   varchar(4000),
+  bac_name    varchar(50),
+  bac_ggiid   int4,
+  primary key (bac_id)
 );
 create table stm_codelist
 (
-    cod_id          int4 not null,
-    cod_list        varchar(50),
-    cod_description varchar(250),
-    cod_system      boolean,
-    cod_default     boolean,
-    cod_value       varchar(50),
-    primary key (cod_id)
+  cod_id          int4 not null,
+  cod_list        varchar(50),
+  cod_description varchar(250),
+  cod_system      boolean,
+  cod_default     boolean,
+  cod_value       varchar(50),
+  primary key (cod_id)
 );
 create table stm_comment
 (
-    com_id      int4 not null,
-    com_coord_x float8,
-    com_coord_y float8,
-    com_created timestamp,
-    com_desc    varchar(1000),
-    com_email   varchar(250),
-    com_name    varchar(250),
-    com_title   varchar(500),
-    com_appid   int4,
-    com_userid  int4,
-    primary key (com_id)
+  com_id      int4 not null,
+  com_coord_x float8,
+  com_coord_y float8,
+  com_created timestamp,
+  com_desc    varchar(1000),
+  com_email   varchar(250),
+  com_name    varchar(250),
+  com_title   varchar(500),
+  com_appid   int4,
+  com_userid  int4,
+  primary key (com_id)
 );
 create table stm_conf
 (
-    cnf_id    int4 not null,
-    cnf_name  varchar(50),
-    cnf_value varchar(250),
-    primary key (cnf_id)
+  cnf_id    int4 not null,
+  cnf_name  varchar(50),
+  cnf_value varchar(250),
+  primary key (cnf_id)
 );
 create table stm_connect
 (
-    con_id         int4 not null,
-    con_driver     varchar(50),
-    con_name       varchar(50),
-    con_pwd        varchar(50),
-    con_connection varchar(250),
-    con_user       varchar(50),
-    primary key (con_id)
+  con_id         int4 not null,
+  con_driver     varchar(50),
+  con_name       varchar(50),
+  con_pwd        varchar(50),
+  con_connection varchar(250),
+  con_user       varchar(50),
+  primary key (con_id)
 );
 create table stm_download
 (
-    dow_id   int4 not null,
-    dow_ext  varchar(50),
-    dow_path varchar(4000),
-    dow_type varchar(50),
-    primary key (dow_id)
+  dow_id   int4 not null,
+  dow_ext  varchar(50),
+  dow_path varchar(4000),
+  dow_type varchar(50),
+  primary key (dow_id)
 );
 create table stm_fil_gi
 (
-    fgi_id        int4 not null,
-    fgi_column    varchar(50),
-    fgi_name      varchar(50),
-    fgi_required  boolean,
-    fgi_type      varchar(50),
-    fgi_valuetype varchar(50),
-    fgi_value     varchar(4000),
-    fgi_giid      int4,
-    fgi_typid     int4,
-    primary key (fgi_id)
+  fgi_id        int4 not null,
+  fgi_column    varchar(50),
+  fgi_name      varchar(50),
+  fgi_required  boolean,
+  fgi_type      varchar(50),
+  fgi_valuetype varchar(50),
+  fgi_value     varchar(4000),
+  fgi_giid      int4,
+  fgi_typid     int4,
+  primary key (fgi_id)
 );
 create table stm_geoinfo
 (
-    geo_id         int4    not null,
-    geo_filter_gfi boolean,
-    geo_filter_gm  boolean,
-    geo_filter_se  boolean,
-    geo_blocked    boolean,
-    geo_created    timestamp,
-    geo_dataurl    varchar(4000),
-    geo_abstract   varchar(250),
-    geo_geomtype   varchar(50),
-    geo_layers     varchar(800),
-    geo_legendtip  varchar(50),
-    geo_legendurl  varchar(4000),
-    geo_maxscale   int4,
-    geo_metaurl    varchar(4000),
-    geo_minscale   int4,
-    geo_name       varchar(100),
-    geo_order      int4,
-    geo_queryabl   boolean,
-    geo_queryact   boolean,
-    geo_querylay   varchar(500),
-    geo_selectabl  boolean,
-    geo_selectlay  varchar(500),
-    geo_source     varchar(50),
-    geo_thematic   boolean,
-    geo_transp     int4,
-    geo_type       varchar(50),
-    geo_styid      int4,
-    geo_serid      int4,
-    geo_styuseall  boolean not null default false,
-    geo_connid     int4,
-    geo_serselid   int4,
-    primary key (geo_id)
+  geo_id         int4    not null,
+  geo_filter_gfi boolean,
+  geo_filter_gm  boolean,
+  geo_filter_se  boolean,
+  geo_blocked    boolean,
+  geo_created    timestamp,
+  geo_dataurl    varchar(4000),
+  geo_abstract   varchar(250),
+  geo_geomtype   varchar(50),
+  geo_layers     varchar(800),
+  geo_legendtip  varchar(50),
+  geo_legendurl  varchar(4000),
+  geo_maxscale   int4,
+  geo_metaurl    varchar(4000),
+  geo_minscale   int4,
+  geo_name       varchar(100),
+  geo_order      int4,
+  geo_queryabl   boolean,
+  geo_queryact   boolean,
+  geo_querylay   varchar(500),
+  geo_selectabl  boolean,
+  geo_selectlay  varchar(500),
+  geo_source     varchar(50),
+  geo_thematic   boolean,
+  geo_transp     int4,
+  geo_type       varchar(50),
+  geo_styid      int4,
+  geo_serid      int4,
+  geo_styuseall  boolean not null default false,
+  geo_connid     int4,
+  geo_serselid   int4,
+  primary key (geo_id)
 );
 create table stm_ggi_gi
 (
-    ggg_ggiid int4 not null,
-    ggg_giid  int4 not null,
-    primary key (ggg_giid, ggg_ggiid)
+  ggg_ggiid int4 not null,
+  ggg_giid  int4 not null,
+  primary key (ggg_giid, ggg_ggiid)
 );
 create table stm_grp_gi
 (
-    ggi_id   int4 not null,
-    ggi_name varchar(50),
-    ggi_type varchar(50),
-    primary key (ggi_id)
+  ggi_id   int4 not null,
+  ggi_name varchar(50),
+  ggi_type varchar(50),
+  primary key (ggi_id)
 );
 create table stm_grp_ter
 (
-    gte_terid  int4 not null,
-    gte_termid int4 not null,
-    primary key (gte_termid, gte_terid)
+  gte_terid  int4 not null,
+  gte_termid int4 not null,
+  primary key (gte_termid, gte_terid)
 );
 create table stm_grp_tsk
 (
-    gts_id   int4 not null,
-    gts_name varchar(50),
-    primary key (gts_id)
+  gts_id   int4 not null,
+  gts_name varchar(50),
+  primary key (gts_id)
 );
 create table stm_gter_typ
 (
-    gtt_id   int4 not null,
-    gtt_name varchar(250),
-    primary key (gtt_id)
+  gtt_id   int4 not null,
+  gtt_name varchar(250),
+  primary key (gtt_id)
 );
 create table stm_language
 (
-    lan_id        int4 not null,
-    lan_name      varchar(50),
-    lan_shortname varchar(20),
-    primary key (lan_id)
+  lan_id        int4 not null,
+  lan_name      varchar(50),
+  lan_shortname varchar(20),
+  primary key (lan_id)
 );
 create table stm_log
 (
-    log_id     int4 not null,
-    log_buffer boolean,
-    log_count  int4,
-    log_data   varchar(250),
-    log_date   timestamp,
-    log_email  varchar(250),
-    log_format varchar(50),
-    log_other  varchar(4000),
-    log_srs    varchar(50),
-    log_terext varchar(250),
-    log_ter    varchar(50),
-    log_type   varchar(50),
-    log_appid  int4,
-    log_giid   int4,
-    log_taskid int4,
-    log_terid  int4,
-    log_userid int4,
-    primary key (log_id)
+  log_id     int4 not null,
+  log_buffer boolean,
+  log_count  int4,
+  log_data   varchar(250),
+  log_date   timestamp,
+  log_email  varchar(250),
+  log_format varchar(50),
+  log_other  varchar(4000),
+  log_srs    varchar(50),
+  log_terext varchar(250),
+  log_ter    varchar(50),
+  log_type   varchar(50),
+  log_appid  int4,
+  log_giid   int4,
+  log_taskid int4,
+  log_terid  int4,
+  log_userid int4,
+  primary key (log_id)
 );
 create table stm_par_app
 (
-    pap_id    int4 not null,
-    pap_name  varchar(50),
-    pap_type  varchar(50),
-    pap_value varchar(250),
-    pap_appid int4,
-    primary key (pap_id)
+  pap_id    int4 not null,
+  pap_name  varchar(50),
+  pap_type  varchar(50),
+  pap_value varchar(250),
+  pap_appid int4,
+  primary key (pap_id)
 );
 create table stm_par_gi
 (
-    pgi_id     int4 not null,
-    pgi_format varchar(50),
-    pgi_name   varchar(50),
-    pgi_order  int4,
-    pgi_type   varchar(50),
-    pgi_value  varchar(250),
-    pgi_giid   int4,
-    primary key (pgi_id)
+  pgi_id     int4 not null,
+  pgi_format varchar(50),
+  pgi_name   varchar(50),
+  pgi_order  int4,
+  pgi_type   varchar(50),
+  pgi_value  varchar(250),
+  pgi_giid   int4,
+  primary key (pgi_id)
 );
 create table stm_par_sgi
 (
-    psg_id     int4 not null,
-    psg_format varchar(50),
-    psg_name   varchar(50),
-    psg_order  int4,
-    psg_type   varchar(50),
-    psg_value  varchar(250),
-    psg_giid   int4,
-    primary key (psg_id)
+  psg_id     int4 not null,
+  psg_format varchar(50),
+  psg_name   varchar(50),
+  psg_order  int4,
+  psg_type   varchar(50),
+  psg_value  varchar(250),
+  psg_giid   int4,
+  primary key (psg_id)
 );
 create table stm_par_ser
 (
-    pse_id    int4 not null,
-    pse_name  varchar(50),
-    pse_type  varchar(50),
-    pse_value varchar(250),
-    pse_serid int4,
-    primary key (pse_id)
+  pse_id    int4 not null,
+  pse_name  varchar(50),
+  pse_type  varchar(50),
+  pse_value varchar(250),
+  pse_serid int4,
+  primary key (pse_id)
 );
 create table stm_par_tsk
 (
-    ptt_id        int4 not null,
-    ptt_default   varchar(250),
-    ptt_editable  boolean,
-    ptt_format    varchar(50),
-    ptt_help      varchar(250),
-    ptt_maxlen    int4,
-    ptt_name      varchar(50),
-    ptt_order     int4,
-    ptt_valuerel  varchar(512),
-    ptt_filterrel varchar(512),
-    ptt_required  boolean,
-    ptt_select    varchar(1500),
-    ptt_selectabl boolean,
-    ptt_type      varchar(50),
-    ptt_value     varchar(4000),
-    ptt_taskid    int4,
-    primary key (ptt_id)
+  ptt_id        int4 not null,
+  ptt_default   varchar(250),
+  ptt_editable  boolean,
+  ptt_format    varchar(50),
+  ptt_help      varchar(250),
+  ptt_maxlen    int4,
+  ptt_name      varchar(50),
+  ptt_order     int4,
+  ptt_valuerel  varchar(512),
+  ptt_filterrel varchar(512),
+  ptt_required  boolean,
+  ptt_select    varchar(1500),
+  ptt_selectabl boolean,
+  ptt_type      varchar(50),
+  ptt_value     varchar(4000),
+  ptt_taskid    int4,
+  primary key (ptt_id)
 );
 create table stm_post
 (
-    pos_id         int4 not null,
-    pos_created    timestamp,
-    pos_email      varchar(250),
-    pos_expiration timestamp,
-    pos_post       varchar(250),
-    pos_org        varchar(250),
-    pos_type       varchar(50),
-    pos_terid      int4,
-    pos_userid     int4,
-    primary key (pos_id)
+  pos_id         int4 not null,
+  pos_created    timestamp,
+  pos_email      varchar(250),
+  pos_expiration timestamp,
+  pos_post       varchar(250),
+  pos_org        varchar(250),
+  pos_type       varchar(50),
+  pos_terid      int4,
+  pos_userid     int4,
+  primary key (pos_id)
 );
 create table stm_query
 (
-    que_id      int4 not null,
-    que_command varchar(250),
-    que_desc    varchar(250),
-    que_type    varchar(50),
-    que_taskid  int4,
-    primary key (que_id)
+  que_id      int4 not null,
+  que_command varchar(250),
+  que_desc    varchar(250),
+  que_type    varchar(50),
+  que_taskid  int4,
+  primary key (que_id)
 );
 create table stm_rol_ggi
 (
-    rgg_roleid int4 not null,
-    rgg_ggiid  int4 not null,
-    primary key (rgg_ggiid, rgg_roleid)
+  rgg_roleid int4 not null,
+  rgg_ggiid  int4 not null,
+  primary key (rgg_ggiid, rgg_roleid)
 );
 create table stm_rol_tsk
 (
-    rts_taskid int4 not null,
-    rts_roleid int4 not null,
-    primary key (rts_roleid, rts_taskid)
+  rts_taskid int4 not null,
+  rts_roleid int4 not null,
+  primary key (rts_roleid, rts_taskid)
 );
 create table stm_role
 (
-    rol_id   int4 not null,
-    rol_note varchar(500),
-    rol_name varchar(50),
-    primary key (rol_id)
+  rol_id   int4 not null,
+  rol_note varchar(500),
+  rol_name varchar(50),
+  primary key (rol_id)
 );
 create table stm_sequence
 (
-    SEQ_NAME  varchar(255) not null,
-    SEQ_COUNT int8,
-    primary key (SEQ_NAME)
+  SEQ_NAME  varchar(255) not null,
+  SEQ_COUNT int8,
+  primary key (SEQ_NAME)
 );
 create table stm_service
 (
@@ -349,128 +349,128 @@ create table stm_service
 );
 create table stm_sty_gi
 (
-    sgi_id          int4    not null,
-    sgi_abstract    varchar(250),
-    sgi_lurl_format varchar(255),
-    sgi_lurl_height int4,
-    sgi_lurl_url    varchar(255),
-    sgi_lurl_width  int4,
-    sgi_name        varchar(50),
-    sgi_title       varchar(50),
-    sgi_default     boolean not null default false,
-    sgi_giid        int4,
-    primary key (sgi_id)
+  sgi_id          int4    not null,
+  sgi_abstract    varchar(250),
+  sgi_lurl_format varchar(255),
+  sgi_lurl_height int4,
+  sgi_lurl_url    varchar(255),
+  sgi_lurl_width  int4,
+  sgi_name        varchar(50),
+  sgi_title       varchar(50),
+  sgi_default     boolean not null default false,
+  sgi_giid        int4,
+  primary key (sgi_id)
 );
 create table stm_task
 (
-    tas_id      int4 not null,
-    tas_name    varchar(512),
-    tas_created timestamp,
-    tas_order   int4,
-    tas_giid    int4,
-    tas_serid   int4,
-    tas_gtaskid int4,
-    tas_ttaskid int4,
-    tas_tuiid   int4,
-    tas_connid  int4,
-    tas_params  text,
-    primary key (tas_id)
+  tas_id      int4 not null,
+  tas_name    varchar(512),
+  tas_created timestamp,
+  tas_order   int4,
+  tas_giid    int4,
+  tas_serid   int4,
+  tas_gtaskid int4,
+  tas_ttaskid int4,
+  tas_tuiid   int4,
+  tas_connid  int4,
+  tas_params  text,
+  primary key (tas_id)
 );
 create table stm_taskrel
 (
-    tar_id        int4 not null,
-    tar_type      varchar(50),
-    tar_taskid    int4,
-    tar_taskrelid int4,
-    primary key (tar_id)
+  tar_id        int4 not null,
+  tar_type      varchar(50),
+  tar_taskid    int4,
+  tar_taskrelid int4,
+  primary key (tar_id)
 );
 create table stm_ter_typ
 (
-    tet_id       int4    not null,
-    tet_name     varchar(50),
-    tet_official boolean not null,
-    tet_top      boolean not null,
-    tet_bottom   boolean not null,
-    primary key (tet_id)
+  tet_id       int4    not null,
+  tet_name     varchar(50),
+  tet_official boolean not null,
+  tet_top      boolean not null,
+  tet_bottom   boolean not null,
+  primary key (tet_id)
 );
 create table stm_territory
 (
-    ter_id      int4 not null,
-    ter_blocked boolean,
-    ter_codmun  varchar(50),
-    ter_created timestamp,
-    ter_extent  varchar(250),
-    ter_center  varchar(250),
-    ter_zoom    int4,
-    ter_name    varchar(250),
-    ter_note    varchar(250),
-    ter_scope   varchar(50),
-    ter_address varchar(250),
-    ter_email   varchar(50),
-    ter_logo    varchar(4000),
-    ter_admname varchar(250),
-    ter_gtypid  int4,
-    ter_typid   int4,
-    primary key (ter_id)
+  ter_id      int4 not null,
+  ter_blocked boolean,
+  ter_codmun  varchar(50),
+  ter_created timestamp,
+  ter_extent  varchar(250),
+  ter_center  varchar(250),
+  ter_zoom    int4,
+  ter_name    varchar(250),
+  ter_note    varchar(250),
+  ter_scope   varchar(50),
+  ter_address varchar(250),
+  ter_email   varchar(50),
+  ter_logo    varchar(4000),
+  ter_admname varchar(250),
+  ter_gtypid  int4,
+  ter_typid   int4,
+  primary key (ter_id)
 );
 create table stm_the_rank
 (
-    trk_position int4 not null,
-    trk_valuenul boolean,
-    trk_color    varchar(30),
-    trk_size     int4,
-    trk_style    varchar(30),
-    trk_desc     varchar(250),
-    trk_colorint varchar(30),
-    trk_styleint varchar(30),
-    trk_valuemax numeric(19, 11),
-    trk_valuemin numeric(19, 11),
-    trk_name     varchar(50),
-    trk_value    varchar(30),
-    trk_theid    int4 not null,
-    primary key (trk_theid, trk_position)
+  trk_position int4 not null,
+  trk_valuenul boolean,
+  trk_color    varchar(30),
+  trk_size     int4,
+  trk_style    varchar(30),
+  trk_desc     varchar(250),
+  trk_colorint varchar(30),
+  trk_styleint varchar(30),
+  trk_valuemax numeric(19, 11),
+  trk_valuemin numeric(19, 11),
+  trk_name     varchar(50),
+  trk_value    varchar(30),
+  trk_theid    int4 not null,
+  primary key (trk_theid, trk_position)
 );
 create table stm_thematic
 (
-    the_id           int4 not null,
-    the_sizemax      int4,
-    the_sizemin      int4,
-    the_desc         varchar(250),
-    the_destination  varchar(50),
-    the_colormax     varchar(250),
-    the_expiration   timestamp,
-    the_name         varchar(50),
-    the_ranknum      int4,
-    the_rankrec      boolean,
-    the_dataref      boolean,
-    the_colormin     varchar(250),
-    the_taggable     boolean,
-    the_transparency int4,
-    the_ranktype     varchar(50),
-    the_urlws        varchar(4000),
-    the_valuetype    varchar(50),
-    the_giid         int4,
-    the_taskid       int4,
-    the_userid       int4,
-    primary key (the_id)
+  the_id           int4 not null,
+  the_sizemax      int4,
+  the_sizemin      int4,
+  the_desc         varchar(250),
+  the_destination  varchar(50),
+  the_colormax     varchar(250),
+  the_expiration   timestamp,
+  the_name         varchar(50),
+  the_ranknum      int4,
+  the_rankrec      boolean,
+  the_dataref      boolean,
+  the_colormin     varchar(250),
+  the_taggable     boolean,
+  the_transparency int4,
+  the_ranktype     varchar(50),
+  the_urlws        varchar(4000),
+  the_valuetype    varchar(50),
+  the_giid         int4,
+  the_taskid       int4,
+  the_userid       int4,
+  primary key (the_id)
 );
 create table stm_translation
 (
-    tra_id     int4 not null,
-    tra_column varchar(50),
-    tra_eleid  int4,
-    tra_name   varchar(250),
-    tra_lanid  int4,
-    primary key (tra_id)
+  tra_id     int4 not null,
+  tra_column varchar(50),
+  tra_eleid  int4,
+  tra_name   varchar(250),
+  tra_lanid  int4,
+  primary key (tra_id)
 );
 create table stm_tree
 (
-    tre_id       int4 not null,
-    tre_abstract varchar(250),
-    tre_image    varchar(4000),
-    tre_name     varchar(50),
-    tre_userid   int4,
-    primary key (tre_id)
+  tre_id       int4 not null,
+  tre_abstract varchar(250),
+  tre_image    varchar(4000),
+  tre_name     varchar(50),
+  tre_userid   int4,
+  primary key (tre_id)
 );
 create table stm_tree_nod
 (
@@ -495,53 +495,53 @@ create table stm_tree_nod
 );
 create table stm_tree_rol
 (
-    tro_treeid int4 not null,
-    tro_roleid int4 not null,
-    primary key (tro_roleid, tro_treeid)
+  tro_treeid int4 not null,
+  tro_roleid int4 not null,
+  primary key (tro_roleid, tro_treeid)
 );
 create table stm_tsk_typ
 (
-    tty_id       int4 not null,
-    tty_enabled  boolean,
-    tty_name     varchar(50),
-    tty_order    int4,
-    tty_spec     text,
-    tty_title    varchar(50),
-    tty_parentid int4,
-    primary key (tty_id)
+  tty_id       int4 not null,
+  tty_enabled  boolean,
+  tty_name     varchar(50),
+  tty_order    int4,
+  tty_spec     text,
+  tty_title    varchar(50),
+  tty_parentid int4,
+  primary key (tty_id)
 );
 create table stm_tsk_ui
 (
-    tui_id      int4 not null,
-    tui_name    varchar(50),
-    tui_order   int4,
-    tui_tooltip varchar(100),
-    primary key (tui_id)
+  tui_id      int4 not null,
+  tui_name    varchar(50),
+  tui_order   int4,
+  tui_tooltip varchar(100),
+  primary key (tui_id)
 );
 create table stm_user
 (
-    use_id        int4 not null,
-    use_adm       boolean,
-    use_blocked   boolean,
-    use_created   timestamp,
-    use_name      varchar(30),
-    use_generic   boolean,
-    use_ident     varchar(50),
-    use_identtype varchar(50),
-    use_surname   varchar(40),
-    use_pwd       varchar(128),
-    use_user      varchar(50),
-    primary key (use_id)
+  use_id        int4 not null,
+  use_adm       boolean,
+  use_blocked   boolean,
+  use_created   timestamp,
+  use_name      varchar(30),
+  use_generic   boolean,
+  use_ident     varchar(50),
+  use_identtype varchar(50),
+  use_surname   varchar(40),
+  use_pwd       varchar(128),
+  use_user      varchar(50),
+  primary key (use_id)
 );
 create table stm_usr_conf
 (
-    uco_id      int4 not null,
-    uco_rolem   boolean,
-    uco_created timestamp,
-    uco_roleid  int4,
-    uco_terid   int4,
-    uco_userid  int4,
-    primary key (uco_id)
+  uco_id      int4 not null,
+  uco_rolem   boolean,
+  uco_created timestamp,
+  uco_roleid  int4,
+  uco_terid   int4,
+  uco_userid  int4,
+  primary key (uco_id)
 );
 alter table if exists stm_app_bckg add constraint STM_APF_UK unique (abc_appid, abc_backid);
 alter table if exists stm_avail_gi add constraint STM_DCA_UK unique (agi_terid, agi_giid);
@@ -601,24 +601,24 @@ alter table if exists stm_rol_tsk add constraint STM_RTS_FK_TAS foreign key (rts
 alter table if exists stm_sty_gi add constraint STM_SGI_FK_GEO foreign key (sgi_giid) references stm_geoinfo;
 
 alter table if exists stm_task
-    add constraint STM_TAS_FK_GEO foreign key (tas_giid) references stm_geoinfo;
+  add constraint STM_TAS_FK_GEO foreign key (tas_giid) references stm_geoinfo;
 alter table if exists stm_task
-    add constraint STM_TAS_FK_SER foreign key (tas_serid) references stm_service;
+  add constraint STM_TAS_FK_SER foreign key (tas_serid) references stm_service;
 alter table if exists stm_task
-    add constraint STM_TAS_FK_GTS foreign key (tas_gtaskid) references stm_grp_tsk;
+  add constraint STM_TAS_FK_GTS foreign key (tas_gtaskid) references stm_grp_tsk;
 alter table if exists stm_task
-    add constraint STM_TAS_FK_TTY foreign key (tas_ttaskid) references stm_tsk_typ;
+  add constraint STM_TAS_FK_TTY foreign key (tas_ttaskid) references stm_tsk_typ;
 alter table if exists stm_task
-    add constraint STM_TAS_FK_TUI foreign key (tas_tuiid) references stm_tsk_ui;
+  add constraint STM_TAS_FK_TUI foreign key (tas_tuiid) references stm_tsk_ui;
 alter table if exists stm_task
-    add constraint STM_TAS_FK_CON foreign key (tas_connid) references stm_connect;
+  add constraint STM_TAS_FK_CON foreign key (tas_connid) references stm_connect;
 
 alter table if exists stm_taskrel
-    add constraint STM_TAR_FK_TAS foreign key (tar_taskid) references stm_task on
+  add constraint STM_TAR_FK_TAS foreign key (tar_taskid) references stm_task on
 delete
 cascade;
 alter table if exists stm_taskrel
-    add constraint STM_TAR_FK_TAS_REL foreign key (tar_taskrelid) references stm_task;
+  add constraint STM_TAR_FK_TAS_REL foreign key (tar_taskrelid) references stm_task;
 
 alter table if exists stm_territory add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
 alter table if exists stm_territory add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;

@@ -39,12 +39,12 @@ public class UserRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void create() throws Exception {
     response = mvc.perform(MockMvcRequestBuilders.post(URIConstants.USER_URI)
-      .content("{" +
-        "\"administrator\":false," +
-        "\"blocked\":false" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"administrator\":false," +
+          "\"blocked\":false" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
       .andExpect(jsonPath("$.passwordSet").value(false))

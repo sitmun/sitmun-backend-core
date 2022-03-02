@@ -27,8 +27,8 @@ public class ConfigurationParameterRepositoryDataRestTest {
   @Test
   public void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.CONFIGURATION_PARAMETERS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.configuration-parameters[?(@.name=='language.default')].value").value("en"));
   }

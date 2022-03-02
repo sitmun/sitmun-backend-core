@@ -39,15 +39,15 @@ public class BackgroundRepositoryDataRestTest {
       "}";
 
     MvcResult result = mvc.perform(MockMvcRequestBuilders.post(URIConstants.BACKGROUNDS_URI)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn();
     String response = result.getResponse().getContentAsString();
     mvc.perform(delete(URIConstants.BACKGROUND_URI, JsonPath.parse(response).read("$.id", Integer.class))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isNoContent())
       .andReturn();
   }
@@ -62,9 +62,9 @@ public class BackgroundRepositoryDataRestTest {
       "\"cartographyGroup\":\"http://localhost/api/cartography-group/129\"" +
       "}";
     String location = mvc.perform(post(URIConstants.BACKGROUNDS_URI)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -84,9 +84,9 @@ public class BackgroundRepositoryDataRestTest {
       "\"cartographyGroup\":\"http://localhost/api/cartography-group/193\"" +
       "}";
     mvc.perform(post(URIConstants.BACKGROUNDS_URI)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }
@@ -95,10 +95,10 @@ public class BackgroundRepositoryDataRestTest {
   public void failUpdateBackgroundWithInvalidMap() throws Exception {
     String content = "http://localhost/api/cartography-group/193";
     mvc.perform(put(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP, 1)
-      .content(content)
-      .contentType("text/uri-list")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(content)
+        .contentType("text/uri-list")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }

@@ -3,8 +3,8 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.views.Views;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.*;
+import static org.sitmun.common.config.PersistenceConstants.*;
 
 /**
  * Background.
@@ -56,7 +56,7 @@ public class Background {
    * Representative image or icon.
    */
   @Column(name = "BAC_IMAGE", length = URL)
-  @HttpURL
+  @Http
   @JsonView({Views.WorkspaceApplication.class})
   private String image;
 

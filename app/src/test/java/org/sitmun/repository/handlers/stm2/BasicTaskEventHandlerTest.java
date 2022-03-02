@@ -67,9 +67,9 @@ public class BasicTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -117,9 +117,9 @@ public class BasicTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -158,9 +158,9 @@ public class BasicTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -180,9 +180,9 @@ public class BasicTaskEventHandlerTest {
       "}";
 
     mvc.perform(put(location)
-      .content(updatedTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(updatedTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -216,9 +216,9 @@ public class BasicTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -239,7 +239,7 @@ public class BasicTaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 1')]").exists())
       .andExpect(jsonPath("$.properties.parameters[?(@.name=='title 2')]").exists());

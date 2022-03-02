@@ -137,23 +137,14 @@ public class URIConstants {
 
   public static final String USER_POSITION_PROJECTION_VIEW =
     "/api/user-positions/{0}?projection=view";
-
-  private static final String ROLES_URI = "http://localhost/api/roles";
-
-  private static final String ROLE_URI = ROLES_URI + "/{0}";
-
-  public static final String ROLE_TASKS_URI = ROLE_URI + "/tasks";
-
-  public static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
-
-  public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
-
   public static final String WORKSPACE_URI = "http://localhost/api/workspace";
-
   public static final String WORKSPACE_APPLICATION_URI = WORKSPACE_URI + "/application/{0}/territory/{1}";
-
   public static final String TASK_URI = TASKS_URI + "/{0}";
-
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
+  private static final String ROLES_URI = "http://localhost/api/roles";
+  private static final String ROLE_URI = ROLES_URI + "/{0}";
+  public static final String ROLE_TASKS_URI = ROLE_URI + "/tasks";
+  public static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
+  public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
 
 }

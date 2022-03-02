@@ -27,26 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserPositionRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private UserPositionRepository userPositionRepository;
   @Autowired
   private UserRepository userRepository;
-
   @Autowired
   private TerritoryRepository territorioRepository;
-
   private UserPosition userPosition;
-
 
   @BeforeEach
   public void init() {
@@ -95,5 +82,15 @@ public class UserPositionRepositoryTest {
     assertThat(userPosition.getId()).isNotZero();
 
     assertThat(userPositionRepository.findById(userPosition.getId())).isNotNull();
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 }

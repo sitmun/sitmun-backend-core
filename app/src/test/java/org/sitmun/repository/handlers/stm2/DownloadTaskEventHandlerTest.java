@@ -56,9 +56,9 @@ public class DownloadTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -93,9 +93,9 @@ public class DownloadTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -111,9 +111,9 @@ public class DownloadTaskEventHandlerTest {
       "}";
 
     mvc.perform(put(location)
-      .content(updatedTAsk)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(updatedTAsk)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -143,9 +143,9 @@ public class DownloadTaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -167,7 +167,7 @@ public class DownloadTaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.format").value("DXF"))
       .andExpect(jsonPath("$.properties.path").value("http://www.example3.com/"))

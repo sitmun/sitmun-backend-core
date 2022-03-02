@@ -29,7 +29,7 @@ public class BackgroundMapsRepositoryDataRestTest {
   @Test
   public void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_BACKGROUND_MAP)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(6)))
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(6)));

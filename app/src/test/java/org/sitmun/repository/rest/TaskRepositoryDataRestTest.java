@@ -113,16 +113,16 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void postTask() throws Exception {
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(task))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(task))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location).isNotNull();
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
@@ -138,12 +138,12 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1289)));
 
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(446)));
   }
@@ -168,7 +168,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
@@ -184,7 +184,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void getRolesOfATask() throws Exception {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }
@@ -192,7 +192,7 @@ public class TaskRepositoryDataRestTest {
   @Test
   public void getPermissionsOfATask() throws Exception {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }

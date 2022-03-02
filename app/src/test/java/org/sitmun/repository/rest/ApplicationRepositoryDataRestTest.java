@@ -41,14 +41,14 @@ public class ApplicationRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void create() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"jspTemplate\":\"test\"," +
-        "\"type\":\"I\"," +
-        "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"jspTemplate\":\"test\"," +
+          "\"type\":\"I\"," +
+          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
       .andReturn().getResponse();
@@ -59,15 +59,15 @@ public class ApplicationRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void createDateValueIsIgnored() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"jspTemplate\":\"test\"," +
-        "\"type\":\"I\"," +
-        "\"createdDate\":\"2020-01-01\"," +
-        "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"jspTemplate\":\"test\"," +
+          "\"type\":\"I\"," +
+          "\"createdDate\":\"2020-01-01\"," +
+          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate").value(matchesPattern("^(?!2020-01-01.*$).*")))
       .andReturn().getResponse();
@@ -78,14 +78,14 @@ public class ApplicationRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void createDateValueCanBeUpdated() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"jspTemplate\":\"test\"," +
-        "\"type\":\"I\"," +
-        "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"jspTemplate\":\"test\"," +
+          "\"type\":\"I\"," +
+          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andDo(print())
       .andExpect(status().isCreated())
       .andReturn().getResponse();
@@ -94,15 +94,15 @@ public class ApplicationRepositoryDataRestTest {
     assertThat(location).isNotNull();
 
     mvc.perform(put(location)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"jspTemplate\":\"test\"," +
-        "\"type\":\"I\"," +
-        "\"createdDate\":\"2020-01-01\"," +
-        "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"jspTemplate\":\"test\"," +
+          "\"type\":\"I\"," +
+          "\"createdDate\":\"2020-01-01\"," +
+          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.createdDate").value("2020-01-01T00:00:00.000+00:00"));
@@ -112,15 +112,15 @@ public class ApplicationRepositoryDataRestTest {
   @DisplayName("POST: situationMap must point to a CartographyPermission")
   public void failApplicationWithInvalidMap() throws Exception {
     mvc.perform(post(URIConstants.APPLICATIONS_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"jspTemplate\":\"test\"," +
-        "\"type\":\"I\"," +
-        "\"createdDate\":\"2020-01-01\"," +
-        "\"situationMap\":\"http://localhost/api/cartography-group/6\"" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"jspTemplate\":\"test\"," +
+          "\"type\":\"I\"," +
+          "\"createdDate\":\"2020-01-01\"," +
+          "\"situationMap\":\"http://localhost/api/cartography-group/6\"" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }
@@ -129,10 +129,10 @@ public class ApplicationRepositoryDataRestTest {
   @DisplayName("PUT: situationMap must point to a CartographyPermission")
   public void failUpdateApplicationWithInvalidMap() throws Exception {
     mvc.perform(put(URIConstants.APPLICATION_URI_SITUATION_MAP, 1)
-      .content("http://localhost/api/cartography-group/6")
-      .contentType("text/uri-list")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("http://localhost/api/cartography-group/6")
+        .contentType("text/uri-list")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }

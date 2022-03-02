@@ -1,6 +1,6 @@
 package org.sitmun.repository.handlers;
 
-import org.sitmun.domain.CodeListValue;
+import org.sitmun.common.types.codelist.CodeListValue;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;

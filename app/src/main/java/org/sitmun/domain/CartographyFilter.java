@@ -4,10 +4,10 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.converters.StringListAttributeConverter;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.list.StringListAttributeConverter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

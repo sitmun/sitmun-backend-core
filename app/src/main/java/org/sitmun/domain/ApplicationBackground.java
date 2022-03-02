@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.views.Views;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

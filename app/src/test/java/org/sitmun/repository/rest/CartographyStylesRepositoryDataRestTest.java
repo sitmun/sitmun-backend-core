@@ -39,10 +39,10 @@ public class CartographyStylesRepositoryDataRestTest {
       "}";
 
     String location = mvc.perform(
-      post(URIConstants.CARTOGRAPHY_STYLES_URI)
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        post(URIConstants.CARTOGRAPHY_STYLES_URI)
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
 
@@ -64,20 +64,20 @@ public class CartographyStylesRepositoryDataRestTest {
       "}";
 
     String location = mvc.perform(
-      post(URIConstants.CARTOGRAPHY_STYLES_URI)
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        post(URIConstants.CARTOGRAPHY_STYLES_URI)
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
 
     assertNotNull(location);
 
     mvc.perform(
-      post(URIConstants.CARTOGRAPHY_STYLES_URI)
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isBadRequest())
+        post(URIConstants.CARTOGRAPHY_STYLES_URI)
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("defaultStyle"))
       .andExpect(jsonPath("$.errors[0].message").value("Already a default style exists for the cartography."));
 

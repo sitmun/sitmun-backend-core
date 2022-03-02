@@ -39,10 +39,10 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   @Test
   public void mustNotBeNull() throws Exception {
     mvc.perform(MockMvcRequestBuilders.post(URIConstants.TERRITORY_GROUP_TYPES_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().is4xxClientError())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property").value("name"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
@@ -50,10 +50,10 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   @Test
   public void mustNotBeBlank() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("   ").build()))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().is4xxClientError())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("   ").build()))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property").value("name"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
@@ -63,17 +63,17 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   public void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
     MvcResult result = mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("Example").build()))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("Example").build()))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andReturn();
     assertThat(repository.count()).isEqualTo(count + 1);
     String location = result.getResponse().getHeader("Location");
     assertThat(location).isNotNull();
     mvc.perform(delete(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isNoContent())
       .andReturn();
     assertThat(repository.count()).isEqualTo(count);

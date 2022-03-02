@@ -146,17 +146,17 @@ public class CodeListTest {
       .toString();
 
     String location = mvc.perform(post(CARTOGRAPHY_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(location, notNullValue());
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)));
@@ -177,10 +177,10 @@ public class CodeListTest {
       .toString();
 
     mvc.perform(post(CARTOGRAPHY_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().is4xxClientError())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[0].property", equalTo("legendType")))
       .andExpect(jsonPath("$.errors[0].invalidValue", equalTo("WRONG VALUE")));
   }

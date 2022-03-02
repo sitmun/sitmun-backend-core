@@ -23,16 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CartographyRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private CartographyRepository cartographyRepository;
 
@@ -64,6 +54,16 @@ public class CartographyRepositoryTest {
       .selectableFeatureEnabled(true)
       .thematic(true)
       .transparency(0);
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 }
 

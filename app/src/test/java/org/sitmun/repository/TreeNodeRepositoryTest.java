@@ -22,19 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TreeNodeRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private TreeNodeRepository treeNodeRepository;
-
   private TreeNode treeNode;
 
   @BeforeEach
@@ -56,6 +45,16 @@ public class TreeNodeRepositoryTest {
     assertThat(treeNode.getId()).isNotZero();
 
     assertThat(treeNodeRepository.findById(treeNode.getId())).isNotNull();
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 
 }

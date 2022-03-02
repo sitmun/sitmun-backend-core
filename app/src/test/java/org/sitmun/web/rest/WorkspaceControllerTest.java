@@ -43,8 +43,8 @@ public class WorkspaceControllerTest {
   @Test
   public void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user("user12"))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user("user12"))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
   }
@@ -53,7 +53,7 @@ public class WorkspaceControllerTest {
   public void readOtherUserWithToken() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
         .header(HttpHeaders.AUTHORIZATION, jwtUtils.generateBearerToken("user12", new Date()))
-    ).andExpect(status().isOk())
+      ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", hasSize(465)));
   }
 }

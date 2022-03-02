@@ -61,9 +61,9 @@ public class ExtractFMETaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(MockMvcRequestBuilders.post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -98,9 +98,9 @@ public class ExtractFMETaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -114,9 +114,9 @@ public class ExtractFMETaskEventHandlerTest {
       "}";
 
     mvc.perform(put(location)
-      .content(updatedTAsk)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(updatedTAsk)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk());
 
     withMockSitmunAdmin(() -> {
@@ -148,9 +148,9 @@ public class ExtractFMETaskEventHandlerTest {
       "}";
 
     String location = mvc.perform(post(URIConstants.TASKS_URI)
-      .content(newTask)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content(newTask)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
@@ -173,7 +173,7 @@ public class ExtractFMETaskEventHandlerTest {
     });
 
     mvc.perform(get(location)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.properties.layers").isArray())
       .andExpect(jsonPath("$.properties.layers", hasSize(2)))

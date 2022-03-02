@@ -41,7 +41,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Test
   public void tasksLinksExist() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CONNECTIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
@@ -50,7 +50,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Test
   public void cartographiesLinksExist() throws Exception {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));
@@ -61,9 +61,9 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");
@@ -103,9 +103,9 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");
@@ -145,9 +145,9 @@ public class DatabaseConnectionRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void clearUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.passwordSet").value(true))
       .andReturn().getResponse().getHeader("Location");

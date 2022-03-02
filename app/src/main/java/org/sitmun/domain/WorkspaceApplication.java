@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.sitmun.views.Views;
+import org.sitmun.common.views.Views;
 
 import java.util.List;
 

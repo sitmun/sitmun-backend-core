@@ -3,8 +3,8 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.converters.HashMapConverter;
-import org.sitmun.views.Views;
+import org.sitmun.common.types.map.HashMapConverter;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

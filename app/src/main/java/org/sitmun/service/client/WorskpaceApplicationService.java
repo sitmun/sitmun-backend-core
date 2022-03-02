@@ -50,18 +50,18 @@ public class WorskpaceApplicationService {
             .map(UserConfiguration::getRole)
             .map(role -> {
               Set<Task> tasks = role.getTasks().stream().filter(task ->
-                task.getAvailabilities().stream()
-                  .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId())))
+                  task.getAvailabilities().stream()
+                    .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId())))
                 .collect(Collectors.toSet());
               Set<CartographyPermission> permissions = role.getPermissions().stream().map(cartographyPermission -> {
-                  Set<Cartography> cartographies = cartographyPermission.getMembers().stream().filter(cartography ->
-                    !cartography.getBlocked() &&
-                      cartography.getAvailabilities().stream()
-                        .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId()))
-                  ).collect(Collectors.toSet());
-                  return cartographyPermission.toBuilder().members(cartographies).build();
-                }
-              ).filter(cartographyPermission -> !cartographyPermission.getMembers().isEmpty())
+                    Set<Cartography> cartographies = cartographyPermission.getMembers().stream().filter(cartography ->
+                      !cartography.getBlocked() &&
+                        cartography.getAvailabilities().stream()
+                          .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId()))
+                    ).collect(Collectors.toSet());
+                    return cartographyPermission.toBuilder().members(cartographies).build();
+                  }
+                ).filter(cartographyPermission -> !cartographyPermission.getMembers().isEmpty())
                 .collect(Collectors.toSet());
               Set<Tree> trees = role.getTrees().stream().map(tree -> {
                 Set<TreeNode> nodes = tree.getAllNodes().stream().filter(node ->

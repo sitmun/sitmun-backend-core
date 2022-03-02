@@ -29,9 +29,9 @@ public class TaskTypesRepositoryDataRestTest {
   @Test
   public void definedSpecifications() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isOk())
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.task-types[?(@.specification != null)]", hasSize(9)));
   }
 }

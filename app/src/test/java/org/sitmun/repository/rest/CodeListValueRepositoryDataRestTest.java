@@ -15,8 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.constraints.CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
-import static org.sitmun.constraints.CodeLists.DATABASE_CONNECTION_DRIVER;
+import static org.sitmun.common.config.CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
+import static org.sitmun.common.config.CodeLists.DATABASE_CONNECTION_DRIVER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +35,7 @@ public class CodeListValueRepositoryDataRestTest {
   @Disabled
   public void obtainDrivers() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[*].value",
         containsInAnyOrder("org.h2.Driver", "oracle.jdbc.OracleDriver", "org.postgresql.Driver")));
@@ -45,7 +45,7 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Description in the original language")
   public void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 30)].description").value("Cartography group"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Background map"))
@@ -53,7 +53,7 @@ public class CodeListValueRepositoryDataRestTest {
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 33)].description").value("Location map"));
 
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "userPosition.type")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("City Council"));
   }
@@ -62,7 +62,7 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Description translated in ES")
   public void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 30)].description").value("Grupo de cartografía"))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 31)].description").value("Mapa de fondo"))
@@ -74,7 +74,7 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Description translated in CA")
   public void obtainTranslatedVersionCat() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("Ajuntament"));
   }
@@ -83,14 +83,14 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Filter by code list")
   public void filterType() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
       .andExpect(jsonPath(
         "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
         hasSize(4)));
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "territory.scope")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
       .andExpect(jsonPath("$._embedded.codelist-values[?(@.codeListName == 'territory.scope')]",
@@ -106,7 +106,7 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Check translated descriptions")
   public void checkMangledValues() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath(
         "$._embedded.codelist-values[?(@.id == 23)].value").value("EDIT"))
@@ -119,8 +119,8 @@ public class CodeListValueRepositoryDataRestTest {
   public void cantCreateSystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":true}";
     mvc.perform(post(URIConstants.CODELIST_VALUES_URI)
-      .content(body)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .content(body)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest());
   }
 
@@ -129,8 +129,8 @@ public class CodeListValueRepositoryDataRestTest {
   public void cantModifySystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":false}";
     mvc.perform(put(URIConstants.CODELIST_VALUE_URI, 31)
-      .content(body)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .content(body)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest());
   }
 
@@ -138,7 +138,7 @@ public class CodeListValueRepositoryDataRestTest {
   @DisplayName("DELETE: System codes can't be deleted")
   public void cantDeleteCodeListValue() throws Exception {
     mvc.perform(delete(URIConstants.CODELIST_VALUE_URI, 31)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest());
   }
 

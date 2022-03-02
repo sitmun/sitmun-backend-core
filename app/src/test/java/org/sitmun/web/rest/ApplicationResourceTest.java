@@ -322,7 +322,7 @@ public class ApplicationResourceTest {
   @Test
   public void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + "/" + backAppId)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.order").value(1));
   }
@@ -377,7 +377,7 @@ public class ApplicationResourceTest {
     // TODO
     // ok is expected
     mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -392,7 +392,7 @@ public class ApplicationResourceTest {
   public void getApplicationsAsSitumunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(URIConstants.APPLICATIONS_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
   }

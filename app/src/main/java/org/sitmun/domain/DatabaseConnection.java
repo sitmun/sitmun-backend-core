@@ -4,15 +4,15 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeList;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Represents a JDBC database connection.

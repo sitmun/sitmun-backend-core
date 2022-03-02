@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.domain.Envelope;
+import org.sitmun.common.types.envelope.Envelope;
 import org.sitmun.domain.Territory;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;

@@ -1,10 +1,10 @@
 package org.sitmun.domain;
 
 import lombok.*;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.HttpURL;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.http.Http;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,7 +49,7 @@ public class DownloadTask {
    */
   @Column(name = "DOW_PATH", length = PersistenceConstants.URL)
   @NotNull
-  @HttpURL
+  @Http
   private String path;
 
   @Override

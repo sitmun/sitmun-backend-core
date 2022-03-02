@@ -2,9 +2,9 @@ package org.sitmun.domain;
 
 
 import lombok.*;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.SpatialReferenceSystem;
-import org.sitmun.converters.StringListAttributeConverter;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.list.StringListAttributeConverter;
+import org.sitmun.common.types.srs.Srs;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -116,7 +116,7 @@ public class Log {
    * SRS requested.
    */
   @Column(name = "LOG_SRS", length = PersistenceConstants.IDENTIFIER)
-  @SpatialReferenceSystem
+  @Srs
   private String srs;
 
   /**

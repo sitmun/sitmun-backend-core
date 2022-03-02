@@ -32,9 +32,9 @@ public class TerritoryTypesRepositoryDataRestTest {
   @DisplayName("GET: all types")
   public void allTypes() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.TERRITORY_TYPES_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isOk())
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.territory-types", hasSize(8)));
   }
 
@@ -42,9 +42,9 @@ public class TerritoryTypesRepositoryDataRestTest {
   @DisplayName("GET: a type")
   public void oneType() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_TYPE_URI, 2)
-      .contentType(MediaType.APPLICATION_JSON)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isOk())
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(2))
       .andExpect(jsonPath("$.name").value("Consell Comarcal"))
       .andExpect(jsonPath("$.official").value(true))

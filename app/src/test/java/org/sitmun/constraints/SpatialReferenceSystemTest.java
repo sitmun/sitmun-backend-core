@@ -38,10 +38,10 @@ public class SpatialReferenceSystemTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void singleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
-      .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1"))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .contentType(APPLICATION_JSON)
+        .content(serviceFixture("EPSG:1"))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
@@ -54,9 +54,9 @@ public class SpatialReferenceSystemTest {
   @DisplayName("Single other value fail")
   public void singleOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
-      .contentType(APPLICATION_JSON)
-      .content(serviceFixture("other"))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(APPLICATION_JSON)
+        .content(serviceFixture("other"))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
@@ -67,10 +67,10 @@ public class SpatialReferenceSystemTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void multipleProjectionPass() throws Exception {
     String location = mvc.perform(post("/api/services")
-      .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1", "EPSG:2"))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .contentType(APPLICATION_JSON)
+        .content(serviceFixture("EPSG:1", "EPSG:2"))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
     assertThat(location).isNotNull();
@@ -83,9 +83,9 @@ public class SpatialReferenceSystemTest {
   @DisplayName("Multiple projections with other value fail")
   public void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post("/api/services")
-      .contentType(APPLICATION_JSON)
-      .content(serviceFixture("EPSG:1", "other"))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(APPLICATION_JSON)
+        .content(serviceFixture("EPSG:1", "other"))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
       .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))

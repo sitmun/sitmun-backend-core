@@ -10,7 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Grants availability of a Geographic Information in a Territory.

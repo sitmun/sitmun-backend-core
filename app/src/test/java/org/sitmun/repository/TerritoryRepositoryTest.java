@@ -25,22 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TerritoryRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private TerritoryRepository territoryRepository;
-
   @Autowired
   private TerritoryTypeRepository territoryTypeRepository;
-
   private Territory territory;
 
   @BeforeEach
@@ -73,5 +61,15 @@ public class TerritoryRepositoryTest {
     assertThat(territory.getId()).isNotZero();
 
     assertThat(territoryRepository.findById(territory.getId())).isNotNull();
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 }

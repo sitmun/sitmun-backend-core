@@ -20,13 +20,11 @@ import java.util.Objects;
 
 public class MiddlewareKeyFilter extends OncePerRequestFilter {
 
-  @Value("${security.authentication.middleware.secret}")
-  private String middlewareSecret;
-
+  private static final Logger logger = LoggerFactory.getLogger(MiddlewareKeyFilter.class);
   private final String principal;
   private final List<GrantedAuthority> authorities;
-
-  private static final Logger logger = LoggerFactory.getLogger(MiddlewareKeyFilter.class);
+  @Value("${security.authentication.middleware.secret}")
+  private String middlewareSecret;
 
   public MiddlewareKeyFilter(String principal, List<GrantedAuthority> authorities) {
     this.principal = principal;

@@ -39,8 +39,8 @@ public class WorkspaceApplicationControllerTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
-      .with(SecurityMockMvcRequestPostProcessors.user("user12"))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user("user12"))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territory.name").value("Argentona"))
       .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))

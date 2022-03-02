@@ -32,10 +32,10 @@ public class CartographyParametersRepositoryDataRestTest {
     String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\", \"cartography\":\"http://localhost/api/cartographies/0\"}";
 
     String location = mvc.perform(
-      post("/api/cartography-parameters")
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        post("/api/cartography-parameters")
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
 
@@ -43,7 +43,7 @@ public class CartographyParametersRepositoryDataRestTest {
     String id = new UriTemplate("http://localhost/api/cartography-parameters/{id}").match(location).get("id");
 
     mvc.perform(get("/api/cartography-parameters/{id}/cartography", id)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(0));
 
@@ -57,10 +57,10 @@ public class CartographyParametersRepositoryDataRestTest {
     String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\"}";
 
     mvc.perform(
-      post("/api/cartography-parameters")
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isBadRequest())
+        post("/api/cartography-parameters")
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("cartography"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be null"));
   }

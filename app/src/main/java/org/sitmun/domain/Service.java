@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.constraints.SpatialReferenceSystem;
-import org.sitmun.converters.StringListAttributeConverter;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.list.StringListAttributeConverter;
+import org.sitmun.common.types.srs.Srs;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.*;
+import static org.sitmun.common.config.PersistenceConstants.*;
 
 /**
  * Service.
@@ -72,7 +72,7 @@ public class Service {
    */
   @Column(name = "SER_URL", length = URL)
   @NotNull
-  @HttpURL
+  @Http
   @JsonView(Views.WorkspaceApplication.class)
   private String serviceURL;
 
@@ -81,7 +81,7 @@ public class Service {
    */
   @Column(name = "SER_PROJECTS", length = 1000)
   @Convert(converter = StringListAttributeConverter.class)
-  @SpatialReferenceSystem
+  @Srs
   @JsonView(Views.WorkspaceApplication.class)
   private List<String> supportedSRS;
 
@@ -89,7 +89,7 @@ public class Service {
    * Legend endpoint.
    */
   @Column(name = "SER_LEGEND", length = URL)
-  @HttpURL
+  @Http
   @JsonView(Views.WorkspaceApplication.class)
   private String legendURL;
 
@@ -97,7 +97,7 @@ public class Service {
    * Get information endpoint.
    */
   @Column(name = "SER_INFOURL", length = URL)
-  @HttpURL
+  @Http
   @JsonView(Views.WorkspaceApplication.class)
   private String getInformationURL;
 

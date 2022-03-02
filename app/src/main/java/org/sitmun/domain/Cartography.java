@@ -3,11 +3,11 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.converters.StringListAttributeConverter;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.list.StringListAttributeConverter;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.*;
+import static org.sitmun.common.config.PersistenceConstants.*;
 
 /**
  * Geographic information.
@@ -192,7 +192,7 @@ public class Cartography {
    * Legend URL.
    */
   @Column(name = "GEO_LEGENDURL", length = URL)
-  @HttpURL
+  @Http
   private String legendURL;
 
   /**
@@ -214,14 +214,14 @@ public class Cartography {
    * Direct link to a metadata document.
    */
   @Column(name = "GEO_METAURL", length = URL)
-  @HttpURL
+  @Http
   private String metadataURL;
 
   /**
    * Direct link to a dataset file.
    */
   @Column(name = "GEO_DATAURL", length = URL)
-  @HttpURL
+  @Http
   private String datasetURL;
 
   /**

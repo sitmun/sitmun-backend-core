@@ -28,8 +28,8 @@ public class ApplicationParameterRepositoryDataRestTest {
   @Test
   public void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.application-parameters", hasSize(4)));
   }

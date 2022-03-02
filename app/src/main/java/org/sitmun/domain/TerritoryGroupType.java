@@ -3,12 +3,12 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.views.Views;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.config.PersistenceConstants.SHORT_DESCRIPTION;
+import static org.sitmun.common.config.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * Type of grouping of territorial entities.

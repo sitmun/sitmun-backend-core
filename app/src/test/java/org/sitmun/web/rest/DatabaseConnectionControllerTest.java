@@ -39,7 +39,7 @@ public class DatabaseConnectionControllerTest {
   public void failIfDatabaseConnectionDriverNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
     mockMvc.perform(get("/api/connections/0/test")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
@@ -54,7 +54,7 @@ public class DatabaseConnectionControllerTest {
       .password("password")
       .build()));
     mockMvc.perform(get("/api/connections/0/test")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
@@ -69,7 +69,7 @@ public class DatabaseConnectionControllerTest {
       .password("password")
       .build()));
     mockMvc.perform(get("/api/connections/0/test")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -77,7 +77,7 @@ public class DatabaseConnectionControllerTest {
   public void failIfdatabaseConnectionNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.empty());
     mockMvc.perform(get("/api/connections/0/test")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isNotFound());
   }
 
@@ -96,9 +96,9 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mockMvc.perform(post("/api/connections/test")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
@@ -107,9 +107,9 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void failPostTestIfDatabaseConnectionException() throws Exception {
     mockMvc.perform(post("/api/connections/test")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
@@ -118,17 +118,17 @@ public class DatabaseConnectionControllerTest {
   @Test
   public void databaseConnectionPostTestSuccess() throws Exception {
     mockMvc.perform(post("/api/connections/test")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
   @Test
   public void failPostTestIfNoCredentials() throws Exception {
     mockMvc.perform(post("/api/connections/test")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
       .andExpect(status().isUnauthorized());
   }
 }

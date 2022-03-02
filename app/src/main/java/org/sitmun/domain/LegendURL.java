@@ -1,15 +1,15 @@
 package org.sitmun.domain;
 
 import lombok.*;
-import org.sitmun.constraints.HttpURL;
+import org.sitmun.common.types.http.Http;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
-import static org.sitmun.config.PersistenceConstants.URL;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.URL;
 
 /**
  * Legend provider.
@@ -45,6 +45,6 @@ public class LegendURL {
    */
   @Column(length = URL)
   @NotNull
-  @HttpURL
+  @Http
   private String onlineResource;
 }

@@ -33,8 +33,8 @@ public class RepositoryDataRestUpdateTest {
   @Test
   public void itemResourceUpdate() throws Exception {
     String item = mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -43,26 +43,26 @@ public class RepositoryDataRestUpdateTest {
     json.put("name", "New name");
 
     mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk());
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value("New name"));
 
     json.put("name", oldName);
 
     mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk());
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name").value(oldName));
   }
@@ -70,8 +70,8 @@ public class RepositoryDataRestUpdateTest {
   @Test
   public void associationResourceUpdate() throws Exception {
     String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
@@ -85,8 +85,8 @@ public class RepositoryDataRestUpdateTest {
     );
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size() - 1)));
 
@@ -97,8 +97,8 @@ public class RepositoryDataRestUpdateTest {
     );
 
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", hasSize(links.size())))
       .andExpect(jsonPath("$._embedded.roles[*]._links.self.href", containsInAnyOrder(links.toArray())));

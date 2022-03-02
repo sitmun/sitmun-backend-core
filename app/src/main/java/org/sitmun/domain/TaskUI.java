@@ -3,13 +3,13 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.views.Views;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task UI.

@@ -3,13 +3,15 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.constraints.BoundingBox;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.converters.EnvelopeToStringConverter;
-import org.sitmun.converters.PointToStringConverter;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.boundingbox.BoundingBox;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.envelope.Envelope;
+import org.sitmun.common.types.envelope.EnvelopeToStringConverter;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.point.Point;
+import org.sitmun.common.types.point.PointToStringConverter;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,7 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.*;
+import static org.sitmun.common.config.PersistenceConstants.*;
 
 /**
  * Territorial entity.
@@ -94,7 +96,7 @@ public class Territory {
    * Link to the territorial authority logo.
    */
   @Column(name = "TER_LOGO", length = URL)
-  @HttpURL
+  @Http
   @JsonView({Views.WorkspaceApplication.class})
   private String territorialAuthorityLogo;
 

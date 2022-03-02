@@ -29,7 +29,7 @@ public class SituationMapsRepositoryDataRestTest {
   @Test
   public void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_SITUATION_MAP)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.*.*", hasSize(1)))
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(1)));

@@ -3,11 +3,12 @@ package org.sitmun.constraints;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeListValue;
+import org.sitmun.common.types.codelist.CodeListValueRepository;
+import org.sitmun.common.types.codelist.QCodeListValue;
 import org.sitmun.config.LiquibaseConfig;
 import org.sitmun.domain.CartographyPermission;
-import org.sitmun.domain.CodeListValue;
-import org.sitmun.domain.QCodeListValue;
-import org.sitmun.repository.CodeListValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -27,16 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @DisplayName("CodeLists Test")
 public class CodeListsTest {
-
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
 
   @Autowired
   private CodeListValueRepository codeListValueRepository;
@@ -78,8 +69,8 @@ public class CodeListsTest {
 
   private Iterable<String> select(String list) {
     return StreamSupport.stream(
-      codeListValueRepository.findAll(QCodeListValue.codeListValue.codeListName.eq(list))
-        .spliterator(), false)
+        codeListValueRepository.findAll(QCodeListValue.codeListValue.codeListName.eq(list))
+          .spliterator(), false)
       .map(CodeListValue::getValue).collect(Collectors.toList());
   }
 
@@ -263,5 +254,15 @@ public class CodeListsTest {
   public void checkUserPositionType() {
     assertThat(select(CodeLists.USER_POSITION_TYPE))
       .containsExactlyInAnyOrder("AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 }

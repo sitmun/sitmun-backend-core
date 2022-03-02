@@ -4,9 +4,9 @@ package org.sitmun.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.codelist.CodeList;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

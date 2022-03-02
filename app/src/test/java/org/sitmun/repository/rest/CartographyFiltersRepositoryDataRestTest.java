@@ -38,17 +38,17 @@ public class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     String location = mvc.perform(
-      MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHY_FILTERS_URI)
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHY_FILTERS_URI)
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
 
     assertNotNull(location);
 
     mvc.perform(get(location + "/cartography")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(1228));
 
@@ -66,10 +66,10 @@ public class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     mvc.perform(
-      post(URIConstants.CARTOGRAPHY_FILTERS_URI)
-        .content(content)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isBadRequest())
+        post(URIConstants.CARTOGRAPHY_FILTERS_URI)
+          .content(content)
+          .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].property").value("cartography"))
       .andExpect(jsonPath("$.errors[0].message").value("must not be null"));
   }

@@ -44,13 +44,13 @@ public class TerritoryRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void create() throws Exception {
     response = mvc.perform(MockMvcRequestBuilders.post(URIConstants.TERRITORIES_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"code\":\"test\"," +
-        "\"blocked\":false" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"code\":\"test\"," +
+          "\"blocked\":false" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
       .andReturn().getResponse();
@@ -61,14 +61,14 @@ public class TerritoryRepositoryDataRestTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void centerWithoutExtension() throws Exception {
     response = mvc.perform(post(URIConstants.TERRITORIES_URI)
-      .content("{" +
-        "\"name\":\"test\"," +
-        "\"code\":\"test\"," +
-        "\"blocked\":false," +
-        "\"center\": {\"x\": 10, \"y\": 20}" +
-        "}")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .content("{" +
+          "\"name\":\"test\"," +
+          "\"code\":\"test\"," +
+          "\"blocked\":false," +
+          "\"center\": {\"x\": 10, \"y\": 20}" +
+          "}")
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.center.x").value(10))
       .andExpect(jsonPath("$.center.y").value(20))
@@ -79,7 +79,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: can list as admin")
   public void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TERRITORIES_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
@@ -99,7 +99,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has link to task availabilities")
   public void hasLinkToTaskAvailability() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.taskAvailabilities").exists());
   }
@@ -108,7 +108,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has computed center")
   public void hasComputedCenter() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.center.x").value(433957.5))
       .andExpect(jsonPath("$.center.y").value(4615120.5))
@@ -119,7 +119,7 @@ public class TerritoryRepositoryDataRestTest {
   @DisplayName("GET: has link to cartography availabilities")
   public void hasLinkToCartographyAvailabilities() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._links.cartographyAvailabilities").exists());
   }

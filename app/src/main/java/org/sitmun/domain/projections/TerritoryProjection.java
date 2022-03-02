@@ -1,7 +1,7 @@
 package org.sitmun.domain.projections;
 
-import org.sitmun.domain.Envelope;
-import org.sitmun.domain.Point;
+import org.sitmun.common.types.envelope.Envelope;
+import org.sitmun.common.types.point.Point;
 import org.sitmun.domain.Territory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;

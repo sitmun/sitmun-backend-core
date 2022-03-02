@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -90,14 +90,14 @@ public class TreeNode {
    * URL to metadata.
    */
   @Column(name = "TNO_METAURL", length = PersistenceConstants.URL)
-  @HttpURL
+  @Http
   private String metadataURL;
 
   /**
    * URL to downloadable (zip) dataset.
    */
   @Column(name = "TNO_DATAURL", length = PersistenceConstants.URL)
-  @HttpURL
+  @Http
   private String datasetURL;
 
   /**

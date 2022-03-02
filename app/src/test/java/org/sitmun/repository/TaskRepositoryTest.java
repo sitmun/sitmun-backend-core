@@ -24,19 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TaskRepositoryTest {
 
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    public TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
-  }
-
   @Autowired
   private TaskRepository taskRepository;
-
   private Task task;
 
   @BeforeEach
@@ -63,6 +52,16 @@ public class TaskRepositoryTest {
     assertThat(task.getId()).isNotZero();
 
     Assertions.assertThat(taskRepository.findById(task.getId())).isNotNull();
+  }
+
+  @TestConfiguration
+  @Import(LiquibaseConfig.class)
+  static class Configuration {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 
 }

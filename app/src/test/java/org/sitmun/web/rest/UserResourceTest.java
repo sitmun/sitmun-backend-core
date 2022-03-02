@@ -206,16 +206,16 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     String uri = mockMvc.perform(post(URIConstants.USER_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(uri).isNotNull();
 
     mockMvc.perform(get(uri)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.username", equalTo("new user")))
       .andExpect(jsonPath("$.passwordSet").value(true));
@@ -237,16 +237,16 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     String uri = mockMvc.perform(post(URIConstants.USER_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(content)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    ).andExpect(status().isCreated())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(content)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     assertThat(uri).isNotNull();
 
     mockMvc.perform(get(uri)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.passwordSet").value(true));
 
@@ -259,8 +259,8 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     mockMvc.perform(put(uri)
-      .content(withNullPassword)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .content(withNullPassword)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.passwordSet").value(true));
 
@@ -272,8 +272,8 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     mockMvc.perform(put(uri)
-      .content(withoutField)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .content(withoutField)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.passwordSet").value(true));
 
@@ -286,8 +286,8 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     mockMvc.perform(put(uri)
-      .content(withEmptyPassword)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .content(withEmptyPassword)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.passwordSet").value(false));
 
@@ -300,8 +300,8 @@ public class UserResourceTest {
       "\"blocked\": false}";
 
     mockMvc.perform(put(uri)
-      .content(withNonEmptyPassword)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
+        .content(withNonEmptyPassword)
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))).andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.passwordSet").value(true));
 
@@ -316,10 +316,10 @@ public class UserResourceTest {
     User newUser = organizacionAdmin.toBuilder().id(null).build();
 
     mockMvc.perform(post(URIConstants.USER_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(newUser))
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(newUser))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isConflict());
   }
 
@@ -340,7 +340,7 @@ public class UserResourceTest {
     ).andExpect(status().isOk());
 
     mockMvc.perform(get(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_CHANGEDFIRSTNAME)))
@@ -352,8 +352,8 @@ public class UserResourceTest {
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void getUsersAsSitmunAdmin() throws Exception {
     mockMvc.perform(get(URIConstants.USER_URI + "?size=10")
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-    )
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
+      )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$._embedded.users", hasSize(10)));

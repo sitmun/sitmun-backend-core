@@ -3,16 +3,16 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeList;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
-import static org.sitmun.config.PersistenceConstants.SHORT_DESCRIPTION;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * A range defined in a thematic map.

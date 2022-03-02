@@ -83,7 +83,7 @@ public class AccountControllerTest {
   public void readAccount() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.ACCOUNT_URI)
         .header(HttpHeaders.AUTHORIZATION, validToken)
-    ).andExpect(status().isOk())
+      ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
       .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));

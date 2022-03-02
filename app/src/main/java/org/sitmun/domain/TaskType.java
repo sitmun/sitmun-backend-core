@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.converters.HashMapConverter;
-import org.sitmun.i18n.I18n;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.i18n.I18n;
+import org.sitmun.common.types.map.HashMapConverter;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.sitmun.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task type.

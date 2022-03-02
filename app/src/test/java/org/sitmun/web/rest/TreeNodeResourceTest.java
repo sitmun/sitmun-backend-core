@@ -167,7 +167,7 @@ public class TreeNodeResourceTest {
   @Disabled
   public void getTreesAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TREE_URI)
-      .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.trees", hasSize(19)));
   }

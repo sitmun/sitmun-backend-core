@@ -3,12 +3,12 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.SpatialReferenceSystem;
-import org.sitmun.converters.StringListAttributeConverter;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.list.StringListAttributeConverter;
+import org.sitmun.common.types.srs.Srs;
+import org.sitmun.common.views.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -86,7 +86,7 @@ public class Application {
    * Projection to be used in this application when it is internal.
    */
   @Column(name = "APP_PROJECT", length = PersistenceConstants.IDENTIFIER)
-  @SpatialReferenceSystem
+  @Srs
   @JsonView({Views.WorkspaceApplication.class})
   private String srs;
 

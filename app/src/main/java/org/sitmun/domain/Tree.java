@@ -3,9 +3,9 @@ package org.sitmun.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.config.PersistenceConstants;
-import org.sitmun.constraints.HttpURL;
-import org.sitmun.views.Views;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.http.Http;
+import org.sitmun.common.views.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -52,7 +52,7 @@ public class Tree {
    * Representative image or icon.
    */
   @Column(name = "TRE_IMAGE", length = PersistenceConstants.URL)
-  @HttpURL
+  @Http
   @JsonView(Views.WorkspaceApplication.class)
   private String image;
 

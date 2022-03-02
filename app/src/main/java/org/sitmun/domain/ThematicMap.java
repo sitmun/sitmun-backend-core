@@ -3,16 +3,16 @@ package org.sitmun.domain;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.constraints.CodeList;
-import org.sitmun.constraints.CodeLists;
-import org.sitmun.constraints.HttpURL;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.http.Http;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
 
-import static org.sitmun.config.PersistenceConstants.*;
+import static org.sitmun.common.config.PersistenceConstants.*;
 
 /**
  * Thematic map.
@@ -153,7 +153,7 @@ public class ThematicMap {
    * Webservice URL that brings data to represent (in JSON format).
    */
   @Column(name = "THE_URLWS", length = URL)
-  @HttpURL
+  @Http
   private String url;
 
   /**

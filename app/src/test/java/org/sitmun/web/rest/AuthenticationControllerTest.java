@@ -31,8 +31,8 @@ public class AuthenticationControllerTest {
     login.setPassword("admin");
 
     mvc.perform(post("/api/authenticate")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(login)))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(login)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id_token").exists());
   }
@@ -44,8 +44,8 @@ public class AuthenticationControllerTest {
     login.setPassword("other");
 
     mvc.perform(post("/api/authenticate")
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(TestUtils.asJsonString(login)))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(login)))
       .andExpect(status().isUnauthorized());
   }
 }
