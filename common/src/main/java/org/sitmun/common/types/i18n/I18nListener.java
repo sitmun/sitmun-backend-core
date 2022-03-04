@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 @Component
 public class I18nListener implements ApplicationContextAware {
 
-  private final static Logger LOG = LoggerFactory.getLogger(I18nListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(I18nListener.class);
 
   private ApplicationContext context;
 
@@ -37,7 +37,7 @@ public class I18nListener implements ApplicationContextAware {
           try {
             translateFields(target, (Integer) idField.get(target), languageTag);
           } catch (IllegalAccessException e) {
-            LOG.error("Can't access the field id", e);
+            logger.error("Can't access the field id", e);
           }
         });
     }
@@ -78,7 +78,7 @@ public class I18nListener implements ApplicationContextAware {
         try {
           field.set(target, translation.getTranslation());
         } catch (IllegalAccessException e) {
-          LOG.error("Can't set the i18n field", e);
+          logger.error("Can't set the i18n field", e);
         }
       }
     };

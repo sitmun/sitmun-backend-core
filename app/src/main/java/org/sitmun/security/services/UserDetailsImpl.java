@@ -37,7 +37,7 @@ public class UserDetailsImpl implements UserDetails {
 
   public static UserDetailsImpl build(User user) {
     List<Role> roles;
-    if (user.getAdministrator()) {
+    if (Boolean.TRUE.equals(user.getAdministrator())) {
       roles = Lists.newArrayList(Role.ROLE_USER, Role.ROLE_ADMIN);
     } else {
       roles = Lists.newArrayList(Role.ROLE_USER);

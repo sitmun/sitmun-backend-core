@@ -1,8 +1,6 @@
 package org.sitmun.security.jwt;
 
 import org.sitmun.security.services.UserDetailsServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
@@ -20,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
-  private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
   @Autowired
   private JwtUtils jwtUtils;
   @Autowired
@@ -45,7 +43,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     } catch (Exception e) {
-      logger.error("Cannot set user authentication: {}", e.getMessage());
+      String msg = String.format("Cannot set user authentication: %s", e.getMessage());
+      logger.error(msg, e);
     }
 
     filterChain.doFilter(request, response);

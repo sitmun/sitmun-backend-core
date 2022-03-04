@@ -1,7 +1,5 @@
 package org.sitmun.security.middleware;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +18,6 @@ import java.util.Objects;
 
 public class MiddlewareKeyFilter extends OncePerRequestFilter {
 
-  private static final Logger logger = LoggerFactory.getLogger(MiddlewareKeyFilter.class);
   private final String principal;
   private final List<GrantedAuthority> authorities;
   @Value("${security.authentication.middleware.secret}")
@@ -36,7 +33,6 @@ public class MiddlewareKeyFilter extends OncePerRequestFilter {
     throws ServletException, IOException {
     try {
       String key = request.getHeader("Key") == null ? "" : request.getHeader("Key");
-      logger.info("Trying key: " + key);
 
       if (Objects.equals(key, middlewareSecret)) {
         UsernamePasswordAuthenticationToken authentication =
@@ -48,7 +44,8 @@ public class MiddlewareKeyFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     } catch (Exception e) {
-      logger.error("Cannot set user authentication: {}", e.getMessage());
+      String msg = String.format("Cannot set user authentication: %s", e.getMessage());
+      logger.error(msg, e);
     }
 
     filterChain.doFilter(request, response);
