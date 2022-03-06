@@ -1,6 +1,6 @@
 package org.sitmun.web.exceptions;
 
-import org.sitmun.domain.DatabaseConnection;
+import org.sitmun.common.domain.database.DatabaseConnection;
 
 import java.sql.SQLException;
 

@@ -1,10 +1,10 @@
 package org.sitmun.repository.handlers.stm2;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.common.domain.task.Task;
+import org.sitmun.common.domain.task.TaskRepository;
 import org.sitmun.domain.DownloadTask;
-import org.sitmun.domain.Task;
 import org.sitmun.repository.DownloadTaskRepository;
-import org.sitmun.repository.TaskRepository;
 import org.sitmun.repository.handlers.SyncEntityHandler;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;

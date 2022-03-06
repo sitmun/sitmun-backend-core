@@ -8,4 +8,7 @@ public class Views {
 
   public static class WorkspaceApplication {
   }
+
+  public static class Workspace {
+  }
 }

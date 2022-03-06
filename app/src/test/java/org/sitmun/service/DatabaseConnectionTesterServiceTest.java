@@ -2,7 +2,7 @@ package org.sitmun.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sitmun.domain.DatabaseConnection;
+import org.sitmun.common.domain.database.DatabaseConnection;
 import org.sitmun.web.exceptions.DatabaseConnectionDriverNotFoundException;
 import org.sitmun.web.exceptions.DatabaseSQLException;
 

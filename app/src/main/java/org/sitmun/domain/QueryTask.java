@@ -3,6 +3,7 @@ package org.sitmun.domain;
 import lombok.*;
 import org.sitmun.common.config.CodeLists;
 import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.types.codelist.CodeList;
 
 import javax.persistence.*;

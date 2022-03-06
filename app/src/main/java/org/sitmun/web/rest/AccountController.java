@@ -1,8 +1,8 @@
 package org.sitmun.web.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.domain.User;
-import org.sitmun.repository.UserRepository;
+import org.sitmun.common.domain.user.User;
+import org.sitmun.common.domain.user.UserRepository;
 import org.sitmun.security.SecurityUtils;
 import org.sitmun.web.rest.dto.UserDTO;
 import org.springframework.context.ApplicationEventPublisher;

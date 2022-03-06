@@ -1,10 +1,20 @@
 package org.sitmun.service.client;
 
 import com.google.common.collect.Lists;
-import org.sitmun.domain.*;
-import org.sitmun.repository.ConfigurationParameterRepository;
-import org.sitmun.repository.UserConfigurationRepository;
-import org.sitmun.repository.UserRepository;
+import org.sitmun.common.domain.application.Application;
+import org.sitmun.common.domain.cartography.Cartography;
+import org.sitmun.common.domain.cartography.permission.CartographyPermission;
+import org.sitmun.common.domain.configuration.ConfigurationParameterRepository;
+import org.sitmun.common.domain.role.Role;
+import org.sitmun.common.domain.task.Task;
+import org.sitmun.common.domain.territory.Territory;
+import org.sitmun.common.domain.tree.Tree;
+import org.sitmun.common.domain.tree.node.TreeNode;
+import org.sitmun.common.domain.user.User;
+import org.sitmun.common.domain.user.UserRepository;
+import org.sitmun.common.domain.user.configuration.UserConfiguration;
+import org.sitmun.common.domain.user.configuration.UserConfigurationRepository;
+import org.sitmun.common.domain.workspace.WorkspaceApplication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

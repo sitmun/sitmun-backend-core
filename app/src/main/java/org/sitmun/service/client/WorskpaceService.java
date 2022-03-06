@@ -1,13 +1,13 @@
 package org.sitmun.service.client;
 
 import com.google.common.collect.Lists;
-import org.sitmun.domain.Territory;
-import org.sitmun.domain.User;
-import org.sitmun.domain.UserConfiguration;
-import org.sitmun.domain.Workspace;
-import org.sitmun.repository.ConfigurationParameterRepository;
-import org.sitmun.repository.UserConfigurationRepository;
-import org.sitmun.repository.UserRepository;
+import org.sitmun.common.domain.configuration.ConfigurationParameterRepository;
+import org.sitmun.common.domain.territory.Territory;
+import org.sitmun.common.domain.user.User;
+import org.sitmun.common.domain.user.UserRepository;
+import org.sitmun.common.domain.user.configuration.UserConfiguration;
+import org.sitmun.common.domain.user.configuration.UserConfigurationRepository;
+import org.sitmun.common.domain.workspace.Workspace;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

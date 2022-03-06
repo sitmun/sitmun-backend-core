@@ -1,7 +1,7 @@
 package org.sitmun.web.exceptions;
 
-import org.sitmun.domain.DatabaseConnection;
-import org.sitmun.repository.handlers.RequirementException;
+import org.sitmun.common.domain.RequirementException;
+import org.sitmun.common.domain.database.DatabaseConnection;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

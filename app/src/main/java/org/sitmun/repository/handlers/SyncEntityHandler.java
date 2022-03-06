@@ -1,6 +1,6 @@
 package org.sitmun.repository.handlers;
 
-import org.sitmun.domain.Task;
+import org.sitmun.common.domain.task.Task;
 
 import java.util.HashMap;
 import java.util.List;

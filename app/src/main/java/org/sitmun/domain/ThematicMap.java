@@ -4,6 +4,9 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.domain.cartography.Cartography;
+import org.sitmun.common.domain.task.Task;
+import org.sitmun.common.domain.user.User;
 import org.sitmun.common.types.codelist.CodeList;
 import org.sitmun.common.types.http.Http;
 

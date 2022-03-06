@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.domain.User;
+import org.sitmun.common.domain.user.User;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;

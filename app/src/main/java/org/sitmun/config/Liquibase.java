@@ -2,7 +2,7 @@ package org.sitmun.config;
 
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
-import org.sitmun.repository.handlers.OnStartupUpdateHandler;
+import org.sitmun.common.domain.OnStartupUpdateHandler;
 import org.sitmun.repository.handlers.SyncEntityHandler;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.core.Authentication;

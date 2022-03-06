@@ -2,7 +2,7 @@ package org.sitmun.repository.rest;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.repository.TerritoryRepository;
+import org.sitmun.common.domain.territory.TerritoryRepository;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.TestUtils;
 import org.sitmun.test.URIConstants;

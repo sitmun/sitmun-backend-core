@@ -1,7 +1,7 @@
 package org.sitmun.security.services;
 
-import org.sitmun.domain.User;
-import org.sitmun.repository.UserRepository;
+import org.sitmun.common.domain.user.User;
+import org.sitmun.common.domain.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

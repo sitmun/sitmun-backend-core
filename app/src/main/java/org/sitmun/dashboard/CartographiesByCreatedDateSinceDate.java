@@ -1,8 +1,8 @@
 package org.sitmun.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
+import org.sitmun.common.domain.cartography.CartographyRepository;
 import org.sitmun.properties.DashboardProperties.MetricDefinition;
-import org.sitmun.repository.CartographyRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
 package org.sitmun.service;
 
-import org.sitmun.domain.DatabaseConnection;
+import org.sitmun.common.domain.database.DatabaseConnection;
 import org.sitmun.web.exceptions.DatabaseConnectionDriverNotFoundException;
 import org.sitmun.web.exceptions.DatabaseSQLException;
 import org.slf4j.Logger;

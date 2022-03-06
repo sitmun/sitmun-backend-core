@@ -1,6 +1,6 @@
 package org.sitmun.web.exceptions;
 
-import org.sitmun.domain.DatabaseConnection;
+import org.sitmun.common.domain.database.DatabaseConnection;
 
 /**
  * Thrown to indicate that a {@link DatabaseConnection#getDriver()} cannot be loaded.

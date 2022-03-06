@@ -2,12 +2,12 @@ package org.sitmun.repository.handlers.stm2;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.common.domain.task.Task;
+import org.sitmun.common.domain.task.TaskRepository;
 import org.sitmun.domain.QueryTask;
-import org.sitmun.domain.Task;
 import org.sitmun.domain.TaskParameter;
 import org.sitmun.repository.QueryTaskRepository;
 import org.sitmun.repository.TaskParameterRepository;
-import org.sitmun.repository.TaskRepository;
 import org.sitmun.repository.handlers.SyncEntityHandler;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;

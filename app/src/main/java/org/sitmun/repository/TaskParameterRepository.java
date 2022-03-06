@@ -1,7 +1,7 @@
 package org.sitmun.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.domain.Task;
+import org.sitmun.common.domain.task.Task;
 import org.sitmun.domain.TaskParameter;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.lang.NonNull;

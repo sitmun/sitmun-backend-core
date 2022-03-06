@@ -1,7 +1,7 @@
 package org.sitmun.config;
 
 import liquibase.integration.spring.SpringLiquibase;
-import org.sitmun.repository.handlers.OnStartupUpdateHandler;
+import org.sitmun.common.domain.OnStartupUpdateHandler;
 import org.sitmun.repository.handlers.SyncEntityHandler;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;

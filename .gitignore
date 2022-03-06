@@ -16,7 +16,6 @@ out/
 bin/
 
 # Other dirs
-database/
 /src.zip
 /update_db.sql
 /dist/

@@ -2,7 +2,7 @@ package org.sitmun.repository.rest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.domain.CartographyPermission;
+import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,7 @@ package org.sitmun.security.web;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.repository.UserRepository;
+import org.sitmun.common.domain.user.UserRepository;
 import org.sitmun.security.jwt.JwtUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

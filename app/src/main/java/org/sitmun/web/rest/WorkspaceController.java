@@ -2,7 +2,8 @@ package org.sitmun.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.domain.Workspace;
+import org.sitmun.common.domain.workspace.Workspace;
+import org.sitmun.common.views.Views;
 import org.sitmun.security.SecurityUtils;
 import org.sitmun.service.client.WorskpaceService;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class WorkspaceController {
   @SuppressWarnings("deprecation")
   @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
   @ResponseBody
-  @JsonView(Workspace.View.class)
+  @JsonView(Views.Workspace.class)
   public ResponseEntity<Workspace> getDescription() {
     return SecurityUtils
       .getCurrentUserLogin()
