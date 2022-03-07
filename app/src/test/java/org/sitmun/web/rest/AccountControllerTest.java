@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.common.domain.user.User;
 import org.sitmun.common.domain.user.UserEventHandler;
 import org.sitmun.common.domain.user.UserRepository;
-import org.sitmun.security.jwt.JwtUtils;
+import org.sitmun.common.security.jwt.JwtUtils;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

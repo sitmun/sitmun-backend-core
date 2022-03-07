@@ -11,7 +11,7 @@ import org.sitmun.common.domain.background.Background;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.role.Role;
 import org.sitmun.common.types.codelist.CodeList;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

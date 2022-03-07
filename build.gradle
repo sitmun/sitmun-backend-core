@@ -88,8 +88,6 @@ project(':app') {
 
     implementation "info.picocli:picocli:${picocli_version}"
 
-    implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
-
     implementation 'org.reflections:reflections:0.9.12'
     implementation 'com.h2database:h2'
 
@@ -215,6 +213,7 @@ project(':common') {
     annotationProcessor 'javax.annotation:javax.annotation-api'
     implementation 'com.querydsl:querydsl-jpa'
 
+    implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
     implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')

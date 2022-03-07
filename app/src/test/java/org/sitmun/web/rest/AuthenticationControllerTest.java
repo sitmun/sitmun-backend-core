@@ -2,7 +2,7 @@ package org.sitmun.web.rest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.security.web.LoginRequest;
+import org.sitmun.common.security.web.LoginRequest;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

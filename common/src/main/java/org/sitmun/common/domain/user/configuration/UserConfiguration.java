@@ -9,7 +9,7 @@ import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.role.Role;
 import org.sitmun.common.domain.territory.Territory;
 import org.sitmun.common.domain.user.User;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

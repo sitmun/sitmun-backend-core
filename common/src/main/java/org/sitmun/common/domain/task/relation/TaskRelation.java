@@ -6,7 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.config.PersistenceConstants;
 import org.sitmun.common.domain.task.Task;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

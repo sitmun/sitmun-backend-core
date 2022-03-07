@@ -4,7 +4,7 @@ package org.sitmun.common.domain.task.group;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.common.config.PersistenceConstants;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

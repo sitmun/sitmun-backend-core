@@ -7,7 +7,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.background.Background;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

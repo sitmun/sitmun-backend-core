@@ -2,9 +2,9 @@ package org.sitmun.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.sitmun.security.Role;
-import org.sitmun.security.web.JwtResponse;
-import org.sitmun.security.web.LoginRequest;
+import org.sitmun.common.security.Role;
+import org.sitmun.common.security.web.JwtResponse;
+import org.sitmun.common.security.web.LoginRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

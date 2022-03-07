@@ -9,7 +9,7 @@ import org.sitmun.common.config.PersistenceConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.tree.Tree;
 import org.sitmun.common.types.http.Http;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

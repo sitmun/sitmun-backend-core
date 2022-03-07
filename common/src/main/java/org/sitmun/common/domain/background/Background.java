@@ -6,7 +6,7 @@ import lombok.*;
 import org.sitmun.common.domain.application.background.ApplicationBackground;
 import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.types.http.Http;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.config.PersistenceConstants;
 import org.sitmun.common.types.i18n.I18n;
 import org.sitmun.common.types.map.HashMapConverter;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import java.util.HashSet;

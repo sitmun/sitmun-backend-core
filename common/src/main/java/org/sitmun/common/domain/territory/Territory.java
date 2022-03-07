@@ -17,7 +17,7 @@ import org.sitmun.common.types.envelope.EnvelopeToStringConverter;
 import org.sitmun.common.types.http.Http;
 import org.sitmun.common.types.point.Point;
 import org.sitmun.common.types.point.PointToStringConverter;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

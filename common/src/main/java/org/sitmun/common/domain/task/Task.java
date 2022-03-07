@@ -13,7 +13,7 @@ import org.sitmun.common.domain.task.relation.TaskRelation;
 import org.sitmun.common.domain.task.type.TaskType;
 import org.sitmun.common.domain.task.ui.TaskUI;
 import org.sitmun.common.types.map.HashMapConverter;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 

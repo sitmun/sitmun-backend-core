@@ -2,7 +2,7 @@ package org.sitmun.common.types.point;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 /**
  * Defines a 2D point .

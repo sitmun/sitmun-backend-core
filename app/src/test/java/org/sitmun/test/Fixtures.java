@@ -1,7 +1,7 @@
 package org.sitmun.test;
 
 import com.google.common.collect.Lists;
-import org.sitmun.security.Role;
+import org.sitmun.common.security.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

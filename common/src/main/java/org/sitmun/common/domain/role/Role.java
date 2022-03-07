@@ -9,7 +9,7 @@ import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.domain.tree.Tree;
 import org.sitmun.common.domain.user.configuration.UserConfiguration;
-import org.sitmun.common.views.Views;
+import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
