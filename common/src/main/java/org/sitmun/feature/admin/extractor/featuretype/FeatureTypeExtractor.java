@@ -1,4 +1,4 @@
-package org.sitmun.service;
+package org.sitmun.feature.admin.extractor.featuretype;
 
 public interface FeatureTypeExtractor {
 

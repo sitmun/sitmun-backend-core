@@ -1,8 +1,7 @@
-package org.sitmun.web.rest;
+package org.sitmun.feature.admin.database.tester;
 
 import org.sitmun.common.domain.database.DatabaseConnection;
 import org.sitmun.common.domain.database.DatabaseConnectionRepository;
-import org.sitmun.service.DatabaseConnectionTesterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;

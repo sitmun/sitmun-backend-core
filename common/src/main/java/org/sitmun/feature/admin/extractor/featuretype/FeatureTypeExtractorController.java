@@ -1,7 +1,5 @@
-package org.sitmun.web.rest;
+package org.sitmun.feature.admin.extractor.featuretype;
 
-import org.sitmun.service.ExtractedMetadata;
-import org.sitmun.service.FeatureTypeExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;

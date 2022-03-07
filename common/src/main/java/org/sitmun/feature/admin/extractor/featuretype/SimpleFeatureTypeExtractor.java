@@ -1,4 +1,4 @@
-package org.sitmun.service;
+package org.sitmun.feature.admin.extractor.featuretype;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -6,13 +6,15 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import org.json.XML;
-import org.sitmun.service.ExtractedMetadata.ExtractedMetadataBuilder;
+import org.sitmun.feature.admin.extractor.featuretype.ExtractedMetadata.ExtractedMetadataBuilder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
-class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor {
+public
+class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
 
   @Override
   public ExtractedMetadata extract(String url) {
@@ -41,13 +43,22 @@ class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor
               return builder.success(false).reason("Not a well formed XML").build();
             }
             builder.asJson(json.toMap());
-            if (json.has("WMS_Capabilities") &&
-              json.getJSONObject("WMS_Capabilities").has("version")) {
-              builder.type("OGC:WMS " + json.getJSONObject("WMS_Capabilities").get("version"));
-            } else if (json.has("WMT_MS_Capabilities") && json.getJSONObject("WMT_MS_Capabilities").has("version")) {
-              builder.type("OGC:WMS " + json.getJSONObject("WMT_MS_Capabilities").get("version"));
+
+            Optional<String> root = json.toMap().keySet().stream().filter(it -> it.endsWith(":schema")).findFirst();
+            if (root.isPresent()) {
+              JSONObject schema = json.getJSONObject(root.get());
+              String[] qname = root.get().split(":");
+              String xmlnsKey = "xmlns" + (qname.length == 2 ? ":" + qname[0] : "");
+              boolean isXSD = "http://www.w3.org/2001/XMLSchema".equals(schema.optString(xmlnsKey));
+              if (!isXSD) {
+                builder.success(false).reason("Not a XML Schema");
+              } else if (!schema.has("xmlns:gml")) {
+                builder.success(false).reason("Not a DescribeFeatureType response");
+              } else {
+                builder.type("GML Schema").success(true);
+              }
             } else {
-              builder.success(false).reason("Not a standard OGC:WMS Capabilities response");
+              builder.success(false).reason("Unmanaged XML response");
             }
           }
         }

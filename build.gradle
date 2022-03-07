@@ -91,17 +91,13 @@ project(':app') {
     implementation 'org.reflections:reflections:0.9.12'
     implementation 'com.h2database:h2'
 
-    implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'com.squareup.okhttp3:logging-interceptor'
-    implementation 'org.json:json:20210307'
-
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
       exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation "org.assertj:assertj-core:${assertj_core_version}"
     testImplementation "com.google.guava:guava:${guava_version}"
+    testImplementation "org.json:json:${json_version}"
   }
 
   publishing {
@@ -213,10 +209,15 @@ project(':common') {
     annotationProcessor 'javax.annotation:javax.annotation-api'
     implementation 'com.querydsl:querydsl-jpa'
 
+    implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'com.squareup.okhttp3:logging-interceptor'
+    implementation "org.json:json:${json_version}"
     implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
     implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.h2database:h2'
   }
 
   jacocoTestReport {

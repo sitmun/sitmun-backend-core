@@ -1,8 +1,6 @@
-package org.sitmun.service;
+package org.sitmun.feature.admin.database.tester;
 
 import org.sitmun.common.domain.database.DatabaseConnection;
-import org.sitmun.web.exceptions.DatabaseConnectionDriverNotFoundException;
-import org.sitmun.web.exceptions.DatabaseSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

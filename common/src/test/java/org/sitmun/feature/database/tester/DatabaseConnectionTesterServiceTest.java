@@ -1,10 +1,11 @@
-package org.sitmun.service;
+package org.sitmun.feature.database.tester;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sitmun.common.domain.database.DatabaseConnection;
-import org.sitmun.web.exceptions.DatabaseConnectionDriverNotFoundException;
-import org.sitmun.web.exceptions.DatabaseSQLException;
+import org.sitmun.feature.admin.database.tester.DatabaseConnectionDriverNotFoundException;
+import org.sitmun.feature.admin.database.tester.DatabaseConnectionTesterService;
+import org.sitmun.feature.admin.database.tester.DatabaseSQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,4 +1,4 @@
-package org.sitmun.service;
+package org.sitmun.feature.admin.extractor.capabilities;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

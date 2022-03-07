@@ -2,6 +2,8 @@ package org.sitmun.web.exceptions;
 
 import org.sitmun.common.domain.RequirementException;
 import org.sitmun.common.domain.database.DatabaseConnection;
+import org.sitmun.feature.admin.database.tester.DatabaseConnectionDriverNotFoundException;
+import org.sitmun.feature.admin.database.tester.DatabaseSQLException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

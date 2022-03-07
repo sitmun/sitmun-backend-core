@@ -1,4 +1,4 @@
-package org.sitmun.web.exceptions;
+package org.sitmun.feature.admin.database.tester;
 
 import org.sitmun.common.domain.database.DatabaseConnection;
 

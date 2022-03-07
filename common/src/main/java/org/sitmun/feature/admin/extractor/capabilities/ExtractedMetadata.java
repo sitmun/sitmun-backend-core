@@ -1,4 +1,4 @@
-package org.sitmun.service;
+package org.sitmun.feature.admin.extractor.capabilities;
 
 import lombok.Builder;
 import lombok.Getter;
