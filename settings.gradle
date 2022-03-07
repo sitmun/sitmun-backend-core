@@ -2,4 +2,5 @@ rootProject.name = 'sitmun-backend-core'
 
 include 'web'
 include 'app'
+include 'legacy'
 include 'common'

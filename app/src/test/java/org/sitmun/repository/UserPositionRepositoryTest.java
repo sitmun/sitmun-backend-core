@@ -9,7 +9,7 @@ import org.sitmun.common.domain.user.User;
 import org.sitmun.common.domain.user.UserRepository;
 import org.sitmun.common.domain.user.position.UserPosition;
 import org.sitmun.common.domain.user.position.UserPositionRepository;
-import org.sitmun.config.LiquibaseConfig;
+import org.sitmun.legacy.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;

@@ -14,7 +14,7 @@ import org.sitmun.common.domain.background.BackgroundRepository;
 import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.domain.cartography.permission.CartographyPermissionRepository;
 import org.sitmun.common.domain.role.Role;
-import org.sitmun.config.LiquibaseConfig;
+import org.sitmun.legacy.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;

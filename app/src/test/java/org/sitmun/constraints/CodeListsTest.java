@@ -8,7 +8,7 @@ import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.types.codelist.CodeListValue;
 import org.sitmun.common.types.codelist.CodeListValueRepository;
 import org.sitmun.common.types.codelist.QCodeListValue;
-import org.sitmun.config.LiquibaseConfig;
+import org.sitmun.legacy.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;

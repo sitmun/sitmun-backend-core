@@ -1,0 +1,72 @@
+package org.sitmun.legacy.domain.task.download;
+
+import lombok.*;
+import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.types.codelist.CodeList;
+import org.sitmun.common.types.http.Http;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+/**
+ * Download file task.
+ */
+@Entity
+@Table(name = "STM_DOWNLOAD")
+@Builder(builderMethodName = "downloadBuilder")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class DownloadTask {
+
+  @Id
+  @Column(name = "DOW_ID")
+  private Integer id;
+
+  /**
+   * Download extension.
+   */
+  @Column(name = "DOW_EXT", length = PersistenceConstants.IDENTIFIER)
+  @NotNull
+  @CodeList(CodeLists.DOWNLOAD_TASK_FORMAT)
+  private String format;
+
+  /**
+   * Download scope.
+   */
+  @Column(name = "DOW_TYPE", length = PersistenceConstants.IDENTIFIER)
+  @NotNull
+  @CodeList(CodeLists.DOWNLOAD_TASK_SCOPE)
+  private String scope;
+
+  /**
+   * Location of the file to be downloaded.
+   */
+  @Column(name = "DOW_PATH", length = PersistenceConstants.URL)
+  @NotNull
+  @Http
+  private String path;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof DownloadTask))
+      return false;
+
+    DownloadTask other = (DownloadTask) o;
+
+    return getId() != null &&
+      getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+}

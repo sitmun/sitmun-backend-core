@@ -68,6 +68,7 @@ project(':app') {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.security:spring-security-data'
     implementation project(':common')
+    implementation project(':legacy')
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -77,8 +78,6 @@ project(':app') {
 
     annotationProcessor 'com.querydsl:querydsl-apt::jpa'
     implementation 'com.querydsl:querydsl-jpa'
-
-    implementation 'org.liquibase:liquibase-core'
 
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
     implementation "org.springdoc:springdoc-openapi-data-rest:${springdoc_openapi_version}"
@@ -132,6 +131,48 @@ project(':app') {
   clean {
     delete 'dist'
     delete "${cacheDir}"
+  }
+
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+    }
+  }
+
+  test.finalizedBy jacocoTestReport
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Project legacy
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+project(':legacy') {
+  apply plugin: 'java'
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'io.freefair.lombok'
+  apply plugin: 'jacoco'
+
+  def targetJavaVersion = JavaVersion.VERSION_1_8
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
+
+  dependencyManagement {
+    imports {
+      mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+
+  dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation project(':common')
+
+    implementation 'org.liquibase:liquibase-core'
+
+    implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
+    implementation "com.google.guava:guava:${guava_version}"
   }
 
   jacocoTestReport {
