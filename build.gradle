@@ -209,6 +209,7 @@ project(':common') {
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     annotationProcessor 'com.querydsl:querydsl-apt::jpa'
     annotationProcessor 'javax.annotation:javax.annotation-api'

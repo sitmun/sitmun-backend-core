@@ -1,4 +1,4 @@
-package org.sitmun.dashboard;
+package org.sitmun.common.feature.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.Tags;

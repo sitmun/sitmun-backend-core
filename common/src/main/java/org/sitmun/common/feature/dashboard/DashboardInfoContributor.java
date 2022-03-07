@@ -1,4 +1,4 @@
-package org.sitmun.dashboard;
+package org.sitmun.common.feature.dashboard;
 
 import com.google.common.collect.Maps;
 import io.micrometer.core.instrument.Gauge;
@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.sitmun.config.DashboardConfig.METRICS_PREFIX;
 
 @Component
 public class DashboardInfoContributor implements InfoContributor {
@@ -37,7 +36,7 @@ public class DashboardInfoContributor implements InfoContributor {
 
   private Map<String, Object> collectMetrics() {
     return Search.in(meterRegistry)
-      .name((name) -> name.startsWith(METRICS_PREFIX))
+      .name((name) -> name.startsWith(DashboardConfig.METRICS_PREFIX))
       .meters().stream()
       .map(this::processMetric)
       .filter(Objects::nonNull)
@@ -84,7 +83,7 @@ public class DashboardInfoContributor implements InfoContributor {
   private Map.Entry<String, Double> processMetric(Meter meter) {
     if (meter instanceof Gauge) {
       Gauge gauge = (Gauge) meter;
-      String id = gauge.getId().getName().substring(METRICS_PREFIX.length());
+      String id = gauge.getId().getName().substring(DashboardConfig.METRICS_PREFIX.length());
       String suffix = gauge.getId().getTag(TAG);
       if (suffix != null) {
         id = id + "." + suffix;

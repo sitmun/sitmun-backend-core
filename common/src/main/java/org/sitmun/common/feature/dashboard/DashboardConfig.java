@@ -1,4 +1,4 @@
-package org.sitmun.config;
+package org.sitmun.common.feature.dashboard;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -10,11 +10,6 @@ import org.sitmun.common.domain.service.ServiceRepository;
 import org.sitmun.common.domain.task.TaskRepository;
 import org.sitmun.common.domain.territory.TerritoryRepository;
 import org.sitmun.common.domain.user.UserRepository;
-import org.sitmun.dashboard.CartographiesByCreatedDateSinceDate;
-import org.sitmun.dashboard.DashboardMetricsContributor;
-import org.sitmun.dashboard.UserPerApplicationSinceDate;
-import org.sitmun.dashboard.UsersByCreatedDateSinceDate;
-import org.sitmun.properties.DashboardProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

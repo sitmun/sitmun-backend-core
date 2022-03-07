@@ -1,8 +1,7 @@
-package org.sitmun.dashboard;
+package org.sitmun.common.feature.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
 import org.sitmun.common.domain.cartography.CartographyRepository;
-import org.sitmun.properties.DashboardProperties.MetricDefinition;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -10,6 +9,7 @@ import java.util.Objects;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
+import static org.sitmun.common.feature.dashboard.DashboardProperties.MetricDefinition;
 
 public class CartographiesByCreatedDateSinceDate implements DashboardMetricsContributor {
 

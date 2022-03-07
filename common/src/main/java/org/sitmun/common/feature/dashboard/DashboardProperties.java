@@ -1,4 +1,4 @@
-package org.sitmun.properties;
+package org.sitmun.common.feature.dashboard;
 
 import lombok.Getter;
 import lombok.Setter;
