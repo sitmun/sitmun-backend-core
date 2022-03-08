@@ -1,4 +1,4 @@
-package org.sitmun.web.exceptions;
+package org.sitmun.common.web;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
-public class ApiErrorResponse {
+public class ErrorResponse {
 
   /**
    * http status code.
