@@ -18,10 +18,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   private static final String[] AUTH_WHITELIST = {
     "/v3/api-docs/**",
@@ -35,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private final AuthEntryPointJwt unauthorizedHandler;
   private final UserDetailsServiceImpl userDetailsService;
 
-  public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+  public WebSecurityConfigurer(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
   }
@@ -74,6 +77,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public CorsFilter corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.addAllowedOriginPattern("*");
+    config.addAllowedHeader("*");
+    config.addAllowedMethod("OPTIONS");
+    config.addAllowedMethod("GET");
+    config.addAllowedMethod("POST");
+    config.addAllowedMethod("PUT");
+    config.addAllowedMethod("DELETE");
+    source.registerCorsConfiguration("/**", config);
+    return new CorsFilter(source);
   }
 
   @Override
