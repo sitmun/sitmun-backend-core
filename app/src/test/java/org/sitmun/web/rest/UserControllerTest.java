@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AccountControllerTest {
+public class UserControllerTest {
 
   private static final String USER_USERNAME = "user";
   private static final String USER_PASSWORD = "user";
@@ -87,6 +87,12 @@ public class AccountControllerTest {
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
       .andExpect(jsonPath("$.lastName", equalTo(USER_LASTNAME)));
+  }
+
+  @Test
+  public void readAccountWithoutToken() throws Exception {
+    mvc.perform(MockMvcRequestBuilders.get(URIConstants.ACCOUNT_URI))
+      .andExpect(status().isUnauthorized());
   }
 
   @Test

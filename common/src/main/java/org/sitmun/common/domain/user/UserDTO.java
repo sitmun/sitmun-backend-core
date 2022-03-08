@@ -1,4 +1,4 @@
-package org.sitmun.web.rest.dto;
+package org.sitmun.common.domain.user;
 
 import lombok.*;
 
