@@ -3,7 +3,7 @@ package org.sitmun.common.domain.role;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.domain.task.Task;

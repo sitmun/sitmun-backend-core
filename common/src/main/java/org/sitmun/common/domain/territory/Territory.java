@@ -3,7 +3,7 @@ package org.sitmun.common.domain.territory;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.common.domain.task.availability.TaskAvailability;
 import org.sitmun.common.domain.territory.type.TerritoryGroupType;
@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.*;
+import static org.sitmun.common.def.PersistenceConstants.*;
 
 /**
  * Territorial entity.
@@ -110,7 +110,7 @@ public class Territory {
    * Territory scope.
    */
   @Column(name = "TER_SCOPE", length = IDENTIFIER)
-  @CodeList(CodeLists.TERRITORY_SCOPE)
+  @CodeList(CodeListsConstants.TERRITORY_SCOPE)
   @JsonView({Views.WorkspaceApplication.class})
   @Deprecated
   private String scope;

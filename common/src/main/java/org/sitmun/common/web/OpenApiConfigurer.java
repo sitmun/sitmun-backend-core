@@ -1,4 +1,4 @@
-package org.sitmun.config;
+package org.sitmun.common.web;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -16,12 +16,12 @@ import static java.util.Collections.emptyList;
 
 @Configuration
 @Profile({"openapi"})
-public class OpenApi30EnabledConfig {
+public class OpenApiConfigurer {
 
   private final String moduleName;
   private final String apiVersion;
 
-  public OpenApi30EnabledConfig(
+  public OpenApiConfigurer(
     @Value("${sitmun.module}") String moduleName,
     @Value("${sitmun.version}") String apiVersion) {
     this.moduleName = moduleName;

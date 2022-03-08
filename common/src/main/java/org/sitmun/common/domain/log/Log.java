@@ -2,7 +2,7 @@ package org.sitmun.common.domain.log;
 
 
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.task.Task;

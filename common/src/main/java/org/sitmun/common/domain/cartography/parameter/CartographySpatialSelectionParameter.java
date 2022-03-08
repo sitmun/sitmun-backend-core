@@ -3,7 +3,7 @@ package org.sitmun.common.domain.cartography.parameter;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.types.codelist.CodeList;
 
@@ -12,8 +12,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
-import static org.sitmun.common.config.PersistenceConstants.VALUE;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.VALUE;
 
 /**
  * Geographic Information parameter for spatial selection.
@@ -60,7 +60,7 @@ public class CartographySpatialSelectionParameter {
    * Format.
    */
   @Column(name = "PSG_FORMAT", length = IDENTIFIER)
-  @CodeList(CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT)
   private String format;
 
   /**
@@ -68,7 +68,7 @@ public class CartographySpatialSelectionParameter {
    */
   @Column(name = "PSG_TYPE", length = IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
   private String type;
 
   /**

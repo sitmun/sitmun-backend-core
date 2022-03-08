@@ -1,4 +1,4 @@
-package org.sitmun.config;
+package org.sitmun.common.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import java.util.Locale;
 
 @Configuration
-public class LocaleConfig {
+public class LocaleConfigurer {
 
   @Bean
   public LocaleResolver localeResolver() {

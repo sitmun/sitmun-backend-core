@@ -1,10 +1,14 @@
-package org.sitmun.config;
+package org.sitmun.common.domain;
 
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import javax.persistence.EntityManager;
@@ -14,7 +18,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class RepositoryRestConfig implements RepositoryRestConfigurer {
+@Configuration
+@EnableJpaAuditing
+public class RepositoryRestConfigurerImpl implements RepositoryRestConfigurer {
+
+  public RepositoryRestConfigurerImpl(EntityManager entityManager,
+                                      ListableBeanFactory beanFactory
+  ) {
+    this.entityManager = entityManager;
+    this.beanFactory = beanFactory;
+  }
 
   private static final List<String> EVENTS;
 
@@ -31,32 +44,27 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
     EVENTS = Collections.unmodifiableList(events);
   }
 
-  private final Validator validator;
-
   private final EntityManager entityManager;
 
   private final ListableBeanFactory beanFactory;
 
-  public RepositoryRestConfig(Validator validator,
-                              EntityManager entityManager,
-                              ListableBeanFactory beanFactory
-  ) {
-    this.validator = validator;
-    this.entityManager = entityManager;
-    this.beanFactory = beanFactory;
+  @Bean
+  public Validator validator() {
+    return new LocalValidatorFactoryBean();
   }
 
   /**
    * Links the annotation based validator to save and create events.
    */
   @Override
-  public void configureValidatingRepositoryEventListener(
-    ValidatingRepositoryEventListener validatingListener) {
-    EVENTS.forEach(event -> validatingListener.addValidator(event, validator));
+  public void configureValidatingRepositoryEventListener(ValidatingRepositoryEventListener validatingListener) {
+    EVENTS.forEach(event -> validatingListener.addValidator(event, validator()));
 
     Map<String, Validator> validators = beanFactory.getBeansOfType(Validator.class);
     for (Map.Entry<String, Validator> entry : validators.entrySet()) {
-      EVENTS.stream().filter(p -> entry.getKey().startsWith(p)).findFirst()
+      EVENTS.stream()
+        .filter(p -> entry.getKey().startsWith(p))
+        .findFirst()
         .ifPresent(p -> validatingListener.addValidator(p, entry.getValue()));
     }
   }
@@ -65,7 +73,9 @@ public class RepositoryRestConfig implements RepositoryRestConfigurer {
   public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
     config.setReturnBodyForPutAndPost(true);
     config.setBasePath("/api");
-    config.exposeIdsFor(entityManager.getMetamodel().getEntities().stream()
+    config.exposeIdsFor(entityManager.getMetamodel()
+      .getEntities()
+      .stream()
       .map(Type::getJavaType)
       .toArray(Class[]::new));
   }

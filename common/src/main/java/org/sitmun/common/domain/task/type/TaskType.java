@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.types.i18n.I18n;
 import org.sitmun.common.types.map.HashMapConverter;
 import org.sitmun.feature.client.config.Views;
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task type.

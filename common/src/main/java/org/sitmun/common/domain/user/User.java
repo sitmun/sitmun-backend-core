@@ -4,8 +4,8 @@ package org.sitmun.common.domain.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.user.configuration.UserConfiguration;
 import org.sitmun.common.domain.user.position.UserPosition;
 import org.sitmun.common.types.codelist.CodeList;
@@ -83,7 +83,7 @@ public class User {
    * User identification type.
    */
   @Column(name = "USE_IDENTTYPE", length = PersistenceConstants.IDENTIFIER)
-  @CodeList(CodeLists.USER_IDENTIFICATION_TYPE)
+  @CodeList(CodeListsConstants.USER_IDENTIFICATION_TYPE)
   private String identificationType;
 
   /**

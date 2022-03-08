@@ -1,7 +1,7 @@
 package org.sitmun.common.types.i18n;
 
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

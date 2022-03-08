@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.*;
+import static org.sitmun.common.def.PersistenceConstants.*;
 
 /**
  * Background.

@@ -2,7 +2,7 @@ package org.sitmun.common.types.codelist;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.types.i18n.I18n;
 import org.sitmun.common.types.i18n.I18nListener;
 

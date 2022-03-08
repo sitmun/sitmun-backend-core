@@ -4,7 +4,7 @@ package org.sitmun.common.domain.application.parameter;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.types.codelist.CodeList;
 
@@ -12,8 +12,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
-import static org.sitmun.common.config.PersistenceConstants.VALUE;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.VALUE;
 
 /**
  * Application parameter.
@@ -61,7 +61,7 @@ public class ApplicationParameter {
    */
   @Column(name = "PAP_TYPE", length = IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.APPLICATION_PARAMETER_TYPE)
+  @CodeList(CodeListsConstants.APPLICATION_PARAMETER_TYPE)
   private String type;
 
   /**

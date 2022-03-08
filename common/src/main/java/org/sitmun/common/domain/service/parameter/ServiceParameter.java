@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.service.Service;
 import org.sitmun.common.types.codelist.CodeList;
 import org.sitmun.feature.client.config.Views;
@@ -62,7 +62,7 @@ public class ServiceParameter {
    * Parameter type.
    */
   @Column(name = "PSE_TYPE", length = PersistenceConstants.IDENTIFIER)
-  @CodeList(CodeLists.SERVICE_PARAMETER_TYPE)
+  @CodeList(CodeListsConstants.SERVICE_PARAMETER_TYPE)
   @NotNull
   @JsonView(Views.WorkspaceApplication.class)
   private String type;

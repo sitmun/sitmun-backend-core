@@ -1,4 +1,4 @@
-package org.sitmun.common.config;
+package org.sitmun.common.def;
 
 /**
  * Constants and definitions.

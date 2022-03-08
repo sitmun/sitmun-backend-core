@@ -3,7 +3,7 @@ package org.sitmun.common.domain.cartography;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.common.domain.cartography.filter.CartographyFilter;
 import org.sitmun.common.domain.cartography.parameter.CartographyParameter;
@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.*;
+import static org.sitmun.common.def.PersistenceConstants.*;
 
 /**
  * Geographic information.
@@ -194,7 +194,7 @@ public class Cartography {
    * Legend type.
    */
   @Column(name = "GEO_LEGENDTIP", length = IDENTIFIER)
-  @CodeList(CodeLists.CARTOGRAPHY_LEGEND_TYPE)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE)
   private String legendType;
 
   /**
@@ -243,7 +243,7 @@ public class Cartography {
    * Geometry type.
    */
   @Column(name = "GEO_GEOMTYPE", length = IDENTIFIER)
-  @CodeList(CodeLists.CARTOGRAPHY_GEOMETRY_TYPE)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_GEOMETRY_TYPE)
   private String geometryType;
 
   /**

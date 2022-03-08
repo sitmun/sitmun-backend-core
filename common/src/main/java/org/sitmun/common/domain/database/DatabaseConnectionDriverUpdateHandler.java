@@ -1,6 +1,6 @@
 package org.sitmun.common.domain.database;
 
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.OnStartupUpdateHandler;
 import org.sitmun.common.types.codelist.CodeListValue;
 import org.sitmun.common.types.codelist.CodeListValueRepository;
@@ -21,7 +21,7 @@ public class DatabaseConnectionDriverUpdateHandler implements OnStartupUpdateHan
 
   @Override
   public void update() {
-    List<CodeListValue> toRemove = new ArrayList<>(Streamable.of(codeListValueRepository.findAllByCodeListName(CodeLists.DATABASE_CONNECTION_DRIVER)).toList());
+    List<CodeListValue> toRemove = new ArrayList<>(Streamable.of(codeListValueRepository.findAllByCodeListName(CodeListsConstants.DATABASE_CONNECTION_DRIVER)).toList());
     ServiceLoader<Driver> loadedDrivers = ServiceLoader.load(Driver.class);
 
     List<CodeListValue> toAdd = new ArrayList<>();
@@ -32,7 +32,7 @@ public class DatabaseConnectionDriverUpdateHandler implements OnStartupUpdateHan
         toRemove.remove(exists.get());
       } else {
         CodeListValue newCodeListValue = CodeListValue.builder()
-          .codeListName(CodeLists.DATABASE_CONNECTION_DRIVER)
+          .codeListName(CodeListsConstants.DATABASE_CONNECTION_DRIVER)
           .value(driver)
           .system(true)
           .description(driver)

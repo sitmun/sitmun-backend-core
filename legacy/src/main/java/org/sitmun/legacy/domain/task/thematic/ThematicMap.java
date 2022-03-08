@@ -3,7 +3,7 @@ package org.sitmun.legacy.domain.task.thematic;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.domain.user.User;
@@ -15,7 +15,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
 
-import static org.sitmun.common.config.PersistenceConstants.*;
+import static org.sitmun.common.def.PersistenceConstants.*;
 
 /**
  * Thematic map.
@@ -61,7 +61,7 @@ public class ThematicMap {
    * equal size interval).
    */
   @Column(name = "THE_RANKTYPE", length = IDENTIFIER)
-  @CodeList(CodeLists.THEMATIC_MAP_TYPE)
+  @CodeList(CodeListsConstants.THEMATIC_MAP_TYPE)
   private String type;
 
   /**
@@ -149,7 +149,7 @@ public class ThematicMap {
    * Label value type (double or string).
    */
   @Column(name = "THE_VALUETYPE", length = IDENTIFIER)
-  @CodeList(CodeLists.THEMATIC_MAP_VALUE_TYPE)
+  @CodeList(CodeListsConstants.THEMATIC_MAP_VALUE_TYPE)
   private String valueType;
 
   /**
@@ -163,7 +163,7 @@ public class ThematicMap {
    * If <code>null</code>, the destination of the map is SITMUN.
    */
   @Column(name = "THE_DESTINATION", length = IDENTIFIER)
-  @CodeList(CodeLists.THEMATIC_MAP_DESTINATION)
+  @CodeList(CodeListsConstants.THEMATIC_MAP_DESTINATION)
   private String destination;
 
   /**

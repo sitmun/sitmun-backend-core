@@ -4,7 +4,7 @@ package org.sitmun.common.domain.database;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.types.codelist.CodeList;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
 
 /**
  * Represents a JDBC database connection.
@@ -54,7 +54,7 @@ public class DatabaseConnection {
    * JDBC driver.
    */
   @Column(name = "CON_DRIVER", length = IDENTIFIER)
-  @CodeList(CodeLists.DATABASE_CONNECTION_DRIVER)
+  @CodeList(CodeListsConstants.DATABASE_CONNECTION_DRIVER)
   private String driver;
 
   /**

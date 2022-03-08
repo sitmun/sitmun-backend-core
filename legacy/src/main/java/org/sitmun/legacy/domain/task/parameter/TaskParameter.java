@@ -4,7 +4,7 @@ package org.sitmun.legacy.domain.task.parameter;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.types.codelist.CodeList;
 
@@ -13,7 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
 
 /**
  * Task parameter.
@@ -59,7 +59,7 @@ public class TaskParameter {
    * Parameter type.
    */
   @Column(name = "PTT_TYPE", length = IDENTIFIER)
-  @CodeList(CodeLists.TASK_PARAMETER_TYPE)
+  @CodeList(CodeListsConstants.TASK_PARAMETER_TYPE)
   private String type;
 
   /**
@@ -73,7 +73,7 @@ public class TaskParameter {
    * Attribute format (when editing).
    */
   @Column(name = "PTT_FORMAT", length = IDENTIFIER)
-  @CodeList(CodeLists.TASK_PARAMETER_FORMAT)
+  @CodeList(CodeListsConstants.TASK_PARAMETER_FORMAT)
   private String format;
 
   /**

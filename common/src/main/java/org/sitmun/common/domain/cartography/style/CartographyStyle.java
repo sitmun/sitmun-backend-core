@@ -3,7 +3,7 @@ package org.sitmun.common.domain.cartography.style;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 
 import javax.persistence.*;

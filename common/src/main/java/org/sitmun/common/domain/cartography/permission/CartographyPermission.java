@@ -4,8 +4,8 @@ package org.sitmun.common.domain.cartography.permission;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.background.Background;
 import org.sitmun.common.domain.cartography.Cartography;
@@ -62,7 +62,7 @@ public class CartographyPermission {
    * Permissions type.
    */
   @Column(name = "GGI_TYPE", length = PersistenceConstants.IDENTIFIER)
-  @CodeList(CodeLists.CARTOGRAPHY_PERMISSION_TYPE)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 
   @JsonIgnore

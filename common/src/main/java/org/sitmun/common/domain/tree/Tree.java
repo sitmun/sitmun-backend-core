@@ -3,7 +3,7 @@ package org.sitmun.common.domain.tree;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.role.Role;
 import org.sitmun.common.domain.tree.node.TreeNode;

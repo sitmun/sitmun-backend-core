@@ -8,7 +8,7 @@ import org.sitmun.feature.client.config.Views;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import static org.sitmun.common.config.PersistenceConstants.SHORT_DESCRIPTION;
+import static org.sitmun.common.def.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * Type of grouping of territorial entities.

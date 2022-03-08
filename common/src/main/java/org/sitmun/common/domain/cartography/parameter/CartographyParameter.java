@@ -3,8 +3,8 @@ package org.sitmun.common.domain.cartography.parameter;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.types.codelist.CodeList;
 
@@ -58,7 +58,7 @@ public class CartographyParameter {
    * Format.
    */
   @Column(name = "PGI_FORMAT", length = PersistenceConstants.IDENTIFIER)
-  @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_FORMAT)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT)
   private String format;
 
   /**
@@ -66,7 +66,7 @@ public class CartographyParameter {
    */
   @Column(name = "PGI_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.CARTOGRAPHY_PARAMETER_TYPE)
+  @CodeList(CodeListsConstants.CARTOGRAPHY_PARAMETER_TYPE)
   private String type;
 
   /**

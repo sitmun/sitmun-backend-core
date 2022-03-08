@@ -3,8 +3,8 @@ package org.sitmun.common.domain.application;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.background.ApplicationBackground;
 import org.sitmun.common.domain.application.parameter.ApplicationParameter;
 import org.sitmun.common.domain.cartography.permission.CartographyPermission;
@@ -62,7 +62,7 @@ public class Application {
    */
   @Column(name = "APP_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.APPLICATION_TYPE)
+  @CodeList(CodeListsConstants.APPLICATION_TYPE)
   @JsonView({Views.WorkspaceApplication.class})
   private String type;
 

@@ -2,7 +2,7 @@ package org.sitmun.common.domain.configuration;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.application.parameter.ApplicationParameter;
 import org.sitmun.feature.client.config.Views;
 

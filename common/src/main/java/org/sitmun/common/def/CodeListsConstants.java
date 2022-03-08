@@ -1,6 +1,6 @@
-package org.sitmun.common.config;
+package org.sitmun.common.def;
 
-public class CodeLists {
+public class CodeListsConstants {
 
   public static final String APPLICATION_TYPE = "application.type";
   public static final String APPLICATION_PARAMETER_TYPE = "applicationParameter.type";
@@ -31,6 +31,6 @@ public class CodeLists {
   public static final String USER_POSITION_TYPE = "userPosition.type";
   public static final String USER_IDENTIFICATION_TYPE = "user.identificationType";
 
-  private CodeLists() {
+  private CodeListsConstants() {
   }
 }

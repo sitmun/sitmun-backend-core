@@ -1,8 +1,8 @@
 package org.sitmun.legacy.domain.task.download;
 
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.types.codelist.CodeList;
 import org.sitmun.common.types.http.Http;
 
@@ -33,7 +33,7 @@ public class DownloadTask {
    */
   @Column(name = "DOW_EXT", length = PersistenceConstants.IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.DOWNLOAD_TASK_FORMAT)
+  @CodeList(CodeListsConstants.DOWNLOAD_TASK_FORMAT)
   private String format;
 
   /**
@@ -41,7 +41,7 @@ public class DownloadTask {
    */
   @Column(name = "DOW_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.DOWNLOAD_TASK_SCOPE)
+  @CodeList(CodeListsConstants.DOWNLOAD_TASK_SCOPE)
   private String scope;
 
   /**

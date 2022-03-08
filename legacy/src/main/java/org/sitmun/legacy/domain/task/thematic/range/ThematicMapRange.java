@@ -3,7 +3,7 @@ package org.sitmun.legacy.domain.task.thematic.range;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.types.codelist.CodeList;
 import org.sitmun.legacy.domain.task.thematic.ThematicMap;
 
@@ -12,8 +12,8 @@ import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
-import static org.sitmun.common.config.PersistenceConstants.SHORT_DESCRIPTION;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * A range defined in a thematic map.
@@ -80,7 +80,7 @@ public class ThematicMapRange {
    * Range fill style.
    */
   @Column(name = "TRK_STYLEINT", length = 30)
-  @CodeList(CodeLists.THEMATIC_MAP_RANGE_STYLE)
+  @CodeList(CodeListsConstants.THEMATIC_MAP_RANGE_STYLE)
   private String fillStyle;
 
   /**
@@ -93,7 +93,7 @@ public class ThematicMapRange {
    * Range border style.
    */
   @Column(name = "TRK_STYLE", length = 30)
-  @CodeList(CodeLists.THEMATIC_MAP_RANGE_STYLE)
+  @CodeList(CodeListsConstants.THEMATIC_MAP_RANGE_STYLE)
   private String borderStyle;
 
   /**

@@ -4,7 +4,7 @@ package org.sitmun.common.domain.user.position;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.territory.Territory;
 import org.sitmun.common.domain.user.User;
 import org.sitmun.common.types.codelist.CodeList;
@@ -16,7 +16,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-import static org.sitmun.common.config.PersistenceConstants.IDENTIFIER;
+import static org.sitmun.common.def.PersistenceConstants.IDENTIFIER;
 
 /**
  * User position in a territory.
@@ -85,7 +85,7 @@ public class UserPosition {
    * Type of user (only used in some cases).
    */
   @Column(name = "POS_TYPE", length = IDENTIFIER)
-  @CodeList(CodeLists.USER_POSITION_TYPE)
+  @CodeList(CodeListsConstants.USER_POSITION_TYPE)
   private String type;
 
   /**

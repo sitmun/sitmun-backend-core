@@ -1,8 +1,8 @@
 package org.sitmun.legacy.domain.task.query;
 
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
-import org.sitmun.common.config.PersistenceConstants;
+import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.types.codelist.CodeList;
 
@@ -35,7 +35,7 @@ public class QueryTask {
    * Command scope.
    */
   @Column(name = "QUE_TYPE", length = PersistenceConstants.IDENTIFIER)
-  @CodeList(CodeLists.QUERY_TASK_SCOPE)
+  @CodeList(CodeListsConstants.QUERY_TASK_SCOPE)
   private String scope;
 
   /**

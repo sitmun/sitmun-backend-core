@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
-import org.sitmun.common.config.CodeLists;
+import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.service.parameter.ServiceParameter;
 import org.sitmun.common.types.codelist.CodeList;
@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.sitmun.common.config.PersistenceConstants.*;
+import static org.sitmun.common.def.PersistenceConstants.*;
 
 /**
  * Service.
@@ -117,7 +117,7 @@ public class Service {
    */
   @Column(name = "SER_PROTOCOL", length = IDENTIFIER)
   @NotNull
-  @CodeList(CodeLists.SERVICE_TYPE)
+  @CodeList(CodeListsConstants.SERVICE_TYPE)
   @JsonView(Views.WorkspaceApplication.class)
   private String type;
 
@@ -127,7 +127,7 @@ public class Service {
    * different from the protocol declared in {@link #type}.
    */
   @Column(name = "SER_NAT_PROT", length = IDENTIFIER)
-  @CodeList(CodeLists.SERVICE_NATIVE_PROTOCOL)
+  @CodeList(CodeListsConstants.SERVICE_NATIVE_PROTOCOL)
   private String nativeProtocol;
 
   /**
@@ -156,7 +156,7 @@ public class Service {
    * Service authentication mode.
    */
   @Column(name = "SER_AUTH_MOD", length = IDENTIFIER)
-  @CodeList(CodeLists.SERVICE_AUTHENTICATION_MODE)
+  @CodeList(CodeListsConstants.SERVICE_AUTHENTICATION_MODE)
   private String authenticationMode;
 
   /**

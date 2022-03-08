@@ -15,8 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.common.config.CodeLists.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
-import static org.sitmun.common.config.CodeLists.DATABASE_CONNECTION_DRIVER;
+import static org.sitmun.common.def.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
+import static org.sitmun.common.def.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
