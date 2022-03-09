@@ -1,4 +1,4 @@
-package org.sitmun.tools;
+package org.sitmun.common.tools;
 
 import org.hibernate.dialect.PostgreSQL93Dialect;
 import org.hibernate.type.descriptor.sql.LongVarcharTypeDescriptor;
