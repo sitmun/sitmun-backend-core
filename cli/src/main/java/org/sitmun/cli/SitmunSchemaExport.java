@@ -1,4 +1,4 @@
-package org.sitmun.tools;
+package org.sitmun.cli;
 
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -30,7 +30,8 @@ public class SitmunSchemaExport implements Callable<Void> {
   private File target;
 
   public static void main(String[] args) {
-    CommandLine.call(new SitmunSchemaExport(), args);
+    CommandLine cmd = new CommandLine(new SitmunSchemaExport());
+    cmd.execute(args);
   }
 
   @Override
