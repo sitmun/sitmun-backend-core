@@ -59,6 +59,10 @@ project(':app') {
     annotationProcessor.extendsFrom implementation
   }
 
+  bootJar {
+    mainClass = 'org.sitmun.Application'
+  }
+
   dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'

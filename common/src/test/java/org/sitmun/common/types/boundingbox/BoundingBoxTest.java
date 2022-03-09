@@ -59,7 +59,7 @@ public class BoundingBoxTest {
   @Test
   @DisplayName("Fails if null values or max < min")
   @WithMockUser(roles = {"ADMIN"})
-  public void failIfEmailValueIsWrong() throws Exception {
+  public void failIfNullValuesOrMaxLessThanMin() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)
