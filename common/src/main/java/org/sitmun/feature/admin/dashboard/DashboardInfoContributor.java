@@ -36,7 +36,7 @@ public class DashboardInfoContributor implements InfoContributor {
 
   private Map<String, Object> collectMetrics() {
     return Search.in(meterRegistry)
-      .name((name) -> name.startsWith(DashboardConfig.METRICS_PREFIX))
+      .name(name -> name.startsWith(DashboardConfig.METRICS_PREFIX))
       .meters().stream()
       .map(this::processMetric)
       .filter(Objects::nonNull)

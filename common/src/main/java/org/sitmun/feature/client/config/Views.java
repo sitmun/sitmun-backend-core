@@ -6,9 +6,9 @@ public class Views {
     throw new IllegalStateException("Utility class");
   }
 
-  public static class WorkspaceApplication {
+  public interface WorkspaceApplication {
   }
 
-  public static class Workspace {
+  public interface Workspace {
   }
 }

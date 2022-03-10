@@ -53,8 +53,8 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(RepositoryConstraintViolationException.class)
   ResponseEntity<RepositoryConstraintViolationExceptionMessage> handleRepositoryConstraintViolationException(
-    RepositoryConstraintViolationException o_O) {
-    return new ResponseEntity<>(new RepositoryConstraintViolationExceptionMessage(o_O, messageSourceAccessor),
+    RepositoryConstraintViolationException O_o) {
+    return new ResponseEntity<>(new RepositoryConstraintViolationExceptionMessage(O_o, messageSourceAccessor),
       new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
 

@@ -6,6 +6,8 @@ import org.springframework.data.rest.core.RepositoryConstraintViolationException
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeSaveEvent;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -13,7 +15,6 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Validator;
-import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -44,8 +45,9 @@ public class UserController {
    */
   @PutMapping
   @ResponseBody
-  public ResponseEntity<UserDTO> saveAccount(@RequestBody UserDTO updatedUser, Principal principal) {
-    Optional<User> storedUser = userRepository.findByUsername(principal.getName());
+  public ResponseEntity<UserDTO> saveAccount(@RequestBody UserDTO updatedUser) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Optional<User> storedUser = userRepository.findByUsername(authentication.getName());
     if (storedUser.isPresent()) {
       User user = storedUser.get();
       user.setUsername(updatedUser.getUsername());
@@ -77,8 +79,9 @@ public class UserController {
   @GetMapping
   @ResponseBody
   @Transactional(readOnly = true)
-  public ResponseEntity<UserDTO> getAccount(Principal principal) {
-    Optional<UserDTO> storedUser = userRepository.findByUsername(principal.getName()).map(this::userToDto);
+  public ResponseEntity<UserDTO> getAccount() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(this::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 

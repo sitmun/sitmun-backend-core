@@ -1,6 +1,5 @@
 package org.sitmun.web.rest;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.test.URIConstants;
@@ -26,7 +25,6 @@ public class WorkspaceApplicationControllerTest {
   private MockMvc mvc;
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41))
       .andExpect(status().isOk())
@@ -36,7 +34,6 @@ public class WorkspaceApplicationControllerTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   public void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
         .with(SecurityMockMvcRequestPostProcessors.user("user12"))

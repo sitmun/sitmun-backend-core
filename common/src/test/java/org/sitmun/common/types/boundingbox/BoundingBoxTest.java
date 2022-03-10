@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("BoundingBox validation test")
-public class BoundingBoxTest extends BaseTest {
+class BoundingBoxTest extends BaseTest {
 
   @Test
   @DisplayName("Pass if meets conditions of BoundingBox")

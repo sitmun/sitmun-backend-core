@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("SpatialReferenceSystem validation test")
 @Import(CodeListValidator.class)
-public class SpatialReferenceSystemTest extends BaseTest {
+class SpatialReferenceSystemTest extends BaseTest {
 
   @MockBean
   private CodeListValueRepository repository;
@@ -36,7 +36,7 @@ public class SpatialReferenceSystemTest extends BaseTest {
   @Test
   @DisplayName("Single projection pass")
   @WithMockUser(roles = {"ADMIN"})
-  public void singleProjectionPass() throws Exception {
+  void singleProjectionPass() throws Exception {
     mvc.perform(post(URIConstants.SERVICE_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1"))
@@ -48,7 +48,7 @@ public class SpatialReferenceSystemTest extends BaseTest {
   @Test
   @DisplayName("Single other value fail")
   @WithMockUser(roles = {"ADMIN"})
-  public void singleOtherValueFail() throws Exception {
+  void singleOtherValueFail() throws Exception {
     mvc.perform(post(URIConstants.SERVICE_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("other")))
@@ -60,7 +60,7 @@ public class SpatialReferenceSystemTest extends BaseTest {
   @Test
   @DisplayName("Multiple projections pass")
   @WithMockUser(roles = {"ADMIN"})
-  public void multipleProjectionPass() throws Exception {
+  void multipleProjectionPass() throws Exception {
     mvc.perform(post(URIConstants.SERVICE_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1", "EPSG:2"))
@@ -71,7 +71,7 @@ public class SpatialReferenceSystemTest extends BaseTest {
   @Test
   @DisplayName("Multiple projections with other value fail")
   @WithMockUser(roles = {"ADMIN"})
-  public void multipleProjectionsWithOtherValueFail() throws Exception {
+  void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post(URIConstants.SERVICE_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1", "other")))
@@ -81,7 +81,7 @@ public class SpatialReferenceSystemTest extends BaseTest {
       .andExpect(jsonPath("$.errors[0].invalidValue[1]").value("other"));
   }
 
-  public String serviceFixture(String... projection) throws JSONException {
+  String serviceFixture(String... projection) throws JSONException {
     return new JSONObject()
       .put("supportedSRS", new JSONArray(projection))
       .put("type", "WMS")
