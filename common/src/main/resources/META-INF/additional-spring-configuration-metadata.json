@@ -11,6 +11,11 @@
       "description": "Initial delay for fetching metrics (msecs)."
     },
     {
+      "name": "security.authentication.middleware.secret",
+      "type": "java.lang.String",
+      "description": "JWT middleware secret."
+    },
+    {
       "name": "security.authentication.jwt.secret",
       "type": "java.lang.String",
       "description": "JWT secret."

@@ -74,8 +74,6 @@ project(':app') {
     implementation project(':common')
     implementation project(':legacy')
 
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
 
     implementation 'org.hibernate.validator:hibernate-validator'
@@ -144,7 +142,6 @@ project(':app') {
 project(':cli') {
   apply plugin: 'java'
   apply plugin: 'io.spring.dependency-management'
-//  apply plugin: 'io.freefair.lombok'
   apply plugin: 'jacoco'
 
   def targetJavaVersion = JavaVersion.VERSION_1_8
@@ -286,6 +283,8 @@ project(':common') {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
     annotationProcessor 'com.querydsl:querydsl-apt::jpa'
     annotationProcessor 'javax.annotation:javax.annotation-api'
     implementation 'com.querydsl:querydsl-jpa'
@@ -301,6 +300,8 @@ project(':common') {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2'
   }
+
+  compileJava.inputs.files(processResources)
 
   jacocoTestReport {
     reports {
