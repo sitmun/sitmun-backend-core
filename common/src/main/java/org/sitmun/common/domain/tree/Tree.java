@@ -8,7 +8,7 @@ import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.role.Role;
 import org.sitmun.common.domain.tree.node.TreeNode;
 import org.sitmun.common.domain.user.User;
-import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.basic.Http;
 import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.feature.client.config.Views;
 
+import java.util.Objects;
+
 /**
  * Defines a rectangular region of the 2D coordinate plane.
  * <p>
@@ -22,7 +24,7 @@ public class Envelope {
   /**
    * The envelope minimum y-value.
    */
-  public Double minY;
+  private Double minY;
   /**
    * The envelope maximum x-value.
    */
@@ -36,4 +38,16 @@ public class Envelope {
    */
   private Double minX;
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Envelope envelope = (Envelope) o;
+    return Objects.equals(minY, envelope.minY) && Objects.equals(maxX, envelope.maxX) && Objects.equals(maxY, envelope.maxY) && Objects.equals(minX, envelope.minX);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(minY, maxX, maxY, minX);
+  }
 }

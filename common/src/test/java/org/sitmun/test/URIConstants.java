@@ -77,7 +77,9 @@ public class URIConstants {
 
   public static final String LANGUAGES_URI = "http://localhost/api/languages";
 
-  public static final String SERVICE_URI = "http://localhost/api/services";
+  public static final String SERVICES_URI = "http://localhost/api/services";
+
+  public static final String SERVICE_URI = SERVICES_URI + "/{0}";
 
   public static final String TASKS_URI = "http://localhost/api/tasks";
 

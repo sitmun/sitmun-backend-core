@@ -1,7 +1,7 @@
 package org.sitmun.common.domain.cartography.style;
 
 import lombok.*;
-import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.basic.Http;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

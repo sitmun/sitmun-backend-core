@@ -212,6 +212,8 @@ project(':cli') {
   }
 
   test.finalizedBy jacocoTestReport
+
+  compileJava.dependsOn ':app:bootJar'
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +298,9 @@ project(':common') {
     implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
     implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+      exclude group: 'com.vaadin.external.google', module: 'android-json'
+    }
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2'
   }

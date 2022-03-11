@@ -1,4 +1,4 @@
-package org.sitmun.common.types.http;
+package org.sitmun.common.types.basic;
 
 import org.hibernate.validator.constraints.ConstraintComposition;
 import org.hibernate.validator.constraints.URL;

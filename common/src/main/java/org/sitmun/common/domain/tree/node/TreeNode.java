@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.tree.Tree;
-import org.sitmun.common.types.http.Http;
+import org.sitmun.common.types.basic.Http;
 import org.sitmun.feature.client.config.Views;
 
 import javax.persistence.*;

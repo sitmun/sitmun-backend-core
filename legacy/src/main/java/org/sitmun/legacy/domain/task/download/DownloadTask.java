@@ -3,8 +3,8 @@ package org.sitmun.legacy.domain.task.download;
 import lombok.*;
 import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.def.PersistenceConstants;
+import org.sitmun.common.types.basic.Http;
 import org.sitmun.common.types.codelist.CodeList;
-import org.sitmun.common.types.http.Http;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

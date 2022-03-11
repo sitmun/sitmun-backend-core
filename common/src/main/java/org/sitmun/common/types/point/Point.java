@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.feature.client.config.Views;
 
+import java.util.Objects;
+
 /**
  * Defines a 2D point .
  */
@@ -19,10 +21,23 @@ public class Point {
   /**
    * The x-value.
    */
-  public Double x;
+  private Double x;
 
   /**
    * The y-value.
    */
-  public Double y;
+  private Double y;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Point point = (Point) o;
+    return Objects.equals(x, point.x) && Objects.equals(y, point.y);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(x, y);
+  }
 }

@@ -37,7 +37,7 @@ class SpatialReferenceSystemTest extends BaseTest {
   @DisplayName("Single projection pass")
   @WithMockUser(roles = {"ADMIN"})
   void singleProjectionPass() throws Exception {
-    mvc.perform(post(URIConstants.SERVICE_URI)
+    mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1"))
       )
@@ -49,7 +49,7 @@ class SpatialReferenceSystemTest extends BaseTest {
   @DisplayName("Single other value fail")
   @WithMockUser(roles = {"ADMIN"})
   void singleOtherValueFail() throws Exception {
-    mvc.perform(post(URIConstants.SERVICE_URI)
+    mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("other")))
       .andExpect(status().isBadRequest())
@@ -61,7 +61,7 @@ class SpatialReferenceSystemTest extends BaseTest {
   @DisplayName("Multiple projections pass")
   @WithMockUser(roles = {"ADMIN"})
   void multipleProjectionPass() throws Exception {
-    mvc.perform(post(URIConstants.SERVICE_URI)
+    mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1", "EPSG:2"))
       )
@@ -72,7 +72,7 @@ class SpatialReferenceSystemTest extends BaseTest {
   @DisplayName("Multiple projections with other value fail")
   @WithMockUser(roles = {"ADMIN"})
   void multipleProjectionsWithOtherValueFail() throws Exception {
-    mvc.perform(post(URIConstants.SERVICE_URI)
+    mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
         .content(serviceFixture("EPSG:1", "other")))
       .andExpect(status().isBadRequest())

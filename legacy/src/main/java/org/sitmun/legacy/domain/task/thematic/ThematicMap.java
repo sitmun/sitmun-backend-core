@@ -7,8 +7,8 @@ import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
 import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.domain.user.User;
+import org.sitmun.common.types.basic.Http;
 import org.sitmun.common.types.codelist.CodeList;
-import org.sitmun.common.types.http.Http;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
