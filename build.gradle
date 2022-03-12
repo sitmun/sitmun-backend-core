@@ -72,7 +72,6 @@ project(':app') {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.security:spring-security-data'
     implementation project(':common')
-    implementation project(':legacy')
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
 
@@ -357,6 +356,62 @@ project(':web') {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Project deploy heroku-dev-1
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+project(':deploy:heroku-dev-1') {
+  apply plugin: 'java'
+  apply plugin: 'org.springframework.boot'
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'io.freefair.lombok'
+  apply plugin: 'jacoco'
+
+  def targetJavaVersion = JavaVersion.VERSION_1_8
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
+
+  dependencyManagement {
+    imports {
+      mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+  }
+
+  dependencies {
+    implementation project(':app')
+    implementation project(':legacy')
+
+    implementation 'com.h2database:h2'
+
+    testImplementation project(':common')
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+      exclude group: "com.vaadin.external.google", module: "android-json"
+    }
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    testImplementation 'javax.persistence:javax.persistence-api'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    testImplementation 'com.querydsl:querydsl-jpa'
+
+    testImplementation "org.assertj:assertj-core:${assertj_core_version}"
+    testImplementation "org.json:json:${json_version}"
+  }
+
+  bootJar {
+    mainClass = 'org.sitmun.Application'
+  }
+
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+    }
+  }
+
+  test.finalizedBy jacocoTestReport
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Stage task:
 // - build web module and copies output to app/build/resources/main/static
 // - build app module
@@ -364,7 +419,7 @@ project(':web') {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tasks.register('stage') {
-  dependsOn ':web:build', ':app:build'
+  dependsOn ':web:build', ':deploy:heroku-dev-1:build'
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
@@ -393,9 +448,9 @@ tasks.named("deployHeroku") {
   it.dependsOn 'stage'
   it.doFirst {
     copy {
-      from "app/build/libs/app-${version}.jar"
+      from "deploy/heroku-dev-1/build/libs/heroku-dev-1-${version}.jar"
       into "."
-      rename "app-${version}.jar", "sitmun.jar"
+      rename "heroku-dev-1-${version}.jar", "sitmun.jar"
     }
   }
   it.doLast {

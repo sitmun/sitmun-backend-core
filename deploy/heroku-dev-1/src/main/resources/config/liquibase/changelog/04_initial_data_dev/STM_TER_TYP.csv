@@ -1,0 +1,9 @@
+TET_ID,TET_NAME,TET_OFFICIAL,TET_TOP,TET_BOTTOM
+1,Àrea,true,false,false
+2,Consell Comarcal,true,false,false
+3,Consorci,true,false,false
+4,Mancomunitat,true,false,false
+5,Parc natural,true,false,true
+6,Municipi,true,false,false
+7,EMD,true,false,true
+8,Província,true,true,false

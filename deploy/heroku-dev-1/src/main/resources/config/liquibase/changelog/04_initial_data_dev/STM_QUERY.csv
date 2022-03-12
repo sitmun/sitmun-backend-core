@@ -1,0 +1,582 @@
+QUE_ID,QUE_COMMAND,QUE_TYPE,QUE_DESC
+3054,SQL code,SQL,- Usuaris amb perfil MCA
+3015,SQL code,SQL,- Logs (per data) (totes)
+3016,SQL code,SQL,- Logs (Extranet)
+3019,SQL code,SQL,- Logs (Intranet)
+3020,SQL code,SQL,- Logs (Internet-públic)
+30532,SQL code,SQL,- Elements especials i excepcions
+30527,SQL code,SQL,- Municipis amb perfil de MANTENIMENT
+30581,SQL code,SQL,NULL
+30538,SQL code,SQL,AC - Activitat (intern): Estat legalització
+30585,SQL code,SQL,NULL
+30583,SQL code,SQL,NULL
+30587,SQL code,SQL,NULL
+3047,SQL code,SQL,mant.etiquetes.portal
+3057,SQL code,SQL,- Logs MCA: Publicats
+3173,SQL code,SQL,mant.dades.maxcodi
+3245,SQL code,SQL,llobres.dades.municipi
+3246,SQL code,SQL,llobres.escenari
+3247,SQL code,SQL,llobres.llista.municipis
+3248,SQL code,SQL,llobres.llista.municipi
+3022,SQL code,SQL,- Entitats connectades (segons dates)
+3023,SQL code,SQL,- Control diari (Extranet/ Internet)
+3048,SQL code,SQL,- Planejaments (TOTAL)
+3056,SQL code,SQL,- Usuaris/perfils TOTS els Municipis (intern)
+3171,SQL code,SQL,pois.dades.poi
+3042,SQL code,SQL,mant.esborra.carrers
+3043,SQL code,SQL,mant.esborra.carrerstmp
+3044,SQL code,SQL,publicar.llista.carrers
+3002,SQL code,SQL,- Parcel·les d'una illa (àmbit provincial)
+3001,SQL code,SQL,- CU: Llistat de les parcel·les d'una illa d'urbana
+3008,SQL code,SQL,- Municipis adherits al SITMUN
+3005,SQL code,SQL,- Municipis amb cartografia inclosa al SITMUN
+2052,SQL code,SQL,PC - Patrimoni cultural (intern): Nom
+2053,SQL code,SQL,PC - Patrimoni cultural (intern): Protecció
+2054,SQL code,SQL,PC - Patrimoni cultural (intern): Tipologia
+2055,SQL code,SQL,PC - Patrimoni cultural (intern): Àmbit
+2038,SQL code,SQL,SE - Serveis i equipaments: Nom
+2039,SQL code,SQL,SE - Serveis i equipaments: Tipus
+2041,SQL code,SQL,PC - Patrimoni cultural: Protecció
+2015,SQL code,SQL,CP - Parcel·la cadastral (provincial): Refrència
+2021,SQL code,SQL,CA - Carrer: Codi INE via
+32150,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=&RefC=${INSPIREID_ID},URL,NULL
+2004,SQL code,SQL,CP - Parcel·la cadastral: Referència
+2007,SQL code,SQL,CA - Carrer: Nom via
+2023,SQL code,SQL,CA - Carrer: Nom
+2017,SQL code,SQL,DT - Municipi: Nom
+2027,SQL code,SQL,PU - Elements catalogats: Codi
+2028,SQL code,SQL,CA - Carrer: Nom i portal
+2029,SQL code,SQL,AC - Activitat (intern): Núm. ref. geogràfica
+2030,SQL code,SQL,AC - Activitat (intern): Nom comercial
+2031,SQL code,SQL,AC - Activitat: Activitat principal
+3052,SQL code,SQL,- Usuaris amb accés al SITMUN
+3159,SQL code,SQL,pois.dades.municipi
+3160,SQL code,SQL,pois.escenari
+3161,SQL code,SQL,pois.llista.municipis
+3162,SQL code,SQL,pois.llista.municipi
+3163,SQL code,SQL,pois.etiquetes.poi
+3164,SQL code,SQL,pois.filtres.pois
+3165,SQL code,SQL,pois.llista.tipuspoi
+3166,SQL code,SQL,pois.llista.estatpoi
+3167,SQL code,SQL,pois.llista.portals
+3168,SQL code,SQL,pois.llista.pois
+3169,SQL code,SQL,pois.dades.carrer
+3170,SQL code,SQL,pois.sequencia.poi
+3024,SQL code,SQL,mant.escenari
+3025,SQL code,SQL,mant.llista.municipi
+3026,SQL code,SQL,mant.llista.municipis
+3027,SQL code,SQL,mant.dades.municipi
+3028,SQL code,SQL,mant.llista.carrers
+3029,SQL code,SQL,mant.dades.carrer
+3030,SQL code,SQL,mant.dades.carrertmp
+3031,SQL code,SQL,mant.llista.trams
+3032,SQL code,SQL,mant.llista.tramstmp
+3033,SQL code,SQL,mant.llista.portals
+3034,SQL code,SQL,mant.llista.portalstmp
+3035,SQL code,SQL,mant.esborra.trams
+3036,SQL code,SQL,mant.esborra.portals
+3037,SQL code,SQL,mant.esborra.tramstmp
+3038,SQL code,SQL,mant.esborra.portalstmp
+3039,SQL code,SQL,publicar.llista.trams
+3040,SQL code,SQL,publicar.llista.portals
+3011,SQL code,SQL,- Elements especials i excepcions
+2044,SQL code,SQL,PC - Patrimoni cultural: Nom
+2032,SQL code,SQL,LO - Llicència d'obra: Núm. expedient
+2033,SQL code,SQL,LO - Llicència d'obra: NIF sol·licitant
+2034,SQL code,SQL,LO - Llicència d'obra: Nom carrer
+2035,SQL code,SQL,LO - Llicència d'obra: Ref. cadastral
+2056,SQL code,SQL,XL - Llumeneres: Làmpades segons potència
+2036,SQL code,SQL,PC - Patrimoni cultural: Àmbit
+2037,SQL code,SQL,PC - Patrimoni cultural: Tipologia
+2042,SQL code,SQL,AC - Activitat: Nom comercial
+2043,SQL code,SQL,AC - Activitat (intern): Raó social
+2045,SQL code,SQL,AC - Activitat (intern): Activ. principal
+2046,SQL code,SQL,XL - Fanals: Cerca per quadre
+2047,SQL code,SQL,XS - Pous: Segons estat
+2048,SQL code,SQL,XS - Trams: Mida col·lectors circulars
+2049,SQL code,SQL,XL - Fanals: Situació d'un fanal al plànol
+2050,SQL code,SQL,XL - Llumeneres: Làmpades de vapor de mercuri
+2051,SQL code,SQL,XA - Trams:  De fibrociment
+3306,SQL code,SQL,- Anual: Municipis alta MANTENIMENT
+3307,SQL code,SQL,- Indicadors (noms grups capes i disponibilitat)
+30502,SQL code,SQL,WPSCAE1M_getAddressInspire_01
+30505,SQL code,SQL,WPSCAE1M_getAddressInspire_04
+3249,SQL code,SQL,llobres.etiquetes.poi
+28000,SQL code,SQL,llobres.filtres.pois_old
+3251,SQL code,SQL,llobres.llista.tipuspoi
+3252,SQL code,SQL,llobres.llista.tipusllicencia
+3253,SQL code,SQL,llobres.llista.tipusobra
+3254,SQL code,SQL,llobres.llista.usllicencia
+3255,SQL code,SQL,llobres.llista.estatllicencia
+3256,SQL code,SQL,llobres.llista.estatpoi
+3257,SQL code,SQL,llobres.llista.portals
+3258,SQL code,SQL,llobres.llista.pois
+3259,SQL code,SQL,llobres.dades.carrer
+3260,SQL code,SQL,llobres.sequencia.poi
+3261,SQL code,SQL,llobres.dades.poi
+3263,SQL code,SQL,- Usuaris/perfils TOTS els ens SUPRA (intern)
+3264,SQL code,SQL,- Logs MSE: Edició
+3250,SQL code,SQL,llobres.filtres.pois
+30500,SQL code,SQL,llobres.llista.filtrecaducitats_old
+3301,SQL code,SQL,- Llistat de grups de capes
+3302,SQL code,SQL,- Llistat de capes
+3304,SQL code,SQL,- Municipis sense BUE1M però amb CAE1M
+3305,SQL code,SQL,- Anual: Capes escala 1:1.000
+3274,SQL code,SQL,- Usuaris amb perfil MSE
+3277,SQL code,SQL,- Municipis sense CAE1M
+3278,SQL code,SQL,- Municipis sense CAE1M però amb BUE1M
+3279,SQL code,SQL,- Logs (Extranet + data última connexió)
+3280,SQL code,SQL,- PC: Llistat Elements patrimoni cultural (municipi)
+3291,SQL code,SQL,- SH: Borses de lloguer
+3293,SQL code,SQL,- Logs: data alta MCA
+3294,SQL code,SQL,- Logs: data alta MSE
+3295,SQL code,SQL,- Logs: data alta MLO
+31815,SQL code,SQL,ADMIN - LOCALITZADOR PER ID (PU141A)
+3311,SQL code,SQL,- Llistat de grups i capes
+3284,SQL code,SQL,- DT: disponibilitat serveis/cartografia (i)
+31806,SQL code,SQL,- Municipis amb cartografia inclosa al SITMUN
+31816,SQL code,SQL,ADMIN - LOCALITZADOR PER ID (PU142A)
+30503,SQL code,SQL,WPSCAE1M_getAddressInspire_02
+3366,SQL code,SQL,- PC: Llistat Elements patrimoni immoble públic (municipi) (intern)
+30504,SQL code,SQL,WPSCAE1M_getAddressInspire_03
+3265,SQL code,SQL,- Llicències d'obra (totes)
+3266,SQL code,SQL,- Llicències d'obra a punt de caducar
+3267,SQL code,SQL,- Llicències d'obra caducades
+3268,SQL code,SQL,- Llicències d'obra major
+3269,SQL code,SQL,- Llicències d'obra menor
+3270,SQL code,SQL,- Llicències d'obra comunicada
+3271,SQL code,SQL,- Llicències d'obra amb pròrroga
+3272,SQL code,SQL,- Llicència d'obra (donat un expedient)
+3310,SQL code,SQL,- Anual: capes (totes)
+3508,SQL code,SQL,urbanitzacions.sequencia.id
+3346,SQL code,SQL,- DT: Llistat de codis INE dels Municipis
+3502,SQL code,SQL,urbanitzacions.escenari
+3509,SQL code,SQL,urbanitzacions.taules.auxiliars
+3041,SQL code,SQL,- Logs (Internet-aj08xxx)
+3051,SQL code,SQL,- Logs MCA: Edició
+3045,SQL code,SQL,mant.etiquetes.carrer
+3046,SQL code,SQL,mant.etiquetes.tram
+3013,SQL code,SQL,- Logs (per usuari)
+3010,SQL code,SQL,- Entitats supramunicipals connectades
+3014,SQL code,SQL,- Logs (per territori)
+3053,SQL code,SQL,- Usuaris/perfils donat un municipi (intern)
+3050,SQL code,SQL,mant.llista.carrersine
+3285,SQL code,SQL,- Cartografies donat un municipi
+3287,SQL code,SQL,- SH: Oficines integrals de serveis d'habitatge
+3289,SQL code,SQL,- DT: Actuacions municipals
+3290,SQL code,SQL,- SH: Oficines d'habitatge
+32023,SQL code,SQL,NULL
+30501,SQL code,SQL,PCE5MGetList1
+3275,SQL code,SQL,llobres.llista.filtrecaducitats
+3296,SQL code,SQL,- Indicadors (núm. capes)
+3299,SQL code,SQL,- Municipis NO connectats (< 20.000 hab)
+3300,SQL code,SQL,- Municipis POC connectats (< 5 connexions)
+3282,SQL code,SQL,- Estadístiques (Google Analytics)
+32094,SQL code,SQL,NULL
+32033,SQL code,SQL,- Logs: data alta MSE
+32039,SQL code,SQL,NULL
+32095,SQL code,SQL,NULL
+32097,SQL code,SQL,NULL
+32101,SQL code,SQL,- Logs: data alta MSE
+32108,SQL code,SQL,- CA: Llistat de vies INE
+32109,SQL code,SQL,CA - Edifici (en disseminat): Nom
+32058,SQL code,SQL,- CA: Llistat de vies INE
+32112,SQL code,SQL,NULL
+32113,SQL code,SQL,NULL
+32114,SQL code,SQL,NULL
+32116,SQL code,SQL,- CA: Llistat de vies INE
+3322,SQL code,SQL,- PC: Llistat per TITULARITAT i ÀMBIT (municipi)
+3324,SQL code,SQL,- PC: Llistat taula d'àmbits
+3325,SQL code,SQL,- PC: Llistat taula de titularitats
+3326,SQL code,SQL,- PC: Llistat taula de proteccions
+3327,SQL code,SQL,- PC: Llistat taula de tipologies
+3328,SQL code,SQL,- PC: Llistat taula d'estats de conservació
+3330,SQL code,SQL,- PC: Llistat per tipologies (municipi)
+3341,SQL code,SQL,- Municipis amb BUE1M però sense ILLES
+3334,SQL code,SQL,- XS: Pous en mal estat
+3510,SQL code,SQL,urbanitzacions.comarca.municipi
+3342,SQL code,SQL,- Municipis amb BUE1M i amb ILLES
+3343,SQL code,SQL,- Indicadors (Municipis connectats)
+30588,SQL code,SQL,NULL
+30589,SQL code,SQL,- Entitats supramunicipals connectades
+30590,SQL code,SQL,NULL
+3369,SQL code,SQL,- PC: Llistat per TITULARITAT i ÀMBIT (municipi) (intern)
+3370,SQL code,SQL,- PC: Llistat per ÀMBIT (municipi) (intern)
+3371,SQL code,SQL,- PC: Llistat taula d'estats de conservació (intern)
+3372,SQL code,SQL,- PC: Llistat taula de proteccions (intern)
+3373,SQL code,SQL,- PC: Llistat taula d'accés (intern)
+3374,SQL code,SQL,- PC: Llistat taula d'àmbits (intern)
+3375,SQL code,SQL,- PC: Llistat taula d'ús actual (intern)
+3376,SQL code,SQL,- PC: Llistat taula de tipologies (intern)
+3377,SQL code,SQL,- PC: Llistat taula de titularitats (intern)
+3378,SQL code,SQL,- PC: Llistat taula d'estils (intern)
+3379,SQL code,SQL,- PC: Llistat Elements patrimoni cultural (municipal) (intern)
+3303,SQL code,SQL,- Llistat grups capes (per ÀMBIT i accés)
+3357,SQL code,SQL,- Llistat grups capes (per ÀMBIT i accés)(proves)
+3358,SQL code,SQL,- Municipis amb CA REVISAT
+3359,SQL code,SQL,- Control diari (Intranet)
+3360,SQL code,SQL,- PC: Fitxes amb BIBLIOGRAFIA tallada (intern)
+3361,SQL code,SQL,- PC: Fitxes amb DESCRIPCIÓ tallada (intern)
+3362,SQL code,SQL,- PC: Fitxes amb HISTÒRIA tallada (intern)
+3363,SQL code,SQL,- PC: Fitxes amb NOTES CONSERV. tallat (intern)
+30507,SQL code,SQL,WPSPCE5M_getList_01
+30508,SQL code,SQL,WPSPCE5M_getList_02
+30509,SQL code,SQL,WPSPCE5M_getList_03
+3364,SQL code,SQL,- PC: Fitxes amb OBSERVACIONS tallat (intern)
+3365,SQL code,SQL,- PC: Llistat Elements patrimoni cultural (municipi) (intern)
+32028,SQL code,SQL,BI - Béns immobles DIBA (per finca)
+30506,SQL code,SQL,WPSCAE1M_getAddressInspire_05
+3507,SQL code,SQL,urbanitzacions.dades
+3501,SQL code,SQL,urbanitzacions.etiquetes
+3347,SQL code,SQL,- XS: Canviar tapes de Pous de registres
+32027,SQL code,SQL,BI - Béns immobles DIBA (per refcad)
+3309,SQL code,SQL,- Anual: Grups de capes escala 1:1.000
+30584,SQL code,SQL,NULL
+32025,SQL code,SQL,NULL
+32024,SQL code,SQL,NULL
+32037,SQL code,SQL,- Municipis amb perfil de MANTENIMENT
+3317,SQL code,SQL,- PC: Llistat Elements patrimoni immoble públic (municipi)
+3318,SQL code,SQL,- AC: Núm. d'activitats classificades
+32043,SQL code,SQL,- CA: Llistat de vies INE
+32077,SQL code,SQL,- Logs MCA: Publicats
+32061,SQL code,SQL,- SH: Oficines d'habitatge
+32073,SQL code,SQL,EQ - Equip. potencials demanda biomassa: comarca
+32093,SQL code,SQL,NULL
+32096,SQL code,SQL,NULL
+3345,SQL code,SQL,- Indicadors (noms grups capes mpals. i disp.)
+3348,SQL code,SQL,- XS: Col·lectors circulars de diàmetre <400 mm
+3349,SQL code,SQL,- PC: Llistat taula d'accés
+3350,SQL code,SQL,- PC: Llistat taula d'ús actual
+3351,SQL code,SQL,- XL: Llumeneres que produeixen contaminació lumínica
+3352,SQL code,SQL,- XL: Fanals en mal estat de conservació
+3353,SQL code,SQL,- XL: Fanals que NO compleixen el Reglament de baixa tensió
+3503,SQL code,SQL,urbanitzacions.llista
+3504,SQL code,SQL,urbanitzacions.dades.municipi
+3505,SQL code,SQL,urbanitzacions.llista.municipi
+3506,SQL code,SQL,urbanitzacions.llistat.municipis
+3355,SQL code,SQL,- CA: Llistat de vies INE
+30510,SQL code,SQL,WPSPCE5M_getList_02_NG
+3356,SQL code,SQL,- Municipis amb perfil MCA però sense ILLES
+3367,SQL code,SQL,- PC: Llistat per tipologies (municipi) (intern)
+3368,SQL code,SQL,- PC: Llistat per TITULARITAT (municipi) (intern)
+30546,SQL code,SQL,NULL
+30580,http://www.idescat.cat/emex/?id=${INE6},URL,DT - 1. Informació general del municipi
+30582,SQL code,SQL,NULL
+3276,SQL code,SQL,- Logs (per connexions)
+32062,SQL code,SQL,- SH: Oficines d'habitatge
+3297,SQL code,SQL,"- Logs (per data) (Extranet, Internet, aj%)"
+3298,SQL code,SQL,- Indicadors (històrics)
+3321,SQL code,SQL,- PC: Llistat per ÀMBIT (municipi)
+32065,http://www.idescat.cat/emex/?id=${MUN_INE6} ,URL,NULL
+32083,SQL code,SQL,- CA: Llistat de carrers (cartografia)
+32100,SQL code,SQL,NULL
+32107,SQL code,SQL,- CA: Llistat de vies INE
+30551,SQL code,SQL,AC - Activitat classificada (per codi)
+30592,SQL code,SQL,NULL
+30607,SQL code,SQL,- Llicències d'obra comunicada
+30613,SQL code,SQL,NULL
+4128,SQL code,SQL,SH - 1. Prestació de serveis d'habitatge (municipal)
+4129,SQL code,SQL,SH - 2. Convenis per a la prestació de serveis d'habitatge (municipal)
+4143,SQL code,SQL,MS - Dades del mapa de soroll: MAPA SOROLL DIÜRN
+4131,SQL code,SQL,SH - 2. Convenis per a la prestació de serveis d'habitatge (comarcal)
+4133,SQL code,SQL,SH - 1. Prestació de serveis d'habitatge (comarcal)
+4134,SQL code,SQL,SH - 1. Prestació de serveis d'habitatge (pluri-municipal)
+4068,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_TR122.pdf,URL,TR122 - METADADES dinamisme del sector agrari
+4069,SQL code,SQL,MS - Dades del mapa de soroll: PUNT DE MESURA 24H
+30594,SQL code,SQL,NULL
+30595,SQL code,SQL,NULL
+30533,SQL code,SQL,- DT: disponibilitat serveis/cartografia (II)
+30534,SQL code,SQL,- DT: disponibilitat serveis/cartografia (II)
+30544,http://www.diba.cat/parcsn/parcs/home.asp,URL,Dades element de protecció urbanística
+30548,SQL code,SQL,- Logs (per usuari)
+30586,SQL code,SQL,NULL
+4044,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_TR123.pdf,URL,TR123 - METADADES tendència de futur del sector agrari
+30596,SQL code,SQL,NULL
+30609,SQL code,SQL,NULL
+4047,SQL code,SQL,Dades de la llicència d'obra vigent
+4048,SQL code,SQL,Dades de la llicència d'obra caducada
+4049,SQL code,SQL,Dades de la llicència d'obra a punt de caducar
+4051,SQL code,SQL,Dades de la llicència d'obra major
+4052,SQL code,SQL,Dades de la llicència d'obra menor
+4000,SQL code,SQL,CU - Informació addicional de la parcel·la urbana
+30547,SQL code,SQL,- Logs MSE: Edició
+30603,SQL code,SQL,LOC - Municipi (per codi INE)
+30611,SQL code,SQL,- Municipis adherits al SITMUN
+4013,http://www.diba.cat/web/municipis/inici/-/directori/detall/${INE}/${INE},URL,DT - 1. Informació general del municipi
+4021,http://www.diba.cat/parcsn/parcs/home.asp,URL,Dades element de protecció urbanística
+4022,http://www.diba.cat/parcsn/parcs/plana.asp?parc=3&m=209&s=1045,URL,Informació del Pla Especial del Montseny
+4018,SQL code,SQL,Fitxa de l'element construït
+4145,SQL code,SQL,MS - Dades del mapa de soroll: MAPA SOROLL DIFDIANIT
+4154,SQL code,SQL,CSA56 - DADES cobertes del sòl any 1956
+4003,SQL code,SQL,PC - Dades element del patrimoni cultural
+4146,SQL code,SQL,MS - Dades del mapa de soroll: MAPA INDICADOR GLOBAL
+32036,SQL code,SQL,- Logs MSE: Edició
+30591,SQL code,SQL,NULL
+32026,SQL code,SQL,BI - Béns immobles DIBA (per municipi)
+4174,SQL code,SQL,XD - Informació de la Xarxa de Ciutats i Pobles pels Nous Usos del Temps
+4175,SQL code,SQL,XD - Informació de la Xarxa de Ciutats i Pobles Cap a la Sostenibilitat
+4176,SQL code,SQL,XD - Informació de la xarxaCORH
+4177,SQL code,SQL,XD - Informació de la Xarxa d'Espais Escènics Municipals
+4178,SQL code,SQL,XD - Informació de la Xarxa Local de Prevenció de Drogodependències
+4179,SQL code,SQL,XD - Informació de la Xarxa Local per a la Diversitat i la Ciutadania
+4180,SQL code,SQL,XD - Informació de la Xarxa Local de Consum
+31935,SQL code,SQL,NULL
+4211,SQL code,SQL,XD - Llista de municipis adherits a la X. CORH (Recursos Humans)
+4212,SQL code,SQL,XD - Llista de municipis adherits a la X. Obs. Des. Econòmic Local
+3319,SQL code,SQL,- PC: Llistat per TITULARITAT (municipi)
+3329,SQL code,SQL,- DT: disponibilitat serveis/cartografia (II)
+3332,SQL code,SQL,- XL: Làmpades de vapor de mercuri
+3323,SQL code,SQL,- PC: Llistat taula d'estils
+3380,SQL code,SQL,- PC: Llistat Elements patrimoni immoble públic (municipal) (intern)
+3381,SQL code,SQL,- PC: Llistat per tipologies (municipal) (intern)
+3382,SQL code,SQL,- PC: Llistat per TITULARITAT (municipal) (intern)
+3383,SQL code,SQL,- PC: Llistat per TITULARITAT i ÀMBIT (municipal) (intern)
+3384,SQL code,SQL,- PC: Llistat per ÀMBIT (municipal) (intern)
+30525,SQL code,SQL,- Usuaris amb perfil MSE
+30528,SQL code,SQL,- Municipis adherits al SITMUN
+4041,http://ptop.gencat.net/rpucportal/AppJava/cercaExpedient.do?reqCode=cerca&comarcaSel=&pagingPage=1&fromPage=load&municipiSel=${INE},URL,DT - 2. Registre de planejament urbanístic (RPUC)
+30529,SQL code,SQL,- CA: Llistat de carrers i portals (cartografia)
+30530,SQL code,SQL,- CA: Llistat de carrers i portals (cartografia)
+30531,SQL code,SQL,- CA: Llistat de carrers i portals (cartografia)
+4070,SQL code,SQL,MS - Dades del mapa de soroll: PUNT DE MESURA PUNTUAL
+4046,SQL code,SQL,Dades de la llicència d'obra
+4053,SQL code,SQL,Dades de la llicència d'obra comunicada
+4054,SQL code,SQL,Dades de la llicència d'obra prorrogada
+4144,SQL code,SQL,MS - Dades del mapa de soroll: MAPA SOROLL NOCTURN
+4220,SQL code,SQL,XD - Llista de municipis adherits a la X. L. Prev. Drogodependències
+4221,SQL code,SQL,XD - Llista de municipis adherits a la X. Territorial de Turisme
+4222,SQL code,SQL,XD - Llista de municipis adherits a la X. de Biblioteques
+4223,SQL code,SQL,XD - Llista de municipis adherits a la X. Equipam. Esportius Locals
+4224,SQL code,SQL,XD - Llista de municipis adherits a la X. Local SITMUN
+30601,SQL code,SQL,NULL
+4073,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN111.pdf,URL,MN111 - METADADES grans unitats litològiques
+4074,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN112.pdf,URL,MN112 - METADADES formacions geològiques superficials
+4075,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN121.pdf,URL,MN121 - METADADES unitats geomorfològiques
+4076,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN141.pdf,URL,MN141 - METADADES  erosionabilitat potencial
+4077,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN142.pdf,URL,MN142 - METADADES risc geològic gravitatori potencial
+4078,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN151.pdf,URL,MN151 - METADADES unitats hidrogeològiques
+4079,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN152.pdf,URL,MN152 - METADADES vulnerabilitat de les unitats hidrogeològiques
+4080,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN221.pdf,URL,MN221 - METADADES hàbitats del Ter i Valoració
+4081,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN222.pdf,URL,MN222 - METADADES hàbitats del Llobregat
+30602,SQL code,SQL,NULL
+30604,SQL code,SQL,LOC - Parcel·la cadastral (per referència cadastral)
+4103,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN331_VGI.pdf,URL,MN331 - METADADES valoració botànica dels hàbitats
+4104,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN333.pdf,URL,MN333 - METADADES diagnosi dels hàbitats agrícoles 2006 (CHC)
+4105,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN334.pdf,URL,MN334 - METADADES hàbitats de superfície reduïda
+4106,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN441.pdf,URL,MN441 - METADADES valoració dels ocells nidificants
+4107,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN447.pdf,URL,MN447 - METADADES ocells com a bioindicadors
+4108,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN511.pdf,URL,MN511 - METADADES atributs paisatge per UTM 2x2Km
+4109,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN525.pdf,URL,MN525 - METADADES mosaics de paisatge
+4110,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN526.pdf,URL,MN526 - METADADES estructura paisatge vegetal per UTM de 2x2 km
+4111,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN539.pdf,URL,MN539 - METADADES classificació paisatges UTM de 2x2 km (MCSC)
+4112,http://sitmun.diba.cat/sitmun2/dades/adjunts/SXELL/SITXELL_MN543.pdf,URL,MN543 - METADADES ecotons de les cobertes del sòl (1993)
+30605,SQL code,SQL,LOC - Posició (per coordenades UTM-ETRS89)
+30608,SQL code,SQL,- Llicències d'obra comunicada
+4225,SQL code,SQL,XD - Informació de la Xarxa d'Equipaments Esportius Locals
+4227,SQL code,SQL,XD - Informació de la Xarxa Local SITMUN
+4171,SQL code,SQL,XD - Informació de la Xarxa Barcelona de Municipis per la Cooperació Europea
+4170,SQL code,SQL,XD - Informació de la Xarxa Barcelona Municipis Cooperació al Desenvolupament
+4172,SQL code,SQL,XD - Informació de la Xarxa de centres d'informació i atenció a les dones
+4173,SQL code,SQL,XD - Informació de la Xarxa de Centres de Serveis a les Empreses
+4189,SQL code,SQL,XD - Informació de la Xarxa de Productes de la Terra
+4201,SQL code,SQL,XD - Llista de municipis adherits a la X. Espais Escènics
+4202,SQL code,SQL,XD - Llista de municipis adherits a la X. Serveis Locals d'Habitatge
+4203,SQL code,SQL,XD - Llista de municipis adherits a la X. C. i P. Sostenibilitat
+4204,SQL code,SQL,XD - Llista de municipis adherits a la X. P. Educatius de Ciutat
+4205,SQL code,SQL,XD - Llista de municipis adherits a la X. P. de Participació Infantil
+4206,SQL code,SQL,XD - Llista de municipis adherits a la X. Of. Tècniques Laborals
+4207,SQL code,SQL,XD - Llista de municipis adherits a la X. C. Serveis a les Empreses
+4208,SQL code,SQL,XD - Llista de municipis adherits a la X. Proc. Estratègics Locals
+4209,SQL code,SQL,XD - Llista de municipis adherits a la X. Productes de la Terra
+31937,SQL code,SQL,NULL
+31940,SQL code,SQL,NULL
+31942,SQL code,SQL,NULL
+31949,SQL code,SQL,NULL
+31952,SQL code,SQL,NULL
+31953,SQL code,SQL,NULL
+4210,SQL code,SQL,XD - Llista de municipis adherits a la X. Serveis Locals d'Ocupació
+31969,SQL code,SQL,- Usuaris/perfils TOTS els Municipis (intern)
+31964,SQL code,SQL,- Cartografies carregades (Anual)
+31966,SQL code,SQL,NULL
+31996,SQL code,SQL,IV - Incidència: per responsable
+4190,SQL code,SQL,XD - Informació de la Xarxa Local Serveis Socials d'Atenció Domiciliària (XSAD)
+4191,SQL code,SQL,XD - Informació de la Xarxa de Serveis Locals d'Habitatge
+4192,SQL code,SQL,XD - Informació de la Xarxa de Serveis Locals d'Ocupació (XALOC)
+4193,SQL code,SQL,XD - Informació de la Xarxa d'Arxius Municipals
+30638,SQL code,SQL,- Logs (per usuari)
+30612,SQL code,SQL,NULL
+31791,SQL code,SQL,- Indicadors (Municipis connectats)
+4213,SQL code,SQL,XD - Llista de municipis adherits a la X. Local Diversitat i Ciutadania
+4214,SQL code,SQL,XD - Llista de municipis adherits a la X. C. Inf. i Atenció a les dones
+4215,SQL code,SQL,XD - Llista de municipis adherits a la X. C. i P. Nous Usos del Temps
+4216,SQL code,SQL,XD - Llista de municipis adherits a la X. P. i C. pels Drets Humans
+32071,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=&RefC=${CODI_SIMPLE},URL,NULL
+30512,http://www.diba.cat/web/municipis/inici/-/directori/detall/${MUN_INE}/${MUN_INE},URL,NULL
+30513,http://ptop.gencat.net/rpucportal/AppJava/cercaExpedient.do?reqCode=cerca&comarcaSel=&pagingPage=1&fromPage=load&municipiSel=${MUN_INE},URL,NULL
+30514,SQL code,SQL,NULL
+30545,SQL code,SQL,NULL
+32104,SQL code,SQL,- CA: Llistat de vies INE
+32070,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=${TIPO}&RefC=${REF_CAD20},URL,NULL
+30511,SQL code,SQL,XS - Pous: Per codi
+30517,SQL code,SQL,- CA: Llistat de vies INE
+4181,SQL code,SQL,XD - Informació de la Xarxa Territorial de Turisme
+4182,SQL code,SQL,XD - Informació Xarxa d'Observatoris del Desenvolupament Econòmic Local (XODEL) 
+4196,SQL code,SQL,XD - Llista de xarxes a les que està adherit aquest municipi
+4198,SQL code,SQL,XD - Llista de municipis adherits a la X. Local de Consum
+4168,SQL code,SQL,XD - Llista de municipis adherits a la X. de Parcs Naturals
+4169,SQL code,SQL,XD - Informació de la Xarxa de Parcs Naturals
+4167,SQL code,SQL,XD - Xarxes corporatives de la Diputació a les que s'ha adherit
+32119,SQL code,SQL,NULL
+32118,SQL code,SQL,CA - Carrer: Portals orfes (sense via)
+32132,SQL code,SQL,NG - Noms geogràfics: edificació aïllada
+4184,SQL code,SQL,XD - Informació de la Xarxa d'Oficines Tècniques Laborals (OTL)
+4185,SQL code,SQL,XD - Informació de la Xarxa de Projectes Educatius de Ciutat
+4186,SQL code,SQL,XD - Informació de la Xarxa de Projectes de Participació Infantil
+4187,SQL code,SQL,XD - Informació de la Xarxa de Pobles i Ciutats pels Drets Humans
+4188,SQL code,SQL,XD - Informació de la Xarxa de Processos Estratègics Locals
+4194,SQL code,SQL,XD - Informació de la Xarxa de Biblioteques
+4195,SQL code,SQL,XD - Informació de la Xarxa de Museus Locals
+4199,SQL code,SQL,XD - Llista de municipis adherits a la X. d'Arxius Municipals
+4200,SQL code,SQL,XD - Llista de municipis adherits a la X. de Museus Locals
+4140,SQL code,SQL,SH - 1. Oficines serveis d'habitatge
+4132,SQL code,SQL,SH - 2. Convenis per a la prestació de serveis d'habitatge (pluri-municipal)
+4228,SQL code,SQL,XD - Informació de la Xarxa de Carreteres Locals
+4229,SQL code,SQL,XD - Llista de municipis adherits a la X. Carreteres Locals
+4230,SQL code,SQL,PC - Dades element del patrimoni cultural (intern)
+30593,SQL code,SQL,NULL
+4217,SQL code,SQL,XD - Llista de municipis adherits a la X. B.M. Cooperació Europea
+4218,SQL code,SQL,XD - Llista de municipis adherits a la X. B.M. Coop. Desenvolupament 
+4219,SQL code,SQL,XD - Llista de municipis adherits a la X. S.S. d'Atenció Domiciliària
+31973,SQL code,SQL,- Usuaris/perfils TOTS els Municipis (intern)
+31974,SQL code,SQL,NULL
+31981,SQL code,SQL,LC - Locals comercials (intern): per activitat
+31980,SQL code,SQL,LC - Locals comercials: per activitat
+31989,SQL code,SQL,- CA: Llistat de vies INE
+31992,SQL code,SQL,LC - Locals comercials: per activitat
+31995,SQL code,SQL,IV - Incidència: per codi
+31997,SQL code,SQL,IV - Incidència: per estat
+31998,SQL code,SQL,NULL
+31999,SQL code,SQL,NULL
+32000,SQL code,SQL,- Elements especials i excepcions
+32003,SQL code,SQL,NULL
+31985,SQL code,SQL,- Usuaris/perfils donat un municipi (intern)
+31991,SQL code,SQL,LC - Locals comercials (intern): per grup d'activitats
+32004,SQL code,SQL,NULL
+32005,SQL code,SQL,NULL
+32006,SQL code,SQL,IVC - Incidència: per codi
+32007,SQL code,SQL,IVC - Incidència: per estat
+32008,SQL code,SQL,IVC - Incidència: per responsable
+32018,SQL code,SQL,- Municipis sense CAE1M
+32019,SQL code,SQL,- Municipis sense CAE1M
+30617,SQL code,SQL,- DT: disponibilitat serveis/cartografia (i)
+31723,SQL code,SQL,Nomenclator supramunicipal
+32068,http://www.idescat.cat/emex/?id=${INE6},URL,DT - 1. Informació general del municipi
+31818,http://ptop.gencat.net/rpucportal/AppJava/cercaExpedient.do?reqCode=cerca&comarcaSel=&pagingPage=1&fromPage=load&municipiSel=${INE},URL,DT - 2. Registre de planejament urbanístic (RPUC)
+32126,SQL code,SQL,"NG - Noms geogràfics: elevació (cim, puig,...)"
+31721,SQL code,SQL,Nomenclator municipal
+31731,SQL code,SQL,- Indicadors (Municipis connectats)
+31732,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=&RefC=${CODI_SIMPLE},URL,NULL
+32130,SQL code,SQL,NG - Noms geogràfics: veïnat disseminat
+32131,SQL code,SQL,NG - Noms geogràfics: edifici històric
+31773,SQL code,SQL,- Usuaris/perfils donat un municipi (intern)
+31829,SQL code,SQL,NULL
+31830,SQL code,SQL,NULL
+31828,SQL code,SQL,NULL
+3176,SQL code,SQL,- Municipis amb perfil de MANTENIMENT
+31735,SQL code,SQL,LO - Llicència d'obra: Observacions
+31802,SQL code,SQL,- Usuaris/perfils donat un municipi (intern)
+32044,SQL code,SQL,NULL
+31833,SQL code,SQL,- Elements especials i excepcions
+31924,SQL code,SQL,NULL
+31925,SQL code,SQL,NULL
+31933,SQL code,SQL,NULL
+31934,SQL code,SQL,NULL
+31936,SQL code,SQL,NULL
+31938,SQL code,SQL,NULL
+31939,SQL code,SQL,NULL
+31941,SQL code,SQL,NULL
+31943,SQL code,SQL,NULL
+31944,SQL code,SQL,NULL
+31950,SQL code,SQL,NULL
+31951,SQL code,SQL,NULL
+30620,SQL code,SQL,- Municipis amb perfil de MANTENIMENT
+31742,SQL code,SQL,- Logs: data alta MCA
+31850,SQL code,SQL,- Indicadors (Municipis connectats)
+31851,SQL code,SQL,- Municipis amb BUE1M però sense ILLES
+31923,SQL code,SQL,NULL
+31932,SQL code,SQL,CA - Carrer: Nom via (segons nomenclatura INE)
+31926,SQL code,SQL,- Indicadors (general)
+31826,SQL code,SQL,XD - Xarxes corporatives de la Diputació a les que s'ha adherit
+31945,SQL code,SQL,NULL
+31946,SQL code,SQL,NULL
+31947,SQL code,SQL,NULL
+31948,SQL code,SQL,NULL
+31954,SQL code,SQL,NULL
+30619,SQL code,SQL,- Logs (per usuari)
+31722,SQL code,SQL,Nomenclator provincial
+31724,SQL code,SQL,Nomenclator Informació del candidat
+31800,SQL code,SQL,NULL
+31801,SQL code,SQL,- Usuaris/perfils TOTS els Municipis (intern)
+31803,SQL code,SQL,NULL
+31804,SQL code,SQL,NULL
+31956,SQL code,SQL,- Logs MCA: Edició
+31957,SQL code,SQL,- Logs MCA: Publicats
+31978,http://sitmun.diba.cat/sitmun2/dades/adjunts/URE5M/DIBA_URE5M_descripcio.pdf,URL,NULL
+31961,JS Code,TAREA,Tasca de Nomenclàtor al visor SITMUN
+31962,SQL code,SQL,- CA: Llistat de vies INE
+31963,SQL code,SQL,- CA: Llistat de vies INE
+31968,SQL code,SQL,- Indicadors (general)
+31965,SQL code,SQL,NULL
+31967,SQL code,SQL,- Cartografies carregades (muni i data)
+31972,SQL code,SQL,XL - Fanals: Cerca per tipus de suport
+31977,http://sitmun.diba.cat/sitmun2/dades/adjunts/URE5M/DIBA_URE5M_descripcio.pdf,URL,NULL
+31975,SQL code,SQL,NULL
+31988,SQL code,SQL,- CA: Llistat de vies INE
+31990,SQL code,SQL,- Logs MCA: Publicats
+31993,SQL code,SQL,NULL
+32106,SQL code,SQL,NULL
+32134,SQL code,SQL,NG - Noms geogràfics: equipament
+32117,SQL code,SQL,- CA: Llistat de vies INE
+32135,SQL code,SQL,NG - Noms geogràfics: element hidrogràfic
+32139,SQL code,SQL,NG - Noms geogràfics: nucli de població
+32140,SQL code,SQL,NG - Noms geogràfics: element orogràfic
+32141,SQL code,SQL,"NG - Noms geogràfics: serrat, carena, serralada..."
+32144,SQL code,SQL,- Municipis amb BUE1M i amb ILLES
+32147,SQL code,SQL,- Municipis amb BUE1M i amb ILLES
+32022,SQL code,SQL,- Municipis sense CAE1M
+32067,http://www.diba.cat/web/municipis/inici/-/directori/detall/${INE}/${INE},URL,DT - 1. Informació general del municipi
+32059,SQL code,SQL,- SH: Oficines d'habitatge
+32098,SQL code,SQL,- CA: Llistat de carrers (cartografia)
+32124,SQL code,SQL,NG - Noms geogràfics: cap de municipi
+32129,SQL code,SQL,NG - Noms geogràfics: curs fluvial
+32138,SQL code,SQL,NG - Noms geogràfics: nom municipi (si no és captial)
+32032,SQL code,SQL,- Logs MSE: Edició
+32034,SQL code,SQL,NULL
+32020,SQL code,SQL,- Municipis sense CAE1M
+32040,SQL code,SQL,NULL
+32060,SQL code,SQL,- SH: Oficines d'habitatge
+32063,SQL code,SQL,- SH: Oficines d'habitatge
+32122,SQL code,SQL,NULL
+32145,SQL code,SQL,- Municipis amb BUE1M i amb ILLES
+32146,SQL code,SQL,- Municipis amb BUE1M i amb ILLES
+32021,SQL code,SQL,- Municipis sense CAE1M
+32029,SQL code,SQL,BI - Béns immobles DIBA (per codi)
+32030,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=${TIPO}&RefC=${REF_CAD20},URL,NULL
+32031,https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?del=${DELEGACION}&mun=${MUNICIPIO}&UrbRus=${TIPO}&RefC=${REF_CAD20},URL,NULL
+32110,SQL code,SQL,NULL
+32038,SQL code,SQL,CA - Carrer: Nom i portal
+32080,SQL code,SQL,- Cartografies carregades (muni i data)
+32081,SQL code,SQL,- CA: Llistat de carrers (cartografia)
+32082,SQL code,SQL,- CA: Llistat de carrers i portals (cartografia)
+32136,SQL code,SQL,NG - Noms geogràfics: indret
+32137,SQL code,SQL,NG - Noms geogràfics: toponímia litoral
+32072,SQL code,SQL,NULL
+32111,SQL code,SQL,NULL
+32074,SQL code,SQL,BI - Béns immobles DIBA (per municipi)
+32075,SQL code,SQL,BI - Béns immobles DIBA (per refcad)
+32123,SQL code,SQL,NG - Noms geogràfics: barri
+32127,SQL code,SQL,"NG - Noms geogràfics: coll de muntanya, pas"
+32128,SQL code,SQL,"NG - Noms geogràfics: comunicacions (port, túnel...)"
+32133,SQL code,SQL,NG - Noms geogràfics: EMD
+32142,SQL code,SQL,NG - Nom geogràfic: tipus i nom
+32155,SQL code,SQL,- Municipis amb cartografia inclosa al SITMUN

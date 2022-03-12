@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: sitmun
+      context: dev,prod
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 02_codelists/STM_CODELIST.csv
+            relativeToChangelogFile: true
+            tableName: STM_CODELIST
+            columns:
+              - column:
+                  name: COD_ID
+                  type: NUMERIC
+              - column:
+                  name: COD_LIST
+                  type: STRING
+              - column:
+                  name: COD_VALUE
+                  type: STRING
+              - column:
+                  name: COD_SYSTEM
+                  type: BOOLEAN
+              - column:
+                  name: COD_DEFAULT
+                  type: BOOLEAN
+              - column:
+                  name: COD_DESCRIPTION
+                  type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COD_ID', 106);
