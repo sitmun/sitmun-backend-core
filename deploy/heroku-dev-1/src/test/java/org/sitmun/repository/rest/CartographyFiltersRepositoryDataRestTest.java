@@ -65,7 +65,7 @@ public class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     mvc.perform(
-        post(URIConstants.CARTOGRAPHY_FILTERS_URI)
+        post(URIConstants.CARTOGRAPHY_FILTERS_URI+"?lang=EN")
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isBadRequest())

@@ -57,7 +57,7 @@ public class CartographyParametersRepositoryDataRestTest {
     String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\"}";
 
     mvc.perform(
-        post("/api/cartography-parameters")
+        post("/api/cartography-parameters?lang=EN")
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isBadRequest())

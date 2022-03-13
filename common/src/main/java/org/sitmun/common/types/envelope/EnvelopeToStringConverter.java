@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.text.DecimalFormatSymbols;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -21,9 +23,7 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
   public static final Locale defaultLocale = Locale.US;
 
   public MessageFormat formatInstance() {
-    MessageFormat mf = new MessageFormat(format);
-    mf.setLocale(defaultLocale);
-    return mf;
+    return new MessageFormat(format, defaultLocale);
   }
 
   public Double extractDouble(Object obj) throws Exception {
