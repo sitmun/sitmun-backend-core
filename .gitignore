@@ -15,6 +15,12 @@ out/
 .settings/
 bin/
 
+# Ignore MacOS files
+.DS_Store
+
+# Ignore jenv files
+.java-version
+
 # Other dirs
 /src.zip
 /update_db.sql
