@@ -1,26 +1,17 @@
 package org.sitmun.common.domain.task;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.common.domain.task.Task;
-import org.sitmun.common.domain.task.TaskRepository;
+import org.junit.jupiter.api.*;
 import org.sitmun.common.domain.task.availability.TaskAvailability;
 import org.sitmun.common.domain.task.availability.TaskAvailabilityRepository;
 import org.sitmun.common.domain.territory.Territory;
 import org.sitmun.common.domain.territory.TerritoryRepository;
-import org.sitmun.test.Fixtures;
+import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -28,20 +19,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.sitmun.test.TestUtils.asJsonString;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-
-public class TaskRepositoryDataRestTest {
+@DisplayName("Task Repository Data REST Test")
+public class TaskRepositoryDataRestTest extends BaseTest {
 
   private static final String TASK_NAME = "Task Name";
 
@@ -54,18 +40,14 @@ public class TaskRepositoryDataRestTest {
   @Autowired
   TerritoryRepository territoryRepository;
 
-  @Autowired
-  private MockMvc mvc;
-
   private Territory territory;
   private Task task;
   private ArrayList<Task> tasks;
   private ArrayList<TaskAvailability> availabilities;
 
   @BeforeEach
+  @WithMockUser(roles = {"ADMIN"})
   public void init() {
-
-    withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
         .name("Territorio 1")
@@ -98,31 +80,29 @@ public class TaskRepositoryDataRestTest {
       taskAvailability1.setCreatedDate(new Date());
       availabilities.add(taskAvailability1);
       taskAvailabilityRepository.saveAll(availabilities);
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = {"ADMIN"})
   public void cleanup() {
-    withMockSitmunAdmin(() -> {
       taskAvailabilityRepository.deleteAll(availabilities);
       taskRepository.deleteAll(tasks);
       territoryRepository.delete(territory);
-    });
   }
 
   @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("Create a new task")
   public void postTask() throws Exception {
     String location = mvc.perform(post(URIConstants.TASKS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(task))
-        .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertThat(location).isNotNull();
 
-    mvc.perform(get(location)
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(location))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
@@ -136,44 +116,54 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("Get tasks per application")
   public void getTasksAvailableForApplication() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1)
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1289)));
 
-    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2)
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(446)));
   }
 
   @Test
-  @Disabled
+  @DisplayName("This endpoint is disabled for anonymous access")
   public void getTasksAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(0)));
+      .andExpect(status().isUnauthorized());
   }
 
   @Test
-  @Disabled
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("This endpoint is enabled for ROLE_ADMIN")
   public void getTasksAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW)
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1758)));
   }
 
   @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("Access enabled to the cartography of a task")
+  public void getCartographyView() throws Exception {
+    mvc.perform(get(URIConstants.TASK_PROJECTION_CARTOGRAPHY_VIEW, 3310))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id", is(88)));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("Tasks can be filtered")
   public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10")
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
 
   @Test
+  @DisplayName("This endpoint is disabled for anonymous creation")
   public void postTaskAsPublicUserFails() throws Exception {
     mvc.perform(post(URIConstants.TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)
@@ -182,17 +172,10 @@ public class TaskRepositoryDataRestTest {
   }
 
   @Test
+  @WithMockUser(roles = {"ADMIN"})
+  @DisplayName("Access enabled to the roles of a task")
   public void getRolesOfATask() throws Exception {
-    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
-  }
-
-  @Test
-  public void getPermissionsOfATask() throws Exception {
-    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1)
-        .with(user(Fixtures.admin())))
+    mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));
   }

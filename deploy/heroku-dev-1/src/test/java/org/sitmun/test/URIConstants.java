@@ -89,6 +89,8 @@ public class URIConstants {
 
   public static final String TASK_PROJECTION_VIEW = TASKS_URI + "/{0}?projection=view";
 
+  public static final String TASK_PROJECTION_CARTOGRAPHY_VIEW = TASKS_URI + "/{0}/cartography?projection=view";
+
   public static final String TASK_AVAILABILITY_PROJECTION_VIEW =
     "/api/task-availabilities/{0}?projection=view";
 
