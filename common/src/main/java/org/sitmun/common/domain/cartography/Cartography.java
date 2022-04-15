@@ -220,14 +220,14 @@ public class Cartography {
   private DatabaseConnection spatialSelectionConnection;
 
   /**
-   * Direct link to a metadata document.
+   * Direct link to a metadata document in an external application.
    */
   @Column(name = "GEO_METAURL", length = URL)
   @Http
   private String metadataURL;
 
   /**
-   * Direct link to a dataset file.
+   * Direct link to a dataset file in a service.
    */
   @Column(name = "GEO_DATAURL", length = URL)
   @Http
