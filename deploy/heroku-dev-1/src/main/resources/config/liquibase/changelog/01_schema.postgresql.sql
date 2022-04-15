@@ -133,7 +133,7 @@ create table stm_geoinfo
   geo_id         int4    not null,
   geo_filter_gfi boolean,
   geo_filter_gm  boolean,
-  geo_filter_se  boolean,
+  geo_filter_ss  boolean,
   geo_blocked    boolean,
   geo_created    timestamp,
   geo_dataurl    varchar(4000),

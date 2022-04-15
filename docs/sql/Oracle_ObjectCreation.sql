@@ -265,7 +265,7 @@ CREATE TABLE STM_GEOINFO
     GEO_SERID      NUMBER(11)    NOT NULL,-- FK al servicio para la visualización
     GEO_SELECTABL  NUMBER(1) CHECK ("GEO_SELECTABL" IN (0, 1)),                                       -- capa seleccionable?
     GEO_SELECTLAY  VARCHAR2(500),                                                                     -- nombre de la capa para la selección espacial. Solo 1 capa.
-    GEO_FILTER_SE  NUMBER(1)     NOT NULL CHECK ("GEO_FILTER_SE" IN (0, 1)),                          -- aplicar filtros para selección?
+    GEO_FILTER_SS  NUMBER(1)     NOT NULL CHECK ("GEO_FILTER_SS" IN (0, 1)),                          -- aplicar filtros para selección?
     GEO_SERSELID   NUMBER(11),                                                                        -- FK al servicio para la selección.
     GEO_LEGENDTIP  VARCHAR2(50) CHECK ("GEO_LEGENDTIP" IN ('LINK', 'LEGENDGRAPHIC', 'CAPABILITIES')), -- tipo de leyenda: link estático, getlegendgraphic o getcapabilities
     GEO_LEGENDURL  VARCHAR2(250),                                                                     -- url de la leyenda de esta cartografia.

@@ -133,7 +133,7 @@ create table stm_geoinfo
   geo_id         number(10,0) not null,
   geo_filter_gfi number(1,0),
   geo_filter_gm  number(1,0),
-  geo_filter_se  number(1,0),
+  geo_filter_ss  number(1,0),
   geo_blocked    number(1,0),
   geo_created    timestamp,
   geo_dataurl    varchar2(4000 char),

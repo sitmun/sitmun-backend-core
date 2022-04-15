@@ -180,7 +180,7 @@ public class Cartography {
   /**
    * If <code>true</code>, ta filter is applied to spatial selection requests.
    */
-  @Column(name = "GEO_FILTER_SE")
+  @Column(name = "GEO_FILTER_SS")
   private Boolean applyFilterToSpatialSelection;
 
   /**

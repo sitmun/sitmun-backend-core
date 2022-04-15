@@ -417,7 +417,7 @@ databaseChangeLog:
                   name: GEO_FILTER_GFI
                   type: BOOLEAN
               - column:
-                  name: GEO_FILTER_SE
+                  name: GEO_FILTER_SS
                   type: BOOLEAN
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GEO_ID', 1255);
