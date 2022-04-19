@@ -9,38 +9,15 @@ REST API, back-end business logic and access to DB.
 
 - Java 8
 
-## Dependencies
+## Available deployments
+
+- Development version to Heroku via GitHub actions
+
 
 ## Developer documentation
 
-The development profile (`dev`) should be active via the environment variable `SPRING_PROFILES_ACTIVE` before:
-
-- Building locally the application:
+Running locally the application deployed to Heroku:
 
 ```bash
-SPRING_PROFILES_ACTIVE=dev build-scripts/build-local.sh
+./gradlew herokuDevLocal
 ```
-
-- Running locally the application:
-
-```bash
-SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
-```
-
-Travis-CI runs the tests with the development profile active.
-
-The development profile (`unsafe`) may be used for UI development. It enables an anonymous user to work with admin
-privileges.
-
-```bash
-SPRING_PROFILES_ACTIVE=dev,unsafe ./gradlew bootRun
-```
-
-When the application runs in local the API Documentation is available at
-<http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config>.
-
-## Experimental feature
-
-[HAL Explorer](https://github.com/toedter/hal-explorer) is enabled by default.  
-With HAL Explorer you can browse and explore SITMUN Hypermedia APIs. It is available
-at <http://localhost:8080/api/explorer/index.html#uri=/api>.
