@@ -10,6 +10,7 @@ import org.sitmun.common.domain.user.configuration.UserConfiguration;
 import org.sitmun.common.domain.user.position.UserPosition;
 import org.sitmun.common.types.codelist.CodeList;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -114,6 +115,14 @@ public class User {
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date createdDate;
+
+  /**
+   * Last modification date.
+   */
+  @Column(name = "USE_UPDATED")
+  @Temporal(TemporalType.TIMESTAMP)
+  @LastModifiedDate
+  private Date lastModifiedDate;
 
   /**
    * User positions.

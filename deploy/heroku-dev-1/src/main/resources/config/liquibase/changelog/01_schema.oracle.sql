@@ -286,6 +286,7 @@ create table stm_post
 (
   pos_id         number(10,0) not null,
   pos_created    timestamp,
+  pos_updated    timestamp,
   pos_email      varchar2(250 char),
   pos_expiration timestamp,
   pos_post       varchar2(250 char),
@@ -524,6 +525,7 @@ create table stm_user
   use_adm       number(1,0),
   use_blocked   number(1,0),
   use_created   timestamp,
+  use_updated   timestamp,
   use_name      varchar2(30 char),
   use_generic   number(1,0),
   use_ident     varchar2(50 char),
