@@ -4,6 +4,7 @@ package org.sitmun.common.domain.territory;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.sitmun.common.def.CodeListsConstants;
+import org.sitmun.common.def.PersistenceConstants;
 import org.sitmun.common.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.common.domain.task.availability.TaskAvailability;
 import org.sitmun.common.domain.territory.type.TerritoryGroupType;
@@ -160,6 +161,12 @@ public class Territory {
    */
   @Column(name = "TER_NOTE", length = SHORT_DESCRIPTION)
   private String note;
+
+  /**
+   * Legal status of the relationship with the network.
+   */
+  @Column(name = "TER_LEGAL", length = IDENTIFIER)
+  private String legal;
 
   /**
    * Creation date.

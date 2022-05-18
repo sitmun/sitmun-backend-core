@@ -42,7 +42,7 @@ create table stm_avail_gi
 (
   agi_id        number(10,0) not null,
   agi_created   timestamp,
-  agi_proprieta varchar2(50 char),
+  agi_owner varchar2(50 char),
   agi_giid      number(10,0),
   agi_terid     number(10,0),
   primary key (agi_id)
@@ -402,6 +402,7 @@ create table stm_territory
   ter_created timestamp,
   ter_extent  varchar2(250 char),
   ter_center  varchar2(250 char),
+  ter_legal   varchar2(50 char),
   ter_zoom    number(10,0),
   ter_name    varchar2(250 char),
   ter_note    varchar2(250 char),
