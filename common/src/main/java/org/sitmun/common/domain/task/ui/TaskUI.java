@@ -56,6 +56,13 @@ public class TaskUI {
   private String tooltip;
 
   /**
+   * Type.
+   */
+  @Column(name = "TUI_TYPE", length = 30)
+  @JsonView(Views.WorkspaceApplication.class)
+  private String type;
+
+  /**
    * Task order.
    */
   @Column(name = "TUI_ORDER", precision = 6)

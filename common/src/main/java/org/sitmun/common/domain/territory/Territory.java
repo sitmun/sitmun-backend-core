@@ -65,7 +65,7 @@ public class Territory {
   /**
    * Geographic code.
    */
-  @Column(name = "TER_CODMUN", length = IDENTIFIER)
+  @Column(name = "TER_CODTER", length = IDENTIFIER)
   @NotBlank
   private String code;
 
@@ -109,6 +109,7 @@ public class Territory {
 
   /**
    * Territory scope.
+   * @deprecated
    */
   @Column(name = "TER_SCOPE", length = IDENTIFIER)
   @CodeList(CodeListsConstants.TERRITORY_SCOPE)
@@ -178,6 +179,7 @@ public class Territory {
 
   /**
    * Territory typology.
+   * @deprecated
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))

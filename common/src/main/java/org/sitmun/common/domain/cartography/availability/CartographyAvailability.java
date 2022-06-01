@@ -55,7 +55,7 @@ public class CartographyAvailability {
    * Owner of the Geographic Information.
    * Keeps the owner's name when ownership is not obvious or is an exception.
    */
-  @Column(name = "AGI_PROPRIETA", length = IDENTIFIER)
+  @Column(name = "AGI_OWNER", length = IDENTIFIER)
   private String owner;
 
   /**

@@ -137,7 +137,7 @@ databaseChangeLog:
                   name: TER_ID
                   type: NUMERIC
               - column:
-                  name: TER_CODMUN
+                  name: TER_CODTER
                   type: STRING
               - column:
                   name: TER_NAME

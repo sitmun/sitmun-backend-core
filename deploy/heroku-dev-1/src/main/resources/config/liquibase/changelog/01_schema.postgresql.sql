@@ -86,8 +86,8 @@ create table stm_comment
   com_email   varchar(250),
   com_name    varchar(250),
   com_title   varchar(500),
-  com_appid   int4,
-  com_userid  int4,
+  com_appid   int4 not null,
+  com_userid  int4 not null,
   primary key (com_id)
 );
 create table stm_conf
@@ -398,7 +398,7 @@ create table stm_territory
 (
   ter_id      int4 not null,
   ter_blocked boolean,
-  ter_codmun  varchar(50),
+  ter_codter  varchar(50),
   ter_created timestamp,
   ter_extent  varchar(250),
   ter_center  varchar(250),
@@ -572,8 +572,8 @@ alter table if exists stm_avail_gi add constraint STM_AGI_FK_TER foreign key (ag
 alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TAS foreign key (ats_taskid) references stm_task on delete cascade;
 alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TER foreign key (ats_terid) references stm_territory on delete cascade;
 alter table if exists stm_backgrd add constraint STM_BAC_FK_GGI foreign key (bac_ggiid) references stm_grp_gi;
-alter table if exists stm_comment add constraint FKc26ngman5si9sbh95gkbva4r6 foreign key (com_appid) references stm_app;
-alter table if exists stm_comment add constraint FKkmsh48ajvw5itsux4iu2r8xso foreign key (com_userid) references stm_user;
+alter table if exists stm_comment add constraint STM_COM_FK_APP foreign key (com_appid) references stm_app on delete cascade;
+alter table if exists stm_comment add constraint STM_COM_FK_USE foreign key (com_userid) references stm_user on delete cascade;
 alter table if exists stm_fil_gi add constraint STM_FGI_FK_GEO foreign key (fgi_giid) references stm_geoinfo on delete cascade;
 alter table if exists stm_fil_gi add constraint STM_FGI_FK_TET foreign key (fgi_typid) references stm_ter_typ;
 alter table if exists stm_geoinfo add constraint STM_GEO_FK_SGI foreign key (geo_styid) references stm_sty_gi;

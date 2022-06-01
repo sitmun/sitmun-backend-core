@@ -1,6 +1,8 @@
 package org.sitmun.common.domain.comment;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.domain.application.Application;
 import org.sitmun.common.domain.user.User;
 import org.springframework.data.annotation.CreatedDate;
@@ -90,14 +92,18 @@ public class Comment {
    * User logged.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "COM_USERID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "COM_USERID", foreignKey = @ForeignKey(name = "STM_COM_FK_USE"))
+  @NotNull
   private User user;
 
   /**
    * Application used.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "COM_APPID")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "COM_APPID", foreignKey = @ForeignKey(name = "STM_COM_FK_APP"))
+  @NotNull
   private Application application;
 
   @Override
