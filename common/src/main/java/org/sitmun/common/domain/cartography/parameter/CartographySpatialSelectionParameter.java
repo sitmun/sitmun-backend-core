@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.common.def.CodeListsConstants;
 import org.sitmun.common.domain.cartography.Cartography;
+import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.types.codelist.CodeList;
 
 import javax.persistence.*;
@@ -17,6 +18,8 @@ import static org.sitmun.common.def.PersistenceConstants.VALUE;
 
 /**
  * Geographic Information parameter for spatial selection.
+ *
+ * @deprecated Because the spatial selection should be implemented as a {@link Task}.
  */
 @Entity
 @Table(name = "STM_PAR_SGI")
@@ -25,6 +28,7 @@ import static org.sitmun.common.def.PersistenceConstants.VALUE;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Deprecated
 public class CartographySpatialSelectionParameter {
 
   /**

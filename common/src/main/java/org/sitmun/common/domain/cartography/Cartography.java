@@ -12,6 +12,7 @@ import org.sitmun.common.domain.cartography.permission.CartographyPermission;
 import org.sitmun.common.domain.cartography.style.CartographyStyle;
 import org.sitmun.common.domain.database.DatabaseConnection;
 import org.sitmun.common.domain.service.Service;
+import org.sitmun.common.domain.task.Task;
 import org.sitmun.common.domain.tree.node.TreeNode;
 import org.sitmun.common.types.basic.Http;
 import org.sitmun.common.types.codelist.CodeList;
@@ -166,28 +167,40 @@ public class Cartography {
 
   /**
    * If <code>true</code>, the contents of some layers are can be selected.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @Column(name = "GEO_SELECTABL")
+  @Deprecated
   private Boolean selectableFeatureEnabled;
 
   /**
    * Layer available for spatial selection.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @Column(name = "GEO_SELECTLAY", length = 10 * IDENTIFIER)
   @Convert(converter = StringListAttributeConverter.class)
+  @Deprecated
   private List<String> selectableLayers;
 
   /**
-   * If <code>true</code>, ta filter is applied to spatial selection requests.
+   * If <code>true</code>, this filter is applied to spatial selection requests.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @Column(name = "GEO_FILTER_SS")
+  @Deprecated
   private Boolean applyFilterToSpatialSelection;
 
   /**
    * Selection service.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SERSEL"))
+  @Deprecated
   private Service spatialSelectionService;
 
   /**
@@ -214,9 +227,12 @@ public class Cartography {
 
   /**
    * Connection for spatial selection listbox queries.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_GEO_FK_CON"))
+  @Deprecated
   private DatabaseConnection spatialSelectionConnection;
 
   /**
@@ -307,9 +323,12 @@ public class Cartography {
 
   /**
    * Spatial selection parameters.
+   *
+   * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @Deprecated
   private Set<CartographySpatialSelectionParameter> spatialSelectionParameters = new HashSet<>();
 
 
