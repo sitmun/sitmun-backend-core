@@ -1,0 +1,257 @@
+{
+  "form": {
+    "label": "tasksEntity.generalData",
+    "elements": {
+      "type": {
+        "hidden": true,
+        "value": 5,
+        "required": true
+      },
+      "name": {
+        "label": "tasksEntity.name",
+        "control": "input",
+        "required": true
+      },
+      "group": {
+        "label": "tasksEntity.group",
+        "control": "selector",
+        "selector": {
+          "data": "taskGroup",
+          "name": "name",
+          "value": "id"
+        },
+        "required": true
+      },
+      "scope": {
+        "label": "tasksEntity.accesType",
+        "control": "selector",
+        "selector": {
+          "data": "codelist-values",
+          "queryParams": {
+            "codeListName": "queryTask.scope",
+            "projection": "view"
+          },
+          "name": "description",
+          "value": "value"
+        },
+        "required": true
+      },
+      "connection": {
+        "condition": "scope",
+        "label": "tasksEntity.connection",
+        "control": "selector",
+        "selector": {
+          "data": "connection",
+          "name": "name",
+          "value": "id"
+        },
+        "hidden": [
+          {
+            "scope": "WS",
+            "hidden": true
+          },
+          {
+            "scope": "URL",
+            "hidden": true
+          }
+        ]
+      },
+      "cartography": {
+        "label": "tasksEntity.cartography",
+        "control": "selectorPopup",
+        "selectorPopup": {
+          "data": "cartography",
+          "value": "name",
+          "columns": {
+            "id": {
+              "label": "tasksEntity.id",
+              "editable": "false"
+            },
+            "name": {
+              "label": "tasksEntity.name",
+              "editable": "true"
+            }
+          }
+        }
+      },
+      "command": {
+        "condition": "scope",
+        "label": [
+          {
+            "scope": "SQL",
+            "text": "tasksEntity.sql"
+          },
+          {
+            "scope": "WS",
+            "text": "tasksEntity.url"
+          },
+          {
+            "scope": "URL",
+            "text": "tasksEntity.url"
+          }
+        ],
+        "control": [
+          {
+            "scope": "SQL",
+            "control": "textArea"
+          },
+          {
+            "scope": "WS",
+            "control": "INPUT"
+          },
+          {
+            "scope": "URL",
+            "control": "INPUT"
+          }
+        ]
+      }
+    }
+  },
+  "tables": [
+    {
+      "link": "parameters",
+      "label": "tasksEntity.parameters",
+      "columns": {
+        "type": {
+          "label": "tasksEntity.type",
+          "typeColumn": "string",
+          "editable": "false"
+        },
+        "label": {
+          "label": "tasksEntity.parameter",
+          "typeColumn": "string",
+          "editable": "true"
+        },
+        "order": {
+          "label": "tasksEntity.order",
+          "typeColumn": "integer",
+          "editable": "true"
+        },
+        "value": {
+          "label": "tasksEntity.value",
+          "typeColumn": "string",
+          "editable": "true",
+          "textAreaSelector": true
+        }
+      },
+      "controlAdd": {
+        "control": "formPopup",
+        "label": "tasksEntity.paramData",
+        "elements": {
+          "key": {
+            "label": "tasksEntity.key",
+            "required": true,
+            "control": "enumBySQLElement",
+            "element": "command",
+            "patternToSearch": "${*}"
+          },
+          "label": {
+            "label": "tasksEntity.label",
+            "control": "input",
+            "required": true
+          },
+          "type": {
+            "label": "tasksEntity.type",
+            "control": "enum",
+            "enum": {
+              "list": "tasksEntity.type",
+              "elements": [
+                {
+                  "label": "tasksEntity.autocomplete",
+                  "value": "A"
+                },
+                {
+                  "label": "tasksEntity.input",
+                  "value": "I"
+                },
+                {
+                  "label": "tasksEntity.combo",
+                  "value": "C"
+                }
+              ]
+            }
+          },
+          "value": {
+            "condition": "type",
+            "label": "tasksEntity.value",
+            "control": "textArea",
+            "required": [
+              {
+                "type": "A",
+                "required": true
+              },
+              {
+                "type": "C",
+                "required": true
+              },
+              {
+                "type": "I",
+                "required": false
+              }
+            ]
+          },
+          "order": {
+            "label": "tasksEntity.order",
+            "control": "input"
+          }
+        }
+      }
+    },
+    {
+      "link": "roles",
+      "label": "tasksEntity.roles",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "roles",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "false"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "false"
+        }
+      }
+    },
+    {
+      "link": "availabilities",
+      "label": "tasksEntity.territory",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "availabilities",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "true"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "territoryName": {
+          "label": "tasksEntity.name",
+          "editable": "true"
+        }
+      }
+    }
+  ]
+}

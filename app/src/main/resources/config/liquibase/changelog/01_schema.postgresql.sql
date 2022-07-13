@@ -344,7 +344,7 @@ create table stm_service
   ser_protocol varchar(50),
   ser_auth_mod varchar(50),
   ser_user     varchar(50),
-  ser_pws      varchar(50),
+  ser_pwd      varchar(50),
   primary key (ser_id)
 );
 create table stm_sty_gi
@@ -516,6 +516,7 @@ create table stm_tsk_ui
   tui_name    varchar(50),
   tui_order   int4,
   tui_tooltip varchar(100),
+  tui_type    varchar(30),
   primary key (tui_id)
 );
 create table stm_user

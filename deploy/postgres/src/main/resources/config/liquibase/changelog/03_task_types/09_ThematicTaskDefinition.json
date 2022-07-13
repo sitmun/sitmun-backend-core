@@ -1,0 +1,75 @@
+{
+  "form": {
+    "label": "tasksEntity.generalData",
+    "elements": {
+      "type": {
+        "hidden": true,
+        "value": 9,
+        "required": true
+      },
+      "name": {
+        "label": "tasksEntity.name",
+        "control": "input",
+        "required": true
+      }
+    }
+  },
+  "tables": [
+    {
+      "link": "roles",
+      "label": "tasksEntity.roles",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "roles",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "false"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "false"
+        }
+      }
+    },
+    {
+      "link": "availabilities",
+      "label": "tasksEntity.territory",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "availabilities",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "true"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "territoryName": {
+          "label": "tasksEntity.name",
+          "editable": "true"
+        }
+      }
+    }
+  ]
+}

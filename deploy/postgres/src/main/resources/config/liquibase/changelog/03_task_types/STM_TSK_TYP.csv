@@ -1,0 +1,16 @@
+TTY_ID,TTY_NAME,TTY_TITLE,TTY_ENABLED,TTY_PARENTID,TTY_ORDER
+0,NULL,Edit,1,NULL,8
+1,básica,Basic,1,NULL,1
+2,descarga,Download,1,NULL,2
+3,adjunto,Document,1,NULL,3
+4,localizador,Locator,1,NULL,6
+5,consulta,Query,1,NULL,4
+6,mas info,More info,1,NULL,5
+7,informe,Report,1,NULL,7
+8,edicionWFS,Cartography table (WFS),1,0,9
+10,extraccion,Extraction (FME),1,NULL,15
+9,tematizacion,Thematic,1,NULL,14
+11,edicionNUM,Data table,1,0,10
+12,edicionREL,Relation table,1,0,11
+13,edicionVIS,Location view,1,0,12
+14,edicionHIDDEN,NULL,0,0,13

@@ -1,0 +1,194 @@
+{
+  "form": {
+    "label": "tasksEntity.generalData",
+    "elements": {
+      "type": {
+        "hidden": true,
+        "value": 1,
+        "required": true
+      },
+      "name": {
+        "label": "tasksEntity.name",
+        "control": "input",
+        "required": true
+      },
+      "group": {
+        "label": "tasksEntity.group",
+        "control": "selector",
+        "selector": {
+          "data": "taskGroup",
+          "name": "name",
+          "value": "id"
+        },
+        "required": true
+      },
+      "ui": {
+        "label": "tasksEntity.ui",
+        "control": "selector",
+        "selector": {
+          "data": "taskUi",
+          "name": "name",
+          "value": "id"
+        },
+        "required": true
+      },
+      "cartography": {
+        "label": "tasksEntity.cartography",
+        "control": "selectorPopup",
+        "selectorPopup": {
+          "data": "cartography",
+          "value": "name",
+          "columns": {
+            "id": {
+              "label": "tasksEntity.id",
+              "editable": "false"
+            },
+            "name": {
+              "label": "tasksEntity.name",
+              "editable": "true"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tables": [
+    {
+      "link": "roles",
+      "label": "tasksEntity.roles",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "roles",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "false"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "false"
+        }
+      }
+    },
+    {
+      "link": "availabilities",
+      "label": "tasksEntity.territory",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "availabilities",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "true"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "territoryName": {
+          "label": "tasksEntity.name",
+          "editable": "true"
+        }
+      }
+    },
+    {
+      "link": "parameters",
+      "label": "tasksEntity.parameters",
+      "columns": {
+        "type": {
+          "label": "tasksEntity.type",
+          "typeColumn": "string",
+          "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.parameter",
+          "typeColumn": "string",
+          "editable": "true"
+        },
+        "value": {
+          "label": "tasksEntity.value",
+          "typeColumn": "string",
+          "editable": "true"
+        },
+        "order": {
+          "label": "tasksEntity.order",
+          "typeColumn": "integer",
+          "editable": "true"
+        }
+      },
+      "controlAdd": {
+        "control": "formPopup",
+        "label": "tasksEntity.paramData",
+        "elements": {
+          "type": {
+            "label": "tasksEntity.type",
+            "control": "enum",
+            "enum": {
+              "list": "tasksEntity.type",
+              "elements": [
+                {
+                  "label": "tasksEntity.fix",
+                  "value": "VALOR"
+                },
+                {
+                  "label": "tasksEntity.user",
+                  "value": "FITRO"
+                },
+                {
+                  "label": "tasksEntity.dataInput",
+                  "value": "DATATYPE"
+                }
+              ]
+            }
+          },
+          "name": {
+            "label": "tasksEntity.paramURL",
+            "control": "input",
+            "required": true
+          },
+          "value": {
+            "condition": "type",
+            "label": [
+              {
+                "type": "VALOR",
+                "text": "tasksEntity.value"
+              },
+              {
+                "type": "FITRO",
+                "text": "tasksEntity.filterText"
+              },
+              {
+                "type": "DATATYPE",
+                "text": "tasksEntity.formatDataInput"
+              }
+            ],
+            "control": "input",
+            "required": true
+          },
+          "order": {
+            "label": "tasksEntity.order",
+            "control": "input"
+          }
+        }
+      }
+    }
+  ]
+}
