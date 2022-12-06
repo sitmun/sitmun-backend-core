@@ -98,8 +98,6 @@ project(':app') {
     testImplementation "org.assertj:assertj-core:${assertj_core_version}"
     testImplementation "com.google.guava:guava:${guava_version}"
     testImplementation "org.json:json:${json_version}"
-    
-    runtimeOnly 'org.postgresql:postgresql'
   }
 
   publishing {
