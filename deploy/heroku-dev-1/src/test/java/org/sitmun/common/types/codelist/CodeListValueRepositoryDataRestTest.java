@@ -26,15 +26,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("CodeListValueRepository Data REST test")
-public class CodeListValueRepositoryDataRestTest {
+class CodeListValueRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @DisplayName("Check availability of databaseConnection.driver")
-  @Disabled
-  public void obtainDrivers() throws Exception {
+  @Disabled("Depends on the real configuration")
+  void obtainDrivers() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -44,7 +44,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Description in the original language")
-  public void obtainOriginalVersion() throws Exception {
+  void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -61,7 +61,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Description translated in ES")
-  public void obtainTranslatedVersionSpa() throws Exception {
+  void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -73,7 +73,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Description translated in CA")
-  public void obtainTranslatedVersionCat() throws Exception {
+  void obtainTranslatedVersionCat() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -82,7 +82,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Filter by code list")
-  public void filterType() throws Exception {
+  void filterType() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -105,7 +105,7 @@ public class CodeListValueRepositoryDataRestTest {
    */
   @Test
   @DisplayName("GET: Check translated descriptions")
-  public void checkMangledValues() throws Exception {
+  void checkMangledValues() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -117,7 +117,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: System codes can't be created")
-  public void cantCreateSystemCodeListValue() throws Exception {
+  void cantCreateSystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":true}";
     mvc.perform(MockMvcRequestBuilders.post(URIConstants.CODELIST_VALUES_URI)
         .content(body)
@@ -127,7 +127,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("PUT: Normal codes can be updated")
-  public void cantModifySystemCodeListValue() throws Exception {
+  void cantModifySystemCodeListValue() throws Exception {
     String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":false}";
     mvc.perform(MockMvcRequestBuilders.put(URIConstants.CODELIST_VALUE_URI, 31)
         .content(body)
@@ -137,7 +137,7 @@ public class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("DELETE: System codes can't be deleted")
-  public void cantDeleteCodeListValue() throws Exception {
+  void cantDeleteCodeListValue() throws Exception {
     mvc.perform(MockMvcRequestBuilders.delete(URIConstants.CODELIST_VALUE_URI, 31)
         .with(user(Fixtures.admin())))
       .andExpect(status().isBadRequest());

@@ -12,6 +12,7 @@ import static org.sitmun.common.def.PersistenceConstants.SHORT_DESCRIPTION;
 
 /**
  * Type of grouping of territorial entities.
+ * @deprecated
  */
 @Entity
 @Table(name = "STM_GTER_TYP", uniqueConstraints = {

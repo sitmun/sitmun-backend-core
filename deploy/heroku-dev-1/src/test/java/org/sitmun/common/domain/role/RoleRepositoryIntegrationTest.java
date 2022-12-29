@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
-public class RoleRepositoryIntegrationTest {
+class RoleRepositoryIntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;
@@ -42,7 +42,7 @@ public class RoleRepositoryIntegrationTest {
   private int port;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
@@ -63,12 +63,12 @@ public class RoleRepositoryIntegrationTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     TestUtils.withMockSitmunAdmin(() -> roleRepository.deleteAll(roles));
   }
 
   @Test
-  public void requestRoles() {
+  void requestRoles() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);

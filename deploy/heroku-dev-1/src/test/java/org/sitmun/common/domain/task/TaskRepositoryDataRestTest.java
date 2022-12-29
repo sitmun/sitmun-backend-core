@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("Task Repository Data REST Test")
-public class TaskRepositoryDataRestTest extends BaseTest {
+class TaskRepositoryDataRestTest extends BaseTest {
 
   private static final String TASK_NAME = "Task Name";
 
@@ -47,7 +47,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
 
   @BeforeEach
   @WithMockUser(roles = {"ADMIN"})
-  public void init() {
+  void init() {
 
       territory = Territory.builder()
         .name("Territorio 1")
@@ -84,7 +84,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
 
   @AfterEach
   @WithMockUser(roles = {"ADMIN"})
-  public void cleanup() {
+  void cleanup() {
       taskAvailabilityRepository.deleteAll(availabilities);
       taskRepository.deleteAll(tasks);
       territoryRepository.delete(territory);
@@ -93,7 +93,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Create a new task")
-  public void postTask() throws Exception {
+  void postTask() throws Exception {
     String location = mvc.perform(post(URIConstants.TASKS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(task))
@@ -118,7 +118,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Get tasks per application")
-  public void getTasksAvailableForApplication() throws Exception {
+  void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1289)));
@@ -130,7 +130,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @DisplayName("This endpoint is disabled for anonymous access")
-  public void getTasksAsPublic() throws Exception {
+  void getTasksAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI))
       .andExpect(status().isUnauthorized());
   }
@@ -138,7 +138,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("This endpoint is enabled for ROLE_ADMIN")
-  public void getTasksAsSitmunAdmin() throws Exception {
+  void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(1758)));
@@ -147,7 +147,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Access enabled to the cartography of a task")
-  public void getCartographyView() throws Exception {
+  void getCartographyView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_CARTOGRAPHY_VIEW, 3310))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id", is(88)));
@@ -156,7 +156,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Tasks can be filtered")
-  public void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
+  void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
@@ -164,7 +164,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @DisplayName("This endpoint is disabled for anonymous creation")
-  public void postTaskAsPublicUserFails() throws Exception {
+  void postTaskAsPublicUserFails() throws Exception {
     mvc.perform(post(URIConstants.TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(asJsonString(task))
@@ -174,7 +174,7 @@ public class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Access enabled to the roles of a task")
-  public void getRolesOfATask() throws Exception {
+  void getRolesOfATask() throws Exception {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.roles", hasSize(39)));

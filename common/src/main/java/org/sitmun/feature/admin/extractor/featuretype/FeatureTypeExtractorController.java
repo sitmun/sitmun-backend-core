@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -28,15 +25,14 @@ public class FeatureTypeExtractorController {
    * @param url the url of that returns the feature type description document.
    * @return 200 if a document is found; client should check this document or 400 if a document cannot be retrieved or the method is not found
    */
-  @RequestMapping(method = RequestMethod.GET, path = "/helpers/feature-type")
-  public @ResponseBody
-  ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
+  @GetMapping("/helpers/feature-type")
+  public @ResponseBody ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<FeatureTypeExtractor> iterator = extractors.iterator();
     ExtractedMetadata featureType = ExtractedMetadata.builder().success(false).reason("No available extractor").build();
     while (iterator.hasNext()) {
       FeatureTypeExtractor extractor = iterator.next();
       featureType = extractor.extract(url);
-      if (featureType.getSuccess()) {
+      if (Boolean.TRUE.equals(featureType.getSuccess())) {
         return ResponseEntity.ok(featureType);
       }
     }

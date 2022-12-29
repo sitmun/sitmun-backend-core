@@ -24,13 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class CartographyPermissionsRepositoryDataRestUpdateTest {
+class CartographyPermissionsRepositoryDataRestUpdateTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void itemResourceUpdate() throws Exception {
+  void itemResourceUpdate() throws Exception {
     String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
         .with(user(Fixtures.admin()))
       )
@@ -67,7 +67,7 @@ public class CartographyPermissionsRepositoryDataRestUpdateTest {
   }
 
   @Test
-  public void associationResourceUpdate() throws Exception {
+  void associationResourceUpdate() throws Exception {
     String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
         .with(user(Fixtures.admin()))
       )

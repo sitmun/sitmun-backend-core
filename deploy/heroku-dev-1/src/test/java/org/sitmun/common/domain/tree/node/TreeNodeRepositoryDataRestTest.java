@@ -23,13 +23,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class TreeNodeRepositoryDataRestTest {
+class TreeNodeRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void retrieveTreeName() throws Exception {
+  void retrieveTreeName() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -37,7 +37,7 @@ public class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  public void retrieveFolder() throws Exception {
+  void retrieveFolder() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -48,7 +48,7 @@ public class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  public void retrieveLeaf() throws Exception {
+  void retrieveLeaf() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5351)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -59,7 +59,7 @@ public class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  public void retrieveNodesFromTree() throws Exception {
+  void retrieveNodesFromTree() throws Exception {
     mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -70,7 +70,7 @@ public class TreeNodeRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void newTreeNodesCanBePosted() throws Exception {
+  void newTreeNodesCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\"}";
 
     MvcResult result = mvc.perform(
@@ -97,7 +97,7 @@ public class TreeNodeRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void newTreeNodesWithParentCanBePosted() throws Exception {
+  void newTreeNodesWithParentCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/2\",\"parent\":\"http://localhost/api/tree-nodes/416\"}";
 
     MvcResult result = mvc.perform(

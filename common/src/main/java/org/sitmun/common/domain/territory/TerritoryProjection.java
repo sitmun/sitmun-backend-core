@@ -48,6 +48,7 @@ public interface TerritoryProjection {
 
   /**
    * Territory scope.
+   * @deprecated
    */
   @Value("#{target.scope}")
   @Deprecated
@@ -85,6 +86,7 @@ public interface TerritoryProjection {
 
   /**
    * Group type identifier.
+   * @deprecated
    */
   @Value("#{target.groupType?.id}")
   @Deprecated
@@ -92,6 +94,7 @@ public interface TerritoryProjection {
 
   /**
    * Group type name.
+   * @deprecated
    */
   @Value("#{target.groupType?.name}")
   @Deprecated

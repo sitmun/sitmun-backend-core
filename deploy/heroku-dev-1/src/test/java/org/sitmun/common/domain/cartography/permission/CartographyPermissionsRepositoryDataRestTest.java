@@ -24,13 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class CartographyPermissionsRepositoryDataRestTest {
+class CartographyPermissionsRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void filterType() throws Exception {
+  void filterType() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_SITUATION_MAP)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -49,7 +49,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void filterOrType() throws Exception {
+  void filterOrType() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_OR_FILTER, CartographyPermission.TYPE_SITUATION_MAP, "C")
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -59,7 +59,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void rolesOfAPermissions() throws Exception {
+  void rolesOfAPermissions() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 6)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
       )
@@ -69,7 +69,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createPermission() throws Exception {
+  void createPermission() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"type\":\"C\"" +
@@ -98,7 +98,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void cantChangeTypeWhenInUseAsSituationMap() throws Exception {
+  void cantChangeTypeWhenInUseAsSituationMap() throws Exception {
     String changedContent = "{" +
       "\"name\":\"test\"," +
       "\"type\":\"C\"" +
@@ -110,7 +110,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void cantChangeTypeWhenInUseAsBackgroundMap() throws Exception {
+  void cantChangeTypeWhenInUseAsBackgroundMap() throws Exception {
     String changedContent = "{" +
       "\"name\":\"test\"," +
       "\"type\":\"C\"" +
@@ -122,7 +122,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void retrieveAllBackgroundMaps() throws Exception {
+  void retrieveAllBackgroundMaps() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_BACKGROUND_MAP)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -131,7 +131,7 @@ public class CartographyPermissionsRepositoryDataRestTest {
   }
 
   @Test
-  public void retrieveAllSituationMaps() throws Exception {
+  void retrieveAllSituationMaps() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI_FILTER, CartographyPermission.TYPE_SITUATION_MAP)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())

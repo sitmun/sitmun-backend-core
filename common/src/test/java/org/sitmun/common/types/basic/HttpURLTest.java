@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Http validation test")
-public class HttpURLTest extends BaseTest {
+class HttpURLTest extends BaseTest {
 
   private static final String VALID_HTTP_URL = "http://example.com/somefile";
   private static final String VALID_HTTPS_URL = "https://example.com/somefile";
@@ -27,7 +27,7 @@ public class HttpURLTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Pass if URL value is http")
-  public void passIfURLValueIsHttp() throws Exception {
+  void passIfURLValueIsHttp() throws Exception {
     postEntityWithUrlValue(VALID_HTTP_URL)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_URL + "')]", hasSize(0)));
@@ -36,7 +36,7 @@ public class HttpURLTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Pass if URL value is https")
-  public void passIfURLValueIsHttps() throws Exception {
+  void passIfURLValueIsHttps() throws Exception {
     postEntityWithUrlValue(VALID_HTTPS_URL)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_URL + "')]", hasSize(0)));
@@ -45,7 +45,7 @@ public class HttpURLTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail if URL value is wrong")
-  public void failIfURLValueIsWrong() throws Exception {
+  void failIfURLValueIsWrong() throws Exception {
     postEntityWithUrlValue(INVALID_URL)
       .andDo(print())
       .andExpect(status().is4xxClientError())

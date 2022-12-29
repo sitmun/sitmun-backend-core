@@ -18,7 +18,7 @@ import java.nio.file.FileSystems;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Profile({"openapi"})
-public class DocumentationGenerationIntegrationTest {
+class DocumentationGenerationIntegrationTest {
 
   @LocalServerPort
   private int port;
@@ -34,7 +34,7 @@ public class DocumentationGenerationIntegrationTest {
    * properties involved.
    */
   @Test
-  public void generateSwagger() throws IOException {
+  void generateSwagger() throws IOException {
     TestRestTemplate restTemplate = new TestRestTemplate();
     String response =
       restTemplate.getForObject("http://localhost:" + port + "/v3/api-docs.yaml", String.class);

@@ -164,15 +164,6 @@ class CartographyRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("GET: all as admin")
-  @Disabled
-  void getCartographiesAsAdmin() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_URI)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
-      .andExpect(status().isOk());
-  }
-
-  @Test
   @DisplayName("POST: fail as public user")
   void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHIES_URI)
@@ -276,7 +267,7 @@ class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Cartography available per application are different")
-  @Disabled
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void getCartographiesAvailableForApplication() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

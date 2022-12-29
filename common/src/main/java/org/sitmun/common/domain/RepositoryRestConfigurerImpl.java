@@ -38,9 +38,7 @@ public class RepositoryRestConfigurerImpl implements RepositoryRestConfigurer {
     events.add("beforeSave");
     events.add("afterSave");
     events.add("beforeLinkSave");
-    //events.add("afterLinkSave");
     events.add("beforeDelete");
-    // events.add("afterDelete");
     EVENTS = Collections.unmodifiableList(events);
   }
 

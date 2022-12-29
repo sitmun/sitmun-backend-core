@@ -20,26 +20,26 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 
-public class ServiceRepositoryTest {
+class ServiceRepositoryTest {
 
   @Autowired
   private ServiceRepository serviceRepository;
   private Service service;
 
   @BeforeEach
-  public void init() {
+  void init() {
     service = Service.builder().build();
   }
 
   @Test
-  public void saveService() {
+  void saveService() {
     Assertions.assertThat(service.getId()).isNull();
     serviceRepository.save(service);
     Assertions.assertThat(service.getId()).isNotZero();
   }
 
   @Test
-  public void findOneServiceById() {
+  void findOneServiceById() {
     Assertions.assertThat(service.getId()).isNull();
     serviceRepository.save(service);
     Assertions.assertThat(service.getId()).isNotZero();
@@ -52,7 +52,7 @@ public class ServiceRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

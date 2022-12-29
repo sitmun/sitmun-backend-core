@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Deprecated
-public class TerritoryGroupTypeRepositoryDataRestTest {
+class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
@@ -36,7 +36,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   private TerritoryGroupTypeRepository repository;
 
   @Test
-  public void mustNotBeNull() throws Exception {
+  void mustNotBeNull() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI+"?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
@@ -47,7 +47,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
   }
 
   @Test
-  public void mustNotBeBlank() throws Exception {
+  void mustNotBeBlank() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI+"?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("   ").build()))
@@ -59,7 +59,7 @@ public class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void groupCanBeCreatedAndDeleted() throws Exception {
+  void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
     MvcResult result = mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)
         .contentType(MediaType.APPLICATION_JSON)

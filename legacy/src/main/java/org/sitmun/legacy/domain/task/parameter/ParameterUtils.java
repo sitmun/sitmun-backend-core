@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 @Slf4j
 public class ParameterUtils {
 
+  private ParameterUtils() {}
+
   private static final Configuration conf = Configuration.builder()
     .mappingProvider(new JacksonMappingProvider())
     .jsonProvider(new JacksonJsonProvider())
@@ -29,7 +31,7 @@ public class ParameterUtils {
     .addOptions(Option.SUPPRESS_EXCEPTIONS)
     .addOptions(Option.ALWAYS_RETURN_LIST);
 
-  static public <T> List<TaskParameter> collect(Map<String, Object> properties, String s, Class<T> type, Function<T, TaskParameter> builder) {
+  public static <T> List<TaskParameter> collect(Map<String, Object> properties, String s, Class<T> type, Function<T, TaskParameter> builder) {
 
     return JsonPath.using(conf).parse(properties)
       .read(s, new TokenRef<>(type))
@@ -38,14 +40,14 @@ public class ParameterUtils {
       .collect(Collectors.toList());
   }
 
-  static public <T> List<TaskParameter> flatCollect(Map<String, Object> properties, String jsonPath, Class<T> type, Function<T, Stream<TaskParameter>> builder) {
+  public static <T> List<TaskParameter> flatCollect(Map<String, Object> properties, String jsonPath, Class<T> type, Function<T, Stream<TaskParameter>> builder) {
     return JsonPath.using(conf).parse(properties)
       .read(jsonPath, new TokenRef<>(type))
       .stream()
       .flatMap(builder).collect(Collectors.toList());
   }
 
-  static public <T> T obtain(Map<String, Object> properties, String s, Class<T> clazz) {
+  public static <T> T obtain(Map<String, Object> properties, String s, Class<T> clazz) {
     Configuration conf = Configuration.defaultConfiguration()
       .mappingProvider(new JacksonMappingProvider(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)));
     return JsonPath.using(conf).parse(properties)

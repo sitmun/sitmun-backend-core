@@ -20,13 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class ApplicationParameterRepositoryDataRestTest {
+class ApplicationParameterRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void retrieveAll() throws Exception {
+  void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PARAMETERS_URI_FILTERED, 1, "type", "PRINT_TEMPLATE")
         .with(user(Fixtures.admin()))
       )

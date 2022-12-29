@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class UserResourceTest {
+class UserResourceTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String TERRITORY1_USER_USERNAME = "territory1-user";
@@ -82,7 +82,7 @@ public class UserResourceTest {
   private UserEventHandler userEventHandler;
 
   @BeforeEach
-  public void init() {
+  void init() {
     withMockSitmunAdmin(() -> {
 
       organizacionAdminRole =
@@ -183,7 +183,7 @@ public class UserResourceTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     withMockSitmunAdmin(() -> {
       userConfigurationRepository.deleteAll(userConfigurations);
       roleRepository.delete(territorialRole);
@@ -196,7 +196,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createNewUserAndDelete() throws Exception {
+  void createNewUserAndDelete() throws Exception {
     String content = "{" +
       "\"username\":\"new user\"," +
       "\"firstName\":\"new name\"," +
@@ -227,7 +227,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void clearPassword() throws Exception {
+  void clearPassword() throws Exception {
     String content = "{" +
       "\"username\":\"new user\"," +
       "\"firstName\":\"new name\"," +
@@ -312,7 +312,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createDuplicatedUserFails() throws Exception {
+  void createDuplicatedUserFails() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).build();
 
     mockMvc.perform(post(URIConstants.USER_URI)
@@ -325,7 +325,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateUser() throws Exception {
+  void updateUser() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"" + USER_CHANGEDFIRSTNAME + "\"," +
@@ -350,7 +350,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void getUsersAsSitmunAdmin() throws Exception {
+  void getUsersAsSitmunAdmin() throws Exception {
     mockMvc.perform(get(URIConstants.USER_URI + "?size=10")
         .with(user(Fixtures.admin()))
       )
@@ -362,7 +362,7 @@ public class UserResourceTest {
   @Deprecated
   @Test
   @Disabled
-  public void getUsersAsOrganizationAdmin() throws Exception {
+  void getUsersAsOrganizationAdmin() throws Exception {
     mockMvc.perform(get(URIConstants.USER_URI))
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
@@ -371,7 +371,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateUserPassword() throws Exception {
+  void updateUserPassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"NameChanged\"," +
@@ -397,7 +397,7 @@ public class UserResourceTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void keepPassword() throws Exception {
+  void keepPassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"NameChanged\"," +
@@ -418,64 +418,6 @@ public class UserResourceTest {
       assertTrue(updatedUser.isPresent());
       assertEquals(oldPassword, updatedUser.get().getPassword());
     });
-  }
-
-  @Test
-  @Disabled
-  public void createNewUserAsOrganizationAdmin() {
-    // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
-    // ok is expected. The new user has roles linked to my organization territory
-  }
-
-  @Test
-  @Disabled
-  public void assignRoleToUserAsOrganizationAdmin() {
-    // TODO
-    // ok is expected. The new user has roles linked to my organization territory
-  }
-
-  @Test
-  @Disabled
-  public void updateUserAsOrganizationAdmin() {
-    // TODO
-    // Update user (linked to the same organization) by an organization admin user
-    // (ADMIN DE ORGANIZACION)
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void updateUserPasswordAsOrganizationAdmin() {
-    // TODO
-    // Update user password (linked to the same organization) by an organization
-    // admin user (ADMIN DE ORGANIZACION)
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void assignRoleToUserAsOtherOrganizationAdminFails() {
-    // TODO
-    // fail is expected. No permission to assign territory role to user if don't
-    // have territory role
-  }
-
-  @Test
-  @Disabled
-  public void updateUserAsOtherOrganizationAdminFails() {
-    // TODO
-    // Update user (linked to another organization) by an organization admin user
-    // (ADMIN DE ORGANIZACION)
-    // fail is expected (no permission)
-  }
-
-  @Test
-  @Disabled
-  public void updateUserPasswordAsOtherOrganizationAdminFails() {
-    // TODO
-    // Update user password (linked to another organization) by an organization
-    // admin user (ADMIN DE ORGANIZACION)
-    // fail is expected (no permission)
   }
 
 }

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Deprecated
-public class TerritoryGroupTypeRepositoryIntegrationTest {
+class TerritoryGroupTypeRepositoryIntegrationTest {
 
   @Autowired
   TerritoryGroupTypeRepository territoryGroupTypeRepository;
@@ -42,7 +42,7 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
   private int port;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
@@ -63,12 +63,12 @@ public class TerritoryGroupTypeRepositoryIntegrationTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     TestUtils.withMockSitmunAdmin(() -> territoryGroupTypeRepository.deleteAll(territoryGroupTypes));
   }
 
   @Test
-  public void requestRoles() {
+  void requestRoles() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);

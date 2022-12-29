@@ -22,14 +22,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 
 @DisplayName("Projections test")
-public class ProjectionsTest {
+class ProjectionsTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @DisplayName("TaskAvailability view")
-  public void taskAvailabilityProjectionView() throws Exception {
+  void taskAvailabilityProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_AVAILABILITY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
       ).andExpect(status().isOk())
@@ -41,7 +41,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Cartography view")
-  public void cartographyProjectionView() throws Exception {
+  void cartographyProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 87)
         .with(user(Fixtures.admin()))
       )
@@ -55,7 +55,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Cartography view - styles")
-  public void cartographyProjectionStylesView() throws Exception {
+  void cartographyProjectionStylesView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 0)
         .with(user(Fixtures.admin()))
       )
@@ -66,7 +66,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("CartographyAvailability view")
-  public void cartographyAvailabiltiesProjectionView() throws Exception {
+  void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
         .with(user(Fixtures.admin()))
       ).andExpect(jsonPath("$.cartographyId").value(1208))
@@ -79,7 +79,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Territory view")
-  public void territoryProjectionView() throws Exception {
+  void territoryProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -94,7 +94,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("ApplicationBackground view")
-  public void applicationBackgroundProjectionView() throws Exception {
+  void applicationBackgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
       )
@@ -106,7 +106,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("UserPosition view")
-  public void userPositionProjectionView() throws Exception {
+  void userPositionProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 2124)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -116,7 +116,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("UserConfiguration view")
-  public void userConfigurationProjectionView() throws Exception {
+  void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -142,7 +142,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Backgrounds view")
-  public void backgroundProjectionView() throws Exception {
+  void backgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUNDS_URI_PROJECTION_VIEW)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -152,7 +152,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Application view")
-  public void applicationProjectionView() throws Exception {
+  void applicationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
       )
@@ -162,7 +162,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Tasks view")
-  public void tasksProjectionView() throws Exception {
+  void tasksProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -181,7 +181,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Tree Nodes view")
-  public void treeNodesProjectionView() throws Exception {
+  void treeNodesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 288)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -199,7 +199,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Translations view")
-  public void translationProjectionView() throws Exception {
+  void translationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TRANSLATION_URI_PROJECTION, 301001)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -213,7 +213,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Permissions projection view through cartography")
-  public void permissionsProjectionView() throws Exception {
+  void permissionsProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 90)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -226,7 +226,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Permissions projection view through background")
-  public void permissionsProjectionView2() throws Exception {
+  void permissionsProjectionView2() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -236,7 +236,7 @@ public class ProjectionsTest {
 
   @Test
   @DisplayName("Permissions projection view type")
-  public void permissionsProjectionType() throws Exception {
+  void permissionsProjectionType() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())

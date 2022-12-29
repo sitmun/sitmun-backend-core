@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 
-public class ApplicationRepositoryTest {
+class ApplicationRepositoryTest {
 
   @Autowired
   private ApplicationRepository applicationRepository;
@@ -100,14 +100,14 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void saveApplication() {
+  void saveApplication() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
   }
 
   @Test
-  public void findOneApplicationById() {
+  void findOneApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
@@ -122,7 +122,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void deleteApplicationById() {
+  void deleteApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     Assumptions.assumeThat(application.getId()).isNotZero();

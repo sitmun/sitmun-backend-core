@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Territory Repository Data REST test")
-public class TerritoryRepositoryDataRestTest {
+class TerritoryRepositoryDataRestTest {
 
   @Autowired
   TerritoryRepository territoryRepository;
@@ -36,14 +36,14 @@ public class TerritoryRepositoryDataRestTest {
   private MockHttpServletResponse response;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     response = null;
   }
 
   @Test
   @DisplayName("POST: minimum set of properties")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void create() throws Exception {
+  void create() throws Exception {
     response = mvc.perform(MockMvcRequestBuilders.post(URIConstants.TERRITORIES_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -60,7 +60,7 @@ public class TerritoryRepositoryDataRestTest {
   @Test
   @DisplayName("POST: center without extension")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void centerWithoutExtension() throws Exception {
+  void centerWithoutExtension() throws Exception {
     response = mvc.perform(post(URIConstants.TERRITORIES_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -78,7 +78,7 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: can list as admin")
-  public void getTerritoriesAsPublic() throws Exception {
+  void getTerritoriesAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TERRITORIES_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk());
@@ -86,7 +86,7 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: cannot access a public")
-  public void createTerritoriesAsPublicFails() throws Exception {
+  void createTerritoriesAsPublicFails() throws Exception {
     mvc.perform(post(URIConstants.TERRITORIES_URI)
       .contentType(MediaType.APPLICATION_JSON)
       .content(TestUtils.asJsonString("{" +
@@ -98,7 +98,7 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has link to task availabilities")
-  public void hasLinkToTaskAvailability() throws Exception {
+  void hasLinkToTaskAvailability() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -107,7 +107,7 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has computed center")
-  public void hasComputedCenter() throws Exception {
+  void hasComputedCenter() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -118,7 +118,7 @@ public class TerritoryRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has link to cartography availabilities")
-  public void hasLinkToCartographyAvailabilities() throws Exception {
+  void hasLinkToCartographyAvailabilities() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_URI, 0)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -126,7 +126,7 @@ public class TerritoryRepositoryDataRestTest {
   }
 
   @AfterEach
-  public void cleanup() throws Exception {
+  void cleanup() throws Exception {
     if (response != null) {
       String location = response.getHeader("Location");
       if (location != null) {

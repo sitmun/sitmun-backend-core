@@ -21,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class TaskTypesRepositoryDataRestTest {
+class TaskTypesRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void definedSpecifications() throws Exception {
+  void definedSpecifications() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))

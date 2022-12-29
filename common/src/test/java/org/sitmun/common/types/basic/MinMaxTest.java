@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("MinMax validation test")
-public class MinMaxTest extends BaseTest {
+class MinMaxTest extends BaseTest {
 
   private static final Integer VALID_VALUE = 50;
   private static final Integer INVALID_BELOW_MIN = -1;
@@ -27,7 +27,7 @@ public class MinMaxTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail if value is below min")
-  public void failIfValueIsBelowMin() throws Exception {
+  void failIfValueIsBelowMin() throws Exception {
     postEntityWithMinMaxValue(INVALID_BELOW_MIN)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')].invalidValue", hasItem(INVALID_BELOW_MIN)));
@@ -36,7 +36,7 @@ public class MinMaxTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail if value is above max")
-  public void failIfValueIsAboveMax() throws Exception {
+  void failIfValueIsAboveMax() throws Exception {
     postEntityWithMinMaxValue(INVALID_UPPER_MAX)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')].invalidValue", hasItem(INVALID_UPPER_MAX)));
@@ -45,7 +45,7 @@ public class MinMaxTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Pass if value is in range")
-  public void passIfValueIsInRange() throws Exception {
+  void passIfValueIsInRange() throws Exception {
     postEntityWithMinMaxValue(VALID_VALUE)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')]", hasSize(0)));

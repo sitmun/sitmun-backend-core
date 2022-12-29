@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class DatabaseConnectionRepositoryDataRestTest {
+class DatabaseConnectionRepositoryDataRestTest {
 
   @Autowired
   private DatabaseConnectionRepository repository;
@@ -38,7 +38,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
-  public void tasksLinksExist() throws Exception {
+  void tasksLinksExist() throws Exception {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -47,7 +47,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
-  public void cartographiesLinksExist() throws Exception {
+  void cartographiesLinksExist() throws Exception {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -58,7 +58,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateUserPassword() throws Exception {
+  void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
@@ -100,7 +100,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void keepUserPassword() throws Exception {
+  void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")
@@ -142,7 +142,7 @@ public class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void clearUserPassword() throws Exception {
+  void clearUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }")

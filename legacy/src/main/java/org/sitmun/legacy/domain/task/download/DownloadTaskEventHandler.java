@@ -24,8 +24,8 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class DownloadTaskEventHandler implements SyncEntityHandler {
 
-  private final static Integer DOWNLOAD_TASK = 2;
-  private final static Integer ATTACHMENT_TASK = 3;
+  private static final Integer DOWNLOAD_TASK = 2;
+  private static final Integer ATTACHMENT_TASK = 3;
   private final TaskRepository taskRepository;
 
   private final DownloadTaskRepository downloadTaskRepository;
@@ -39,7 +39,7 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateDownloadTasks(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     if (downloadTaskRepository.existsById(task.getId())) {
       downloadTaskRepository.deleteById(task.getId());
     }
@@ -57,16 +57,16 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     if (downloadTaskRepository.existsById(task.getId())) {
       downloadTaskRepository.deleteById(task.getId());
     }
   }
 
-  public Boolean accept(@NonNull Task task) {
-    return task.getType() != null &&
-      (task.getType().getId().equals(DOWNLOAD_TASK) ||
-        task.getType().getId().equals(ATTACHMENT_TASK));
+  public boolean nonAccept(@NonNull Task task) {
+    return task.getType() == null ||
+      (!task.getType().getId().equals(DOWNLOAD_TASK) &&
+        !task.getType().getId().equals(ATTACHMENT_TASK));
   }
 
   public void synchronize() {

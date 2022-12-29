@@ -53,7 +53,7 @@ class UserControllerTest {
   private String expiredToken;
 
   @BeforeEach
-  public void init() {
+  void init() {
     withMockSitmunAdmin(() -> {
       Date expiredDate =
         Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -74,12 +74,12 @@ class UserControllerTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     withMockSitmunAdmin(() -> userRepository.delete(user));
   }
 
   @Test
-  public void readAccount() throws Exception {
+  void readAccount() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
         .header(HttpHeaders.AUTHORIZATION, validToken)
       ).andExpect(status().isOk())
@@ -89,20 +89,20 @@ class UserControllerTest {
   }
 
   @Test
-  public void readAccountWithoutToken() throws Exception {
+  void readAccountWithoutToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI))
       .andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void readAccountWithExpiredToken() throws Exception {
+  void readAccountWithExpiredToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HttpHeaders.AUTHORIZATION, expiredToken)
     ).andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void updateAccountButKeepThePassword() throws Exception {
+  void updateAccountButKeepThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"NameChanged\"," +
@@ -135,7 +135,7 @@ class UserControllerTest {
   }
 
   @Test
-  public void updateAccountButClearThePassword() throws Exception {
+  void updateAccountButClearThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"NameChanged\"," +

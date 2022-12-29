@@ -30,7 +30,7 @@ import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class DownloadTaskEventHandlerTest {
+class DownloadTaskEventHandlerTest {
 
   @Autowired
   DownloadTaskRepository downloadTaskRepository;
@@ -46,7 +46,7 @@ public class DownloadTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void postDownloadTask() throws Exception {
+  void postDownloadTask() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/2\"," +
@@ -83,7 +83,7 @@ public class DownloadTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateDownloadTask() throws Exception {
+  void updateDownloadTask() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/2\"," +
@@ -137,7 +137,7 @@ public class DownloadTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void syncDownloadTasks() throws Exception {
+  void syncDownloadTasks() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/2\"" +

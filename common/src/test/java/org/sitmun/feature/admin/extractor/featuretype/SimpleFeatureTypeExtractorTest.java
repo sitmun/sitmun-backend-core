@@ -13,7 +13,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
-  public void extractKnownFeatureWFS20() {
+  void extractKnownFeatureWFS20() {
     ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
@@ -27,7 +27,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 1.1.0")
-  public void extractKnownFeatureWFS110() {
+  void extractKnownFeatureWFS110() {
     ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&version=1.1.0&typeNames=RED_REGENTE");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
@@ -41,7 +41,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a bad request to a WFS")
-  public void extractFailedService() {
+  void extractFailedService() {
     ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
@@ -54,7 +54,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a request to HTML page")
-  public void extractHtmlPage() {
+  void extractHtmlPage() {
     ExtractedMetadata doc = extractor.extract("https://www.ign.es/");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
@@ -65,7 +65,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a request to a not found page")
-  public void extract404Page() {
+  void extract404Page() {
     ExtractedMetadata doc = extractor.extract("https://www.ign.es/not-found");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
@@ -76,7 +76,7 @@ class SimpleFeatureTypeExtractorTest {
 
   @Test
   @DisplayName("Extract from a request to an nonexistent domain")
-  public void extractNonExistentDomain() {
+  void extractNonExistentDomain() {
     ExtractedMetadata doc = extractor.extract("https://fake");
     assertNotNull(doc);
     assertFalse(doc.getSuccess());

@@ -17,7 +17,7 @@ public class CodeListValueEventHandler {
   @HandleBeforeCreate
   @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueCreate(@NotNull CodeListValue codeListValue) {
-    if (codeListValue.getSystem()) {
+    if (Boolean.TRUE.equals(codeListValue.getSystem())) {
       throw new ImmutableSystemCodeListValueException("System field cannot be set true");
     }
     codeListValue.setSystem(false);
@@ -29,7 +29,7 @@ public class CodeListValueEventHandler {
     if (!Objects.equals(codeListValue.getStoredSystem(), codeListValue.getSystem())) {
       throw new ImmutableSystemCodeListValueException("System field cannot be changed");
     }
-    if (codeListValue.getStoredSystem()) {
+    if (Boolean.TRUE.equals(codeListValue.getStoredSystem())) {
       if (!Objects.equals(codeListValue.getStoredCodeListName(), codeListValue.getCodeListName())) {
         throw new ImmutableSystemCodeListValueException("Code list name cannot be changed in system property");
       }
@@ -43,7 +43,7 @@ public class CodeListValueEventHandler {
   @HandleBeforeDelete
   @Transactional(rollbackFor = ImmutableSystemCodeListValueException.class)
   public void handleCodeListValueDelete(@NotNull CodeListValue codeListValue) {
-    if (codeListValue.getSystem()) {
+    if (Boolean.TRUE.equals(codeListValue.getSystem())) {
       throw new ImmutableSystemCodeListValueException("System field cannot be deleted");
     }
   }

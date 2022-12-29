@@ -26,15 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
-public class TerritoryRepositoryIntegrationTest {
+class TerritoryRepositoryIntegrationTest {
 
   private RestTemplate restTemplate;
   @LocalServerPort
   private int port;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
@@ -48,7 +47,7 @@ public class TerritoryRepositoryIntegrationTest {
   }
 
   @Test
-  public void requestMembers() {
+  void requestMembers() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -64,7 +63,7 @@ public class TerritoryRepositoryIntegrationTest {
   }
 
   @Test
-  public void requestMemberOf() {
+  void requestMemberOf() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);

@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("CartographyStyles Repository Data REST test")
-public class CartographyStylesRepositoryDataRestTest {
+class CartographyStylesRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
@@ -31,7 +31,7 @@ public class CartographyStylesRepositoryDataRestTest {
   @Test
   @DisplayName("POST: Create a CartographyStyle")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void newCartographyStyleCanBePosted() throws Exception {
+  void newCartographyStyleCanBePosted() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"defaultStyle\":false," +
@@ -56,7 +56,7 @@ public class CartographyStylesRepositoryDataRestTest {
   @Test
   @DisplayName("POST: No two default CartographyStyle can be created for the same Cartography")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void twoDefaultStylesCannotBePosted() throws Exception {
+  void twoDefaultStylesCannotBePosted() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"defaultStyle\":true," +

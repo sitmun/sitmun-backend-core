@@ -31,8 +31,11 @@ import static java.util.stream.Collectors.*;
 @Slf4j
 public class QueryTaskEventHandler implements SyncEntityHandler {
 
-  private final static Integer LOCATOR_TASK = 4;
-  private final static Integer QUERY_TASK = 5;
+  private static final String LABEL = "LABEL";
+  private static final String TIPO = "TIPO";
+  private static final String SQL = "SQL";
+  private static final Integer LOCATOR_TASK = 4;
+  private static final Integer QUERY_TASK = 5;
   private final TaskRepository taskRepository;
 
   private final QueryTaskRepository queryTaskRepository;
@@ -49,7 +52,7 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateDownloadTasks(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
@@ -79,21 +82,21 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
         .task(task)
         .name(parameter.getKey())
         .value(parameter.getLabel())
-        .type("LABEL")
+        .type(LABEL)
         .order(parameter.getOrder()).build()
       ,
       TaskParameter.builder()
         .task(task)
         .name(parameter.getKey())
         .value(parameter.getType())
-        .type("TIPO")
+        .type(TIPO)
         .order(parameter.getOrder()).build()
       ,
       TaskParameter.builder()
         .task(task)
         .name(parameter.getKey())
         .value(parameter.getValue())
-        .type("SQL")
+        .type(SQL)
         .order(parameter.getOrder()).build()
     );
   }
@@ -101,18 +104,16 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
     }
   }
 
-  public Boolean accept(@NonNull Task task) {
-    return task.getType() != null && (
-      (task.getType().getId().equals(LOCATOR_TASK)) ||
-        (task.getType().getId().equals(QUERY_TASK))
-    );
+  public boolean nonAccept(@NonNull Task task) {
+    return task.getType() == null || ((!task.getType().getId().equals(LOCATOR_TASK)) &&
+      (!task.getType().getId().equals(QUERY_TASK)));
   }
 
   public void synchronize() {
@@ -166,11 +167,11 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
         final QueryParameter qp = new QueryParameter();
         taskParameters.forEach(row -> {
           qp.setKey(row.getName());
-          if ("TIPO".equals(row.getType())) {
+          if (TIPO.equals(row.getType())) {
             qp.setType(row.getValue());
-          } else if ("LABEL".equals(row.getType())) {
+          } else if (LABEL.equals(row.getType())) {
             qp.setLabel(row.getValue());
-          } else if ("SQL".equals(row.getType())) {
+          } else if (SQL.equals(row.getType())) {
             qp.setValue(row.getValue());
           }
           qp.setOrder(row.getOrder());
@@ -180,9 +181,9 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
           result = Optional.of(qp);
         } else {
           String fail = ImmutableMap.of(
-            "TIPO", Optional.ofNullable(qp.getType()),
-            "LABEL", Optional.ofNullable(qp.getLabel()),
-            "SQL", Optional.ofNullable(qp.getValue())).entrySet().stream().map(
+            TIPO, Optional.ofNullable(qp.getType()),
+            LABEL, Optional.ofNullable(qp.getLabel()),
+            SQL, Optional.ofNullable(qp.getValue())).entrySet().stream().map(
             it -> {
               Optional<String> r;
               if (it.getValue().isPresent()) r = Optional.empty();

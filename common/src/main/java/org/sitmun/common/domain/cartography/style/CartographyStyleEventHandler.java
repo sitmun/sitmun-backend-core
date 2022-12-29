@@ -61,8 +61,8 @@ public class CartographyStyleEventHandler {
       String oldName = oldStyle.get().getName();
       List<TreeNode> updatedNodes = oldStyle.get().getCartography().getTreeNodes().stream()
         .filter(it -> Objects.equals(it.getStyle(), oldName))
-        .peek(it -> it.setStyle(cartographyStyle.getName()))
         .collect(Collectors.toList());
+      updatedNodes.forEach(it -> it.setStyle(cartographyStyle.getName()));
       treeNodeRepository.saveAll(updatedNodes);
     }
 

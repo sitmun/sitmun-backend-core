@@ -293,6 +293,7 @@ public class Cartography {
 
   /**
    * Default style.
+   * @deprecated
    */
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_STYID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SGI"))

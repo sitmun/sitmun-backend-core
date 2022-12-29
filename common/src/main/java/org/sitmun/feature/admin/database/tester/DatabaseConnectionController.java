@@ -36,9 +36,9 @@ public class DatabaseConnectionController {
    * @param id the identifier of the {@link DatabaseConnection}
    * @return 200 if valid
    */
-  @RequestMapping(method = RequestMethod.GET, path = "/connections/{id}/test")
+  @GetMapping("/connections/{id}/test")
   public @ResponseBody
-  ResponseEntity<?> testConnection(@PathVariable("id") Integer id) {
+  ResponseEntity<String> testConnection(@PathVariable("id") Integer id) {
     Optional<DatabaseConnection> connectionOp = repository.findById(id);
     if (connectionOp.isPresent()) {
       DatabaseConnection connection = connectionOp.get();
@@ -56,9 +56,9 @@ public class DatabaseConnectionController {
    *
    * @return 200 if valid
    */
-  @RequestMapping(method = RequestMethod.POST, path = "/connections/test")
+  @PostMapping("/connections/test")
   public @ResponseBody
-  ResponseEntity<?> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
+  ResponseEntity<String> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
     service.testDriver(connection);
     service.testConnection(connection);
     return ResponseEntity.ok().build();

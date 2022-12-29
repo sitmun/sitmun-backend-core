@@ -117,7 +117,7 @@ class UserResourceIntegrationTest {
   }
 
   @Test
-  @Disabled
+  @Disabled("Requires further investigation")
   void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));

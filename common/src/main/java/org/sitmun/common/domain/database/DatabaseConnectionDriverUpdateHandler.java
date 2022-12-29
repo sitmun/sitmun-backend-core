@@ -27,7 +27,7 @@ public class DatabaseConnectionDriverUpdateHandler implements OnStartupUpdateHan
     List<CodeListValue> toAdd = new ArrayList<>();
     loadedDrivers.iterator().forEachRemaining(it -> {
       String driver = it.getClass().getCanonicalName();
-      Optional<CodeListValue> exists = toRemove.stream().filter((r) -> Objects.equals(r.getValue(), driver)).findFirst();
+      Optional<CodeListValue> exists = toRemove.stream().filter(r -> Objects.equals(r.getValue(), driver)).findFirst();
       if (exists.isPresent()) {
         toRemove.remove(exists.get());
       } else {

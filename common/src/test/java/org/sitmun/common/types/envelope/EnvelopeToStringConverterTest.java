@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("EnvelopeToStringConverter test")
-public class EnvelopeToStringConverterTest {
+class EnvelopeToStringConverterTest {
 
   private EnvelopeToStringConverter converter;
 
   @BeforeEach
-  public void before() {
+  void before() {
     converter = new EnvelopeToStringConverter();
   }
 
@@ -21,7 +21,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("A null envelope maps to a null string")
-  public void nullEnvelope() {
+  void nullEnvelope() {
     assertNull(converter.convertToDatabaseColumn(null));
   }
 
@@ -30,7 +30,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("A null string maps to a null envelope")
-  public void nullString() {
+  void nullString() {
     assertNull(converter.convertToEntityAttribute(null));
   }
 
@@ -39,7 +39,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("Process legacy strings")
-  public void processLegacyString() {
+  void processLegacyString() {
     Envelope envelope = converter.convertToEntityAttribute("430492 4611482 437423 4618759");
     assertNotNull(envelope);
     assertEquals(430492, envelope.getMinX());
@@ -53,7 +53,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("Convert envelopes without decimals")
-  public void processEnvelopesWithoutDecimals() {
+  void processEnvelopesWithoutDecimals() {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)
@@ -70,7 +70,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("Convert envelopes with decimals")
-  public void processEnvelopesWithDecimals() {
+  void processEnvelopesWithDecimals() {
     Envelope envelope = Envelope.builder()
       .minX(430492.3)
       .minY(4611482.33)
@@ -87,7 +87,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("Convert envelopes with decimals")
-  public void processStringsWithDecimals() {
+  void processStringsWithDecimals() {
     Envelope envelope = converter.convertToEntityAttribute("430492.3 4611482.33 437423.333 4618759.3333");
     assertNotNull(envelope);
     assertEquals(430492.3, envelope.getMinX());
@@ -101,7 +101,7 @@ public class EnvelopeToStringConverterTest {
    */
   @Test
   @DisplayName("Strings bad formed are ignored")
-  public void stringBadFormedAreIgnored() {
+  void stringBadFormedAreIgnored() {
     Envelope envelope = converter.convertToEntityAttribute("430492,3 4611482.33 437423.333 4618759.3333");
     assertNull(envelope);
   }

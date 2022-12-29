@@ -156,10 +156,10 @@ public class Log {
     if (!(o instanceof Log))
       return false;
 
-    Log other = (Log) o;
+    Log otherLog = (Log) o;
 
     return id != null &&
-      id.equals(other.getId());
+      id.equals(otherLog.getId());
   }
 
   @Override

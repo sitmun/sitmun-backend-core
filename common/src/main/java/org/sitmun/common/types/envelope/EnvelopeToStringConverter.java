@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import java.text.DecimalFormatSymbols;
 import java.text.MessageFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -16,21 +14,21 @@ import java.util.Locale;
 @Slf4j
 public class EnvelopeToStringConverter implements AttributeConverter<Envelope, String> {
 
-  public static final String precision = "######";
+  public static final String RECISION = "######";
 
-  public static final String format = "{0,number,#." + precision + "} {1,number,#." + precision + "} {2,number,#." + precision + "} {3,number,#." + precision + "}";
+  public static final String FORMAT = "{0,number,#." + RECISION + "} {1,number,#." + RECISION + "} {2,number,#." + RECISION + "} {3,number,#." + RECISION + "}";
 
   public static final Locale defaultLocale = Locale.US;
 
   public MessageFormat formatInstance() {
-    return new MessageFormat(format, defaultLocale);
+    return new MessageFormat(FORMAT, defaultLocale);
   }
 
-  public Double extractDouble(Object obj) throws Exception {
+  public Double extractDouble(Object obj) throws IllegalArgumentException {
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
     } else {
-      throw new Exception("Value " + obj + " is not a Number");
+      throw new IllegalArgumentException("Value " + obj + " is not a Number");
     }
   }
 

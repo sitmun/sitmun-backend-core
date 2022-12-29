@@ -20,26 +20,26 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 
-public class TreeNodeRepositoryTest {
+class TreeNodeRepositoryTest {
 
   @Autowired
   private TreeNodeRepository treeNodeRepository;
   private TreeNode treeNode;
 
   @BeforeEach
-  public void init() {
+  void init() {
     treeNode = new TreeNode();
   }
 
   @Test
-  public void saveTreeNode() {
+  void saveTreeNode() {
     Assertions.assertThat(treeNode.getId()).isNull();
     treeNodeRepository.save(treeNode);
     Assertions.assertThat(treeNode.getId()).isNotZero();
   }
 
   @Test
-  public void findOneTreeNodeById() {
+  void findOneTreeNodeById() {
     Assertions.assertThat(treeNode.getId()).isNull();
     treeNodeRepository.save(treeNode);
     Assertions.assertThat(treeNode.getId()).isNotZero();
@@ -52,7 +52,7 @@ public class TreeNodeRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

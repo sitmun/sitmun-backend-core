@@ -19,13 +19,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class AuthenticationControllerTest {
+class AuthenticationControllerTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void successfulLogin() throws Exception {
+  void successfulLogin() throws Exception {
     LoginRequest login = new LoginRequest();
     login.setUsername("admin");
     login.setPassword("admin");
@@ -38,7 +38,7 @@ public class AuthenticationControllerTest {
   }
 
   @Test
-  public void loginFailure() throws Exception {
+  void loginFailure() throws Exception {
     LoginRequest login = new LoginRequest();
     login.setUsername("admin");
     login.setPassword("other");

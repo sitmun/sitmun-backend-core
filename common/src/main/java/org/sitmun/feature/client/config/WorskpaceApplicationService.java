@@ -47,13 +47,13 @@ public class WorskpaceApplicationService {
     Optional<User> user = userRepository.findByUsername(username);
     if (user.isPresent()) {
       User effectiveUser = user.get();
-      if (!effectiveUser.getBlocked()) {
+      if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
         List<Territory> territories = territories(effectiveUser, applicationId, territoryId);
         if (!territories.isEmpty()) {
           Territory territory = territories.get(0);
           Optional<Application> application = territory.getUserConfigurations().stream()
-            .flatMap((uc) -> uc.getRole().getApplications().stream())
-            .filter((app) -> Objects.equals(app.getId(), applicationId))
+            .flatMap(uc -> uc.getRole().getApplications().stream())
+            .filter(app -> Objects.equals(app.getId(), applicationId))
             .findFirst();
           List<Role> roles = territory.getUserConfigurations().stream()
             .map(UserConfiguration::getRole)
@@ -106,14 +106,14 @@ public class WorskpaceApplicationService {
   private List<Territory> territories(User user, Integer applicationId, Integer territoryId) {
     return userConfigurationRepository.findByUser(user).stream()
       .map(UserConfiguration::getTerritory)
-      .filter((territory) -> !territory.getBlocked())
+      .filter(territory -> !territory.getBlocked())
       .distinct()
-      .map((territory) -> {
+      .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
           .stream()
-          .filter((uc) -> uc.getUser() == user &&
+          .filter(uc -> uc.getUser() == user &&
             Objects.equals(uc.getTerritory().getId(), territoryId) &&
-            uc.getRole().getApplications().stream().anyMatch((app) -> Objects.equals(app.getId(), applicationId))
+            uc.getRole().getApplications().stream().anyMatch(app -> Objects.equals(app.getId(), applicationId))
           )
           .collect(Collectors.toSet());
         if (filtered.isEmpty()) {

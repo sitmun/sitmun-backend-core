@@ -2,11 +2,8 @@ package org.sitmun.common.domain.application;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sitmun.common.domain.application.Application;
-import org.sitmun.common.domain.application.ApplicationRepository;
 import org.sitmun.common.domain.application.background.ApplicationBackground;
 import org.sitmun.common.domain.application.background.ApplicationBackgroundRepository;
 import org.sitmun.common.domain.application.parameter.ApplicationParameter;
@@ -285,10 +282,6 @@ class ApplicationResourceTest {
       applicationParameters.add(applicationParam2);
 
       applicationParameterRepository.saveAll(applicationParameters);
-      // Create user
-      // Create territory
-      // Create role
-      // Create application
     });
   }
 
@@ -313,34 +306,6 @@ class ApplicationResourceTest {
   }
 
   @Test
-  @Disabled
-  void getPublicApplicationsAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.applications", hasSize(0)));
-  }
-
-  @Test
-  @Disabled
-  void getPublicApplicationParamsAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/parameters"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  void getInformationAboutAnApp() throws Exception {
-    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/" + appId))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.name").value("Non-public Application"))
-      .andExpect(jsonPath("$.createdDate").value("2013-06-07T10:10:56.000+0000"));
-  }
-
-  @Test
   void getInformationAboutBackgrounds() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + "/" + backAppId)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
@@ -349,157 +314,18 @@ class ApplicationResourceTest {
   }
 
   @Test
-  @Disabled
-  void getPublicApplicationTreesAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/trees"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  void getPublicApplicationBackgroundsAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/backgrounds"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  void getPublicApplicationSituationMapsAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.APPLICATIONS_URI + "/2/situationMap"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  void getCartographyGroupMembersAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSIONS_URI + "/1/members"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  void getTreeNodeCartographyAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(TREE_NODE_URI + "/1/cartography"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
   void getServiceLayersAsPublic() throws Exception {
-    // TODO
-    // ok is expected
     mvc.perform(get(URIConstants.SERVICE_URI + "/1/layers")
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
   @Test
-  @Disabled
-  void getApplicationsAsTerritorialUser() {
-    // TODO
-    // ok is expected
-  }
-
-  @Test
   void getApplicationsAsSitumunAdmin() throws Exception {
-    // ok is expected
     mvc.perform(get(URIConstants.APPLICATIONS_URI)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
-  }
-
-  @Test
-  @Disabled
-  void getApplicationsAsOrganizationAdmin() {
-    // TODO
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setAvailableRolesAsPublicFails() {
-    // TODO
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  void setAvailableRolesAsTerritorialUserFails() {
-    // TODO
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  void setAvailableRolesAsSitmunAdmin() {
-    // TODO Update available roles for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setTreeAsSitmunAdmin() {
-    // TODO Update tree for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setBackgroundAsSitmunAdmin() {
-    // TODO:Update background for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setAvailableRolesAsOrganizationAdmin() {
-    // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setTreeAsOrganizationAdmin() {
-    // TODO: Update tree for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setBackgroundAsOrganizationAdmin() {
-    // TODO: Update background for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void setAvailableRolesAsOtherOrganizationAdminFails() {
-    // TODO: Update available roles for the app (linked to another organization) as an organization admin user
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  void setTreeAsOtherOrganizationAdminFails() {
-    // TODO: Update tree for the app (linked to another organization) as an organization admin user
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  void setBackgroundAsOtherOrganizationAdminFails() {
-    // TODO: Update background for the app (linked to another organization) as an organization admin user
-    // fail is expected
   }
 
 }

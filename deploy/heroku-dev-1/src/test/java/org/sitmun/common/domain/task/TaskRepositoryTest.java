@@ -18,31 +18,31 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-public class TaskRepositoryTest {
+class TaskRepositoryTest {
 
   @Autowired
   private TaskRepository taskRepository;
   private Task task;
 
   @BeforeEach
-  public void init() {
+  void init() {
     task = new Task();
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     taskRepository.delete(task);
   }
 
   @Test
-  public void saveTask() {
+  void saveTask() {
     Assertions.assertThat(task.getId()).isNull();
     taskRepository.save(task);
     Assertions.assertThat(task.getId()).isNotZero();
   }
 
   @Test
-  public void findOneTaskById() {
+  void findOneTaskById() {
     Assertions.assertThat(task.getId()).isNull();
     taskRepository.save(task);
     Assertions.assertThat(task.getId()).isNotZero();
@@ -55,7 +55,7 @@ public class TaskRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

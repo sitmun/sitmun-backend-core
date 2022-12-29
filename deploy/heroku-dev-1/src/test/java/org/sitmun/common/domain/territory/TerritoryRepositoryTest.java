@@ -23,8 +23,7 @@ import java.util.Date;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-
-public class TerritoryRepositoryTest {
+class TerritoryRepositoryTest {
 
   @Autowired
   private TerritoryRepository territoryRepository;
@@ -33,7 +32,7 @@ public class TerritoryRepositoryTest {
   private Territory territory;
 
   @BeforeEach
-  public void init() {
+  void init() {
     TerritoryType type = TerritoryType.builder().build();
     type.setName("tipo Territorio 1");
     territoryTypeRepository.save(type);
@@ -49,14 +48,14 @@ public class TerritoryRepositoryTest {
   }
 
   @Test
-  public void saveTerritory() {
+  void saveTerritory() {
     Assertions.assertThat(territory.getId()).isNull();
     territoryRepository.save(territory);
     Assertions.assertThat(territory.getId()).isNotZero();
   }
 
   @Test
-  public void findOneTerritoryById() {
+  void findOneTerritoryById() {
     Assertions.assertThat(territory.getId()).isNull();
     territoryRepository.save(territory);
     Assertions.assertThat(territory.getId()).isNotZero();
@@ -69,7 +68,7 @@ public class TerritoryRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

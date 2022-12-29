@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Email validation test")
-public class EmailTest extends BaseTest {
+class EmailTest extends BaseTest {
 
   private static final String VALID_EMAIL = "fake@example.com";
   private static final String INVALID_EMAIL = "fake @ example.com";
@@ -26,7 +26,7 @@ public class EmailTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Pass if email value is valid")
-  public void passIfEmailValueIsValid() throws Exception {
+  void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors.[?(@.property == 'legendType')]", hasSize(0)));
@@ -35,7 +35,7 @@ public class EmailTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail if email value is wrong")
-  public void failIfEmailValueIsWrong() throws Exception {
+  void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)
       .andExpect(status().is4xxClientError())
       .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_EMAIL + "')].invalidValue", hasItem(INVALID_EMAIL)));

@@ -39,7 +39,7 @@ public class WorskpaceService {
     Optional<User> user = userRepository.findByUsername(username);
     if (user.isPresent()) {
       User effectiveUser = user.get();
-      if (!effectiveUser.getBlocked()) {
+      if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
         return Optional.of(Workspace.builder()
           .territories(territories(effectiveUser))
           .config(Lists.newArrayList(configurationParameterRepository.findAll()))
@@ -52,12 +52,12 @@ public class WorskpaceService {
   private List<Territory> territories(User user) {
     return userConfigurationRepository.findByUser(user).stream()
       .map(UserConfiguration::getTerritory)
-      .filter((territory) -> !territory.getBlocked())
+      .filter(territory -> !territory.getBlocked())
       .distinct()
-      .map((territory) -> {
+      .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
           .stream()
-          .filter((uc) -> uc.getUser() == user)
+          .filter(uc -> uc.getUser() == user)
           .collect(Collectors.toSet());
         return territory.toBuilder().userConfigurations(filtered).build();
       }).collect(Collectors.toList());

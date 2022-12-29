@@ -16,6 +16,7 @@ export function Cartographies({permissions}) {
   cartographies.forEach((value, key) => {
     result.push({cartography: value.shift(), permissions: value})
   })
+  result.sort((a, b) => a.cartography.id - b.cartography.id)
 
   return (
     <Table>
@@ -28,7 +29,7 @@ export function Cartographies({permissions}) {
       </thead>
       <tbody>
       {
-        result.sort((a, b) => a.cartography.id - b.cartography.id).map(value =>
+        result.map(value =>
           <tr key={value.cartography.id}>
             <td><code>{value.cartography.id}</code></td>
             <td><code>{value.cartography.name}</code></td>

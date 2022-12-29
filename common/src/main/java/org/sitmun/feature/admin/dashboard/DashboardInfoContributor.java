@@ -31,7 +31,7 @@ public class DashboardInfoContributor implements InfoContributor {
 
   @Override
   public void contribute(Info.Builder builder) {
-    builder.withDetail("dashboard", hierarchiseMetrics(collectMetrics()));
+    builder.withDetail(TAG, hierarchiseMetrics(collectMetrics()));
   }
 
   private Map<String, Object> collectMetrics() {
@@ -65,7 +65,7 @@ public class DashboardInfoContributor implements InfoContributor {
   }
 
   private Object toValue(List<Map.Entry<String[], Object>> list) {
-    if (list.size() == 0) {
+    if (list.isEmpty()) {
       return null;
     } else if (list.size() == 1 && list.get(0).getKey().length == 0) {
       return list.get(0).getValue();

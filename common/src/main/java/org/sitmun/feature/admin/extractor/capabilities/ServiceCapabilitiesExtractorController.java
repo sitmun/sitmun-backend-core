@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +25,7 @@ public class ServiceCapabilitiesExtractorController {
    * @param url the url of the service description document.
    * @return 200 if a document is found; client should check this document or 400 if a document cannot be retrieved or the method is not found
    */
-  @RequestMapping(method = RequestMethod.GET, path = "/helpers/capabilities")
+  @GetMapping("/helpers/capabilities")
   public @ResponseBody
   ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<ServiceCapabilitiesExtractor> iterator = extractors.iterator();
@@ -36,7 +33,7 @@ public class ServiceCapabilitiesExtractorController {
     while (iterator.hasNext()) {
       ServiceCapabilitiesExtractor extractor = iterator.next();
       capabilities = extractor.extract(url);
-      if (capabilities.getSuccess()) {
+      if (Boolean.TRUE.equals(capabilities.getSuccess())) {
         return ResponseEntity.ok(capabilities);
       }
     }

@@ -10,12 +10,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StringListAttributeConverterTest {
+class StringListAttributeConverterTest {
 
   private AttributeConverter<List<String>, String> converter;
 
   @BeforeEach
-  public void before() {
+  void before() {
     converter = new StringListAttributeConverter();
   }
 
@@ -23,7 +23,7 @@ public class StringListAttributeConverterTest {
    * Null lists are converted to null strings.
    */
   @Test
-  public void nullLists() {
+  void nullLists() {
     assertNull(converter.convertToDatabaseColumn(null));
   }
 
@@ -31,7 +31,7 @@ public class StringListAttributeConverterTest {
    * Empty lists are converted to empty strings.
    */
   @Test
-  public void emptyLists() {
+  void emptyLists() {
     assertEquals("", converter.convertToDatabaseColumn(Collections.emptyList()));
   }
 
@@ -39,7 +39,7 @@ public class StringListAttributeConverterTest {
    * Singletons lists are converted to strings without commas.
    */
   @Test
-  public void singletonLists() {
+  void singletonLists() {
     assertEquals("single", converter.convertToDatabaseColumn(Collections.singletonList("single")));
   }
 
@@ -47,7 +47,7 @@ public class StringListAttributeConverterTest {
    * Singletons lists with a <code>null</code> converted to a string with the literal <code>null</code>.
    */
   @Test
-  public void singletonListOfNull() {
+  void singletonListOfNull() {
     assertEquals("null", converter.convertToDatabaseColumn(Collections.singletonList(null)));
   }
 
@@ -55,7 +55,7 @@ public class StringListAttributeConverterTest {
    * Lists with more than one element converted to strings where elements are joined with commas.
    */
   @Test
-  public void listWithElements() {
+  void listWithElements() {
     assertEquals("one,two", converter.convertToDatabaseColumn(Arrays.asList("one", "two")));
   }
 
@@ -63,7 +63,7 @@ public class StringListAttributeConverterTest {
    * <code>null</code> values in lists are converted to the <code>null</code> literal.
    */
   @Test
-  public void listWithMulls() {
+  void listWithMulls() {
     assertEquals("one,null,two",
       converter.convertToDatabaseColumn(Arrays.asList("one", null, "two")));
   }
@@ -72,7 +72,7 @@ public class StringListAttributeConverterTest {
    * Strings in lists are trimmed before the conversion.
    */
   @Test
-  public void listWithNullAndWhitespaces() {
+  void listWithNullAndWhitespaces() {
     assertEquals("one,null,two",
       converter.convertToDatabaseColumn(Arrays.asList(" one ", null, " two ")));
   }
@@ -81,7 +81,7 @@ public class StringListAttributeConverterTest {
    * Null strings are converted to null values.
    */
   @Test
-  public void nullString() {
+  void nullString() {
     assertNull(converter.convertToEntityAttribute(null));
   }
 
@@ -89,7 +89,7 @@ public class StringListAttributeConverterTest {
    * Blank strings are converted to empty lists.
    */
   @Test
-  public void emptyString() {
+  void emptyString() {
     assertEquals(Collections.emptyList(), converter.convertToEntityAttribute(""));
   }
 
@@ -97,7 +97,7 @@ public class StringListAttributeConverterTest {
    * Blank strings are converted to empty lists.
    */
   @Test
-  public void blankString() {
+  void blankString() {
     assertTrue(converter.convertToEntityAttribute("   ").isEmpty());
   }
 
@@ -105,7 +105,7 @@ public class StringListAttributeConverterTest {
    * String with commas are split by commas, trimmed and converted to lists.
    */
   @Test
-  public void stringSeparatedWithCommas() {
+  void stringSeparatedWithCommas() {
     assertEquals(Arrays.asList("one", "two", null, "three"),
       converter.convertToEntityAttribute("one, two,null, three"));
   }

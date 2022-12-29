@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
-public class UserResourceIntegrationTest {
+class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
   private static final String NEW_USER_USERNAME = "admin_new";
@@ -51,7 +51,7 @@ public class UserResourceIntegrationTest {
   private User organizacionAdmin;
 
   @BeforeEach
-  public void init() {
+  void init() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
@@ -75,7 +75,7 @@ public class UserResourceIntegrationTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createNewUserAndDelete() {
+  void createNewUserAndDelete() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
 
@@ -109,7 +109,7 @@ public class UserResourceIntegrationTest {
   }
 
   @Test
-  public void cannotPostWithoutLogin() {
+  void cannotPostWithoutLogin() {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
     assertThrows(HttpClientErrorException.Unauthorized.class, () -> restTemplate
@@ -117,8 +117,8 @@ public class UserResourceIntegrationTest {
   }
 
   @Test
-  @Disabled
-  public void getAllUsers() {
+  @Disabled("Requires further investigation")
+  void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
 
@@ -129,7 +129,7 @@ public class UserResourceIntegrationTest {
         }, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().getContent().size()).isEqualTo(1332);
+    assertThat(response.getBody().getContent()).hasSize(1332);
   }
 
 }

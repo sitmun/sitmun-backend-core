@@ -31,8 +31,7 @@ import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
-public class BasicTaskEventHandlerTest {
+class BasicTaskEventHandlerTest {
 
   @Autowired
   TaskParameterRepository taskParameterRepository;
@@ -48,7 +47,7 @@ public class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void postBasicTaskWithParameters() throws Exception {
+  void postBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/1\"," +
@@ -103,7 +102,7 @@ public class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void postBasicTaskWithNullValues() throws Exception {
+  void postBasicTaskWithNullValues() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/1\"," +
@@ -139,7 +138,7 @@ public class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateBasicTaskWithParameters() throws Exception {
+  void updateBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/1\"," +
@@ -210,7 +209,7 @@ public class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void syncBasicTaskWithParameters() throws Exception {
+  void syncBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/1\"" +

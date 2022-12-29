@@ -29,14 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.function.ServerResponse.status;
 
 @DisplayName("Service Capabilities Extractor integration test")
-public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
+class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
 
   private static final String URI_TEMPLATE = "/api/helpers/capabilities?url={0}";
 
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("A request with a percent-encoded ampersand succeeds")
-  public void usePercentEncodedAmpersand() throws Exception {
+  void usePercentEncodedAmpersand() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://sitmun.diba.cat/wms/servlet/ACE1M?request=GetCapabilities%26service=WMS"))
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(jsonPath("$.success").value(true))
@@ -49,7 +49,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
-  public void extractKnownWMSService130() throws Exception {
+  void extractKnownWMSService130() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"
       ))
@@ -63,7 +63,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.1.1")
-  public void extractKnownWMSService111() throws Exception {
+  void extractKnownWMSService111() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"
       ))
@@ -77,7 +77,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a bad request to a WMS")
-  public void extractFailedService() throws Exception {
+  void extractFailedService() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/wms-inspire/ign-base?"
       ))
@@ -91,7 +91,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to HTML page")
-  public void extractHtmlPage() throws Exception {
+  void extractHtmlPage() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/"
       ))
@@ -104,7 +104,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to a not found page")
-  public void extract404Page() throws Exception {
+  void extract404Page() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://www.ign.es/not-found"
       ))
@@ -117,7 +117,7 @@ public class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to an nonexistent domain")
-  public void extractNonExistentDomain() throws Exception {
+  void extractNonExistentDomain() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
         "https://fake"
       ))

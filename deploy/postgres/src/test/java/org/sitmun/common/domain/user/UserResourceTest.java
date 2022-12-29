@@ -361,7 +361,7 @@ class UserResourceTest {
 
   @Deprecated
   @Test
-  @Disabled
+  @Disabled ("Requires further investigation")
   void getUsersAsOrganizationAdmin() throws Exception {
     mockMvc.perform(get(URIConstants.USER_URI))
       .andExpect(status().isOk())
@@ -418,64 +418,6 @@ class UserResourceTest {
       assertTrue(updatedUser.isPresent());
       assertEquals(oldPassword, updatedUser.get().getPassword());
     });
-  }
-
-  @Test
-  @Disabled
-  void createNewUserAsOrganizationAdmin() {
-    // TODO: Create new user by an organization admin user (ADMIN DE ORGANIZACION)
-    // ok is expected. The new user has roles linked to my organization territory
-  }
-
-  @Test
-  @Disabled
-  void assignRoleToUserAsOrganizationAdmin() {
-    // TODO
-    // ok is expected. The new user has roles linked to my organization territory
-  }
-
-  @Test
-  @Disabled
-  void updateUserAsOrganizationAdmin() {
-    // TODO
-    // Update user (linked to the same organization) by an organization admin user
-    // (ADMIN DE ORGANIZACION)
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void updateUserPasswordAsOrganizationAdmin() {
-    // TODO
-    // Update user password (linked to the same organization) by an organization
-    // admin user (ADMIN DE ORGANIZACION)
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  void assignRoleToUserAsOtherOrganizationAdminFails() {
-    // TODO
-    // fail is expected. No permission to assign territory role to user if don't
-    // have territory role
-  }
-
-  @Test
-  @Disabled
-  void updateUserAsOtherOrganizationAdminFails() {
-    // TODO
-    // Update user (linked to another organization) by an organization admin user
-    // (ADMIN DE ORGANIZACION)
-    // fail is expected (no permission)
-  }
-
-  @Test
-  @Disabled
-  void updateUserPasswordAsOtherOrganizationAdminFails() {
-    // TODO
-    // Update user password (linked to another organization) by an organization
-    // admin user (ADMIN DE ORGANIZACION)
-    // fail is expected (no permission)
   }
 
 }

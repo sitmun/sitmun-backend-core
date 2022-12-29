@@ -20,13 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class RoleRepositoryDataRestTest {
+class RoleRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void getApplicationsOfARole() throws Exception {
+  void getApplicationsOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_APPLICATIONS_URI, 10)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -35,7 +35,7 @@ public class RoleRepositoryDataRestTest {
   }
 
   @Test
-  public void getTasksOfARole() throws Exception {
+  void getTasksOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_TASKS_URI, 10)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -44,7 +44,7 @@ public class RoleRepositoryDataRestTest {
   }
 
   @Test
-  public void getPermissionsOfARole() throws Exception {
+  void getPermissionsOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_PERMISSIONS_URI, 10)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())

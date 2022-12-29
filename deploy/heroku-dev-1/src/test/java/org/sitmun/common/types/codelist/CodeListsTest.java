@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @DisplayName("CodeLists Test")
-public class CodeListsTest {
+class CodeListsTest {
 
   @Autowired
   private CodeListValueRepository codeListValueRepository;
 
   @Test
   @DisplayName("Check availability of CodeLists")
-  public void checkAvailableCodeLists() {
+  void checkAvailableCodeLists() {
     assertThat(codeListValueRepository.findDistinctCodeListName()).containsExactlyInAnyOrder(
       CodeListsConstants.APPLICATION_PARAMETER_TYPE,
       CodeListsConstants.APPLICATION_TYPE,
@@ -76,125 +76,125 @@ public class CodeListsTest {
 
   @Test
   @DisplayName("Check application.type")
-  public void checkApplicationType() {
+  void checkApplicationType() {
     assertThat(select(CodeListsConstants.APPLICATION_TYPE))
       .containsExactlyInAnyOrder("I", "E");
   }
 
   @Test
   @DisplayName("Check applicationParameter.type")
-  public void checkApplicationParameterType() {
+  void checkApplicationParameterType() {
     assertThat(select(CodeListsConstants.APPLICATION_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("MOBILE", "Nomenclator", "PRINT_TEMPLATE");
   }
 
   @Test
   @DisplayName("Check cartography.geometryType")
-  public void checkCartographyGeometryType() {
+  void checkCartographyGeometryType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_GEOMETRY_TYPE))
       .containsExactlyInAnyOrder("POINT", "LINE", "POLYGON");
   }
 
   @Test
   @DisplayName("Check cartography.legendType")
-  public void checkCartographyLegendType() {
+  void checkCartographyLegendType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE))
       .containsExactlyInAnyOrder("LINK", "LEGENDGRAPHIC", "CAPABILITIES");
   }
 
   @Test
   @DisplayName("Check cartographyFilter.Type")
-  public void checkCartographyFilterType() {
+  void checkCartographyFilterType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_FILTER_TYPE))
       .containsExactlyInAnyOrder("C", "D");
   }
 
   @Test
   @DisplayName("Check cartographyFilter.ValueType")
-  public void checkCartographyFilterValueType() {
+  void checkCartographyFilterValueType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_FILTER_VALUE_TYPE))
       .containsExactlyInAnyOrder("A", "N", "D");
   }
 
   @Test
   @DisplayName("Check cartographyParameter.format")
-  public void checkCartographyParameterFormat() {
+  void checkCartographyParameterFormat() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT))
       .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F");
   }
 
   @Test
   @DisplayName("Check cartographyParameter.type")
-  public void checkCartographyParameterType() {
+  void checkCartographyParameterType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("INFO");
   }
 
   @Test
   @DisplayName("Check cartographySpatialSelectionParameter.type")
-  public void checkCartographySpatialSelectionParameterType() {
+  void checkCartographySpatialSelectionParameterType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("SELECT", "EDIT");
   }
 
   @Test
   @DisplayName("Check cartographyPermission.type")
-  public void checkCartographyPermissionType() {
+  void checkCartographyPermissionType() {
     assertThat(select(CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE))
       .containsExactlyInAnyOrder("C", CartographyPermission.TYPE_SITUATION_MAP, CartographyPermission.TYPE_BACKGROUND_MAP, "I");
   }
 
   @Test
   @DisplayName("Check downloadTask.format")
-  public void checkDownloadTaskFormat() {
+  void checkDownloadTaskFormat() {
     assertThat(select(CodeListsConstants.DOWNLOAD_TASK_FORMAT)).isEmpty();
   }
 
   @Test
   @DisplayName("Check downloadTask.scope")
-  public void checkDownloadTaskScope() {
+  void checkDownloadTaskScope() {
     assertThat(select(CodeListsConstants.DOWNLOAD_TASK_SCOPE))
       .containsExactlyInAnyOrder("U", "A", "C");
   }
 
   @Test
   @DisplayName("Check queryTask.scope")
-  public void checkQueryTaskScope() {
+  void checkQueryTaskScope() {
     assertThat(select(CodeListsConstants.QUERY_TASK_SCOPE))
       .containsExactlyInAnyOrder("URL", "SQL", "WS", "INFORME", "TAREA");
   }
 
   @Test
   @DisplayName("Check service.nativeProtocol")
-  public void checkServiceNativeProtocol() {
+  void checkServiceNativeProtocol() {
     assertThat(select(CodeListsConstants.SERVICE_NATIVE_PROTOCOL))
       .isEmpty();
   }
 
   @Test
   @DisplayName("Check service.parameterType")
-  public void checkServiceParameterType() {
+  void checkServiceParameterType() {
     assertThat(select(CodeListsConstants.SERVICE_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM");
   }
 
   @Test
   @DisplayName("Check service.type")
-  public void checkServiceType() {
+  void checkServiceType() {
     assertThat(select(CodeListsConstants.SERVICE_TYPE))
       .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
   }
 
   @Test
   @DisplayName("Check service.authenticationMode")
-  public void checkServiceAuthenticationMode() {
+  void checkServiceAuthenticationMode() {
     assertThat(select(CodeListsConstants.SERVICE_AUTHENTICATION_MODE))
       .containsExactlyInAnyOrder("None", "HTTP Basic authentication");
   }
 
   @Test
   @DisplayName("Check taskParameter.type")
-  public void checkTaskParameterType() {
+  void checkTaskParameterType() {
     assertThat(select(CodeListsConstants.TASK_PARAMETER_TYPE))
       .containsExactlyInAnyOrder("CAMPO", "CAPA", "EDIT", "FILTRO", "FME", "GEOM", "LABEL",
         "RELM", "RELS", "SQL", "TIPO", "VISTA", "DATAINPUT", "VALOR");
@@ -202,7 +202,7 @@ public class CodeListsTest {
 
   @Test
   @DisplayName("Check taskParameter.format")
-  public void checkTaskParameterFormat() {
+  void checkTaskParameterFormat() {
     assertThat(select(CodeListsConstants.TASK_PARAMETER_FORMAT))
       .containsExactlyInAnyOrder("T", "F", "N", "L", "U", "I", "C", "R", "S", "B");
   }
@@ -210,48 +210,48 @@ public class CodeListsTest {
   @Test
   @DisplayName("Check territory.scope")
   @Deprecated
-  public void checkTerritoryScope() {
+  void checkTerritoryScope() {
     assertThat(select(CodeListsConstants.TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
   }
 
   @Test
   @DisplayName("Check thematicMap.type")
-  public void checkThematicMapType() {
+  void checkThematicMapType() {
     assertThat(select(CodeListsConstants.THEMATIC_MAP_TYPE))
       .containsExactlyInAnyOrder("VU", "RE", "RL");
   }
 
   @Test
   @DisplayName("Check thematicMap.destination")
-  public void checkThematicMapDestination() {
+  void checkThematicMapDestination() {
     assertThat(select(CodeListsConstants.THEMATIC_MAP_DESTINATION))
       .containsExactlyInAnyOrder("WS", "WS_HERMES", "UPLOADED");
   }
 
   @Test
   @DisplayName("Check thematicMap.valueType")
-  public void checkThematicMapValueType() {
+  void checkThematicMapValueType() {
     assertThat(select(CodeListsConstants.THEMATIC_MAP_VALUE_TYPE))
       .containsExactlyInAnyOrder("STR", "DOU");
   }
 
   @Test
   @DisplayName("Check thematicMapRange.style")
-  public void checkThematicMapRangeStyle() {
+  void checkThematicMapRangeStyle() {
     assertThat(select(CodeListsConstants.THEMATIC_MAP_RANGE_STYLE))
       .isEmpty();
   }
 
   @Test
   @DisplayName("Check user.identificationType")
-  public void checkUserIdentificationType() {
+  void checkUserIdentificationType() {
     assertThat(select(CodeListsConstants.USER_IDENTIFICATION_TYPE))
       .containsExactlyInAnyOrder("DNI", "NIE", "PAS");
   }
 
   @Test
   @DisplayName("Check userPosition.type")
-  public void checkUserPositionType() {
+  void checkUserPositionType() {
     assertThat(select(CodeListsConstants.USER_POSITION_TYPE))
       .containsExactlyInAnyOrder("AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
   }
@@ -261,7 +261,7 @@ public class CodeListsTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

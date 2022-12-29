@@ -22,7 +22,7 @@ class BoundingBoxTest extends BaseTest {
   @Test
   @DisplayName("Pass if meets conditions of BoundingBox")
   @WithMockUser(roles = {"ADMIN"})
-  public void passIfBoundingBoxIsValid() throws Exception {
+  void passIfBoundingBoxIsValid() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)
@@ -35,7 +35,7 @@ class BoundingBoxTest extends BaseTest {
   @Test
   @DisplayName("Fails if null values or max < min")
   @WithMockUser(roles = {"ADMIN"})
-  public void failIfNullValuesOrMaxLessThanMin() throws Exception {
+  void failIfNullValuesOrMaxLessThanMin() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)

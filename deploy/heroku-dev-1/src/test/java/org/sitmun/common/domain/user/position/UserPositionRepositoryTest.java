@@ -27,7 +27,7 @@ import java.util.Date;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 
-public class UserPositionRepositoryTest {
+class UserPositionRepositoryTest {
 
   @Autowired
   private UserPositionRepository userPositionRepository;
@@ -38,7 +38,7 @@ public class UserPositionRepositoryTest {
   private UserPosition userPosition;
 
   @BeforeEach
-  public void init() {
+  void init() {
 
     User user = new User();
     user.setFirstName("Admin");
@@ -71,14 +71,14 @@ public class UserPositionRepositoryTest {
   }
 
   @Test
-  public void saveUserPosition() {
+  void saveUserPosition() {
     Assertions.assertThat(userPosition.getId()).isNull();
     userPositionRepository.save(userPosition);
     Assertions.assertThat(userPosition.getId()).isNotZero();
   }
 
   @Test
-  public void findOneUserPositionById() {
+  void findOneUserPositionById() {
     Assertions.assertThat(userPosition.getId()).isNull();
     userPositionRepository.save(userPosition);
     Assertions.assertThat(userPosition.getId()).isNotZero();
@@ -91,7 +91,7 @@ public class UserPositionRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

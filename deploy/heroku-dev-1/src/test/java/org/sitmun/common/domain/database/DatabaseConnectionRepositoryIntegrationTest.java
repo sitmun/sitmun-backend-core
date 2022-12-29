@@ -38,8 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
-public class DatabaseConnectionRepositoryIntegrationTest {
+class DatabaseConnectionRepositoryIntegrationTest {
 
   @Autowired
   DatabaseConnectionRepository connectionRepository;
@@ -49,7 +48,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   private int port;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
@@ -72,12 +71,12 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     TestUtils.withMockSitmunAdmin(() -> connectionRepository.deleteAll(connections));
   }
 
   @Test
-  public void requestConnections() {
+  void requestConnections() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -96,7 +95,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @Test
-  public void updateConnection() throws JSONException {
+  void updateConnection() throws JSONException {
     JSONObject updatedValueJson = getConnection(2);
     assertThat(updatedValueJson.get("user")).isEqualTo("User2");
 
@@ -116,7 +115,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-  public void putCannotUpdateConnectionCartographies() throws JSONException {
+  void putCannotUpdateConnectionCartographies() throws JSONException {
     JSONObject oldValueJson = getConnectionCartographies(2);
     List oldList = getListOfCartographies(oldValueJson);
 
@@ -138,7 +137,7 @@ public class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @Test
-  public void putCanUpdateCartographySpatialSelectionConnection() throws JSONException {
+  void putCanUpdateCartographySpatialSelectionConnection() throws JSONException {
     String auth = getAuthorization();
     assertThat(hasCartographiesSpatialSelectionConnection(1255, auth)).isTrue();
     JSONObject cartographies = getConnectionCartographies(2);

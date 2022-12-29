@@ -18,7 +18,7 @@ import java.util.Date;
 
 @SpringBootTest
 
-public class UserRepositoryTest {
+class UserRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
@@ -26,7 +26,7 @@ public class UserRepositoryTest {
   private User user;
 
   @BeforeEach
-  public void init() {
+  void init() {
     TerritoryType type = TerritoryType.builder().build();
     type.setName("tipo Territorio 1");
 
@@ -64,13 +64,13 @@ public class UserRepositoryTest {
 
   @AfterEach
   @WithMockUser("admin")
-  public void cleanup() {
+  void cleanup() {
     userRepository.delete(user);
   }
 
   @Test
   @WithMockUser("admin")
-  public void saveUser() {
+  void saveUser() {
     Assertions.assertThat(user.getId()).isNull();
     userRepository.save(user);
     Assertions.assertThat(user.getId()).isNotZero();
@@ -79,7 +79,7 @@ public class UserRepositoryTest {
 
   @Test
   @WithMockUser("admin")
-  public void findOneUserById() {
+  void findOneUserById() {
     Assertions.assertThat(user.getId()).isNull();
     userRepository.save(user);
     Assertions.assertThat(user.getId()).isNotZero();

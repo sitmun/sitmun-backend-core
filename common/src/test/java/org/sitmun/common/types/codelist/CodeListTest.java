@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Codelist validator test")
 @Import(CodeListValidator.class)
-public class CodeListTest extends BaseTest {
+class CodeListTest extends BaseTest {
 
   @MockBean
   private CodeListValueRepository codeListValueRepository;
@@ -28,7 +28,7 @@ public class CodeListTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Pass if code list value exists")
-  public void passIfCodeListValueIsValid() throws Exception {
+  void passIfCodeListValueIsValid() throws Exception {
 
     when(codeListValueRepository.existsByCodeListNameAndValue(CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE, "LINK")).thenReturn(true);
 
@@ -46,7 +46,7 @@ public class CodeListTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail if code list value does not exist")
-  public void failIfCodeListValueIsWrong() throws Exception {
+  void failIfCodeListValueIsWrong() throws Exception {
 
     when(codeListValueRepository.existsByCodeListNameAndValue(CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE, "WRONG VALUE")).thenReturn(false);
 

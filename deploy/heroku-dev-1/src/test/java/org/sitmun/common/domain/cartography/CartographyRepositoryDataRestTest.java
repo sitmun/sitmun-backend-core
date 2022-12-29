@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Cartography Repository Data REST test")
-public class CartographyRepositoryDataRestTest {
+class CartographyRepositoryDataRestTest {
 
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
 
@@ -129,7 +129,7 @@ public class CartographyRepositoryDataRestTest {
   @Test
   @DisplayName("POST: minimum set of properties")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void postCartography() throws Exception {
+  void postCartography() throws Exception {
 
     String content = new JSONObject()
       .put("name", CARTOGRAPHY_NAME)
@@ -164,17 +164,8 @@ public class CartographyRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("GET: all as admin")
-  @Disabled
-  public void getCartographiesAsAdmin() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_URI)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
-      .andExpect(status().isOk());
-  }
-
-  @Test
   @DisplayName("POST: fail as public user")
-  public void postCartographyAsPublicUserFails() throws Exception {
+  void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHIES_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(cartography)))
@@ -183,7 +174,7 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has treeNodes property")
-  public void hasTreeNodeListProperty() throws Exception {
+  void hasTreeNodeListProperty() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_URI + "?size=10")
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -193,7 +184,7 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has cartography-groups property")
-  public void hasAccessToCartographyGroups() throws Exception {
+  void hasAccessToCartographyGroups() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 85)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
@@ -208,7 +199,7 @@ public class CartographyRepositoryDataRestTest {
    */
   @Test
   @DisplayName("PUT: applyFilterXXX must not be a number")
-  public void checkIssueSitmunAdminApp41() throws Exception {
+  void checkIssueSitmunAdminApp41() throws Exception {
     String badRequest = "{\"name\":\"SEE1M - Recollida selectiva\"," +
       "\"layers\":[\"SEE1M_111P_MA\"]," +
       "\"minimumScale\":null," +
@@ -258,7 +249,7 @@ public class CartographyRepositoryDataRestTest {
    */
   @Test
   @DisplayName("GET: for Cartography 724 applyFilterXXX are null")
-  public void applyFilterTestDataIsNull() throws Exception {
+  void applyFilterTestDataIsNull() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI, 724)
         .contentType(MediaType.APPLICATION_JSON)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
@@ -276,8 +267,8 @@ public class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Cartography available per application are different")
-  @Disabled
-  public void getCartographiesAvailableForApplication() throws Exception {
+  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  void getCartographiesAvailableForApplication() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())

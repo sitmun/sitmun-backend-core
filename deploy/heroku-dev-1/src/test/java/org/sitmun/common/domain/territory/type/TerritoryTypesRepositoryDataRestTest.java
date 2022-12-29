@@ -22,14 +22,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("TerritoryTypesRepository Data REST test")
-public class TerritoryTypesRepositoryDataRestTest {
+class TerritoryTypesRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @DisplayName("GET: all types")
-  public void allTypes() throws Exception {
+  void allTypes() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_TYPES_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .with(user(Fixtures.admin()))
@@ -39,7 +39,7 @@ public class TerritoryTypesRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: a type")
-  public void oneType() throws Exception {
+  void oneType() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_TYPE_URI, 2)
         .contentType(MediaType.APPLICATION_JSON)
         .with(user(Fixtures.admin()))

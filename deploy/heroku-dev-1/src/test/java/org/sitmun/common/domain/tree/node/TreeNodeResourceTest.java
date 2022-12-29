@@ -34,12 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class TreeNodeResourceTest {
+class TreeNodeResourceTest {
 
-  private static final String NON_PUBLIC_TREENODE_NAME = "Non-public Tree Node";
-  private static final String PUBLIC_TREENODE_NAME = "Public Tree Node";
-  private static final String PUBLIC_TREE_NAME = "Public Tree";
-  private static final String NON_PUBLIC_TREE_NAME = "Non-public Tree Name";
+  private static final String NON_PUBLIC_TREENODE_NAME = "Non-Tree Node";
+  private static final String PUBLIC_TREENODE_NAME = "Tree Node";
+  private static final String PUBLIC_TREE_NAME = "Tree";
+  private static final String NON_PUBLIC_TREE_NAME = "Non-Tree Name";
   @Autowired
   TreeRepository treeRepository;
   @Autowired
@@ -55,7 +55,7 @@ public class TreeNodeResourceTest {
   private Role publicRole;
 
   @BeforeEach
-  public void init() {
+  void init() {
     withMockSitmunAdmin(() -> {
 
       nodes = new ArrayList<>();
@@ -95,7 +95,7 @@ public class TreeNodeResourceTest {
   }
 
   @AfterEach
-  public void cleanup() {
+  void cleanup() {
     withMockSitmunAdmin(() -> {
       for (TreeNode node : nodes) {
         treeNodeRepository.deleteById(node.getId());
@@ -109,7 +109,7 @@ public class TreeNodeResourceTest {
 
   @DisplayName("Tree nodes cannot be created with non existent styles")
   @Test
-  public void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
+  void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
     TreeNode node = nodes.get(0);
     JSONObject json = new JSONObject();
     json.put("name", node.getName());
@@ -124,7 +124,7 @@ public class TreeNodeResourceTest {
 
   @DisplayName("Tree nodes styles require a cartography")
   @Test
-  public void nodesStylesRequireCartography() throws Exception {
+  void nodesStylesRequireCartography() throws Exception {
     TreeNode node = nodes.get(0);
     JSONObject json = new JSONObject();
     json.put("name", node.getName());
@@ -134,125 +134,6 @@ public class TreeNodeResourceTest {
         .with(user(Fixtures.admin())))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
-  }
-
-  @Test
-  @Disabled
-  public void getPublicTreesAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.TREE_URI))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.trees", hasSize(0)));
-  }
-
-  @Test
-  @Disabled
-  public void getPublicTreeNodesAsPublic() throws Exception {
-    // TODO
-    // ok is expected
-    mvc.perform(get(URIConstants.TREE_URI + "/" + publicTree.getId() + "/nodes"))
-      .andExpect(status().isOk());
-  }
-
-  @Test
-  @Disabled
-  public void getTreesAsTerritorialUser() {
-    // TODO
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void getTreesAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TREE_URI)
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.trees", hasSize(19)));
-  }
-
-  @Test
-  @Disabled
-  public void getTreesAsOrganizationAdmin() {
-    // TODO
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setAvailableRolesAsPublicFails() {
-    // TODO
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  public void setAvailableRolesAsTerritorialUserFails() {
-    // TODO
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  public void setAvailableRolesAsSitmunAdmin() {
-    // TODO: Update available roles for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setTreeAsSitmunAdmin() {
-    // TODO: Update tree for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setBackgroundAsSitmunAdmin() {
-    // TODO: Update background for the app as an admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setAvailableRolesAsOrganizationAdmin() {
-    // TODO: Update available roles for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setTreeAsOrganizationAdmin() {
-    // TODO: Update tree for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setBackgroundAsOrganizationAdmin() {
-    // TODO: Update background for the app (linked to the same organization) as an organization admin user
-    // ok is expected
-  }
-
-  @Test
-  @Disabled
-  public void setAvailableRolesAsOtherOrganizationAdminFails() {
-    // TODO: Update available roles for the app (linked to another organization) as an organization admin user
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  public void setTreeAsOtherOrganizationAdminFails() {
-    // TODO: Update tree for the app (linked to another organization) as an organization admin user
-    // fail is expected
-  }
-
-  @Test
-  @Disabled
-  public void setBackgroundAsOtherOrganizationAdminFails() {
-    // TODO: Update background for the app (linked to another organization) as an organization admin user
-    // fail is expected
   }
 
 }

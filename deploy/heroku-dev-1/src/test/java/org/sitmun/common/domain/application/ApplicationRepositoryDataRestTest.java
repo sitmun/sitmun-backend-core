@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Application Repository Data REST test")
-public class ApplicationRepositoryDataRestTest {
+class ApplicationRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
@@ -39,7 +39,7 @@ public class ApplicationRepositoryDataRestTest {
   @Test
   @DisplayName("POST: minimum set of properties")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void create() throws Exception {
+  void create() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -57,7 +57,7 @@ public class ApplicationRepositoryDataRestTest {
   @Test
   @DisplayName("POST: createDate is set by the server ")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createDateValueIsIgnored() throws Exception {
+  void createDateValueIsIgnored() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -76,7 +76,7 @@ public class ApplicationRepositoryDataRestTest {
   @Test
   @DisplayName("PUT: createDate can be updated")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createDateValueCanBeUpdated() throws Exception {
+  void createDateValueCanBeUpdated() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -110,7 +110,7 @@ public class ApplicationRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: situationMap must point to a CartographyPermission")
-  public void failApplicationWithInvalidMap() throws Exception {
+  void failApplicationWithInvalidMap() throws Exception {
     mvc.perform(post(URIConstants.APPLICATIONS_URI)
         .content("{" +
           "\"name\":\"test\"," +
@@ -127,7 +127,7 @@ public class ApplicationRepositoryDataRestTest {
 
   @Test
   @DisplayName("PUT: situationMap must point to a CartographyPermission")
-  public void failUpdateApplicationWithInvalidMap() throws Exception {
+  void failUpdateApplicationWithInvalidMap() throws Exception {
     mvc.perform(put(URIConstants.APPLICATION_URI_SITUATION_MAP, 1)
         .content("http://localhost/api/cartography-group/6")
         .contentType("text/uri-list")

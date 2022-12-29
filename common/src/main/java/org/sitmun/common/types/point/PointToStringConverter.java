@@ -14,23 +14,23 @@ import java.util.Locale;
 @Slf4j
 public class PointToStringConverter implements AttributeConverter<Point, String> {
 
-  public static final String precision = "######";
+  public static final String PRECISION = "######";
 
-  public static final String format = "{0,number,#." + precision + "} {1,number,#." + precision + "}";
+  public static final String FORMAT = "{0,number,#." + PRECISION + "} {1,number,#." + PRECISION + "}";
 
   public static final Locale defaultLocale = Locale.US;
 
   public MessageFormat formatInstance() {
-    MessageFormat mf = new MessageFormat(format);
+    MessageFormat mf = new MessageFormat(FORMAT);
     mf.setLocale(defaultLocale);
     return mf;
   }
 
-  public Double extractDouble(Object obj) throws Exception {
+  public Double extractDouble(Object obj) throws IllegalArgumentException {
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
     } else {
-      throw new Exception("Value " + obj + " is not a Number");
+      throw new IllegalArgumentException("Value " + obj + " is not a Number");
     }
   }
 

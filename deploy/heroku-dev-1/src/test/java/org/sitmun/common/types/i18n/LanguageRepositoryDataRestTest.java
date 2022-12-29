@@ -16,21 +16,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
-public class LanguageRepositoryDataRestTest {
+class LanguageRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void obtainOriginalVersion() throws Exception {
+  void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("English"));
   }
 
   @Test
-  public void obtainTranslatedVersionSpa() throws Exception {
+  void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI + "?lang=es"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("Inglés"));

@@ -22,15 +22,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
-public class BackgroundRepositoryDataRestTest {
+class BackgroundRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void backgroundIsNotDependentOfBackgroundMap() throws Exception {
+  void backgroundIsNotDependentOfBackgroundMap() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"description\":\"test\"," +
@@ -53,7 +52,7 @@ public class BackgroundRepositoryDataRestTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void createBackgroundWithMap() throws Exception {
+  void createBackgroundWithMap() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"description\":\"test\"," +
@@ -75,7 +74,7 @@ public class BackgroundRepositoryDataRestTest {
   }
 
   @Test
-  public void failCreateBackgroundWithInvalidMap() throws Exception {
+  void failCreateBackgroundWithInvalidMap() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"description\":\"test\"," +
@@ -91,7 +90,7 @@ public class BackgroundRepositoryDataRestTest {
   }
 
   @Test
-  public void failUpdateBackgroundWithInvalidMap() throws Exception {
+  void failUpdateBackgroundWithInvalidMap() throws Exception {
     String content = "http://localhost/api/cartography-group/193";
     mvc.perform(put(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP, 1)
         .content(content)

@@ -21,14 +21,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 
-public class CartographyFiltersRepositoryDataRestTest {
+class CartographyFiltersRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void newCartographyFilterCanBePosted() throws Exception {
+  void newCartographyFilterCanBePosted() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"type\":\"C\"," +
@@ -57,7 +57,7 @@ public class CartographyFiltersRepositoryDataRestTest {
   }
 
   @Test
-  public void newCartographyFilterRequiresCartographyLink() throws Exception {
+  void newCartographyFilterRequiresCartographyLink() throws Exception {
     String content = "{" +
       "\"name\":\"test\"," +
       "\"type\":\"C\"," +

@@ -18,14 +18,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
-public class WorkspaceApplicationControllerTest {
+class WorkspaceApplicationControllerTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  public void readPublicUser() throws Exception {
+  void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territory.name").value("Argentona"))
@@ -34,7 +33,7 @@ public class WorkspaceApplicationControllerTest {
   }
 
   @Test
-  public void readOtherUser() throws Exception {
+  void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
         .with(user("user12"))
       )

@@ -19,7 +19,7 @@ public class DashboardProperties {
 
   @Setter
   @Getter
-  static public class MetricDefinition {
+  public static class MetricDefinition {
 
     private Integer size = 0;
 

@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class WorkspaceControllerTest {
+class WorkspaceControllerTest {
 
   @Autowired
   private JwtUtils jwtUtils;
@@ -31,14 +31,14 @@ public class WorkspaceControllerTest {
   private MockMvc mvc;
 
   @Test
-  public void readPublicUser() throws Exception {
+  void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", Matchers.hasSize(7)));
   }
 
   @Test
-  public void readOtherUser() throws Exception {
+  void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
         .with(user("user12"))
       )
@@ -47,7 +47,7 @@ public class WorkspaceControllerTest {
   }
 
   @Test
-  public void readOtherUserWithToken() throws Exception {
+  void readOtherUserWithToken() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
         .header(HttpHeaders.AUTHORIZATION, jwtUtils.generateBearerToken("user12", new Date()))
       ).andExpect(status().isOk())

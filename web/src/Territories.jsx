@@ -19,7 +19,7 @@ export function Territories({territories, onSelect}) {
       result.push({territory: territory, application: value.shift(), roles: value})
     })
   })
-
+  result.sort((a, b) => a.territory.id - b.territory.id)
   return (
     <Table>
       <thead>
@@ -31,7 +31,7 @@ export function Territories({territories, onSelect}) {
       </thead>
       <tbody>
       {
-        result.sort((a, b) => a.territory.id - b.territory.id).map(value =>
+        result.map(value =>
           <tr key={value.territory.id + '-' + value.application.id}>
             <td><code>{value.territory.name}</code>&nbsp;<Badge variant="info">{value.territory.id}</Badge></td>
             <td>{value.roles.map(role =>

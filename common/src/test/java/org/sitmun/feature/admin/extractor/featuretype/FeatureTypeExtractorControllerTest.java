@@ -11,14 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Feature Type extractor controller test")
-public class FeatureTypeExtractorControllerTest extends BaseTest {
+class FeatureTypeExtractorControllerTest extends BaseTest {
 
   private static final String URI_TEMPLATE = "/api/helpers/feature-type?url={0}";
 
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
-  public void extractKnownFeatureWFS20() throws Exception {
+  void extractKnownFeatureWFS20() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
@@ -30,7 +30,7 @@ public class FeatureTypeExtractorControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 1.1.0")
-  public void extractKnownFeatureWFS110() throws Exception {
+  void extractKnownFeatureWFS110() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&version=1.1.0&typeNames=RED_REGENTE"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.success").value(true))
@@ -42,7 +42,7 @@ public class FeatureTypeExtractorControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a bad request to a WFS")
-  public void extractFailedService() throws Exception {
+  void extractFailedService() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
@@ -54,7 +54,7 @@ public class FeatureTypeExtractorControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to HTML page")
-  public void extractHtmlPage() throws Exception {
+  void extractHtmlPage() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
@@ -65,7 +65,7 @@ public class FeatureTypeExtractorControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to a not found page")
-  public void extract404Page() throws Exception {
+  void extract404Page() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/not-found"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))
@@ -76,7 +76,7 @@ public class FeatureTypeExtractorControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Extract from a request to an nonexistent domain")
-  public void extractNonExistentDomain() throws Exception {
+  void extractNonExistentDomain() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://fake"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.success").value(false))

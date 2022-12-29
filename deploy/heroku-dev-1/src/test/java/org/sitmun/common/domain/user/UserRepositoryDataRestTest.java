@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("User Repository Data REST test")
-public class UserRepositoryDataRestTest {
+class UserRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
@@ -30,14 +30,14 @@ public class UserRepositoryDataRestTest {
   private MockHttpServletResponse response;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     response = null;
   }
 
   @Test
   @DisplayName("POST: minimum set of properties")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void create() throws Exception {
+  void create() throws Exception {
     response = mvc.perform(post(URIConstants.USER_URI)
         .content("{" +
           "\"administrator\":false," +
@@ -52,7 +52,7 @@ public class UserRepositoryDataRestTest {
   }
 
   @AfterEach
-  public void cleanup() throws Exception {
+  void cleanup() throws Exception {
     if (response != null) {
       String location = response.getHeader("Location");
       if (location != null) {

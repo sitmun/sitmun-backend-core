@@ -26,7 +26,7 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class BasicTaskEventHandler implements SyncEntityHandler {
 
-  private final static Integer BASIC_TASK = 1;
+  private static final Integer BASIC_TASK = 1;
   private final TaskRepository taskRepository;
 
   private final TaskParameterRepository taskParameterRepository;
@@ -40,7 +40,7 @@ public class BasicTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
 
     Map<String, Object> properties = task.getProperties();
@@ -62,12 +62,12 @@ public class BasicTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
   }
 
-  public Boolean accept(@NonNull Task task) {
-    return task.getType() != null && task.getType().getId().equals(BASIC_TASK);
+  public boolean nonAccept(@NonNull Task task) {
+    return task.getType() == null || !task.getType().getId().equals(BASIC_TASK);
   }
 
   public void synchronize() {

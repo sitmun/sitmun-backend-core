@@ -21,13 +21,13 @@ import java.util.Date;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 
-public class CartographyRepositoryTest {
+class CartographyRepositoryTest {
 
   @Autowired
   private CartographyRepository cartographyRepository;
 
   @Test
-  public void saveCartography() {
+  void saveCartography() {
     Cartography cartography = cartographyBuilder().build();
     Assertions.assertThat(cartography.getId()).isNull();
     cartographyRepository.save(cartography);
@@ -35,7 +35,7 @@ public class CartographyRepositoryTest {
   }
 
   @Test
-  public void findOneCartographyById() {
+  void findOneCartographyById() {
     Cartography cartography = cartographyBuilder().build();
     Assertions.assertThat(cartography.getId()).isNull();
     cartographyRepository.save(cartography);

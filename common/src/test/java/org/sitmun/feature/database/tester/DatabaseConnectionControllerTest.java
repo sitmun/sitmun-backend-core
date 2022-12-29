@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Database connection controller test")
-public class DatabaseConnectionControllerTest extends BaseTest {
+class DatabaseConnectionControllerTest extends BaseTest {
 
   @MockBean
   private DatabaseConnectionRepository repository;
@@ -27,7 +27,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail 500 when driver is not found in test")
-  public void failIfDatabaseConnectionDriverNotFound() throws Exception {
+  void failIfDatabaseConnectionDriverNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
     mvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isInternalServerError())
@@ -38,7 +38,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Fail 500 when test fails")
-  public void failIfDatabaseConnectionException() throws Exception {
+  void failIfDatabaseConnectionException() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdb:h2:mem:testdb")
@@ -54,7 +54,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Return 200 when test succeeds")
-  public void databaseConnectionSuccess() throws Exception {
+  void databaseConnectionSuccess() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdbc:h2:mem:testdb")
@@ -68,7 +68,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Return 404 when the connection does not exist")
-  public void failIfdatabaseConnectionNotFound() throws Exception {
+  void failIfdatabaseConnectionNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.empty());
     mvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isNotFound());
@@ -76,7 +76,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @DisplayName("Return 401 is the test request has no credentials")
-  public void failIfNoCredentials() throws Exception {
+  void failIfNoCredentials() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdbc:h2:mem:testdb")
@@ -90,7 +90,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Cant create entry if the database connection driver is not found")
-  public void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
+  void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
@@ -102,7 +102,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Cant create entry if the database connection fails")
-  public void failPostTestIfDatabaseConnectionException() throws Exception {
+  void failPostTestIfDatabaseConnectionException() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
@@ -114,7 +114,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   @DisplayName("Return 200 when the test succeed")
-  public void databaseConnectionPostTestSuccess() throws Exception {
+  void databaseConnectionPostTestSuccess() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
@@ -123,7 +123,7 @@ public class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @DisplayName("Return 401 is the test creation has no credentials")
-  public void failPostTestIfNoCredentials() throws Exception {
+  void failPostTestIfNoCredentials() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))

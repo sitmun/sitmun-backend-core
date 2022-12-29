@@ -40,42 +40,42 @@ public class DashboardConfig {
 
   @Bean
   public MeterBinder totalApplicationsGauge(ApplicationRepository applicationRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.applications", applicationRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.applications", applicationRepository::count)
       .description("Total of applications")
       .register(registry);
   }
 
   @Bean
   public MeterBinder totalUsersMetric(UserRepository usersRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.users", usersRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.users", usersRepository::count)
       .description("Total of users")
       .register(registry);
   }
 
   @Bean
   public MeterBinder totalTerritoriesMetric(TerritoryRepository territoryRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.territories", territoryRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.territories", territoryRepository::count)
       .description("Total of territories")
       .register(registry);
   }
 
   @Bean
   public MeterBinder totalCartographyMetric(CartographyRepository cartographyRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.cartographies", cartographyRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.cartographies", cartographyRepository::count)
       .description("Total of cartographies")
       .register(registry);
   }
 
   @Bean
   public MeterBinder totalTasksMetric(TaskRepository taskRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.tasks", taskRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.tasks", taskRepository::count)
       .description("Total of tasks")
       .register(registry);
   }
 
   @Bean
   public MeterBinder totalServicesMetric(ServiceRepository serviceRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.services", serviceRepository::count)
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.services", serviceRepository::count)
       .description("Total of services")
       .register(registry);
   }
@@ -89,7 +89,7 @@ public class DashboardConfig {
    */
   @Bean
   public MeterBinder sumApplicationTerritoriesMetric(ApplicationRepository applicationRepository) {
-    return (registry) -> Gauge.builder(METRICS_PREFIX + "total.applications-territories", () -> applicationRepository.listIdApplicationsPerTerritories().size())
+    return registry -> Gauge.builder(METRICS_PREFIX + "total.applications-territories", () -> applicationRepository.listIdApplicationsPerTerritories().size())
       .description("Sum of applications available in territories")
       .register(registry);
   }

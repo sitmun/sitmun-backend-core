@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StopWatch;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 class Liquibase extends SpringLiquibase {
@@ -22,9 +23,9 @@ class Liquibase extends SpringLiquibase {
 
   private final TaskExecutor taskExecutor;
 
-  private Boolean runAsync = false;
+  private boolean runAsync = false;
 
-  private Boolean syncLegacy = false;
+  private boolean syncLegacy = false;
 
   private boolean onStartupUpdate = true;
 
@@ -105,7 +106,7 @@ class Liquibase extends SpringLiquibase {
   private static class AdminAuthentication implements Authentication {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-      return null;
+      return Collections.emptyList();
     }
 
     @Override
@@ -130,7 +131,7 @@ class Liquibase extends SpringLiquibase {
 
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
+      // Dummy operation
     }
 
     @Override

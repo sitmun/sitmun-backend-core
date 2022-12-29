@@ -35,7 +35,7 @@ import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("ExtractFMETaskEventHandler Test")
-public class ExtractFMETaskEventHandlerTest {
+class ExtractFMETaskEventHandlerTest {
 
   @Autowired
   TaskParameterRepository taskParameterRepository;
@@ -52,7 +52,7 @@ public class ExtractFMETaskEventHandlerTest {
   @Test
   @DisplayName("POST: Update legacy task parameter table")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void postExtractFMETask() throws Exception {
+  void postExtractFMETask() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/10\"," +
@@ -89,7 +89,7 @@ public class ExtractFMETaskEventHandlerTest {
   @Test
   @DisplayName("PUT: Update legacy task parameter table")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void updateDownloadTask() throws Exception {
+  void updateDownloadTask() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/10\"," +
@@ -141,7 +141,7 @@ public class ExtractFMETaskEventHandlerTest {
   @Test
   @DisplayName("Update from legacy task parameter table")
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  public void syncExtractFMETasks() throws Exception {
+  void syncExtractFMETasks() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
       "\"type\": \"http://localhost/api/task-types/10\"" +

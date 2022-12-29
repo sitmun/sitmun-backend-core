@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class ExtractFMETaskEventHandler implements SyncEntityHandler {
 
-  private final static Integer EXTRACT_FME_TASK = 10;
+  private static final Integer EXTRACT_FME_TASK = 10;
   private final TaskRepository taskRepository;
 
   private final TaskParameterRepository taskParameterRepository;
@@ -39,16 +39,16 @@ public class ExtractFMETaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
 
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
       Object layers = properties.getOrDefault("layers", null);
       if (layers instanceof List &&
-        ((List<?>) layers).stream().allMatch(it -> it instanceof String)
+        ((List<?>) layers).stream().allMatch(String.class::isInstance)
       ) {
-        List<String> list = ((List<?>) layers).stream().map(it -> (String) it).collect(Collectors.toList());
+        List<String> list = ((List<?>) layers).stream().map(String.class::cast).collect(Collectors.toList());
         TaskParameter parameter = TaskParameter.builder().task(task)
           .name("CAPAS")
           .type("FME")
@@ -62,12 +62,12 @@ public class ExtractFMETaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (!accept(task)) return;
+    if (nonAccept(task)) return;
     taskParameterRepository.deleteAllByTask(task);
   }
 
-  public Boolean accept(@NonNull Task task) {
-    return task.getType() != null && task.getType().getId().equals(EXTRACT_FME_TASK);
+  public boolean nonAccept(@NonNull Task task) {
+    return task.getType() == null || !task.getType().getId().equals(EXTRACT_FME_TASK);
   }
 
   public void synchronize() {
