@@ -12,4 +12,4 @@ springdoc:
     enabled: true
     urls-primary-name: API de Autenticación
   api-docs:
-    enabled: true
+    enabled: false

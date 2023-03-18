@@ -31,6 +31,7 @@ dependencies {
   implementation "org.json:json:${json_version}"
   implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
   implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
 
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: 'com.vaadin.external.google', module: 'android-json'

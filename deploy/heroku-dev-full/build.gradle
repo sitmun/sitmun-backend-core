@@ -22,8 +22,6 @@ dependencies {
   implementation project(':app')
   implementation project(':legacy')
 
-  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
-
   implementation 'org.postgresql:postgresql'
 
   testImplementation project(':common')

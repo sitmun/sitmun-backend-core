@@ -12,10 +12,6 @@ import org.springframework.context.annotation.Profile;
 public class ProvidedOpenApiConfigurer {
 
   @Bean
-  SpringDocConfiguration springDocConfiguration(){
-    return new SpringDocConfiguration();
-  }
-  @Bean
   SpringDocConfigProperties springDocConfigProperties() {
     return new SpringDocConfigProperties();
   }

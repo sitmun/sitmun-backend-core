@@ -45,3 +45,7 @@ library/src/main/resources/config/application-postgres.yml
 # Exclude intermediate files
 sitmun.jar
 *.idx
+
+# Exclude Heroku files
+.env
+Procfile
