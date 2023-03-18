@@ -8,6 +8,7 @@ out/
 *.iml
 *.iws
 *.ipr
+.run/
 
 # Ignore Eclipse files
 .classpath

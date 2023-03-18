@@ -1,0 +1,33 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'io.freefair.lombok'
+apply plugin: 'jacoco'
+
+dependencyManagement {
+  imports {
+    mavenBom SpringBootPlugin.BOM_COORDINATES
+  }
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation project(':common')
+
+  implementation 'org.liquibase:liquibase-core'
+
+  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
+  implementation "com.google.guava:guava:${guava_version}"
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled true
+  }
+}
+
+test.finalizedBy jacocoTestReport

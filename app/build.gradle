@@ -1,0 +1,90 @@
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+apply plugin: 'maven-publish'
+apply plugin: 'org.ajoberstar.git-publish'
+
+apply plugin: 'com.github.johnrengelman.processes'
+apply plugin: 'org.springdoc.openapi-gradle-plugin'
+
+apply plugin: 'io.freefair.lombok'
+apply plugin: 'jacoco'
+
+configurations {
+  annotationProcessor.extendsFrom implementation
+}
+
+bootJar {
+  mainClass = 'org.sitmun.Application'
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  implementation 'org.springframework.data:spring-data-rest-hal-explorer'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.security:spring-security-data'
+  implementation project(':common')
+
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+  implementation 'org.hibernate.validator:hibernate-validator'
+
+  annotationProcessor 'com.querydsl:querydsl-apt::jpa'
+  implementation 'com.querydsl:querydsl-jpa'
+
+  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-data-rest:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-security:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-hateoas:${springdoc_openapi_version}"
+
+  implementation 'com.zaxxer:HikariCP'
+
+  implementation 'com.h2database:h2'
+
+  testImplementation('org.springframework.boot:spring-boot-starter-test') {
+    exclude group: "com.vaadin.external.google", module: "android-json"
+  }
+  testImplementation 'org.springframework.security:spring-security-test'
+  testImplementation "org.assertj:assertj-core:${assertj_core_version}"
+  testImplementation "com.google.guava:guava:${guava_version}"
+  testImplementation "org.json:json:${json_version}"
+}
+
+publishing {
+  repositories {
+    maven {
+      name = 'GitHubPackages'
+      url = uri('https://maven.pkg.github.com/sitmun/sitmun-backend-core')
+      credentials {
+        username = project.findProperty('gpr.user') ?: System.getenv('USERNAME')
+        password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_API_KEY')
+      }
+    }
+  }
+  publications {
+    gpr(MavenPublication) {
+      from(components.java)
+    }
+  }
+}
+
+def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
+
+tasks.register('install') { dependsOn 'publishToMavenLocal' }
+
+clean {
+  delete 'dist'
+  delete "${cacheDir}"
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled true
+  }
+}
+
+test.finalizedBy jacocoTestReport

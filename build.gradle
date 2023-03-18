@@ -16,13 +16,17 @@ plugins {
   id 'com.github.johnrengelman.processes' version '0.5.0' apply false
   id 'org.springdoc.openapi-gradle-plugin' version '1.3.0' apply false
 
-  id 'io.freefair.lombok' version '5.3.0' apply false
+  id 'io.freefair.lombok' version '6.4.3.1' apply false
 
   id 'application'
 }
 
 subprojects {
   group = 'org.sitmun'
+
+  def targetJavaVersion = JavaVersion.VERSION_11
+  sourceCompatibility = "${targetJavaVersion}"
+  targetCompatibility = "${targetJavaVersion}"
 
   repositories {
     mavenLocal()
@@ -32,341 +36,13 @@ subprojects {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project app
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-project(':app') {
-  apply plugin: 'java'
-  apply plugin: 'org.springframework.boot'
-  apply plugin: 'io.spring.dependency-management'
-
-  apply plugin: 'maven-publish'
-  apply plugin: 'org.ajoberstar.git-publish'
-
-  apply plugin: 'com.github.johnrengelman.processes'
-  apply plugin: 'org.springdoc.openapi-gradle-plugin'
-
-  apply plugin: 'io.freefair.lombok'
-  apply plugin: 'jacoco'
-
-  def targetJavaVersion = JavaVersion.VERSION_1_8
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
-
-  tasks.named('processResources') {
-    it.dependsOn ':web:build'
-  }
-
-  configurations {
-    annotationProcessor.extendsFrom implementation
-  }
-
-  bootJar {
-    mainClass = 'org.sitmun.Application'
-  }
-
-  dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-    implementation 'org.springframework.data:spring-data-rest-hal-explorer'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.security:spring-security-data'
-    implementation project(':common')
-
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
-
-    implementation 'org.hibernate.validator:hibernate-validator'
-
-    annotationProcessor 'com.querydsl:querydsl-apt::jpa'
-    implementation 'com.querydsl:querydsl-jpa'
-
-    implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
-    implementation "org.springdoc:springdoc-openapi-data-rest:${springdoc_openapi_version}"
-    implementation "org.springdoc:springdoc-openapi-security:${springdoc_openapi_version}"
-    implementation "org.springdoc:springdoc-openapi-hateoas:${springdoc_openapi_version}"
-
-    implementation 'com.zaxxer:HikariCP'
-
-    implementation 'com.h2database:h2'
-
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-      exclude group: "com.vaadin.external.google", module: "android-json"
-    }
-    testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation "org.assertj:assertj-core:${assertj_core_version}"
-    testImplementation "com.google.guava:guava:${guava_version}"
-    testImplementation "org.json:json:${json_version}"
-  }
-
-  publishing {
-    repositories {
-      maven {
-        name = 'GitHubPackages'
-        url = uri('https://maven.pkg.github.com/sitmun/sitmun-backend-core')
-        credentials {
-          username = project.findProperty('gpr.user') ?: System.getenv('USERNAME')
-          password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_API_KEY')
-        }
-      }
-    }
-    publications {
-      gpr(MavenPublication) {
-        from(components.java)
-      }
-    }
-  }
-
-  def cacheDir = project.hasProperty('cacheDir') ? project.properties.cacheDir : "${project.buildDir}"
-
-  task install(dependsOn: 'publishToMavenLocal')
-
-  clean {
-    delete 'dist'
-    delete "${cacheDir}"
-  }
-
-  jacocoTestReport {
-    reports {
-      xml.enabled true
-    }
-  }
-
-  test.finalizedBy jacocoTestReport
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project tools
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-project(':cli') {
-  apply plugin: 'java'
-  apply plugin: 'io.spring.dependency-management'
-  apply plugin: 'jacoco'
-
-  def targetJavaVersion = JavaVersion.VERSION_1_8
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
-
-  dependencyManagement {
-    imports {
-      mavenBom SpringBootPlugin.BOM_COORDINATES
-    }
-  }
-
-  dependencies {
-    implementation project(':app')
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.reflections:reflections"
-    implementation "info.picocli:picocli:${picocli_version}"
-    implementation "org.reflections:reflections:${reflections_version}"
-  }
-
-  task oracle8iSchemaExport(type: JavaExec) {
-    mkdir 'src/main/sql/'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.sitmun.cli.SitmunSchemaExport'
-    args '-d', 'org.hibernate.dialect.Oracle8iDialect', '-f', 'src/main/sql/oracle8i.sql'
-  }
-
-  task oracle9iSchemaExport(type: JavaExec) {
-    mkdir 'src/main/sql/'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.sitmun.cli.SitmunSchemaExport'
-    args '-d', 'org.hibernate.dialect.Oracle9iDialect', '-f', 'src/main/sql/oracle9i.sql'
-  }
-
-  task oracle10gSchemaExport(type: JavaExec) {
-    mkdir 'src/main/sql/'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.sitmun.cli.SitmunSchemaExport'
-    args '-d', 'org.hibernate.dialect.Oracle10gDialect', '-f', 'src/main/sql/oracle10g.sql'
-  }
-
-
-  task postgreSQLSchemaExport(type: JavaExec) {
-    mkdir 'src/main/sql/'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.sitmun.cli.SitmunSchemaExport'
-    args '-d', 'org.hibernate.dialect.PostgreSQLDialect', '-f', 'src/main/sql/postgresql.sql'
-  }
-
-  task h2SchemaExport(type: JavaExec) {
-    mkdir 'src/main/sql/'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'org.sitmun.cli.SitmunSchemaExport'
-    args '-d', 'org.hibernate.dialect.H2Dialect', '-f', 'src/main/sql/h2.sql'
-  }
-
-  task exportSchemas(dependsOn: [
-    oracle8iSchemaExport,
-    oracle9iSchemaExport,
-    oracle10gSchemaExport,
-    postgreSQLSchemaExport,
-    h2SchemaExport])
-
-  jacocoTestReport {
-    reports {
-      xml.enabled true
-    }
-  }
-
-  test.finalizedBy jacocoTestReport
-
-  compileJava.dependsOn ':app:bootJar'
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project legacy
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-project(':legacy') {
-  apply plugin: 'java'
-  apply plugin: 'io.spring.dependency-management'
-  apply plugin: 'io.freefair.lombok'
-  apply plugin: 'jacoco'
-
-  def targetJavaVersion = JavaVersion.VERSION_1_8
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
-
-  dependencyManagement {
-    imports {
-      mavenBom SpringBootPlugin.BOM_COORDINATES
-    }
-  }
-
-  dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation project(':common')
-
-    implementation 'org.liquibase:liquibase-core'
-
-    implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
-    implementation "com.google.guava:guava:${guava_version}"
-  }
-
-  jacocoTestReport {
-    reports {
-      xml.enabled true
-    }
-  }
-
-  test.finalizedBy jacocoTestReport
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project common
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-project(':common') {
-  apply plugin: 'java'
-  apply plugin: 'io.spring.dependency-management'
-  apply plugin: 'io.freefair.lombok'
-  apply plugin: 'jacoco'
-
-  def targetJavaVersion = JavaVersion.VERSION_1_8
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
-
-  dependencyManagement {
-    imports {
-      mavenBom SpringBootPlugin.BOM_COORDINATES
-    }
-  }
-
-  dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-    annotationProcessor 'com.querydsl:querydsl-apt::jpa'
-    annotationProcessor 'javax.annotation:javax.annotation-api'
-    implementation 'com.querydsl:querydsl-jpa'
-
-    implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'com.squareup.okhttp3:logging-interceptor'
-    implementation "org.json:json:${json_version}"
-    implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
-    implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
-
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-      exclude group: 'com.vaadin.external.google', module: 'android-json'
-    }
-    testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'com.h2database:h2'
-  }
-
-  compileJava.inputs.files(processResources)
-
-  jacocoTestReport {
-    reports {
-      xml.enabled true
-    }
-  }
-
-  test.finalizedBy jacocoTestReport
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project web
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-project(':web') {
-  apply plugin: 'java'
-  apply plugin: 'com.github.node-gradle.node'
-
-  node {
-    version = '16.14.0'
-    download = true
-  }
-
-  task buildApp(type: NodeTask, dependsOn: 'npmInstall') {
-    script = project.file('node_modules/webpack/bin/webpack.js')
-    args = [
-      '--mode', 'development',
-      '--entry', './src/App.jsx',
-      '-o', "${buildDir}/resources/main/static"
-    ]
-  }
-
-  clean.doFirst {
-    delete 'build', 'node_modules'
-  }
-
-  tasks.named('build') {
-    dependsOn 'buildApp'
-    it.doLast {
-      copy {
-        from 'public'
-        into '../app/build/resources/main/static'
-      }
-      copy {
-        from 'build/resources/main/static'
-        into '../app/build/resources/main/static'
-      }
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Stage task:
-// - build web module and copies output to app/build/resources/main/static
 // - build app module
 // - do not run tests
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tasks.register('stage') {
-  dependsOn ':web:build', ':deploy:heroku-dev-1:build'
+  dependsOn ':processResources', ':deploy:heroku-dev-full:build'
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
@@ -395,9 +71,9 @@ tasks.named("deployHeroku") {
   it.dependsOn 'stage'
   it.doFirst {
     copy {
-      from "deploy/heroku-dev-1/build/libs/heroku-dev-1-${version}.jar"
+      from "deploy/heroku-dev-full/build/libs/heroku-dev-full-${version}.jar"
       into "."
-      rename "heroku-dev-1-${version}.jar", "sitmun.jar"
+      rename "heroku-dev-full-${version}.jar", "sitmun.jar"
     }
   }
   it.doLast {
@@ -420,34 +96,14 @@ subprojects {
 
 apply from: "$project.rootDir/sonar.gradle"
 
-tasks.register("codeCoverageReport", JacocoReport) {
-  jacocoClasspath = project(":common").configurations.jacocoAnt
-  subprojects { subproject ->
-    subproject.plugins.withType(JacocoPlugin).configureEach {
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
-        if (testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
-          sourceSets subproject.sourceSets.main
-          executionData(testTask)
-        } else {
-          logger.warn('Jacoco extension is disabled for test task \'{}\' in project \'{}\'. this test task will be excluded from jacoco report.', testTask.getName(), subproject.getName())
-        }
-      }
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
-        rootProject.tasks.codeCoverageReport.dependsOn(it)
-      }
-    }
-  }
-}
-
-project.tasks['sonarqube'].dependsOn(project.tasks['codeCoverageReport'])
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Run as local
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-task herokuDevLocal(type: JavaExec) {
+tasks.register('herokuDevLocal', JavaExec) {
   dependsOn 'stage'
   group = "Run"
   description = "Run as local the Heroku deployment"
-  classpath = files("deploy/heroku-dev-1/build/libs/heroku-dev-1-${version}.jar")
+  classpath = files("deploy/heroku-dev-full/build/libs/heroku-dev-full-${version}.jar")
 }
