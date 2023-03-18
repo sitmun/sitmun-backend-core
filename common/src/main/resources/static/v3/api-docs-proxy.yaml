@@ -1,0 +1,141 @@
+openapi: 3.0.3
+
+info:
+  title: SITMUN 3 API - Proxy
+  description: |-
+    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+
+  license:
+    name: EUPL 1.2
+    url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
+  version: 0.8.0
+
+tags:
+  - name: Proxy
+    description: API del Proxy.
+
+paths:
+
+  /proxy/{appId}/{terId}/{type}/{typeId}:
+    get:
+      tags:
+        - Proxy
+      summary: Accede a un servicio remoto o base de datos a través del proxy.
+      operationId: proxyGet
+      parameters:
+        - $ref: '#/components/parameters/appIdParam'
+        - $ref: '#/components/parameters/terIdParam'
+        - $ref: '#/components/parameters/typeParam'
+        - $ref: '#/components/parameters/typeIdParam'
+        - $ref: '#/components/parameters/queryParams'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Se devuelve la respuesta del servicio remoto.
+    post:
+      tags:
+        - Proxy
+      summary: Accede a un servicio remoto a través del proxy.
+      operationId: proxyPost
+      parameters:
+        - $ref: '#/components/parameters/appIdParam'
+        - $ref: '#/components/parameters/terIdParam'
+        - $ref: '#/components/parameters/typeParam'
+        - $ref: '#/components/parameters/typeIdParam'
+        - $ref: '#/components/parameters/queryParams'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Se devuelve la respuesta del servicio remoto.
+
+components:
+
+
+  #-------------------------------
+  # Parámetros de operación reutilizables
+  #-------------------------------
+  parameters:
+    appIdParam:
+      in: path
+      name: appId
+      schema:
+        type: string
+      required: true
+      description: Identificador de la aplicación.
+    terIdParam:
+      in: path
+      name: terId
+      schema:
+        type: string
+      required: true
+      description: Identificador del territorio.
+    typeParam:
+      in: path
+      name: type
+      schema:
+        type: string
+      required: true
+      description: Identificador del tipo de servicio.
+    typeIdParam:
+      in: path
+      name: typeId
+      schema:
+        type: string
+      required: true
+      description: Identificador del servicio.
+    queryParams:
+      name: params
+      in: query
+      schema:
+        type: object
+        additionalProperties: true
+
+  #-------------------------------
+  # Esquemas reutilizables
+  #-------------------------------
+  schemas:
+
+    ErrorResponse:
+      type: object
+      description: Respuesta que puede acompañar a un error.
+      properties:
+        status:
+          type: integer
+          description: Código de estado HTTP.
+        error:
+          type: string
+          description: Descripción del código de error.
+        message:
+          type: string
+          description:  Mensaje descriptivo del error.
+        path:
+          type: string
+          description: API afectado.
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo
+      required:
+        - status
+        - error
+        - message
+        - path
+        - timestamp
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+

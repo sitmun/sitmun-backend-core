@@ -36,11 +36,6 @@ dependencies {
   annotationProcessor 'com.querydsl:querydsl-apt::jpa'
   implementation 'com.querydsl:querydsl-jpa'
 
-  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-data-rest:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-security:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-hateoas:${springdoc_openapi_version}"
-
   implementation 'com.zaxxer:HikariCP'
 
   implementation 'com.h2database:h2'

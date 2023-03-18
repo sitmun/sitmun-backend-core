@@ -1,0 +1,279 @@
+openapi: 3.0.3
+
+info:
+  title: SITMUN 3 API - Configuración y Autorización
+  description: |-
+    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+
+  license:
+    name: EUPL 1.2
+    url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
+  version: 0.8.0
+
+tags:
+  - name: Configuración y Autorización
+    description: API de Configuración y Autorización (proxy).
+
+paths:
+
+  /api/config/proxy:
+    post:
+      tags:
+        -  Configuración y Autorización
+      summary: |-
+        Obtiene la configuración para una petición de un cliente realizada 
+        a través del proxy.
+      description: |-
+        En este versión este endpoint debería poder devolver la configuración para:
+        - GetMap a un OGC WMS.
+        - SELECT a una base de datos.
+      operationId: proxyConfig
+      security:
+        - proxyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyConfigurationRequest'
+        required: true
+      responses:
+        '200':
+          description: |-
+            Configuración a aplicar por el proxy para crear una petición
+            a un servicio web remoto o a una base de datos a partir de la
+            petición recibida por el cliente.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/OgcWmsConfiguration'
+                  - $ref: '#/components/schemas/DatasourceConfiguration'
+                discriminator:
+                  propertyName: type
+                  mapping:
+                    "ogc:wms": '#/components/schemas/OgcWmsConfiguration'
+                    "datasource": '#/components/schemas/DatasourceConfiguration'
+        '401':
+          description: |-
+            Representa dos casos:
+
+            - El proxy no está autorizado para realizar la petición.
+            - El cliente identificado por `id_token` no esta autorizado para 
+              realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+  schemas:
+
+    JSONWebToken:
+      description: "JSON Web Token"
+      type: string
+      pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
+      example: "eyJhbGciOiJ..."
+
+    ProxyConfigurationRequest:
+      description: "Descripción de la petición realizada por el cliente al proxy"
+      type: object
+      properties:
+        appId:
+          type: string
+          description: Identificador de la aplicación.
+        terId:
+          type: string
+          description: Identificador del territorio.
+        type:
+          type: string
+          description: Identificador del tipo de servicio.
+        typeId:
+          type: string
+          description: Identificador del servicio.
+        method:
+          type: string
+          enum: [ GET, POST ]
+          description: Método HTTP empleado.
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Mapa con los parámetros pasados en la pregunta.
+        requestBody:
+          type: object
+          additionalProperties: true
+          description: Mapa con los parámetros pasados en el cuerpo de la petición.
+        id_token:
+          $ref: "#/components/schemas/JSONWebToken"
+      required:
+        - appId
+        - terId
+        - type
+        - typeId
+        - method
+
+    Configuration:
+      type: object
+      description: Configuración de una petición
+      properties:
+        type:
+          type: string
+          description: Tipo de configuración devuelta.
+        exp:
+          type: integer
+          description: |-
+            Fecha de expiración de la configuración expresado en segundos desde
+            1970-01-01T00:00:00Z UTC. La configuración se puede usar solo hasta
+            antes de dicha fecha.
+        vary:
+          description: |-
+            Esta configuración está originada por una determinada
+            petición del cliente. Si hay una nueva petición del cliente
+            que se diferencia sólo en los valores asociados a los 
+            `parameters` listados en `vary`, se debe reutilizar esta 
+            configuración en lugar de solicitar una nueva si no ha expirado.
+          type: array
+          items:
+            type: string
+        payload:
+          type: object
+          additionalProperties: true
+          description: Valores de la configuración.
+      required:
+        - type
+        - exp
+        - payload
+
+    OgcWmsConfiguration:
+      type: object
+      description: Configuración de una petición a un servicio remoto OGC WMS.
+      allOf:
+        - $ref: "#/components/schemas/Configuration"
+        - type: object
+          properties:
+            payload:
+              type: object
+              properties:
+                uri:
+                  type: string
+                  format: uri
+                method:
+                  type: string
+                  enum: [ GET ]
+                  description: Método HTTP empleado.
+                parameters:
+                  type: object
+                  additionalProperties: true
+                  description: Mapa con los parámetros pasados en la pregunta.
+                security:
+                  description: Mecanismo de autenticación
+                  oneOf:
+                    - $ref: "#/components/schemas/HttpSecurityScheme"
+              required:
+                - uri
+                - method
+
+    SecurityScheme:
+      type: object
+      description: Esquema de autenticación.
+      properties:
+        type:
+          description: Identificador del esquema de autenticación.
+          type: string
+      required:
+        - type
+
+    HttpSecurityScheme:
+      type: object
+      description: Esquema de autenticación HTTP.
+      allOf:
+        - $ref: "#/components/schemas/SecurityScheme"
+        - type: object
+          properties:
+            type:
+              description: Esquema tipo autenticación HTTP.
+              type: string
+              enum: [ "http" ]
+            scheme:
+              description: Esquema HTTP Basic.
+              type: string
+              enum: [ "basic" ]
+            username:
+              description: Nombre de usuario.
+              type: string
+            password:
+              description: Contraseña.
+              type: string
+              format: password
+          required:
+            - type
+            - scheme
+            - username
+            - password
+
+    DatasourceConfiguration:
+      type: object
+      description: Configuración de una petición a una base de datos JDBC.
+      allOf:
+        - $ref: "#/components/schemas/Configuration"
+        - type: object
+          properties:
+            payload:
+              properties:
+                uri:
+                  description: URI de conexión a una base de datos JDBC.
+                  type: string
+                  format: uri
+                user:
+                  description: Nombre de usuario.
+                  type: string
+                password:
+                  description: Contraseña.
+                  type: string
+                  format: password
+                driver:
+                  description: Nombre completo del driver JDBC.
+                  type: string
+                sql:
+                  description: Sentencia SQL que se debe ejecutar.
+                  type: string
+              required:
+                - uri
+                - user
+                - password
+                - driver
+                - sql
+
+    ErrorResponse:
+      type: object
+      description: Respuesta que puede acompañar a un error.
+      properties:
+        status:
+          type: integer
+          description: Código de estado HTTP.
+        error:
+          type: string
+          description: Descripción del código de error.
+        message:
+          type: string
+          description:  Mensaje descriptivo del error.
+        path:
+          type: string
+          description: API afectado.
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo
+      required:
+        - status
+        - error
+        - message
+        - path
+        - timestamp
+
+  securitySchemes:
+    proxyAuth:
+      type: apiKey
+      in: header
+      name: X-SITMUN-Proxy-Key
+

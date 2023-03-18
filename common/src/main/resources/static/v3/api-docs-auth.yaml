@@ -1,0 +1,115 @@
+openapi: 3.0.3
+
+info:
+  title: SITMUN 3 API - Autenticación
+  description: |-
+    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+
+  license:
+    name: EUPL 1.2
+    url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
+  version: 0.8.0
+
+paths:
+
+  /api/authenticate:
+    post:
+      tags:
+        - Autenticación
+      summary: Accede con correo electrónico / contraseña.
+      description: |-
+        Se solicita un JSON Web Token de acceso para que un usuario pueda operar con el resto de API.
+        La solicitud incluye el identificador de usuario y la contraseña.
+      operationId: authenticateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPasswordAuthentication'
+        required: true
+      responses:
+        '200':
+          description: Un JSON Web Token de acceso.
+          headers:
+            Authentication:
+              schema:
+                type: string
+                pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
+                example: "eyJhbGciOiJ..."
+              description: "JSON Web Token"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  
+components:
+
+  schemas:
+
+    JSONWebToken:
+      description: "JSON Web Token"
+      type: string
+      pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
+      example: "eyJhbGciOiJ..."
+
+    UserPasswordAuthentication:
+      type: object
+      description: Contenido de la petición de autenticación por usuario y contraseña.
+      properties:
+        username:
+          type: string
+          description: Nombre de usuario.
+          example: usuario
+        password:
+          type: string
+          format: password
+          description: Contraseña.
+          example: contraseña
+      required:
+        - username
+        - password
+
+    AuthenticationResponse:
+      type: object
+      description: Respuesta de la autenticación por usuario y contraseña.
+      properties:
+        id_token:
+          $ref: "#/components/schemas/JSONWebToken"
+      required:
+        - id_token
+
+    ErrorResponse:
+      type: object
+      description: Respuesta que puede acompañar a un error.
+      properties:
+        status:
+          type: integer
+          description: Código de estado HTTP
+        error:
+          type: string
+          description: Descripción del código de error
+        message:
+          type: string
+          description:  Mensaje descriptivo DEL ERROR
+        path:
+          type: string
+          description: API afectado
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo
+      required:
+        - status
+        - error
+        - message
+        - path
+        - timestamp
+

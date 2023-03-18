@@ -45,12 +45,6 @@ security:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
 
-springdoc:
-  swagger-ui:
-    url: /v3/api-docs.yaml
-  api-docs:
-    enabled: false
-
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================

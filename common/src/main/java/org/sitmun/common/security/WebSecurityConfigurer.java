@@ -27,8 +27,8 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   private static final String[] AUTH_WHITELIST = {
-    "/v3/api-docs/**",
-    "/v3/api-docs.*",
+    "/v3/api-docs*/**",
+    "/v3/api-docs*.*",
     "/swagger-ui/**",
     "/swagger-ui.*",
     "/dist/**",

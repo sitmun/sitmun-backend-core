@@ -78,10 +78,6 @@ server:
       cookie:
         http-only: true
 
-springdoc:
-  swagger-ui:
-    docExpansion: none
-
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================
