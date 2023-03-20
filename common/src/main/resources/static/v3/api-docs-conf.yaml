@@ -1,9 +1,28 @@
 openapi: 3.0.3
 
 info:
-  title: SITMUN 3 API - Configuración y Autorización
+  title: SITMUN 3 - API de Configuración y Autorización
   description: |-
-    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+    La **API de Configuración y Autorización** expone vía una API Web mecanismos para obtener una configuración 
+    derivada del estado actual de los objetos de dominio en función de la identidad y rol del que solicita
+    la información. Esta API se ha creado para que los **visores de mapas** y el **proxy** puedan configurarse.
+        
+    La **API de Configuración y Autorización** tiene dos endpoints:
+    - **Configuración y Autorización de Visor de mapas**, que usa autenticación con JSON Web Token.
+    Si el token no está presente, se asume que la petición se ha realizado por un usuario 
+    que en el dominio de SITMUN se denomina *usuario público*.
+    - **Configuración y Autorización de Proxy**, que usa autenticación con una API key. 
+
+    ---
+
+    #### La documentación de esta API está en desarrollo 
+
+    El contenido de **Configuración y Autorización de Proxy** seguirá mejorando (aunque serán cambios menores) 
+    en los próximos días para ayudar a los desarrolladores que están trabajando en el proyecto SITMUN.
+    
+    **Configuración y Autorización de Visor de mapas** está en proceso de definición.
+    
+    ---
 
   license:
     name: EUPL 1.2
@@ -11,8 +30,8 @@ info:
   version: 0.8.0
 
 tags:
-  - name: Configuración y Autorización
-    description: API de Configuración y Autorización (proxy).
+  - name: Configuración y Autorización de Proxy
+    description: API de Configuración y Autorización de Proxy.
 
 paths:
 
@@ -76,7 +95,7 @@ components:
       example: "eyJhbGciOiJ..."
 
     ProxyConfigurationRequest:
-      description: "Descripción de la petición realizada por el cliente al proxy"
+      description: Parámetros de la petición realizada por el visor de mapas al proxy.
       type: object
       properties:
         appId:

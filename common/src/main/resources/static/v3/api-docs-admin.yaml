@@ -1,9 +1,14 @@
 openapi: 3.0.3
 
 info:
-  title: SITMUN 3 API
+  title: SITMUN 3 - API de Administración
   description: |-
-    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+    La **API de Administración** expone vía una API Web mecanismos para modificar el estado de los objetos 
+    de dominio de SITMUN 3 por parte de la **aplicación de administración**. 
+
+    La **aplicación de administración** debe autenticarse con un JSON Web Token obtenido de la **API de Autenticación**.
+
+    ---
 
   license:
     name: EUPL 1.2

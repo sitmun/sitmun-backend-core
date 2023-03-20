@@ -1,9 +1,20 @@
 openapi: 3.0.3
 
 info:
-  title: SITMUN 3 API - Autenticación
+  title: SITMUN 3 - API de Autenticación
   description: |-
-    SITMUN 3 API basado en la especificación OpenAPI 3.0.
+    La **API de Autenticación** expone vía una API Web mecanismos para interactuar con el sistema de seguridad
+    de SITMUN. Esta API se ha creado para que la **aplicación de administración** y los **visores de mapas** obtengan,
+    tras pasar las credenciales de usuario, el JSON Web Token necesario para operar con el resto de las API.
+
+    ---
+
+    #### La documentación de esta API está en desarrollo 
+
+    El contenido seguirá mejorando (aunque serán cambios menores) en los próximos días para ayudar a
+    los desarrolladores que están trabajando en el proyecto SITMUN.
+    
+    ---
 
   license:
     name: EUPL 1.2
