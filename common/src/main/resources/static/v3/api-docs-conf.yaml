@@ -7,11 +7,19 @@ info:
     derivada del estado actual de los objetos de dominio en función de la identidad y rol del que solicita
     la información. Esta API se ha creado para que los **visores de mapas** y el **proxy** puedan configurarse.
         
-    La **API de Configuración y Autorización** tiene dos endpoints:
-    - **Configuración y Autorización de Visor de mapas**, que usa autenticación con JSON Web Token.
-    Si el token no está presente, se asume que la petición se ha realizado por un usuario 
-    que en el dominio de SITMUN se denomina *usuario público*.
-    - **Configuración y Autorización de Proxy**, que usa autenticación con una API key. 
+    La **API de Configuración y Autorización** se compone de dos tipos de endpoints:
+    - **Configuración y Autorización de Visor de mapas**. La petición pueden autenticarse usando un esquema de 
+      *autenticación por portador* 
+      (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+      usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+      Si no se autentica, se asume que la petición se ha realizado por un usuario
+      que en el dominio de SITMUN se denomina *usuario público*.
+    - **Configuración y Autorización de Proxy**. La petición debe autenticarse usando una 
+      [API key](https://swagger.io/docs/specification/authentication/api-keys/) enviada mediante
+      la cabecera denominada `X-SITMUN-Proxy-Key`.
+      El uso de una API key específica para el endpoint  **Configuración y Autorización de Proxy** es una decisión de 
+      seguridad. Evita que a un cliente malicioso le pueda bastar el uso del token obtenido de la 
+      **API de Autenticación** para obtener secretos vía el endpoint **Configuración y Autorización de Proxy**.
 
     ---
 
@@ -33,12 +41,15 @@ tags:
   - name: Configuración y Autorización de Proxy
     description: API de Configuración y Autorización de Proxy.
 
+  - name: Configuración y Autorización de Visor de mapas
+    description: API de Configuración y Autorización de Visor de mapas (**En desarrollo**).
+
 paths:
 
   /api/config/proxy:
     post:
       tags:
-        -  Configuración y Autorización
+        -  Configuración y Autorización de Proxy
       summary: |-
         Obtiene la configuración para una petición de un cliente realizada 
         a través del proxy.
@@ -46,6 +57,10 @@ paths:
         En este versión este endpoint debería poder devolver la configuración para:
         - GetMap a un OGC WMS.
         - SELECT a una base de datos.
+        
+        La petición debe autenticarse usando una 
+        [API key](https://swagger.io/docs/specification/authentication/api-keys/) enviada mediante
+        la cabecera denominada `X-SITMUN-Proxy-Key`.
       operationId: proxyConfig
       security:
         - proxyAuth: []
