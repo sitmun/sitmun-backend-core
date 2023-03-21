@@ -5,8 +5,10 @@ info:
   description: |-
     La **API de Proxy** permite acceder a los visores de mapas a servicios remotos y bases de datos.
 
-    Los **visores de mapas** debe autenticarse con un JSON Web Token obtenido de la **API de Autenticación**.
-    Si el token no está presente, se asume que la petición se ha realizado por un usuario 
+    Los **visores de mapas** pueden autenticarse usando un esquema de *autenticación por portador* 
+    (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*) 
+    usando un token que se ha obtenido previamente mediante la **API de Autenticación**. 
+    Si no se autentica, se asume que la petición se ha realizado por un usuario 
     que en el dominio de SITMUN se denomina *usuario público*.
 
     ---
@@ -36,6 +38,24 @@ paths:
       tags:
         - Proxy
       summary: Accede a un servicio remoto o base de datos a través del proxy.
+      description: |- 
+        Las coordenadas que identifican el servicio remoto son:
+        
+        - `appId` que identifica una aplicación de SITMUN.
+        - `terrId` que identifica un territorio.
+        - `type` que identifica el tipo de servicio. 
+        - `typeId` que identifica el servicio.
+        
+        La petición que recibe aquí el proxy debe ser conforme al protocolo que se utilizaría
+        si se hiciera una petición HTTP GET a un servicio de tipo de servicio soportado por 
+        SITMUN identificado por `type`.
+        
+        La petición pueden autenticarse usando un esquema de *autenticación por portador*
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+
       operationId: proxyGet
       parameters:
         - $ref: '#/components/parameters/appIdParam'
@@ -51,7 +71,25 @@ paths:
     post:
       tags:
         - Proxy
-      summary: Accede a un servicio remoto a través del proxy.
+      summary: Accede a un servicio remoto o base de datos a través del proxy.
+      description: |-
+        Las coordenadas que identifican el servicio remoto son:
+        
+        - `appId` que identifica una aplicación de SITMUN.
+        - `terrId` que identifica un territorio.
+        - `type` que identifica el tipo de servicio. 
+        - `typeId` que identifica el servicio.
+        
+        La petición que recibe aquí el proxy debe ser conforme al protocolo que se utilizaría
+        si se hiciera una petición HTTP GET a un servicio de tipo de servicio soportado por 
+        SITMUN identificado por `type`.
+        
+        La petición pueden autenticarse usando un esquema de *autenticación por portador*
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+
       operationId: proxyPost
       parameters:
         - $ref: '#/components/parameters/appIdParam'
