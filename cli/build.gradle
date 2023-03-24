@@ -18,21 +18,21 @@ dependencies {
   implementation "org.reflections:reflections:${reflections_version}"
 }
 
-task oracle8iSchemaExport(type: JavaExec) {
+tasks.register('oracle8iSchemaExport', JavaExec) {
   mkdir 'src/main/sql/'
   classpath = sourceSets.main.runtimeClasspath
   mainClass = 'org.sitmun.cli.SitmunSchemaExport'
   args '-d', 'org.hibernate.dialect.Oracle8iDialect', '-f', 'src/main/sql/oracle8i.sql'
 }
 
-task oracle9iSchemaExport(type: JavaExec) {
+tasks.register('oracle9iSchemaExport', JavaExec) {
   mkdir 'src/main/sql/'
   classpath = sourceSets.main.runtimeClasspath
   mainClass = 'org.sitmun.cli.SitmunSchemaExport'
   args '-d', 'org.hibernate.dialect.Oracle9iDialect', '-f', 'src/main/sql/oracle9i.sql'
 }
 
-task oracle10gSchemaExport(type: JavaExec) {
+tasks.register('oracle10gSchemaExport', JavaExec) {
   mkdir 'src/main/sql/'
   classpath = sourceSets.main.runtimeClasspath
   mainClass = 'org.sitmun.cli.SitmunSchemaExport'
@@ -40,26 +40,28 @@ task oracle10gSchemaExport(type: JavaExec) {
 }
 
 
-task postgreSQLSchemaExport(type: JavaExec) {
+tasks.register('postgreSQLSchemaExport', JavaExec) {
   mkdir 'src/main/sql/'
   classpath = sourceSets.main.runtimeClasspath
   mainClass = 'org.sitmun.cli.SitmunSchemaExport'
   args '-d', 'org.hibernate.dialect.PostgreSQLDialect', '-f', 'src/main/sql/postgresql.sql'
 }
 
-task h2SchemaExport(type: JavaExec) {
+tasks.register('h2SchemaExport', JavaExec) {
   mkdir 'src/main/sql/'
   classpath = sourceSets.main.runtimeClasspath
   mainClass = 'org.sitmun.cli.SitmunSchemaExport'
   args '-d', 'org.hibernate.dialect.H2Dialect', '-f', 'src/main/sql/h2.sql'
 }
 
-task exportSchemas(dependsOn: [
-  oracle8iSchemaExport,
-  oracle9iSchemaExport,
-  oracle10gSchemaExport,
-  postgreSQLSchemaExport,
-  h2SchemaExport])
+tasks.register('exportSchemas') {
+  dependsOn([
+    oracle8iSchemaExport,
+    oracle9iSchemaExport,
+    oracle10gSchemaExport,
+    postgreSQLSchemaExport,
+    h2SchemaExport])
+}
 
 jacocoTestReport {
   reports {

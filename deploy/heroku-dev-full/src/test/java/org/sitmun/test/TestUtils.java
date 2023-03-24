@@ -3,9 +3,9 @@ package org.sitmun.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
-import org.sitmun.common.security.Role;
-import org.sitmun.common.security.web.JwtResponse;
-import org.sitmun.common.security.web.LoginRequest;
+import org.sitmun.authentication.dto.AuthenticationResponse;
+import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,7 +32,7 @@ public class TestUtils {
   }
 
   public static void withMockSitmunAdmin(Runnable func) {
-    List<Role> roles = Lists.newArrayList(Role.ROLE_ADMIN, Role.ROLE_USER);
+    List<SecurityRole> roles = Lists.newArrayList(SecurityRole.ROLE_ADMIN, SecurityRole.ROLE_USER);
     List<GrantedAuthority> authorities = roles.stream()
       .map(role -> new SimpleGrantedAuthority(role.name()))
       .collect(Collectors.toList());
@@ -46,12 +46,12 @@ public class TestUtils {
   }
 
   public static String requestAuthorization(RestTemplate restTemplate, Integer port) {
-    LoginRequest login = new LoginRequest();
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
-    ResponseEntity<JwtResponse> loginResponse =
+    ResponseEntity<AuthenticationResponse> loginResponse =
       restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, JwtResponse.class, port);
+        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
     Assertions.assertThat(loginResponse.getBody()).isNotNull();
     return "Bearer " + loginResponse.getBody().getIdToken();
   }

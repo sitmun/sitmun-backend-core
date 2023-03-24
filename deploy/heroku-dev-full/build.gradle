@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project deploy heroku-dev-1
+// Project deploy heroku-dev-full
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
@@ -10,6 +10,8 @@ plugins {
   id 'io.spring.dependency-management'
   id 'io.freefair.lombok'
   id 'jacoco'
+
+  id 'com.google.cloud.tools.jib'
 }
 
 dependencyManagement {
@@ -32,7 +34,7 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-data-rest'
   testImplementation 'org.springframework.security:spring-security-test'
 
-  testImplementation 'javax.persistence:javax.persistence-api'
+  testImplementation 'org.hibernate:hibernate-core'
   testImplementation 'com.fasterxml.jackson.core:jackson-databind'
   testImplementation 'com.querydsl:querydsl-jpa'
 
@@ -51,3 +53,19 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
+
+test.dependsOn(":app:bootJar")
+
+bootJar.dependsOn(":app:bootJar")
+
+jib {
+  from {
+    image = 'amazoncorretto:11'
+  }
+  to {
+    image = "${name}:latest"
+  }
+  container {
+    mainClass = 'org.sitmun.Application'
+  }
+}
