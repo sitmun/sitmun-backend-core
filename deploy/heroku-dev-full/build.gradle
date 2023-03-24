@@ -54,9 +54,9 @@ jacocoTestReport {
 
 test.finalizedBy jacocoTestReport
 
-test.dependsOn(":app:bootJar")
-
 bootJar.dependsOn(":app:bootJar")
+
+compileTestJava.dependsOn(":app:bootJar")
 
 jib {
   from {
