@@ -41,13 +41,6 @@ paths:
       responses:
         '200':
           description: Un JSON Web Token de acceso.
-          headers:
-            Authentication:
-              schema:
-                type: string
-                pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
-                example: "eyJhbGciOiJ..."
-              description: "JSON Web Token"
           content:
             application/json:
               schema:

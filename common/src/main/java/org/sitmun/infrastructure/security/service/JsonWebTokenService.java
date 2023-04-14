@@ -20,8 +20,8 @@ public class JsonWebTokenService {
   @Value("${security.authentication.jwt.token-validity-in-miliseconds}")
   private int jwtExpirationMs;
 
-  public String generateBearerToken(String userName, Date date) {
-    return "Bearer " + Jwts.builder()
+  public String generateToken(String userName, Date date) {
+    return Jwts.builder()
       .setSubject(userName)
       .setIssuedAt(date)
       .setExpiration(new Date(date.getTime() + jwtExpirationMs))
@@ -29,11 +29,11 @@ public class JsonWebTokenService {
       .compact();
   }
 
-  public String generateBearerToken(Authentication authentication) {
+  public String generateToken(Authentication authentication) {
 
     UserDetailsImplementation userPrincipal = (UserDetailsImplementation) authentication.getPrincipal();
 
-    return generateBearerToken(userPrincipal.getUsername(), new Date());
+    return generateToken(userPrincipal.getUsername(), new Date());
   }
 
   public String getUserNameFromJwtToken(String token) {

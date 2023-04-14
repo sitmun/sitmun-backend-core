@@ -6,12 +6,10 @@ import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,10 +57,8 @@ public class AuthenticationController {
     Authentication authentication = authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(userPasswordAuthenticationRequest.getUsername(), userPasswordAuthenticationRequest.getPassword()));
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    String token = jsonWebTokenService.generateBearerToken(authentication);
+    String token = jsonWebTokenService.generateToken(authentication);
     return ResponseEntity.ok()
-      .header(HttpHeaders.AUTHORIZATION, token)
-      .body(new AuthenticationResponse(token.substring(7)));
+      .body(new AuthenticationResponse(token));
   }
 }

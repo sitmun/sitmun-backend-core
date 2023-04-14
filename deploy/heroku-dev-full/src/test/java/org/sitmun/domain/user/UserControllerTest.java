@@ -54,8 +54,8 @@ class UserControllerTest {
     withMockSitmunAdmin(() -> {
       Date expiredDate =
         Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
-      expiredToken = tokenProvider.generateBearerToken(USER_USERNAME, expiredDate);
-      validToken = tokenProvider.generateBearerToken(USER_USERNAME, new Date());
+      expiredToken = tokenProvider.generateToken(USER_USERNAME, expiredDate);
+      validToken = tokenProvider.generateToken(USER_USERNAME, new Date());
 
       user = User.builder()
         .administrator(USER_ADMINISTRATOR)
