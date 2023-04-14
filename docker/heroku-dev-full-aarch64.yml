@@ -30,7 +30,7 @@ services:
     depends_on:
       - postgres
   postgres:
-    image: postgres:14.7-alpine
+    image: arm64v8/postgres:14.7
     container_name: postgres-db
     ports:
       - "5432:5432"

@@ -2,6 +2,7 @@
 // Project deploy heroku-dev-full
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
@@ -60,7 +61,11 @@ compileTestJava.dependsOn(":app:bootJar")
 
 jib {
   from {
-    image = 'amazoncorretto:11'
+    if (Os.isArch("aarch64")) {
+      image = 'arm64v8/amazoncorretto:11'
+    } else {
+      image = 'amazoncorretto:11'
+    }
   }
   to {
     image = "${name}:latest"
