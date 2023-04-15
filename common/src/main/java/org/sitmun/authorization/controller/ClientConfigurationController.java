@@ -1,21 +1,22 @@
 package org.sitmun.authorization.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.authorization.dto.ClientConfiguration;
-import org.sitmun.authorization.dto.ClientConfigurationForApplicationTerritory;
+import org.sitmun.authorization.dto.JsonViewPage;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.authorization.service.ClientConfigurationService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.sitmun.domain.application.Application;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping("/api/workspace")
-@Tag(name = "workspace", description = "workspace")
+@RequestMapping("/api/config/client")
 public class ClientConfigurationController {
 
   private final ClientConfigurationService clientConfigurationService;
@@ -28,25 +29,17 @@ public class ClientConfigurationController {
     this.clientConfigurationService = clientConfigurationService;
   }
 
-  @GetMapping(path = "/application/{applicationId}/territory/{territoryId}", produces = APPLICATION_JSON_VALUE)
+  /**
+   * Get the list of applications.
+   * @param context security context
+   * @param pageable pagination information
+   * @return a page of a list of applications
+   */
+  @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
   @ResponseBody
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
-  public ResponseEntity<ClientConfigurationForApplicationTerritory> getDescription(
-    @PathVariable("applicationId") Integer applicationId,
-    @PathVariable("territoryId") Integer territoryId) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return clientConfigurationService.describeFor(authentication.getName(), applicationId, territoryId)
-      .map(ResponseEntity::ok)
-      .orElseGet(() -> ResponseEntity.notFound().build());
-  }
-
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
-  @ResponseBody
-  @JsonView(ClientConfigurationViews.Base.class)
-  public ResponseEntity<ClientConfiguration> getDescription() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return clientConfigurationService.describeFor(authentication.getName())
-      .map(ResponseEntity::ok)
-      .orElseGet(() -> ResponseEntity.notFound().build());
+  public JsonViewPage<Application> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    return JsonViewPage.of(clientConfigurationService.getApplications(username, pageable));
   }
 }

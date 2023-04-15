@@ -46,6 +46,74 @@ tags:
 
 paths:
 
+  /api/config/client/territory:
+    get:
+      tags:
+        -  Configuración y Autorización de Visor de mapas
+      summary: |-
+        Aplicaciones para un visor de mapas.
+      description: |-
+        Este enpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: clientTerritoryConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: size
+          in: query
+          description: Tamaño de la página solicitada.
+          required: false
+          schema:
+            type: string
+            default: 100000
+        - name: page
+          in: query
+          description: Número de página.
+          required: false
+          schema:
+            type: string
+            default: 0
+      responses:
+        '200':
+          description: |-
+            Listado de las Aplicaciones SITMUN disponibles por el visor de mapas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Lista de aplicaciones disponibles.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Application'
+                  totalPages:
+                    description: Número total de páginas.
+                    type: integer
+                    format: int32
+                  size:
+                    description: Tamaño de la página.
+                    type: integer
+                    format: int32
+                  number:
+                    description: Número de página.
+                    type: integer
+                    format: int32
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/config/proxy:
     post:
       tags:
@@ -277,6 +345,17 @@ components:
                 - password
                 - driver
                 - sql
+
+    Application:
+      type: object
+      description: Aplicación de SITMUN.
+      properties:
+        id:
+          type: string
+          description: Identificador de la aplicación.
+        title:
+          type: string
+          description: Nombre de la aplicación.
 
     ErrorResponse:
       type: object

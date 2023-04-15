@@ -54,7 +54,6 @@ public class Application {
    */
   @Column(name = "APP_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private String name;
 
   /**
@@ -70,7 +69,7 @@ public class Application {
    * Title to be shown in the browser and in the application when it is internal.
    */
   @Column(name = "APP_TITLE", length = PersistenceConstants.SHORT_DESCRIPTION)
-  @JsonView({ClientConfigurationViews.Base.class, ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private String title;
 
   /**
@@ -84,7 +83,6 @@ public class Application {
    */
   @Column(name = "APP_SCALES", length = 250)
   @Convert(converter = StringListAttributeConverter.class)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private List<String> scales;
 
   /**
@@ -92,7 +90,6 @@ public class Application {
    */
   @Column(name = "APP_PROJECT", length = PersistenceConstants.IDENTIFIER)
   @Srs
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private String srs;
 
   /**
@@ -175,7 +172,6 @@ public class Application {
    */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   @Override

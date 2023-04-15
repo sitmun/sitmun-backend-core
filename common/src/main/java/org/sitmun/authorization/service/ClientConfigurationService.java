@@ -16,6 +16,9 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -155,4 +158,25 @@ public class ClientConfigurationService {
         return territory.toBuilder().userConfigurations(filtered).build();
       }).collect(Collectors.toList());
   }
+
+    public Page<Application> getApplications(String username, Pageable pageable) {
+      Optional<User> user = userRepository.findByUsername(username);
+      if (user.isPresent()) {
+        User effectiveUser = user.get();
+        if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
+          List<Application> applications = userConfigurationRepository.findByUser(effectiveUser).stream()
+            .map(UserConfiguration::getRole)
+            .distinct()
+            .map(Role::getApplications)
+            .flatMap(Set::stream)
+            .distinct()
+            .collect(Collectors.toList());
+
+          final int start = (int)pageable.getOffset();
+          final int end = Math.min((start + pageable.getPageSize()), applications.size());
+          return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
+        }
+      }
+      return Page.empty();
+    }
 }

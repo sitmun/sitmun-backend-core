@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,22 +25,48 @@ class ClientConfigurationApplicationControllerTest {
 
   @Test
   void readPublicUser() throws Exception {
-    mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41))
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territory.name").value("Argentona"))
-      .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))
-      .andExpect(jsonPath("$.roles[*].id", containsInAnyOrder(10)));
+      .andExpect(jsonPath("$.content", hasSize(1)))
+      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Consulta municipal")));
   }
 
   @Test
   void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.WORKSPACE_APPLICATION_URI, 1, 41)
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI)
         .with(user("user12"))
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territory.name").value("Argentona"))
-      .andExpect(jsonPath("$.application.title").value("SITMUN - Consulta municipal"))
-      .andExpect(jsonPath("$.roles[*].id", containsInAnyOrder(14, 17)));
+      .andExpect(jsonPath("$.content", hasSize(3)))
+      .andExpect(jsonPath("$.size", is(3)))
+      .andExpect(jsonPath("$.number", is(0)))
+      .andExpect(jsonPath("$.totalPages", is(1)))
+      .andExpect(jsonPath("$.content[*].title", containsInAnyOrder("SITMUN - Consulta municipal", "SITMUN - Consulta provincial", "SITMUN - Consulta supramunicipal")));
   }
 
+
+  @Test
+  void readOtherUserWithPagination() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=1")
+        .with(user("user12"))
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.content", hasSize(1)))
+      .andExpect(jsonPath("$.size", is(1)))
+      .andExpect(jsonPath("$.number", is(1)))
+      .andExpect(jsonPath("$.totalPages", is(3)))
+      .andExpect(jsonPath("$.content[*].title", containsInAnyOrder("SITMUN - Consulta provincial")));
+  }
+
+  @Test
+  void readOtherUserWithPaginationOutOfBounds() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=3")
+        .with(user("user12"))
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.content").isEmpty())
+      .andExpect(jsonPath("$.size", is(0)))
+      .andExpect(jsonPath("$.number", is(3)))
+      .andExpect(jsonPath("$.totalPages", is(1)));
+  }
 }

@@ -27,6 +27,7 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
+  public static final String PUBLIC_USER_NAME = "public";
   private static final String[] AUTH_WHITELIST = {
     "/v3/api-docs*/**",
     "/v3/api-docs*.*",
@@ -64,7 +65,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   public AnonymousAuthenticationFilter anonymousAuthenticationFilter() {
     return new AnonymousAuthenticationFilter(
       "anonymous",
-      "public",
+      PUBLIC_USER_NAME,
       AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PUBLIC.name()));
   }
 
@@ -114,6 +115,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
       .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
       .anyRequest().authenticated();
 
