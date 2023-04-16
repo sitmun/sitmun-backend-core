@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: sitmun
+      context: dev,prod
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 03_task_types/STM_TSK_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_TSK_TYP
+            quotchar: "\""
+            columns:
+              - column:
+                  name: TTY_ID
+                  type: NUMERIC
+              - column:
+                  name: TTY_NAME
+                  type: STRING
+              - column:
+                  name: TTY_TITLE
+                  type: STRING
+              - column:
+                  name: TTY_ENABLED
+                  type: BOOLEAN
+              - column:
+                  name: TTY_PARENTID
+                  type: NUMERIC
+              - column:
+                  name: TTY_ORDER
+                  type: NUMERIC
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/01_BasicTaskDefinition.json
+            where: TTY_ID=1
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/02_DownloadTaskDefinition.json
+            where: TTY_ID=2
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/03_DocumentTaskDefinition.json
+            where: TTY_ID=3
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/04_LocatorTaskDefinition.json
+            where: TTY_ID=4
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/05_QueryTaskDefinition.json
+            where: TTY_ID=5
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/06_MoreInformationTaskDefinition.json
+            where: TTY_ID=6
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/07_ReportDefinition.json
+            where: TTY_ID=7
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/09_ThematicTaskDefinition.json
+            where: TTY_ID=9
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/10_ExtractFMETaskDefinition.json
+            where: TTY_ID=10
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TTY_ID', 14);

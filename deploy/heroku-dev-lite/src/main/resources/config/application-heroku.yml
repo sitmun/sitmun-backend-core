@@ -1,0 +1,76 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+logging:
+  level:
+    ROOT: INFO
+    org.sitmun.plugin.core: INFO
+
+management:
+  metrics:
+    enable:
+      all: false
+      sitmun: true
+  endpoints:
+    web:
+      base-path: /api/dashboard
+
+spring:
+  jackson:
+    serialization:
+      indent-output: true
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+  h2:
+    console:
+      enabled: false
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.sitmun.infrastructure.persistence.dialect.PostgresSQL93DialectFixed
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+    contexts: dev
+    run-async: true
+    sync-legacy: true
+
+security:
+  authentication:
+    jwt:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+      token-validity-in-miliseconds: 36000000
+    middleware:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+
+server:
+  port: 8080
+
+
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
+
+sitmun:
+  dashboard:
+    fetchMetrics: 60000
+    initialDelay: 60000
+    cartographies-by-created-date.size: 30 #last days
+    users-by-created-date.size: 30 # last days
+    users-per-application.size: 30 # last days
+

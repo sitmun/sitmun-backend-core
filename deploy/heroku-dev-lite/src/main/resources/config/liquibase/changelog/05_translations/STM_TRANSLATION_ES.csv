@@ -1,0 +1,28 @@
+TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
+201001,1,name,2,Inglés
+201002,2,name,2,Español
+201003,3,name,2,Catalán
+201004,4,name,2,Aranés
+201005,5,name,2,Francés
+202012,12,description,2,Personalizado
+202013,13,description,2,Predefinido
+202014,14,description,2,Alfanumérico
+202015,15,description,2,Fecha
+202016,16,description,2,Número
+202017,17,description,2,Fecha
+202018,18,description,2,Imagen
+202019,19,description,2,Número
+202020,20,description,2,Porcentaje
+202021,21,description,2,Texto
+202022,22,description,2,URL
+202030,30,description,2,Grupo de cartografía
+202031,31,description,2,Mapa de fondo
+202032,32,description,2,Informe
+202033,33,description,2,Mapa de situación
+202099,99,description,2,Fecha
+2020100,100,description,2,Imagen
+2020101,101,description,2,Número
+2020102,102,description,2,Porcentaje
+2020103,103,description,2,Texto
+2020104,104,description,2,URL
+
