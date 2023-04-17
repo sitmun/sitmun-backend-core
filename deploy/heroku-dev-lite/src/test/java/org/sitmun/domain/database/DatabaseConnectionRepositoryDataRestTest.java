@@ -1,6 +1,5 @@
 package org.sitmun.domain.database;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.test.Fixtures;
@@ -26,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class DatabaseConnectionRepositoryDataRestTest {
 
   @Autowired
@@ -40,8 +38,8 @@ class DatabaseConnectionRepositoryDataRestTest {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
-      .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(16)));
+      .andExpect(jsonPath("$._embedded.connections.*", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(1)));
   }
 
   @Test
@@ -49,13 +47,12 @@ class DatabaseConnectionRepositoryDataRestTest {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.connections.*", hasSize(16)))
-      .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(16)));
+      .andExpect(jsonPath("$._embedded.connections.*", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(1)));
   }
 
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +94,6 @@ class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +135,6 @@ class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void clearUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
