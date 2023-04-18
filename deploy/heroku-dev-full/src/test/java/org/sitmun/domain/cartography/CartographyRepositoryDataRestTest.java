@@ -3,7 +3,6 @@ package org.sitmun.domain.cartography;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.domain.cartography.availability.CartographyAvailabilityRepository;
 import org.sitmun.domain.service.Service;
@@ -19,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -34,7 +32,7 @@ import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
 import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Cartography Repository Data REST test")

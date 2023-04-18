@@ -2,7 +2,6 @@ package org.sitmun.infrastructure.persistence.type.codelist;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
@@ -14,14 +13,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
+
 @DataJpaTest
 @DisplayName("CodeLists Test")
 class CodeListsTest {

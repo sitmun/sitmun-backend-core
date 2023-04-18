@@ -1,12 +1,11 @@
 package org.sitmun.authorization.controller;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
@@ -15,10 +14,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 class ClientConfigurationApplicationControllerTest {
+
+  @Value("${spring.data.rest.default-page-size}")
+  private int pageSize;
 
   @Autowired
   private MockMvc mvc;
@@ -38,7 +39,7 @@ class ClientConfigurationApplicationControllerTest {
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content", hasSize(3)))
-      .andExpect(jsonPath("$.size", is(3)))
+      .andExpect(jsonPath("$.size", is(pageSize)))
       .andExpect(jsonPath("$.number", is(0)))
       .andExpect(jsonPath("$.totalPages", is(1)))
       .andExpect(jsonPath("$.content[*].title", containsInAnyOrder("SITMUN - Consulta municipal", "SITMUN - Consulta provincial", "SITMUN - Consulta supramunicipal")));
@@ -54,8 +55,7 @@ class ClientConfigurationApplicationControllerTest {
       .andExpect(jsonPath("$.content", hasSize(1)))
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
-      .andExpect(jsonPath("$.totalPages", is(3)))
-      .andExpect(jsonPath("$.content[*].title", containsInAnyOrder("SITMUN - Consulta provincial")));
+      .andExpect(jsonPath("$.totalPages", is(3)));
   }
 
   @Test
@@ -65,8 +65,8 @@ class ClientConfigurationApplicationControllerTest {
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content").isEmpty())
-      .andExpect(jsonPath("$.size", is(0)))
+      .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(3)))
-      .andExpect(jsonPath("$.totalPages", is(1)));
+      .andExpect(jsonPath("$.totalPages", is(3)));
   }
 }

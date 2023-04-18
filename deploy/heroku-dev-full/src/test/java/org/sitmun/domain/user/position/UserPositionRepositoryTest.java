@@ -3,7 +3,6 @@ package org.sitmun.domain.user.position;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.User;
@@ -17,12 +16,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 
 
-@ExtendWith(SpringExtension.class)
+
 @DataJpaTest
 
 class UserPositionRepositoryTest {

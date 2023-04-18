@@ -5,7 +5,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
 import org.sitmun.domain.background.Background;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.Date;
@@ -31,7 +29,7 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@ExtendWith(SpringExtension.class)
+
 @DataJpaTest
 
 class ApplicationRepositoryTest {

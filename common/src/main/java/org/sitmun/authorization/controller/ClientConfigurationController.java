@@ -1,10 +1,12 @@
 package org.sitmun.authorization.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.sitmun.authorization.dto.JsonViewPage;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.mapstruct.factory.Mappers;
+import org.sitmun.authorization.dto.ApplicationDto;
+import org.sitmun.authorization.dto.ApplicationMapper;
 import org.sitmun.authorization.service.ClientConfigurationService;
 import org.sitmun.domain.application.Application;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -37,9 +41,10 @@ public class ClientConfigurationController {
    */
   @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
   @ResponseBody
-  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
-  public JsonViewPage<Application> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
+  public Page<ApplicationDto> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    return JsonViewPage.of(clientConfigurationService.getApplications(username, pageable));
+    Page<Application> page = clientConfigurationService.getApplications(username, pageable);
+    List<ApplicationDto> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
+    return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
 }
