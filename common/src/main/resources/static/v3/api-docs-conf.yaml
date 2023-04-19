@@ -46,7 +46,7 @@ tags:
 
 paths:
 
-  /api/config/client/territory:
+  /api/config/client/application:
     get:
       tags:
         -  Configuración y Autorización de Visor de mapas
