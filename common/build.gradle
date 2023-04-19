@@ -29,10 +29,14 @@ dependencies {
   implementation 'com.squareup.okhttp3:okhttp'
   implementation 'com.squareup.okhttp3:logging-interceptor'
   implementation "org.json:json:${json_version}"
-  implementation "io.jsonwebtoken:jjwt:${jjwt_version}"
+  implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
   implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
   implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
   implementation "org.mapstruct:mapstruct:${mapstruct_version}"
+  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+
+  implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
+  implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
 
   annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
 

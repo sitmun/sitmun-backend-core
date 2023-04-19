@@ -2,9 +2,9 @@ package org.sitmun.infrastructure.security.config;
 
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.SecurityRole;
-import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
 import org.sitmun.infrastructure.security.filter.ProxyTokenFilter;
+import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -38,16 +39,22 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   };
 
   private final SecurityEntryPoint unauthorizedHandler;
-  private final UserDetailsServiceImplementation userDetailsService;
+  private final UserDetailsService userDetailsService;
 
-  public WebSecurityConfigurer(UserDetailsServiceImplementation userDetailsService, SecurityEntryPoint unauthorizedHandler) {
+  private final JsonWebTokenService jsonWebTokenService;
+
+
+  public WebSecurityConfigurer(UserDetailsService userDetailsService,
+                               SecurityEntryPoint unauthorizedHandler,
+                               JsonWebTokenService jsonWebTokenService) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
+    this.jsonWebTokenService = jsonWebTokenService;
   }
 
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
-    return new JsonWebTokenFilter();
+    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService);
   }
 
   @Override

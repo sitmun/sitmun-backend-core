@@ -1,61 +1,72 @@
 package org.sitmun.infrastructure.security.service;
 
-import io.jsonwebtoken.*;
-import org.sitmun.infrastructure.security.core.userdetails.UserDetailsImplementation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.security.Key;
 import java.util.Date;
+import java.util.function.Function;
 
 @Service
 public class JsonWebTokenService {
-  private static final Logger logger = LoggerFactory.getLogger(JsonWebTokenService.class);
 
   @Value("${security.authentication.jwt.secret}")
-  private String jwtSecret;
+  private String secret;
 
   @Value("${security.authentication.jwt.token-validity-in-miliseconds}")
-  private int jwtExpirationMs;
+  private int validity;
 
-  public String generateToken(String userName, Date date) {
+  private Key key;
+
+  public String generateToken(UserDetails userDetails) {
+    return generateToken(userDetails.getUsername(), new Date());
+  }
+
+  public String generateToken(String username, Date date) {
+    long currentTimeMillis = date.getTime();
     return Jwts.builder()
-      .setSubject(userName)
-      .setIssuedAt(date)
-      .setExpiration(new Date(date.getTime() + jwtExpirationMs))
-      .signWith(SignatureAlgorithm.HS512, jwtSecret)
+      .setSubject(username)
+      .setIssuedAt(new Date(currentTimeMillis))
+      .setExpiration(new Date(currentTimeMillis + validity))
+      .signWith(key)
       .compact();
   }
 
-  public String generateToken(Authentication authentication) {
-
-    UserDetailsImplementation userPrincipal = (UserDetailsImplementation) authentication.getPrincipal();
-
-    return generateToken(userPrincipal.getUsername(), new Date());
+  public String getUsernameFromToken(String token) {
+    return getClaimFromToken(token, Claims::getSubject);
   }
 
-  public String getUserNameFromJwtToken(String token) {
-    return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+  public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+    final Claims claims = getAllClaimsFromToken(token);
+    return claimsResolver.apply(claims);
   }
 
-  public boolean validateJwtToken(String authToken) {
-    try {
-      Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
-      return true;
-    } catch (SignatureException e) {
-      logger.error("Invalid JWT signature: {}", e.getMessage());
-    } catch (MalformedJwtException e) {
-      logger.error("Invalid JWT token: {}", e.getMessage());
-    } catch (ExpiredJwtException e) {
-      logger.error("JWT token is expired: {}", e.getMessage());
-    } catch (UnsupportedJwtException e) {
-      logger.error("JWT token is unsupported: {}", e.getMessage());
-    } catch (IllegalArgumentException e) {
-      logger.error("JWT claims string is empty: {}", e.getMessage());
-    }
+  public Date getExpirationDateFromToken(String token) {
+    return getClaimFromToken(token, Claims::getExpiration);
+  }
 
-    return false;
+  public boolean validateToken(String token, UserDetails userDetails) {
+    final String username = getUsernameFromToken(token);
+    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+  }
+
+  private Boolean isTokenExpired(String token) {
+    final Date expiration = getExpirationDateFromToken(token);
+    return expiration.before(new Date());
+  }
+
+  private Claims getAllClaimsFromToken(String token) {
+    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+  }
+
+  @PostConstruct
+  private void buildKey() {
+    byte[] keyBytes = secret.getBytes();
+    key = Keys.hmacShaKeyFor(keyBytes);
   }
 }

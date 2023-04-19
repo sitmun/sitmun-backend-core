@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.security.filter;
 
-import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.apache.commons.lang3.StringUtils;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -8,8 +9,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -20,44 +21,42 @@ import java.io.IOException;
 
 public class JsonWebTokenFilter extends OncePerRequestFilter {
 
-  @Autowired
-  private JsonWebTokenService jsonWebTokenService;
-  @Autowired
-  private UserDetailsServiceImplementation userDetailsService;
+  private final JsonWebTokenService jsonWebTokenService;
+  private final UserDetailsService userDetailsService;
+
+  public JsonWebTokenFilter(
+    @Autowired UserDetailsService userDetailsService,
+    @Autowired JsonWebTokenService jsonWebTokenService) {
+    this.userDetailsService = userDetailsService;
+    this.jsonWebTokenService = jsonWebTokenService;
+  }
 
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-    throws ServletException, IOException {
-    try {
-      String jwt = parseJwt(request);
-      if (jwt != null && jsonWebTokenService.validateJwtToken(jwt)) {
-        String username = jsonWebTokenService.getUserNameFromJwtToken(jwt);
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    final String requestTokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.startsWith(requestTokenHeader, "Bearer ")) {
+      String jwtToken = requestTokenHeader.substring(7);
+      try {
+        String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
+        if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
+          UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+          if (jsonWebTokenService.validateToken(jwtToken, userDetails)) {
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+          }
+        }
+      } catch (IllegalArgumentException e) {
+        logger.error("Unable to fetch JWT Token");
+      } catch (ExpiredJwtException e) {
+        logger.error("JWT Token is expired");
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
       }
-    } catch (Exception e) {
-      String msg = String.format("Cannot set user authentication: %s", e.getMessage());
-      logger.error(msg, e);
+    } else {
+      logger.warn("JWT Token does not begin with Bearer String");
     }
-
     filterChain.doFilter(request, response);
   }
 
-  private String parseJwt(HttpServletRequest request) {
-    String headerAuth = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-    if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-      return headerAuth.substring(7);
-    }
-
-    return null;
-  }
 }
