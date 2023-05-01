@@ -3,17 +3,18 @@ package org.sitmun.authorization.controller;
 import org.mapstruct.factory.Mappers;
 import org.sitmun.authorization.dto.ApplicationDto;
 import org.sitmun.authorization.dto.ApplicationMapper;
+import org.sitmun.authorization.dto.ProfileDto;
+import org.sitmun.authorization.dto.ProfileMapper;
 import org.sitmun.authorization.service.ClientConfigurationService;
 import org.sitmun.domain.application.Application;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,5 +47,14 @@ public class ClientConfigurationController {
     Page<Application> page = clientConfigurationService.getApplications(username, pageable);
     List<ApplicationDto> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
+  }
+
+  @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<ProfileDto> getProfile(@CurrentSecurityContext SecurityContext context, @PathVariable("appId") String appId, @PathVariable("terrId") String terrId) {
+    String username = context.getAuthentication().getName();
+    return clientConfigurationService.getProfile(username, appId, terrId)
+      .map(profile -> Mappers.getMapper(ProfileMapper.class).map(profile))
+      .map(profile -> ResponseEntity.ok().body(profile))
+      .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
   }
 }

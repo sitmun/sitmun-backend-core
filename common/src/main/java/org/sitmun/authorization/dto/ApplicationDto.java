@@ -9,4 +9,6 @@ public class ApplicationDto {
   private int id;
   private String title;
   private String type;
+  private String theme;
+  private String srs;
 }

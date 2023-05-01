@@ -115,7 +115,7 @@ public class URIConstants {
 
   public static final String TREE_URI = "http://localhost/api/trees";
 
-  public static final String TREE_ALL_NODES_URI = "http://localhost/api/trees/{0}/allNodes?projection=view";
+  public static final String TREE_ALL_NODES_URI = TREE_URI + "/{0}/allNodes?projection=view";
 
   public static final String TREE_NODES_URI = "http://localhost/api/tree-nodes";
 
@@ -143,8 +143,8 @@ public class URIConstants {
 
   public static final String CONFIG_CLIENT_APPLICATION_URI = CONFIG_CLIENT_URI + "/application";
 
-  public static final String WORKSPACE_URI = "http://localhost/api/workspace";
-  public static final String WORKSPACE_APPLICATION_URI = WORKSPACE_URI + "/application/{0}/territory/{1}";
+  public static final String CONFIG_CLIENT_PROFILE_URI = CONFIG_CLIENT_URI + "/profile/{0}/{1}";
+
   public static final String TASK_URI = TASKS_URI + "/{0}";
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
   private static final String ROLES_URI = "http://localhost/api/roles";
