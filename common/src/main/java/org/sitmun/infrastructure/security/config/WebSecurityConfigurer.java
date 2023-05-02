@@ -9,6 +9,7 @@ import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImp
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
 import org.sitmun.infrastructure.security.filter.ProxyTokenFilter;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
+import org.sitmun.infrastructure.security.storage.PasswordStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,34 +46,21 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   };
 
   private final SecurityEntryPoint unauthorizedHandler;
+
   private final UserDetailsServiceImplementation userDetailsService;
   
   private final JsonWebTokenService jsonWebTokenService;
-  private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
   
-  @Value("${security.authentication.ldap.host}")
-  private String host;
-	
-  @Value("${security.authentication.ldap.base_dn}")
-  private String baseDN;
-	
-  @Value("${security.authentication.ldap.id_attribute}")
-  private String idAttribute;
-	
-  @Value("${security.authentication.ldap.user_ldap}")
-  private String userLdap;
-	
-  @Value("${security.authentication.ldap.password_ldap}")
-  private String passwordLdap;
+  private final List<PasswordStorage> passwordStorageList;
 
   public WebSecurityConfigurer(UserDetailsServiceImplementation userDetailsService,
-  				SecurityEntryPoint unauthorizedHandler,
+  							   SecurityEntryPoint unauthorizedHandler,
                                JsonWebTokenService jsonWebTokenService,
-		  		LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {
+                               List<PasswordStorage> passwordStorageList) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
-    this.ldapUserAuthoritiesPopulator = ldapUserAuthoritiesPopulator;
+    this.passwordStorageList = passwordStorageList;
   }
 
   @Bean
@@ -86,25 +74,13 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public AuthenticationManager authenticationManagerBean(HttpSecurity http, Environment environment) throws Exception {
-	  List<String> activeProfiles = List.of(environment.getActiveProfiles());
+  public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
 	  AuthenticationManagerBuilder authenticationManagerBuilder = 
 	          http.getSharedObject(AuthenticationManagerBuilder.class);
-	  if(activeProfiles.contains("ldap")) {
-		  addLdapAuthentication(authenticationManagerBuilder);
+	  for(PasswordStorage ps : passwordStorageList) {
+		  ps.addPasswordStorage(authenticationManagerBuilder);
 	  }
-	  authenticationManagerBuilder.userDetailsService(userDetailsService)
-	  .passwordEncoder(passwordEncoder());
 	  return authenticationManagerBuilder.build();
-  }
-  
-  private void addLdapAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-	  authenticationManagerBuilder.ldapAuthentication()
-	  .passwordEncoder(ldapPasswordEncoder())
-	  .userDnPatterns(this.idAttribute.concat("={0}"))
-	  .ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator)
-	  .contextSource().url(this.host.concat("/").concat(this.baseDN))
-	  .managerDn(this.userLdap).managerPassword(this.passwordLdap);
   }
 
   @Bean
@@ -122,13 +98,9 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PROXY.name()));
   }
 
-  @Bean()
+  @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-  
-  public PasswordEncoder ldapPasswordEncoder() {
-	  return new LdapShaPasswordEncoder();
   }
 
   @Bean

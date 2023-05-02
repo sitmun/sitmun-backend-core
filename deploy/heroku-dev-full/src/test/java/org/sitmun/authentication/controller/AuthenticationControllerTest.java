@@ -6,6 +6,7 @@ import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -44,5 +45,33 @@ class AuthenticationControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
       .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @Profile("ldap")
+  void ldapFailureUserDetailsSuccessfulLogin() throws Exception {
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+    login.setUsername("admin");
+    login.setPassword("admin");
+
+    mvc.perform(post("/api/authenticate")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.asJsonString(login)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id_token").exists());
+  }
+  
+  @Test
+  @Profile("ldap")
+  void successfulLdapLogin() throws Exception {
+	  UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+	    login.setUsername("user12");
+	    login.setPassword("user12");
+
+	    mvc.perform(post("/api/authenticate")
+	        .contentType(MediaType.APPLICATION_JSON)
+	        .content(TestUtils.asJsonString(login)))
+	      .andExpect(status().isOk())
+	      .andExpect(jsonPath("$.id_token").exists());
   }
 }

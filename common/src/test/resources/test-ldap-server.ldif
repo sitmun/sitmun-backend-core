@@ -1,0 +1,20 @@
+dn: dc=springframework,dc=org
+objectclass: top
+objectclass: domain
+objectclass: extensibleObject
+dc: springframework
+
+dn: ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: uid=user12,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Usuario12 pruebas
+sn: Usuario12
+uid: user12
+userPassword: bd35283fe8fcfd77d7c05a8bf2adb85c773281927e12c9829c72a9462092f7c4

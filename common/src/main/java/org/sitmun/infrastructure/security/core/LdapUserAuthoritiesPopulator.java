@@ -2,7 +2,8 @@ package org.sitmun.infrastructure.security.core;
 
 import java.util.Collection;
 import java.util.HashSet;
- 
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Component;
  
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
- 
+
+@Profile("ldap")
 @Slf4j
 @RequiredArgsConstructor
 @Component

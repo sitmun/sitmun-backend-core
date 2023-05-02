@@ -44,12 +44,6 @@ security:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
-    ldap:
-      host: ldap://localhost:1389
-      base_dn: dc=example,dc=com
-      id_attribute: uid
-      user_ldap: cn=admin
-      password_ldap: admin
 
 # ===================================================================
 # SITMUN specific properties
