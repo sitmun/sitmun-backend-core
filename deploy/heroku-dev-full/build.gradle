@@ -41,6 +41,7 @@ dependencies {
 
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation "org.json:json:${json_version}"
+  testImplementation 'com.unboundid:unboundid-ldapsdk'
 }
 
 bootJar {

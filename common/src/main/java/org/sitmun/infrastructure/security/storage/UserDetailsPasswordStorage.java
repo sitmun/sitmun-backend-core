@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(2)
+@Order
 public class UserDetailsPasswordStorage implements PasswordStorage {
 
 	private final UserDetailsServiceImplementation userDetailsService;
