@@ -62,7 +62,7 @@ class ClientConfigurationApplicationControllerTest {
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
       .andExpect(jsonPath("$.totalPages", is(4)))
-      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Provincial")));
+      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
   }
 
   @Test

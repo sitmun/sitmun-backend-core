@@ -1,7 +1,7 @@
 package org.sitmun.authorization.controller;
 
 import org.mapstruct.factory.Mappers;
-import org.sitmun.authorization.dto.ApplicationDto;
+import org.sitmun.authorization.dto.ApplicationDtoLittle;
 import org.sitmun.authorization.dto.ApplicationMapper;
 import org.sitmun.authorization.dto.ProfileDto;
 import org.sitmun.authorization.dto.ProfileMapper;
@@ -36,16 +36,17 @@ public class ClientConfigurationController {
 
   /**
    * Get the list of applications.
-   * @param context security context
+   *
+   * @param context  security context
    * @param pageable pagination information
    * @return a page of a list of applications
    */
   @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
   @ResponseBody
-  public Page<ApplicationDto> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
+  public Page<ApplicationDtoLittle> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
     Page<Application> page = clientConfigurationService.getApplications(username, pageable);
-    List<ApplicationDto> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
+    List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
 

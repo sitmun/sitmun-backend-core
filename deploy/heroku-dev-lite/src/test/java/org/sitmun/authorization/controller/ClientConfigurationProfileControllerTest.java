@@ -7,10 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,12 +46,34 @@ class ClientConfigurationProfileControllerTest {
   void groups() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
-      .andDo(print())
       .andExpect(jsonPath("$.groups[?(@.id=='group/2')].title", hasItem("Background Map")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/2')].layers.*", hasItems("layer/1", "layer/2")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/1')].title", hasItem("Cartography Group")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/1')].layers[0]", hasItem("layer/3")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/3')].title", hasItem("Situation Map")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/3')].layers[0]", hasItem("layer/4")));
+  }
+
+  @Test
+  void backgrounds() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.backgrounds").isArray())
+      .andExpect(jsonPath("$.backgrounds[?(@.id=='group/2')].title", hasItem("Background Map")))
+      .andExpect(jsonPath("$.groups[?(@.id=='group/2')].title", hasItem("Background Map")));
+  }
+
+  @Test
+  void situationMap() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.application.situation-map", is("group/3")));
+  }
+
+  @Test
+  void tasks() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/1')].ui-control", hasItem("attribution")));
   }
 }

@@ -585,37 +585,37 @@ databaseChangeLog:
                   type: DATETIME
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('BAC_ID', 1);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_APP_BCKG.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_APP_BCKG
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: ABC_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: ABC_APPID
-#                  type: NUMERIC
-#              - column:
-#                  name: ABC_BACKID
-#                  type: NUMERIC
-#              - column:
-#                  name: ABC_ORDER
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_AVAIL_GI.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_AVAIL_GI
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: AGI_ID
-#                  type: NUMERIC
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_APP_BCKG.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_BCKG
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: ABC_ID
+                  type: NUMERIC
+              - column:
+                  name: ABC_APPID
+                  type: NUMERIC
+              - column:
+                  name: ABC_BACKID
+                  type: NUMERIC
+              - column:
+                  name: ABC_ORDER
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_AVAIL_GI.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_AVAIL_GI
+        #            usePreparedStatements: true
+        #            columns:
+        #              - column:
+        #                  name: AGI_ID
+        #                  type: NUMERIC
 #              - column:
 #                  name: AGI_TERID
 #                  type: NUMERIC
@@ -684,28 +684,28 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTS_ID', 1);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_TSK_UI.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_TSK_UI
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: TUI_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: TUI_NAME
-#                  type: STRING
-#              - column:
-#                  name: TUI_TOOLTIP
-#                  type: STRING
-#              - column:
-#                  name: TUI_ORDER
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TUI_ID', 36);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_TSK_UI.csv
+            relativeToChangelogFile: true
+            tableName: STM_TSK_UI
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: TUI_ID
+                  type: NUMERIC
+              - column:
+                  name: TUI_NAME
+                  type: STRING
+              - column:
+                  name: TUI_TOOLTIP
+                  type: STRING
+              - column:
+                  name: TUI_ORDER
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TUI_ID', 36);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_TASK.csv
@@ -775,40 +775,40 @@ databaseChangeLog:
 #                  name: QUE_ID
 #                  type: NUMERIC
 #              - column:
-#                  name: QUE_COMMAND
-#                  type: STRING
-#              - column:
-#                  name: QUE_TYPE
-#                  type: STRING
-#              - column:
-#                  name: QUE_DESC
-#                  type: STRING
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 32279);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_ROL_TSK.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_ROL_TSK
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: RTS_ROLEID
-#                  type: NUMERIC
-#              - column:
-#                  name: RTS_TASKID
-#                  type: NUMERIC
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_POST.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_POST
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: POS_ID
+        #                  name: QUE_COMMAND
+        #                  type: STRING
+        #              - column:
+        #                  name: QUE_TYPE
+        #                  type: STRING
+        #              - column:
+        #                  name: QUE_DESC
+        #                  type: STRING
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 32279);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_ROL_TSK.csv
+            relativeToChangelogFile: true
+            tableName: STM_ROL_TSK
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: RTS_ROLEID
+                  type: NUMERIC
+              - column:
+                  name: RTS_TASKID
+                  type: NUMERIC
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_POST.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_POST
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: POS_ID
 #                  type: NUMERIC
 #              - column:
 #                  name: POS_POST

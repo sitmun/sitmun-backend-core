@@ -216,11 +216,20 @@ public class ClientConfigurationService {
         List<CartographyPermission> permissions = cpStream.collect(Collectors.toList());
         List<Cartography> layers = permissions.stream().flatMap(cp -> cp.getMembers().stream()).distinct().collect(Collectors.toList());
 
+        List<Role> roles = user.getPermissions().stream()
+          .filter(permission -> Objects.equals(permission.getTerritory().getId(), territory.getId()))
+          .map(UserConfiguration::getRole)
+          .filter(role -> role.getApplications().stream().anyMatch(app -> Objects.equals(app.getId(), application.getId())))
+          .collect(Collectors.toList());
+
+        List<Task> tasks = roles.stream().flatMap(role -> role.getTasks().stream()).distinct().collect(Collectors.toList());
+
         return Profile.builder()
           .territory(it.getSecond())
           .application(it.getFirst())
           .groups(permissions)
           .layers(layers)
+          .tasks(tasks)
           .build();
       });
   }

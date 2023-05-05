@@ -10,6 +10,8 @@ import java.util.List;
 public class ProfileDto {
   private ApplicationDto application;
   private TerritoryDto territory;
+  private List<BackgroundDto> backgrounds;
   private List<CartographyPermissionDto> groups;
   private List<CartographyDto> layers;
+  private List<TaskDto> tasks;
 }

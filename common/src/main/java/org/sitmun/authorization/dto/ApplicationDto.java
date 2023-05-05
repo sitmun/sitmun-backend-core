@@ -1,5 +1,6 @@
 package org.sitmun.authorization.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +12,6 @@ public class ApplicationDto {
   private String type;
   private String theme;
   private String srs;
+  @JsonProperty("situation-map")
+  private String situationMap;
 }
