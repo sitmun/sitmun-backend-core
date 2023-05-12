@@ -143,6 +143,8 @@ public class URIConstants {
 
   public static final String CONFIG_CLIENT_APPLICATION_URI = CONFIG_CLIENT_URI + "/application";
 
+  public static final String CONFIG_PROXY_URI = "http://localhost/api/config/proxy";
+
   public static final String WORKSPACE_URI = "http://localhost/api/workspace";
   public static final String WORKSPACE_APPLICATION_URI = WORKSPACE_URI + "/application/{0}/territory/{1}";
   public static final String TASK_URI = TASKS_URI + "/{0}";
