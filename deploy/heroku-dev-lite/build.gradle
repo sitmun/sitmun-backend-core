@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project deploy heroku-dev-full
+// Project deploy heroku-dev-lite
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -41,6 +41,10 @@ dependencies {
 
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation "org.json:json:${json_version}"
+}
+
+bootRun {
+  mainClass = 'org.sitmun.Application'
 }
 
 bootJar {
