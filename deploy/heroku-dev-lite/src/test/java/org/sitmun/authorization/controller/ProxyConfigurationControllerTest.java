@@ -27,7 +27,7 @@ class ProxyConfigurationControllerTest {
   @Autowired
   JsonWebTokenService jsonWebTokenService;
 
-  @Value("${security.authentication.jwt.secret}")
+  @Value("${security.authentication.middleware.secret}")
 	private String secret;
   
   String getUserToken() {
@@ -43,7 +43,7 @@ class ProxyConfigurationControllerTest {
     mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
           .contentType(MediaType.APPLICATION_JSON)
           .header("X-SITMUN-Proxy-key", secret)
-          .content("{\"appId\": 1, \"terId\": 0, \"type\": \"SQL\", \"typeId\": 3279, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": null}"))
+          .content("{\"appId\": 1, \"terId\": 0, \"type\": \"SQL\", \"typeId\": 30, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": null}"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
@@ -58,7 +58,7 @@ class ProxyConfigurationControllerTest {
 	  mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
 	      .contentType(MediaType.APPLICATION_JSON)
 	      .header("X-SITMUN-Proxy-key", secret)
-	      .content("{\"appId\": 1, \"terId\": 0, \"type\": \"SQL\", \"typeId\": 3279, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": \"" + token + "\"}"))
+	      .content("{\"appId\": 1, \"terId\": 0, \"type\": \"SQL\", \"typeId\": 30, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": \"" + token + "\"}"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
@@ -72,9 +72,9 @@ class ProxyConfigurationControllerTest {
     mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
           .contentType(MediaType.APPLICATION_JSON)
           .header("X-SITMUN-Proxy-key", secret)
-          .content("{\"appId\": 1, \"terId\": 0, \"type\": \"GEO\", \"typeId\": 85, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": null}"))
+          .content("{\"appId\": 1, \"terId\": 0, \"type\": \"GEO\", \"typeId\": 1, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": null}"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("http://sitmun.diba.cat/arcgis/services/PRIVAT/MUNI_DB_BASE/MapServer/WMSServer"));
+      .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
   }
 
   /**
@@ -87,8 +87,8 @@ class ProxyConfigurationControllerTest {
 	  mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
 	      .contentType(MediaType.APPLICATION_JSON)
 	      .header("X-SITMUN-Proxy-key", secret)
-	      .content("{\"appId\": 1, \"terId\": 0, \"type\": \"GEO\", \"typeId\": 85, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": \"" + token + "\"}"))
+	      .content("{\"appId\": 1, \"terId\": 0, \"type\": \"GEO\", \"typeId\": 1, \"method\": \"GET\", \"parameters\": {}, \"requestBody\": null, \"id_token\": \"" + token + "\"}"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("http://sitmun.diba.cat/arcgis/services/PRIVAT/MUNI_DB_BASE/MapServer/WMSServer"));
+      .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
   }
 }

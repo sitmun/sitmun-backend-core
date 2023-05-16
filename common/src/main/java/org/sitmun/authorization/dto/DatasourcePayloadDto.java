@@ -1,7 +1,5 @@
 package org.sitmun.authorization.dto;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Builder;
@@ -12,12 +10,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JsonTypeName("DatasourcePayload")
-public class DatasourcePayloadDto extends PayloadDto implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6403427503301613899L;
+public class DatasourcePayloadDto extends PayloadDto {
 
 	private String uri;
 	

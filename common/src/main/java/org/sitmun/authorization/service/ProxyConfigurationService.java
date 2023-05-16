@@ -12,6 +12,8 @@ import org.sitmun.authorization.dto.ConfigProxyRequest;
 import org.sitmun.authorization.dto.DatasourcePayloadDto;
 import org.sitmun.authorization.dto.HttpSecurityDto;
 import org.sitmun.authorization.dto.OgcWmsPayloadDto;
+import org.sitmun.authorization.dto.PayloadDto;
+import org.sitmun.authorization.exception.BadRequestException;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.database.DatabaseConnection;
@@ -20,6 +22,7 @@ import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 @org.springframework.stereotype.Service
 public class ProxyConfigurationService {
@@ -49,30 +52,49 @@ public class ProxyConfigurationService {
 		return true;
 	}
 	
-	public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, String username) {
+	public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, long expirationTimeToken) {
 		ConfigProxyDto result = null;
+		PayloadDto payload = null;
+		String configType = "";
+		List<String> varyParameters = new ArrayList<String>();
 		if(CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequest.getType())) {
 			Optional<Task> task = taskRepository.findById(configProxyRequest.getTypeId());
 			if (task.isPresent()) {
 				Task effectiveTask = task.get();
 				DatabaseConnection databaseConnection = effectiveTask.getConnection();
-				String sql = getSqlByTask(effectiveTask);
-				result = getDatasourceConfiguration(databaseConnection, sql);
+				payload = getDatasourceConfiguration(databaseConnection, getSqlByTask(effectiveTask));
+				configType = CONNECTION_TYPE_KEY;
 			}
 		}else {
 			Optional<Cartography> cartography = cartographyRepository.findById(configProxyRequest.getTypeId());
 			if(cartography.isPresent()) {
 				Cartography effectiveCartography = cartography.get();
 				Service service = effectiveCartography.getService();
-				result = getOgcWmsConfiguration(service, configProxyRequest.getParameters(), configProxyRequest.getMethod());
+				Map<String, String> parameters = configProxyRequest.getParameters();
+				addParameters(parameters, service.getParameters(), varyParameters);
+				payload = getOgcWmsConfiguration(service, parameters, configProxyRequest.getMethod());
+				configType = service.getType();
 			}
+		}
+		if(payload != null) {
+			long expirationTime = expirationTimeToken > 0 ? expirationTimeToken / 1000 : (new Date().getTime() / 1000) + responseValidityTime; 
+			result = ConfigProxyDto.builder()
+			  .type(configType)
+			  .exp(expirationTime)
+			  .vary(varyParameters)
+			  .payload(payload)
+			  .build();
+		} else {
+			throw new BadRequestException("Bad request");
 		}
 		return result;
 	}
 	
-	private ConfigProxyDto getOgcWmsConfiguration(Service service, Map<String, String> parameters, String method) {
-		List<String> varyParameters = new ArrayList<String>();
-		addParameters(parameters, service.getParameters(), varyParameters);
+	private OgcWmsPayloadDto getOgcWmsConfiguration(Service service, Map<String, String> parameters, String method) {
+		
+		if (service == null) {
+			return null;
+		}
 		
 		HttpSecurityDto security = null;
 		if (service.getPasswordSet()) {
@@ -84,32 +106,22 @@ public class ProxyConfigurationService {
 			  .build();
 		}
 		
-		return ConfigProxyDto.builder()
-		  .type(service.getType())
-		  .exp((new Date().getTime() / 1000) + responseValidityTime)
-		  .vary(varyParameters)
-		  .payload(OgcWmsPayloadDto.builder()
+		return OgcWmsPayloadDto.builder()
 		    .uri(service.getServiceURL())
 			.method(method)
 			.parameters(parameters)
 			.security(security)
-			.build())
-		  .build();
+			.build();
 	}
 	
-	private ConfigProxyDto getDatasourceConfiguration(DatabaseConnection databaseConnection, String sql) {
-		return ConfigProxyDto.builder()
-		  .type(CONNECTION_TYPE_KEY)
-		  .exp((new Date().getTime() / 1000) + responseValidityTime)
-		  .vary(new ArrayList<String>())
-		  .payload(DatasourcePayloadDto.builder()
+	private DatasourcePayloadDto getDatasourceConfiguration(DatabaseConnection databaseConnection, String sql) {
+		return databaseConnection != null ? DatasourcePayloadDto.builder()
 		    .uri(databaseConnection.getUrl())
 		    .user(databaseConnection.getUser())
 		    .password(databaseConnection.getPassword())
 		    .driver(databaseConnection.getDriver())
 		    .sql(sql)
-		    .build())
-		  .build();
+		    .build() : null;
 	}
 	
 	private void addParameters(Map<String, String> requestParameters, Set<ServiceParameter> serviceParameters, List<String> varyParameters) {
@@ -127,6 +139,10 @@ public class ProxyConfigurationService {
 		Map<String, Object> taskParams = task.getProperties();
 		if(taskParams != null && taskParams.containsKey(SQL_COMMAND_KEY)) {
 			sql = (String)taskParams.get(SQL_COMMAND_KEY);
+		}
+		
+		if (!StringUtils.hasText(sql)) {
+			throw new BadRequestException("Bad request");
 		}
 		return sql;
 	}

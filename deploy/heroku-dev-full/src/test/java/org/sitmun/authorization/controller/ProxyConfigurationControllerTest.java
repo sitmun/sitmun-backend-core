@@ -27,7 +27,7 @@ class ProxyConfigurationControllerTest {
   @Autowired
   JsonWebTokenService jsonWebTokenService;
 
-  @Value("${security.authentication.jwt.secret}")
+  @Value("${security.authentication.middleware.secret}")
 	private String secret;
   
   String getUserToken() {

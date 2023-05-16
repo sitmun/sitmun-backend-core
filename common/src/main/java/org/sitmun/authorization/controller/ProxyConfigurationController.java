@@ -9,6 +9,7 @@ import org.sitmun.infrastructure.security.config.WebSecurityConfigurer;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +30,15 @@ public class ProxyConfigurationController {
 	
 	@PostMapping(produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<ConfigProxyDto> getServiceConfiguration(@RequestBody ConfigProxyRequest configProxyRequest) {
-		String username = configProxyRequest.getToken() != null ? jsonWebTokenService.getUsernameFromToken(configProxyRequest.getToken()): WebSecurityConfigurer.PUBLIC_USER_NAME;
+		String username = WebSecurityConfigurer.PUBLIC_USER_NAME;
+		String token = configProxyRequest.getToken();
+		long expirationTime = 0;
+		if(StringUtils.hasText(token)) {
+			username = jsonWebTokenService.getUsernameFromToken(token);
+			expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
+		}
 		if(proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
-			ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, username);
+			ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
 			return ResponseEntity.ok().body(configProxyDto);
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
