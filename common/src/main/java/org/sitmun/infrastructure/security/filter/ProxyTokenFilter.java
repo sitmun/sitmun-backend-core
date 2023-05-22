@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class ProxyTokenFilter extends OncePerRequestFilter {
 
+  public static final String X_SITMUN_PROXY_KEY = "X-SITMUN-Proxy-Key";
   private final String principal;
   private final List<GrantedAuthority> authorities;
   @Value("${security.authentication.middleware.secret}")
@@ -32,7 +33,7 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
     throws ServletException, IOException {
     try {
-      String key = request.getHeader("X-SITMUN-Proxy-Key") == null ? "" : request.getHeader("X-SITMUN-Proxy-Key");
+      String key = request.getHeader(X_SITMUN_PROXY_KEY) == null ? "" : request.getHeader(X_SITMUN_PROXY_KEY);
 
       if (Objects.equals(key, middlewareSecret)) {
         UsernamePasswordAuthenticationToken authentication =

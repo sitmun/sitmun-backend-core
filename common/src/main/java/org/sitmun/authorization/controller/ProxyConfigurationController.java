@@ -1,7 +1,5 @@
 package org.sitmun.authorization.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import org.sitmun.authorization.dto.ConfigProxyDto;
 import org.sitmun.authorization.dto.ConfigProxyRequest;
 import org.sitmun.authorization.service.ProxyConfigurationService;
@@ -15,25 +13,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/api/config/proxy")
 public class ProxyConfigurationController {
-	
-	private final ProxyConfigurationService proxyConfigurationService;
-	
-	private final JsonWebTokenService jsonWebTokenService;
-	
-	public ProxyConfigurationController(ProxyConfigurationService proxyConfigurationService, JsonWebTokenService jsonWebTokenService) {
-		this.proxyConfigurationService = proxyConfigurationService;
-		this.jsonWebTokenService = jsonWebTokenService;
-	}
-	
-	@PostMapping(produces = APPLICATION_JSON_VALUE)
-	public ResponseEntity<ConfigProxyDto> getServiceConfiguration(@RequestBody ConfigProxyRequest configProxyRequest) {
-		String username = WebSecurityConfigurer.PUBLIC_USER_NAME;
-		String token = configProxyRequest.getToken();
-		long expirationTime = 0;
-		if(StringUtils.hasText(token)) {
+
+  private final ProxyConfigurationService proxyConfigurationService;
+
+  private final JsonWebTokenService jsonWebTokenService;
+
+  public ProxyConfigurationController(ProxyConfigurationService proxyConfigurationService, JsonWebTokenService jsonWebTokenService) {
+    this.proxyConfigurationService = proxyConfigurationService;
+    this.jsonWebTokenService = jsonWebTokenService;
+  }
+
+  @PostMapping(produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<ConfigProxyDto> getServiceConfiguration(@RequestBody ConfigProxyRequest configProxyRequest) {
+    String username = WebSecurityConfigurer.PUBLIC_USER_NAME;
+    String token = configProxyRequest.getToken();
+    long expirationTime = 0;
+    if (StringUtils.hasText(token)) {
 			username = jsonWebTokenService.getUsernameFromToken(token);
 			expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
 		}
