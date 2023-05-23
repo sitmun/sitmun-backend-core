@@ -84,7 +84,7 @@ public class Background {
   /**
    * Cartography group used as background.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private CartographyPermission cartographyGroup;

@@ -150,7 +150,7 @@ public class Territory {
   /**
    * Territory typology.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   private TerritoryType type;
@@ -179,7 +179,7 @@ public class Territory {
    * Territory typology.
    * @deprecated
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   @Deprecated

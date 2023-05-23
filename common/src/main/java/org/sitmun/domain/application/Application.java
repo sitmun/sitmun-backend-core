@@ -122,7 +122,7 @@ public class Application {
   /**
    * Situation map when the application is internal.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GGI"))
   private CartographyPermission situationMap;
 

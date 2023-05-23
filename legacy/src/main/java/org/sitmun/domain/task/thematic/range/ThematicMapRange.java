@@ -31,7 +31,7 @@ public class ThematicMapRange {
   /**
    * Thematic map.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "TRK_THEID", foreignKey = @ForeignKey(name = "STM_TRK_FK_THE"))
   @Id
