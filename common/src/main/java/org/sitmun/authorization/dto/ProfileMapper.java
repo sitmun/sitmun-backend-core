@@ -13,6 +13,7 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
+import org.sitmun.infrastructure.persistence.type.point.Point;
 
 import java.util.Comparator;
 import java.util.List;
@@ -23,15 +24,16 @@ public interface ProfileMapper {
   ProfileDto map(Profile profile);
 
   default TerritoryDto map(Territory territory) {
-    TerritoryDto territoryDto = new TerritoryDto();
     Envelope extent = territory.getExtent();
-    territoryDto.setInitialExtent(new Double[]{
+    Point point = territory.getCenter();
+    return TerritoryDto.builder().initialExtent(new Double[]{
       extent.getMinX(),
       extent.getMinY(),
       extent.getMaxX(),
       extent.getMaxY()
-    });
-    return territoryDto;
+    }).center(new Double[]{point.getX(), point.getY()})
+      .defaultZoomLevel(territory.getDefaultZoomLevel())
+      .build();
   }
 
   default CartographyDto map(Cartography cartography) {
@@ -74,7 +76,7 @@ public interface ProfileMapper {
   }
 
   @AfterMapping
-  default void completeProfile(Profile profile, @MappingTarget ProfileDto profileDto) {
+  default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder profileDto) {
     Comparator<ApplicationBackground> order = Comparator.nullsLast(Comparator.comparing(ApplicationBackground::getOrder));
     List<BackgroundDto> backgrounds = profile.getApplication().getBackgrounds().stream()
       .sorted(order)
@@ -83,7 +85,7 @@ public interface ProfileMapper {
       .map(Background::getCartographyGroup)
       .map(this::mapCartographyPermissionToBackground)
       .collect(Collectors.toList());
-    profileDto.setBackgrounds(backgrounds);
+    profileDto.backgrounds(backgrounds);
   }
 
 

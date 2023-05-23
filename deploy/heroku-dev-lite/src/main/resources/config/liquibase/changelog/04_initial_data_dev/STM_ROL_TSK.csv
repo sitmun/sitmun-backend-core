@@ -22,7 +22,8 @@ RTS_ROLEID,RTS_TASKID
 1,21
 1,22
 1,23
-1,24
+# search
+#1,24
 1,25
 1,26
 1,27
@@ -30,3 +31,10 @@ RTS_ROLEID,RTS_TASKID
 1,29
 1,30
 1,31
+#
+# Modal UI
+# - Welcome Pane (32)
+# - Help Panel (33)
+#
+1,32
+1,33

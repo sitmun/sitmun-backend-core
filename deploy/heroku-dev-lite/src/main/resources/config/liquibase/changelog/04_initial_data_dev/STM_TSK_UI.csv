@@ -22,7 +22,7 @@ TUI_ID,TUI_NAME,TUI_TOOLTIP,TUI_ORDER
 21,scale,scale,21
 22,scaleBar,scaleBar,22
 23,scaleSelector,scaleSelector,23
-24,search,search,24
+#24,search,search,24
 25,share,share,25
 26,streetView,streetView,26
 27,threed,threed,27
@@ -30,3 +30,10 @@ TUI_ID,TUI_NAME,TUI_TOOLTIP,TUI_ORDER
 29,WFSEdit,WFSEdit,29
 30,WFSQuery,WFSQuery,30
 31,workLayerManager,workLayerManager,31
+#
+# Modal UI component
+# - Welcome Pane (32)
+# - Help Panel (33)
+#
+32,markup-welcome-panel,markup-welcome-panel,32
+33,markup-help-panel,markup-help-panel,33

@@ -175,6 +175,12 @@ databaseChangeLog:
               - column:
                   name: TER_GTYPID
                   type: NUMERIC
+              - column:
+                  name: TER_CENTER
+                  type: STRING
+              - column:
+                  name: TER_ZOOM
+                  type: NUMERIC
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
         - loadData:
