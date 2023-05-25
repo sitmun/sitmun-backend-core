@@ -8,10 +8,6 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
-sitmun:
-  module: SITMUN Core
-  version: 3.0-SNAPSHOT
-
 spring:
   application:
     name: SITMUN
@@ -81,3 +77,9 @@ server:
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================
+
+sitmun:
+  module: SITMUN Core
+  version: 3.0-SNAPSHOT
+  proxy:
+    config-response-validity-in-seconds: 3600
