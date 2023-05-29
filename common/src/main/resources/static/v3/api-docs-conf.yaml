@@ -227,20 +227,21 @@ components:
             Fecha de expiración de la configuración expresado en segundos desde
             1970-01-01T00:00:00Z UTC. La configuración se puede usar solo hasta
             antes de dicha fecha.
-        vary:
-          description: |-
-            Esta configuración está originada por una determinada
-            petición del cliente. Si hay una nueva petición del cliente
-            que se diferencia sólo en los valores asociados a los 
-            `parameters` listados en `vary`, se debe reutilizar esta 
-            configuración en lugar de solicitar una nueva si no ha expirado.
-          type: array
-          items:
-            type: string
         payload:
           type: object
           additionalProperties: true
           description: Valores de la configuración.
+          properties:
+            vary:
+              description: |-
+                Esta configuración está originada por una determinada
+                petición del cliente. Si hay una nueva petición del cliente
+                que se diferencia sólo en los valores asociados a los 
+                `parameters` listados en `vary`, se debe reutilizar esta 
+                configuración en lugar de solicitar una nueva si no ha expirado.
+              type: array
+              items:
+                type: string
       required:
         - type
         - exp
