@@ -22,10 +22,12 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation project(':app')
+  implementation project(':common')
   implementation project(':legacy')
 
-  implementation 'org.postgresql:postgresql'
+  implementation 'com.zaxxer:HikariCP'
+
+  implementation 'com.h2database:h2'
 
   testImplementation project(':common')
 
@@ -43,14 +45,6 @@ dependencies {
   testImplementation "org.json:json:${json_version}"
 }
 
-bootRun {
-  mainClass = 'org.sitmun.Application'
-}
-
-bootJar {
-  mainClass = 'org.sitmun.Application'
-}
-
 jacocoTestReport {
   reports {
     xml.enabled true
@@ -58,10 +52,6 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
-
-bootJar.dependsOn(":app:bootJar")
-
-compileTestJava.dependsOn(":app:bootJar")
 
 jib {
   from {
@@ -77,4 +67,8 @@ jib {
   container {
     mainClass = 'org.sitmun.Application'
   }
+}
+
+springBoot {
+  getMainClass().set("org.sitmun.Application")
 }

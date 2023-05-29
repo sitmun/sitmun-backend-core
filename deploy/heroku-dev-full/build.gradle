@@ -22,12 +22,14 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation project(':app')
+  implementation project(':common')
   implementation project(':legacy')
 
   implementation 'org.postgresql:postgresql'
+  implementation 'com.zaxxer:HikariCP'
 
   testImplementation project(':common')
+  testImplementation 'com.h2database:h2'
 
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: "com.vaadin.external.google", module: "android-json"
@@ -43,10 +45,6 @@ dependencies {
   testImplementation "org.json:json:${json_version}"
 }
 
-bootJar {
-  mainClass = 'org.sitmun.Application'
-}
-
 jacocoTestReport {
   reports {
     xml.enabled true
@@ -54,10 +52,6 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
-
-bootJar.dependsOn(":app:bootJar")
-
-compileTestJava.dependsOn(":app:bootJar")
 
 jib {
   from {
@@ -73,4 +67,8 @@ jib {
   container {
     mainClass = 'org.sitmun.Application'
   }
+}
+
+springBoot {
+  getMainClass().set("org.sitmun.Application")
 }

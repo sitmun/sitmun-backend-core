@@ -1,6 +1,5 @@
 rootProject.name = 'sitmun-backend-core'
 
-include 'app'
 include 'legacy'
 include 'common'
 include 'cli'

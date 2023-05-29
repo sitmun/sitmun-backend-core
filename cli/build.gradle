@@ -11,7 +11,7 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation project(':app')
+  implementation project(':common')
   implementation "org.hibernate:hibernate-core"
   implementation "org.reflections:reflections"
   implementation "info.picocli:picocli:${picocli_version}"
