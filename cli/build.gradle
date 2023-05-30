@@ -70,5 +70,3 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
-
-compileJava.dependsOn ':app:bootJar'
