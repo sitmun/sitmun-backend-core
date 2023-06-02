@@ -1,5 +1,11 @@
 openapi: 3.0.3
 
+servers:
+  - url: https://sitmun-backend-core.herokuapp.com
+    description: Servidor de desarrollo
+  - url: http://localhost:8080
+    description: Servidor local de desarrollo
+
 info:
   title: SITMUN 3 - API de Administración
   description: |-
@@ -14,6 +20,9 @@ info:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
+  contact:
+    name: Comité técnico SITMUN  
+    url: https://sitmun.github.io/contacto/
 
 tags:
   - name: Administración
@@ -25,6 +34,7 @@ paths:
     get:
       tags:
         - Administración
+      description: get-account
       operationId: getAccount
       security:
         - bearerAuth: []
@@ -38,6 +48,7 @@ paths:
     put:
       tags:
         - Administración
+      description: save-account
       operationId: saveAccount
       requestBody:
         content:
@@ -2462,6 +2473,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-available
       operationId: executeSearch-cartography-get
       parameters:
         - name: applicationId
@@ -2484,6 +2496,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-cartographiesByCreatedDateSinceDate
       operationId: executeSearch-cartography-get_1
       parameters:
         - name: sinceDate
@@ -2506,6 +2519,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findOneWithEagerRelationships
       operationId: executeSearch-cartography-get_2
       parameters:
         - name: id
@@ -6870,6 +6884,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-existsByCodeListNameAndValue
       operationId: executeSearch-codelistvalue-get
       parameters:
         - name: codeList
@@ -6895,6 +6910,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findDistinctCodeListName
       operationId: executeSearch-codelistvalue-get_1
       security:
         - bearerAuth: []
@@ -9517,6 +9533,7 @@ paths:
     get:
       tags:
         - Administración
+      description: listAllFormsOfMetadata
       operationId: listAllFormsOfMetadata_1
       security:
         - bearerAuth: []
@@ -9531,6 +9548,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_1
       security:
         - bearerAuth: []
@@ -9551,6 +9569,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_2
       security:
         - bearerAuth: []
@@ -9571,6 +9590,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_3
       security:
         - bearerAuth: []
@@ -9591,6 +9611,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_4
       security:
         - bearerAuth: []
@@ -9611,6 +9632,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_5
       security:
         - bearerAuth: []
@@ -9631,6 +9653,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_6
       security:
         - bearerAuth: []
@@ -9651,6 +9674,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_7
       security:
         - bearerAuth: []
@@ -9671,6 +9695,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_8
       security:
         - bearerAuth: []
@@ -9691,6 +9716,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_9
       security:
         - bearerAuth: []
@@ -9711,6 +9737,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_10
       security:
         - bearerAuth: []
@@ -9731,6 +9758,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_11
       security:
         - bearerAuth: []
@@ -9751,6 +9779,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_12
       security:
         - bearerAuth: []
@@ -9771,6 +9800,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_13
       security:
         - bearerAuth: []
@@ -9791,6 +9821,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_14
       security:
         - bearerAuth: []
@@ -9811,6 +9842,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_15
       security:
         - bearerAuth: []
@@ -9831,6 +9863,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_16
       security:
         - bearerAuth: []
@@ -9851,6 +9884,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_17
       security:
         - bearerAuth: []
@@ -9871,6 +9905,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_18
       security:
         - bearerAuth: []
@@ -9891,6 +9926,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_19
       security:
         - bearerAuth: []
@@ -9911,6 +9947,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_20
       security:
         - bearerAuth: []
@@ -9931,6 +9968,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_21
       security:
         - bearerAuth: []
@@ -9951,6 +9989,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_22
       security:
         - bearerAuth: []
@@ -9971,6 +10010,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_23
       security:
         - bearerAuth: []
@@ -9991,6 +10031,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_24
       security:
         - bearerAuth: []
@@ -10011,6 +10052,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_25
       security:
         - bearerAuth: []
@@ -10031,6 +10073,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_26
       security:
         - bearerAuth: []
@@ -10051,6 +10094,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_27
       security:
         - bearerAuth: []
@@ -10071,6 +10115,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_28
       security:
         - bearerAuth: []
@@ -10091,6 +10136,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_29
       security:
         - bearerAuth: []
@@ -10111,6 +10157,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_30
       security:
         - bearerAuth: []
@@ -10131,6 +10178,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_31
       security:
         - bearerAuth: []
@@ -10151,6 +10199,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_32
       security:
         - bearerAuth: []
@@ -10171,6 +10220,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_33
       security:
         - bearerAuth: []
@@ -10191,6 +10241,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_34
       security:
         - bearerAuth: []
@@ -10211,6 +10262,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_35
       security:
         - bearerAuth: []
@@ -10231,6 +10283,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_36
       security:
         - bearerAuth: []
@@ -10251,6 +10304,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_37
       security:
         - bearerAuth: []
@@ -10271,6 +10325,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_38
       security:
         - bearerAuth: []
@@ -10291,6 +10346,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: descriptor_39
       security:
         - bearerAuth: []
@@ -14385,6 +14441,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-deleteAllByTask
       operationId: executeSearch-taskparameter-get
       parameters:
         - name: task
@@ -14402,6 +14459,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findAllByTask
       operationId: executeSearch-taskparameter-get_1
       parameters:
         - name: task
@@ -14757,6 +14815,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-available
       operationId: executeSearch-task-get
       parameters:
         - name: applicationId
@@ -14779,6 +14838,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findAllByTypeId
       operationId: executeSearch-task-get_1
       parameters:
         - name: typeId
@@ -19477,6 +19537,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findByEntityIdAndLocale
       operationId: executeSearch-translation-get
       parameters:
         - name: element
@@ -20505,6 +20566,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-findOneWithEagerRelationships
       operationId: executeSearch-tree-get
       parameters:
         - name: id
@@ -21362,6 +21424,7 @@ paths:
     get:
       tags:
         - Administración
+      description: descriptor
       operationId: executeSearch-userconfiguration-get
       parameters:
         - name: currentUser
@@ -22552,6 +22615,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-usersByCreatedDateSinceDate
       operationId: executeSearch-user-get
       parameters:
         - name: sinceDate
@@ -22574,6 +22638,7 @@ paths:
     get:
       tags:
         - Administración
+      description: search-usersPerApplicationSinceDate
       operationId: executeSearch-user-get_1
       parameters:
         - name: sinceDate
@@ -23089,7 +23154,6 @@ components:
     ApplicationBackground:
       required:
         - Administración
-        - Administración
       type: object
       properties:
         id:
@@ -23263,7 +23327,6 @@ components:
             $ref: '#/components/schemas/CartographyPermission'
     CartographyAvailability:
       required:
-        - Administración
         - Administración
       type: object
       properties:
@@ -23587,7 +23650,6 @@ components:
     TaskAvailability:
       required:
         - Administración
-        - Administración
       type: object
       properties:
         id:
@@ -23881,8 +23943,6 @@ components:
       required:
         - appliesToChildrenTerritories
         - Administración
-        - Administración
-        - Administración
       type: object
       properties:
         id:
@@ -23901,7 +23961,6 @@ components:
           format: date-time
     UserPosition:
       required:
-        - Administración
         - Administración
       type: object
       properties:
@@ -25014,7 +25073,6 @@ components:
       required:
         - column
         - element
-        - Administración
         - Administración
       type: object
       properties:
@@ -26414,33 +26472,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Link'
-
-    ErrorResponse:
-      type: object
-      description: Respuesta que puede acompañar a un error.
-      properties:
-        status:
-          type: integer
-          description: Código de estado HTTP.
-        error:
-          type: string
-          description: Descripción del código de error.
-        message:
-          type: string
-          description:  Mensaje descriptivo del error.
-        path:
-          type: string
-          description: API afectado.
-        timestamp:
-          type: string
-          format: date-time
-          description: Marca de tiempo
-      required:
-        - status
-        - error
-        - message
-        - path
-        - timestamp
 
   securitySchemes:
     bearerAuth:

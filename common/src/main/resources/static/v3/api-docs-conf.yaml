@@ -1,5 +1,11 @@
 openapi: 3.0.3
 
+servers:
+  - url: https://sitmun-backend-core.herokuapp.com
+    description: Servidor de desarrollo
+  - url: http://localhost:8080
+    description: Servidor local de desarrollo
+
 info:
   title: SITMUN 3 - API de Configuración y Autorización
   description: |-
@@ -36,6 +42,9 @@ info:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
+  contact:
+    name: Comité técnico SITMUN  
+    url: https://sitmun.github.io/contacto/
 
 tags:
   - name: Configuración y Autorización de Proxy
@@ -53,7 +62,7 @@ paths:
       summary: |-
         Aplicaciones para un visor de mapas.
       description: |-
-        Este enpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
+        Este endpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
 
         La petición pueden autenticarse usando un esquema de 
         *autenticación por portador* 
@@ -70,14 +79,14 @@ paths:
           description: Tamaño de la página solicitada.
           required: false
           schema:
-            type: string
+            type: integer
             default: 100000
         - name: page
           in: query
           description: Número de página.
           required: false
           schema:
-            type: string
+            type: integer
             default: 0
       responses:
         '200':
@@ -175,7 +184,6 @@ components:
       description: "JSON Web Token"
       type: string
       pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
-      example: "eyJhbGciOiJ..."
 
     ProxyConfigurationRequest:
       description: Parámetros de la petición realizada por el visor de mapas al proxy.
@@ -390,4 +398,7 @@ components:
       type: apiKey
       in: header
       name: X-SITMUN-Proxy-Key
-
+    bearerAuth: 
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    

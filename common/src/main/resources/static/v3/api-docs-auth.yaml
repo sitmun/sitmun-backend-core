@@ -1,5 +1,11 @@
 openapi: 3.0.3
 
+servers:
+  - url: https://sitmun-backend-core.herokuapp.com
+    description: Servidor de desarrollo
+  - url: http://localhost:8080
+    description: Servidor local de desarrollo
+
 info:
   title: SITMUN 3 - API de Autenticación
   description: |-
@@ -15,11 +21,17 @@ info:
     los desarrolladores que están trabajando en el proyecto SITMUN.
     
     ---
-
+    
   license:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
+  contact:
+    name: Comité técnico SITMUN  
+    url: https://sitmun.github.io/contacto/
+
+tags:
+  - name: Autenticación
 
 paths:
 
@@ -62,7 +74,6 @@ components:
       description: "JSON Web Token"
       type: string
       pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
-      example: "eyJhbGciOiJ..."
 
     UserPasswordAuthentication:
       type: object
