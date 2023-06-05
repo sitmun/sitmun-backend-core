@@ -747,6 +747,12 @@ databaseChangeLog:
               - column:
                   name: TAS_GIID
                   type: NUMERIC
+              - column:
+                  name: TAS_GIID
+                  type: NUMERIC
+              - column:
+                  name: TAS_PARAMS
+                  type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 1);
 #        - loadData:

@@ -34,17 +34,20 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
     final String requestTokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (StringUtils.startsWith(requestTokenHeader, "Bearer ")) {
-      String jwtToken = requestTokenHeader.substring(7);
-      try {
-        String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
-        if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
-          UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-          if (jsonWebTokenService.validateToken(jwtToken, userDetails)) {
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-          }
+    if (StringUtils.isEmpty(requestTokenHeader) || !StringUtils.startsWith(requestTokenHeader, "Bearer ")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+    String jwtToken = requestTokenHeader.substring(7);
+    try {
+      String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
+      if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (jsonWebTokenService.validateToken(jwtToken, userDetails)) {
+          UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+          usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        }
         }
       } catch (IllegalArgumentException e) {
         logger.error("Unable to fetch JWT Token");
@@ -53,9 +56,6 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       } catch (Exception e) {
         logger.error(e.getMessage(), e);
       }
-    } else {
-      logger.warn("JWT Token does not begin with Bearer String");
-    }
     filterChain.doFilter(request, response);
   }
 

@@ -72,6 +72,7 @@ public interface ProfileMapper {
     return TaskDto.builder()
       .id("task/" + task.getId())
       .uiControl(task.getUi().getName())
+      .parameters(task.getProperties())
       .build();
   }
 

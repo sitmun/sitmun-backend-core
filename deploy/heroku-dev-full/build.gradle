@@ -26,10 +26,10 @@ dependencies {
   implementation project(':legacy')
 
   implementation 'org.postgresql:postgresql'
+  implementation 'com.h2database:h2' // for local development
   implementation 'com.zaxxer:HikariCP'
 
   testImplementation project(':common')
-  testImplementation 'com.h2database:h2'
 
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: "com.vaadin.external.google", module: "android-json"

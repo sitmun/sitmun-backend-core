@@ -25,7 +25,7 @@ TUI_ID,TUI_NAME,TUI_TOOLTIP,TUI_ORDER
 21,sitna.scale,scale,21
 22,sitna.scaleBar,scaleBar,22
 23,sitna.scaleSelector,scaleSelector,23
-#24,sitna.search,search,24
+24,sitna.search,search,24
 25,sitna.share,share,25
 26,sitna.streetView,streetView,26
 27,sitna.threed,threed,27
