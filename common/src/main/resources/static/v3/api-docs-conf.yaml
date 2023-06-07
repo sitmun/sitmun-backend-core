@@ -123,6 +123,178 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/config/client/profile/{appId}/{terrId}:
+    get:
+      tags:
+        -  Configuración y Autorización de Visor de mapas
+      summary: |-
+        Configuración para un visor de mapas para un territorio y aplicación determinados.
+      description: |-
+        Este endpoint devuelve la configuración para un territorio y aplicación determinado.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: clientProfileConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: appId
+          in: path
+          description: Identificador de la aplicación.
+          required: true
+          schema:
+            type: integer
+        - name: terrId
+          in: path
+          description: Identificador del territorio.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: |-
+            Configuración para el visor de mapas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  application:
+                    description: Configuración relacionada con la aplicación.
+                    type: object
+                    properties:
+                        id:
+                            description: Identificador de la aplicación.
+                            type: integer
+                            format: int32
+                        title:
+                            description: Nombre de la aplicación.
+                            type: string
+                        type:
+                            description: Tipo de la aplicación.
+                            type: string
+                        theme:
+                            description: Tema que usa la aplicación.
+                            type: string
+                        srs:
+                            description: Sistema de coordenadas.
+                            type: string
+                        situation-map:
+                            description: Identificación del grupo que actúa como mapa de situación.
+                            type: string
+                  territory:
+                    description: Configuración relacionada con el territorio.
+                    type: object
+                    properties:
+                      initialExtent:
+                        description: Extensión inicial del territorio.
+                        type: array
+                        items:
+                          type: number
+                          format: double
+                      center:
+                        description: Centro inicial.
+                        type: array
+                        items:
+                          type: number
+                          format: double
+                      defaultZoomLevel:
+                        description: Nivel de zoom por defecto
+                        type: integer
+                  backgrounds:
+                    description: Grupos que pueden ser usados como fondos.
+                    type: array
+                    items:
+                      type: object
+                      description: Grupo que puede ser usado como fondo.
+                      properties:
+                        id:
+                          description: Identificador del grupo.
+                          type: string
+                        title:
+                          description: Título del grupo.
+                          type: string
+                  groups:
+                    description: Lista de grupos.
+                    type: array
+                    items:
+                      type: object
+                      description: Grupo de cartografía.
+                      properties:
+                        id:
+                          description: Identificador del grupo.
+                          type: string
+                        title:
+                          description: Título del grupo.
+                          type: string
+                        layers:
+                            type: array
+                            items:
+                              description: Identificador de la cartografía.
+                              type: string
+                  layers:
+                    description: Lista de cartografías.
+                    type: array
+                    items:
+                      type: object
+                      description: Cartografía.
+                      properties:
+                        id:
+                          description: Identificador de la cartografía.
+                          type: string
+                        title:
+                          description: Título de la cartografía.
+                          type: string
+                        layers:
+                          type: array
+                          items:
+                            description: Capas de la cartografía.
+                            type: string
+                        service:
+                          description: Servicio de la cartografía.
+                          type: object
+                          properties:
+                            url:
+                              description: URL del servicio.
+                              type: string
+                            type:
+                              description: Tipo de servicio.
+                              type: string
+                            parameters:
+                              type: object
+                              additionalProperties:
+                                type: string
+                  tasks:
+                    description: Lista de tareas.
+                    type: array
+                    items:
+                      description: Tarea.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador de la tarea.
+                          type: string
+                        ui-control:
+                          description: Control de interfaz de usuario.
+                          type: string
+                        parameters:
+                          description: Parámetros de la tarea.
+                          type: object
+                          additionalProperties: true
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
   /api/config/proxy:
     post:
       tags:
