@@ -11,7 +11,6 @@ import java.util.List;
 @Builder
 public class ProfileDto {
   private ApplicationDto application;
-  private TerritoryDto territory;
   private List<BackgroundDto> backgrounds;
   private List<CartographyPermissionDto> groups;
   private List<CartographyDto> layers;

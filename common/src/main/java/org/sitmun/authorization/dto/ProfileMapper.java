@@ -11,30 +11,16 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
-import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
-import org.sitmun.infrastructure.persistence.type.point.Point;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProfileMapper {
   ProfileDto map(Profile profile);
-
-  default TerritoryDto map(Territory territory) {
-    Envelope extent = territory.getExtent();
-    Point point = territory.getCenter();
-    return TerritoryDto.builder().initialExtent(new Double[]{
-      extent.getMinX(),
-      extent.getMinY(),
-      extent.getMaxX(),
-      extent.getMaxY()
-    }).center(new Double[]{point.getX(), point.getY()})
-      .defaultZoomLevel(territory.getDefaultZoomLevel())
-      .build();
-  }
 
   default CartographyDto map(Cartography cartography) {
     return CartographyDto.builder()
@@ -77,7 +63,7 @@ public interface ProfileMapper {
   }
 
   @AfterMapping
-  default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder profileDto) {
+  default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
     Comparator<ApplicationBackground> order = Comparator.nullsLast(Comparator.comparing(ApplicationBackground::getOrder));
     List<BackgroundDto> backgrounds = profile.getApplication().getBackgrounds().stream()
       .sorted(order)
@@ -86,10 +72,31 @@ public interface ProfileMapper {
       .map(Background::getCartographyGroup)
       .map(this::mapCartographyPermissionToBackground)
       .collect(Collectors.toList());
-    profileDto.backgrounds(backgrounds);
+    builder.backgrounds(backgrounds);
+
+    profile.getApplication().getTerritories()
+      .stream().filter(it -> Objects.equals(it.getTerritory().getId(), profile.getTerritory().getId()))
+      .findFirst()
+      .ifPresent(applicationTerritory -> {
+        Envelope extent = applicationTerritory.getInitialExtent();
+        if (extent == null) {
+          extent = applicationTerritory.getTerritory().getExtent();
+        }
+        if (extent != null) {
+          ApplicationDto application =  builder.build().getApplication();
+          application.setInitialExtent(new Double[]{
+              extent.getMinX(),
+              extent.getMinY(),
+              extent.getMaxX(),
+              extent.getMaxY()
+            }
+          );
+          builder.application(application);
+        }
+      });
+
   }
-
-
+  
   default String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) return null;
     return "group/" + value.getId();

@@ -8,6 +8,7 @@ import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
+import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.Tree;
@@ -173,6 +174,13 @@ public class Application {
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
+
+  /**
+   * Territories.
+   */
+  @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<ApplicationTerritory> territories = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

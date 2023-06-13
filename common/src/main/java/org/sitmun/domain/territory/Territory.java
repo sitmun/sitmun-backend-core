@@ -6,6 +6,7 @@ import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
+import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.domain.task.availability.TaskAvailability;
 import org.sitmun.domain.territory.type.TerritoryGroupType;
@@ -112,7 +113,7 @@ public class Territory {
   @Column(name = "TER_SCOPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeListsConstants.TERRITORY_SCOPE)
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
-  @Deprecated
+  @Deprecated(forRemoval = true)
   private String scope;
 
   /**
@@ -126,17 +127,26 @@ public class Territory {
 
   /**
    * Center of the territory.
+   *
+   * @deprecated Replaced by {@link ApplicationTerritory#getInitialExtent()} because
+   * it is not a property of the territory but of the application in this territory,
+   * and it is better to use the extent of the view.
    */
   @Column(name = "TER_CENTER", length = PersistenceConstants.VALUE)
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
   @Convert(converter = PointToStringConverter.class)
+  @Deprecated(forRemoval = true)
   private Point center;
 
   /**
    * Default zoom level.
+   *
+   * @deprecated Replaced by {@link ApplicationTerritory#getInitialExtent()} because
+   * it is not a property of the territory but of the application in this territory.
    */
   @Column(name = "TER_ZOOM")
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @Deprecated(forRemoval = true)
   private Integer defaultZoomLevel;
 
 
@@ -182,7 +192,7 @@ public class Territory {
   @ManyToOne
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
   @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
-  @Deprecated
+  @Deprecated(forRemoval = true)
   private TerritoryGroupType groupType;
 
   /**
@@ -244,7 +254,18 @@ public class Territory {
   @JsonView(ClientConfigurationViews.Base.class)
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
+  /**
+   * Applications.
+   */
+  @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<ApplicationTerritory> applications = new HashSet<>();
+
+  /**
+   * @deprecated Not necessary anymore because the {@link #center} is also deprecated.
+   */
   @PostLoad
+  @Deprecated(forRemoval = true)
   public void postLoad() {
     if (center == null && extent != null) {
       center = Point.builder()

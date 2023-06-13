@@ -186,25 +186,12 @@ paths:
                         situation-map:
                             description: Identificación del grupo que actúa como mapa de situación.
                             type: string
-                  territory:
-                    description: Configuración relacionada con el territorio.
-                    type: object
-                    properties:
-                      initialExtent:
-                        description: Extensión inicial del territorio.
-                        type: array
-                        items:
-                          type: number
-                          format: double
-                      center:
-                        description: Centro inicial.
-                        type: array
-                        items:
-                          type: number
-                          format: double
-                      defaultZoomLevel:
-                        description: Nivel de zoom por defecto
-                        type: integer
+                        initialExtent:
+                            description: Extensión inicial del territorio.
+                            type: array
+                            items:
+                              type: number
+                              format: double
                   backgrounds:
                     description: Grupos que pueden ser usados como fondos.
                     type: array

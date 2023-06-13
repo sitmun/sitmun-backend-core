@@ -176,11 +176,11 @@ databaseChangeLog:
                   name: TER_GTYPID
                   type: NUMERIC
               - column:
-                  name: TER_CENTER
-                  type: STRING
+                  name: TER_CENTER  # DEPRECATED
+                  type: STRING      # DEPRECATED
               - column:
-                  name: TER_ZOOM
-                  type: NUMERIC
+                  name: TER_ZOOM    # DEPRECATED
+                  type: NUMERIC     # DEPRECATED
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
         - loadData:
@@ -612,6 +612,24 @@ databaseChangeLog:
                   type: NUMERIC
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_APP_TER.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_TER
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: ATE_ID
+                  type: NUMERIC
+              - column:
+                  name: ATE_APPID
+                  type: NUMERIC
+              - column:
+                  name: ATE_TERID
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATE_ID', 1);
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_AVAIL_GI.csv

@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,7 +26,7 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.application.theme", is("sitmun-base")))
       .andExpect(jsonPath("$.application.srs", is("EPSG:25831")))
-      .andExpect(jsonPath("$.territory.initialExtent", hasItems(363487.0, 4561229.0, 481617.0, 4686464.0)));
+      .andExpect(jsonPath("$.application.initialExtent", hasItems(363487.0, 4561229.0, 481617.0, 4686464.0)));
   }
 
   @Test
@@ -75,7 +74,7 @@ class ClientConfigurationProfileControllerTest {
   void tasks() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.tasks[?(@.id=='task/1')].ui-control", hasItem("attribution")));
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/1')].ui-control", hasItem("sitna.attribution")));
   }
 
   @Test

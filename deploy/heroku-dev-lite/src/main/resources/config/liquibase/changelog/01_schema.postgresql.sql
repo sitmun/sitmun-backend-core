@@ -18,6 +18,7 @@ create table stm_app
   app_ggiid    int4,
   primary key (app_id)
 );
+
 create table stm_app_bckg
 (
   abc_id     int4 not null,
@@ -26,6 +27,16 @@ create table stm_app_bckg
   abc_backid int4,
   primary key (abc_id)
 );
+
+create table stm_app_ter
+(
+  ate_id      int4 not null,
+  ate_appid   int4,
+  ate_terid   int4,
+  ate_iniext  varchar(250),
+  primary key (ate_id)
+);
+
 create table stm_app_rol
 (
   aro_roleid int4 not null,
@@ -547,7 +558,11 @@ create table stm_usr_conf
   uco_userid  int4,
   primary key (uco_id)
 );
+
 alter table if exists stm_app_bckg add constraint STM_APF_UK unique (abc_appid, abc_backid);
+
+alter table if exists stm_app_ter add constraint STM_APT_UK unique (ate_appid, ate_terid);
+
 alter table if exists stm_avail_gi add constraint STM_DCA_UK unique (agi_terid, agi_giid);
 alter table if exists stm_avail_tsk add constraint STM_DTA_UK unique (ats_terid, ats_taskid);
 alter table if exists stm_codelist add constraint UKh4jn7sfgmudoc896blvfqbv3b unique (cod_list, cod_value);
@@ -562,8 +577,11 @@ alter table if exists stm_translation add constraint UK2k84kv6jxbmsdvwew4lj4ro0g
 alter table if exists stm_user add constraint STM_USU_USU_UK unique (use_user);
 alter table if exists stm_usr_conf add constraint STM_UCF_UK unique (uco_userid, uco_terid, uco_roleid, uco_rolem);
 alter table if exists stm_app add constraint STM_APP_FK_GGI foreign key (app_ggiid) references stm_grp_gi;
-alter table if exists stm_app_bckg add constraint STM_ABC_FK_APP foreign key (abc_appid) references stm_app on delete cascade;
-alter table if exists stm_app_bckg add constraint STM_ABC_FK_FON foreign key (abc_backid) references stm_backgrd on delete cascade;
+
+alter table if exists stm_app_ter add constraint STM_ATE_FK_APP foreign key (ate_appid) references stm_app on delete cascade;
+
+alter table if exists stm_app_ter add constraint STM_ATE_FK_TER foreign key (ate_terid) references stm_territory on delete cascade;
+
 alter table if exists stm_app_rol add constraint STM_ARO_FK_APP foreign key (aro_appid) references stm_app;
 alter table if exists stm_app_rol add constraint STM_ARO_FK_ROL foreign key (aro_roleid) references stm_role;
 alter table if exists stm_app_tree add constraint STM_ATR_FK_APP foreign key (atr_appid) references stm_app;
