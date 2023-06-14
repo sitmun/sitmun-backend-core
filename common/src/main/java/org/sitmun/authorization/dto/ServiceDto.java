@@ -10,6 +10,7 @@ import java.util.Map;
 @Setter
 @Builder
 public class ServiceDto {
+  private String id;
   private String url;
   private String type;
   private Map<String, String> parameters;

@@ -14,5 +14,6 @@ public class ProfileDto {
   private List<BackgroundDto> backgrounds;
   private List<CartographyPermissionDto> groups;
   private List<CartographyDto> layers;
+  private List<ServiceDto> services;
   private List<TaskDto> tasks;
 }

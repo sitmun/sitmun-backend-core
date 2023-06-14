@@ -242,19 +242,28 @@ paths:
                             description: Capas de la cartografía.
                             type: string
                         service:
-                          description: Servicio de la cartografía.
+                          description: Identificador del servicio.
+                          type: string
+                  services:
+                    description: Lista de servicios.
+                    type: array
+                    items:
+                      description: Servicio de la cartografía.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador del servicio.
+                          type: string
+                        url:
+                          description: URL del servicio.
+                          type: string
+                        type:
+                          description: Tipo de servicio.
+                          type: string
+                        parameters:
                           type: object
-                          properties:
-                            url:
-                              description: URL del servicio.
-                              type: string
-                            type:
-                              description: Tipo de servicio.
-                              type: string
-                            parameters:
-                              type: object
-                              additionalProperties:
-                                type: string
+                          additionalProperties:
+                            type: string
                   tasks:
                     description: Lista de tareas.
                     type: array

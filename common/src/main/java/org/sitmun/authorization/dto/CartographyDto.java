@@ -13,6 +13,5 @@ public class CartographyDto {
   String id;
   String title;
   List<String> layers;
-
-  ServiceDto service;
+  String service;
 }

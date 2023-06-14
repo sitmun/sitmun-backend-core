@@ -35,11 +35,18 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].title", hasItem("WMTS Bases - ICGC- Topo")))
       .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].layers[0]", hasItem("topo")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service.url", hasItem("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service.type", hasItem("WMTS")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service.parameters.format", hasItem("image/jpeg")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service.parameters.matrixSet", hasItem("UTM25831")))
+      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service", hasItem("service/1")))
       .andExpect(jsonPath("$.layers[?(@.id=='layer/4')].title", hasItem("Límites administrativos")));
+  }
+
+  @Test
+  void services() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.services[?(@.id=='service/1')].url", hasItem("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service")))
+      .andExpect(jsonPath("$.services[?(@.id=='service/1')].type", hasItem("WMTS")))
+      .andExpect(jsonPath("$.services[?(@.id=='service/1')].parameters.format", hasItem("image/jpeg")))
+      .andExpect(jsonPath("$.services[?(@.id=='service/1')].parameters.matrixSet", hasItem("UTM25831")));
   }
 
   @Test

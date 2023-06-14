@@ -27,7 +27,7 @@ public interface ProfileMapper {
       .id("layer/" + cartography.getId())
       .title(cartography.getName())
       .layers(cartography.getLayers())
-      .service(map(cartography.getService()))
+      .service("service/"+ cartography.getService().getId())
       .build();
   }
 
@@ -41,6 +41,7 @@ public interface ProfileMapper {
 
   default ServiceDto map(Service service) {
     return ServiceDto.builder()
+      .id("service/" + service.getId())
       .url(service.getServiceURL())
       .type(service.getType())
       .parameters(service.getParameters().stream().map(it -> new String[]{it.getName(), it.getValue()}).collect(java.util.stream.Collectors.toMap(it -> it[0], it -> it[1])))

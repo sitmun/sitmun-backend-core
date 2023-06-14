@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ClientConfigurationService {
@@ -190,13 +189,13 @@ public class ClientConfigurationService {
    * @param terrId   the territory id
    * @return the profile
    */
-  public Optional<Profile> getProfile(String username, String appId, String terrId) {
+  public Optional<Profile> buildProfile(String username, String appId, String terrId) {
     return userRepository.findByUsername(username)
       .filter(user -> !user.getBlocked())
-      .flatMap(user -> getProfile(user, appId, terrId));
+      .flatMap(user -> buildProfile(user, appId, terrId));
   }
 
-  private Optional<Profile> getProfile(User user, String appId, String terrId) {
+  private Optional<Profile> buildProfile(User user, String appId, String terrId) {
     return user.getPermissions()
       .stream()
       .filter(it -> Objects.equals(it.getTerritory().getId(), Integer.valueOf(terrId)))
@@ -207,31 +206,59 @@ public class ClientConfigurationService {
       .map(it -> {
         Application application = it.getFirst();
         Territory territory = it.getSecond();
-
-        Stream<CartographyPermission> cpStream = user.getPermissions().stream()
-          .filter(permission -> permission.getRole().getApplications().stream().anyMatch(app -> Objects.equals(app.getId(), application.getId())))
-          .filter(permission -> Objects.equals(permission.getTerritory().getId(), territory.getId()))
-          .flatMap(permission -> permission.getRole().getPermissions().stream()).distinct();
-
-        List<CartographyPermission> permissions = cpStream.collect(Collectors.toList());
-        List<Cartography> layers = permissions.stream().flatMap(cp -> cp.getMembers().stream()).distinct().collect(Collectors.toList());
-
-        List<Role> roles = user.getPermissions().stream()
-          .filter(permission -> Objects.equals(permission.getTerritory().getId(), territory.getId()))
-          .map(UserConfiguration::getRole)
-          .filter(role -> role.getApplications().stream().anyMatch(app -> Objects.equals(app.getId(), application.getId())))
-          .collect(Collectors.toList());
-
-        List<Task> tasks = roles.stream().flatMap(role -> role.getTasks().stream()).distinct().collect(Collectors.toList());
-
-        return Profile.builder()
-          .territory(it.getSecond())
-          .application(it.getFirst())
-          .groups(permissions)
-          .layers(layers)
-          .tasks(tasks)
-          .build();
+        return buildProfile(user, application, territory);
       });
+  }
+
+  private static Profile buildProfile(User user, Application application, Territory territory) {
+
+    List<CartographyPermission> permissions = getPermissions(user, application, territory);
+    List<Cartography> layers = getLayers(permissions);
+    List<org.sitmun.domain.service.Service> services = getServices(layers);
+    List<Task> tasks = getTasks(user, application, territory);
+
+    return Profile.builder()
+      .territory(territory)
+      .application(application)
+      .groups(permissions)
+      .layers(layers)
+      .services(services)
+      .tasks(tasks)
+      .build();
+  }
+
+  private static List<CartographyPermission> getPermissions(User user, Application application, Territory territory) {
+    return user.getPermissions().stream()
+      .filter(permission -> permission.getRole().getApplications().stream().anyMatch(app -> Objects.equals(app, application)))
+      .filter(permission -> Objects.equals(permission.getTerritory(), territory))
+      .flatMap(permission -> permission.getRole().getPermissions().stream())
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  private static List<Cartography> getLayers(List<CartographyPermission> permissions) {
+    return permissions.stream()
+      .flatMap(cp -> cp.getMembers().stream())
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  private static List<org.sitmun.domain.service.Service> getServices(List<Cartography>  layers) {
+    return layers.stream()
+      .map(Cartography::getService)
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+
+  private static List<Task> getTasks(User user, Application application, Territory territory) {
+    return user.getPermissions().stream()
+      .filter(permission -> Objects.equals(permission.getTerritory(), territory))
+      .map(UserConfiguration::getRole)
+      .filter(role -> role.getApplications().stream().anyMatch(app -> Objects.equals(app, application)))
+      .flatMap(role -> role.getTasks().stream())
+      .distinct()
+      .collect(Collectors.toList());
   }
 
   private Pair<Application, Territory> getApplicationAndTerritory(UserConfiguration userConfiguration, String appId) {

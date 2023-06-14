@@ -53,7 +53,7 @@ public class ClientConfigurationController {
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<ProfileDto> getProfile(@CurrentSecurityContext SecurityContext context, @PathVariable("appId") String appId, @PathVariable("terrId") String terrId) {
     String username = context.getAuthentication().getName();
-    return clientConfigurationService.getProfile(username, appId, terrId)
+    return clientConfigurationService.buildProfile(username, appId, terrId)
       .map(profile -> Mappers.getMapper(ProfileMapper.class).map(profile))
       .map(profile -> ResponseEntity.ok().body(profile))
       .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
