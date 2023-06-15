@@ -241,21 +241,21 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GGI_ID', 3);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_TREE.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_TREE
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: TRE_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: TRE_NAME
-#                  type: STRING
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 30);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_TREE.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: TRE_ID
+                  type: NUMERIC
+              - column:
+                  name: TRE_NAME
+                  type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 3);
 #        - loadData:
 #            encoding: UTF-8
 #            file: 04_initial_data_dev/STM_TREE_ROL.csv
@@ -514,19 +514,19 @@ databaseChangeLog:
                   type: DATETIME
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 4);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_APP_TREE.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_APP_TREE
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: ATR_APPID
-#                  type: NUMERIC
-#              - column:
-#                  name: ATR_TREEID
-#                  type: NUMERIC
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_APP_TREE.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_TREE
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: ATR_APPID
+                  type: NUMERIC
+              - column:
+                  name: ATR_TREEID
+                  type: NUMERIC
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_APP_ROL.csv
@@ -651,47 +651,47 @@ databaseChangeLog:
 #                  type: DATETIME
 #        - sql:
 #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
-#        - sql:
-#            sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_TREE_NOD.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_TREE_NOD
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: TNO_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: TNO_PARENTID
-#                  type: NUMERIC
-#              - column:
-#                  name: TNO_NAME
-#                  type: STRING
-#              - column:
-#                  name: TNO_TOOLTIP
-#                  type: STRING
-#              - column:
-#                  name: TNO_ACTIVE
-#                  type: BOOLEAN
-#              - column:
-#                  name: TNO_ORDER
-#                  type: NUMERIC
-#              - column:
-#                  name: TNO_TREEID
-#                  type: NUMERIC
-#              - column:
-#                  name: TNO_GIID
-#                  type: NUMERIC
-#              - column:
-#                  name: TNO_RADIO
-#                  type: BOOLEAN
-#        - sql:
-#            sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TNO_ID', 8463);
+        - sql:
+            sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_TREE_NOD.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE_NOD
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: TNO_ID
+                  type: NUMERIC
+              - column:
+                  name: TNO_PARENTID
+                  type: NUMERIC
+              - column:
+                  name: TNO_NAME
+                  type: STRING
+              - column:
+                  name: TNO_TOOLTIP
+                  type: STRING
+              - column:
+                  name: TNO_ACTIVE
+                  type: BOOLEAN
+              - column:
+                  name: TNO_ORDER
+                  type: NUMERIC
+              - column:
+                  name: TNO_TREEID
+                  type: NUMERIC
+              - column:
+                  name: TNO_GIID
+                  type: NUMERIC
+              - column:
+                  name: TNO_RADIO
+                  type: BOOLEAN
+        - sql:
+            sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TNO_ID', 8463);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GRP_TSK.csv

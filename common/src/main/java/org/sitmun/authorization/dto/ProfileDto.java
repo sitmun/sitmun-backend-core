@@ -16,4 +16,5 @@ public class ProfileDto {
   private List<CartographyDto> layers;
   private List<ServiceDto> services;
   private List<TaskDto> tasks;
+  private List<TreeDto> trees;
 }

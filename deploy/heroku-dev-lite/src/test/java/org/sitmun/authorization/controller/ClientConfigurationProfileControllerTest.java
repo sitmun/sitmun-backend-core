@@ -91,4 +91,13 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(jsonPath("$.tasks[?(@.id=='task/20')].parameters.div", hasItem("print")))
       .andExpect(jsonPath("$.tasks[?(@.id=='task/20')].parameters.legend.visible", hasItem(true)));
   }
+
+  @Test
+  void tree() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].title", hasItem("Provincial")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/1")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
+  }
 }

@@ -281,6 +281,53 @@ paths:
                           description: Parámetros de la tarea.
                           type: object
                           additionalProperties: true
+                  trees:
+                    description: Lista de árboles.
+                    type: array
+                    items:
+                      description: Árbol.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador del árbol.
+                          type: string
+                        title:
+                          description: Título del árbol.
+                          type: string
+                        image:
+                          description: Imagen del árbol.
+                          type: string
+                        rootNode:
+                          description: Identificador del nodo raíz.
+                          type: string
+                        nodes:
+                          type: object
+                          description: Mapa de nodos; la clave es el identificador del nodo.
+                          additionalProperties:
+                            type: object
+                            description: Nodo del árbol.
+                            properties:
+                              title:
+                                description: Título del nodo.
+                                type: string
+                              resource:
+                                description: |-
+                                  Si el nodo es una carpeta el valor es `null`.
+                                  Si el nodo es una hoja el valor identifica el recurso asociado.
+                                type: string
+                              isRadio:
+                                description: |-
+                                  Si el nodo es una carpeta indica si el nodo es de selección única.
+                                  Si el nodo es una hoja el valor es `null`.
+                              children:
+                                description: |-
+                                  Si el nodo es una carpeta indica los nodos hijos.
+                                  Si el nodo es una hoja el valor es `null`.
+                                type: array
+                                items:
+                                  description: Identificador del nodo hijo.
+                                  type: string
+
         '401':
           description: |-
             El cliente identificado por *autenticación por portador* no esta autorizado para 
