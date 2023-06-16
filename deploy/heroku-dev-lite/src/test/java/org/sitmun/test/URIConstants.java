@@ -59,7 +59,7 @@ public class URIConstants {
 
   public static final String CARTOGRAPHY_STYLES_URI = "/api/cartography-styles";
 
-  public static final String CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW =
+  public static final String CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW =
     "/api/cartography-availabilities/{0}?projection=view";
 
   public static final String CARTOGRAPHY_FILTERS_URI = "/api/cartography-filters";
@@ -142,6 +142,8 @@ public class URIConstants {
   public static final String CONFIG_CLIENT_URI = "http://localhost/api/config/client";
 
   public static final String CONFIG_CLIENT_APPLICATION_URI = CONFIG_CLIENT_URI + "/application";
+
+  public static final String CONFIG_CLIENT_TERRITORY_URI = CONFIG_CLIENT_URI + "/territory";
 
   public static final String CONFIG_CLIENT_PROFILE_URI = CONFIG_CLIENT_URI + "/profile/{0}/{1}";
 

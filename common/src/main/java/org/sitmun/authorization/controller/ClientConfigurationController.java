@@ -1,12 +1,10 @@
 package org.sitmun.authorization.controller;
 
 import org.mapstruct.factory.Mappers;
-import org.sitmun.authorization.dto.ApplicationDtoLittle;
-import org.sitmun.authorization.dto.ApplicationMapper;
-import org.sitmun.authorization.dto.ProfileDto;
-import org.sitmun.authorization.dto.ProfileMapper;
+import org.sitmun.authorization.dto.*;
 import org.sitmun.authorization.service.ClientConfigurationService;
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.territory.Territory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,9 +43,18 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<ApplicationDtoLittle> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = clientConfigurationService.getApplications(username, pageable);
+    Page<Application> page = clientConfigurationService.applications(username, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
+  }
+
+  @GetMapping(path = "/territory", produces = APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public Page<TerritoryDtoLittle> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    Page<Territory> page = clientConfigurationService.territories(username, pageable);
+    List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
+    return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
 
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)

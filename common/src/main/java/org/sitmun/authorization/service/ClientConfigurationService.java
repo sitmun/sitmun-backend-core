@@ -22,11 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ClientConfigurationService {
@@ -109,11 +107,16 @@ public class ClientConfigurationService {
     return Optional.empty();
   }
 
-  private List<Territory> territories(User user, Integer applicationId, Integer territoryId) {
+  private Stream<Territory> territoriesStream(User user) {
     return userConfigurationRepository.findByUser(user).stream()
       .map(UserConfiguration::getTerritory)
       .filter(territory -> !territory.getBlocked())
-      .distinct()
+      .distinct();
+  }
+
+
+  private List<Territory> territories(User user, Integer applicationId, Integer territoryId) {
+    return territoriesStream(user)
       .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
           .stream()
@@ -160,12 +163,11 @@ public class ClientConfigurationService {
       }).collect(Collectors.toList());
   }
 
-  public Page<Application> getApplications(String username, Pageable pageable) {
-    Optional<User> user = userRepository.findByUsername(username);
-    if (user.isPresent()) {
-      User effectiveUser = user.get();
-      if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
-        List<Application> applications = userConfigurationRepository.findByUser(effectiveUser).stream()
+  public Page<Application> applications(String username, Pageable pageable) {
+    return userRepository.findByUsername(username)
+      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
+      .map(user -> {
+        List<Application> applications = userConfigurationRepository.findByUser(user).stream()
           .map(UserConfiguration::getRole)
           .distinct()
           .map(Role::getApplications)
@@ -173,12 +175,25 @@ public class ClientConfigurationService {
           .distinct()
           .collect(Collectors.toList());
 
-        final int start = (int) pageable.getOffset();
+        final int start = Math.min((int) pageable.getOffset(), applications.size());
         final int end = Math.min((start + pageable.getPageSize()), applications.size());
         return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
-      }
-    }
-    return Page.empty();
+      }).orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+  }
+
+  public Page<Territory> territories(String username, Pageable pageable) {
+    return userRepository.findByUsername(username)
+      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
+      .map(user -> {
+        List<Territory> territories = userConfigurationRepository.findByUser(user).stream()
+          .map(UserConfiguration::getTerritory)
+          .distinct()
+          .collect(Collectors.toList());
+
+        final int start = Math.min((int) pageable.getOffset(), territories.size());
+        final int end = Math.min((start + pageable.getPageSize()), territories.size());
+        return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
+      }).orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
   }
 
   /**
