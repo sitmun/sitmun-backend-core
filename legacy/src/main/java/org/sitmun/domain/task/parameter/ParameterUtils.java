@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class ParameterUtils {
+public final class ParameterUtils {
 
   private ParameterUtils() {}
 
@@ -58,16 +58,16 @@ public class ParameterUtils {
   static class TokenRef<T> extends TypeRef<List<T>> {
     private final TypeToken<List<T>> token;
 
-    public TokenRef(Class<T> type) {
+    TokenRef(Class<T> type) {
       super();
-      this.token = new TypeToken<List<T>>() {
-      }.where(new TypeParameter<T>() {
+      token = new TypeToken<List<T>>() {
+      }.where(new TypeParameter<>() {
       }, type);
     }
 
     @Override
     public Type getType() {
-      return this.token.getType();
+      return token.getType();
     }
   }
 
