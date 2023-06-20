@@ -102,7 +102,7 @@ class UserResourceIntegrationTest {
       restTemplate.exchange(location, HttpMethod.GET, newEntity, User.class);
       fail("404 is expected");
     } catch (HttpClientErrorException e) {
-      assertThat(e.getRawStatusCode()).isEqualTo(404);
+      assertThat(e.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
   }
 
