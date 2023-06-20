@@ -171,6 +171,9 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String uri = "http://localhost:" + port + "/api/connections/" + id;
     String oldValue =
       restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    if (oldValue == null) {
+      return null;
+    }
     return new JSONObject(oldValue);
   }
 
@@ -182,6 +185,9 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";
     String oldValue =
       restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    if (oldValue == null) {
+      return null;
+    }
     return new JSONObject(oldValue);
   }
 
