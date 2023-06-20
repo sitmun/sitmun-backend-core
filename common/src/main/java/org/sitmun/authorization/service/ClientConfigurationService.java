@@ -52,7 +52,7 @@ public class ClientConfigurationService {
     if (user.isPresent()) {
       User effectiveUser = user.get();
       if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
-        List<Territory> territories = territories(effectiveUser, applicationId, territoryId);
+        List<Territory> territories = territoriesList(effectiveUser, applicationId, territoryId);
         if (!territories.isEmpty()) {
           Territory territory = territories.get(0);
           Optional<Application> application = territory.getUserConfigurations().stream()
@@ -115,7 +115,7 @@ public class ClientConfigurationService {
   }
 
 
-  private List<Territory> territories(User user, Integer applicationId, Integer territoryId) {
+  private List<Territory> territoriesList(User user, Integer applicationId, Integer territoryId) {
     return territoriesStream(user)
       .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
@@ -141,7 +141,7 @@ public class ClientConfigurationService {
       User effectiveUser = user.get();
       if (Boolean.FALSE.equals(effectiveUser.getBlocked())) {
         return Optional.of(ClientConfiguration.builder()
-          .territories(territories(effectiveUser))
+          .territories(territoriesList(effectiveUser))
           .config(Lists.newArrayList(configurationParameterRepository.findAll()))
           .build());
       }
@@ -149,7 +149,7 @@ public class ClientConfigurationService {
     return Optional.empty();
   }
 
-  private List<Territory> territories(User user) {
+  private List<Territory> territoriesList(User user) {
     return userConfigurationRepository.findByUser(user).stream()
       .map(UserConfiguration::getTerritory)
       .filter(territory -> !territory.getBlocked())
@@ -160,28 +160,56 @@ public class ClientConfigurationService {
           .filter(uc -> uc.getUser() == user)
           .collect(Collectors.toSet());
         return territory.toBuilder().userConfigurations(filtered).build();
-      }).collect(Collectors.toList());
+      })
+      .collect(Collectors.toList());
   }
 
-  public Page<Application> applications(String username, Pageable pageable) {
+  public Page<Application> applicationsPage(String username, Pageable pageable) {
     return userRepository.findByUsername(username)
       .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
       .map(user -> {
-        List<Application> applications = userConfigurationRepository.findByUser(user).stream()
-          .map(UserConfiguration::getRole)
-          .distinct()
-          .map(Role::getApplications)
-          .flatMap(Set::stream)
-          .distinct()
-          .collect(Collectors.toList());
-
+        List<Application> applications = applicationsList(user);
         final int start = Math.min((int) pageable.getOffset(), applications.size());
         final int end = Math.min((start + pageable.getPageSize()), applications.size());
         return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
-      }).orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+      })
+      .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
   }
 
-  public Page<Territory> territories(String username, Pageable pageable) {
+  public Page<Application> applicationsPage(Integer terrId, String username, Pageable pageable) {
+    return userRepository.findByUsername(username)
+      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
+      .map(user -> {
+        List<Application> applications = applicationsList(terrId, user);
+        final int start = Math.min((int) pageable.getOffset(), applications.size());
+        final int end = Math.min((start + pageable.getPageSize()), applications.size());
+        return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
+      })
+      .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+  }
+
+  private List<Application> applicationsList(User user) {
+    return userConfigurationRepository.findByUser(user).stream()
+      .map(UserConfiguration::getRole)
+      .distinct()
+      .map(Role::getApplications)
+      .flatMap(Set::stream)
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  private List<Application> applicationsList(Integer terrId, User user) {
+    return userConfigurationRepository.findByUser(user).stream()
+      .filter(uc -> Objects.equals(uc.getTerritory().getId(), terrId))
+      .map(UserConfiguration::getRole)
+      .distinct()
+      .map(Role::getApplications)
+      .flatMap(Set::stream)
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  public Page<Territory> territoriesPage(String username, Pageable pageable) {
     return userRepository.findByUsername(username)
       .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
       .map(user -> {

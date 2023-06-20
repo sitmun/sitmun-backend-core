@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ClientConfigurationApplicationControllerTest {
+class ClientConfigurationTerritoryApplicationsControllerTest {
 
   @Value("${spring.data.rest.default-page-size}")
   private int pageSize;
@@ -27,7 +27,7 @@ class ClientConfigurationApplicationControllerTest {
 
   @Test
   void readPublicUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI))
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content", hasSize(4)))
       .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
@@ -35,7 +35,7 @@ class ClientConfigurationApplicationControllerTest {
 
   @Test
   void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI)
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())
@@ -43,19 +43,13 @@ class ClientConfigurationApplicationControllerTest {
       .andExpect(jsonPath("$.size", is(pageSize)))
       .andExpect(jsonPath("$.number", is(0)))
       .andExpect(jsonPath("$.totalPages", is(1)))
-      .andExpect(jsonPath("$.content[*].title", hasItems(
-        "SITMUN - Municipal",
-        "SITMUN - Provincial",
-        "SITMUN - Supramunicipal",
-        "SITMUN - Externa",
-        "SITMUN - Externa protegida"
-      )));
+      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
   }
 
 
   @Test
   void readOtherUserWithPagination() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=1")
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=1", 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())
@@ -68,7 +62,7 @@ class ClientConfigurationApplicationControllerTest {
 
   @Test
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=5")
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=5", 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())

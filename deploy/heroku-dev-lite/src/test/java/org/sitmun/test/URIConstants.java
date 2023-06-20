@@ -145,6 +145,8 @@ public class URIConstants {
 
   public static final String CONFIG_CLIENT_TERRITORY_URI = CONFIG_CLIENT_URI + "/territory";
 
+  public static final String CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI = CONFIG_CLIENT_TERRITORY_URI + "/{0}/applications";
+
   public static final String CONFIG_CLIENT_PROFILE_URI = CONFIG_CLIENT_URI + "/profile/{0}/{1}";
 
   public static final String CONFIG_PROXY_URI = "http://localhost/api/config/proxy";

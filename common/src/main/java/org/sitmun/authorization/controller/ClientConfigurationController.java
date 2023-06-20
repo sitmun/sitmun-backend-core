@@ -43,7 +43,23 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<ApplicationDtoLittle> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = clientConfigurationService.applications(username, pageable);
+    Page<Application> page = clientConfigurationService.applicationsPage(username, pageable);
+    List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
+    return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
+  }
+
+  /**
+   * Get the list of applications in a territory.
+   *
+   * @param context  security context
+   * @param pageable pagination information
+   * @return a page of a list of applications
+   */
+  @GetMapping(path = "/territory/{terrId}/applications", produces = APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public Page<ApplicationDtoLittle> getTerritoryApplications(@CurrentSecurityContext SecurityContext context, @PathVariable Integer terrId, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    Page<Application> page = clientConfigurationService.applicationsPage(terrId, username, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
@@ -52,7 +68,7 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<TerritoryDtoLittle> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Territory> page = clientConfigurationService.territories(username, pageable);
+    Page<Territory> page = clientConfigurationService.territoriesPage(username, pageable);
     List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }

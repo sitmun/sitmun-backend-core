@@ -39,7 +39,7 @@ class ClientConfigurationControllerTest extends BaseTest {
     applications.add(Application.builder().name("public-app-2").build());
     Page<Application> page = new PageImpl<>(applications, PageRequest.of(0, 10), applications.size());
 
-    when(service.applications(eq(PUBLIC_USER_NAME), any())).thenReturn(page);
+    when(service.applicationsPage(eq(PUBLIC_USER_NAME), any())).thenReturn(page);
 
     mvc.perform(get("/api/config/client/application"))
       .andDo(print())
@@ -58,7 +58,7 @@ class ClientConfigurationControllerTest extends BaseTest {
     applications.add(Application.builder().name("private-app-1").build());
     applications.add(Application.builder().name("private-app-2").build());
     Page<Application> page = new PageImpl<>(applications, PageRequest.of(0, 10), applications.size());
-    when(service.applications(eq("other"), any())).thenReturn(page);
+    when(service.applicationsPage(eq("other"), any())).thenReturn(page);
 
     mvc.perform(get("/api/config/client/application"))
       .andDo(print())
