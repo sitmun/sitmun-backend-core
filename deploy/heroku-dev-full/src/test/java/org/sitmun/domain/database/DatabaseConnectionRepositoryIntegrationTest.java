@@ -245,7 +245,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private List getListOfCartographies(JSONObject cartographies) {
+  private static List getListOfCartographies(JSONObject cartographies) {
     return JsonPath.parse(cartographies.toString()).read("$._embedded.cartographies[*]._links.self.href", List.class);
   }
 }
