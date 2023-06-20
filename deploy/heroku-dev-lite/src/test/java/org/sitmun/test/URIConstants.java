@@ -143,6 +143,8 @@ public class URIConstants {
 
   public static final String CONFIG_CLIENT_APPLICATION_URI = CONFIG_CLIENT_URI + "/application";
 
+  public static final String CONFIG_CLIENT_APPLICATION_TERRITORIES_URI = CONFIG_CLIENT_APPLICATION_URI + "/{0}/territories";
+
   public static final String CONFIG_CLIENT_TERRITORY_URI = CONFIG_CLIENT_URI + "/territory";
 
   public static final String CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI = CONFIG_CLIENT_TERRITORY_URI + "/{0}/applications";

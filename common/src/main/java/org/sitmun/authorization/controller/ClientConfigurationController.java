@@ -2,7 +2,7 @@ package org.sitmun.authorization.controller;
 
 import org.mapstruct.factory.Mappers;
 import org.sitmun.authorization.dto.*;
-import org.sitmun.authorization.service.ClientConfigurationService;
+import org.sitmun.authorization.service.ProfileService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.springframework.data.domain.Page;
@@ -22,14 +22,22 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("/api/config/client")
 public class ClientConfigurationController {
 
-  private final ClientConfigurationService clientConfigurationService;
+  private final ProfileService profileService;
 
   /**
    * Constructor.
    */
-  public ClientConfigurationController(
-    ClientConfigurationService clientConfigurationService) {
-    this.clientConfigurationService = clientConfigurationService;
+  public ClientConfigurationController(ProfileService profileService) {
+    this.profileService = profileService;
+  }
+
+  @GetMapping(path = "/application/{appId}/territories", produces = APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public Page<TerritoryDtoLittle> getApplicationTerritories(@CurrentSecurityContext SecurityContext context, @PathVariable Integer appId, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    Page<Territory> page = profileService.getApplicationTerritories(username, appId, pageable);
+    List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
+    return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
 
   /**
@@ -43,7 +51,7 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<ApplicationDtoLittle> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = clientConfigurationService.applicationsPage(username, pageable);
+    Page<Application> page = profileService.getApplications(username, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
@@ -59,7 +67,7 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<ApplicationDtoLittle> getTerritoryApplications(@CurrentSecurityContext SecurityContext context, @PathVariable Integer terrId, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = clientConfigurationService.applicationsPage(terrId, username, pageable);
+    Page<Application> page = profileService.getTerritoryApplications(username, terrId, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
@@ -68,7 +76,7 @@ public class ClientConfigurationController {
   @ResponseBody
   public Page<TerritoryDtoLittle> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Territory> page = clientConfigurationService.territoriesPage(username, pageable);
+    Page<Territory> page = profileService.getTerritories(username, pageable);
     List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
@@ -76,9 +84,9 @@ public class ClientConfigurationController {
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<ProfileDto> getProfile(@CurrentSecurityContext SecurityContext context, @PathVariable("appId") String appId, @PathVariable("terrId") String terrId) {
     String username = context.getAuthentication().getName();
-    return clientConfigurationService.buildProfile(username, appId, terrId)
+    return profileService.buildProfile(username, appId, terrId)
       .map(profile -> Mappers.getMapper(ProfileMapper.class).map(profile))
       .map(profile -> ResponseEntity.ok().body(profile))
-      .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+      .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
   }
 }

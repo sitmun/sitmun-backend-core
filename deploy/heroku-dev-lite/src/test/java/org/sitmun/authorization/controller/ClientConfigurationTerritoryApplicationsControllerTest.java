@@ -1,5 +1,6 @@
 package org.sitmun.authorization.controller;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("API Authorization and Configuration - Territory applications endpoint")
 class ClientConfigurationTerritoryApplicationsControllerTest {
 
   @Value("${spring.data.rest.default-page-size}")
@@ -26,6 +28,7 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
   private MockMvc mvc;
 
   @Test
+  @DisplayName("Page with public user")
   void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1))
       .andExpect(status().isOk())
@@ -34,6 +37,7 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
   }
 
   @Test
+  @DisplayName("Page with authenticated user")
   void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1)
         .with(user("internal"))
@@ -46,8 +50,8 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
       .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
   }
 
-
   @Test
+  @DisplayName("Get specific page")
   void readOtherUserWithPagination() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=1", 1)
         .with(user("internal"))
@@ -61,6 +65,7 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
   }
 
   @Test
+  @DisplayName("Request out of bounds")
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=5", 1)
         .with(user("internal"))

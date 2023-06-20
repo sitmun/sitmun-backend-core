@@ -2,7 +2,7 @@ package org.sitmun.authorization.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.authorization.service.ClientConfigurationService;
+import org.sitmun.authorization.service.ProfileService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.test.BaseTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ClientConfigurationControllerTest extends BaseTest {
 
   @MockBean
-  private ClientConfigurationService service;
+  private ProfileService service;
 
   @Test
   @DisplayName("Return public applications for anonymous authentication (ROLE_PUBLIC)")
@@ -39,7 +39,7 @@ class ClientConfigurationControllerTest extends BaseTest {
     applications.add(Application.builder().name("public-app-2").build());
     Page<Application> page = new PageImpl<>(applications, PageRequest.of(0, 10), applications.size());
 
-    when(service.applicationsPage(eq(PUBLIC_USER_NAME), any())).thenReturn(page);
+    when(service.getApplications(eq(PUBLIC_USER_NAME), any())).thenReturn(page);
 
     mvc.perform(get("/api/config/client/application"))
       .andDo(print())
@@ -58,7 +58,7 @@ class ClientConfigurationControllerTest extends BaseTest {
     applications.add(Application.builder().name("private-app-1").build());
     applications.add(Application.builder().name("private-app-2").build());
     Page<Application> page = new PageImpl<>(applications, PageRequest.of(0, 10), applications.size());
-    when(service.applicationsPage(eq("other"), any())).thenReturn(page);
+    when(service.getApplications(eq("other"), any())).thenReturn(page);
 
     mvc.perform(get("/api/config/client/application"))
       .andDo(print())

@@ -16,10 +16,6 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -47,6 +43,10 @@ public class ClientConfigurationService {
     this.configurationParameterRepository = configurationParameterRepository;
   }
 
+  /**
+   * @deprecated proof of concept
+   */
+  @Deprecated(forRemoval = true)
   public Optional<ClientConfigurationForApplicationTerritory> describeFor(String username, Integer applicationId, Integer territoryId) {
     Optional<User> user = userRepository.findByUsername(username);
     if (user.isPresent()) {
@@ -66,15 +66,15 @@ public class ClientConfigurationService {
                   task.getAvailabilities().stream()
                     .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId())))
                 .collect(Collectors.toSet());
-              Set<CartographyPermission> permissions = role.getPermissions().stream().map(cartographyPermission -> {
-                    Set<Cartography> cartographies = cartographyPermission.getMembers().stream().filter(cartography ->
+              Set<CartographyPermission> permissions = role.getPermissions().stream().map(cp -> {
+                    Set<Cartography> cartographies = cp.getMembers().stream().filter(cartography ->
                       !cartography.getBlocked() &&
                         cartography.getAvailabilities().stream()
                           .anyMatch(avail -> Objects.equals(avail.getTerritory().getId(), territory.getId()))
                     ).collect(Collectors.toSet());
-                    return cartographyPermission.toBuilder().members(cartographies).build();
+                    return cp.toBuilder().members(cartographies).build();
                   }
-                ).filter(cartographyPermission -> !cartographyPermission.getMembers().isEmpty())
+                ).filter(cp -> !cp.getMembers().isEmpty())
                 .collect(Collectors.toSet());
               Set<Tree> trees = role.getTrees().stream().map(tree -> {
                 Set<TreeNode> nodes = tree.getAllNodes().stream().filter(node ->
@@ -114,27 +114,29 @@ public class ClientConfigurationService {
       .distinct();
   }
 
-
   private List<Territory> territoriesList(User user, Integer applicationId, Integer territoryId) {
     return territoriesStream(user)
       .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
           .stream()
-          .filter(uc -> uc.getUser() == user &&
+          .filter(uc -> Objects.equals(uc.getUser(), user) &&
             Objects.equals(uc.getTerritory().getId(), territoryId) &&
             uc.getRole().getApplications().stream().anyMatch(app -> Objects.equals(app.getId(), applicationId))
           )
           .collect(Collectors.toSet());
         if (filtered.isEmpty()) {
           return null;
-        } else {
-          return territory.toBuilder().userConfigurations(filtered).build();
         }
+        return territory.toBuilder().userConfigurations(filtered).build();
       })
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
 
+  /**
+   * @deprecated proof of concept
+   */
+  @Deprecated(forRemoval = true)
   public Optional<ClientConfiguration> describeFor(String username) {
     Optional<User> user = userRepository.findByUsername(username);
     if (user.isPresent()) {
@@ -157,159 +159,10 @@ public class ClientConfigurationService {
       .map(territory -> {
         Set<UserConfiguration> filtered = territory.getUserConfigurations()
           .stream()
-          .filter(uc -> uc.getUser() == user)
+          .filter(uc -> Objects.equals(uc.getUser(), user))
           .collect(Collectors.toSet());
         return territory.toBuilder().userConfigurations(filtered).build();
       })
       .collect(Collectors.toList());
   }
-
-  public Page<Application> applicationsPage(String username, Pageable pageable) {
-    return userRepository.findByUsername(username)
-      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
-      .map(user -> {
-        List<Application> applications = applicationsList(user);
-        final int start = Math.min((int) pageable.getOffset(), applications.size());
-        final int end = Math.min((start + pageable.getPageSize()), applications.size());
-        return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
-      })
-      .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
-  }
-
-  public Page<Application> applicationsPage(Integer terrId, String username, Pageable pageable) {
-    return userRepository.findByUsername(username)
-      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
-      .map(user -> {
-        List<Application> applications = applicationsList(terrId, user);
-        final int start = Math.min((int) pageable.getOffset(), applications.size());
-        final int end = Math.min((start + pageable.getPageSize()), applications.size());
-        return new PageImpl<>(applications.subList(start, end), pageable, applications.size());
-      })
-      .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
-  }
-
-  private List<Application> applicationsList(User user) {
-    return userConfigurationRepository.findByUser(user).stream()
-      .map(UserConfiguration::getRole)
-      .distinct()
-      .map(Role::getApplications)
-      .flatMap(Set::stream)
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  private List<Application> applicationsList(Integer terrId, User user) {
-    return userConfigurationRepository.findByUser(user).stream()
-      .filter(uc -> Objects.equals(uc.getTerritory().getId(), terrId))
-      .map(UserConfiguration::getRole)
-      .distinct()
-      .map(Role::getApplications)
-      .flatMap(Set::stream)
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  public Page<Territory> territoriesPage(String username, Pageable pageable) {
-    return userRepository.findByUsername(username)
-      .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
-      .map(user -> {
-        List<Territory> territories = userConfigurationRepository.findByUser(user).stream()
-          .map(UserConfiguration::getTerritory)
-          .distinct()
-          .collect(Collectors.toList());
-
-        final int start = Math.min((int) pageable.getOffset(), territories.size());
-        final int end = Math.min((start + pageable.getPageSize()), territories.size());
-        return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
-      }).orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
-  }
-
-  /**
-   * Get the profile for the given user, application and territory.
-   *
-   * @param username the username
-   * @param appId    the application id
-   * @param terrId   the territory id
-   * @return the profile
-   */
-  public Optional<Profile> buildProfile(String username, String appId, String terrId) {
-    return userRepository.findByUsername(username)
-      .filter(user -> !user.getBlocked())
-      .flatMap(user -> buildProfile(user, appId, terrId));
-  }
-
-  private Optional<Profile> buildProfile(User user, String appId, String terrId) {
-    return user.getPermissions()
-      .stream()
-      .filter(it -> Objects.equals(it.getTerritory().getId(), Integer.valueOf(terrId)))
-      .filter(it -> !it.getTerritory().getBlocked())
-      .map(it -> getApplicationAndTerritory(it, appId))
-      .filter(Objects::nonNull)
-      .findFirst()
-      .map(it -> {
-        Application application = it.getFirst();
-        Territory territory = it.getSecond();
-        return buildProfile(user, application, territory);
-      });
-  }
-
-  private static Profile buildProfile(User user, Application application, Territory territory) {
-
-    List<CartographyPermission> permissions = getPermissions(user, application, territory);
-    List<Cartography> layers = getLayers(permissions);
-    List<org.sitmun.domain.service.Service> services = getServices(layers);
-    List<Task> tasks = getTasks(user, application, territory);
-
-    return Profile.builder()
-      .territory(territory)
-      .application(application)
-      .groups(permissions)
-      .layers(layers)
-      .services(services)
-      .tasks(tasks)
-      .build();
-  }
-
-  private static List<CartographyPermission> getPermissions(User user, Application application, Territory territory) {
-    return user.getPermissions().stream()
-      .filter(permission -> permission.getRole().getApplications().stream().anyMatch(app -> Objects.equals(app, application)))
-      .filter(permission -> Objects.equals(permission.getTerritory(), territory))
-      .flatMap(permission -> permission.getRole().getPermissions().stream())
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  private static List<Cartography> getLayers(List<CartographyPermission> permissions) {
-    return permissions.stream()
-      .flatMap(cp -> cp.getMembers().stream())
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  private static List<org.sitmun.domain.service.Service> getServices(List<Cartography>  layers) {
-    return layers.stream()
-      .map(Cartography::getService)
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-
-  private static List<Task> getTasks(User user, Application application, Territory territory) {
-    return user.getPermissions().stream()
-      .filter(permission -> Objects.equals(permission.getTerritory(), territory))
-      .map(UserConfiguration::getRole)
-      .filter(role -> role.getApplications().stream().anyMatch(app -> Objects.equals(app, application)))
-      .flatMap(role -> role.getTasks().stream())
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  private Pair<Application, Territory> getApplicationAndTerritory(UserConfiguration userConfiguration, String appId) {
-    return userConfiguration.getRole().getApplications().stream()
-      .filter(app -> Objects.equals(app.getId(), Integer.valueOf(appId)))
-      .findFirst()
-      .map(value -> Pair.of(value, userConfiguration.getTerritory()))
-      .orElse(null);
-  }
-
 }

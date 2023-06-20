@@ -1,5 +1,6 @@
 package org.sitmun.authorization.controller;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("API Authorization and Configuration - Profile endpoint")
 class ClientConfigurationProfileControllerTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("Get application details")
   void applicationDetails() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -30,6 +33,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get layers details")
   void layers() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -40,6 +44,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get services details")
   void services() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -50,6 +55,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get groups details")
   void groups() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -62,6 +68,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get backgrounds details")
   void backgrounds() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -71,6 +78,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get situation map details")
   void situationMap() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -78,6 +86,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get tasks details")
   void tasks() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -85,6 +94,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get task parameters details")
   void taskParameters() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -93,6 +103,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get tree details")
   void tree() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())

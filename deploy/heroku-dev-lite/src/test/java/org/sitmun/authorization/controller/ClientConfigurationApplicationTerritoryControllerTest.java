@@ -18,8 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("API Authorization and Configuration - Application endpoint")
-class ClientConfigurationApplicationControllerTest {
+@DisplayName("API Authorization and Configuration - Application territories endpoint")
+class ClientConfigurationApplicationTerritoryControllerTest {
 
   @Value("${spring.data.rest.default-page-size}")
   private int pageSize;
@@ -30,57 +30,54 @@ class ClientConfigurationApplicationControllerTest {
   @Test
   @DisplayName("Page with public user")
   void readPublicUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI))
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content", hasSize(4)))
-      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
+      .andExpect(jsonPath("$.content", hasSize(3)))
+      .andExpect(jsonPath("$.content[*].name", hasItem("Municipio")));
   }
 
   @Test
   @DisplayName("Page with authenticated user")
   void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI)
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI,1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content", hasSize(5)))
+      .andExpect(jsonPath("$.content", hasSize(3)))
       .andExpect(jsonPath("$.size", is(pageSize)))
       .andExpect(jsonPath("$.number", is(0)))
       .andExpect(jsonPath("$.totalPages", is(1)))
-      .andExpect(jsonPath("$.content[*].title", hasItems(
-        "SITMUN - Municipal",
-        "SITMUN - Provincial",
-        "SITMUN - Supramunicipal",
-        "SITMUN - Externa",
-        "SITMUN - Externa protegida"
+      .andExpect(jsonPath("$.content[*].name", hasItems(
+        "Provincia",
+        "Municipio",
+        "Otro"
       )));
   }
-
 
   @Test
   @DisplayName("Get specific page")
   void readOtherUserWithPagination() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=1")
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI + "?size=1&page=1", 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content", hasSize(1)))
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
-      .andExpect(jsonPath("$.totalPages", is(5)))
-      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
+      .andExpect(jsonPath("$.totalPages", is(3)))
+      .andExpect(jsonPath("$.content[*].name", hasItem("Municipio")));
   }
 
   @Test
   @DisplayName("Request out of bounds")
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=1&page=5")
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI + "?size=1&page=5", 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content").isEmpty())
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(5)))
-      .andExpect(jsonPath("$.totalPages", is(5)));
+      .andExpect(jsonPath("$.totalPages", is(3)));
   }
 }

@@ -32,9 +32,13 @@ public class WorkspaceConfigurationController {
     this.clientConfigurationService = clientConfigurationService;
   }
 
+  /**
+   * @deprecated proof of concept
+   */
   @GetMapping(path = "/application/{applicationId}/territory/{territoryId}", produces = APPLICATION_JSON_VALUE)
   @ResponseBody
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @Deprecated(forRemoval = true)
   public ResponseEntity<ClientConfigurationForApplicationTerritory> getDescription(
     @PathVariable("applicationId") Integer applicationId,
     @PathVariable("territoryId") Integer territoryId) {
@@ -44,9 +48,13 @@ public class WorkspaceConfigurationController {
       .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /**
+   * @deprecated proof of concept
+   */
   @GetMapping(produces = APPLICATION_JSON_VALUE)
   @ResponseBody
   @JsonView(ClientConfigurationViews.Base.class)
+  @Deprecated(forRemoval = true)
   public ResponseEntity<ClientConfiguration> getDescription() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     return clientConfigurationService.describeFor(authentication.getName())
