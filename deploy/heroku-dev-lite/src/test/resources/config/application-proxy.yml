@@ -1,0 +1,6 @@
+## Proxy configuration for testing forced proxy
+
+sitmun:
+  proxy:
+    force: true
+    url: http://localhost:9090

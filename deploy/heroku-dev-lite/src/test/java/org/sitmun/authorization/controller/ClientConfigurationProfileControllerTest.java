@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +22,13 @@ class ClientConfigurationProfileControllerTest {
 
   @Autowired
   private MockMvc mvc;
+
+  @Value("${sitmun.proxy.force:false}")
+  private boolean proxyForce;
+
+  @Value("${sitmun.proxy.url:}")
+  private String proxyUrl;
+
 
   @Test
   @DisplayName("Get application details")
@@ -46,9 +54,11 @@ class ClientConfigurationProfileControllerTest {
   @Test
   @DisplayName("Get services details")
   void services() throws Exception {
+    String url = proxyForce ? proxyUrl + "/proxy/1/1/WMTS/1" : "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service";
+
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.services[?(@.id=='service/1')].url", hasItem("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service")))
+      .andExpect(jsonPath("$.services[?(@.id=='service/1')].url", hasItem(url)))
       .andExpect(jsonPath("$.services[?(@.id=='service/1')].type", hasItem("WMTS")))
       .andExpect(jsonPath("$.services[?(@.id=='service/1')].parameters.format", hasItem("image/jpeg")))
       .andExpect(jsonPath("$.services[?(@.id=='service/1')].parameters.matrixSet", hasItem("UTM25831")));

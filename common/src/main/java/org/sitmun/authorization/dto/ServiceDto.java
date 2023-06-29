@@ -13,5 +13,6 @@ public class ServiceDto {
   private String id;
   private String url;
   private String type;
+  private Boolean isProxied;
   private Map<String, String> parameters;
 }
