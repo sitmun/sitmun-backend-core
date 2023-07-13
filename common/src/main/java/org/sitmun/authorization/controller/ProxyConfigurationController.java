@@ -13,17 +13,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/config/proxy")
+@Slf4j
 public class ProxyConfigurationController {
 
   private final ProxyConfigurationService proxyConfigurationService;
 
   private final JsonWebTokenService jsonWebTokenService;
 
-  public ProxyConfigurationController(ProxyConfigurationService proxyConfigurationService, JsonWebTokenService jsonWebTokenService) {
+  public ProxyConfigurationController(ProxyConfigurationService proxyConfigurationService,
+      JsonWebTokenService jsonWebTokenService) {
     this.proxyConfigurationService = proxyConfigurationService;
     this.jsonWebTokenService = jsonWebTokenService;
   }
@@ -34,14 +39,20 @@ public class ProxyConfigurationController {
     String token = configProxyRequest.getToken();
     long expirationTime = 0;
     if (StringUtils.hasText(token)) {
-			username = jsonWebTokenService.getUsernameFromToken(token);
-			expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
-		}
-		if(proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
-			ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
-			return ResponseEntity.ok().body(configProxyDto);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-	}
+      try {
+        username = jsonWebTokenService.getUsernameFromToken(token);
+        expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
+      } catch (ExpiredJwtException e) {
+        log.error("JWT is expired");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
+    }
+    if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
+      proxyConfigurationService.addExtraParams(configProxyRequest, username);
+      ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
+      return ResponseEntity.ok().body(configProxyDto);
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+  }
 }
