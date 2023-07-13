@@ -8,12 +8,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-@Profile("ldap")
+import lombok.extern.slf4j.Slf4j;
+
+@Profile("test")
 @Component
 @Order(1)
-public class LdapPasswordStorage implements PasswordStorage {
+@Slf4j
+public class LdapPasswordStorageTest implements PasswordStorage {
 
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 
@@ -32,22 +34,16 @@ public class LdapPasswordStorage implements PasswordStorage {
 	@Value("${security.authentication.ldap.password_ldap}")
 	private String passwordLdap;
 
-	public LdapPasswordStorage(LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {
+	public LdapPasswordStorageTest(LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {
 		this.ldapUserAuthoritiesPopulator = ldapUserAuthoritiesPopulator;
 	}
 
 	@Override
 	public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		String url = StringUtils.hasText(this.host) && StringUtils.hasText(this.baseDN)
-				? this.host.concat("/").concat(this.baseDN)
-				: null;
 		authenticationManagerBuilder.ldapAuthentication()
 				.passwordEncoder(ldapPasswordEncoder())
 				.userDnPatterns(this.userDNPattern)
-				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator)
-				.contextSource().url(url)
-				.managerDn(StringUtils.hasText(this.userLdap) ? this.userLdap : null)
-				.managerPassword(StringUtils.hasText(this.passwordLdap) ? this.passwordLdap : null);
+				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 	}
 
 	public PasswordEncoder ldapPasswordEncoder() {

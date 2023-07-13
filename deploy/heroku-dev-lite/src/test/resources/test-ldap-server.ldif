@@ -11,7 +11,17 @@ objectclass: inetOrgPerson
 cn: Usuario12 pruebas
 sn: Usuario12
 uid: user12
-userPassword: bd35283fe8fcfd77d7c05a8bf2adb85c773281927e12c9829c72a9462092f7c4
+userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
+
+dn: uid=internal,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Internal pruebas
+sn: Internal
+uid: internal
+userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
 
 dn: uid=nositmunuser,ou=people,dc=springframework,dc=org
 objectclass: top
@@ -21,4 +31,4 @@ objectclass: inetOrgPerson
 cn: NoSitmunUser pruebas
 sn: NoSitmunUser
 uid: nositmunuser
-userPassword: 4c207a52cd543bf829891947f4527165007ecd030319db9c9bb98e01d3c968e9
+userPassword: {SSHA}wgUvzd+hyzWIrnAwUCFac8ntwZ193uWz

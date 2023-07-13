@@ -7,17 +7,17 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
-test:
+spring:
   ldap:
     embedded:
       base-dn: dc=springframework,dc=org
-      ldif: classpath:config/test-ldap-server.ldif
+      ldif: classpath:test-ldap-server.ldif
 
 security:
   authentication:
     ldap:
-      host: 
+      host: ldap://127.0.0.1:3389
       base_dn: dc=springframework,dc=org
-      user_dn_pattern: uid={0}
+      user_dn_pattern: uid={0},ou=people
       user_ldap:
       password_ldap:

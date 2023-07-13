@@ -37,26 +37,26 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   public static final String PUBLIC_USER_NAME = "public";
   private static final String[] AUTH_WHITELIST = {
-    "/v3/api-docs*/**",
-    "/v3/api-docs*.*",
-    "/swagger-ui/**",
-    "/swagger-ui.*",
-    "/dist/**",
-    "/workspace.html"
+      "/v3/api-docs*/**",
+      "/v3/api-docs*.*",
+      "/swagger-ui/**",
+      "/swagger-ui.*",
+      "/dist/**",
+      "/workspace.html"
   };
 
   private final SecurityEntryPoint unauthorizedHandler;
 
   private final UserDetailsServiceImplementation userDetailsService;
-  
+
   private final JsonWebTokenService jsonWebTokenService;
-  
+
   private final List<PasswordStorage> passwordStorageList;
 
   public WebSecurityConfigurer(UserDetailsServiceImplementation userDetailsService,
-  							   SecurityEntryPoint unauthorizedHandler,
-                               JsonWebTokenService jsonWebTokenService,
-                               List<PasswordStorage> passwordStorageList) {
+      SecurityEntryPoint unauthorizedHandler,
+      JsonWebTokenService jsonWebTokenService,
+      List<PasswordStorage> passwordStorageList) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
@@ -70,32 +70,32 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   @Override
   public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-	authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
   }
 
   @Bean
   public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
-	  AuthenticationManagerBuilder authenticationManagerBuilder = 
-	          http.getSharedObject(AuthenticationManagerBuilder.class);
-	  for(PasswordStorage ps : passwordStorageList) {
-		  ps.addPasswordStorage(authenticationManagerBuilder);
-	  }
-	  return authenticationManagerBuilder.build();
+    AuthenticationManagerBuilder authenticationManagerBuilder = http
+        .getSharedObject(AuthenticationManagerBuilder.class);
+    for (PasswordStorage ps : passwordStorageList) {
+      ps.addPasswordStorage(authenticationManagerBuilder);
+    }
+    return authenticationManagerBuilder.build();
   }
 
   @Bean
   public AnonymousAuthenticationFilter anonymousAuthenticationFilter() {
     return new AnonymousAuthenticationFilter(
-      "anonymous",
-      PUBLIC_USER_NAME,
-      AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PUBLIC.name()));
+        "anonymous",
+        PUBLIC_USER_NAME,
+        AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PUBLIC.name()));
   }
 
   @Bean
   public ProxyTokenFilter middlewareKeyFilter() {
     return new ProxyTokenFilter(
-      "middleware",
-      AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PROXY.name()));
+        "middleware",
+        AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PROXY.name()));
   }
 
   @Bean
@@ -125,21 +125,24 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     http.cors().and()
-      .csrf().disable().headers().frameOptions().disable().and()
-      .anonymous().authenticationFilter(anonymousAuthenticationFilter()).and()
-      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-      .authorizeRequests()
-      .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
-      .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
-      .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
-      .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
-      .anyRequest().authenticated();
+        .csrf().disable().headers().frameOptions().disable().and()
+        .anonymous().authenticationFilter(anonymousAuthenticationFilter()).and()
+        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+        .authorizeRequests()
+        .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
+        .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
+        .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
+        .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
+        .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
+        .antMatchers(HttpMethod.GET, "/api/workspace")
+        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+        .antMatchers(HttpMethod.GET, "/api/workspace/**")
+        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+        .antMatchers(HttpMethod.GET, "/api/config/client/**")
+        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+        .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
+        .anyRequest().authenticated();
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(middlewareKeyFilter(), JsonWebTokenFilter.class);

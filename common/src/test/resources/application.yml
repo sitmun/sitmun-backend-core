@@ -6,6 +6,7 @@ spring:
         persistence:
           validation:
             mode: none
+  profiles: dev,postgres,ldap
 
 security:
   authentication:
