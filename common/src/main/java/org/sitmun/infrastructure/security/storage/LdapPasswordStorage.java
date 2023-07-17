@@ -17,19 +17,19 @@ public class LdapPasswordStorage implements PasswordStorage {
 
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 
-	@Value("${security.authentication.ldap.host}")
+	@Value("${sitmun.authentication.ldap.url}")
 	private String host;
 
-	@Value("${security.authentication.ldap.base_dn}")
+	@Value("${sitmun.authentication.ldap.base-dn}")
 	private String baseDN;
 
-	@Value("${security.authentication.ldap.user_dn_pattern}")
+	@Value("${sitmun.authentication.ldap.user-dn-pattern}")
 	private String userDNPattern;
 
-	@Value("${security.authentication.ldap.user_ldap}")
+	@Value("${sitmum.authentication.ldap.username:}")
 	private String userLdap;
 
-	@Value("${security.authentication.ldap.password_ldap}")
+	@Value("${sitmun.authentication.ldap.password:}")
 	private String passwordLdap;
 
 	public LdapPasswordStorage(LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {

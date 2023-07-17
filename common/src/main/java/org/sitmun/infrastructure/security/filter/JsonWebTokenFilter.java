@@ -54,7 +54,9 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
         logger.error(e.getMessage(), e);
       }
     } else {
-      logger.warn("JWT Token does not begin with Bearer String");
+      if (requestTokenHeader != null) {
+        logger.warn("JWT Token does not begin with Bearer String");
+      }
     }
     filterChain.doFilter(request, response);
   }

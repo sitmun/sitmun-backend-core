@@ -1,3 +1,9 @@
+dn: dc=springframework,dc=org
+objectclass: top
+objectclass: domain
+objectclass: extensibleObject
+dc: springframework
+
 dn: ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: organizationalUnit

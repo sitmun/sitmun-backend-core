@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Profile({ "ldap", "test" })
+@Profile("ldap")
 @Slf4j
 @RequiredArgsConstructor
 @Component

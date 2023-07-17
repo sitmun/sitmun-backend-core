@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class AuthenticationControllerTest {
 
   @Autowired
@@ -31,8 +30,8 @@ class AuthenticationControllerTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id_token").exists());
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
@@ -44,63 +43,6 @@ class AuthenticationControllerTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-        .andExpect(status().isUnauthorized());
-  }
-
-  /**
-   * Authentication of a user that does not exist or is not valid in ldap
-   * but exists and is valid in sitmun.
-   * 
-   * @throws Exception
-   */
-  @Test
-  @Profile("ldap")
-  void ldapFailureUserDetailsSuccessfulLogin() throws Exception {
-    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("admin");
-    login.setPassword("admin");
-
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id_token").exists());
-  }
-
-  /**
-   * Authentication of a valid user in ldap and exists in sitmun.
-   * 
-   * @throws Exception
-   */
-  @Test
-  @Profile("ldap")
-  void successfulLdapLogin() throws Exception {
-    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("internal");
-    login.setPassword("password12");
-
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id_token").exists());
-  }
-
-  /**
-   * Failed authentication of a valid user in ldap but does not exist in sitmun.
-   * 
-   * @throws Exception
-   */
-  @Test
-  @Profile("ldap")
-  void successfulLdapLoginNoExistsSitmun() throws Exception {
-    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("nositmunuser");
-    login.setPassword("nositmunpassword");
-
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-        .andExpect(status().isUnauthorized());
+      .andExpect(status().isUnauthorized());
   }
 }

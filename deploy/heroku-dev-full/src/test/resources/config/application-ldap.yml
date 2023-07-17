@@ -1,0 +1,13 @@
+spring:
+  ldap:
+    embedded:
+      ldif: classpath:config/ldap/test-server.ldif
+      base-dn: dc=springframework,dc=org
+      port: 8389
+
+sitmun:
+  authentication:
+    ldap:
+      url: ldap://localhost:8389
+      base-dn: dc=springframework,dc=org
+      user-dn-pattern: uid={0},ou=people
