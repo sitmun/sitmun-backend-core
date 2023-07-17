@@ -135,7 +135,7 @@ public class TaskParameter {
   /**
    * Tasks that applies this parameter.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @NotNull
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "PTT_TASKID", foreignKey = @ForeignKey(name = "STM_PTT_FK_TAS"))

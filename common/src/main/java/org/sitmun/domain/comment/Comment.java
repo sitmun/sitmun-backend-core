@@ -91,7 +91,7 @@ public class Comment {
   /**
    * User logged.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "COM_USERID", foreignKey = @ForeignKey(name = "STM_COM_FK_USE"))
   @NotNull
@@ -100,7 +100,7 @@ public class Comment {
   /**
    * Application used.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "COM_APPID", foreignKey = @ForeignKey(name = "STM_COM_FK_APP"))
   @NotNull

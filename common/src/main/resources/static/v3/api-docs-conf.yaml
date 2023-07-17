@@ -1,5 +1,11 @@
 openapi: 3.0.3
 
+servers:
+  - url: https://sitmun-backend-core.herokuapp.com
+    description: Servidor de desarrollo
+  - url: http://localhost:8080
+    description: Servidor local de desarrollo
+
 info:
   title: SITMUN 3 - API de Configuración y Autorización
   description: |-
@@ -36,6 +42,9 @@ info:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
+  contact:
+    name: Comité técnico SITMUN  
+    url: https://sitmun.github.io/contacto/
 
 tags:
   - name: Configuración y Autorización de Proxy
@@ -53,7 +62,7 @@ paths:
       summary: |-
         Aplicaciones para un visor de mapas.
       description: |-
-        Este enpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
+        Este endpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
 
         La petición pueden autenticarse usando un esquema de 
         *autenticación por portador* 
@@ -61,7 +70,7 @@ paths:
         usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
         Si no se autentica, se asume que la petición se ha realizado por un usuario
         que en el dominio de SITMUN se denomina *usuario público*.
-      operationId: clientTerritoryConfig
+      operationId: applicationsList
       security:
         - bearerAuth: []
       parameters:
@@ -70,19 +79,19 @@ paths:
           description: Tamaño de la página solicitada.
           required: false
           schema:
-            type: string
+            type: integer
             default: 100000
         - name: page
           in: query
           description: Número de página.
           required: false
           schema:
-            type: string
+            type: integer
             default: 0
       responses:
         '200':
           description: |-
-            Listado de las Aplicaciones SITMUN disponibles por el visor de mapas.
+            Listado de las Aplicaciones SITMUN disponibles por el visor de mapas para el usuario que hace la petición.
           content:
             application/json:
               schema:
@@ -113,6 +122,437 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /api/config/client/application/{appId}/territories:
+    get:
+      tags:
+        - Configuración y Autorización de Visor de mapas
+      summary: |-
+        Territorios para una aplicación en un visor de mapas.
+      description: |-
+        Este endpoint devuelve los territorios que el visor de mapas puede mostrar para una aplicación.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: applicationTerritoriesList
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: appId
+          in: path
+          description: Identificador de la aplicación.
+          required: true
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Tamaño de la página solicitada.
+          required: false
+          schema:
+            type: integer
+            default: 100000
+        - name: page
+          in: query
+          description: Número de página.
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: |-
+            Listado de los territorios SITMUN disponibles por el visor de mapas para el usuario que hace la petición.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Lista de aplicaciones disponibles.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Territory'
+                  totalPages:
+                    description: Número total de páginas.
+                    type: integer
+                    format: int32
+                  size:
+                    description: Tamaño de la página.
+                    type: integer
+                    format: int32
+                  number:
+                    description: Número de página.
+                    type: integer
+                    format: int32
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/config/client/territory:
+    get:
+      tags:
+        - Configuración y Autorización de Visor de mapas
+      summary: |-
+        Territorios para un visor de mapas.
+      description: |-
+        Este endpoint devuelve los territorios que el visor de mapas puede mostrar.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: territoriesList
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: size
+          in: query
+          description: Tamaño de la página solicitada.
+          required: false
+          schema:
+            type: integer
+            default: 100000
+        - name: page
+          in: query
+          description: Número de página.
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: |-
+            Listado de los territorios SITMUN disponibles por el visor de mapas para el usuario que hace la petición.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Lista de aplicaciones disponibles.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Territory'
+                  totalPages:
+                    description: Número total de páginas.
+                    type: integer
+                    format: int32
+                  size:
+                    description: Tamaño de la página.
+                    type: integer
+                    format: int32
+                  number:
+                    description: Número de página.
+                    type: integer
+                    format: int32
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/config/client/territory/{terrId}/applications:
+    get:
+      tags:
+        - Configuración y Autorización de Visor de mapas
+      summary: |-
+        Listado de aplicaciones de un territorio.
+      description: |-
+        Este endpoint devuelve las aplicaciones que el visor de mapas puede mostrar en un territorio.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: territoryApplicationsList
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: terrId
+          in: path
+          description: Identificador del territorio.
+          required: true
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Tamaño de la página solicitada.
+          required: false
+          schema:
+            type: integer
+            default: 100000
+        - name: page
+          in: query
+          description: Número de página.
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: |-
+            Descripción Listado de las Aplicaciones SITMUN disponibles por el visor de mapas para el usuario que hace la petición en un territorio.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Lista de aplicaciones disponibles.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Application'
+                  totalPages:
+                    description: Número total de páginas.
+                    type: integer
+                    format: int32
+                  size:
+                    description: Tamaño de la página.
+                    type: integer
+                    format: int32
+                  number:
+                    description: Número de página.
+                    type: integer
+                    format: int32
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/config/client/profile/{appId}/{terrId}:
+    get:
+      tags:
+        - Configuración y Autorización de Visor de mapas
+      summary: |-
+        Configuración para un visor de mapas para un territorio y aplicación determinados.
+      description: |-
+        Este endpoint devuelve la configuración para un territorio y aplicación determinado.
+
+        La petición pueden autenticarse usando un esquema de 
+        *autenticación por portador* 
+        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
+        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
+        Si no se autentica, se asume que la petición se ha realizado por un usuario
+        que en el dominio de SITMUN se denomina *usuario público*.
+      operationId: profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: appId
+          in: path
+          description: Identificador de la aplicación.
+          required: true
+          schema:
+            type: integer
+        - name: terrId
+          in: path
+          description: Identificador del territorio.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: |-
+            Configuración para el visor de mapas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  application:
+                    description: Configuración relacionada con la aplicación.
+                    type: object
+                    properties:
+                        id:
+                            description: Identificador de la aplicación.
+                            type: integer
+                            format: int32
+                        title:
+                            description: Nombre de la aplicación.
+                            type: string
+                        type:
+                            description: Tipo de la aplicación.
+                            type: string
+                        theme:
+                            description: Tema que usa la aplicación.
+                            type: string
+                        srs:
+                            description: Sistema de coordenadas.
+                            type: string
+                        situation-map:
+                            description: Identificación del grupo que actúa como mapa de situación.
+                            type: string
+                        initialExtent:
+                            description: Extensión inicial del territorio.
+                            type: array
+                            items:
+                              type: number
+                              format: double
+                  backgrounds:
+                    description: Grupos que pueden ser usados como fondos.
+                    type: array
+                    items:
+                      type: object
+                      description: Grupo que puede ser usado como fondo.
+                      properties:
+                        id:
+                          description: Identificador del grupo.
+                          type: string
+                        title:
+                          description: Título del grupo.
+                          type: string
+                  groups:
+                    description: Lista de grupos.
+                    type: array
+                    items:
+                      type: object
+                      description: Grupo de cartografía.
+                      properties:
+                        id:
+                          description: Identificador del grupo.
+                          type: string
+                        title:
+                          description: Título del grupo.
+                          type: string
+                        layers:
+                            type: array
+                            items:
+                              description: Identificador de la cartografía.
+                              type: string
+                  layers:
+                    description: Lista de cartografías.
+                    type: array
+                    items:
+                      type: object
+                      description: Cartografía.
+                      properties:
+                        id:
+                          description: Identificador de la cartografía.
+                          type: string
+                        title:
+                          description: Título de la cartografía.
+                          type: string
+                        layers:
+                          type: array
+                          items:
+                            description: Capas de la cartografía.
+                            type: string
+                        service:
+                          description: Identificador del servicio.
+                          type: string
+                  services:
+                    description: Lista de servicios.
+                    type: array
+                    items:
+                      description: Servicio de la cartografía.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador del servicio.
+                          type: string
+                        url:
+                          description: URL del servicio.
+                          type: string
+                        type:
+                          description: Tipo de servicio.
+                          type: string
+                        parameters:
+                          type: object
+                          additionalProperties:
+                            type: string
+                  tasks:
+                    description: Lista de tareas.
+                    type: array
+                    items:
+                      description: Tarea.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador de la tarea.
+                          type: string
+                        ui-control:
+                          description: Control de interfaz de usuario.
+                          type: string
+                        parameters:
+                          description: Parámetros de la tarea.
+                          type: object
+                          additionalProperties: true
+                  trees:
+                    description: Lista de árboles.
+                    type: array
+                    items:
+                      description: Árbol.
+                      type: object
+                      properties:
+                        id:
+                          description: Identificador del árbol.
+                          type: string
+                        title:
+                          description: Título del árbol.
+                          type: string
+                        image:
+                          description: Imagen del árbol.
+                          type: string
+                        rootNode:
+                          description: Identificador del nodo raíz.
+                          type: string
+                        nodes:
+                          type: object
+                          description: Mapa de nodos; la clave es el identificador del nodo.
+                          additionalProperties:
+                            type: object
+                            description: Nodo del árbol.
+                            properties:
+                              title:
+                                description: Título del nodo.
+                                type: string
+                              resource:
+                                description: |-
+                                  Si el nodo es una carpeta el valor es `null`.
+                                  Si el nodo es una hoja el valor identifica el recurso asociado.
+                                type: string
+                              isRadio:
+                                description: |-
+                                  Si el nodo es una carpeta indica si el nodo es de selección única.
+                                  Si el nodo es una hoja el valor es `null`.
+                              children:
+                                description: |-
+                                  Si el nodo es una carpeta indica los nodos hijos.
+                                  Si el nodo es una hoja el valor es `null`.
+                                type: array
+                                items:
+                                  description: Identificador del nodo hijo.
+                                  type: string
+
+        '401':
+          description: |-
+            El cliente identificado por *autenticación por portador* no esta autorizado para 
+            realizar la petición.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 
   /api/config/proxy:
     post:
@@ -175,7 +615,6 @@ components:
       description: "JSON Web Token"
       type: string
       pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
-      example: "eyJhbGciOiJ..."
 
     ProxyConfigurationRequest:
       description: Parámetros de la petición realizada por el visor de mapas al proxy.
@@ -227,20 +666,21 @@ components:
             Fecha de expiración de la configuración expresado en segundos desde
             1970-01-01T00:00:00Z UTC. La configuración se puede usar solo hasta
             antes de dicha fecha.
-        vary:
-          description: |-
-            Esta configuración está originada por una determinada
-            petición del cliente. Si hay una nueva petición del cliente
-            que se diferencia sólo en los valores asociados a los 
-            `parameters` listados en `vary`, se debe reutilizar esta 
-            configuración en lugar de solicitar una nueva si no ha expirado.
-          type: array
-          items:
-            type: string
         payload:
           type: object
           additionalProperties: true
           description: Valores de la configuración.
+          properties:
+            vary:
+              description: |-
+                Esta configuración está originada por una determinada
+                petición del cliente. Si hay una nueva petición del cliente
+                que se diferencia sólo en los valores asociados a los 
+                `parameters` listados en `vary`, se debe reutilizar esta 
+                configuración en lugar de solicitar una nueva si no ha expirado.
+              type: array
+              items:
+                type: string
       required:
         - type
         - exp
@@ -357,6 +797,17 @@ components:
           type: string
           description: Nombre de la aplicación.
 
+    Territory:
+      type: object
+      description: Territorio de SITMUN.
+      properties:
+        id:
+          type: string
+          description: Identificador del territorio.
+        name:
+          type: string
+          description: Nombre del territorio.
+
     ErrorResponse:
       type: object
       description: Respuesta que puede acompañar a un error.
@@ -389,4 +840,7 @@ components:
       type: apiKey
       in: header
       name: X-SITMUN-Proxy-Key
-
+    bearerAuth: 
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    

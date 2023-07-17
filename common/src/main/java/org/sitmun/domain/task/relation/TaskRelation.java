@@ -39,7 +39,7 @@ public class TaskRelation {
   /**
    * Task owner of the relation.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAR_TASKID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TAS"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
@@ -57,7 +57,7 @@ public class TaskRelation {
    * <p>
    * When a task is the target of a relation cannot be deleted.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAR_TASKRELID", foreignKey = @ForeignKey(name = "STM_TAR_FK_TAS_REL"))
   @NotNull
   private Task relatedTask;

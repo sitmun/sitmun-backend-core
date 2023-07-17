@@ -59,35 +59,35 @@ public class Log {
   /**
    * Originated by this user.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "LOG_USERID")
   private User user;
 
   /**
    * Originated by this application.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "LOG_APPID")
   private Application application;
 
   /**
    * Originated in this application.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "LOG_TERID")
   private Territory territory;
 
   /**
    * Originated by this task.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "LOG_TASKID")
   private Task task;
 
   /**
    * Originated by this cartography.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "LOG_GIID")
   private Cartography cartography;
 

@@ -121,24 +121,22 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     // Configuration for anonymous access
     // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
     http.cors().and()
-        .csrf().disable().headers().frameOptions().disable().and()
-        .anonymous().authenticationFilter(anonymousAuthenticationFilter()).and()
-        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-        .authorizeRequests()
-        .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
-        .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
-        .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
-        .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
-        .antMatchers(HttpMethod.GET, "/api/workspace")
-        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-        .antMatchers(HttpMethod.GET, "/api/workspace/**")
-        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-        .antMatchers(HttpMethod.GET, "/api/config/client/**")
-        .hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-        .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
-        .anyRequest().authenticated();
+      .csrf().disable().headers().frameOptions().disable().and()
+      .anonymous().authenticationFilter(anonymousAuthenticationFilter()).and()
+      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+      .authorizeRequests()
+      .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
+      .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
+      .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
+      .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.POST, "/api/config/proxy/**").hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
+      .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
+      .anyRequest().authenticated();
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(middlewareKeyFilter(), JsonWebTokenFilter.class);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project deploy heroku-dev-full
+// Project deploy heroku-dev-lite
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -22,10 +22,12 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation project(':app')
+  implementation project(':common')
   implementation project(':legacy')
 
-  implementation 'org.postgresql:postgresql'
+  implementation 'com.zaxxer:HikariCP'
+
+  implementation 'com.h2database:h2'
 
   testImplementation project(':common')
 
@@ -47,10 +49,6 @@ dependencies {
   testImplementation 'org.springframework.security:spring-security-ldap'
 }
 
-bootJar {
-  mainClass = 'org.sitmun.Application'
-}
-
 jacocoTestReport {
   reports {
     xml.enabled true
@@ -58,10 +56,6 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
-
-bootJar.dependsOn(":app:bootJar")
-
-compileTestJava.dependsOn(":app:bootJar")
 
 jib {
   from {
@@ -77,4 +71,8 @@ jib {
   container {
     mainClass = 'org.sitmun.Application'
   }
+}
+
+springBoot {
+  getMainClass().set("org.sitmun.Application")
 }

@@ -68,7 +68,7 @@ public class CartographyFilter {
   /**
    * Territorial level.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "FGI_TYPID", foreignKey = @ForeignKey(name = "STM_FGI_FK_TET"))
   private TerritoryType territorialLevel;
 
@@ -95,7 +95,7 @@ public class CartographyFilter {
   /**
    * Cartography on which this filter can be applied.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "FGI_GIID", foreignKey = @ForeignKey(name = "STM_FGI_FK_GEO"))
   @NotNull

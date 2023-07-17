@@ -1,5 +1,9 @@
 openapi: 3.0.3
 
+servers:
+  - url: http://localhost:8090
+    description: Servidor local de desarrollo
+
 info:
   title: SITMUN 3 - API de Proxy
   description: |-
@@ -26,6 +30,9 @@ info:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
+  contact:
+    name: Comité técnico SITMUN  
+    url: https://sitmun.github.io/contacto/
 
 tags:
   - name: Proxy
@@ -151,38 +158,6 @@ components:
       schema:
         type: object
         additionalProperties: true
-
-  #-------------------------------
-  # Esquemas reutilizables
-  #-------------------------------
-  schemas:
-
-    ErrorResponse:
-      type: object
-      description: Respuesta que puede acompañar a un error.
-      properties:
-        status:
-          type: integer
-          description: Código de estado HTTP.
-        error:
-          type: string
-          description: Descripción del código de error.
-        message:
-          type: string
-          description:  Mensaje descriptivo del error.
-        path:
-          type: string
-          description: API afectado.
-        timestamp:
-          type: string
-          format: date-time
-          description: Marca de tiempo
-      required:
-        - status
-        - error
-        - message
-        - path
-        - timestamp
 
   securitySchemes:
     bearerAuth:

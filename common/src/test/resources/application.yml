@@ -14,3 +14,8 @@ security:
       token-validity-in-miliseconds: 36000000
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+
+
+sitmun:
+  proxy:
+    config-response-validity-in-seconds: 3600

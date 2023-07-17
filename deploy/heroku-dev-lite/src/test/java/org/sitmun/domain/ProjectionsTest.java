@@ -65,7 +65,7 @@ class ProjectionsTest {
   @Test
   @DisplayName("CartographyAvailability view")
   void cartographyAvailabiltiesProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILTIY_PROJECTION_VIEW, 9999)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW, 9999)
         .with(user(Fixtures.admin()))
       ).andExpect(jsonPath("$.cartographyId").value(1208))
       .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
@@ -97,7 +97,7 @@ class ProjectionsTest {
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.applicationName").value("TEST"))
+      .andExpect(jsonPath("$.applicationName").value("SITMUN - Provincial"))
       .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"))
       .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
   }
@@ -144,7 +144,7 @@ class ProjectionsTest {
     mvc.perform(get(URIConstants.BACKGROUNDS_URI_PROJECTION_VIEW)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(6)))
+      .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(1)))
       .andExpect(jsonPath("$._embedded.backgrounds[?(@.cartographyGroupName)]", hasSize(6)));
   }
 
@@ -155,7 +155,7 @@ class ProjectionsTest {
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.situationMapId").value(132));
+      .andExpect(jsonPath("$.situationMapId").value(3));
   }
 
   @Test
@@ -164,17 +164,18 @@ class ProjectionsTest {
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.groupName").value("SITXELL"))
-      .andExpect(jsonPath("$.groupId").value(28))
-      .andExpect(jsonPath("$.uiId").value(13))
-      .andExpect(jsonPath("$.typeId").value(2))
-      .andExpect(jsonPath("$.typeName").value("descarga"));
+      .andExpect(jsonPath("$.groupName").value("Basic"))
+      .andExpect(jsonPath("$.groupId").value(1))
+      .andExpect(jsonPath("$.uiId").value(2))
+      .andExpect(jsonPath("$.typeId").value(1))
+      .andExpect(jsonPath("$.typeName").value("básica"));
 
-    mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.cartographyName").value("CRE5M - Illes"))
-      .andExpect(jsonPath("$.cartographyId").value(87));
+    // TODO Add test data
+    //  mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
+    //    .with(user(Fixtures.admin())))
+    //   .andExpect(status().isOk())
+    //   .andExpect(jsonPath("$.cartographyName").value("CRE5M - Illes"))
+    //   .andExpect(jsonPath("$.cartographyId").value(87));
   }
 
   @Test

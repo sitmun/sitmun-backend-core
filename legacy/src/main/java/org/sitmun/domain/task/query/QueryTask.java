@@ -47,7 +47,7 @@ public class QueryTask {
   /**
    * Report task.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "QUE_TASKID", foreignKey = @ForeignKey(name = "STM_QUE_FK_TASM"))
   private Task reportTask;
 

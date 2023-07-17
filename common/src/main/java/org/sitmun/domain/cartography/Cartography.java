@@ -159,7 +159,7 @@ public class Cartography {
   /**
    * Portrayal service.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
@@ -198,7 +198,7 @@ public class Cartography {
    *
    * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SERSEL"))
   @Deprecated
   private Service spatialSelectionService;
@@ -230,7 +230,7 @@ public class Cartography {
    *
    * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_GEO_FK_CON"))
   @Deprecated
   private DatabaseConnection spatialSelectionConnection;
@@ -295,7 +295,7 @@ public class Cartography {
    * Default style.
    * @deprecated
    */
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne
   @JoinColumn(name = "GEO_STYID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SGI"))
   @Deprecated
   private CartographyStyle defaultStyle;

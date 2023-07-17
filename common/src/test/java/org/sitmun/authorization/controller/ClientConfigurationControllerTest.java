@@ -2,7 +2,7 @@ package org.sitmun.authorization.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.authorization.service.ClientConfigurationService;
+import org.sitmun.authorization.service.ProfileService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.test.BaseTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ClientConfigurationControllerTest extends BaseTest {
 
   @MockBean
-  private ClientConfigurationService service;
+  private ProfileService service;
 
   @Test
   @DisplayName("Return public applications for anonymous authentication (ROLE_PUBLIC)")

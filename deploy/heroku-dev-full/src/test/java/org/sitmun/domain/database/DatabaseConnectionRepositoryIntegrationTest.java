@@ -171,6 +171,9 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String uri = "http://localhost:" + port + "/api/connections/" + id;
     String oldValue =
       restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    if (oldValue == null) {
+      return null;
+    }
     return new JSONObject(oldValue);
   }
 
@@ -182,6 +185,9 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";
     String oldValue =
       restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    if (oldValue == null) {
+      return null;
+    }
     return new JSONObject(oldValue);
   }
 
@@ -239,7 +245,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private List getListOfCartographies(JSONObject cartographies) {
+  private static List getListOfCartographies(JSONObject cartographies) {
     return JsonPath.parse(cartographies.toString()).read("$._embedded.cartographies[*]._links.self.href", List.class);
   }
 }

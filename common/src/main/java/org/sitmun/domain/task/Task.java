@@ -88,7 +88,7 @@ public class Task {
   /**
    * Associated cartography.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_GIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GEO"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Cartography cartography;
@@ -96,7 +96,7 @@ public class Task {
   /**
    * Associated service.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_SERID", foreignKey = @ForeignKey(name = "STM_TAS_FK_SER"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Service service;
@@ -104,7 +104,7 @@ public class Task {
   /**
    * Task group.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_GTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_GTS"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private TaskGroup group;
@@ -112,7 +112,7 @@ public class Task {
   /**
    * Task type.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_TTASKID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TTY"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private TaskType type;
@@ -120,7 +120,7 @@ public class Task {
   /**
    * Task UI.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_TUIID", foreignKey = @ForeignKey(name = "STM_TAS_FK_TUI"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private TaskUI ui;
@@ -128,7 +128,7 @@ public class Task {
   /**
    * Associated connection.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TAS_CONNID", foreignKey = @ForeignKey(name = "STM_TAS_FK_CON"))
   private DatabaseConnection connection;
 

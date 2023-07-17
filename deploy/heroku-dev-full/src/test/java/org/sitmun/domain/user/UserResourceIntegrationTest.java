@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,13 +96,13 @@ class UserResourceIntegrationTest {
       .exchange(createdUser.getHeaders().getLocation(), HttpMethod.DELETE,
         new HttpEntity<>(headers), String.class);
     assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-
+    URI location = createdUser.getHeaders().getLocation();
+    HttpEntity<User> newEntity = new HttpEntity<>(headers);
     try {
-      restTemplate.exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET,
-        new HttpEntity<>(headers), User.class);
+      restTemplate.exchange(location, HttpMethod.GET, newEntity, User.class);
       fail("404 is expected");
     } catch (HttpClientErrorException e) {
-      assertThat(e.getRawStatusCode()).isEqualTo(404);
+      assertThat(e.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
   }
 
@@ -122,7 +123,7 @@ class UserResourceIntegrationTest {
     ResponseEntity<CollectionModel<User>> response = restTemplate
       .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
         new HttpEntity<CollectionModel<User>>(headers),
-        new TypeReferences.CollectionModelType<User>() {
+        new TypeReferences.CollectionModelType<>() {
         }, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();

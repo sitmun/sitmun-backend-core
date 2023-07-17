@@ -18,6 +18,7 @@ create table stm_app
   app_ggiid    number(10,0),
   primary key (app_id)
 );
+
 create table stm_app_bckg
 (
   abc_id     number(10,0) not null,
@@ -26,6 +27,16 @@ create table stm_app_bckg
   abc_backid number(10,0),
   primary key (abc_id)
 );
+
+create table stm_app_ter
+(
+  ate_id      number(10,0) not null,
+  ate_appid   number(10,0),
+  ate_terid   number(10,0),
+  ate_iniext  varchar2(250 char),
+  primary key (ate_id)
+);
+
 create table stm_app_rol
 (
   aro_roleid number(10,0) not null,
@@ -549,6 +560,8 @@ create table stm_usr_conf
 
 alter table stm_app_bckg
   add constraint STM_APF_UK unique (abc_appid, abc_backid);
+alter table stm_app_ter
+  add constraint STM_APT_UK unique (ate_appid, ate_terid);
 alter table stm_avail_gi
   add constraint STM_DCA_UK unique (agi_terid, agi_giid);
 alter table stm_avail_tsk
@@ -577,10 +590,17 @@ alter table stm_usr_conf
   add constraint STM_UCF_UK unique (uco_userid, uco_terid, uco_roleid, uco_rolem);
 alter table stm_app
   add constraint STM_APP_FK_GGI foreign key (app_ggiid) references stm_grp_gi;
+
 alter table stm_app_bckg
   add constraint STM_ABC_FK_APP foreign key (abc_appid) references stm_app on delete cascade;
 alter table stm_app_bckg
   add constraint STM_ABC_FK_FON foreign key (abc_backid) references stm_backgrd on delete cascade;
+
+alter table stm_app_ter
+  add constraint STM_ATE_FK_APP foreign key (ate_appid) references stm_app on delete cascade;
+alter table stm_app_ter
+  add constraint STM_ATE_FK_FON foreign key (ate_terid) references stm_territory on delete cascade;
+
 alter table stm_app_rol
   add constraint STM_ARO_FK_APP foreign key (aro_appid) references stm_app;
 alter table stm_app_rol
