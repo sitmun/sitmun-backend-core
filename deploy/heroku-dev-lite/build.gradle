@@ -43,6 +43,10 @@ dependencies {
 
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation "org.json:json:${json_version}"
+  testImplementation 'com.unboundid:unboundid-ldapsdk'
+  testImplementation 'org.springframework.ldap:spring-ldap-core'
+  testImplementation 'org.springframework.boot:spring-boot-starter-security'
+  testImplementation 'org.springframework.security:spring-security-ldap'
 }
 
 jacocoTestReport {

@@ -18,6 +18,9 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.ldap:spring-ldap-core'
+  implementation 'org.springframework.security:spring-security-ldap'
+  testImplementation 'com.unboundid:unboundid-ldapsdk'
 
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

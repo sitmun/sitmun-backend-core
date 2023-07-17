@@ -57,6 +57,7 @@ spring:
     sync-legacy: true
     on-startup-update: true
 
+
 security:
   authentication:
     jwt:

@@ -1,0 +1,22 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "ldap" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+spring:
+  ldap:
+    embedded:
+      ldif: classpath:config/ldap/test-server.ldif
+      base-dn: dc=springframework,dc=org
+      port: 8389
+
+sitmun:
+  authentication:
+    ldap:
+      url: ldap://localhost:8389
+      base_dn: dc=springframework,dc=org
+      user_dn_pattern: uid={0},ou=people
