@@ -17,6 +17,8 @@ plugins {
   id 'io.freefair.lombok' version '6.4.3.1' apply false
 
   id 'com.google.cloud.tools.jib' version '3.3.1' apply false
+
+  id 'org.liquibase.gradle' version '2.2.0' apply false
 }
 
 subprojects {

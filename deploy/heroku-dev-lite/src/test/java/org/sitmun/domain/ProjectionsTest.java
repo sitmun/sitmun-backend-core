@@ -40,7 +40,7 @@ class ProjectionsTest {
   @Test
   @DisplayName("Cartography view")
   void cartographyProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 87)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -78,7 +78,7 @@ class ProjectionsTest {
   @Test
   @DisplayName("Territory view")
   void territoryProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 322)
+    mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.extent.maxX").value(467600.0))
@@ -181,19 +181,19 @@ class ProjectionsTest {
   @Test
   @DisplayName("Tree Nodes view")
   void treeNodesProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 288)
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true))
       .andExpect(jsonPath("$.cartographyName").isEmpty())
       .andExpect(jsonPath("$.cartographyId").isEmpty());
 
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 2546)
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 3)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false))
-      .andExpect(jsonPath("$.cartographyName").value("BUE1M - Planimetria (punts)"))
-      .andExpect(jsonPath("$.cartographyId").value(178));
+      .andExpect(jsonPath("$.cartographyName").value("Toponimia 1:25.000 (ICGC)"))
+      .andExpect(jsonPath("$.cartographyId").value(6));
   }
 
   @Test
@@ -226,17 +226,17 @@ class ProjectionsTest {
   @Test
   @DisplayName("Permissions projection view through background")
   void permissionsProjectionView2() throws Exception {
-    mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
+    mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.name").value("Background Map 130"))
-      .andExpect(jsonPath("$.roleNames", hasSize(0)));
+      .andExpect(jsonPath("$.name").value("Background Map"))
+      .andExpect(jsonPath("$.roleNames", hasSize(1)));
   }
 
   @Test
   @DisplayName("Permissions projection view type")
   void permissionsProjectionType() throws Exception {
-    mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 2)
+    mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.type").value("F"));

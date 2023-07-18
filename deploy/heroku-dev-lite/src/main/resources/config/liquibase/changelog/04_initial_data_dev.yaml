@@ -64,7 +64,7 @@ databaseChangeLog:
                   name: USE_CREATED
                   type: DATETIME
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 13);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_CONNECT.csv
@@ -182,7 +182,7 @@ databaseChangeLog:
                   name: TER_ZOOM    # DEPRECATED
                   type: NUMERIC     # DEPRECATED
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 4);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GRP_TER.csv
@@ -761,9 +761,6 @@ databaseChangeLog:
                   type: DATETIME
               - column:
                   name: TAS_CONNID
-                  type: NUMERIC
-              - column:
-                  name: TAS_GIID
                   type: NUMERIC
               - column:
                   name: TAS_GIID
