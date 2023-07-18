@@ -58,9 +58,13 @@ public interface ProfileMapper {
   }
 
   default TaskDto map(Task task) {
+    String control = null;
+    if (task.getUi() != null) {
+      control = task.getUi().getName();
+    }
     return TaskDto.builder()
       .id("task/" + task.getId())
-      .uiControl(task.getUi().getName())
+      .uiControl(control)
       .parameters(task.getProperties())
       .build();
   }
