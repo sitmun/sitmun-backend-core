@@ -29,7 +29,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:h2:file:./build/sitmundb
     username: sample
-    password:
+    password: sample
     hikari:
       poolName: Hikari
       maximum-pool-size: 2

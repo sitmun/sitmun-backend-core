@@ -44,7 +44,9 @@ public interface ProfileMapper {
       .id("service/" + service.getId())
       .url(service.getServiceURL())
       .type(service.getType())
-      .parameters(service.getParameters().stream().map(it -> new String[]{it.getName(), it.getValue()}).collect(java.util.stream.Collectors.toMap(it -> it[0], it -> it[1])))
+      .parameters(service.getParameters().stream()
+        .filter(it -> Objects.equals(it.getType(), service.getType()))
+        .map(it -> new String[]{it.getName(), it.getValue()}).collect(java.util.stream.Collectors.toMap(it -> it[0], it -> it[1])))
       .build();
   }
 
