@@ -15,7 +15,6 @@ import org.springframework.core.task.TaskExecutor;
 
 
 @DataJpaTest
-
 class TreeRepositoryTest {
 
   @Autowired

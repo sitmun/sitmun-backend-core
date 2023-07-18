@@ -30,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class TreeNodeResourceTest {
@@ -107,6 +106,7 @@ class TreeNodeResourceTest {
       treeNodeRepository.saveAll(nodes);
     });
   }
+
   @DisplayName("Tree nodes cannot be created with non existent styles")
   @Test
   void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
@@ -114,7 +114,7 @@ class TreeNodeResourceTest {
     JSONObject json = new JSONObject();
     json.put("name", node.getName());
     json.put("tree", "/" + node.getTree().getId());
-    json.put("cartography", "/"+cartography.getId());
+    json.put("cartography", "/" + cartography.getId());
     json.put("style", "Style D");
     mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
         .with(user(Fixtures.admin())))

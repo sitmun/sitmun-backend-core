@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserResourceIntegrationTest {
 
@@ -92,7 +91,7 @@ class UserResourceIntegrationTest {
         new HttpEntity<>(headers), String.class);
     assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
-    HttpClientErrorException thrown = assertThrows(HttpClientErrorException.class, ()->
+    HttpClientErrorException thrown = assertThrows(HttpClientErrorException.class, () ->
       restTemplate.exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET,
         new HttpEntity<>(headers), User.class)
     );

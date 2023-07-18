@@ -256,20 +256,20 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 3);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_TREE_ROL.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_TREE_ROL
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: TRO_TREEID
-#                  type: NUMERIC
-#              - column:
-#                  name: TRO_ROLEID
-#                  type: NUMERIC
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_TREE_ROL.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_TREE_ROL
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: TRO_TREEID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: TRO_ROLEID
+        #                  type: NUMERIC
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_SERVICE.csv
@@ -383,68 +383,68 @@ databaseChangeLog:
                   type: BOOLEAN
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GEO_ID', 1255);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_PAR_GI.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_PAR_GI
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: PGI_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: PGI_NAME
-#                  type: STRING
-#              - column:
-#                  name: PGI_VALUE
-#                  type: STRING
-#              - column:
-#                  name: PGI_FORMAT
-#                  type: STRING
-#              - column:
-#                  name: PGI_TYPE
-#                  type: STRING
-#              - column:
-#                  name: PGI_GIID
-#                  type: NUMERIC
-#              - column:
-#                  name: PGI_ORDER
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PGI_ID', 5437);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_PAR_SGI.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_PAR_SGI
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: PSG_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: PSG_NAME
-#                  type: STRING
-#              - column:
-#                  name: PSG_VALUE
-#                  type: STRING
-#              - column:
-#                  name: PSG_FORMAT
-#                  type: STRING
-#              - column:
-#                  name: PSG_TYPE
-#                  type: STRING
-#              - column:
-#                  name: PSG_GIID
-#                  type: NUMERIC
-#              - column:
-#                  name: PSG_ORDER
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSG_ID', 5437);
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_PAR_GI.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_PAR_GI
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: PGI_ID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: PGI_NAME
+        #                  type: STRING
+        #              - column:
+        #                  name: PGI_VALUE
+        #                  type: STRING
+        #              - column:
+        #                  name: PGI_FORMAT
+        #                  type: STRING
+        #              - column:
+        #                  name: PGI_TYPE
+        #                  type: STRING
+        #              - column:
+        #                  name: PGI_GIID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: PGI_ORDER
+        #                  type: NUMERIC
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PGI_ID', 5437);
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_PAR_SGI.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_PAR_SGI
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: PSG_ID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: PSG_NAME
+        #                  type: STRING
+        #              - column:
+        #                  name: PSG_VALUE
+        #                  type: STRING
+        #              - column:
+        #                  name: PSG_FORMAT
+        #                  type: STRING
+        #              - column:
+        #                  name: PSG_TYPE
+        #                  type: STRING
+        #              - column:
+        #                  name: PSG_GIID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: PSG_ORDER
+        #                  type: NUMERIC
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSG_ID', 5437);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GGI_GI.csv
@@ -540,30 +540,30 @@ databaseChangeLog:
               - column:
                   name: ARO_APPID
                   type: NUMERIC
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_PAR_APP.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_PAR_APP
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: PAP_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: PAP_NAME
-#                  type: STRING
-#              - column:
-#                  name: PAP_VALUE
-#                  type: STRING
-#              - column:
-#                  name: PAP_TYPE
-#                  type: STRING
-#              - column:
-#                  name: PAP_APPID
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 39);
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_PAR_APP.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_PAR_APP
+        #            usePreparedStatements: true
+        #            columns:
+        #              - column:
+        #                  name: PAP_ID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: PAP_NAME
+        #                  type: STRING
+        #              - column:
+        #                  name: PAP_VALUE
+        #                  type: STRING
+        #              - column:
+        #                  name: PAP_TYPE
+        #                  type: STRING
+        #              - column:
+        #                  name: PAP_APPID
+        #                  type: NUMERIC
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 39);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_BACKGRD.csv
@@ -640,17 +640,17 @@ databaseChangeLog:
         #              - column:
         #                  name: AGI_ID
         #                  type: NUMERIC
-#              - column:
-#                  name: AGI_TERID
-#                  type: NUMERIC
-#              - column:
-#                  name: AGI_GIID
-#                  type: NUMERIC
-#              - column:
-#                  name: AGI_CREATED
-#                  type: DATETIME
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
+        #              - column:
+        #                  name: AGI_TERID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: AGI_GIID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: AGI_CREATED
+        #                  type: DATETIME
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
         - sql:
             sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
         - loadData:
@@ -773,38 +773,38 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 1);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_DOWNLOAD.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_DOWNLOAD
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: DOW_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: DOW_EXT
-#                  type: STRING
-#              - column:
-#                  name: DOW_TYPE
-#                  type: STRING
-#              - column:
-#                  name: DOW_PATH
-#                  type: STRING
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_QUERY.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_QUERY
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: QUE_ID
-#                  type: NUMERIC
-#              - column:
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_DOWNLOAD.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_DOWNLOAD
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: DOW_ID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: DOW_EXT
+        #                  type: STRING
+        #              - column:
+        #                  name: DOW_TYPE
+        #                  type: STRING
+        #              - column:
+        #                  name: DOW_PATH
+        #                  type: STRING
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_QUERY.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_QUERY
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: QUE_ID
+        #                  type: NUMERIC
+        #              - column:
         #                  name: QUE_COMMAND
         #                  type: STRING
         #              - column:
@@ -839,70 +839,70 @@ databaseChangeLog:
         #            columns:
         #              - column:
         #                  name: POS_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: POS_POST
-#                  type: STRING
-#              - column:
-#                  name: POS_ORG
-#                  type: STRING
-#              - column:
-#                  name: POS_EMAIL
-#                  type: STRING
-#              - column:
-#                  name: POS_CREATED
-#                  type: DATETIME
-#              - column:
-#                  name: POS_EXPIRATION
-#                  type: DATETIME
-#              - column:
-#                  name: POS_USERID
-#                  type: NUMERIC
-#              - column:
-#                  name: POS_TERID
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 6961);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_COMMENT.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_COMMENT
-#            usePreparedStatements: true
-#            quotchar: "\""
-#            columns:
-#              - column:
-#                  name: COM_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: COM_COORD_X
-#                  type: NUMERIC
-#              - column:
-#                  name: COM_COORD_Y
-#                  type: NUMERIC
-#              - column:
-#                  name: COM_NAME
-#                  type: STRING
-#              - column:
-#                  name: COM_EMAIL
-#                  type: STRING
-#              - column:
-#                  name: COM_TITLE
-#                  type: STRING
-#              - column:
-#                  name: COM_DESC
-#                  type: STRING
-#              - column:
-#                  name: COM_CREATED
-#                  type: DATETIME
-#              - column:
-#                  name: COM_USERID
-#                  type: NUMERIC
-#              - column:
-#                  name: COM_APPID
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COM_ID', 82);
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: POS_POST
+        #                  type: STRING
+        #              - column:
+        #                  name: POS_ORG
+        #                  type: STRING
+        #              - column:
+        #                  name: POS_EMAIL
+        #                  type: STRING
+        #              - column:
+        #                  name: POS_CREATED
+        #                  type: DATETIME
+        #              - column:
+        #                  name: POS_EXPIRATION
+        #                  type: DATETIME
+        #              - column:
+        #                  name: POS_USERID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: POS_TERID
+        #                  type: NUMERIC
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 6961);
+        #        - loadData:
+        #            encoding: UTF-8
+        #            file: 04_initial_data_dev/STM_COMMENT.csv
+        #            relativeToChangelogFile: true
+        #            tableName: STM_COMMENT
+        #            usePreparedStatements: true
+        #            quotchar: "\""
+        #            columns:
+        #              - column:
+        #                  name: COM_ID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: COM_COORD_X
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: COM_COORD_Y
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: COM_NAME
+        #                  type: STRING
+        #              - column:
+        #                  name: COM_EMAIL
+        #                  type: STRING
+        #              - column:
+        #                  name: COM_TITLE
+        #                  type: STRING
+        #              - column:
+        #                  name: COM_DESC
+        #                  type: STRING
+        #              - column:
+        #                  name: COM_CREATED
+        #                  type: DATETIME
+        #              - column:
+        #                  name: COM_USERID
+        #                  type: NUMERIC
+        #              - column:
+        #                  name: COM_APPID
+        #                  type: NUMERIC
+        #        - sql:
+        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COM_ID', 82);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_AVAIL_TSK.csv

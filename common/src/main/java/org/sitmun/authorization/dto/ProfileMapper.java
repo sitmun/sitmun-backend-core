@@ -27,7 +27,7 @@ public interface ProfileMapper {
       .id("layer/" + cartography.getId())
       .title(cartography.getName())
       .layers(cartography.getLayers())
-      .service("service/"+ cartography.getService().getId())
+      .service("service/" + cartography.getService().getId())
       .build();
   }
 
@@ -139,7 +139,7 @@ public interface ProfileMapper {
           extent = applicationTerritory.getTerritory().getExtent();
         }
         if (extent != null) {
-          ApplicationDto application =  builder.build().getApplication();
+          ApplicationDto application = builder.build().getApplication();
           application.setInitialExtent(new Double[]{
               extent.getMinX(),
               extent.getMinY(),
@@ -157,7 +157,7 @@ public interface ProfileMapper {
       builder.trees(trees.stream().map(this::map).collect(Collectors.toList()));
     }
   }
-  
+
   default String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) return null;
     return "group/" + value.getId();

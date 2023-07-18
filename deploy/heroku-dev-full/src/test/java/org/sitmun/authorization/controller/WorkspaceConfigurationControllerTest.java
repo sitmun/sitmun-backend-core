@@ -48,7 +48,7 @@ class WorkspaceConfigurationControllerTest {
   @Test
   void readOtherUserWithToken() throws Exception {
     mvc.perform(get(URIConstants.WORKSPACE_URI)
-        .header(HttpHeaders.AUTHORIZATION, "Bearer "+jsonWebTokenService.generateToken("user12", new Date()))
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jsonWebTokenService.generateToken("user12", new Date()))
       ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territories[*].userConfigurations[*].role.applications[*]", Matchers.hasSize(465)));
   }

@@ -52,45 +52,45 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @WithMockUser(roles = {"ADMIN"})
   void init() {
 
-      territory = Territory.builder()
-        .name("Territorio 1")
-        .code("")
-        .blocked(false)
-        .build();
-      territoryRepository.save(territory);
-      tasks = new ArrayList<>();
+    territory = Territory.builder()
+      .name("Territorio 1")
+      .code("")
+      .blocked(false)
+      .build();
+    territoryRepository.save(territory);
+    tasks = new ArrayList<>();
 
-      Map<String, Object> parameters = new HashMap<>();
-      parameters.put("string", "value");
-      parameters.put("real", 1.0);
-      parameters.put("integer", 1);
-      parameters.put("array", new String[]{"one", "two", "three"});
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("string", "value");
+    parameters.put("real", 1.0);
+    parameters.put("integer", 1);
+    parameters.put("array", new String[]{"one", "two", "three"});
 
-      task = Task.builder()
-        .name(TASK_NAME)
-        .properties(parameters)
-        .build();
-      tasks.add(task);
-      Task taskWithAvailabilities = new Task();
-      taskWithAvailabilities.setName("Task with availabilities");
-      tasks.add(taskWithAvailabilities);
-      taskRepository.saveAll(tasks);
+    task = Task.builder()
+      .name(TASK_NAME)
+      .properties(parameters)
+      .build();
+    tasks.add(task);
+    Task taskWithAvailabilities = new Task();
+    taskWithAvailabilities.setName("Task with availabilities");
+    tasks.add(taskWithAvailabilities);
+    taskRepository.saveAll(tasks);
 
-      availabilities = new ArrayList<>();
-      TaskAvailability taskAvailability1 = new TaskAvailability();
-      taskAvailability1.setTask(taskWithAvailabilities);
-      taskAvailability1.setTerritory(territory);
-      taskAvailability1.setCreatedDate(new Date());
-      availabilities.add(taskAvailability1);
-      taskAvailabilityRepository.saveAll(availabilities);
+    availabilities = new ArrayList<>();
+    TaskAvailability taskAvailability1 = new TaskAvailability();
+    taskAvailability1.setTask(taskWithAvailabilities);
+    taskAvailability1.setTerritory(territory);
+    taskAvailability1.setCreatedDate(new Date());
+    availabilities.add(taskAvailability1);
+    taskAvailabilityRepository.saveAll(availabilities);
   }
 
   @AfterEach
   @WithMockUser(roles = {"ADMIN"})
   void cleanup() {
-      taskAvailabilityRepository.deleteAll(availabilities);
-      taskRepository.deleteAll(tasks);
-      territoryRepository.delete(territory);
+    taskAvailabilityRepository.deleteAll(availabilities);
+    taskRepository.deleteAll(tasks);
+    territoryRepository.delete(territory);
   }
 
   @Test

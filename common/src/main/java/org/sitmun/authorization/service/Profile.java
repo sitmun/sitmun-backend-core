@@ -12,7 +12,9 @@ import org.sitmun.domain.territory.Territory;
 
 import java.util.List;
 
-@Getter @Setter @Builder
+@Getter
+@Setter
+@Builder
 public class Profile {
   private Application application;
   private Territory territory;

@@ -34,14 +34,14 @@ public class ProxyConfigurationController {
     String token = configProxyRequest.getToken();
     long expirationTime = 0;
     if (StringUtils.hasText(token)) {
-			username = jsonWebTokenService.getUsernameFromToken(token);
-			expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
-		}
-		if(proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
-			ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
-			return ResponseEntity.ok().body(configProxyDto);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-	}
+      username = jsonWebTokenService.getUsernameFromToken(token);
+      expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
+    }
+    if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
+      ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
+      return ResponseEntity.ok().body(configProxyDto);
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+  }
 }

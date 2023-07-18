@@ -7,6 +7,7 @@ To build to a Docker daemon, use:
 ```shell
 gradle jibDockerBuild
 ```
+
 Architectures supported:
 
 - amd64 (default)

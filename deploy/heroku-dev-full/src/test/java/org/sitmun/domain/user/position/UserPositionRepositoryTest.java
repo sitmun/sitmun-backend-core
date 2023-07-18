@@ -20,9 +20,7 @@ import org.springframework.core.task.TaskExecutor;
 import java.util.Date;
 
 
-
 @DataJpaTest
-
 class UserPositionRepositoryTest {
 
   @Autowired

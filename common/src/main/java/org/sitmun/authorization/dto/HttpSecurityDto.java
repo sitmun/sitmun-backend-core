@@ -9,11 +9,11 @@ import lombok.Setter;
 @Builder
 public class HttpSecurityDto {
 
-	private String type;
-	
-	private String scheme;
-	
-	private String username;
-	
-	private String password;
+  private String type;
+
+  private String scheme;
+
+  private String username;
+
+  private String password;
 }

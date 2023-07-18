@@ -74,7 +74,7 @@ public final class ProfileUtils {
       .collect(Collectors.toList());
   }
 
-   static List<Service> getServices(List<Cartography>  layers) {
+  static List<Service> getServices(List<Cartography> layers) {
     return layers.stream()
       .map(Cartography::getService)
       .distinct()

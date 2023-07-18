@@ -25,13 +25,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("/api/config/client")
 public class ClientConfigurationController {
 
+  private final ProfileService profileService;
   @Value("${sitmun.proxy.force:false}")
   private boolean proxyForce;
-
   @Value("${sitmun.proxy.url:}")
   private String proxyUrl;
-
-  private final ProfileService profileService;
 
   /**
    * Constructor.

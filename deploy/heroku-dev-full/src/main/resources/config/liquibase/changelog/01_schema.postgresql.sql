@@ -30,10 +30,10 @@ create table stm_app_bckg
 
 create table stm_app_ter
 (
-  ate_id      int4 not null,
-  ate_appid   int4,
-  ate_terid   int4,
-  ate_iniext  varchar(250),
+  ate_id     int4 not null,
+  ate_appid  int4,
+  ate_terid  int4,
+  ate_iniext varchar(250),
   primary key (ate_id)
 );
 
@@ -51,11 +51,11 @@ create table stm_app_tree
 );
 create table stm_avail_gi
 (
-  agi_id        int4 not null,
-  agi_created   timestamp,
-  agi_owner varchar(50),
-  agi_giid      int4,
-  agi_terid     int4,
+  agi_id      int4 not null,
+  agi_created timestamp,
+  agi_owner   varchar(50),
+  agi_giid    int4,
+  agi_terid   int4,
   primary key (agi_id)
 );
 create table stm_avail_tsk
@@ -559,68 +559,125 @@ create table stm_usr_conf
   primary key (uco_id)
 );
 
-alter table if exists stm_app_bckg add constraint STM_APF_UK unique (abc_appid, abc_backid);
+alter table if exists stm_app_bckg
+  add constraint STM_APF_UK unique (abc_appid, abc_backid);
 
-alter table if exists stm_app_ter add constraint STM_APT_UK unique (ate_appid, ate_terid);
+alter table if exists stm_app_ter
+  add constraint STM_APT_UK unique (ate_appid, ate_terid);
 
-alter table if exists stm_avail_gi add constraint STM_DCA_UK unique (agi_terid, agi_giid);
-alter table if exists stm_avail_tsk add constraint STM_DTA_UK unique (ats_terid, ats_taskid);
-alter table if exists stm_codelist add constraint UKh4jn7sfgmudoc896blvfqbv3b unique (cod_list, cod_value);
-alter table if exists stm_conf add constraint STM_CONF_NAME_UK unique (cnf_name);
-alter table if exists stm_gter_typ add constraint STM_GTT_NOM_UK unique (gtt_name);
-alter table if exists stm_language add constraint UKpia9a18thhka1ncr9cnyjl0j8 unique (lan_shortname);
-alter table if exists stm_post add constraint UKt67t88dokixqn9vehtt1aej1x unique (pos_userid, pos_terid);
-alter table if exists stm_role add constraint STM_ROL_NOM_UK unique (rol_name);
-alter table if exists stm_ter_typ add constraint STM_TET_NOM_UK unique (tet_name);
-alter table if exists stm_territory add constraint STM_TER_NOM_UK unique (ter_name);
-alter table if exists stm_translation add constraint UK2k84kv6jxbmsdvwew4lj4ro0g unique (tra_eleid, tra_column, tra_lanid);
-alter table if exists stm_user add constraint STM_USU_USU_UK unique (use_user);
-alter table if exists stm_usr_conf add constraint STM_UCF_UK unique (uco_userid, uco_terid, uco_roleid, uco_rolem);
-alter table if exists stm_app add constraint STM_APP_FK_GGI foreign key (app_ggiid) references stm_grp_gi;
+alter table if exists stm_avail_gi
+  add constraint STM_DCA_UK unique (agi_terid, agi_giid);
+alter table if exists stm_avail_tsk
+  add constraint STM_DTA_UK unique (ats_terid, ats_taskid);
+alter table if exists stm_codelist
+  add constraint UKh4jn7sfgmudoc896blvfqbv3b unique (cod_list, cod_value);
+alter table if exists stm_conf
+  add constraint STM_CONF_NAME_UK unique (cnf_name);
+alter table if exists stm_gter_typ
+  add constraint STM_GTT_NOM_UK unique (gtt_name);
+alter table if exists stm_language
+  add constraint UKpia9a18thhka1ncr9cnyjl0j8 unique (lan_shortname);
+alter table if exists stm_post
+  add constraint UKt67t88dokixqn9vehtt1aej1x unique (pos_userid, pos_terid);
+alter table if exists stm_role
+  add constraint STM_ROL_NOM_UK unique (rol_name);
+alter table if exists stm_ter_typ
+  add constraint STM_TET_NOM_UK unique (tet_name);
+alter table if exists stm_territory
+  add constraint STM_TER_NOM_UK unique (ter_name);
+alter table if exists stm_translation
+  add constraint UK2k84kv6jxbmsdvwew4lj4ro0g unique (tra_eleid, tra_column, tra_lanid);
+alter table if exists stm_user
+  add constraint STM_USU_USU_UK unique (use_user);
+alter table if exists stm_usr_conf
+  add constraint STM_UCF_UK unique (uco_userid, uco_terid, uco_roleid, uco_rolem);
+alter table if exists stm_app
+  add constraint STM_APP_FK_GGI foreign key (app_ggiid) references stm_grp_gi;
 
-alter table if exists stm_app_ter add constraint STM_ATE_FK_APP foreign key (ate_appid) references stm_app on delete cascade;
+alter table if exists stm_app_ter
+  add constraint STM_ATE_FK_APP foreign key (ate_appid) references stm_app on delete cascade;
 
-alter table if exists stm_app_ter add constraint STM_ATE_FK_TER foreign key (ate_terid) references stm_territory on delete cascade;
+alter table if exists stm_app_ter
+  add constraint STM_ATE_FK_TER foreign key (ate_terid) references stm_territory on delete cascade;
 
-alter table if exists stm_app_rol add constraint STM_ARO_FK_APP foreign key (aro_appid) references stm_app;
-alter table if exists stm_app_rol add constraint STM_ARO_FK_ROL foreign key (aro_roleid) references stm_role;
-alter table if exists stm_app_tree add constraint STM_ATR_FK_APP foreign key (atr_appid) references stm_app;
-alter table if exists stm_app_tree add constraint STM_ATR_FK_TRE foreign key (atr_treeid) references stm_tree;
-alter table if exists stm_avail_gi add constraint STM_AGI_FK_GEO foreign key (agi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_avail_gi add constraint STM_AGI_FK_TER foreign key (agi_terid) references stm_territory on delete cascade;
-alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TAS foreign key (ats_taskid) references stm_task on delete cascade;
-alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TER foreign key (ats_terid) references stm_territory on delete cascade;
-alter table if exists stm_backgrd add constraint STM_BAC_FK_GGI foreign key (bac_ggiid) references stm_grp_gi;
-alter table if exists stm_comment add constraint STM_COM_FK_APP foreign key (com_appid) references stm_app on delete cascade;
-alter table if exists stm_comment add constraint STM_COM_FK_USE foreign key (com_userid) references stm_user on delete cascade;
-alter table if exists stm_fil_gi add constraint STM_FGI_FK_GEO foreign key (fgi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_fil_gi add constraint STM_FGI_FK_TET foreign key (fgi_typid) references stm_ter_typ;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SGI foreign key (geo_styid) references stm_sty_gi;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SER foreign key (geo_serid) references stm_service;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_CON foreign key (geo_connid) references stm_connect;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SERSEL foreign key (geo_serselid) references stm_service;
-alter table if exists stm_ggi_gi add constraint STM_GGG_FK_GEO foreign key (ggg_giid) references stm_geoinfo;
-alter table if exists stm_ggi_gi add constraint STM_GGG_FK_GGI foreign key (ggg_ggiid) references stm_grp_gi;
-alter table if exists stm_grp_ter add constraint STM_GTE_FK_TERM foreign key (gte_termid) references stm_territory;
-alter table if exists stm_grp_ter add constraint STM_GTE_FK_TER foreign key (gte_terid) references stm_territory;
-alter table if exists stm_log add constraint FKkevxkue4e8ua7nqisdf9qtt9u foreign key (log_appid) references stm_app;
-alter table if exists stm_log add constraint FKd40r7bqkxmosokqr544elcyrt foreign key (log_giid) references stm_geoinfo;
-alter table if exists stm_log add constraint FKcw6u4jp3wvnkh7ypdl81uyfwc foreign key (log_taskid) references stm_task;
-alter table if exists stm_log add constraint FKm77t0wvsov0pqy99pfbyedip7 foreign key (log_terid) references stm_territory;
-alter table if exists stm_log add constraint FK2p47bcwkdbn91h2oxuf5csir8 foreign key (log_userid) references stm_user;
-alter table if exists stm_par_app add constraint STM_PAP_FK_APP foreign key (pap_appid) references stm_app on delete cascade;
-alter table if exists stm_par_gi add constraint STM_PGI_FK_GEO foreign key (pgi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_par_sgi add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_par_ser add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
-alter table if exists stm_par_tsk add constraint STM_PTT_FK_TAS foreign key (ptt_taskid) references stm_task on delete cascade;
-alter table if exists stm_post add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;
-alter table if exists stm_post add constraint STM_POS_FK_USE foreign key (pos_userid) references stm_user on delete cascade;
-alter table if exists stm_query add constraint STM_QUE_FK_TASM foreign key (que_taskid) references stm_task;
-alter table if exists stm_rol_ggi add constraint STM_RGG_FK_GGI foreign key (rgg_ggiid) references stm_grp_gi;
-alter table if exists stm_rol_ggi add constraint STM_RGG_FK_ROL foreign key (rgg_roleid) references stm_role;
-alter table if exists stm_rol_tsk add constraint STM_RTS_FK_ROL foreign key (rts_roleid) references stm_role;
-alter table if exists stm_rol_tsk add constraint STM_RTS_FK_TAS foreign key (rts_taskid) references stm_task;
-alter table if exists stm_sty_gi add constraint STM_SGI_FK_GEO foreign key (sgi_giid) references stm_geoinfo;
+alter table if exists stm_app_rol
+  add constraint STM_ARO_FK_APP foreign key (aro_appid) references stm_app;
+alter table if exists stm_app_rol
+  add constraint STM_ARO_FK_ROL foreign key (aro_roleid) references stm_role;
+alter table if exists stm_app_tree
+  add constraint STM_ATR_FK_APP foreign key (atr_appid) references stm_app;
+alter table if exists stm_app_tree
+  add constraint STM_ATR_FK_TRE foreign key (atr_treeid) references stm_tree;
+alter table if exists stm_avail_gi
+  add constraint STM_AGI_FK_GEO foreign key (agi_giid) references stm_geoinfo on delete cascade;
+alter table if exists stm_avail_gi
+  add constraint STM_AGI_FK_TER foreign key (agi_terid) references stm_territory on delete cascade;
+alter table if exists stm_avail_tsk
+  add constraint STM_ATS_FK_TAS foreign key (ats_taskid) references stm_task on delete cascade;
+alter table if exists stm_avail_tsk
+  add constraint STM_ATS_FK_TER foreign key (ats_terid) references stm_territory on delete cascade;
+alter table if exists stm_backgrd
+  add constraint STM_BAC_FK_GGI foreign key (bac_ggiid) references stm_grp_gi;
+alter table if exists stm_comment
+  add constraint STM_COM_FK_APP foreign key (com_appid) references stm_app on delete cascade;
+alter table if exists stm_comment
+  add constraint STM_COM_FK_USE foreign key (com_userid) references stm_user on delete cascade;
+alter table if exists stm_fil_gi
+  add constraint STM_FGI_FK_GEO foreign key (fgi_giid) references stm_geoinfo on delete cascade;
+alter table if exists stm_fil_gi
+  add constraint STM_FGI_FK_TET foreign key (fgi_typid) references stm_ter_typ;
+alter table if exists stm_geoinfo
+  add constraint STM_GEO_FK_SGI foreign key (geo_styid) references stm_sty_gi;
+alter table if exists stm_geoinfo
+  add constraint STM_GEO_FK_SER foreign key (geo_serid) references stm_service;
+alter table if exists stm_geoinfo
+  add constraint STM_GEO_FK_CON foreign key (geo_connid) references stm_connect;
+alter table if exists stm_geoinfo
+  add constraint STM_GEO_FK_SERSEL foreign key (geo_serselid) references stm_service;
+alter table if exists stm_ggi_gi
+  add constraint STM_GGG_FK_GEO foreign key (ggg_giid) references stm_geoinfo;
+alter table if exists stm_ggi_gi
+  add constraint STM_GGG_FK_GGI foreign key (ggg_ggiid) references stm_grp_gi;
+alter table if exists stm_grp_ter
+  add constraint STM_GTE_FK_TERM foreign key (gte_termid) references stm_territory;
+alter table if exists stm_grp_ter
+  add constraint STM_GTE_FK_TER foreign key (gte_terid) references stm_territory;
+alter table if exists stm_log
+  add constraint FKkevxkue4e8ua7nqisdf9qtt9u foreign key (log_appid) references stm_app;
+alter table if exists stm_log
+  add constraint FKd40r7bqkxmosokqr544elcyrt foreign key (log_giid) references stm_geoinfo;
+alter table if exists stm_log
+  add constraint FKcw6u4jp3wvnkh7ypdl81uyfwc foreign key (log_taskid) references stm_task;
+alter table if exists stm_log
+  add constraint FKm77t0wvsov0pqy99pfbyedip7 foreign key (log_terid) references stm_territory;
+alter table if exists stm_log
+  add constraint FK2p47bcwkdbn91h2oxuf5csir8 foreign key (log_userid) references stm_user;
+alter table if exists stm_par_app
+  add constraint STM_PAP_FK_APP foreign key (pap_appid) references stm_app on delete cascade;
+alter table if exists stm_par_gi
+  add constraint STM_PGI_FK_GEO foreign key (pgi_giid) references stm_geoinfo on delete cascade;
+alter table if exists stm_par_sgi
+  add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
+alter table if exists stm_par_ser
+  add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
+alter table if exists stm_par_tsk
+  add constraint STM_PTT_FK_TAS foreign key (ptt_taskid) references stm_task on delete cascade;
+alter table if exists stm_post
+  add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;
+alter table if exists stm_post
+  add constraint STM_POS_FK_USE foreign key (pos_userid) references stm_user on delete cascade;
+alter table if exists stm_query
+  add constraint STM_QUE_FK_TASM foreign key (que_taskid) references stm_task;
+alter table if exists stm_rol_ggi
+  add constraint STM_RGG_FK_GGI foreign key (rgg_ggiid) references stm_grp_gi;
+alter table if exists stm_rol_ggi
+  add constraint STM_RGG_FK_ROL foreign key (rgg_roleid) references stm_role;
+alter table if exists stm_rol_tsk
+  add constraint STM_RTS_FK_ROL foreign key (rts_roleid) references stm_role;
+alter table if exists stm_rol_tsk
+  add constraint STM_RTS_FK_TAS foreign key (rts_taskid) references stm_task;
+alter table if exists stm_sty_gi
+  add constraint STM_SGI_FK_GEO foreign key (sgi_giid) references stm_geoinfo;
 
 alter table if exists stm_task
   add constraint STM_TAS_FK_GEO foreign key (tas_giid) references stm_geoinfo;
@@ -637,25 +694,42 @@ alter table if exists stm_task
 
 alter table if exists stm_taskrel
   add constraint STM_TAR_FK_TAS foreign key (tar_taskid) references stm_task on
-delete
-cascade;
+    delete
+    cascade;
 alter table if exists stm_taskrel
   add constraint STM_TAR_FK_TAS_REL foreign key (tar_taskrelid) references stm_task;
 
-alter table if exists stm_territory add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
-alter table if exists stm_territory add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;
-alter table if exists stm_the_rank add constraint STM_TRK_FK_THE foreign key (trk_theid) references stm_thematic on delete cascade;
-alter table if exists stm_thematic add constraint STM_THE_FK_GEO foreign key (the_giid) references stm_geoinfo;
-alter table if exists stm_thematic add constraint STM_THE_FK_TAS foreign key (the_taskid) references stm_task on delete cascade;
-alter table if exists stm_thematic add constraint STM_THE_FK_USE foreign key (the_userid) references stm_user;
-alter table if exists stm_translation add constraint STM_TRA_FK_LAN foreign key (tra_lanid) references stm_language;
-alter table if exists stm_tree add constraint STM_TRE_FK_USE foreign key (tre_userid) references stm_user;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_GEO foreign key (tno_giid) references stm_geoinfo;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_TNO foreign key (tno_parentid) references stm_tree_nod;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_TRE foreign key (tno_treeid) references stm_tree on delete cascade;
-alter table if exists stm_tree_rol add constraint STM_TRO_FK_ROL foreign key (tro_roleid) references stm_role;
-alter table if exists stm_tree_rol add constraint STM_TRO_FK_TRE foreign key (tro_treeid) references stm_tree;
-alter table if exists stm_tsk_typ add constraint STM_TSK_TYP_TTY foreign key (tty_parentid) references stm_tsk_typ on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_ROL foreign key (uco_roleid) references stm_role on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_TER foreign key (uco_terid) references stm_territory on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_USU foreign key (uco_userid) references stm_user on delete cascade
+alter table if exists stm_territory
+  add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
+alter table if exists stm_territory
+  add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;
+alter table if exists stm_the_rank
+  add constraint STM_TRK_FK_THE foreign key (trk_theid) references stm_thematic on delete cascade;
+alter table if exists stm_thematic
+  add constraint STM_THE_FK_GEO foreign key (the_giid) references stm_geoinfo;
+alter table if exists stm_thematic
+  add constraint STM_THE_FK_TAS foreign key (the_taskid) references stm_task on delete cascade;
+alter table if exists stm_thematic
+  add constraint STM_THE_FK_USE foreign key (the_userid) references stm_user;
+alter table if exists stm_translation
+  add constraint STM_TRA_FK_LAN foreign key (tra_lanid) references stm_language;
+alter table if exists stm_tree
+  add constraint STM_TRE_FK_USE foreign key (tre_userid) references stm_user;
+alter table if exists stm_tree_nod
+  add constraint STM_TNO_FK_GEO foreign key (tno_giid) references stm_geoinfo;
+alter table if exists stm_tree_nod
+  add constraint STM_TNO_FK_TNO foreign key (tno_parentid) references stm_tree_nod;
+alter table if exists stm_tree_nod
+  add constraint STM_TNO_FK_TRE foreign key (tno_treeid) references stm_tree on delete cascade;
+alter table if exists stm_tree_rol
+  add constraint STM_TRO_FK_ROL foreign key (tro_roleid) references stm_role;
+alter table if exists stm_tree_rol
+  add constraint STM_TRO_FK_TRE foreign key (tro_treeid) references stm_tree;
+alter table if exists stm_tsk_typ
+  add constraint STM_TSK_TYP_TTY foreign key (tty_parentid) references stm_tsk_typ on delete cascade;
+alter table if exists stm_usr_conf
+  add constraint STM_UCF_FK_ROL foreign key (uco_roleid) references stm_role on delete cascade;
+alter table if exists stm_usr_conf
+  add constraint STM_UCF_FK_TER foreign key (uco_terid) references stm_territory on delete cascade;
+alter table if exists stm_usr_conf
+  add constraint STM_UCF_FK_USU foreign key (uco_userid) references stm_user on delete cascade

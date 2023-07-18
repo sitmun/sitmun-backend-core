@@ -22,14 +22,15 @@ import java.util.stream.Stream;
 @Slf4j
 public final class ParameterUtils {
 
-  private ParameterUtils() {}
-
   private static final Configuration conf = Configuration.builder()
     .mappingProvider(new JacksonMappingProvider())
     .jsonProvider(new JacksonJsonProvider())
     .build()
     .addOptions(Option.SUPPRESS_EXCEPTIONS)
     .addOptions(Option.ALWAYS_RETURN_LIST);
+
+  private ParameterUtils() {
+  }
 
   public static <T> List<TaskParameter> collect(Map<String, Object> properties, String s, Class<T> type, Function<T, TaskParameter> builder) {
 

@@ -293,6 +293,7 @@ public class Cartography {
 
   /**
    * Default style.
+   *
    * @deprecated
    */
   @OneToOne

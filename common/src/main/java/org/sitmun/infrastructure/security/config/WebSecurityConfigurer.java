@@ -1,7 +1,5 @@
 package org.sitmun.infrastructure.security.config;
 
-import java.util.List;
-
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
@@ -27,18 +25,20 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
   public static final String PUBLIC_USER_NAME = "public";
   private static final String[] AUTH_WHITELIST = {
-      "/v3/api-docs*/**",
-      "/v3/api-docs*.*",
-      "/swagger-ui/**",
-      "/swagger-ui.*",
-      "/dist/**",
-      "/workspace.html"
+    "/v3/api-docs*/**",
+    "/v3/api-docs*.*",
+    "/swagger-ui/**",
+    "/swagger-ui.*",
+    "/dist/**",
+    "/workspace.html"
   };
 
   private final SecurityEntryPoint unauthorizedHandler;
@@ -50,9 +50,9 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   private final List<PasswordStorage> passwordStorageList;
 
   public WebSecurityConfigurer(UserDetailsServiceImplementation userDetailsService,
-      SecurityEntryPoint unauthorizedHandler,
-      JsonWebTokenService jsonWebTokenService,
-      List<PasswordStorage> passwordStorageList) {
+                               SecurityEntryPoint unauthorizedHandler,
+                               JsonWebTokenService jsonWebTokenService,
+                               List<PasswordStorage> passwordStorageList) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
@@ -72,7 +72,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   @Bean
   public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
     AuthenticationManagerBuilder authenticationManagerBuilder = http
-        .getSharedObject(AuthenticationManagerBuilder.class);
+      .getSharedObject(AuthenticationManagerBuilder.class);
     for (PasswordStorage ps : passwordStorageList) {
       ps.addPasswordStorage(authenticationManagerBuilder);
     }
@@ -82,16 +82,16 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   @Bean
   public AnonymousAuthenticationFilter anonymousAuthenticationFilter() {
     return new AnonymousAuthenticationFilter(
-        "anonymous",
-        PUBLIC_USER_NAME,
-        AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PUBLIC.name()));
+      "anonymous",
+      PUBLIC_USER_NAME,
+      AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PUBLIC.name()));
   }
 
   @Bean
   public ProxyTokenFilter middlewareKeyFilter() {
     return new ProxyTokenFilter(
-        "middleware",
-        AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PROXY.name()));
+      "middleware",
+      AuthorityUtils.createAuthorityList(SecurityRole.ROLE_PROXY.name()));
   }
 
   @Bean

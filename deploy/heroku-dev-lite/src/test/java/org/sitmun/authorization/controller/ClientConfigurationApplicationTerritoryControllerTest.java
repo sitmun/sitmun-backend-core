@@ -39,7 +39,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   @Test
   @DisplayName("Page with authenticated user")
   void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI,1)
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1)
         .with(user("internal"))
       )
       .andExpect(status().isOk())

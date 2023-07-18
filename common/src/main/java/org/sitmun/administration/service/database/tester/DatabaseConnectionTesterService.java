@@ -1,5 +1,6 @@
 package org.sitmun.administration.service.database.tester;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Service
+@Slf4j
 public class DatabaseConnectionTesterService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionTesterService.class);
 
   /**
    * Test if the driver is available.
@@ -25,10 +25,11 @@ public class DatabaseConnectionTesterService {
     try {
       Class.forName(driver).getDeclaredConstructor().newInstance();
     } catch (NullPointerException exception) {
-      LOGGER.error("Driver not found for DatabaseConnection({}) with driver {}", id, driver, exception);
+      log.error("Driver not found for DatabaseConnection({}) with driver {}", id, driver, exception);
       throw new DatabaseConnectionDriverNotFoundException(new NullPointerException("null"));
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException exception) {
-      LOGGER.error("Driver not found for DatabaseConnection({}) with driver \"{}\"", id, driver, exception);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException |
+             ClassNotFoundException exception) {
+      log.error("Driver not found for DatabaseConnection({}) with driver \"{}\"", id, driver, exception);
       throw new DatabaseConnectionDriverNotFoundException(exception);
     }
     return true;
@@ -47,14 +48,14 @@ public class DatabaseConnectionTesterService {
     try {
       con = DriverManager.getConnection(url, user, password);
     } catch (SQLException exception) {
-      LOGGER.error("GetConnection throws exception for DatabaseConnection({}) with url \"{}\"", id, url, exception);
+      log.error("GetConnection throws exception for DatabaseConnection({}) with url \"{}\"", id, url, exception);
       throw new DatabaseSQLException(exception);
     } finally {
       if (con != null) {
         try {
           con.close();
         } catch (SQLException exception) {
-          LOGGER.error("Close throws exception for DatabaseConnection({}) with url \"{}\"", id, url, exception);
+          log.error("Close throws exception for DatabaseConnection({}) with url \"{}\"", id, url, exception);
           error = new DatabaseSQLException(exception);
         }
       }

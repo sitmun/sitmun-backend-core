@@ -33,7 +33,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   void mustNotBeNull() throws Exception {
-    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI+"?lang=EN")
+    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI + "?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().build()))
         .with(user(Fixtures.admin()))
@@ -44,7 +44,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
 
   @Test
   void mustNotBeBlank() throws Exception {
-    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI+"?lang=EN")
+    mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI + "?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(TerritoryGroupType.builder().name("   ").build()))
         .with(user(Fixtures.admin()))

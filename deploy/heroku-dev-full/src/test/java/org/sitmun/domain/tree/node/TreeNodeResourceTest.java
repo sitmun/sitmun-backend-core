@@ -27,10 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class TreeNodeResourceTest {
 
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-Tree Node";

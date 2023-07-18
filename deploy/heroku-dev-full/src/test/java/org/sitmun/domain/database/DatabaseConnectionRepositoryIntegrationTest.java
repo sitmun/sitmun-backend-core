@@ -43,6 +43,11 @@ class DatabaseConnectionRepositoryIntegrationTest {
   @LocalServerPort
   private int port;
 
+  @SuppressWarnings("rawtypes")
+  private static List getListOfCartographies(JSONObject cartographies) {
+    return JsonPath.parse(cartographies.toString()).read("$._embedded.cartographies[*]._links.self.href", List.class);
+  }
+
   @BeforeEach
   void setup() {
     ClientHttpRequestFactory factory =
@@ -162,7 +167,6 @@ class DatabaseConnectionRepositoryIntegrationTest {
     return loginResponse.getBody().getIdToken();
   }
 
-
   private JSONObject getConnection(int id) throws JSONException {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
@@ -208,7 +212,6 @@ class DatabaseConnectionRepositoryIntegrationTest {
     }
   }
 
-
   private void deleteCartographiesSpatialSelectionConnection(int id, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(auth);
@@ -242,10 +245,5 @@ class DatabaseConnectionRepositoryIntegrationTest {
     restTemplate.exchange("http://localhost:" + port + "/api/connections/" + id,
       HttpMethod.PUT,
       new HttpEntity<>(newValue.toString(), headers), String.class);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static List getListOfCartographies(JSONObject cartographies) {
-    return JsonPath.parse(cartographies.toString()).read("$._embedded.cartographies[*]._links.self.href", List.class);
   }
 }

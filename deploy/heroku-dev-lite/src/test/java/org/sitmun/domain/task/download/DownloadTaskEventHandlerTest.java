@@ -24,7 +24,6 @@ import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class DownloadTaskEventHandlerTest {
 
   @Autowired

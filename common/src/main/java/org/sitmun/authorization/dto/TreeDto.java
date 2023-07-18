@@ -14,5 +14,5 @@ public class TreeDto {
   private String title;
   private String image;
   private String rootNode;
-  private Map<String,NodeDto> nodes;
+  private Map<String, NodeDto> nodes;
 }

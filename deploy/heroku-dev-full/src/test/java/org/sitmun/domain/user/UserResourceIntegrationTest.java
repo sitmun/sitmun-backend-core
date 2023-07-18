@@ -29,9 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
 class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";

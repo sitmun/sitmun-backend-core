@@ -21,7 +21,7 @@ info:
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
   contact:
-    name: Comité técnico SITMUN  
+    name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
 
 tags:
@@ -37,7 +37,7 @@ paths:
       description: get-account
       operationId: getAccount
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -57,7 +57,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -98,7 +98,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -123,7 +123,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationBackground'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -144,7 +144,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -171,7 +171,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationBackground'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -199,7 +199,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -222,7 +222,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationBackground'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -245,7 +245,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -281,7 +281,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -309,7 +309,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -338,7 +338,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -366,7 +366,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -393,7 +393,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -412,7 +412,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -448,7 +448,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -476,7 +476,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -505,7 +505,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -533,7 +533,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -560,7 +560,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -599,7 +599,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -624,7 +624,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -645,7 +645,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -672,7 +672,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -700,7 +700,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -723,7 +723,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplicationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -746,7 +746,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -782,7 +782,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -810,7 +810,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -839,7 +839,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -867,7 +867,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -894,7 +894,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -933,7 +933,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -958,7 +958,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Application'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -979,7 +979,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1006,7 +1006,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Application'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1034,7 +1034,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1057,7 +1057,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Application'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1080,7 +1080,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1116,7 +1116,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1144,7 +1144,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1173,7 +1173,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1201,7 +1201,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1228,7 +1228,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1247,7 +1247,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1283,7 +1283,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1311,7 +1311,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1340,7 +1340,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1368,7 +1368,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1395,7 +1395,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1414,7 +1414,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1450,7 +1450,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1478,7 +1478,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1507,7 +1507,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1535,7 +1535,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1562,7 +1562,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1581,7 +1581,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1617,7 +1617,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1645,7 +1645,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1674,7 +1674,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1702,7 +1702,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1729,7 +1729,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1748,7 +1748,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1784,7 +1784,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1812,7 +1812,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1841,7 +1841,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1869,7 +1869,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1896,7 +1896,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -1935,7 +1935,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -1960,7 +1960,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Background'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -1981,7 +1981,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2008,7 +2008,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Background'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2036,7 +2036,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2059,7 +2059,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Background'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2082,7 +2082,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2118,7 +2118,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2146,7 +2146,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2175,7 +2175,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2203,7 +2203,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2230,7 +2230,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2249,7 +2249,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2285,7 +2285,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2313,7 +2313,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2342,7 +2342,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2370,7 +2370,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2397,7 +2397,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2436,7 +2436,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2461,7 +2461,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Cartography'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -2482,7 +2482,7 @@ paths:
             type: integer
             format: int32
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2505,7 +2505,7 @@ paths:
             type: string
             format: date-time
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2528,7 +2528,7 @@ paths:
             type: integer
             format: int32
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2551,7 +2551,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2578,7 +2578,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Cartography'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2606,7 +2606,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2629,7 +2629,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Cartography'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2652,7 +2652,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2688,7 +2688,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2716,7 +2716,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2745,7 +2745,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2773,7 +2773,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2800,7 +2800,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2819,7 +2819,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2855,7 +2855,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2883,7 +2883,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2912,7 +2912,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2940,7 +2940,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -2967,7 +2967,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -2986,7 +2986,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3022,7 +3022,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3050,7 +3050,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3079,7 +3079,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3107,7 +3107,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3134,7 +3134,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3153,7 +3153,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3189,7 +3189,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3217,7 +3217,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3246,7 +3246,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3274,7 +3274,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3301,7 +3301,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3320,7 +3320,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3356,7 +3356,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3384,7 +3384,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3413,7 +3413,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3441,7 +3441,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3468,7 +3468,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3487,7 +3487,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3523,7 +3523,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3551,7 +3551,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3580,7 +3580,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3608,7 +3608,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3635,7 +3635,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3654,7 +3654,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3690,7 +3690,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3718,7 +3718,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3747,7 +3747,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3775,7 +3775,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3802,7 +3802,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3821,7 +3821,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3857,7 +3857,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3885,7 +3885,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3914,7 +3914,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3942,7 +3942,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -3969,7 +3969,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -3988,7 +3988,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4024,7 +4024,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4052,7 +4052,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4081,7 +4081,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4109,7 +4109,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4136,7 +4136,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4155,7 +4155,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4191,7 +4191,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4219,7 +4219,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4248,7 +4248,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4276,7 +4276,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4303,7 +4303,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4342,7 +4342,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4367,7 +4367,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -4388,7 +4388,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4415,7 +4415,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4443,7 +4443,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4466,7 +4466,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4489,7 +4489,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4525,7 +4525,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4553,7 +4553,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4582,7 +4582,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4610,7 +4610,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4637,7 +4637,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4656,7 +4656,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4692,7 +4692,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4720,7 +4720,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4749,7 +4749,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4777,7 +4777,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4804,7 +4804,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4843,7 +4843,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4868,7 +4868,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyFilter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -4889,7 +4889,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4916,7 +4916,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyFilter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4944,7 +4944,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -4967,7 +4967,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyFilter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -4990,7 +4990,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5026,7 +5026,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5054,7 +5054,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5083,7 +5083,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5111,7 +5111,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5138,7 +5138,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5157,7 +5157,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5193,7 +5193,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5221,7 +5221,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5250,7 +5250,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5278,7 +5278,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5305,7 +5305,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5344,7 +5344,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5369,7 +5369,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyPermission'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -5390,7 +5390,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5417,7 +5417,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyPermission'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5445,7 +5445,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5468,7 +5468,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyPermission'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5491,7 +5491,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5527,7 +5527,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5555,7 +5555,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5584,7 +5584,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5612,7 +5612,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5639,7 +5639,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5658,7 +5658,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5694,7 +5694,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5722,7 +5722,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5751,7 +5751,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5779,7 +5779,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5806,7 +5806,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5825,7 +5825,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5861,7 +5861,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5889,7 +5889,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5918,7 +5918,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5946,7 +5946,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -5973,7 +5973,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -5992,7 +5992,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6028,7 +6028,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6056,7 +6056,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6085,7 +6085,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6113,7 +6113,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6140,7 +6140,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6179,7 +6179,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6204,7 +6204,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -6225,7 +6225,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6252,7 +6252,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6280,7 +6280,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6303,7 +6303,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6326,7 +6326,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6362,7 +6362,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6390,7 +6390,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6419,7 +6419,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6447,7 +6447,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6474,7 +6474,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6513,7 +6513,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6538,7 +6538,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyStyle'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -6559,7 +6559,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6586,7 +6586,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyStyle'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6614,7 +6614,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6637,7 +6637,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartographyStyle'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6660,7 +6660,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6696,7 +6696,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6724,7 +6724,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6753,7 +6753,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6781,7 +6781,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6808,7 +6808,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -6847,7 +6847,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6872,7 +6872,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CodeListValue'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -6896,7 +6896,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6913,7 +6913,7 @@ paths:
       description: search-findDistinctCodeListName
       operationId: executeSearch-codelistvalue-get_1
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6936,7 +6936,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6963,7 +6963,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CodeListValue'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -6991,7 +6991,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7014,7 +7014,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CodeListValue'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7057,7 +7057,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7082,7 +7082,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -7103,7 +7103,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7130,7 +7130,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7158,7 +7158,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7181,7 +7181,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7204,7 +7204,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7240,7 +7240,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7268,7 +7268,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7297,7 +7297,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7325,7 +7325,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7352,7 +7352,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7371,7 +7371,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7407,7 +7407,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7435,7 +7435,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7464,7 +7464,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7492,7 +7492,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7519,7 +7519,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7558,7 +7558,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7583,7 +7583,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ConfigurationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -7604,7 +7604,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7631,7 +7631,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ConfigurationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7659,7 +7659,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7682,7 +7682,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ConfigurationParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7725,7 +7725,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7750,7 +7750,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DatabaseConnection'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -7771,7 +7771,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7798,7 +7798,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DatabaseConnection'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7826,7 +7826,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7849,7 +7849,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DatabaseConnection'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7872,7 +7872,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7908,7 +7908,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7936,7 +7936,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -7965,7 +7965,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -7993,7 +7993,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8020,7 +8020,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8039,7 +8039,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8075,7 +8075,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8103,7 +8103,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8132,7 +8132,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8160,7 +8160,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8187,7 +8187,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8226,7 +8226,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8251,7 +8251,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DownloadTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -8272,7 +8272,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8299,7 +8299,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DownloadTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8327,7 +8327,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8350,7 +8350,7 @@ paths:
             schema:
               $ref: '#/components/schemas/DownloadTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8393,7 +8393,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8418,7 +8418,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Language'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -8439,7 +8439,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8466,7 +8466,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Language'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8494,7 +8494,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8517,7 +8517,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Language'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8560,7 +8560,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8585,7 +8585,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Log'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -8606,7 +8606,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8633,7 +8633,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Log'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8661,7 +8661,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8684,7 +8684,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Log'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8707,7 +8707,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8743,7 +8743,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8771,7 +8771,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8800,7 +8800,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8828,7 +8828,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8855,7 +8855,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8874,7 +8874,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8910,7 +8910,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8938,7 +8938,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -8967,7 +8967,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -8995,7 +8995,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9022,7 +9022,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9041,7 +9041,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9077,7 +9077,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9105,7 +9105,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9134,7 +9134,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9162,7 +9162,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9189,7 +9189,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9208,7 +9208,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9244,7 +9244,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9272,7 +9272,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9301,7 +9301,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9329,7 +9329,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9356,7 +9356,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9375,7 +9375,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9411,7 +9411,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9439,7 +9439,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9468,7 +9468,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9496,7 +9496,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9523,7 +9523,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -9536,7 +9536,7 @@ paths:
       description: listAllFormsOfMetadata
       operationId: listAllFormsOfMetadata_1
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9551,7 +9551,7 @@ paths:
       description: descriptor
       operationId: descriptor_1
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9572,7 +9572,7 @@ paths:
       description: descriptor
       operationId: descriptor_2
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9593,7 +9593,7 @@ paths:
       description: descriptor
       operationId: descriptor_3
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9614,7 +9614,7 @@ paths:
       description: descriptor
       operationId: descriptor_4
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9635,7 +9635,7 @@ paths:
       description: descriptor
       operationId: descriptor_5
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9656,7 +9656,7 @@ paths:
       description: descriptor
       operationId: descriptor_6
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9677,7 +9677,7 @@ paths:
       description: descriptor
       operationId: descriptor_7
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9698,7 +9698,7 @@ paths:
       description: descriptor
       operationId: descriptor_8
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9719,7 +9719,7 @@ paths:
       description: descriptor
       operationId: descriptor_9
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9740,7 +9740,7 @@ paths:
       description: descriptor
       operationId: descriptor_10
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9761,7 +9761,7 @@ paths:
       description: descriptor
       operationId: descriptor_11
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9782,7 +9782,7 @@ paths:
       description: descriptor
       operationId: descriptor_12
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9803,7 +9803,7 @@ paths:
       description: descriptor
       operationId: descriptor_13
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9824,7 +9824,7 @@ paths:
       description: descriptor
       operationId: descriptor_14
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9845,7 +9845,7 @@ paths:
       description: descriptor
       operationId: descriptor_15
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9866,7 +9866,7 @@ paths:
       description: descriptor
       operationId: descriptor_16
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9887,7 +9887,7 @@ paths:
       description: descriptor
       operationId: descriptor_17
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9908,7 +9908,7 @@ paths:
       description: descriptor
       operationId: descriptor_18
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9929,7 +9929,7 @@ paths:
       description: descriptor
       operationId: descriptor_19
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9950,7 +9950,7 @@ paths:
       description: descriptor
       operationId: descriptor_20
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9971,7 +9971,7 @@ paths:
       description: descriptor
       operationId: descriptor_21
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -9992,7 +9992,7 @@ paths:
       description: descriptor
       operationId: descriptor_22
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10013,7 +10013,7 @@ paths:
       description: descriptor
       operationId: descriptor_23
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10034,7 +10034,7 @@ paths:
       description: descriptor
       operationId: descriptor_24
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10055,7 +10055,7 @@ paths:
       description: descriptor
       operationId: descriptor_25
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10076,7 +10076,7 @@ paths:
       description: descriptor
       operationId: descriptor_26
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10097,7 +10097,7 @@ paths:
       description: descriptor
       operationId: descriptor_27
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10118,7 +10118,7 @@ paths:
       description: descriptor
       operationId: descriptor_28
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10139,7 +10139,7 @@ paths:
       description: descriptor
       operationId: descriptor_29
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10160,7 +10160,7 @@ paths:
       description: descriptor
       operationId: descriptor_30
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10181,7 +10181,7 @@ paths:
       description: descriptor
       operationId: descriptor_31
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10202,7 +10202,7 @@ paths:
       description: descriptor
       operationId: descriptor_32
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10223,7 +10223,7 @@ paths:
       description: descriptor
       operationId: descriptor_33
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10244,7 +10244,7 @@ paths:
       description: descriptor
       operationId: descriptor_34
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10265,7 +10265,7 @@ paths:
       description: descriptor
       operationId: descriptor_35
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10286,7 +10286,7 @@ paths:
       description: descriptor
       operationId: descriptor_36
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10307,7 +10307,7 @@ paths:
       description: descriptor
       operationId: descriptor_37
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10328,7 +10328,7 @@ paths:
       description: descriptor
       operationId: descriptor_38
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10349,7 +10349,7 @@ paths:
       description: descriptor
       operationId: descriptor_39
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10396,7 +10396,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10421,7 +10421,7 @@ paths:
             schema:
               $ref: '#/components/schemas/QueryTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -10442,7 +10442,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10469,7 +10469,7 @@ paths:
             schema:
               $ref: '#/components/schemas/QueryTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10497,7 +10497,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -10520,7 +10520,7 @@ paths:
             schema:
               $ref: '#/components/schemas/QueryTask'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10543,7 +10543,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10579,7 +10579,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10607,7 +10607,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -10636,7 +10636,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10664,7 +10664,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10691,7 +10691,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -10730,7 +10730,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10755,7 +10755,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Role'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -10776,7 +10776,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10803,7 +10803,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Role'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10831,7 +10831,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -10854,7 +10854,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Role'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10877,7 +10877,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10913,7 +10913,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10941,7 +10941,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -10970,7 +10970,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -10998,7 +10998,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11025,7 +11025,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11044,7 +11044,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11080,7 +11080,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11108,7 +11108,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11137,7 +11137,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11165,7 +11165,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11192,7 +11192,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11211,7 +11211,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11247,7 +11247,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11275,7 +11275,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11304,7 +11304,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11332,7 +11332,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11359,7 +11359,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11378,7 +11378,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11414,7 +11414,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11442,7 +11442,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11471,7 +11471,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11499,7 +11499,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11526,7 +11526,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11545,7 +11545,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11581,7 +11581,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11609,7 +11609,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11638,7 +11638,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11666,7 +11666,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11693,7 +11693,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11732,7 +11732,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11757,7 +11757,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ServiceParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -11778,7 +11778,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11805,7 +11805,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ServiceParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11833,7 +11833,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11856,7 +11856,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ServiceParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11879,7 +11879,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11915,7 +11915,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -11943,7 +11943,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -11972,7 +11972,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12000,7 +12000,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12027,7 +12027,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12066,7 +12066,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12091,7 +12091,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Service'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -12112,7 +12112,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12139,7 +12139,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Service'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12167,7 +12167,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12190,7 +12190,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Service'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12213,7 +12213,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12249,7 +12249,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12277,7 +12277,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12306,7 +12306,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12334,7 +12334,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12361,7 +12361,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12380,7 +12380,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12416,7 +12416,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12444,7 +12444,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12473,7 +12473,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12501,7 +12501,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12528,7 +12528,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12567,7 +12567,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12592,7 +12592,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -12613,7 +12613,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12640,7 +12640,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12668,7 +12668,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12691,7 +12691,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskAvailability'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12714,7 +12714,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12750,7 +12750,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12778,7 +12778,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12807,7 +12807,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12835,7 +12835,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12862,7 +12862,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12881,7 +12881,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12917,7 +12917,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -12945,7 +12945,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -12974,7 +12974,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13002,7 +13002,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13029,7 +13029,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13068,7 +13068,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13093,7 +13093,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskGroup'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -13114,7 +13114,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13141,7 +13141,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskGroup'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13169,7 +13169,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13192,7 +13192,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskGroup'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13235,7 +13235,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13260,7 +13260,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskRelation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -13281,7 +13281,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13308,7 +13308,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskRelation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13336,7 +13336,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13359,7 +13359,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskRelation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13382,7 +13382,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13418,7 +13418,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13446,7 +13446,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13475,7 +13475,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13503,7 +13503,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13530,7 +13530,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13549,7 +13549,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13585,7 +13585,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13613,7 +13613,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13642,7 +13642,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13670,7 +13670,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13697,7 +13697,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13736,7 +13736,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13761,7 +13761,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -13782,7 +13782,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13809,7 +13809,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13837,7 +13837,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13860,7 +13860,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13883,7 +13883,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13919,7 +13919,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -13947,7 +13947,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -13976,7 +13976,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14004,7 +14004,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14031,7 +14031,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14050,7 +14050,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14086,7 +14086,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14114,7 +14114,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14143,7 +14143,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14171,7 +14171,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14198,7 +14198,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14237,7 +14237,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14262,7 +14262,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskUI'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -14283,7 +14283,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14310,7 +14310,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskUI'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14338,7 +14338,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14361,7 +14361,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskUI'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14404,7 +14404,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14429,7 +14429,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -14449,7 +14449,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Task'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14467,7 +14467,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Task'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14490,7 +14490,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14517,7 +14517,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14545,7 +14545,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14568,7 +14568,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TaskParameter'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14591,7 +14591,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14627,7 +14627,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14655,7 +14655,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14684,7 +14684,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14712,7 +14712,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14739,7 +14739,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14778,7 +14778,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14803,7 +14803,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Task'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -14824,7 +14824,7 @@ paths:
             type: integer
             format: int32
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14847,7 +14847,7 @@ paths:
             type: integer
             format: int32
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14870,7 +14870,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14897,7 +14897,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Task'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14925,7 +14925,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -14948,7 +14948,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Task'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -14971,7 +14971,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15007,7 +15007,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15035,7 +15035,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15064,7 +15064,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15092,7 +15092,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15119,7 +15119,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15138,7 +15138,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15174,7 +15174,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15202,7 +15202,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15231,7 +15231,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15259,7 +15259,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15286,7 +15286,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15305,7 +15305,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15341,7 +15341,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15369,7 +15369,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15398,7 +15398,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15426,7 +15426,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15453,7 +15453,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15472,7 +15472,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15508,7 +15508,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15536,7 +15536,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15565,7 +15565,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15593,7 +15593,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15620,7 +15620,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15639,7 +15639,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15675,7 +15675,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15703,7 +15703,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15732,7 +15732,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15760,7 +15760,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15787,7 +15787,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15806,7 +15806,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15842,7 +15842,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15870,7 +15870,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15899,7 +15899,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15927,7 +15927,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -15954,7 +15954,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -15973,7 +15973,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16009,7 +16009,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16037,7 +16037,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16066,7 +16066,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16094,7 +16094,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16121,7 +16121,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16140,7 +16140,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16176,7 +16176,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16204,7 +16204,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16233,7 +16233,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16261,7 +16261,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16288,7 +16288,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16307,7 +16307,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16343,7 +16343,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16371,7 +16371,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16400,7 +16400,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16428,7 +16428,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16455,7 +16455,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16474,7 +16474,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16510,7 +16510,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16538,7 +16538,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16567,7 +16567,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16595,7 +16595,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16622,7 +16622,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16661,7 +16661,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16686,7 +16686,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Territory'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -16707,7 +16707,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16734,7 +16734,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Territory'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16762,7 +16762,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16785,7 +16785,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Territory'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16808,7 +16808,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16844,7 +16844,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16872,7 +16872,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16901,7 +16901,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16929,7 +16929,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -16956,7 +16956,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -16975,7 +16975,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17011,7 +17011,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17039,7 +17039,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17068,7 +17068,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17096,7 +17096,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17123,7 +17123,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17142,7 +17142,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17178,7 +17178,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17206,7 +17206,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17235,7 +17235,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17263,7 +17263,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17290,7 +17290,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17309,7 +17309,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17345,7 +17345,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17373,7 +17373,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17402,7 +17402,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17430,7 +17430,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17457,7 +17457,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17476,7 +17476,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17512,7 +17512,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17540,7 +17540,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17569,7 +17569,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17597,7 +17597,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17624,7 +17624,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17643,7 +17643,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17679,7 +17679,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17707,7 +17707,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17736,7 +17736,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17764,7 +17764,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17791,7 +17791,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17810,7 +17810,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17846,7 +17846,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17874,7 +17874,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17903,7 +17903,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17931,7 +17931,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -17958,7 +17958,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -17977,7 +17977,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18013,7 +18013,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18041,7 +18041,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18070,7 +18070,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18098,7 +18098,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18125,7 +18125,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18164,7 +18164,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18189,7 +18189,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryGroupType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -18210,7 +18210,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18237,7 +18237,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryGroupType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18265,7 +18265,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18288,7 +18288,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryGroupType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18331,7 +18331,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18356,7 +18356,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -18377,7 +18377,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18404,7 +18404,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18432,7 +18432,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18455,7 +18455,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TerritoryType'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18498,7 +18498,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18523,7 +18523,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMapRange'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -18544,7 +18544,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18571,7 +18571,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMapRange'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18599,7 +18599,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18622,7 +18622,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMapRange'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18645,7 +18645,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18681,7 +18681,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18709,7 +18709,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18738,7 +18738,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18766,7 +18766,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18793,7 +18793,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18832,7 +18832,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18857,7 +18857,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMap'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -18878,7 +18878,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18905,7 +18905,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMap'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18933,7 +18933,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -18956,7 +18956,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ThematicMap'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -18979,7 +18979,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19015,7 +19015,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19043,7 +19043,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19072,7 +19072,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19100,7 +19100,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19127,7 +19127,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19146,7 +19146,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19182,7 +19182,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19210,7 +19210,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19239,7 +19239,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19267,7 +19267,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19294,7 +19294,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19313,7 +19313,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19349,7 +19349,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19377,7 +19377,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19406,7 +19406,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19434,7 +19434,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19461,7 +19461,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19500,7 +19500,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19525,7 +19525,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Translation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -19550,7 +19550,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19573,7 +19573,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19600,7 +19600,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Translation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19628,7 +19628,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19651,7 +19651,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Translation'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19674,7 +19674,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19710,7 +19710,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19738,7 +19738,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19767,7 +19767,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19795,7 +19795,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19822,7 +19822,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19861,7 +19861,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19886,7 +19886,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TreeNode'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -19907,7 +19907,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19934,7 +19934,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TreeNode'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -19962,7 +19962,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -19985,7 +19985,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TreeNode'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20008,7 +20008,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20044,7 +20044,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20072,7 +20072,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20101,7 +20101,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20129,7 +20129,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20156,7 +20156,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20175,7 +20175,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20211,7 +20211,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20239,7 +20239,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20268,7 +20268,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20296,7 +20296,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20323,7 +20323,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20342,7 +20342,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20378,7 +20378,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20406,7 +20406,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20435,7 +20435,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20463,7 +20463,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20490,7 +20490,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20529,7 +20529,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20554,7 +20554,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Tree'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -20575,7 +20575,7 @@ paths:
             type: integer
             format: int64
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20598,7 +20598,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20625,7 +20625,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Tree'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20653,7 +20653,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20676,7 +20676,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Tree'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20699,7 +20699,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20735,7 +20735,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20763,7 +20763,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20792,7 +20792,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20820,7 +20820,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20847,7 +20847,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20866,7 +20866,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20902,7 +20902,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20930,7 +20930,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -20959,7 +20959,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -20987,7 +20987,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21014,7 +21014,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21033,7 +21033,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21069,7 +21069,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21097,7 +21097,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21126,7 +21126,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21154,7 +21154,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21181,7 +21181,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21200,7 +21200,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21236,7 +21236,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21264,7 +21264,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21293,7 +21293,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21321,7 +21321,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21348,7 +21348,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21387,7 +21387,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21412,7 +21412,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserConfiguration'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -21432,7 +21432,7 @@ paths:
           schema:
             $ref: '#/components/schemas/User'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21455,7 +21455,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21482,7 +21482,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserConfiguration'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21510,7 +21510,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21533,7 +21533,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserConfiguration'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21556,7 +21556,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21592,7 +21592,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21620,7 +21620,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21649,7 +21649,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21677,7 +21677,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21704,7 +21704,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21723,7 +21723,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21759,7 +21759,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21787,7 +21787,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21816,7 +21816,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21844,7 +21844,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21871,7 +21871,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21890,7 +21890,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21926,7 +21926,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -21954,7 +21954,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -21983,7 +21983,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22011,7 +22011,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22038,7 +22038,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22077,7 +22077,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22102,7 +22102,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserPosition'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -22123,7 +22123,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22150,7 +22150,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserPosition'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22178,7 +22178,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22201,7 +22201,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserPosition'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22224,7 +22224,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22260,7 +22260,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22288,7 +22288,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22317,7 +22317,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22345,7 +22345,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22372,7 +22372,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22391,7 +22391,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22427,7 +22427,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22455,7 +22455,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22484,7 +22484,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22512,7 +22512,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22539,7 +22539,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22578,7 +22578,7 @@ paths:
             items:
               type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22603,7 +22603,7 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "201":
           description: Created
@@ -22624,7 +22624,7 @@ paths:
             type: string
             format: date-time
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22647,7 +22647,7 @@ paths:
             type: string
             format: date-time
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22670,7 +22670,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22697,7 +22697,7 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22725,7 +22725,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22748,7 +22748,7 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22771,7 +22771,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22807,7 +22807,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22835,7 +22835,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22864,7 +22864,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22892,7 +22892,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22919,7 +22919,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -22938,7 +22938,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -22974,7 +22974,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -23002,7 +23002,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content
@@ -23031,7 +23031,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CollectionModelObject'
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -23059,7 +23059,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "200":
           description: OK
@@ -23086,7 +23086,7 @@ paths:
           schema:
             type: string
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         "204":
           description: No Content

@@ -29,9 +29,7 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-
 @DataJpaTest
-
 class ApplicationRepositoryTest {
 
   @Autowired

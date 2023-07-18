@@ -108,6 +108,7 @@ public class Territory {
 
   /**
    * Territory scope.
+   *
    * @deprecated
    */
   @Column(name = "TER_SCOPE", length = PersistenceConstants.IDENTIFIER)
@@ -187,6 +188,7 @@ public class Territory {
 
   /**
    * Territory typology.
+   *
    * @deprecated
    */
   @ManyToOne

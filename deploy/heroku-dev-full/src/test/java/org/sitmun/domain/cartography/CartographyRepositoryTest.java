@@ -16,7 +16,6 @@ import java.util.Date;
 
 
 @DataJpaTest
-
 class CartographyRepositoryTest {
 
   @Autowired

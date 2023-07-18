@@ -15,42 +15,42 @@ import org.springframework.util.StringUtils;
 @Order(1)
 public class LdapPasswordStorage implements PasswordStorage {
 
-	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
+  private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 
-	@Value("${sitmun.authentication.ldap.url}")
-	private String host;
+  @Value("${sitmun.authentication.ldap.url}")
+  private String host;
 
-	@Value("${sitmun.authentication.ldap.base-dn}")
-	private String baseDN;
+  @Value("${sitmun.authentication.ldap.base-dn}")
+  private String baseDN;
 
-	@Value("${sitmun.authentication.ldap.user-dn-pattern}")
-	private String userDNPattern;
+  @Value("${sitmun.authentication.ldap.user-dn-pattern}")
+  private String userDNPattern;
 
-	@Value("${sitmum.authentication.ldap.username:}")
-	private String userLdap;
+  @Value("${sitmum.authentication.ldap.username:}")
+  private String userLdap;
 
-	@Value("${sitmun.authentication.ldap.password:}")
-	private String passwordLdap;
+  @Value("${sitmun.authentication.ldap.password:}")
+  private String passwordLdap;
 
-	public LdapPasswordStorage(LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {
-		this.ldapUserAuthoritiesPopulator = ldapUserAuthoritiesPopulator;
-	}
+  public LdapPasswordStorage(LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator) {
+    this.ldapUserAuthoritiesPopulator = ldapUserAuthoritiesPopulator;
+  }
 
-	@Override
-	public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		String url = StringUtils.hasText(this.host) && StringUtils.hasText(this.baseDN)
-				? this.host.concat("/").concat(this.baseDN)
-				: null;
-		authenticationManagerBuilder.ldapAuthentication()
-				.passwordEncoder(ldapPasswordEncoder())
-				.userDnPatterns(this.userDNPattern)
-				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator)
-				.contextSource().url(url)
-				.managerDn(StringUtils.hasText(this.userLdap) ? this.userLdap : null)
-				.managerPassword(StringUtils.hasText(this.passwordLdap) ? this.passwordLdap : null);
-	}
+  @Override
+  public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+    String url = StringUtils.hasText(this.host) && StringUtils.hasText(this.baseDN)
+      ? this.host.concat("/").concat(this.baseDN)
+      : null;
+    authenticationManagerBuilder.ldapAuthentication()
+      .passwordEncoder(ldapPasswordEncoder())
+      .userDnPatterns(this.userDNPattern)
+      .ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator)
+      .contextSource().url(url)
+      .managerDn(StringUtils.hasText(this.userLdap) ? this.userLdap : null)
+      .managerPassword(StringUtils.hasText(this.passwordLdap) ? this.passwordLdap : null);
+  }
 
-	public PasswordEncoder ldapPasswordEncoder() {
-		return new LdapShaPasswordEncoder();
-	}
+  public PasswordEncoder ldapPasswordEncoder() {
+    return new LdapShaPasswordEncoder();
+  }
 }

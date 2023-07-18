@@ -51,7 +51,7 @@ class ClientConfigurationControllerTest extends BaseTest {
 
   @Test
   @DisplayName("Return private applications for ROLE_USER")
-  @WithMockUser(username= "other")
+  @WithMockUser(username = "other")
   void listPrivateApplications() throws Exception {
 
     List<Application> applications = new ArrayList<>();

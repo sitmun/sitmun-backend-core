@@ -48,10 +48,11 @@ public interface TerritoryProjection {
 
   /**
    * Territory scope.
+   *
    * @deprecated
    */
   @Value("#{target.scope}")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   String getScope();
 
   /**
@@ -86,18 +87,20 @@ public interface TerritoryProjection {
 
   /**
    * Group type identifier.
+   *
    * @deprecated
    */
   @Value("#{target.groupType?.id}")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   Integer getGroupTypeId();
 
   /**
    * Group type name.
+   *
    * @deprecated
    */
   @Value("#{target.groupType?.name}")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   String getGroupTypeName();
 
   /**

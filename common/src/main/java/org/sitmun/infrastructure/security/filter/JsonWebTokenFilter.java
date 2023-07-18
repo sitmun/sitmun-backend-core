@@ -48,14 +48,14 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
           usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         }
-        }
-      } catch (IllegalArgumentException e) {
-        logger.error("Unable to fetch JWT Token");
-      } catch (ExpiredJwtException e) {
-        logger.error("JWT Token is expired");
-      } catch (Exception e) {
-        logger.error(e.getMessage(), e);
       }
+    } catch (IllegalArgumentException e) {
+      logger.error("Unable to fetch JWT Token");
+    } catch (ExpiredJwtException e) {
+      logger.error("JWT Token is expired");
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
     filterChain.doFilter(request, response);
   }
 

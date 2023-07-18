@@ -68,8 +68,8 @@ public class UserController {
       publisher.publishEvent(new AfterSaveEvent(user));
       return ResponseEntity.ok(userToDto(user));
     } else {
-        return ResponseEntity.notFound().build();
-      }
+      return ResponseEntity.notFound().build();
+    }
   }
 
   /**

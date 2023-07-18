@@ -15,7 +15,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import java.util.Date;
 
 @SpringBootTest
-
 class UserRepositoryTest {
 
   @Autowired

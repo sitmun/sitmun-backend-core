@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 
 /**
  * Type of grouping of territorial entities.
+ *
  * @deprecated
  */
 @Entity
@@ -21,7 +22,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Deprecated
+@Deprecated(forRemoval = true)
 public class TerritoryGroupType {
 
   /**

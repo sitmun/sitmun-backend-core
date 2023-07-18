@@ -76,7 +76,7 @@ class UserControllerTest {
   @Test
   void readAccount() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
-        .header(HttpHeaders.AUTHORIZATION, "Bearer "+validToken)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
       ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
@@ -92,7 +92,7 @@ class UserControllerTest {
   @Test
   void readAccountWithExpiredToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
-      .header(HttpHeaders.AUTHORIZATION, "Bearer "+expiredToken)
+      .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken)
     ).andExpect(status().isUnauthorized());
   }
 
@@ -106,13 +106,13 @@ class UserControllerTest {
       "\"blocked\": false}";
 
     mvc.perform(put(URIConstants.ACCOUNT_URI)
-      .header(HttpHeaders.AUTHORIZATION, "Bearer "+validToken)
+      .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
     ).andExpect(status().isOk());
 
     mvc.perform(get(URIConstants.ACCOUNT_URI)
-        .header(HttpHeaders.AUTHORIZATION, "Bearer "+validToken)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
       ).andExpect(status().isOk())
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andExpect(jsonPath("$.firstName", equalTo("NameChanged")))
@@ -140,7 +140,7 @@ class UserControllerTest {
       "\"blocked\": false}";
 
     mvc.perform(put(URIConstants.ACCOUNT_URI)
-      .header(HttpHeaders.AUTHORIZATION, "Bearer "+validToken)
+      .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
       .contentType(MediaType.APPLICATION_JSON)
       .content(content)
     ).andExpect(status().isOk()).andExpect(jsonPath("$.password").doesNotExist());

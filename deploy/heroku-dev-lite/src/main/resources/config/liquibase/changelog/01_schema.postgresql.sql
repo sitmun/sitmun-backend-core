@@ -30,10 +30,10 @@ create table stm_app_bckg
 
 create table stm_app_ter
 (
-  ate_id      int4 not null,
-  ate_appid   int4,
-  ate_terid   int4,
-  ate_iniext  varchar(250),
+  ate_id     int4 not null,
+  ate_appid  int4,
+  ate_terid  int4,
+  ate_iniext varchar(250),
   primary key (ate_id)
 );
 
@@ -51,11 +51,11 @@ create table stm_app_tree
 );
 create table stm_avail_gi
 (
-  agi_id        int4 not null,
-  agi_created   timestamp,
-  agi_owner varchar(50),
-  agi_giid      int4,
-  agi_terid     int4,
+  agi_id      int4 not null,
+  agi_created timestamp,
+  agi_owner   varchar(50),
+  agi_giid    int4,
+  agi_terid   int4,
   primary key (agi_id)
 );
 create table stm_avail_tsk

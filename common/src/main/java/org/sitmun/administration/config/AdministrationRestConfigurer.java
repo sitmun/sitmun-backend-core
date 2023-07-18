@@ -20,13 +20,6 @@ import java.util.Map;
 @EnableJpaAuditing
 public class AdministrationRestConfigurer implements RepositoryRestConfigurer {
 
-  public AdministrationRestConfigurer(EntityManager entityManager,
-                                      ListableBeanFactory beanFactory
-  ) {
-    this.entityManager = entityManager;
-    this.beanFactory = beanFactory;
-  }
-
   private static final List<String> EVENTS;
 
   static {
@@ -34,8 +27,14 @@ public class AdministrationRestConfigurer implements RepositoryRestConfigurer {
   }
 
   private final EntityManager entityManager;
-
   private final ListableBeanFactory beanFactory;
+
+  public AdministrationRestConfigurer(EntityManager entityManager,
+                                      ListableBeanFactory beanFactory
+  ) {
+    this.entityManager = entityManager;
+    this.beanFactory = beanFactory;
+  }
 
   @Bean
   public Validator validator() {

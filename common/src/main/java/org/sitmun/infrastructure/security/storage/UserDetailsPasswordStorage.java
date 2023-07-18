@@ -11,19 +11,19 @@ import org.springframework.stereotype.Component;
 @Order
 public class UserDetailsPasswordStorage implements PasswordStorage {
 
-	private final UserDetailsServiceImplementation userDetailsService;
-	
-	public UserDetailsPasswordStorage(UserDetailsServiceImplementation userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-	  
-	@Override
-	public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userDetailsService)
-		  .passwordEncoder(passwordEncoder());
-	}
+  private final UserDetailsServiceImplementation userDetailsService;
 
-    public PasswordEncoder passwordEncoder() {
-	   return new BCryptPasswordEncoder();
-	}
+  public UserDetailsPasswordStorage(UserDetailsServiceImplementation userDetailsService) {
+    this.userDetailsService = userDetailsService;
+  }
+
+  @Override
+  public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+    authenticationManagerBuilder.userDetailsService(userDetailsService)
+      .passwordEncoder(passwordEncoder());
+  }
+
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

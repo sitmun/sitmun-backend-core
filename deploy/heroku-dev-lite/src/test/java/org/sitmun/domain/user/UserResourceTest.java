@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class UserResourceTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";

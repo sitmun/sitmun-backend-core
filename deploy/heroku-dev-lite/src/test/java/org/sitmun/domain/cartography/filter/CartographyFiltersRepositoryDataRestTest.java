@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
 class CartographyFiltersRepositoryDataRestTest {
 
   @Autowired
@@ -63,7 +62,7 @@ class CartographyFiltersRepositoryDataRestTest {
       "}";
 
     mvc.perform(
-        post(URIConstants.CARTOGRAPHY_FILTERS_URI+"?lang=EN")
+        post(URIConstants.CARTOGRAPHY_FILTERS_URI + "?lang=EN")
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isBadRequest())

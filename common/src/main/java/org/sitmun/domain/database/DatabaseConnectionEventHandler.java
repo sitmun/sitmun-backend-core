@@ -19,7 +19,7 @@ public class DatabaseConnectionEventHandler {
   @HandleBeforeCreate
   public void handleUserCreate(@NotNull DatabaseConnection databaseConnection) {
     if (databaseConnection.getPassword() != null && databaseConnection.getPassword().isEmpty()) {
-        databaseConnection.setPassword(null);
+      databaseConnection.setPassword(null);
     }
   }
 

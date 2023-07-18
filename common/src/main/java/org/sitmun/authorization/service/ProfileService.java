@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.sitmun.authorization.service.ProfileUtils.*;
+import static org.sitmun.authorization.service.ProfileUtils.isAppPartOfUserConfiguration;
 
 @Service
 public class ProfileService {
@@ -31,8 +31,9 @@ public class ProfileService {
 
   /**
    * Get the list of territories for the user in a given application.
+   *
    * @param username the username
-   * @param appId the identifier of the application
+   * @param appId    the identifier of the application
    * @param pageable pagination information
    * @return a page of territories
    */
@@ -58,6 +59,7 @@ public class ProfileService {
 
   /**
    * Get the list of territories for the user.
+   *
    * @param username the username
    * @param pageable pagination information
    * @return a page of territories
@@ -82,6 +84,7 @@ public class ProfileService {
 
   /**
    * Get the applications per user.
+   *
    * @param username username
    * @param pageable pagination information
    * @return a page of applications
@@ -110,8 +113,9 @@ public class ProfileService {
 
   /**
    * Get the list of applications for a given territory.
+   *
    * @param username username
-   * @param terrId territory identifier
+   * @param terrId   territory identifier
    * @param pageable pagination information
    * @return a page of applications
    */

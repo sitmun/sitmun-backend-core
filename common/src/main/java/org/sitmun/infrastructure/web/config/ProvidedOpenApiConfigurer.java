@@ -14,16 +14,17 @@ public class ProvidedOpenApiConfigurer {
 
   @Bean
   @Primary
-  SpringDocConfiguration springDocConfiguration(){
+  SpringDocConfiguration springDocConfiguration() {
     return new SpringDocConfiguration();
   }
+
   @Bean
   SpringDocConfigProperties springDocConfigProperties() {
     return new SpringDocConfigProperties();
   }
 
   @Bean
-  ObjectMapperProvider objectMapperProvider(SpringDocConfigProperties springDocConfigProperties){
+  ObjectMapperProvider objectMapperProvider(SpringDocConfigProperties springDocConfigProperties) {
     return new ObjectMapperProvider(springDocConfigProperties);
   }
 }

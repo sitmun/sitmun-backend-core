@@ -16,14 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-
- class ConfigurationParameterRepositoryDataRestTest {
+class ConfigurationParameterRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-   void retrieveAll() throws Exception {
+  void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.CONFIGURATION_PARAMETERS_URI)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
       )

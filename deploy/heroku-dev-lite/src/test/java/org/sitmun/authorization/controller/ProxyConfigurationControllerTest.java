@@ -25,18 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProxyConfigurationControllerTest {
 
   @Autowired
-  private MockMvc mvc;
-  
-  @Autowired
   JsonWebTokenService jsonWebTokenService;
-
+  @Autowired
+  private MockMvc mvc;
   @Value("${security.authentication.middleware.secret}")
-	private String secret;
-  
+  private String secret;
+
   String getUserToken() {
     return jsonWebTokenService.generateToken("admin", new Date());
   }
-  
+
   /**
    * Test a proxy configuration service for database connection with public user
    */
