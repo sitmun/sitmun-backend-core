@@ -21,19 +21,19 @@ TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONN
 20,printMap.sitna,NULL,1,1,20,NULL,NULL,NULL,"{""div"":""print"",""logo"":""http://sitmun.org/Imas/General/logo.png"",""legend"":{""visible"":true}}"
 21,scale,NULL,1,1,21,NULL,NULL,NULL,NULL
 22,scaleBar,NULL,1,1,22,NULL,NULL,NULL,NULL
-23,scaleSelector,NULL,1,1,23,NULL,NULL,NULL,NULL
+23,scaleSelector,NULL,1,1,23,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE""}"
 24,search.sitna,NULL,1,1,24,NULL,NULL,NULL,"{""placename"":{""url"":""https://ide.cime.es/geoserver2/base_referencia/wfs"",""featurePrefix"":""base_referencia"",""geometryName"":""the_geom"",""featureType"":""re007top_nomenclator_aux"",""dataIdProperty"":[""gid""],""queryProperties"":{""firstQueryWord"":[""nom"",""dstipus"",""dsmun"",""cerca""]},""suggestionListHead"":{""label"":""search.list.placename"",""color"":""strokeColor""},""outputProperties"":[""nom"",""dstipus"",""dsmun"",""gid""],""outputFormat"":""JSON"",""outputFormatLabel"":""{0} ({1}) - {2}"",""searchWeight"":7,""styles"":[{""point"":{""radius"":0,""label"":""nom"",""fontColor"":""#CB0000"",""fontSize"":14,""labelOutlineColor"":""#FFFFFF"",""labelOutlineWidth"":4}}]}}"
 25,share,NULL,1,1,25,NULL,NULL,NULL,NULL
 26,streetView,NULL,1,1,26,NULL,NULL,NULL,NULL
-27,threed,NULL,1,1,27,NULL,NULL,NULL,NULL
-28,TOC,NULL,1,1,28,NULL,NULL,NULL,NULL
+27,threed,NULL,1,1,27,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE TERR_COD=${TERR_COD}""}"
+28,TOC,NULL,1,1,28,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE USER_ID=${USER_ID} AND TERR_ID=${TERR_ID} AND APP_ID=${APP_ID} AND TERR_COD=${TERR_COD}""}"
 29,WFSEdit,NULL,1,1,29,NULL,NULL,NULL,NULL
 30,WFSQuery,NULL,1,1,30,NULL,NULL,NULL,NULL
 31,workLayerManager,NULL,1,1,31,NULL,NULL,NULL,NULL
-#
-# Modal UI
-# - Welcome Pane (32)
-# - Help Panel (33)
-#
+#,,,,,,,,,
+# Modal UI,,,,,,,,,
+# - Welcome Pane (32),,,,,,,,,
+# - Help Panel (33),,,,,,,,,
+#,,,,,,,,,
 32,Welcome Panel,NULL,1,1,32,NULL,NULL,NULL,NULL
 33,Help Panel,NULL,1,1,33,NULL,NULL,NULL,NULL

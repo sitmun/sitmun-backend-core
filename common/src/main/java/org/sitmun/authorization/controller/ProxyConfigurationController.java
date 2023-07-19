@@ -48,8 +48,8 @@ public class ProxyConfigurationController {
       }
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
-      proxyConfigurationService.addExtraParams(configProxyRequest, username);
       ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
+      proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequest, username);
       return ResponseEntity.ok().body(configProxyDto);
     } else {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

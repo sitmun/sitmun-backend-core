@@ -2,19 +2,29 @@ package org.sitmun.authorization.service;
 
 import org.sitmun.authorization.dto.*;
 import org.sitmun.authorization.exception.BadRequestException;
+import org.sitmun.decorators.QueryFixedFiltersDecorator;
+import org.sitmun.decorators.QueryPaginationDecorator;
+import org.sitmun.decorators.QueryVaryFiltersDecorator;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.territory.TerritoryRepository;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+@Slf4j
 @org.springframework.stereotype.Service
 public class ProxyConfigurationService {
 
@@ -28,13 +38,30 @@ public class ProxyConfigurationService {
 
   private final TaskRepository taskRepository;
 
+  private final UserRepository userRepository;
+
+  private final TerritoryRepository territoryRepository;
+
+  private final QueryFixedFiltersDecorator queryFixedFiltersDecorator;
+
+  private final QueryVaryFiltersDecorator queryVaryFiltersDecorator;
+
+  private final QueryPaginationDecorator queryPaginationDecorator;
+
   @Value("${sitmun.proxy.config-response-validity-in-seconds}")
   private int responseValidityTime;
 
   public ProxyConfigurationService(CartographyRepository cartographyRepository,
-      TaskRepository taskRepository) {
+      TaskRepository taskRepository, UserRepository userRepository,
+      TerritoryRepository territoryRepository, QueryFixedFiltersDecorator queryFixedFiltersDecorator,
+      QueryVaryFiltersDecorator queryVaryFiltersDecorator, QueryPaginationDecorator queryPaginationDecorator) {
     this.cartographyRepository = cartographyRepository;
     this.taskRepository = taskRepository;
+    this.userRepository = userRepository;
+    this.territoryRepository = territoryRepository;
+    this.queryFixedFiltersDecorator = queryFixedFiltersDecorator;
+    this.queryVaryFiltersDecorator = queryVaryFiltersDecorator;
+    this.queryPaginationDecorator = queryPaginationDecorator;
   }
 
   public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
@@ -43,23 +70,12 @@ public class ProxyConfigurationService {
     return true;
   }
 
-  public void addExtraParams(ConfigProxyRequest configProxyRequest, String username) {
-    Map<String, String> parameters = configProxyRequest.getParameters();
-    if (parameters == null) {
-      parameters = new HashMap<>();
-    }
-    parameters.put("USER_ID", username);
-    parameters.put("TERR_ID", String.valueOf(configProxyRequest.getTerId()));
-    parameters.put("APP_ID", String.valueOf(configProxyRequest.getAppId()));
-    configProxyRequest.setParameters(parameters);
-  }
-
   public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, long expirationTimeToken) {
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
     if (CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequest.getType())) {
       taskRepository.findById(configProxyRequest.getTypeId()).ifPresent(task -> {
-        payload.set(getDatasourceConfiguration(task, configProxyRequest.getParameters()));
+        payload.set(getDatasourceConfiguration(task));
         configType.set(CONNECTION_TYPE_KEY);
       });
     } else {
@@ -106,15 +122,16 @@ public class ProxyConfigurationService {
     if (parameters == null) {
       parameters = new HashMap<>();
     }
-
-    for (ServiceParameter parameter : service.getParameters()) {
+    Set<ServiceParameter> servParams = service.getParameters();
+    log.info("Parametros servicio " + servParams.size());
+    for (ServiceParameter parameter : servParams) {
       if (VARY_KEY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
         parameters.put(parameter.getName(), parameter.getValue());
       }
     }
-
+    log.info("Parametros finales " + parameters.size());
     return OgcWmsPayloadDto.builder()
         .uri(service.getServiceURL())
         .method(configProxyRequest.getMethod())
@@ -124,9 +141,9 @@ public class ProxyConfigurationService {
         .build();
   }
 
-  private DatasourcePayloadDto getDatasourceConfiguration(Task task, Map<String, String> parameters) {
+  private DatasourcePayloadDto getDatasourceConfiguration(Task task) {
     DatabaseConnection databaseConnection = task.getConnection();
-    String sql = formatSql(getSqlByTask(task), parameters);
+    String sql = getSqlByTask(task);
     return databaseConnection != null ? DatasourcePayloadDto.builder()
         .uri(databaseConnection.getUrl())
         .user(databaseConnection.getUser())
@@ -149,28 +166,55 @@ public class ProxyConfigurationService {
     return sql;
   }
 
-  private String formatSql(String query, Map<String, String> parameters) {
-    String result = query;
-    if (result != null && !result.isEmpty()) {
-      if (!query.contains("WHERE")) {
-        result = result.concat(" where ");
+  public void applyDecorators(ConfigProxyDto configProxyDto, ConfigProxyRequest configProxyRequest, String username) {
+    PayloadDto payload = configProxyDto.getPayload();
+
+    addFixedFilters(configProxyRequest, payload, username);
+    Map<String, String> parameters = configProxyRequest.getParameters();
+
+    if (parameters != null && !parameters.isEmpty()) {
+      String limit = null, offset = null;
+      if (parameters.containsKey("LIMIT")) {
+        limit = parameters.get("LIMIT");
+        parameters.remove("LIMIT");
       }
-      for (String par : parameters.keySet()) {
-        if (!par.equalsIgnoreCase("limit") && !par.equalsIgnoreCase("offset")) {
-          if (par.equals("USER_ID") || par.equals("TERR_ID") || par.equals("APP_ID")) {
-            result.replace("${" + par + "}", parameters.get(par));
-          } else {
-            result = result.concat(par + "=" + parameters.get(par) + " ");
-          }
-        }
+      if (parameters.containsKey("OFFSET")) {
+        offset = parameters.get("OFFSET");
+        parameters.remove("OFFSET");
       }
-      if (parameters.containsKey("limit")) {
-        result = result.concat("limit " + parameters.get("limit") + " ");
-      }
-      if (parameters.containsKey("offset")) {
-        result = result.concat("offset " + parameters.get("offset") + " ");
-      }
+      addVaryFilters(parameters, payload);
+      addPagination(limit, offset, payload);
     }
-    return result;
+  }
+
+  private void addFixedFilters(ConfigProxyRequest configProxyRequest, PayloadDto payload, String username) {
+    Map<String, String> fixedFilters = new HashMap<>();
+    User user = userRepository.findByUsername(username).orElse(null);
+    if (user != null) {
+      fixedFilters.put("USER_ID", user.getId().toString());
+    }
+    Territory territory = territoryRepository.findById(configProxyRequest.getTerId()).orElse(null);
+    if (territory != null) {
+      fixedFilters.put("TERR_ID", String.valueOf(territory.getId()));
+      fixedFilters.put("TERR_COD", territory.getCode());
+    }
+    fixedFilters.put("APP_ID", String.valueOf(configProxyRequest.getAppId()));
+
+    queryFixedFiltersDecorator.apply(fixedFilters, payload);
+  }
+
+  private void addVaryFilters(Map<String, String> parameters, PayloadDto payload) {
+    queryVaryFiltersDecorator.apply(parameters, payload);
+  }
+
+  private void addPagination(String limit, String offset, PayloadDto payload) {
+    Map<String, String> pagination = new HashMap<>();
+    if (StringUtils.hasText(limit)) {
+      pagination.put("LIMIT", limit);
+    }
+    if (StringUtils.hasText(offset)) {
+      pagination.put("OFFSET", offset);
+    }
+    queryPaginationDecorator.apply(pagination, payload);
   }
 }
