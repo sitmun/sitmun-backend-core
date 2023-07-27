@@ -580,3 +580,4 @@ QUE_ID,QUE_COMMAND,QUE_TYPE,QUE_DESC
 32133,SQL code,SQL,NG - Noms geogràfics: EMD
 32142,SQL code,SQL,NG - Nom geogràfic: tipus i nom
 32155,SQL code,SQL,- Municipis amb cartografia inclosa al SITMUN
+23,SELECT * FROM EXAMPLE,SQL,Consulta de prueba

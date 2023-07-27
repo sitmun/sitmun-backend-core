@@ -126,10 +126,10 @@ QUE_ID,QUE_COMMAND,QUE_TYPE,QUE_DESC
 3277,SQL code,SQL,- Municipis sense CAE1M
 3278,SQL code,SQL,- Municipis sense CAE1M però amb BUE1M
 3279,SQL code,SQL,- Logs (Extranet + data última connexió)
-3280,SQL code,SQL,- PC: Llistat Elements patrimoni cultural (municipi)
+3280,SELECT * FROM EXAMPLE WHERE USER_ID=${USER_ID} AND TERR_ID=${TERR_ID} AND APP_ID=${APP_ID} AND TERR_COD=${TERR_COD},SQL,- PC: Llistat Elements patrimoni cultural (municipi)
 3291,SQL code,SQL,- SH: Borses de lloguer
-3293,SQL code,SQL,- Logs: data alta MCA
-3294,SQL code,SQL,- Logs: data alta MSE
+3293,SELECT * FROM EXAMPLE,SQL,- Logs: data alta MCA
+3294,SELECT * FROM EXAMPLE WHERE TERR_COD=${TERR_COD},SQL,- Logs: data alta MSE
 3295,SQL code,SQL,- Logs: data alta MLO
 31815,SQL code,SQL,ADMIN - LOCALITZADOR PER ID (PU141A)
 3311,SQL code,SQL,- Llistat de grups i capes
