@@ -21,6 +21,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * TODO Preconfigured parameters are added to the query if they are not present
+ *      Example: for the service with id 43, the following parameters can be found at STM_PAR_TREE:
+ *     | PSE_TYPE | PSE_NAME    | PSE_VALUE |
+ *     |----------|-------------|-----------|
+ *     | WMS      | format      | image/png |
+ *     | WMS      | version     | 1.3.0     |
+ *     | WMS      | service     | WMS       |
+ *     | WMS      | transparent | TRUE      |
+ *     | WMS      | radius      | 5         |
+ *     The PSE_TYPE must be the same as the requested service type (e.g. WMS)
+ * TODO Preconfigured parameters are updated in the  query if they are present
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("API Proxy")
