@@ -223,7 +223,7 @@ databaseChangeLog:
                   name: UCO_CREATED
                   type: DATETIME
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('UCO_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('UCO_ID', 12);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GRP_GI.csv
