@@ -1,40 +1,43 @@
-dn: dc=springframework,dc=org
+dn: dc=diputaciolleida,dc=es
 objectclass: top
 objectclass: domain
-objectclass: extensibleObject
-dc: springframework
+dc: diputaciolleida
 
-dn: ou=people,dc=springframework,dc=org
+# User creation
+dn: ou=Departamento,dc=diputaciolleida,dc=es
 objectclass: top
 objectclass: organizationalUnit
-ou: people
+ou: Departamento
 
-dn: uid=user12,ou=people,dc=springframework,dc=org
+dn: sAMAccountName=user12,ou=Departamento,dc=diputaciolleida,dc=es
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 cn: Usuario12 pruebas
 sn: Usuario12
-uid: user12
+userPrincipalName: user12@diputaciolleida.cat
+sAMAccountName: user12
 userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
 
-dn: uid=internal,ou=people,dc=springframework,dc=org
+dn: sAMAccountName=internal,ou=Departamento,dc=diputaciolleida,dc=es
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 cn: Internal pruebas
 sn: Internal
-uid: internal
+userPrincipalName: internal@diputaciolleida.cat
+sAMAccountName: internal
 userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
 
-dn: uid=nositmunuser,ou=people,dc=springframework,dc=org
+dn: sAMAccountName=nositmunuser,ou=Departamento,dc=diputaciolleida,dc=es
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 cn: NoSitmunUser pruebas
 sn: NoSitmunUser
-uid: nositmunuser
+userPrincipalName: nositmunuser@diputaciolleida.cat
+sAMAccountName: nositmunuser
 userPassword: {SSHA}wgUvzd+hyzWIrnAwUCFac8ntwZ193uWz

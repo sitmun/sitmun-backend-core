@@ -7,16 +7,9 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
-spring:
-  ldap:
-    embedded:
-      ldif: classpath:config/ldap/test-server.ldif
-      base-dn: dc=springframework,dc=org
-      port: 8389
-
 sitmun:
   authentication:
     ldap:
       url: ldap://localhost:8389
-      base_dn: dc=springframework,dc=org
-      user_dn_pattern: uid={0},ou=people
+      base_dn: dc=diputaciolleida,dc=es
+      user_dn_pattern: sAMAccountName={0},ou=Departamento

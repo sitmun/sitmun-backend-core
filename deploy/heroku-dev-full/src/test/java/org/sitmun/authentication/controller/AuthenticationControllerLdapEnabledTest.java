@@ -1,15 +1,24 @@
 package org.sitmun.authentication.controller;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.sdk.LDAPException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.net.URI;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,8 +29,40 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles({"test", "ldap"})
 class AuthenticationControllerLdapEnabledTest {
 
+  @Value("${sitmun.authentication.ldap.url}")
+  private String url;
+
+  @Value("${sitmun.authentication.ldap.base_dn}")
+  private String baseDN;
+
+  @Value("${test.ldap.ldif}")
+  private String ldif;
+
+  @Value("${test.ldap.schema}")
+  private String schema;
+
   @Autowired
   private MockMvc mvc;
+
+  private InMemoryDirectoryServer directoryServer;
+
+  @BeforeEach
+  void setupLdapServer() throws LDAPException {
+    InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.baseDN);
+    int port = URI.create(url).getPort();
+    config.setListenerConfigs(
+      InMemoryListenerConfig.createLDAPConfig("LDAP", port)
+    );
+    directoryServer = new InMemoryDirectoryServer(config);
+    directoryServer.applyChangesFromLDIF(schema);
+    directoryServer.importFromLDIF(false, ldif);
+    directoryServer.startListening();
+  }
+
+  @AfterEach
+  void shutdownLdapServer() {
+    directoryServer.shutDown(true);
+  }
 
   @Test
   @DisplayName("A user that fails in LDAP and exists in SITMUN, must pass.")
@@ -41,7 +82,7 @@ class AuthenticationControllerLdapEnabledTest {
   @DisplayName("A user that exists in LDAP and exists in SITMUN, must pass.")
   void successfulLdapLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("user12");
+    login.setUsername("internal");
     login.setPassword("password12");
 
     mvc.perform(post("/api/authenticate")
