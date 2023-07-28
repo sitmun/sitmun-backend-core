@@ -1,0 +1,43 @@
+dn: dc=diputaciolleida,dc=es
+objectclass: top
+objectclass: domain
+dc: diputaciolleida
+
+# User creation
+dn: ou=Departamento,dc=diputaciolleida,dc=es
+objectclass: top
+objectclass: organizationalUnit
+ou: Departamento
+
+dn: sAMAccountName=user12,ou=Departamento,dc=diputaciolleida,dc=es
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Usuario12 pruebas
+sn: Usuario12
+userPrincipalName: user12@diputaciolleida.cat
+sAMAccountName: user12
+userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
+
+dn: sAMAccountName=internal,ou=Departamento,dc=diputaciolleida,dc=es
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Internal pruebas
+sn: Internal
+userPrincipalName: internal@diputaciolleida.cat
+sAMAccountName: internal
+userPassword: {SSHA}lUP6+W5HwrbDJ9ejOB8XB2xVOWybx0m9
+
+dn: sAMAccountName=nositmunuser,ou=Departamento,dc=diputaciolleida,dc=es
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: NoSitmunUser pruebas
+sn: NoSitmunUser
+userPrincipalName: nositmunuser@diputaciolleida.cat
+sAMAccountName: nositmunuser
+userPassword: {SSHA}wgUvzd+hyzWIrnAwUCFac8ntwZ193uWz

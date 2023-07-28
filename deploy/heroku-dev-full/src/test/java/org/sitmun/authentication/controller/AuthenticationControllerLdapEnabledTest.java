@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({"test", "ldap"})
+@ActiveProfiles({ "test" })
 class AuthenticationControllerLdapEnabledTest {
 
   @Autowired
@@ -33,8 +33,8 @@ class AuthenticationControllerLdapEnabledTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
@@ -47,8 +47,8 @@ class AuthenticationControllerLdapEnabledTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
@@ -61,7 +61,7 @@ class AuthenticationControllerLdapEnabledTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isUnauthorized());
+        .andExpect(status().isUnauthorized());
   }
 
 }

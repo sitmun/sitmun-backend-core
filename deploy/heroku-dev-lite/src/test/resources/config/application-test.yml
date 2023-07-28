@@ -1,5 +1,5 @@
 # =====================================================================================================================
-# Spring Boot configuration for the "dev" profile.
+# Spring Boot configuration for the "test" profile.
 #
 # This configuration overrides the application.yml file.
 #
@@ -56,6 +56,12 @@ spring:
     run-async: false
     sync-legacy: true
     on-startup-update: true
+  ldap:
+    embedded:
+      base-dn: dc=diputaciolleida,dc=es
+      ldif: src/test/resources/test-ldap-server.ldif
+      schema:
+        ldif: src/test/resources/config/test-ldap-schema.ldif
 
 security:
   authentication:
@@ -65,11 +71,11 @@ security:
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
     ldap:
-      host: ldap://localhost:1389
-      base_dn: dc=example,dc=com
-      id_attribute: uid
-      user_ldap: cn=admin
-      password_ldap: admin
+      host: ldap://127.0.1.1:11389
+      base_dn: dc=diputaciolleida,dc=es
+      user_dn_pattern: sAMAccountName={0},ou=Departamento
+      user_ldap:
+      password_ldap:
 
 server:
   port: 8080

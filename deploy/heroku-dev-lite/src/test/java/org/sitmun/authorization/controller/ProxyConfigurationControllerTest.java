@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
@@ -19,9 +20,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({ "test" })
 class ProxyConfigurationControllerTest {
 
   @Autowired
@@ -41,7 +42,7 @@ class ProxyConfigurationControllerTest {
   @Test
   void readConnectionPublicUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(0).type("SQL").typeId(30).method("GET").build();
+        .appId(1).terId(0).type("SQL").typeId(30).method("GET").build();
 
     String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
 
@@ -49,8 +50,8 @@ class ProxyConfigurationControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .header(X_SITMUN_PROXY_KEY, secret)
         .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
   /**
@@ -59,7 +60,7 @@ class ProxyConfigurationControllerTest {
   @Test
   void readConnectionOtherUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(0).type("SQL").typeId(30).method("GET").token(getUserToken()).build();
+        .appId(1).terId(0).type("SQL").typeId(30).method("GET").token(getUserToken()).build();
 
     String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
 
@@ -67,8 +68,8 @@ class ProxyConfigurationControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .header(X_SITMUN_PROXY_KEY, secret)
         .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
   /**
@@ -77,7 +78,7 @@ class ProxyConfigurationControllerTest {
   @Test
   void readServicePublicUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(0).type("GEO").typeId(1).method("GET").build();
+        .appId(1).terId(0).type("GEO").typeId(1).method("GET").build();
 
     String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
 
@@ -85,8 +86,8 @@ class ProxyConfigurationControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .header(X_SITMUN_PROXY_KEY, secret)
         .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
   }
 
   /**
@@ -95,7 +96,7 @@ class ProxyConfigurationControllerTest {
   @Test
   void readServiceOtherUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(0).type("GEO").typeId(1).method("GET").token(getUserToken()).build();
+        .appId(1).terId(0).type("GEO").typeId(1).method("GET").token(getUserToken()).build();
 
     String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
 
@@ -103,7 +104,7 @@ class ProxyConfigurationControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .header(X_SITMUN_PROXY_KEY, secret)
         .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"));
   }
 }

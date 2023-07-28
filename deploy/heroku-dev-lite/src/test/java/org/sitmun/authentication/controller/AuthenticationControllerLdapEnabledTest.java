@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({"test", "ldap"})
+@ActiveProfiles({ "test" })
 class AuthenticationControllerLdapEnabledTest {
 
   @Autowired
@@ -33,22 +33,22 @@ class AuthenticationControllerLdapEnabledTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
   @DisplayName("A user that exists in LDAP and exists in SITMUN, must pass.")
   void successfulLdapLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("user12");
+    login.setUsername("internal");
     login.setPassword("password12");
 
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
@@ -61,7 +61,7 @@ class AuthenticationControllerLdapEnabledTest {
     mvc.perform(post("/api/authenticate")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isUnauthorized());
+        .andExpect(status().isUnauthorized());
   }
 
 }
