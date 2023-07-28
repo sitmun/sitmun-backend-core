@@ -1,5 +1,5 @@
 # =====================================================================================================================
-# Spring Boot configuration for the "dev" profile.
+# Spring Boot configuration for the "test" profile.
 #
 # This configuration overrides the application.yml file.
 #
@@ -64,12 +64,11 @@ security:
       token-validity-in-miliseconds: 36000000
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
-    ldap:
-      host: ldap://localhost:1389
-      base_dn: dc=example,dc=com
-      id_attribute: uid
-      user_ldap: cn=admin
-      password_ldap: admin
+
+test:
+  ldap:
+    ldif: src/test/resources/config/ldap/test-server.ldif
+    schema: src/test/resources/config/ldap/test-schema.ldif
 
 server:
   port: 8080
