@@ -6,6 +6,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import org.sitmun.authorization.service.Profile;
 import org.sitmun.domain.application.background.ApplicationBackground;
+import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
@@ -136,26 +137,7 @@ public interface ProfileMapper {
       .collect(Collectors.toList());
     builder.backgrounds(backgrounds);
 
-    profile.getApplication().getTerritories()
-      .stream().filter(it -> Objects.equals(it.getTerritory().getId(), profile.getTerritory().getId()))
-      .findFirst()
-      .ifPresent(applicationTerritory -> {
-        Envelope extent = applicationTerritory.getInitialExtent();
-        if (extent == null) {
-          extent = applicationTerritory.getTerritory().getExtent();
-        }
-        if (extent != null) {
-          ApplicationDto application = builder.build().getApplication();
-          application.setInitialExtent(new Double[]{
-              extent.getMinX(),
-              extent.getMinY(),
-              extent.getMaxX(),
-              extent.getMaxY()
-            }
-          );
-          builder.application(application);
-        }
-      });
+    computeApplicationExtent(profile, builder);
 
     Set<Tree> trees = profile.getApplication().getTrees();
 
@@ -163,6 +145,30 @@ public interface ProfileMapper {
       builder.trees(trees.stream().map(this::map).collect(Collectors.toList()));
     }
   }
+
+  private static void computeApplicationExtent(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
+    Optional<ApplicationTerritory> applicationTerritory = profile.getApplication().getTerritories().stream().filter(it -> Objects.equals(it.getTerritory().getId(), profile.getTerritory().getId()))
+      .findFirst();
+
+    Envelope extentCandidate = applicationTerritory.map(ApplicationTerritory::getInitialExtent).orElse(null);
+
+    if (extentCandidate == null) {
+      extentCandidate = profile.getTerritory().getExtent();
+    }
+
+    if (extentCandidate != null) {
+      ApplicationDto application = builder.build().getApplication();
+      application.setInitialExtent(new Double[]{
+          extentCandidate.getMinX(),
+          extentCandidate.getMinY(),
+          extentCandidate.getMaxX(),
+          extentCandidate.getMaxY()
+        }
+      );
+      builder.application(application);
+    }
+  }
+
 
   default String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) return null;

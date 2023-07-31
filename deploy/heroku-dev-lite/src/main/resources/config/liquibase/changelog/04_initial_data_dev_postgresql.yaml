@@ -624,6 +624,27 @@ databaseChangeLog:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
         - loadData:
             encoding: UTF-8
+            file: 04_initial_data_dev/STM_APP_TER.csv
+            relativeToChangelogFile: true
+            tableName: STM_APP_TER
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: ATE_ID
+                  type: NUMERIC
+              - column:
+                  name: ATE_APPID
+                  type: NUMERIC
+              - column:
+                  name: ATE_TERID
+                  type: NUMERIC
+              - column:
+                  name: ATE_INIEXT
+                  type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATE_ID', 2);
+        - loadData:
+            encoding: UTF-8
             file: 04_initial_data_dev/STM_AVAIL_GI.csv
             relativeToChangelogFile: true
             tableName: STM_AVAIL_GI

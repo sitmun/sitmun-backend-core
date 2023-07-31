@@ -41,6 +41,22 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get application extent from territory")
+  void applicationExtentFromTerritory() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 2))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.application.initialExtent", hasItems(448046.0, 4603029.0, 458244.0, 4609234.0)));
+  }
+
+  @Test
+  @DisplayName("Get application extent from the link between territory and application")
+  void applicationExtentFromLinkToTerritory() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 3))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.application.initialExtent", hasItems(430250.0, 4612070.0, 469609.0, 4638298.5)));
+  }
+
+  @Test
   @DisplayName("Get layers details")
   void layers() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
@@ -121,4 +137,15 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/1")))
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
   }
+
+  @Test
+  @DisplayName("Get tree details")
+  void itger() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 4))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].title", hasItem("Provincial")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/1")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
+  }
+
 }
