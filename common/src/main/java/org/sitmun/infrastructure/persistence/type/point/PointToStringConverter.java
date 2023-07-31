@@ -21,9 +21,7 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
   public static final Locale defaultLocale = Locale.US;
 
   public MessageFormat formatInstance() {
-    MessageFormat mf = new MessageFormat(FORMAT);
-    mf.setLocale(defaultLocale);
-    return mf;
+    return new MessageFormat(FORMAT, defaultLocale);
   }
 
   public Double extractDouble(Object obj) throws IllegalArgumentException {
