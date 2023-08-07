@@ -12,7 +12,7 @@ info:
     La **API de Configuración y Autorización** expone vía una API Web mecanismos para obtener una configuración 
     derivada del estado actual de los objetos de dominio en función de la identidad y rol del que solicita
     la información. Esta API se ha creado para que los **visores de mapas** y el **proxy** puedan configurarse.
-        
+    
     La **API de Configuración y Autorización** se compone de dos tipos de endpoints:
     - **Configuración y Autorización de Visor de mapas**. La petición pueden autenticarse usando un esquema de 
       *autenticación por portador* 
@@ -43,7 +43,7 @@ info:
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
   contact:
-    name: Comité técnico SITMUN  
+    name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
 
 tags:
@@ -58,7 +58,7 @@ paths:
   /api/config/client/application:
     get:
       tags:
-        -  Configuración y Autorización de Visor de mapas
+        - Configuración y Autorización de Visor de mapas
       summary: |-
         Aplicaciones para un visor de mapas.
       description: |-
@@ -72,7 +72,7 @@ paths:
         que en el dominio de SITMUN se denomina *usuario público*.
       operationId: applicationsList
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: size
           in: query
@@ -356,7 +356,7 @@ paths:
         que en el dominio de SITMUN se denomina *usuario público*.
       operationId: profile
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - name: appId
           in: path
@@ -383,31 +383,31 @@ paths:
                     description: Configuración relacionada con la aplicación.
                     type: object
                     properties:
-                        id:
-                            description: Identificador de la aplicación.
-                            type: integer
-                            format: int32
-                        title:
-                            description: Nombre de la aplicación.
-                            type: string
-                        type:
-                            description: Tipo de la aplicación.
-                            type: string
-                        theme:
-                            description: Tema que usa la aplicación.
-                            type: string
-                        srs:
-                            description: Sistema de coordenadas.
-                            type: string
-                        situation-map:
-                            description: Identificación del grupo que actúa como mapa de situación.
-                            type: string
-                        initialExtent:
-                            description: Extensión inicial del territorio.
-                            type: array
-                            items:
-                              type: number
-                              format: double
+                      id:
+                        description: Identificador de la aplicación.
+                        type: integer
+                        format: int32
+                      title:
+                        description: Nombre de la aplicación.
+                        type: string
+                      type:
+                        description: Tipo de la aplicación.
+                        type: string
+                      theme:
+                        description: Tema que usa la aplicación.
+                        type: string
+                      srs:
+                        description: Sistema de coordenadas.
+                        type: string
+                      situation-map:
+                        description: Identificación del grupo que actúa como mapa de situación.
+                        type: string
+                      initialExtent:
+                        description: Extensión inicial del territorio.
+                        type: array
+                        items:
+                          type: number
+                          format: double
                   backgrounds:
                     description: Grupos que pueden ser usados como fondos.
                     type: array
@@ -435,10 +435,10 @@ paths:
                           description: Título del grupo.
                           type: string
                         layers:
-                            type: array
-                            items:
-                              description: Identificador de la cartografía.
-                              type: string
+                          type: array
+                          items:
+                            description: Identificador de la cartografía.
+                            type: string
                   layers:
                     description: Lista de cartografías.
                     type: array
@@ -557,7 +557,7 @@ paths:
   /api/config/proxy:
     post:
       tags:
-        -  Configuración y Autorización de Proxy
+        - Configuración y Autorización de Proxy
       summary: |-
         Obtiene la configuración para una petición de un cliente realizada 
         a través del proxy.
@@ -566,12 +566,12 @@ paths:
         - GetMap a un OGC WMS.
         - SELECT a una base de datos.
         
-        La petición se autentica usando una 
+        La petición debe autenticarse usando una 
         [API key](https://swagger.io/docs/specification/authentication/api-keys/) enviada mediante
         la cabecera denominada `X-SITMUN-Proxy-Key`.
       operationId: proxyConfig
       security:
-        - proxyAuth: []
+        - proxyAuth: [ ]
       requestBody:
         content:
           application/json:
@@ -628,7 +628,7 @@ components:
           description: Identificador del territorio.
         type:
           type: string
-          enum: [WMS, WFS, WMTS, SQL]
+          enum: [ WMS, WFS, WMTS, SQL ]
           description: Identificador del tipo de servicio.
         typeId:
           type: string
@@ -821,7 +821,7 @@ components:
           description: Descripción del código de error.
         message:
           type: string
-          description:  Mensaje descriptivo del error.
+          description: Mensaje descriptivo del error.
         path:
           type: string
           description: API afectado.
@@ -841,7 +841,7 @@ components:
       type: apiKey
       in: header
       name: X-SITMUN-Proxy-Key
-    bearerAuth: 
+    bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT    
+      bearerFormat: JWT
