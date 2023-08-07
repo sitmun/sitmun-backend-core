@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 servers:
-  - url: http://localhost:8090
+  - url: http://localhost:8080
     description: Servidor local de desarrollo
 
 info:
@@ -26,7 +26,7 @@ info:
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
   version: 0.8.0
   contact:
-    name: Comité técnico SITMUN  
+    name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
 
 tags:
@@ -40,7 +40,7 @@ paths:
       tags:
         - Proxy
       summary: Accede a un servicio remoto o base de datos a través del proxy.
-      description: |- 
+      description: |-
         Las coordenadas que identifican el servicio remoto son:
         
         - `appId` que identifica una aplicación de SITMUN.
@@ -66,48 +66,7 @@ paths:
         - $ref: '#/components/parameters/typeIdParam'
         - $ref: '#/components/parameters/queryParams'
       security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Se devuelve la respuesta del servicio remoto.
-    post:
-      tags:
-        - Proxy
-      summary: Accede a un servicio remoto o base de datos a través del proxy.
-      description: |-
-        Las coordenadas que identifican el servicio remoto son:
-        
-        - `appId` que identifica una aplicación de SITMUN.
-        - `terrId` que identifica un territorio.
-        - `type` que identifica el tipo de servicio. 
-        - `typeId` que identifica el servicio.
-        
-        La petición que recibe aquí el proxy debe ser conforme al protocolo que se utilizaría
-        si se hiciera una petición HTTP GET a un servicio de tipo de servicio soportado por 
-        SITMUN identificado por `type`.
-        
-        La petición pueden autenticarse usando un esquema de *autenticación por portador*
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
-
-      operationId: proxyPost
-      parameters:
-        - $ref: '#/components/parameters/appIdParam'
-        - $ref: '#/components/parameters/terIdParam'
-        - $ref: '#/components/parameters/typeParam'
-        - $ref: '#/components/parameters/typeIdParam'
-        - $ref: '#/components/parameters/queryParams'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              additionalProperties: true
-
-      security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Se devuelve la respuesta del servicio remoto.
@@ -159,6 +118,3 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
-
-
