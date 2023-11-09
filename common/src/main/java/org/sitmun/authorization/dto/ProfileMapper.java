@@ -74,9 +74,6 @@ public interface ProfileMapper {
   default TreeDto map(Tree tree) {
     Set<TreeNode> allNodes = tree.getAllNodes();
 
-    final String[] rootNode = new String[1];
-    allNodes.stream().filter(it -> it.getParent() == null).findFirst().ifPresent(root -> rootNode[0] = "node/" + root.getId());
-
     Map<String, List<TreeNode>> listNodes = new HashMap<>();
     allNodes.forEach(it -> {
       String id = "node/" + it.getId();
@@ -97,6 +94,20 @@ public interface ProfileMapper {
     listNodes.forEach((key, value) -> value.sort(Comparator.comparing(TreeNode::getOrder)));
 
     Map<String, NodeDto> nodes = new HashMap<>();
+
+    final String rootNode = "node/tree/" + tree.getId();
+
+    List<String> rootChildren = allNodes.stream()
+      .filter(it -> it.getParent() == null)
+      .map(it -> "node/" + it.getId())
+      .collect(Collectors.toList());
+
+    NodeDto rootNodeDto = NodeDto.builder()
+      .title(tree.getName())
+      .children(rootChildren)
+      .build();
+
+    nodes.put(rootNode, rootNodeDto);
 
     allNodes.forEach(it -> {
       String id = "node/" + it.getId();
@@ -120,7 +131,7 @@ public interface ProfileMapper {
       .id("tree/" + tree.getId())
       .title(tree.getName())
       .image(tree.getImage())
-      .rootNode(rootNode[0])
+      .rootNode(rootNode)
       .nodes(nodes)
       .build();
   }
@@ -171,7 +182,9 @@ public interface ProfileMapper {
 
 
   default String mapCartographyPermissionToString(CartographyPermission value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     return "group/" + value.getId();
   }
 

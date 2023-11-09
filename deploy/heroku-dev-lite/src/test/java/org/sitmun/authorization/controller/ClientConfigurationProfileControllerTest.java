@@ -134,17 +134,10 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].title", hasItem("Provincial")))
-      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/1")))
-      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
-  }
-
-  @Test
-  @DisplayName("Get tree details")
-  void itger() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 4))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].title", hasItem("Provincial")))
-      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/1")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].rootNode", hasItem("node/tree/1")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]").isArray())
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", hasSize(2)))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", containsInAnyOrder("node/1", "node/7")))
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
   }
 
