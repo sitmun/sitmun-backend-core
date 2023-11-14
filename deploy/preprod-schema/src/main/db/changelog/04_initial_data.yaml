@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: sitmun
+      context: prod
+      dbms: oracle,h2
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data/STM_USER.csv
+            relativeToChangelogFile: true
+            tableName: STM_USER
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: USE_ID
+                  type: NUMERIC
+              - column:
+                  name: USE_USER
+                  type: STRING
+              - column:
+                  name: USE_PWD
+                  type: STRING
+              - column:
+                  name: USE_NAME
+                  type: STRING
+              - column:
+                  name: USE_SURNAME
+                  type: STRING
+              - column:
+                  name: USE_ADM
+                  type: BOOLEAN
+              - column:
+                  name: USE_BLOCKED
+                  type: BOOLEAN
+              - column:
+                  name: USE_GENERIC
+                  type: BOOLEAN
+              - column:
+                  name: USE_CREATED
+                  type: DATETIME
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 1);
