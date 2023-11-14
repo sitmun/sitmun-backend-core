@@ -90,7 +90,8 @@ public class TaskType {
   /**
    * Task type specification
    */
-  @Column(name = "TTY_SPEC", columnDefinition = "text")
+  @Column(name = "TTY_SPEC")
+  @Lob
   @Convert(converter = HashMapConverter.class)
   private Map<String, Object> specification;
 

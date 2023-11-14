@@ -80,7 +80,8 @@ public class Task {
   /**
    * Task properties.
    */
-  @Column(name = "TAS_PARAMS", columnDefinition = "text")
+  @Column(name = "TAS_PARAMS")
+  @Lob
   @Convert(converter = HashMapConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Map<String, Object> properties;

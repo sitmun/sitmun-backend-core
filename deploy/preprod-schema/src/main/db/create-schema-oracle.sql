@@ -1,6 +1,6 @@
 DROP USER c##stm3 CASCADE;
 CREATE USER c##stm3
-  IDENTIFIED BY smt3
+  IDENTIFIED BY stm3
   DEFAULT TABLESPACE users
   QUOTA 20M on users;
 GRANT connect TO c##stm3;

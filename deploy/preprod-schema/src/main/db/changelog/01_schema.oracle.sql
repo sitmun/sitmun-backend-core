@@ -529,6 +529,7 @@ create table stm_tsk_ui
   tui_name    varchar2(50 char),
   tui_order   number(10, 0),
   tui_tooltip varchar2(100 char),
+  tui_type    varchar(30),
   primary key (tui_id)
 );
 create table stm_user
