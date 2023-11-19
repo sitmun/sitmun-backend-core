@@ -7,32 +7,20 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
-logging:
-  level:
-    ROOT: INFO
-    org.sitmun.plugin.core: INFO
-
-management:
-  metrics:
-    enable:
-      all: false
-      sitmun: true
-  endpoints:
-    web:
-      base-path: /api/dashboard
-
+server:
+  port: 8080 # Configure the port used by the application
 spring:
-  jackson:
-    serialization:
-      indent-output: true
   datasource:
+    url: jdbc:oracle:thin:@//localhost:32768/FREE # Configure the connection URL
+    username: c##stm3 # Configure the username
+    password: stm3 # Configure the password
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:oracle:thin:@//localhost:32768/FREE
-    username: c##stm3
-    password: stm3
     hikari:
       poolName: Hikari
       auto-commit: false
+  jackson:
+    serialization:
+      indent-output: true
   h2:
     console:
       enabled: false
@@ -58,10 +46,19 @@ security:
       user_ldap: cn=admin
       password_ldap: admin
 
-server:
-  port: 8080
+logging:
+  level:
+    ROOT: INFO
+    org.sitmun.plugin.core: INFO
 
-
+management:
+  metrics:
+    enable:
+      all: false
+      sitmun: true
+  endpoints:
+    web:
+      base-path: /api/dashboard
 
 # ===================================================================
 # SITMUN specific properties
