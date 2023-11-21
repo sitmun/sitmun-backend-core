@@ -43,7 +43,7 @@ dependencies {
 liquibase {
   activities {
     main {
-      changelogFile 'src/main/db/main.xml'
+      changelogFile 'deploy/preprod/src/main/db/main.xml'
       url project.ext.mainUrl
       username project.ext.mainUsername
       password project.ext.mainPassword

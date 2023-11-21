@@ -24,11 +24,20 @@ public interface DashboardMetricsContributor extends Runnable {
     }
   }
 
-  default MultiGauge.Row<Number> getStringNumberRow(Object[] entry) {
-    if (entry != null && entry.length == 2 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
-      String key = (String) entry[0];
-      Number value = (Number) entry[1];
-      return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, key), value);
+  /**
+   * This method is used to convert the result of a query to a MultiGauge.Row&lt;Number> object.
+   * The expected format of the query result is an array of 3 elements:
+   * <ul>
+   *  <li>the first element is the key of the row, that must be unique.</li>
+   *  <li>the second element is the label of the row, that must be unique.</li>
+   *  <li>the third element is the value of the row.</li>
+   * </ul>
+   */
+  default MultiGauge.Row<Number> processIdLabelValue(Object[] entry) {
+    if (entry != null && entry.length == 3 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
+      String label = (String) entry[1];
+      Number value = (Number) entry[2];
+      return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, label), value);
     } else {
       return null;
     }

@@ -31,7 +31,7 @@ public class UserPerApplicationSinceDate implements DashboardMetricsContributor 
       gauge.register(
         StreamSupport
           .stream(userRepository.usersPerApplicationSinceDate(Date.valueOf(LocalDate.now().minusDays(definition.getSize()))).spliterator(), false)
-          .map(this::getStringNumberRow)
+          .map(this::processIdLabelValue)
           .filter(Objects::nonNull)
           .collect(toList())
       );
