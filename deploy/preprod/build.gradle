@@ -1,7 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project deploy heroku-dev-lite
+// Project deploy preprod
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+buildscript {
+  dependencies {
+    classpath 'com.oracle.database.jdbc:ojdbc10:19.22.0.0'
+  }
+}
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
@@ -15,16 +20,14 @@ plugins {
   id 'com.google.cloud.tools.jib'
 }
 
+configurations {
+  sqlRuntime
+}
+
 dependencyManagement {
   imports {
     mavenBom SpringBootPlugin.BOM_COORDINATES
   }
-}
-
-ext {
-  mainUrl = 'jdbc:oracle:thin:@//localhost:32768/FREE'
-  mainUsername = 'c##stm3'
-  mainPassword = 'stm3'
 }
 
 dependencies {
@@ -44,9 +47,9 @@ liquibase {
   activities {
     main {
       changelogFile 'deploy/preprod/src/main/db/main.xml'
-      url project.ext.mainUrl
-      username project.ext.mainUsername
-      password project.ext.mainPassword
+      url project.ext.database_url
+      username project.ext.database_sitmun_user
+      password project.ext.database_sitmun_password
       logLevel 'info'
     }
   }
@@ -74,4 +77,53 @@ springBoot {
 
 bootJar {
   archiveFileName = "sitmun-backend-${archiveVersion.get()}.jar"
+}
+
+tasks.register('dropSitmunUser') {
+  dependsOn 'prepareSql'
+  group = 'sitmun'
+  description = 'Drop the SITMUN User'
+  doLast {
+    def user = project.ext.database_admin_user
+    def password = project.ext.database_admin_password
+    def type = project.ext.database_type
+    def script = layout.buildDirectory.file("db/drop-user-${type}.sql").get()
+    sql(script, user, password)
+  }
+}
+
+tasks.register('createSitmunUser') {
+  dependsOn 'prepareSql'
+  group = 'sitmun'
+  description = 'Create the SITMUN User'
+  doLast {
+    def user = project.ext.database_admin_user
+    def password = project.ext.database_admin_password
+    def type = project.ext.database_type
+    def script = layout.buildDirectory.file("db/create-user-${type}.sql").get()
+    sql(script, user, password)
+  }
+}
+
+tasks.register('prepareSql', Copy) {
+  group = 'sitmun'
+  description = 'Prepare the sql files'
+  from layout.projectDirectory.dir('src/main/db/templates')
+  expand(
+    user: project.ext.database_sitmun_user,
+    password: project.ext.database_sitmun_password,
+    tablespace: project.ext.database_sitmun_tablespace
+  )
+  into layout.buildDirectory.dir('db')
+}
+
+def sql(scriptName, user, password) {
+  ant.sql(
+          classpath:  buildscript.configurations.classpath.asPath,
+          driver: project.ext.database_driver,
+          url: project.ext.database_url,
+          userid: user,
+          password: password,
+          src: scriptName
+  )
 }
