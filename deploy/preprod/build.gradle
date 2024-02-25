@@ -51,6 +51,9 @@ liquibase {
       username project.ext.database_sitmun_user
       password project.ext.database_sitmun_password
       logLevel 'info'
+      changeLogParameters([
+        index_tablespace: project.ext.database_sitmun_index_tablespace
+      ])
     }
   }
 }
