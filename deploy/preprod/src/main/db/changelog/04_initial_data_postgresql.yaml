@@ -2,9 +2,49 @@ databaseChangeLog:
   - changeSet:
       id: 4
       author: sitmun
-      context: prod
+      context: dev
       dbms: postgresql
       changes:
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data/STM_TER_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_TER_TYP
+            usePreparedStatements: false
+            quotchar: '"'
+            columns:
+              - column:
+                  name: TET_ID
+                  type: NUMERIC
+              - column:
+                  name: TET_NAME
+                  type: STRING
+              - column:
+                  name: TET_OFFICIAL
+                  type: BOOLEAN
+              - column:
+                  name: TET_TOP
+                  type: BOOLEAN
+              - column:
+                  name: TET_BOTTOM
+                  type: BOOLEAN
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TET_ID', 8);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data/STM_GTER_TYP.csv
+            relativeToChangelogFile: true
+            tableName: STM_GTER_TYP
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: GTT_ID
+                  type: NUMERIC
+              - column:
+                  name: GTT_NAME
+                  type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTT_ID', 8);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data/STM_USER.csv
