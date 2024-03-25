@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,6 +43,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1)
         .with(user("internal"))
       )
+      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content", hasSize(3)))
       .andExpect(jsonPath("$.size", is(pageSize)))
@@ -51,6 +53,20 @@ class ClientConfigurationApplicationTerritoryControllerTest {
         "Provincia",
         "Municipio",
         "Otro"
+      )));
+  }
+
+  @Test
+  @DisplayName("Territories in an application are sorted in alphabetic order")
+  void territoriesAreInAlphabeticOrder() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1)
+        .with(user("internal"))
+      )
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.content[*].name", containsInRelativeOrder(
+        "Municipio",
+        "Otro",
+        "Provincia"
       )));
   }
 
@@ -65,7 +81,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
       .andExpect(jsonPath("$.totalPages", is(3)))
-      .andExpect(jsonPath("$.content[*].name", hasItem("Municipio")));
+      .andExpect(jsonPath("$.content[*].name", hasItem("Otro")));
   }
 
   @Test

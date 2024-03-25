@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.sitmun.authorization.service.ProfileUtils.isAppPartOfUserConfiguration;
@@ -40,12 +41,19 @@ public class ProfileService {
   public Page<Territory> getApplicationTerritories(String username, Integer appId, Pageable pageable) {
     return userRepository.findByUsername(username)
       .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
-      .map(user -> {
-        List<Territory> territories = getApplicationTerritories(user, appId);
-        final int start = Math.min((int) pageable.getOffset(), territories.size());
-        final int end = Math.min((start + pageable.getPageSize()), territories.size());
-        return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
-      }).orElseGet(() -> new PageImpl<>(Collections.emptyList(), pageable, 0));
+      .map(user -> getApplicationTerritories(user, appId))
+      .map(territories -> extractPageFromTerritories(territories, pageable))
+      .orElseGet(emptyPageSupplier(pageable));
+  }
+
+  private static Supplier<PageImpl<Territory>> emptyPageSupplier(Pageable pageable) {
+    return () -> new PageImpl<>(Collections.emptyList(), pageable, 0);
+  }
+
+  private static PageImpl<Territory> extractPageFromTerritories(List<Territory> territories, Pageable pageable) {
+    final int start = Math.min((int) pageable.getOffset(), territories.size());
+    final int end = Math.min((start + pageable.getPageSize()), territories.size());
+    return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
   }
 
   private List<Territory> getApplicationTerritories(User user, Integer appId) {
@@ -53,6 +61,7 @@ public class ProfileService {
       .filter(uc -> isAppPartOfUserConfiguration(appId, uc))
       .map(UserConfiguration::getTerritory)
       .distinct()
+      .sorted(Comparator.comparing(Territory::getName))
       .collect(Collectors.toList());
   }
 
@@ -72,7 +81,7 @@ public class ProfileService {
         final int start = Math.min((int) pageable.getOffset(), territories.size());
         final int end = Math.min((start + pageable.getPageSize()), territories.size());
         return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
-      }).orElseGet(() -> new PageImpl<>(Collections.emptyList(), pageable, 0));
+      }).orElseGet(emptyPageSupplier(pageable));
   }
 
   private List<Territory> getTerritories(User user) {
