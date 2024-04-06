@@ -42,7 +42,10 @@ public class ProfileService {
     return userRepository.findByUsername(username)
       .filter(user -> Boolean.FALSE.equals(user.getBlocked()))
       .map(user -> getApplicationTerritories(user, appId))
-      .map(territories -> extractPageFromTerritories(territories, pageable))
+      .map(territories -> {
+        territories.sort(Comparator.comparing(Territory::getName));
+        return extractPageFromTerritories(territories, pageable);
+        })
       .orElseGet(emptyPageSupplier(pageable));
   }
 
@@ -50,12 +53,25 @@ public class ProfileService {
     return () -> new PageImpl<>(Collections.emptyList(), pageable, 0);
   }
 
+  /**
+   * Extract a page from a list of territories sorted by name.
+   * @param territories the list of territories sorted by name
+   * @param pageable the pagination information
+   * @return a page of territories
+   */
   private static PageImpl<Territory> extractPageFromTerritories(List<Territory> territories, Pageable pageable) {
     final int start = Math.min((int) pageable.getOffset(), territories.size());
     final int end = Math.min((start + pageable.getPageSize()), territories.size());
     return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
   }
 
+  /**
+   * Get the list of territories for the user in a given application.
+   *
+   * @param user  the user
+   * @param appId the identifier of the application
+   * @return a list of territories sorted by name
+   */
   private List<Territory> getApplicationTerritories(User user, Integer appId) {
     return userConfigurationRepository.findByUser(user).stream()
       .filter(uc -> isAppPartOfUserConfiguration(appId, uc))
@@ -65,13 +81,12 @@ public class ProfileService {
       .collect(Collectors.toList());
   }
 
-
   /**
    * Get the list of territories for the user.
    *
    * @param username the username
    * @param pageable pagination information
-   * @return a page of territories
+   * @return a page of territories sorted by name
    */
   public Page<Territory> getTerritories(String username, Pageable pageable) {
     return userRepository.findByUsername(username)
@@ -88,6 +103,7 @@ public class ProfileService {
     return userConfigurationRepository.findByUser(user).stream()
       .map(UserConfiguration::getTerritory)
       .distinct()
+      .sorted(Comparator.comparing(Territory::getName))
       .collect(Collectors.toList());
   }
 
