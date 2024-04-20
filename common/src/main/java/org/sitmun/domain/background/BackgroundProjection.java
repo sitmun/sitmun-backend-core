@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * Projections for REST views of a background.
  */
-@Projection(name = "view", types = {Background.class})
+@Projection(name = "view", types = Background.class)
 public interface BackgroundProjection {
 
   @Value("#{target.id}")

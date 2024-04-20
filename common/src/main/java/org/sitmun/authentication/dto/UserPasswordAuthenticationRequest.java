@@ -1,6 +1,8 @@
 package org.sitmun.authentication.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -8,6 +10,8 @@ import javax.validation.constraints.Size;
 /**
  * DTO object for storing a user's credentials.
  */
+@Setter
+@Getter
 public class UserPasswordAuthenticationRequest {
 
   @Schema(description = "User identifier. It cannot be empty", example = "some_user")
@@ -19,24 +23,8 @@ public class UserPasswordAuthenticationRequest {
   @NotNull
   private String password;
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
   @Override
   public String toString() {
-    return "LoginDTO{username='" + username + "}";
+    return "LoginDTO{username='" + username + '}';
   }
 }

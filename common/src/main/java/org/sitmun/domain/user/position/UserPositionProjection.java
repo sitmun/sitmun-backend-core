@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Projections for REST views of user position.
  */
-@Projection(name = "view", types = {UserPosition.class})
+@Projection(name = "view", types = UserPosition.class)
 public interface UserPositionProjection {
 
   @Value("#{target.id}")

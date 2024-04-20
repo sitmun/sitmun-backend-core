@@ -14,6 +14,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Service parameter.
@@ -77,16 +78,18 @@ public class ServiceParameter {
   private Service service;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof ServiceParameter))
-      return false;
+    if (!(obj instanceof ServiceParameter)) {
+        return false;
+    }
 
-    ServiceParameter other = (ServiceParameter) o;
+    ServiceParameter other = (ServiceParameter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

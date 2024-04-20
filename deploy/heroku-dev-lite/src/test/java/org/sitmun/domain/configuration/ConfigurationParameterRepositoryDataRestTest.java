@@ -1,5 +1,6 @@
 package org.sitmun.domain.configuration;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -16,12 +17,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("ConfigurationParameter Repository Data REST test")
 class ConfigurationParameterRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("GET: Retrieve all ConfigurationParameters")
   void retrieveAll() throws Exception {
     mvc.perform(get(URIConstants.CONFIGURATION_PARAMETERS_URI)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))

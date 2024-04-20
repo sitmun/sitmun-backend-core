@@ -12,14 +12,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Grants availability of a Geographic Information in a Territory.
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_AVAIL_GI", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"})})
+@Table(name = "STM_AVAIL_GI", uniqueConstraints = @UniqueConstraint(name = "STM_DCA_UK", columnNames = {"AGI_TERID", "AGI_GIID"}))
 @Builder
 @Getter
 @Setter
@@ -76,16 +76,18 @@ public class CartographyAvailability {
   private Cartography cartography;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographyAvailability))
-      return false;
+    if (!(obj instanceof CartographyAvailability)) {
+        return false;
+    }
 
-    CartographyAvailability other = (CartographyAvailability) o;
+    CartographyAvailability other = (CartographyAvailability) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Geographic Information parameter.
@@ -86,16 +87,18 @@ public class CartographyParameter {
   private Integer order;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographyParameter))
-      return false;
+    if (!(obj instanceof CartographyParameter)) {
+        return false;
+    }
 
-    CartographyParameter other = (CartographyParameter) o;
+    CartographyParameter other = (CartographyParameter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

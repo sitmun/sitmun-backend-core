@@ -5,7 +5,7 @@ import org.springframework.data.rest.core.config.Projection;
 
 import java.util.Date;
 
-@Projection(name = "view", types = {TaskAvailability.class})
+@Projection(name = "view", types = TaskAvailability.class)
 public interface TaskAvailabilityProjection {
 
   @Value("#{target.id}")

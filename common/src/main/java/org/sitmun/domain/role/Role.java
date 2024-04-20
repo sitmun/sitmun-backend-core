@@ -14,14 +14,14 @@ import org.sitmun.domain.user.configuration.UserConfiguration;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * Role.
  */
 @Entity
-@Table(name = "STM_ROLE", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = {"ROL_NAME"})})
+@Table(name = "STM_ROLE", uniqueConstraints = @UniqueConstraint(name = "STM_ROL_NOM_UK", columnNames = "ROL_NAME"))
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -129,16 +129,18 @@ public class Role {
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Role))
-      return false;
+    if (!(obj instanceof Role)) {
+        return false;
+    }
 
-    Role other = (Role) o;
+    Role other = (Role) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

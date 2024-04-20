@@ -12,14 +12,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Availability of Tasks in a Territory.
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_AVAIL_TSK", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"ATS_TERID", "ATS_TASKID"})})
+@Table(name = "STM_AVAIL_TSK", uniqueConstraints = @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"ATS_TERID", "ATS_TASKID"}))
 @Builder
 @Getter
 @Setter
@@ -69,16 +69,18 @@ public class TaskAvailability {
   private Task task;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TaskAvailability))
-      return false;
+    if (!(obj instanceof TaskAvailability)) {
+        return false;
+    }
 
-    TaskAvailability other = (TaskAvailability) o;
+    TaskAvailability other = (TaskAvailability) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

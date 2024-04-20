@@ -5,13 +5,13 @@ import org.sitmun.domain.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 /**
  * Available languages.
  */
 @Entity
-@Table(name = "STM_LANGUAGE",
-  uniqueConstraints = {@UniqueConstraint(columnNames = {"LAN_SHORTNAME"})})
+@Table(name = "STM_LANGUAGE", uniqueConstraints = @UniqueConstraint(columnNames = "LAN_SHORTNAME"))
 @Builder
 @Getter
 @Setter
@@ -51,16 +51,18 @@ public class Language {
   private String name;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Language))
-      return false;
+    if (!(obj instanceof Language)) {
+        return false;
+    }
 
-    Language other = (Language) o;
+    Language other = (Language) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

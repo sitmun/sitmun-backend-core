@@ -31,7 +31,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
   public DomainExceptionHandler(MessageSource messageSource) {
     Assert.notNull(messageSource, "MessageSource must not be null!");
-    this.messageSourceAccessor = new MessageSourceAccessor(messageSource);
+    messageSourceAccessor = new MessageSourceAccessor(messageSource);
   }
 
   /**
@@ -62,14 +62,14 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
   @Override
   @NonNull
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
-    HttpMessageNotReadableException exception, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
+    HttpMessageNotReadableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
     DomainExceptionResponse response = DomainExceptionResponse.builder()
       .error(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
-      .message(exception.getLocalizedMessage())
+      .message(ex.getLocalizedMessage())
       .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
       .timestamp(LocalDateTime.now(ZoneOffset.UTC))
       .path(((ServletWebRequest) request).getRequest().getRequestURI())
       .build();
-    return handleExceptionInternal(exception, response, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
+    return handleExceptionInternal(ex, response, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
   }
 }

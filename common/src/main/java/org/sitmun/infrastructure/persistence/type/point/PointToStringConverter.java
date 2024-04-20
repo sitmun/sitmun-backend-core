@@ -16,7 +16,7 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
 
   public static final String PRECISION = "######";
 
-  public static final String FORMAT = "{0,number,#." + PRECISION + "} {1,number,#." + PRECISION + "}";
+  public static final String FORMAT = "{0,number,#." + PRECISION + "} {1,number,#." + PRECISION + '}';
 
   public static final Locale defaultLocale = Locale.US;
 
@@ -56,7 +56,7 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
           .y(extractDouble(values[1]))
           .build();
       } catch (Exception e) {
-        log.error("[" + dbData + "] cannot be parsed to Point", e);
+        log.error('[' + dbData + "] cannot be parsed to Point", e);
         return null;
       }
     }

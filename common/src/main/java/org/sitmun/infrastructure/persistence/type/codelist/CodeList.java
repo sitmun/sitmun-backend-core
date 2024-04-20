@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
-@Constraint(validatedBy = {CodeListValidator.class})
-@Target({FIELD})
+@Constraint(validatedBy = CodeListValidator.class)
+@Target(FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CodeList {
 

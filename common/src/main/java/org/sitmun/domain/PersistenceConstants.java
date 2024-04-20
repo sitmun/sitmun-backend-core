@@ -3,7 +3,7 @@ package org.sitmun.domain;
 /**
  * Constants and definitions.
  */
-public class PersistenceConstants {
+final public class PersistenceConstants {
 
   /**
    * Identifier for BCP 47 Language Tag

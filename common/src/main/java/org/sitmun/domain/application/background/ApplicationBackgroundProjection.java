@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.config.Projection;
 /**
  * Projections for REST views of an application background.
  */
-@Projection(name = "view", types = {ApplicationBackground.class})
+@Projection(name = "view", types = ApplicationBackground.class)
 public interface ApplicationBackgroundProjection {
 
   @Value("#{target.id}")

@@ -8,13 +8,13 @@ import org.sitmun.domain.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 /**
  * Type of territorial entities.
  */
 @Entity
-@Table(name = "STM_TER_TYP", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_TET_NOM_UK", columnNames = {"TET_NAME"})})
+@Table(name = "STM_TER_TYP", uniqueConstraints = @UniqueConstraint(name = "STM_TET_NOM_UK", columnNames = "TET_NAME"))
 @Builder
 @Getter
 @Setter
@@ -73,16 +73,18 @@ public class TerritoryType {
   private Boolean bottomType = false;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TerritoryType))
-      return false;
+    if (!(obj instanceof TerritoryType)) {
+        return false;
+    }
 
-    TerritoryType other = (TerritoryType) o;
+    TerritoryType other = (TerritoryType) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

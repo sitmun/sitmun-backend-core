@@ -1,7 +1,9 @@
 package org.sitmun.domain.application;
 
+import lombok.extern.java.Log;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.background.ApplicationBackgroundRepository;
@@ -34,6 +36,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -50,6 +53,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Log
+@DisplayName("Application Repository Data REST test")
 class ApplicationResourceTest {
 
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
@@ -62,7 +67,6 @@ class ApplicationResourceTest {
   private static final String PUBLIC_SITUATION_MAP_NAME = "Public Situation Map Name";
   private static final String PUBLIC_CARTOGRAPHY_NAME = "Public Cartography Name";
   private static final String PUBLIC_TREE_NODE_NAME = "Tree Node Name";
-  private static final String TREE_NODE_URI = "http://localhost/api/tree-nodes";
   private static final String PUBLIC_SERVICE_NAME = "Public Service Name";
   @Autowired
   ApplicationRepository applicationRepository;
@@ -92,7 +96,6 @@ class ApplicationResourceTest {
   @Autowired
   private MockMvc mvc;
 
-  private Integer appId;
   private Integer backAppId;
   private ArrayList<Tree> trees;
   private Set<Service> services;
@@ -131,7 +134,7 @@ class ApplicationResourceTest {
       Tree publicTree = new Tree();
       publicTree.setName(PUBLIC_TREE_NAME);
       trees.add(publicTree);
-      this.treeRepository.saveAll(trees);
+      treeRepository.saveAll(trees);
 
       publicTree.setAvailableRoles(availableRoles);
       treeRepository.save(publicTree);
@@ -164,7 +167,7 @@ class ApplicationResourceTest {
 
       cartographies = new HashSet<>();
       cartographies.add(publicCartography);
-      this.cartographyRepository.saveAll(cartographies);
+      cartographyRepository.saveAll(cartographies);
       publicCartography = cartographies.iterator().next();
 
       //Cartography availabilities
@@ -174,7 +177,7 @@ class ApplicationResourceTest {
 
       cartographyAvailabilities = new HashSet<>();
       cartographyAvailabilities.add(publicCartographyAvailability);
-      this.cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
+      cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
       // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
       //Tree nodes
@@ -184,7 +187,7 @@ class ApplicationResourceTest {
       publicTreeNode.setCartography(publicCartography);
       publicTreeNode.setTree(publicTree);
       treeNodes.add(publicTreeNode);
-      this.treeNodeRepository.saveAll(treeNodes);
+      treeNodeRepository.saveAll(treeNodes);
       // publicTreeNode = treeNodes.iterator().next();
 
       //Cartography group
@@ -216,12 +219,12 @@ class ApplicationResourceTest {
         .type("I")
         .jspTemplate("")
         .build();
-      SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy HH:mm:ss a");
-      String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
+      SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM d, yyyy HH:mm:ss a");
       try {
+        String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
         application.setCreatedDate(formatter.parse(dateInString));
-      } catch (Exception e) {
-        e.printStackTrace();
+      } catch (ParseException e) {
+        log.warning("Error parsing date:" + e.getMessage());
       }
       applications.add(application);
 
@@ -251,14 +254,12 @@ class ApplicationResourceTest {
       publicApplication.getTrees().addAll(trees);
       applicationRepository.save(publicApplication);
 
-      appId = applications.get(0).getId();
-
       //application backgrounds
-      Set<ApplicationBackground> applicationBackgrounds = new HashSet<>();
       ApplicationBackground publicApplicationBackground = new ApplicationBackground();
       publicApplicationBackground.setBackground(publicBackground);
       publicApplicationBackground.setApplication(publicApplication);
       publicApplicationBackground.setOrder(1);
+      Set<ApplicationBackground> applicationBackgrounds = new HashSet<>();
       applicationBackgrounds.add(publicApplicationBackground);
       applicationBackgroundRepository.saveAll(applicationBackgrounds);
 
@@ -303,14 +304,16 @@ class ApplicationResourceTest {
   }
 
   @Test
+  @DisplayName("GET: information about the backgrounds of an application")
   void getInformationAboutBackgrounds() throws Exception {
-    mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + "/" + backAppId)
+    mvc.perform(get(URIConstants.APPLICATION_BACKGROUNDS_URI + '/' + backAppId)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.order").value(1));
   }
 
   @Test
+  @DisplayName("GET: information about the layers of an application")
   void getServiceLayersAsPublic() throws Exception {
     // TODO
     // ok is expected
@@ -320,12 +323,13 @@ class ApplicationResourceTest {
   }
 
   @Test
-  void getApplicationsAsSitumunAdmin() throws Exception {
+  @DisplayName("GET: information as administrator")
+  void getApplicationsAsSitmunAdmin() throws Exception {
     // ok is expected
     mvc.perform(get(URIConstants.APPLICATIONS_URI)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.applications", hasSize(36)));
+      .andExpect(jsonPath("$._embedded.applications", hasSize(7)));
   }
 
 }

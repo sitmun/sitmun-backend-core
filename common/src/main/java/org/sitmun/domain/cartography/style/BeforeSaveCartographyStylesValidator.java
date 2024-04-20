@@ -15,8 +15,8 @@ public class BeforeSaveCartographyStylesValidator implements Validator {
   }
 
   @Override
-  public boolean supports(@NonNull Class<?> clazz) {
-    return CartographyStyle.class.equals(clazz);
+  public boolean supports(@NonNull Class<?> aClass) {
+    return CartographyStyle.class.equals(aClass);
   }
 
   @Override

@@ -22,7 +22,7 @@ public class LdapUserAuthoritiesPopulator implements LdapAuthoritiesPopulator {
   private final UserDetailsService userDetailsService;
 
   @Override
-  public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations userData,
+  public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations dirContextOperations,
                                                                       String username) {
     Collection<? extends GrantedAuthority> authorities = new HashSet<>();
     try {

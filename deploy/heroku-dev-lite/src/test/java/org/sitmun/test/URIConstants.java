@@ -8,7 +8,9 @@ public class URIConstants {
 
   public static final String APPLICATION_URI = APPLICATIONS_URI + "/{0}";
 
-  public static final String APPLICATION_PARAMETERS_URI_FILTERED = APPLICATION_URI + "/parameters?{1}={2}";
+  public static final String APPLICATION_PARAMETERS_URI = APPLICATION_URI + "/parameters";
+
+  public static final String APPLICATION_PARAMETERS_URI_FILTERED = APPLICATION_PARAMETERS_URI + "?{1}={2}";
 
   public static final String APPLICATION_PROJECTION_VIEW = APPLICATION_URI + "?projection=view";
 

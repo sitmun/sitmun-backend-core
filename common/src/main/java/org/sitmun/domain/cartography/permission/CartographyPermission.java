@@ -16,6 +16,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -114,16 +115,18 @@ public class CartographyPermission {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographyPermission))
-      return false;
+    if (!(obj instanceof CartographyPermission)) {
+        return false;
+    }
 
-    CartographyPermission other = (CartographyPermission) o;
+    CartographyPermission other = (CartographyPermission) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -16,15 +16,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * User role in a territory.
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_USR_CONF", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
-    "UCO_ROLEM"})})
+@Table(name = "STM_USR_CONF", uniqueConstraints = @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
+        "UCO_ROLEM"}))
 @Builder
 @Getter
 @Setter
@@ -95,16 +95,18 @@ public class UserConfiguration {
   private Date createdDate;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof UserConfiguration))
-      return false;
+    if (!(obj instanceof UserConfiguration)) {
+        return false;
+    }
 
-    UserConfiguration other = (UserConfiguration) o;
+    UserConfiguration other = (UserConfiguration) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

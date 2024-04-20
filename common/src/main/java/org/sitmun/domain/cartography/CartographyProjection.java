@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Projections for REST views of a cartography.
  */
-@Projection(name = "view", types = {Cartography.class})
+@Projection(name = "view", types = Cartography.class)
 public interface CartographyProjection {
 
   @Value("#{target.id}")

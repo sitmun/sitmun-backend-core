@@ -30,7 +30,8 @@ public class FeatureTypeExtractorController {
    * @return 200 if a document is found; client should check this document or 400 if a document cannot be retrieved or the method is not found
    */
   @GetMapping("/helpers/feature-type")
-  public @ResponseBody ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
+  @ResponseBody
+  public ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<FeatureTypeExtractor> iterator = extractors.iterator();
     ExtractedMetadata featureType = ExtractedMetadata.builder().success(false).reason("No available extractor").build();
     while (iterator.hasNext()) {

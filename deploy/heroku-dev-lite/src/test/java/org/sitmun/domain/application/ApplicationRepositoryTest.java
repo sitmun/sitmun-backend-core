@@ -4,6 +4,7 @@ import org.assertj.core.api.Assumptions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
@@ -23,6 +24,8 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -30,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
+@DisplayName("Application Repository JPA test")
 class ApplicationRepositoryTest {
 
   @Autowired
@@ -65,18 +69,17 @@ class ApplicationRepositoryTest {
       .build();
     application.getAvailableRoles().add(rol);
 
-    CartographyPermission backgroundMap;
-    backgroundMap = CartographyPermission.builder()
-      .name("Background map")
-      .build();
-    cartographyPermissionRepository.save(backgroundMap);
+      CartographyPermission backgroundMap = CartographyPermission.builder()
+              .name("Background map")
+              .build();
+      cartographyPermissionRepository.save(backgroundMap);
 
     Background background = new Background();
     background.setActive(true);
     background.setDescription(null);
     background.setName("fondo");
     background.setCartographyGroup(backgroundMap);
-    background.setCreatedDate(new Date());
+    background.setCreatedDate(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
     backgroundRepository.save(background);
 
     ApplicationBackground applicationBackground = new ApplicationBackground();
@@ -94,6 +97,7 @@ class ApplicationRepositoryTest {
   }
 
   @Test
+  @DisplayName("Create an application")
   void saveApplication() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
@@ -101,6 +105,7 @@ class ApplicationRepositoryTest {
   }
 
   @Test
+  @DisplayName("Find an application by id")
   void findOneApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
@@ -116,6 +121,7 @@ class ApplicationRepositoryTest {
   }
 
   @Test
+  @DisplayName("Delete an application by id")
   void deleteApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);

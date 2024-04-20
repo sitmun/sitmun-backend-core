@@ -1,6 +1,6 @@
 package org.sitmun.domain;
 
-public class CodeListsConstants {
+final public class CodeListsConstants {
 
   public static final String APPLICATION_TYPE = "application.type";
   public static final String APPLICATION_PARAMETER_TYPE = "applicationParameter.type";

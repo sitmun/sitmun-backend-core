@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import static java.util.Collections.emptyList;
 
 @Configuration
-@Profile({"openapi"})
+@Profile("openapi")
 public class OpenApiConfigurer {
 
   private final String moduleName;

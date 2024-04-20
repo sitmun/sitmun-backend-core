@@ -13,6 +13,7 @@ import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
@@ -96,21 +97,25 @@ public class TaskType {
   private Map<String, Object> specification;
 
   public Boolean getFolder() {
-    if (children != null) return !children.isEmpty();
+    if (children != null) {
+        return !children.isEmpty();
+    }
     return false;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TaskType))
-      return false;
+    if (!(obj instanceof TaskType)) {
+        return false;
+    }
 
-    TaskType other = (TaskType) o;
+    TaskType other = (TaskType) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

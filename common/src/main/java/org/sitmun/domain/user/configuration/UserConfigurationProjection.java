@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Projections for REST views of user configuration.
  */
-@Projection(name = "view", types = {UserConfiguration.class})
+@Projection(name = "view", types = UserConfiguration.class)
 public interface UserConfigurationProjection {
 
   /**

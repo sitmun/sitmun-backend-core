@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Comment or user's suggestion.
@@ -107,16 +108,18 @@ public class Comment {
   private Application application;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Comment))
-      return false;
+    if (!(obj instanceof Comment)) {
+        return false;
+    }
 
-    Comment other = (Comment) o;
+    Comment other = (Comment) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

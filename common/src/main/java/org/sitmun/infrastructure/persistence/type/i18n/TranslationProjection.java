@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.config.Projection;
 /**
  * Projections for REST views of translation.
  */
-@Projection(name = "view", types = {Translation.class})
+@Projection(name = "view", types = Translation.class)
 public interface TranslationProjection {
 
   @Value("#{target.id}")

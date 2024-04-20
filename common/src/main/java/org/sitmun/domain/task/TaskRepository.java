@@ -25,7 +25,7 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @Override
-  default void customize(QuerydslBindings bindings, QTask root) {
-    bindings.bind(root.type.id).first(SimpleExpression::eq);
+  default void customize(QuerydslBindings querydslBindings, QTask root) {
+    querydslBindings.bind(root.type.id).first(SimpleExpression::eq);
   }
 }

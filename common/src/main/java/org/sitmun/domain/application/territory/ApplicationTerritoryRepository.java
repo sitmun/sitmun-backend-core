@@ -14,6 +14,6 @@ public interface ApplicationTerritoryRepository
   extends PagingAndSortingRepository<ApplicationTerritory, Integer>,
   QuerydslPredicateExecutor<ApplicationTerritory>,
   QuerydslBinderCustomizer<QApplicationTerritory> {
-  default void customize(@NonNull QuerydslBindings bindings, @NonNull QApplicationTerritory root) {
+  default void customize(@NonNull QuerydslBindings querydslBindings, @NonNull QApplicationTerritory root) {
   }
 }

@@ -9,6 +9,7 @@ import org.sitmun.domain.cartography.Cartography;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Geographic Information style.
@@ -85,16 +86,18 @@ public class CartographyStyle {
   private Cartography cartography;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographyStyle))
-      return false;
+    if (!(obj instanceof CartographyStyle)) {
+        return false;
+    }
 
-    CartographyStyle other = (CartographyStyle) o;
+    CartographyStyle other = (CartographyStyle) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

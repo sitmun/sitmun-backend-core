@@ -30,10 +30,10 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+  protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain)
     throws ServletException, IOException {
     try {
-      String key = request.getHeader(X_SITMUN_PROXY_KEY) == null ? "" : request.getHeader(X_SITMUN_PROXY_KEY);
+      String key = httpServletRequest.getHeader(X_SITMUN_PROXY_KEY) == null ? "" : httpServletRequest.getHeader(X_SITMUN_PROXY_KEY);
 
       if (Objects.equals(key, middlewareSecret)) {
         UsernamePasswordAuthenticationToken authentication =
@@ -41,7 +41,7 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
             principal,
             null,
             authorities);
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     } catch (Exception e) {
@@ -49,6 +49,6 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
       logger.error(msg, e);
     }
 
-    filterChain.doFilter(request, response);
+    filterChain.doFilter(httpServletRequest, httpServletResponse);
   }
 }

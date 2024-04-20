@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.security.core.userdetails;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class UserDetailsImplementation implements UserDetails {
   private static final long serialVersionUID = 1L;
 
+  @Getter
   private final Integer id;
 
   private final String username;
@@ -32,7 +34,7 @@ public class UserDetailsImplementation implements UserDetails {
     this.username = username;
     this.password = password;
     this.authorities = authorities;
-    this.accountNonLocked = enabled;
+    accountNonLocked = enabled;
   }
 
   public static UserDetailsImplementation build(User user) {
@@ -58,10 +60,6 @@ public class UserDetailsImplementation implements UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
-  }
-
-  public Integer getId() {
-    return id;
   }
 
   @Override
@@ -95,12 +93,14 @@ public class UserDetailsImplementation implements UserDetails {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    UserDetailsImplementation user = (UserDetailsImplementation) o;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+        return false;
+    }
+    UserDetailsImplementation user = (UserDetailsImplementation) obj;
     return Objects.equals(id, user.id);
   }
 

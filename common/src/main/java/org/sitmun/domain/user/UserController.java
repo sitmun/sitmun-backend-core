@@ -31,7 +31,7 @@ public class UserController {
    * Constructor.
    */
   public UserController(Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
-    this.springValidator = new SpringValidatorAdapter(validator);
+    springValidator = new SpringValidatorAdapter(validator);
     this.userRepository = userRepository;
     this.publisher = publisher;
   }
@@ -49,27 +49,32 @@ public class UserController {
     Optional<User> storedUser = userRepository.findByUsername(authentication.getName());
     if (storedUser.isPresent()) {
       User user = storedUser.get();
-      user.setUsername(updatedUser.getUsername());
-      user.setPassword(updatedUser.getPassword());
-      user.setFirstName(updatedUser.getFirstName());
-      user.setLastName(updatedUser.getLastName());
-      user.setIdentificationNumber(updatedUser.getIdentificationNumber());
-      user.setIdentificationType(updatedUser.getIdentificationType());
-      user.setAdministrator(updatedUser.getAdministrator());
-      user.setBlocked(updatedUser.getBlocked());
-      user.setGeneric(updatedUser.getGeneric());
-      BindingResult bindingResult = new BeanPropertyBindingResult(user, "user");
-      springValidator.validate(user, bindingResult);
+      User mergedUser = getUser(updatedUser, user);
+      BindingResult bindingResult = new BeanPropertyBindingResult(mergedUser, "user");
+      springValidator.validate(mergedUser, bindingResult);
       if (bindingResult.hasErrors()) {
         throw new RepositoryConstraintViolationException(bindingResult);
       }
-      publisher.publishEvent(new BeforeSaveEvent(user));
-      user = userRepository.save(user);
-      publisher.publishEvent(new AfterSaveEvent(user));
-      return ResponseEntity.ok(userToDto(user));
+      publisher.publishEvent(new BeforeSaveEvent(mergedUser));
+      mergedUser = userRepository.save(mergedUser);
+      publisher.publishEvent(new AfterSaveEvent(mergedUser));
+      return ResponseEntity.ok(userToDto(mergedUser));
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  private static User getUser(UserDTO updatedUser, User user) {
+    user.setUsername(updatedUser.getUsername());
+    user.setPassword(updatedUser.getPassword());
+    user.setFirstName(updatedUser.getFirstName());
+    user.setLastName(updatedUser.getLastName());
+    user.setIdentificationNumber(updatedUser.getIdentificationNumber());
+    user.setIdentificationType(updatedUser.getIdentificationType());
+    user.setAdministrator(updatedUser.getAdministrator());
+    user.setBlocked(updatedUser.getBlocked());
+    user.setGeneric(updatedUser.getGeneric());
+    return user;
   }
 
   /**
@@ -79,11 +84,11 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<UserDTO> getAccount() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(this::userToDto);
+    Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  private UserDTO userToDto(User user) {
+  private static UserDTO userToDto(User user) {
     return UserDTO.builder()
       .id(user.getId())
       .username(user.getUsername())

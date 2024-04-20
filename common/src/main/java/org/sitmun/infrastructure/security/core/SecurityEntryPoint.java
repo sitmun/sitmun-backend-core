@@ -20,21 +20,21 @@ public class SecurityEntryPoint implements AuthenticationEntryPoint {
   private static final Logger logger = LoggerFactory.getLogger(SecurityEntryPoint.class);
 
   @Override
-  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+  public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException authException)
     throws IOException {
     logger.error("Unauthorized error: {}", authException.getMessage());
 
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
     final Map<String, Object> body = new HashMap<>();
     body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
     body.put("error", "Unauthorized");
     body.put("message", authException.getMessage());
-    body.put("path", request.getServletPath());
+    body.put("path", httpServletRequest.getServletPath());
 
     final ObjectMapper mapper = new ObjectMapper();
-    mapper.writeValue(response.getOutputStream(), body);
+    mapper.writeValue(httpServletResponse.getOutputStream(), body);
   }
 
 }

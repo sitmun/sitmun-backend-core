@@ -12,10 +12,10 @@ public class SrsSystemListValidator
     .compile("^[A-Z_\\-]+:\\d+$", Pattern.CASE_INSENSITIVE);
 
   @Override
-  public boolean isValid(List<String> value, ConstraintValidatorContext context) {
+  public boolean isValid(List<String> value, ConstraintValidatorContext constraintValidatorContext) {
     if (value == null) {
       return true;
     }
-    return value.stream().allMatch(it -> pattern.matcher(it).matches());
+    return value.stream().allMatch(pattern.asMatchPredicate());
   }
 }

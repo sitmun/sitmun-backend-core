@@ -8,8 +8,8 @@ import org.springframework.validation.Validator;
 @Component
 public class BeforeSaveCartographyPermissionValidator implements Validator {
   @Override
-  public boolean supports(@NonNull Class<?> clazz) {
-    return CartographyPermission.class.equals(clazz);
+  public boolean supports(@NonNull Class<?> aClass) {
+    return CartographyPermission.class.equals(aClass);
   }
 
   @Override

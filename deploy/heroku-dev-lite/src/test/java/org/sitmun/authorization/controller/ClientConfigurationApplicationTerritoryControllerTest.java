@@ -34,7 +34,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content", hasSize(3)))
-      .andExpect(jsonPath("$.content[*].name", hasItem("Municipio")));
+      .andExpect(jsonPath("$.content[*].name", hasItem("Municipio B")));
   }
 
   @Test
@@ -50,9 +50,9 @@ class ClientConfigurationApplicationTerritoryControllerTest {
       .andExpect(jsonPath("$.number", is(0)))
       .andExpect(jsonPath("$.totalPages", is(1)))
       .andExpect(jsonPath("$.content[*].name", hasItems(
-        "Provincia",
-        "Municipio",
-        "Otro"
+        "Provincia A",
+        "Municipio B",
+        "Otro C"
       )));
   }
 
@@ -64,9 +64,9 @@ class ClientConfigurationApplicationTerritoryControllerTest {
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.content[*].name", containsInRelativeOrder(
-        "Municipio",
-        "Otro",
-        "Provincia"
+        "Municipio B",
+        "Otro C",
+        "Provincia A"
       )));
   }
 
@@ -81,7 +81,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
       .andExpect(jsonPath("$.totalPages", is(3)))
-      .andExpect(jsonPath("$.content[*].name", hasItem("Otro")));
+      .andExpect(jsonPath("$.content[*].name", hasItem("Otro C")));
   }
 
   @Test

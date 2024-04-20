@@ -1,5 +1,6 @@
 package org.sitmun.authentication.controller;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.test.TestUtils;
@@ -15,12 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("Authentication Controller basic tests")
 class AuthenticationControllerTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("Admin user must login")
   void successfulLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
@@ -34,6 +37,7 @@ class AuthenticationControllerTest {
   }
 
   @Test
+  @DisplayName("User with wrong credentials must fail")
   void loginFailure() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");

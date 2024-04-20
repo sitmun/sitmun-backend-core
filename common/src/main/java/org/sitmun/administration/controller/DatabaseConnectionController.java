@@ -40,7 +40,8 @@ public class DatabaseConnectionController {
    * @return 200 if valid
    */
   @GetMapping("/connections/{id}/test")
-  public @ResponseBody
+  @ResponseBody
+  public
   ResponseEntity<String> testConnection(@PathVariable("id") Integer id) {
     Optional<DatabaseConnection> connectionOp = repository.findById(id);
     if (connectionOp.isPresent()) {
@@ -60,7 +61,8 @@ public class DatabaseConnectionController {
    * @return 200 if valid
    */
   @PostMapping("/connections/test")
-  public @ResponseBody
+  @ResponseBody
+  public
   ResponseEntity<String> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
     service.testDriver(connection);
     service.testConnection(connection);

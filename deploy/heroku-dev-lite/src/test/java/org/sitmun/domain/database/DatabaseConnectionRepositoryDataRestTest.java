@@ -1,5 +1,6 @@
 package org.sitmun.domain.database;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("DatabaseConnection Repository Data REST test")
 class DatabaseConnectionRepositoryDataRestTest {
 
   @Autowired
@@ -32,25 +34,19 @@ class DatabaseConnectionRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
+  @DisplayName("GET: List DatabaseConnection")
   void tasksLinksExist() throws Exception {
     mvc.perform(get(URIConstants.CONNECTIONS_URI)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.connections.*", hasSize(1)))
-      .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(1)));
-  }
-
-  @Test
-  void cartographiesLinksExist() throws Exception {
-    mvc.perform(get(URIConstants.CONNECTIONS_URI)
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.connections.*", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.connections[*]._links.tasks", hasSize(1)))
       .andExpect(jsonPath("$._embedded.connections[*]._links.cartographies", hasSize(1)));
   }
 
 
   @Test
+  @DisplayName("POST: Create a DatabaseConnection and then update the password")
   void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -92,6 +88,7 @@ class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: Create a DatabaseConnection and then keep the password")
   void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -133,6 +130,7 @@ class DatabaseConnectionRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: Create a DatabaseConnection and then clear the password")
   void clearUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)

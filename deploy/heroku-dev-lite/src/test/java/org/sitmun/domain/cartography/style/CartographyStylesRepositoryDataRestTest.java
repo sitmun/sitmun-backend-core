@@ -1,6 +1,5 @@
 package org.sitmun.domain.cartography.style;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
@@ -28,13 +27,12 @@ class CartographyStylesRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create a CartographyStyle")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void newCartographyStyleCanBePosted() throws Exception {
-    String content = "{" +
+    String content = '{' +
       "\"name\":\"test\"," +
       "\"defaultStyle\":false," +
-      "\"cartography\":\"http://localhost/api/cartographies/1228\"" +
-      "}";
+      "\"cartography\":\"http://localhost/api/cartographies/1\"" +
+            '}';
 
     String location = mvc.perform(
         post(URIConstants.CARTOGRAPHY_STYLES_URI)
@@ -53,15 +51,14 @@ class CartographyStylesRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: No two default CartographyStyle can be created for the same Cartography")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void twoDefaultStylesCannotBePosted() throws Exception {
-    String content = "{" +
+    String content = '{' +
       "\"name\":\"test\"," +
       "\"defaultStyle\":true," +
-      "\"cartography\":\"http://localhost/api/cartographies/1228\"" +
-      "}";
+      "\"cartography\":\"http://localhost/api/cartographies/1\"" +
+            '}';
 
-    String location = mvc.perform(
+    String location1 = mvc.perform(
         post(URIConstants.CARTOGRAPHY_STYLES_URI)
           .content(content)
           .with(user(Fixtures.admin()))
@@ -69,7 +66,7 @@ class CartographyStylesRepositoryDataRestTest {
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn().getResponse().getHeader("Location");
 
-    assertNotNull(location);
+    assertNotNull(location1);
 
     mvc.perform(
         post(URIConstants.CARTOGRAPHY_STYLES_URI)
@@ -79,7 +76,7 @@ class CartographyStylesRepositoryDataRestTest {
       .andExpect(jsonPath("$.errors[0].property").value("defaultStyle"))
       .andExpect(jsonPath("$.errors[0].message").value("Already a default style exists for the cartography."));
 
-    mvc.perform(delete(location)
+    mvc.perform(delete(location1)
       .with(user(Fixtures.admin()))
     ).andExpect(status().isNoContent());
   }

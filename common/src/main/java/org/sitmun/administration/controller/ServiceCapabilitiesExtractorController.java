@@ -30,7 +30,8 @@ public class ServiceCapabilitiesExtractorController {
    * @return 200 if a document is found; client should check this document or 400 if a document cannot be retrieved or the method is not found
    */
   @GetMapping("/helpers/capabilities")
-  public @ResponseBody
+  @ResponseBody
+  public
   ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<ServiceCapabilitiesExtractor> iterator = extractors.iterator();
     ExtractedMetadata capabilities = ExtractedMetadata.builder().success(false).reason("No available extractor").build();

@@ -1,7 +1,7 @@
 package org.sitmun.domain.cartography.parameter;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +18,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("CartographyParameters Repository Data REST test")
 class CartographyParametersRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @DisplayName("POST: Create a CartographyParameter")
   void newCartographyParametersCanBePosted() throws Exception {
-    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\", \"cartography\":\"http://localhost/api/cartographies/0\"}";
+    String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\", \"cartography\":\"http://localhost/api/cartographies/1\"}";
 
     String location = mvc.perform(
         post("/api/cartography-parameters")
@@ -42,7 +43,7 @@ class CartographyParametersRepositoryDataRestTest {
     mvc.perform(get("/api/cartography-parameters/{id}/cartography", id)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id").value(0));
+      .andExpect(jsonPath("$.id").value(1));
 
     mvc.perform(delete("/api/cartography-parameters/{id}", id)
       .with(user(Fixtures.admin()))
@@ -50,6 +51,7 @@ class CartographyParametersRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: new cartography parameter requires a cartography link")
   void newCartographyParameterRequiresCartographyLink() throws Exception {
     String content = "{\"value\":\"test \",\"name\":\"test\",\"format\":\"I\",\"order\":null,\"type\":\"INFO\",\"status\":\"Pending creation\"}";
 

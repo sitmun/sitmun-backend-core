@@ -17,6 +17,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -24,8 +25,7 @@ import java.util.Set;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_USER", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = {"USE_USER"})})
+@Table(name = "STM_USER", uniqueConstraints = @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = "USE_USER"))
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -153,16 +153,18 @@ public class User {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof User))
-      return false;
+    if (!(obj instanceof User)) {
+        return false;
+    }
 
-    User other = (User) o;
+    User other = (User) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

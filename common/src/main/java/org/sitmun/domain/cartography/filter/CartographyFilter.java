@@ -15,6 +15,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Geographic Information filter.
@@ -102,16 +103,18 @@ public class CartographyFilter {
   private Cartography cartography;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographyFilter))
-      return false;
+    if (!(obj instanceof CartographyFilter)) {
+        return false;
+    }
 
-    CartographyFilter other = (CartographyFilter) o;
+    CartographyFilter other = (CartographyFilter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

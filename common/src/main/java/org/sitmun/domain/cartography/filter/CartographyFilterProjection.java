@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Projections for REST views of an application.
  */
-@Projection(name = "view", types = {CartographyFilter.class})
+@Projection(name = "view", types = CartographyFilter.class)
 public interface CartographyFilterProjection {
 
   @Value("#{target.id}")

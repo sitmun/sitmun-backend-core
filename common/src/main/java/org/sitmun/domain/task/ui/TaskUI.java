@@ -10,6 +10,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
+import java.util.Objects;
+
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 
 /**
@@ -71,16 +73,18 @@ public class TaskUI {
   private Integer order;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TaskType))
-      return false;
+    if (!(obj instanceof TaskType)) {
+        return false;
+    }
 
-    TaskType other = (TaskType) o;
+    TaskType other = (TaskType) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

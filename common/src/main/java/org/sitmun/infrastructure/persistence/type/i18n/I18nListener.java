@@ -28,7 +28,7 @@ public class I18nListener implements ApplicationContextAware {
   @PostLoad
   public void updateInternationalization(Object target) {
     Locale requestLocale = LocaleContextHolder.getLocale();
-    if (requestLocale != Locale.getDefault()) {
+    if (!requestLocale.equals(Locale.getDefault())) {
       String languageTag = requestLocale.toLanguageTag();
       Arrays.stream(target.getClass().getDeclaredFields())
         .filter(it -> it.isAnnotationPresent(Id.class))

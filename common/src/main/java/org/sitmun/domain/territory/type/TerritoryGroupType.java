@@ -8,6 +8,7 @@ import org.sitmun.domain.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 /**
  * Type of grouping of territorial entities.
@@ -15,8 +16,7 @@ import javax.validation.constraints.NotBlank;
  * @deprecated
  */
 @Entity
-@Table(name = "STM_GTER_TYP", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = {"GTT_NAME"})})
+@Table(name = "STM_GTER_TYP", uniqueConstraints = @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = "GTT_NAME"))
 @Builder
 @Getter
 @Setter
@@ -49,16 +49,18 @@ public class TerritoryGroupType {
   private String name;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TerritoryGroupType))
-      return false;
+    if (!(obj instanceof TerritoryGroupType)) {
+        return false;
+    }
 
-    TerritoryGroupType other = (TerritoryGroupType) o;
+    TerritoryGroupType other = (TerritoryGroupType) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

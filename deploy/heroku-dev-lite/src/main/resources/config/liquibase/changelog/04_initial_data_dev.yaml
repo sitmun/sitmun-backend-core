@@ -109,7 +109,7 @@ databaseChangeLog:
                   name: ROL_NOTE
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 1);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 2);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GTER_TYP.csv
@@ -513,7 +513,7 @@ databaseChangeLog:
                   name: APP_CREATED
                   type: DATETIME
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 5);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_APP_TREE.csv
@@ -540,30 +540,30 @@ databaseChangeLog:
               - column:
                   name: ARO_APPID
                   type: NUMERIC
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_PAR_APP.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_PAR_APP
-        #            usePreparedStatements: true
-        #            columns:
-        #              - column:
-        #                  name: PAP_ID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: PAP_NAME
-        #                  type: STRING
-        #              - column:
-        #                  name: PAP_VALUE
-        #                  type: STRING
-        #              - column:
-        #                  name: PAP_TYPE
-        #                  type: STRING
-        #              - column:
-        #                  name: PAP_APPID
-        #                  type: NUMERIC
-        #        - sql:
-        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 39);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_PAR_APP.csv
+            relativeToChangelogFile: true
+            tableName: STM_PAR_APP
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: PAP_ID
+                  type: NUMERIC
+              - column:
+                  name: PAP_NAME
+                  type: STRING
+              - column:
+                  name: PAP_VALUE
+                  type: STRING
+              - column:
+                  name: PAP_TYPE
+                  type: STRING
+              - column:
+                  name: PAP_APPID
+                  type: NUMERIC
+        - sql:
+              sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 22);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_BACKGRD.csv

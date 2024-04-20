@@ -42,7 +42,7 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
   public List<String> convertToEntityAttribute(String dbData) {
     if (dbData == null) {
       return null;
-    } else if (dbData.trim().length() == 0) {
+    } else if (dbData.trim().isEmpty()) {
       return Collections.emptyList();
     } else {
       return Arrays.stream(dbData.split(DELIMITER))

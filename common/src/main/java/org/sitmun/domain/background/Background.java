@@ -15,6 +15,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -97,16 +98,18 @@ public class Background {
   private Set<ApplicationBackground> applications = new HashSet<>();
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Background))
-      return false;
+    if (!(obj instanceof Background)) {
+        return false;
+    }
 
-    Background other = (Background) o;
+    Background other = (Background) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

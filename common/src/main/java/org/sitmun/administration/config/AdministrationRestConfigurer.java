@@ -58,7 +58,7 @@ public class AdministrationRestConfigurer implements RepositoryRestConfigurer {
   }
 
   @Override
-  public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry corsRegistry) {
+  public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
     config.setReturnBodyForPutAndPost(true);
     config.setBasePath("/api");
     config.exposeIdsFor(entityManager.getMetamodel()

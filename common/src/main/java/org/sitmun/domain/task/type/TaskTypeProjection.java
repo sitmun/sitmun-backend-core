@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Projections for REST views of a task type.
  */
-@Projection(name = "view", types = {TaskType.class})
+@Projection(name = "view", types = TaskType.class)
 public interface TaskTypeProjection {
 
   @Value("#{target.id}")

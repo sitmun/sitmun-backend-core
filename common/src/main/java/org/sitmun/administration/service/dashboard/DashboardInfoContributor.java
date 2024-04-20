@@ -1,18 +1,15 @@
 package org.sitmun.administration.service.dashboard;
 
-import com.google.common.collect.Maps;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.search.Search;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -45,7 +42,7 @@ public class DashboardInfoContributor implements InfoContributor {
 
   private Map<String, Object> hierarchiseMetrics(Map<String, Object> map) {
     return map.entrySet().stream()
-      .map(entry -> Maps.immutableEntry(entry.getKey().split("\\."), entry.getValue()))
+      .map(entry -> Pair.of(entry.getKey().split("\\."), entry.getValue()))
       .collect(groupingBy(entry -> entry.getKey()[0]))
       .entrySet().stream()
       .map(this::processEntry)
@@ -53,18 +50,20 @@ public class DashboardInfoContributor implements InfoContributor {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private Map.Entry<String, Object> processEntry(Map.Entry<String, List<Map.Entry<String[], Object>>> entry) {
+  private Map.Entry<String, Object> processEntry(Map.Entry<String, List<Pair<String[], Object>>> entry) {
     Object newValue = toValue(entry.getValue().stream()
-      .map(value -> Maps.immutableEntry(
+      .map(value -> Pair.of(
         Arrays.stream(value.getKey()).skip(1).toArray(String[]::new),
         value.getValue())
       ).collect(toList()));
     if (newValue != null) {
-      return Maps.immutableEntry(entry.getKey(), newValue);
-    } else return null;
+      return new AbstractMap.SimpleEntry<>(entry.getKey(), newValue);
+    } else {
+        return null;
+    }
   }
 
-  private Object toValue(List<Map.Entry<String[], Object>> list) {
+  private Object toValue(List<Pair<String[], Object>> list) {
     if (list.isEmpty()) {
       return null;
     } else if (list.size() == 1 && list.get(0).getKey().length == 0) {
@@ -80,15 +79,15 @@ public class DashboardInfoContributor implements InfoContributor {
     }
   }
 
-  private Map.Entry<String, Double> processMetric(Meter meter) {
+  private Pair<String, Double> processMetric(Meter meter) {
     if (meter instanceof Gauge) {
       Gauge gauge = (Gauge) meter;
       String id = gauge.getId().getName().substring(DashboardConfig.METRICS_PREFIX.length());
       String suffix = gauge.getId().getTag(TAG);
       if (suffix != null) {
-        id = id + "." + suffix;
+        id = id + '.' + suffix;
       }
-      return Maps.immutableEntry(id, gauge.value());
+      return Pair.of(id, gauge.value());
     } else {
       return null;
     }

@@ -19,10 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Task.
@@ -170,16 +167,18 @@ public class Task {
   private Set<TaskRelation> relatedBy = new HashSet<>();
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Task))
-      return false;
+    if (!(obj instanceof Task)) {
+        return false;
+    }
 
-    Task other = (Task) o;
+    Task other = (Task) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

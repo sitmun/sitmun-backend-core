@@ -9,13 +9,13 @@ import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Code list value.
  */
 @Entity
-@Table(name = "STM_CODELIST",
-  uniqueConstraints = {@UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"})})
+@Table(name = "STM_CODELIST", uniqueConstraints = @UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"}))
 @Builder
 @Getter
 @Setter
@@ -94,16 +94,18 @@ public class CodeListValue {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CodeListValue))
-      return false;
+    if (!(obj instanceof CodeListValue)) {
+        return false;
+    }
 
-    CodeListValue other = (CodeListValue) o;
+    CodeListValue other = (CodeListValue) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

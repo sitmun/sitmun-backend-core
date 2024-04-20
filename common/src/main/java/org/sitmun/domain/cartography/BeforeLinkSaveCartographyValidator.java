@@ -8,8 +8,8 @@ import org.springframework.validation.Validator;
 @Component
 public class BeforeLinkSaveCartographyValidator implements Validator {
   @Override
-  public boolean supports(@NonNull Class<?> clazz) {
-    return Cartography.class.equals(clazz);
+  public boolean supports(@NonNull Class<?> aClass) {
+    return Cartography.class.equals(aClass);
   }
 
   @Override
@@ -17,7 +17,7 @@ public class BeforeLinkSaveCartographyValidator implements Validator {
     Cartography cartography = (Cartography) target;
     if (cartography.getStyles() != null &&
       cartography.getStyles().stream()
-        .map(c -> Boolean.TRUE.equals(c.getDefaultStyle()) ? 1 : 0)
+        .map(style -> Boolean.TRUE.equals(style.getDefaultStyle()) ? 1 : 0)
         .reduce(0, Integer::sum) > 1) {
       errors.rejectValue("styles", "cartography.styles.invalid", "Multiple default styles for this cartography.");
     }

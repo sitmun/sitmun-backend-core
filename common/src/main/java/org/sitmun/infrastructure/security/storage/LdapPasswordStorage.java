@@ -38,19 +38,20 @@ public class LdapPasswordStorage implements PasswordStorage {
 
   @Override
   public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-    String url = StringUtils.hasText(this.host) && StringUtils.hasText(this.baseDN)
-      ? this.host.concat("/").concat(this.baseDN)
+    String url = StringUtils.hasText(host) && StringUtils.hasText(baseDN)
+      ? this.host + "/" + this.baseDN
       : null;
     authenticationManagerBuilder.ldapAuthentication()
       .passwordEncoder(ldapPasswordEncoder())
-      .userDnPatterns(this.userDNPattern)
+      .userDnPatterns(userDNPattern)
       .ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator)
       .contextSource().url(url)
-      .managerDn(StringUtils.hasText(this.userLdap) ? this.userLdap : null)
-      .managerPassword(StringUtils.hasText(this.passwordLdap) ? this.passwordLdap : null);
+      .managerDn(StringUtils.hasText(userLdap) ? userLdap : null)
+      .managerPassword(StringUtils.hasText(passwordLdap) ? passwordLdap : null);
   }
 
   public PasswordEncoder ldapPasswordEncoder() {
+    //noinspection deprecation
     return new LdapShaPasswordEncoder();
   }
 }

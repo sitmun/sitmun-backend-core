@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile({"openapi-provided"})
+@Profile("openapi-provided")
 public class ProvidedOpenApiConfigurer {
 
   @Bean

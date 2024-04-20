@@ -10,7 +10,7 @@ public class SrsValidator
   private static final Pattern pattern = Pattern.compile("^[A-Z\\-]+:\\d+$");
 
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
     if (value == null) {
       return true;
     }

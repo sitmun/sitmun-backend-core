@@ -65,7 +65,7 @@ tasks.register('exportSchemas') {
 
 jacocoTestReport {
   reports {
-    xml.enabled true
+    xml.required.set(true)
   }
 }
 

@@ -18,7 +18,7 @@ public class CodeListValidator implements ConstraintValidator<CodeList, String> 
   }
 
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
     if (value != null) {
       return codeRepository.existsByCodeListNameAndValue(codeList, value);
     } else {

@@ -16,6 +16,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 
@@ -24,8 +25,7 @@ import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_POST", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"})})
+@Table(name = "STM_POST", uniqueConstraints = @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"}))
 @Builder
 @Getter
 @Setter
@@ -116,16 +116,18 @@ public class UserPosition {
   private Territory territory;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof UserPosition))
-      return false;
+    if (!(obj instanceof UserPosition)) {
+        return false;
+    }
 
-    UserPosition other = (UserPosition) o;
+    UserPosition other = (UserPosition) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

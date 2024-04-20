@@ -26,13 +26,12 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
   @Override
   public String convertToDatabaseColumn(Map<String, Object> attribute) {
-    String converted = null;
     try {
-      converted = objectMapper.writeValueAsString(attribute);
+      return objectMapper.writeValueAsString(attribute);
     } catch (final JsonProcessingException e) {
       LOGGER.error("JSON writing error", e);
     }
-    return converted;
+    return null;
   }
 
   @Override
@@ -40,13 +39,12 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
     if (dbData == null) {
       return null;
     }
-    Map<String, Object> attribute = null;
     JavaType type = objectMapper.getTypeFactory().constructParametricType(Map.class, String.class, Object.class);
     try {
-      attribute = objectMapper.readValue(dbData, type);
+      return objectMapper.readValue(dbData, type);
     } catch (final IOException e) {
       LOGGER.error("JSON reading error", e);
     }
-    return attribute;
+    return null;
   }
 }

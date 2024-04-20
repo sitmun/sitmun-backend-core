@@ -39,10 +39,14 @@ public class Envelope {
   private Double minX;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Envelope envelope = (Envelope) o;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+        return false;
+    }
+    Envelope envelope = (Envelope) obj;
     return Objects.equals(minY, envelope.minY) && Objects.equals(maxX, envelope.maxX) && Objects.equals(maxY, envelope.maxY) && Objects.equals(minX, envelope.minX);
   }
 

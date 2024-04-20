@@ -14,6 +14,7 @@ import org.sitmun.infrastructure.persistence.type.basic.Http;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Tree node.
@@ -165,16 +166,18 @@ public class TreeNode {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TreeNode))
-      return false;
+    if (!(obj instanceof TreeNode)) {
+        return false;
+    }
 
-    TreeNode other = (TreeNode) o;
+    TreeNode other = (TreeNode) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

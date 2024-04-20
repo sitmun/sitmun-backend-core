@@ -29,6 +29,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -36,8 +37,7 @@ import java.util.Set;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_TERRITORY", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = {"TER_NAME"})})
+@Table(name = "STM_TERRITORY", uniqueConstraints = @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = "TER_NAME"))
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -278,16 +278,18 @@ public class Territory {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Territory))
-      return false;
+    if (!(obj instanceof Territory)) {
+        return false;
+    }
 
-    Territory other = (Territory) o;
+    Territory other = (Territory) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.config.Projection;
 /**
  * Projections for REST views of tree node.
  */
-@Projection(name = "view", types = {TreeNode.class})
+@Projection(name = "view", types = TreeNode.class)
 public interface TreeNodeProjection {
 
   /**

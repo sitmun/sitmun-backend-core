@@ -18,6 +18,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
   implementation 'org.springframework.ldap:spring-ldap-core'
   implementation 'org.springframework.security:spring-security-ldap'
   testImplementation 'com.unboundid:unboundid-ldapsdk'
@@ -31,18 +32,20 @@ dependencies {
   implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
   implementation 'com.squareup.okhttp3:okhttp'
   implementation 'com.squareup.okhttp3:logging-interceptor'
+
   implementation "org.json:json:${json_version}"
   implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
-  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
-  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
-  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
-
   implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
   implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
 
+  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+
+  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
   annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
 
+  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+  
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
@@ -54,7 +57,7 @@ compileJava.inputs.files(processResources)
 
 jacocoTestReport {
   reports {
-    xml.enabled true
+    xml.required.set(true)
   }
 }
 

@@ -8,13 +8,14 @@ import org.sitmun.domain.application.parameter.ApplicationParameter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 /**
  * Configuration parameter.
  */
 @Entity
 @Table(name = "STM_CONF",
-  uniqueConstraints = @UniqueConstraint(name = "STM_CONF_NAME_UK", columnNames = {"CNF_NAME"}))
+  uniqueConstraints = @UniqueConstraint(name = "STM_CONF_NAME_UK", columnNames = "CNF_NAME"))
 @Builder
 @Getter
 @Setter
@@ -53,16 +54,18 @@ public class ConfigurationParameter {
   private String value;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof ApplicationParameter))
-      return false;
+    if (!(obj instanceof ApplicationParameter)) {
+        return false;
+    }
 
-    ApplicationParameter other = (ApplicationParameter) o;
+    ApplicationParameter other = (ApplicationParameter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"test", "ldap"})
+@DisplayName("Authentication Controller LDAP enabled tests")
 class AuthenticationControllerLdapEnabledTest {
 
   @Value("${sitmun.authentication.ldap.url}")

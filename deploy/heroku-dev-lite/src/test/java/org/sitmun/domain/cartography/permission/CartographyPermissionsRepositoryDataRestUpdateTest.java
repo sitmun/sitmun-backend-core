@@ -3,6 +3,7 @@ package org.sitmun.domain.cartography.permission;
 import com.jayway.jsonpath.JsonPath;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -23,14 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("CartographyPermissions Repository Data REST test")
 class CartographyPermissionsRepositoryDataRestUpdateTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("PUT: Update a CartographyPermission")
   void itemResourceUpdate() throws Exception {
-    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -40,12 +44,12 @@ class CartographyPermissionsRepositoryDataRestUpdateTest {
     String oldName = json.getString("name");
     json.put("name", "New name");
 
-    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 1).content(json.toString())
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -53,12 +57,12 @@ class CartographyPermissionsRepositoryDataRestUpdateTest {
 
     json.put("name", oldName);
 
-    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132).content(json.toString())
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_URI, 1).content(json.toString())
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk());
 
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 132)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -66,8 +70,9 @@ class CartographyPermissionsRepositoryDataRestUpdateTest {
   }
 
   @Test
+  @DisplayName("PUT: Update a CartographyPermission association to roles")
   void associationResourceUpdate() throws Exception {
-    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+    String item = mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -75,14 +80,15 @@ class CartographyPermissionsRepositoryDataRestUpdateTest {
 
     @SuppressWarnings("unchecked")
     List<String> links = (List<String>) JsonPath.parse(item).read("$._embedded.roles[*]._links.self.href", List.class);
+    assertEquals(1, links.size());
 
     String update = links.stream().skip(1).collect(Collectors.joining("\n"));
 
-    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 1).content(update).contentType("text/uri-list")
       .with(user(Fixtures.admin()))
     );
 
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -90,11 +96,11 @@ class CartographyPermissionsRepositoryDataRestUpdateTest {
 
     update = String.join("\n", links);
 
-    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132).content(update).contentType("text/uri-list")
+    mvc.perform(put(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 1).content(update).contentType("text/uri-list")
       .with(user(Fixtures.admin()))
     );
 
-    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 132)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_PERMISSION_ROLES_URI, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())

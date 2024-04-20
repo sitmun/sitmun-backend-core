@@ -48,7 +48,7 @@ class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
             if (root.isPresent()) {
               JSONObject schema = json.getJSONObject(root.get());
               String[] qname = root.get().split(":");
-              String xmlnsKey = "xmlns" + (qname.length == 2 ? ":" + qname[0] : "");
+              String xmlnsKey = "xmlns" + (qname.length == 2 ? ':' + qname[0] : "");
               boolean isXSD = "http://www.w3.org/2001/XMLSchema".equals(schema.optString(xmlnsKey));
               if (!isXSD) {
                 builder.success(false).reason("Not a XML Schema");

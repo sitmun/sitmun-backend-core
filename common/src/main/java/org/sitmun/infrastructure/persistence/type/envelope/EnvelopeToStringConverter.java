@@ -16,7 +16,7 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
 
   public static final String RECISION = "######";
 
-  public static final String FORMAT = "{0,number,#." + RECISION + "} {1,number,#." + RECISION + "} {2,number,#." + RECISION + "} {3,number,#." + RECISION + "}";
+  public static final String FORMAT = "{0,number,#." + RECISION + "} {1,number,#." + RECISION + "} {2,number,#." + RECISION + "} {3,number,#." + RECISION + '}';
 
   public static final Locale defaultLocale = Locale.US;
 
@@ -60,7 +60,7 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
           .maxY(extractDouble(values[3]))
           .build();
       } catch (Exception e) {
-        log.error("[" + dbData + "] cannot be parsed to Envelope", e);
+        log.error('[' + dbData + "] cannot be parsed to Envelope", e);
         return null;
       }
     }

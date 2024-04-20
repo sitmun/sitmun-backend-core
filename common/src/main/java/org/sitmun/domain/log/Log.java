@@ -15,6 +15,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Log.
@@ -150,16 +151,18 @@ public class Log {
   private String other;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Log))
-      return false;
+    if (!(obj instanceof Log)) {
+        return false;
+    }
 
-    Log otherLog = (Log) o;
+    Log otherLog = (Log) obj;
 
-    return id != null &&
-      id.equals(otherLog.getId());
+    return Objects.equals(id, otherLog.getId());
   }
 
   @Override

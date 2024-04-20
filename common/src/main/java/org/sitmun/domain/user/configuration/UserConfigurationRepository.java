@@ -21,7 +21,7 @@ public interface UserConfigurationRepository extends
   List<UserConfiguration> findByUser(User currentUser);
 
   @Override
-  default void customize(QuerydslBindings bindings, QUserConfiguration root) {
-    bindings.bind(root.role.id).first(SimpleExpression::eq);
+  default void customize(QuerydslBindings querydslBindings, QUserConfiguration root) {
+    querydslBindings.bind(root.role.id).first(SimpleExpression::eq);
   }
 }

@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DisplayName("DatabaseConnection Repository Integration test")
 class DatabaseConnectionRepositoryIntegrationTest {
 
   @Autowired
@@ -77,6 +79,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @Test
+  @DisplayName("GET: List DatabaseConnection")
   void requestConnections() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
@@ -97,41 +100,40 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   @Test
   void updateConnection() throws JSONException {
-    JSONObject updatedValueJson = getConnection(2);
-    assertThat(updatedValueJson.get("user")).isEqualTo("User2");
+    JSONObject updatedValueJson = getConnection(1);
+    assertThat(updatedValueJson.get("user")).isEqualTo("User1");
 
     String auth = getAuthorization();
 
     updatedValueJson.put("user", "User3");
-    updatedValueJson.put("user", "User3");
-    updateConnection(2, updatedValueJson, auth);
+    updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(2).get("user")).isEqualTo("User3");
+    assertThat(getConnection(1).get("user")).isEqualTo("User3");
 
-    updatedValueJson.put("user", "User2");
-    updateConnection(2, updatedValueJson, auth);
+    updatedValueJson.put("user", "User1");
+    updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(2).get("user")).isEqualTo("User2");
+    assertThat(getConnection(1).get("user")).isEqualTo("User1");
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   void putCannotUpdateConnectionCartographies() throws JSONException {
-    JSONObject oldValueJson = getConnectionCartographies(2);
+    JSONObject oldValueJson = getConnectionCartographies(1);
     List oldList = getListOfCartographies(oldValueJson);
 
     String auth = getAuthorization();
 
-    List newList = Arrays.asList("http://localhost:" + port + "/api/cartographies/1255",
-      "http://localhost:" + port + "/api/cartographies/1055",
-      "http://localhost:" + port + "/api/cartographies/1086",
-      "http://localhost:" + port + "/api/cartographies/1043",
-      "http://localhost:" + port + "/api/cartographies/1254",
-      "http://localhost:" + port + "/api/cartographies/154");
+    List newList = Arrays.asList("http://localhost:" + port + "/api/cartographies/1",
+      "http://localhost:" + port + "/api/cartographies/2",
+      "http://localhost:" + port + "/api/cartographies/3",
+      "http://localhost:" + port + "/api/cartographies/4",
+      "http://localhost:" + port + "/api/cartographies/5",
+      "http://localhost:" + port + "/api/cartographies/6");
 
-    updateConnectionCartograhies(2, newList, auth);
+    updateConnectionCartograhies(1, newList, auth);
 
-    oldValueJson = getConnectionCartographies(2);
+    oldValueJson = getConnectionCartographies(1);
     List updatedList = getListOfCartographies(oldValueJson);
 
     assertThat(updatedList).containsExactlyInAnyOrderElementsOf(oldList);

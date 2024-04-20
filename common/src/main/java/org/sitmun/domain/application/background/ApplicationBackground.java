@@ -11,13 +11,13 @@ import org.sitmun.domain.background.Background;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Relationship between applications and backgrounds.
  */
 @Entity
-@Table(name = "STM_APP_BCKG", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"})})
+@Table(name = "STM_APP_BCKG", uniqueConstraints = @UniqueConstraint(name = "STM_APF_UK", columnNames = {"ABC_APPID", "ABC_BACKID"}))
 @Builder
 @Getter
 @Setter
@@ -68,16 +68,18 @@ public class ApplicationBackground {
   private Integer order;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof ApplicationBackground))
-      return false;
+    if (!(obj instanceof ApplicationBackground)) {
+        return false;
+    }
 
-    ApplicationBackground other = (ApplicationBackground) o;
+    ApplicationBackground other = (ApplicationBackground) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

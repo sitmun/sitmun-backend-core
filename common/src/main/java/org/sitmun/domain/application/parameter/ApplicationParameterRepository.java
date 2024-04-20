@@ -14,6 +14,6 @@ public interface ApplicationParameterRepository
   extends PagingAndSortingRepository<ApplicationParameter, Integer>,
   QuerydslPredicateExecutor<ApplicationParameter>,
   QuerydslBinderCustomizer<QApplicationParameter> {
-  default void customize(@NonNull QuerydslBindings bindings, @NonNull QApplicationParameter root) {
+  default void customize(@NonNull QuerydslBindings querydslBindings, @NonNull QApplicationParameter root) {
   }
 }

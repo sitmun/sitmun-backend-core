@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * Projections for REST views of a territory.
  */
-@Projection(name = "view", types = {Territory.class})
+@Projection(name = "view", types = Territory.class)
 public interface TerritoryProjection {
 
   @Value("#{target.id}")

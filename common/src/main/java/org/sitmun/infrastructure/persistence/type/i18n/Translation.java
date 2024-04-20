@@ -6,13 +6,13 @@ import org.sitmun.domain.PersistenceConstants;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Available translations.
  */
 @Entity
-@Table(name = "STM_TRANSLATION", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {"TRA_ELEID", "TRA_COLUMN", "TRA_LANID"})})
+@Table(name = "STM_TRANSLATION", uniqueConstraints = @UniqueConstraint(columnNames = {"TRA_ELEID", "TRA_COLUMN", "TRA_LANID"}))
 @Builder
 @Getter
 @Setter
@@ -65,16 +65,18 @@ public class Translation {
   private String translation;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Translation))
-      return false;
+    if (!(obj instanceof Translation)) {
+        return false;
+    }
 
-    Translation other = (Translation) o;
+    Translation other = (Translation) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

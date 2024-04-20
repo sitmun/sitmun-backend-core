@@ -14,13 +14,13 @@ import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConve
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Relationship between applications and territories.
  */
 @Entity
-@Table(name = "STM_APP_TER", uniqueConstraints = {
-  @UniqueConstraint(name = "STM_APT_UK", columnNames = {"ATE_APPID", "ATE_TERID"})})
+@Table(name = "STM_APP_TER", uniqueConstraints = @UniqueConstraint(name = "STM_APT_UK", columnNames = {"ATE_APPID", "ATE_TERID"}))
 @Builder
 @Getter
 @Setter
@@ -74,16 +74,18 @@ public class ApplicationTerritory {
 
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof ApplicationTerritory))
-      return false;
+    if (!(obj instanceof ApplicationTerritory)) {
+        return false;
+    }
 
-    ApplicationTerritory other = (ApplicationTerritory) o;
+    ApplicationTerritory other = (ApplicationTerritory) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

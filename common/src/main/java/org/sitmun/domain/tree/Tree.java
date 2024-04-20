@@ -14,6 +14,7 @@ import org.sitmun.infrastructure.persistence.type.basic.Http;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -111,16 +112,18 @@ public class Tree {
   private Set<Application> availableApplications = new HashSet<>();
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof Tree))
-      return false;
+    if (!(obj instanceof Tree)) {
+        return false;
+    }
 
-    Tree other = (Tree) o;
+    Tree other = (Tree) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -13,6 +13,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 import static org.sitmun.domain.PersistenceConstants.VALUE;
 
@@ -92,16 +94,18 @@ public class CartographySpatialSelectionParameter {
   private Integer order;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof CartographySpatialSelectionParameter))
-      return false;
+    if (!(obj instanceof CartographySpatialSelectionParameter)) {
+        return false;
+    }
 
-    CartographySpatialSelectionParameter other = (CartographySpatialSelectionParameter) o;
+    CartographySpatialSelectionParameter other = (CartographySpatialSelectionParameter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

@@ -1,6 +1,8 @@
 package org.sitmun.domain.application;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.annotation.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -27,24 +31,18 @@ class ApplicationRepositoryDataRestTest {
   @Autowired
   private MockMvc mvc;
 
+  @Nullable
   private MockHttpServletResponse response;
-
-  @BeforeEach
-  public void setup() {
-    response = null;
-  }
 
   @Test
   @DisplayName("POST: minimum set of properties")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void create() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-        .content("{" +
+        .content('{' +
           "\"name\":\"test\"," +
           "\"jspTemplate\":\"test\"," +
-          "\"type\":\"I\"," +
-          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-          "}")
+          "\"type\":\"I\"" +
+                '}')
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isCreated())
@@ -54,16 +52,13 @@ class ApplicationRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: createDate is set by the server ")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void createDateValueIsIgnored() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-        .content("{" +
+        .content('{' +
           "\"name\":\"test\"," +
           "\"jspTemplate\":\"test\"," +
-          "\"type\":\"I\"," +
-          "\"createdDate\":\"2020-01-01\"," +
-          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-          "}")
+          "\"type\":\"I\"" +
+                '}')
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isCreated())
@@ -73,15 +68,13 @@ class ApplicationRepositoryDataRestTest {
 
   @Test
   @DisplayName("PUT: createDate can be updated")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void createDateValueCanBeUpdated() throws Exception {
     response = mvc.perform(post(URIConstants.APPLICATIONS_URI)
-        .content("{" +
+        .content('{' +
           "\"name\":\"test\"," +
           "\"jspTemplate\":\"test\"," +
-          "\"type\":\"I\"," +
-          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-          "}")
+          "\"type\":\"I\"" +
+                '}')
         .with(user(Fixtures.admin()))
       )
       .andDo(print())
@@ -92,47 +85,16 @@ class ApplicationRepositoryDataRestTest {
     assertThat(location).isNotNull();
 
     mvc.perform(put(location)
-        .content("{" +
+        .content('{' +
           "\"name\":\"test\"," +
           "\"jspTemplate\":\"test\"," +
           "\"type\":\"I\"," +
-          "\"createdDate\":\"2020-01-01\"," +
-          "\"situationMap\":\"http://localhost/api/cartography-group/132\"" +
-          "}")
+          "\"createdDate\":\"2020-01-01\"" +
+                '}')
         .with(user(Fixtures.admin()))
       )
-      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.createdDate").value("2020-01-01T00:00:00.000+00:00"));
-  }
-
-  @Test
-  @DisplayName("POST: situationMap must point to a CartographyPermission")
-  void failApplicationWithInvalidMap() throws Exception {
-    mvc.perform(post(URIConstants.APPLICATIONS_URI)
-        .content("{" +
-          "\"name\":\"test\"," +
-          "\"jspTemplate\":\"test\"," +
-          "\"type\":\"I\"," +
-          "\"createdDate\":\"2020-01-01\"," +
-          "\"situationMap\":\"http://localhost/api/cartography-group/6\"" +
-          "}")
-        .with(user(Fixtures.admin()))
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
-  }
-
-  @Test
-  @DisplayName("PUT: situationMap must point to a CartographyPermission")
-  void failUpdateApplicationWithInvalidMap() throws Exception {
-    mvc.perform(put(URIConstants.APPLICATION_URI_SITUATION_MAP, 1)
-        .content("http://localhost/api/cartography-group/6")
-        .contentType("text/uri-list")
-        .with(user(Fixtures.admin()))
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
   }
 
   @AfterEach
@@ -144,6 +106,7 @@ class ApplicationRepositoryDataRestTest {
           .with(user(Fixtures.admin()))
         ).andExpect(status().isNoContent());
       }
+      response = null;
     }
   }
 }

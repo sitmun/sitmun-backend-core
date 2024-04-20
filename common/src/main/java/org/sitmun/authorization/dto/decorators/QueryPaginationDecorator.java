@@ -25,10 +25,10 @@ public class QueryPaginationDecorator implements Decorator<Map<String, String>> 
     String sql = datasourcePayloadDto.getSql();
     if (sql != null && !sql.isEmpty()) {
       if (target.containsKey(SQL_LIMIT)) {
-        sql = sql + " " + SQL_LIMIT + " " + target.get(SQL_LIMIT);
+        sql = sql + ' ' + SQL_LIMIT + ' ' + target.get(SQL_LIMIT);
       }
       if (target.containsKey(SQL_OFFSET)) {
-        sql = sql + " " + SQL_OFFSET + " " + target.get(SQL_OFFSET);
+        sql = sql + ' ' + SQL_OFFSET + ' ' + target.get(SQL_OFFSET);
       }
       datasourcePayloadDto.setSql(sql);
     }

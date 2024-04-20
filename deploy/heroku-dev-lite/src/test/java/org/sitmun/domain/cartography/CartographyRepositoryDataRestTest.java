@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -105,7 +107,7 @@ class CartographyRepositoryDataRestTest {
       CartographyAvailability cartographyAvailability1 = new CartographyAvailability();
       cartographyAvailability1.setCartography(cartographyWithAvailabilities);
       cartographyAvailability1.setTerritory(territory);
-      cartographyAvailability1.setCreatedDate(new Date());
+      cartographyAvailability1.setCreatedDate(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
       availabilities.add(cartographyAvailability1);
 
       cartographyAvailabilityRepository.saveAll(availabilities);
@@ -124,7 +126,6 @@ class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: minimum set of properties")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void postCartography() throws Exception {
 
     String content = new JSONObject()
@@ -181,7 +182,7 @@ class CartographyRepositoryDataRestTest {
   @Test
   @DisplayName("GET: has cartography-groups property")
   void hasAccessToCartographyGroups() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 85)
+    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 1)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));
@@ -229,7 +230,7 @@ class CartographyRepositoryDataRestTest {
       "\"permissions\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/permissions\"}," +
       "\"styles\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/styles\"}," +
       "\"treeNodes\":{\"href\":\"https://sitmun-backend-core.herokuapp.com/api/cartographies/724/treeNodes{?projection}\",\"templated\":true}}" +
-      "}";
+            '}';
     mvc.perform(MockMvcRequestBuilders.put(URIConstants.CARTOGRAPHY_URI, 724)
         .contentType(MediaType.APPLICATION_JSON)
         .content(badRequest)
@@ -244,35 +245,20 @@ class CartographyRepositoryDataRestTest {
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
-  @DisplayName("GET: for Cartography 724 applyFilterXXX are null")
+  @DisplayName("GET: filters are available in projections")
   void applyFilterTestDataIsNull() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI, 724)
+    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI, 1)
         .contentType(MediaType.APPLICATION_JSON)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
       .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
 
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 724)
+    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
         .contentType(MediaType.APPLICATION_JSON)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
       .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
-  }
-
-  @Test
-  @DisplayName("GET: Cartography available per application are different")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
-  void getCartographiesAvailableForApplication() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 1)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartographies", hasSize(449)));
-
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_AVAILABLE_URI, 2)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.cartographies", hasSize(500)));
   }
 }

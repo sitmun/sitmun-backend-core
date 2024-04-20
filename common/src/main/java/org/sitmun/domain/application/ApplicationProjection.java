@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Projections for REST views of an application.
  */
-@Projection(name = "view", types = {Application.class})
+@Projection(name = "view", types = Application.class)
 public interface ApplicationProjection {
 
   @Value("#{target.id}")

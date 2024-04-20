@@ -12,6 +12,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 import static org.sitmun.domain.PersistenceConstants.VALUE;
 
@@ -74,16 +76,18 @@ public class ApplicationParameter {
   private Application application;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof ApplicationParameter))
-      return false;
+    if (!(obj instanceof ApplicationParameter)) {
+        return false;
+    }
 
-    ApplicationParameter other = (ApplicationParameter) o;
+    ApplicationParameter other = (ApplicationParameter) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

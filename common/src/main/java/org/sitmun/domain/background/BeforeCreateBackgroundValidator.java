@@ -11,8 +11,8 @@ import java.util.Objects;
 @Component
 public class BeforeCreateBackgroundValidator implements Validator {
   @Override
-  public boolean supports(@NonNull Class<?> clazz) {
-    return Background.class.equals(clazz);
+  public boolean supports(@NonNull Class<?> aClass) {
+    return Background.class.equals(aClass);
   }
 
   @Override

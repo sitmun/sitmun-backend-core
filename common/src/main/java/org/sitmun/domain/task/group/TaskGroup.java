@@ -8,6 +8,7 @@ import org.sitmun.domain.PersistenceConstants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 /**
  * Task group.
@@ -46,16 +47,18 @@ public class TaskGroup {
   private String name;
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
 
-    if (!(o instanceof TaskGroup))
-      return false;
+    if (!(obj instanceof TaskGroup)) {
+        return false;
+    }
 
-    TaskGroup other = (TaskGroup) o;
+    TaskGroup other = (TaskGroup) obj;
 
-    return id != null &&
-      id.equals(other.getId());
+    return Objects.equals(id, other.getId());
   }
 
   @Override

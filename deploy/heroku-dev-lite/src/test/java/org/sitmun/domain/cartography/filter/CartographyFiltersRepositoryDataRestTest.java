@@ -1,6 +1,6 @@
 package org.sitmun.domain.cartography.filter;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -18,20 +18,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("CartographyFilters Repository Data REST test")
 class CartographyFiltersRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @DisplayName("POST: Create a CartographyFilter")
   void newCartographyFilterCanBePosted() throws Exception {
-    String content = "{" +
+    String content = '{' +
       "\"name\":\"test\"," +
       "\"type\":\"C\"," +
       "\"required\":true," +
-      "\"cartography\":\"http://localhost/api/cartographies/1228\"" +
-      "}";
+      "\"cartography\":\"http://localhost/api/cartographies/1\"" +
+            '}';
 
     String location = mvc.perform(
         post(URIConstants.CARTOGRAPHY_FILTERS_URI)
@@ -46,7 +47,7 @@ class CartographyFiltersRepositoryDataRestTest {
     mvc.perform(get(location + "/cartography")
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id").value(1228));
+      .andExpect(jsonPath("$.id").value(1));
 
     mvc.perform(delete(location)
       .with(user(Fixtures.admin()))
@@ -54,12 +55,13 @@ class CartographyFiltersRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: No two default CartographyFilter can be created for the same Cartography")
   void newCartographyFilterRequiresCartographyLink() throws Exception {
-    String content = "{" +
+    String content = '{' +
       "\"name\":\"test\"," +
       "\"type\":\"C\"," +
       "\"required\":true" +
-      "}";
+            '}';
 
     mvc.perform(
         post(URIConstants.CARTOGRAPHY_FILTERS_URI + "?lang=EN")

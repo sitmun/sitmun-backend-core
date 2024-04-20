@@ -122,7 +122,7 @@ public class ProxyConfigurationService {
     return true;
   }
 
-  private DatasourcePayloadDto getDatasourceConfiguration(Task task) {
+  private static DatasourcePayloadDto getDatasourceConfiguration(Task task) {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
     return databaseConnection != null ? DatasourcePayloadDto.builder()

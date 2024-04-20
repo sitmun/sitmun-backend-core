@@ -32,10 +32,10 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-    final String requestTokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+  protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    final String requestTokenHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.isEmpty(requestTokenHeader) || !StringUtils.startsWith(requestTokenHeader, "Bearer ")) {
-      filterChain.doFilter(request, response);
+      filterChain.doFilter(httpServletRequest, httpServletResponse);
       return;
     }
     String jwtToken = requestTokenHeader.substring(7);
@@ -45,7 +45,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         if (jsonWebTokenService.validateToken(jwtToken, userDetails)) {
           UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-          usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         }
       }
@@ -56,7 +56,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
-    filterChain.doFilter(request, response);
+    filterChain.doFilter(httpServletRequest, httpServletResponse);
   }
 
 }

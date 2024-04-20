@@ -11,8 +11,8 @@ import java.util.Objects;
 @Component
 public class BeforeCreateApplicationValidator implements Validator {
   @Override
-  public boolean supports(@NonNull Class<?> clazz) {
-    return Application.class.equals(clazz);
+  public boolean supports(@NonNull Class<?> aClass) {
+    return Application.class.equals(aClass);
   }
 
   @Override
