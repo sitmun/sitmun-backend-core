@@ -10,6 +10,7 @@ import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
+import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
@@ -136,6 +137,10 @@ public interface ProfileMapper {
       .build();
   }
 
+  default Map<String,String> map(List<ConfigurationParameter> global) {
+    return global.stream().collect(Collectors.toMap(ConfigurationParameter::getName, ConfigurationParameter::getValue));
+  }
+
   @AfterMapping
   default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
     Comparator<ApplicationBackground> order = Comparator.nullsLast(Comparator.comparing(ApplicationBackground::getOrder));
@@ -179,6 +184,7 @@ public interface ProfileMapper {
       builder.application(application);
     }
   }
+
 
 
   default String mapCartographyPermissionToString(CartographyPermission value) {

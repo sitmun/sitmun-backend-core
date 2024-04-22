@@ -1,6 +1,8 @@
 package org.sitmun.authorization.service;
 
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.configuration.ConfigurationParameter;
+import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
@@ -23,10 +25,12 @@ public class ProfileService {
 
   private final UserRepository userRepository;
   private final UserConfigurationRepository userConfigurationRepository;
+  private final ConfigurationParameterRepository configurationParameterRepository;
 
-  public ProfileService(UserRepository userRepository, UserConfigurationRepository userConfigurationRepository) {
+  public ProfileService(UserRepository userRepository, UserConfigurationRepository userConfigurationRepository, ConfigurationParameterRepository configurationParameterRepository) {
     this.userRepository = userRepository;
     this.userConfigurationRepository = userConfigurationRepository;
+    this.configurationParameterRepository = configurationParameterRepository;
   }
 
 
@@ -176,9 +180,10 @@ public class ProfileService {
    * @return the profile
    */
   public Optional<Profile> buildProfile(String username, String appId, String terrId) {
+    Iterable<ConfigurationParameter> global = configurationParameterRepository.findAll();
     return userRepository.findByUsername(username)
       .filter(user -> !user.getBlocked())
-      .flatMap(user -> ProfileUtils.buildProfile(user, appId, terrId));
+      .flatMap(user -> ProfileUtils.buildProfile(user, appId, terrId, global));
   }
 
 }

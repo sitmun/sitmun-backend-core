@@ -1,8 +1,10 @@
 package org.sitmun.authorization.service;
 
+import com.google.common.collect.ImmutableList;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
+import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
@@ -22,7 +24,7 @@ public final class ProfileUtils {
     // Utility class
   }
 
-  static Optional<Profile> buildProfile(User user, String appId, String terrId) {
+  static Optional<Profile> buildProfile(User user, String appId, String terrId, Iterable<ConfigurationParameter> global) {
     return user.getPermissions()
       .stream()
       .filter(it -> Objects.equals(it.getTerritory().getId(), Integer.valueOf(terrId)))
@@ -46,6 +48,7 @@ public final class ProfileUtils {
           .layers(layers)
           .services(services)
           .tasks(tasks)
+          .global(ImmutableList.copyOf(global))
           .build();
       });
   }

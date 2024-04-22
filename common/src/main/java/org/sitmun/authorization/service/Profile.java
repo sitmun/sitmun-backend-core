@@ -6,11 +6,13 @@ import lombok.Setter;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
+import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -22,4 +24,5 @@ public class Profile {
   private List<Service> services;
   private List<Cartography> layers;
   private List<Task> tasks;
+  private List<ConfigurationParameter> global;
 }

@@ -20,4 +20,4 @@ databaseChangeLog:
                   name: CNF_VALUE
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('CNF_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('CNF_ID', 6);

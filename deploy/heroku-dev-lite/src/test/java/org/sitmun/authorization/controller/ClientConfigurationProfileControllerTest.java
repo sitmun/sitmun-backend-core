@@ -141,4 +141,11 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
   }
 
+  @Test
+  @DisplayName("Get proxy details")
+  void proxy() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.global.proxy", is("https://middleware.com")));
+  }
 }
