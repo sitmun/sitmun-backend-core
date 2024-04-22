@@ -15,7 +15,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
-@JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+@JsonView(ClientConfigurationViews.ApplicationTerritory.class)
 public class Point {
 
   /**

@@ -80,14 +80,14 @@ public class Territory {
    * Territorial authority name.
    */
   @Column(name = "TER_ADMNAME", length = PersistenceConstants.SHORT_DESCRIPTION)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String territorialAuthorityName;
 
   /**
    * Territorial authority address.
    */
   @Column(name = "TER_ADDRESS", length = PersistenceConstants.SHORT_DESCRIPTION)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String territorialAuthorityAddress;
 
   /**
@@ -95,7 +95,7 @@ public class Territory {
    */
   @Column(name = "TER_EMAIL", length = PersistenceConstants.IDENTIFIER)
   @Email
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String territorialAuthorityEmail;
 
   /**
@@ -103,7 +103,7 @@ public class Territory {
    */
   @Column(name = "TER_LOGO", length = PersistenceConstants.URL)
   @Http
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String territorialAuthorityLogo;
 
   /**
@@ -113,7 +113,7 @@ public class Territory {
    */
   @Column(name = "TER_SCOPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeListsConstants.TERRITORY_SCOPE)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Deprecated(forRemoval = true)
   private String scope;
 
@@ -121,7 +121,7 @@ public class Territory {
    * Bounding box of the territory.
    */
   @Column(name = "TER_EXTENT", length = 250)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Convert(converter = EnvelopeToStringConverter.class)
   @BoundingBox
   private Envelope extent;
@@ -134,7 +134,7 @@ public class Territory {
    * and it is better to use the extent of the view.
    */
   @Column(name = "TER_CENTER", length = PersistenceConstants.VALUE)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Convert(converter = PointToStringConverter.class)
   @Deprecated(forRemoval = true)
   private Point center;
@@ -146,7 +146,7 @@ public class Territory {
    * it is not a property of the territory but of the application in this territory.
    */
   @Column(name = "TER_ZOOM")
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Deprecated(forRemoval = true)
   private Integer defaultZoomLevel;
 
@@ -163,7 +163,7 @@ public class Territory {
    */
   @ManyToOne
   @JoinColumn(name = "TER_TYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TGR"))
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private TerritoryType type;
 
   /**
@@ -193,7 +193,7 @@ public class Territory {
    */
   @ManyToOne
   @JoinColumn(name = "TER_GTYPID", foreignKey = @ForeignKey(name = "STM_TER_FK_TET"))
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Deprecated(forRemoval = true)
   private TerritoryGroupType groupType;
 

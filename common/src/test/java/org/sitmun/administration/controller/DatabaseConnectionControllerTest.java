@@ -24,7 +24,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   private DatabaseConnectionRepository repository;
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail 500 when driver is not found in test")
   void failIfDatabaseConnectionDriverNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
@@ -35,7 +35,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail 500 when test fails")
   void failIfDatabaseConnectionException() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
@@ -51,7 +51,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Return 200 when test succeeds")
   void databaseConnectionSuccess() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
@@ -65,7 +65,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Return 404 when the connection does not exist")
   void failIfdatabaseConnectionNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.empty());
@@ -87,7 +87,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Cant create entry if the database connection driver is not found")
   void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mvc.perform(post("/api/connections/test")
@@ -99,7 +99,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Cant create entry if the database connection fails")
   void failPostTestIfDatabaseConnectionException() throws Exception {
     mvc.perform(post("/api/connections/test")
@@ -111,7 +111,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Return 200 when the test succeed")
   void databaseConnectionPostTestSuccess() throws Exception {
     mvc.perform(post("/api/connections/test")

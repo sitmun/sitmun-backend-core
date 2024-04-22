@@ -2,7 +2,10 @@ package org.sitmun.domain.cartography;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.sitmun.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.domain.cartography.availability.CartographyAvailabilityRepository;
 import org.sitmun.domain.service.Service;
@@ -31,7 +34,6 @@ import java.util.Date;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -61,9 +63,6 @@ class CartographyRepositoryDataRestTest {
 
   @BeforeEach
   public void init() {
-
-    withMockSitmunAdmin(() -> {
-
       territory = Territory.builder()
         .name("Territorio 1")
         .code("")
@@ -111,17 +110,14 @@ class CartographyRepositoryDataRestTest {
       availabilities.add(cartographyAvailability1);
 
       cartographyAvailabilityRepository.saveAll(availabilities);
-    });
   }
 
   @AfterEach
   public void after() {
-    withMockSitmunAdmin(() -> {
       cartographyAvailabilityRepository.deleteAll(availabilities);
       cartographyRepository.deleteAll(cartographies);
       serviceRepository.delete(service);
       territoryRepository.delete(territory);
-    });
   }
 
   @Test
@@ -153,11 +149,9 @@ class CartographyRepositoryDataRestTest {
       .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)))
       .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()));
 
-    withMockSitmunAdmin(() -> {
       String[] paths = URI.create(location).getPath().split("/");
       Integer id = Integer.parseInt(paths[paths.length - 1]);
       cartographyRepository.findById(id).ifPresent((it) -> cartographies.add(it));
-    });
   }
 
   @Test

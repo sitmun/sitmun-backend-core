@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -19,7 +20,6 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -48,8 +48,8 @@ class UserControllerTest {
   private String expiredToken;
 
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   void init() {
-    withMockSitmunAdmin(() -> {
       Date expiredDate =
         Date.from(LocalDate.parse("1900-01-01").atStartOfDay(ZoneId.systemDefault()).toInstant());
       expiredToken = tokenProvider.generateToken(USER_USERNAME, expiredDate);
@@ -65,12 +65,12 @@ class UserControllerTest {
         .build();
       userEventHandler.handleUserCreate(user);
       user = userRepository.save(user);
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    withMockSitmunAdmin(() -> userRepository.delete(user));
+    userRepository.delete(user);
   }
 
   @Test
@@ -122,11 +122,9 @@ class UserControllerTest {
 
     String oldPassword = user.getPassword();
     assertNotNull(oldPassword);
-    withMockSitmunAdmin(() -> {
       Optional<User> updatedUser = userRepository.findById(user.getId());
       assertTrue(updatedUser.isPresent());
       assertEquals(oldPassword, updatedUser.get().getPassword());
-    });
   }
 
   @Test
@@ -146,11 +144,9 @@ class UserControllerTest {
     ).andExpect(status().isOk()).andExpect(jsonPath("$.password").doesNotExist());
 
     assertNotNull(user.getPassword());
-    withMockSitmunAdmin(() -> {
       Optional<User> updatedUser = userRepository.findById(user.getId());
       assertTrue(updatedUser.isPresent());
       assertNull(updatedUser.get().getPassword());
-    });
   }
 
 }

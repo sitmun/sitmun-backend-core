@@ -16,6 +16,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,6 +38,7 @@ class RoleRepositoryIntegrationTest {
   private int port;
 
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
@@ -48,18 +50,17 @@ class RoleRepositoryIntegrationTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
 
-    TestUtils.withMockSitmunAdmin(() -> {
       roles = new ArrayList<>();
       roles.add(roleRepository
         .save(Role.builder().name("RoleRepositoryTest_1").build()));
       roles.add(roleRepository
         .save(Role.builder().name("RoleRepositoryTest_2").build()));
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    TestUtils.withMockSitmunAdmin(() -> roleRepository.deleteAll(roles));
+    roleRepository.deleteAll(roles);
   }
 
   @Test

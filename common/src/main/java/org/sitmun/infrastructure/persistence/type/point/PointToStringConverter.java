@@ -27,28 +27,26 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
   public Double extractDouble(Object obj) throws IllegalArgumentException {
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
-    } else {
-      throw new IllegalArgumentException("Value " + obj + " is not a Number");
     }
+      throw new IllegalArgumentException("Value " + obj + " is not a Number");
   }
 
   @Override
   public String convertToDatabaseColumn(Point envelope) {
     if (envelope == null) {
       return null;
-    } else {
+    }
       return formatInstance().format(new Object[]{
         envelope.getX(),
         envelope.getY(),
       });
-    }
   }
 
   @Override
   public Point convertToEntityAttribute(String dbData) {
     if (dbData == null) {
       return null;
-    } else {
+    }
       try {
         Object[] values = formatInstance().parse(dbData);
         return Point.builder()
@@ -59,6 +57,5 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
         log.error('[' + dbData + "] cannot be parsed to Point", e);
         return null;
       }
-    }
   }
 }

@@ -143,10 +143,13 @@ public class TaskParameter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+        return true;
+    }
 
-    if (!(o instanceof TaskParameter))
-      return false;
+    if (!(o instanceof TaskParameter)) {
+        return false;
+    }
 
     TaskParameter other = (TaskParameter) o;
 

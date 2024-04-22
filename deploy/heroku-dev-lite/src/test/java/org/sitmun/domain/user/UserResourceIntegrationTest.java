@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
 import org.sitmun.test.TestUtils;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DisplayName("User Resource Integration Test")
 class UserResourceIntegrationTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
@@ -67,6 +69,7 @@ class UserResourceIntegrationTest {
 
 
   @Test
+  @DisplayName("Create new user and delete")
   void createNewUserAndDelete() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
@@ -99,6 +102,7 @@ class UserResourceIntegrationTest {
   }
 
   @Test
+  @DisplayName("Create new user without login")
   void cannotPostWithoutLogin() {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
@@ -107,6 +111,7 @@ class UserResourceIntegrationTest {
   }
 
   @Test
+  @DisplayName("Get all users")
   void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
@@ -118,7 +123,7 @@ class UserResourceIntegrationTest {
         }, port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().getContent()).hasSize(4);
+    assertThat(response.getBody().getContent()).hasSize(5);
   }
 
 }

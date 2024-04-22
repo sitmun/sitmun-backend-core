@@ -25,7 +25,7 @@ class HttpURLTest extends BaseTest {
   private static final String PROPERTY_WITH_URL = "territorialAuthorityLogo";
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Pass if URL value is http")
   void passIfURLValueIsHttp() throws Exception {
     postEntityWithUrlValue(VALID_HTTP_URL)
@@ -34,7 +34,7 @@ class HttpURLTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Pass if URL value is https")
   void passIfURLValueIsHttps() throws Exception {
     postEntityWithUrlValue(VALID_HTTPS_URL)
@@ -43,7 +43,7 @@ class HttpURLTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail if URL value is wrong")
   void failIfURLValueIsWrong() throws Exception {
     postEntityWithUrlValue(INVALID_URL)

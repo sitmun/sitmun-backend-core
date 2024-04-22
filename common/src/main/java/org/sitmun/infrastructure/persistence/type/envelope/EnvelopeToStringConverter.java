@@ -27,30 +27,28 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
   public Double extractDouble(Object obj) throws IllegalArgumentException {
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
-    } else {
-      throw new IllegalArgumentException("Value " + obj + " is not a Number");
     }
+      throw new IllegalArgumentException("Value " + obj + " is not a Number");
   }
 
   @Override
   public String convertToDatabaseColumn(Envelope envelope) {
     if (envelope == null) {
       return null;
-    } else {
+    }
       return formatInstance().format(new Object[]{
         envelope.getMinX(),
         envelope.getMinY(),
         envelope.getMaxX(),
         envelope.getMaxY()
       });
-    }
   }
 
   @Override
   public Envelope convertToEntityAttribute(String dbData) {
     if (dbData == null) {
       return null;
-    } else {
+    }
       try {
         Object[] values = formatInstance().parse(dbData);
         return Envelope.builder()
@@ -63,6 +61,5 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
         log.error('[' + dbData + "] cannot be parsed to Envelope", e);
         return null;
       }
-    }
   }
 }

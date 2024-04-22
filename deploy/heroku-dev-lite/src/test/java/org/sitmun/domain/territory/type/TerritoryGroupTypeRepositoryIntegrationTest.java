@@ -16,6 +16,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,6 +39,7 @@ class TerritoryGroupTypeRepositoryIntegrationTest {
   private int port;
 
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
@@ -49,18 +51,17 @@ class TerritoryGroupTypeRepositoryIntegrationTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
 
-    TestUtils.withMockSitmunAdmin(() -> {
       territoryGroupTypes = new ArrayList<>();
       territoryGroupTypes.add(territoryGroupTypeRepository
         .save(TerritoryGroupType.builder().name("TerritoryGroupTypeTest_1").build()));
       territoryGroupTypes.add(territoryGroupTypeRepository
         .save(TerritoryGroupType.builder().name("TerritoryGroupTypeTest_2").build()));
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    TestUtils.withMockSitmunAdmin(() -> territoryGroupTypeRepository.deleteAll(territoryGroupTypes));
+    territoryGroupTypeRepository.deleteAll(territoryGroupTypes);
   }
 
   @Test

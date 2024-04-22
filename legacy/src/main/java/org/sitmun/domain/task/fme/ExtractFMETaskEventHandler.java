@@ -39,7 +39,9 @@ public class ExtractFMETaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateParameters(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     taskParameterRepository.deleteAllByTask(task);
 
     Map<String, Object> properties = task.getProperties();
@@ -62,7 +64,9 @@ public class ExtractFMETaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     taskParameterRepository.deleteAllByTask(task);
   }
 

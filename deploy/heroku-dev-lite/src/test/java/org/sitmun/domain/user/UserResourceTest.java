@@ -5,6 +5,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -26,14 +28,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.sitmun.test.TestUtils.asJsonString;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("User Resource Test")
 class UserResourceTest {
 
   private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
@@ -76,8 +77,6 @@ class UserResourceTest {
 
   @BeforeEach
   void init() {
-    withMockSitmunAdmin(() -> {
-
       organizacionAdminRole =
         Role.builder().name("ADMIN_ORGANIZACION").build();
       roleRepository.save(organizacionAdminRole);
@@ -170,22 +169,20 @@ class UserResourceTest {
       userConfigurations.add(userConf);
 
       userConfigurationRepository.saveAll(userConfigurations);
-    });
   }
 
   @AfterEach
   void cleanup() {
-    withMockSitmunAdmin(() -> {
       userConfigurationRepository.deleteAll(userConfigurations);
-      roleRepository.delete(territorialRole);
-      roleRepository.delete(organizacionAdminRole);
       userRepository.deleteAll(users);
       territoryRepository.deleteAll(territories);
-    });
+    roleRepository.delete(territorialRole);
+    roleRepository.delete(organizacionAdminRole);
   }
 
 
   @Test
+  @DisplayName("POST: Create a new user")
   void createNewUserAndDelete() throws Exception {
     String content = "{" +
       "\"username\":\"new user\"," +
@@ -216,6 +213,7 @@ class UserResourceTest {
   }
 
   @Test
+  @DisplayName("POST: Clear password to an existing user")
   void clearPassword() throws Exception {
     String content = "{" +
       "\"username\":\"new user\"," +
@@ -300,6 +298,7 @@ class UserResourceTest {
   }
 
   @Test
+  @DisplayName("POST: Create a duplicated user fails")
   void createDuplicatedUserFails() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).build();
 
@@ -312,6 +311,7 @@ class UserResourceTest {
   }
 
   @Test
+  @DisplayName("POST: User update")
   void updateUser() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
@@ -336,16 +336,19 @@ class UserResourceTest {
   }
 
   @Test
+  @DisplayName("GET: Get users as SITMUN administrator")
   void getUsersAsSitmunAdmin() throws Exception {
     mockMvc.perform(get(URIConstants.USER_URI + "?size=10")
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$._embedded.users", Matchers.hasSize(7)));
+      .andExpect(jsonPath("$._embedded.users", Matchers.hasSize(8)));
   }
 
   @Test
+  @DisplayName("PUT: Update password")
+  @WithMockUser(roles = "ADMIN")
   void updateUserPassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
@@ -363,14 +366,14 @@ class UserResourceTest {
 
     String oldPassword = organizacionAdmin.getPassword();
     assertNotNull(oldPassword);
-    withMockSitmunAdmin(() -> {
       Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
       assertTrue(updatedUser.isPresent());
       assertNotEquals(oldPassword, updatedUser.get().getPassword());
-    });
   }
 
   @Test
+  @DisplayName("PUT: Keep password")
+  @WithMockUser(roles = "ADMIN")
   void keepPassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
@@ -387,11 +390,9 @@ class UserResourceTest {
 
     String oldPassword = organizacionAdmin.getPassword();
     assertNotNull(oldPassword);
-    withMockSitmunAdmin(() -> {
       Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
       assertTrue(updatedUser.isPresent());
       assertEquals(oldPassword, updatedUser.get().getPassword());
-    });
   }
 
 }

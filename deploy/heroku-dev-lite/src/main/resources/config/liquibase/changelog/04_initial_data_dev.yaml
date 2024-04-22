@@ -64,7 +64,7 @@ databaseChangeLog:
                   name: USE_CREATED
                   type: DATETIME
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 13);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 12);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_CONNECT.csv
@@ -182,7 +182,7 @@ databaseChangeLog:
                   name: TER_ZOOM    # DEPRECATED
                   type: NUMERIC     # DEPRECATED
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_GRP_TER.csv
@@ -772,7 +772,7 @@ databaseChangeLog:
                   name: TAS_PARAMS
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 1);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 34);
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_DOWNLOAD.csv
@@ -829,41 +829,41 @@ databaseChangeLog:
               - column:
                   name: RTS_TASKID
                   type: NUMERIC
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_POST.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_POST
-        #            usePreparedStatements: true
-        #            quotchar: "\""
-        #            columns:
-        #              - column:
-        #                  name: POS_ID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: POS_POST
-        #                  type: STRING
-        #              - column:
-        #                  name: POS_ORG
-        #                  type: STRING
-        #              - column:
-        #                  name: POS_EMAIL
-        #                  type: STRING
-        #              - column:
-        #                  name: POS_CREATED
-        #                  type: DATETIME
-        #              - column:
-        #                  name: POS_EXPIRATION
-        #                  type: DATETIME
-        #              - column:
-        #                  name: POS_USERID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: POS_TERID
-        #                  type: NUMERIC
-        #        - sql:
-        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 6961);
-        #        - loadData:
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_POST.csv
+            relativeToChangelogFile: true
+            tableName: STM_POST
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: POS_ID
+                  type: NUMERIC
+              - column:
+                  name: POS_POST
+                  type: STRING
+              - column:
+                  name: POS_ORG
+                  type: STRING
+              - column:
+                  name: POS_EMAIL
+                  type: STRING
+              - column:
+                  name: POS_CREATED
+                  type: DATETIME
+              - column:
+                  name: POS_EXPIRATION
+                  type: DATETIME
+              - column:
+                  name: POS_USERID
+                  type: NUMERIC
+              - column:
+                  name: POS_TERID
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 1485);
+        # - loadData:
         #            encoding: UTF-8
         #            file: 04_initial_data_dev/STM_COMMENT.csv
         #            relativeToChangelogFile: true
@@ -945,6 +945,27 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSE_ID', 533);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_STY_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_STY_GI
+            quotchar: "\""
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: SGI_ID
+                  type: NUMERIC
+              - column:
+                  name: SGI_NAME
+                  type: STRING
+              - column:
+                  name: SGI_GIID
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
+
+
 #        - loadData:
 #            encoding: UTF-8
 #            file: 04_initial_data_dev/STM_PAR_TSK.csv
@@ -1081,20 +1102,3 @@ databaseChangeLog:
 #                  type: STRING
 #        - sql:
 #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_STY_GI.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_STY_GI
-#            quotchar: "\""
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: SGI_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: SGI_NAME
-#                  type: STRING
-#              - column:
-#                  name: SGI_GIID
-#                  type: NUMERIC

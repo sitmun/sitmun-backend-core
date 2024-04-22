@@ -80,13 +80,13 @@ public class ProxyConfigurationService {
         .build();
     }
 
-    List<String> varyParameters = new ArrayList<>();
     Map<String, String> parameters = configProxyRequest.getParameters();
     if (parameters == null) {
       parameters = new HashMap<>();
     }
     Set<ServiceParameter> servParams = service.getParameters();
     log.info("Parametros servicio {}", servParams.size());
+    List<String> varyParameters = new ArrayList<>();
     for (ServiceParameter parameter : servParams) {
       if (VARY_KEY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
@@ -171,11 +171,11 @@ public class ProxyConfigurationService {
 
     if (parameters != null && !parameters.isEmpty()) {
       String limit = null;
-      String offset = null;
       if (parameters.containsKey(SQL_LIMIT)) {
         limit = parameters.get(SQL_LIMIT);
         parameters.remove(SQL_LIMIT);
       }
+      String offset = null;
       if (parameters.containsKey(SQL_OFFSET)) {
         offset = parameters.get(SQL_OFFSET);
         parameters.remove(SQL_OFFSET);

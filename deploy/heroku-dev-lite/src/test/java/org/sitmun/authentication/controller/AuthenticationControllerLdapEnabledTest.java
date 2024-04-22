@@ -49,7 +49,7 @@ class AuthenticationControllerLdapEnabledTest {
 
   @BeforeEach
   void setupLdapServer() throws LDAPException {
-    InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.baseDN);
+    InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(baseDN);
     int port = URI.create(url).getPort();
     config.setListenerConfigs(
       InMemoryListenerConfig.createLDAPConfig("LDAP", port)

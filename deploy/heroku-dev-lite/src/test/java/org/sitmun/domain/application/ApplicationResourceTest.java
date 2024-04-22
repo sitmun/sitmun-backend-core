@@ -32,6 +32,7 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -45,7 +46,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -110,8 +110,8 @@ class ApplicationResourceTest {
   private Role publicRole;
 
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   public void init() {
-    withMockSitmunAdmin(() -> {
 
       territory = Territory.builder()
         .name("Territorio 1")
@@ -280,12 +280,11 @@ class ApplicationResourceTest {
       applicationParameters.add(applicationParam2);
 
       applicationParameterRepository.saveAll(applicationParameters);
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = "ADMIN")
   public void cleanup() {
-    withMockSitmunAdmin(() -> {
       applicationParameters
         .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
       applications.forEach((item) -> applicationRepository.deleteById(item.getId()));
@@ -300,7 +299,6 @@ class ApplicationResourceTest {
       services.forEach((item) -> serviceRepository.deleteById(item.getId()));
       territoryRepository.delete(territory);
       roleRepository.delete(publicRole);
-    });
   }
 
   @Test

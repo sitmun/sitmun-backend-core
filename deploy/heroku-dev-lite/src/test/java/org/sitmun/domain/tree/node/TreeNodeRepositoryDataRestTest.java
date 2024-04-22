@@ -1,7 +1,7 @@
 package org.sitmun.domain.tree.node;
 
 import com.jayway.jsonpath.JsonPath;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -20,53 +20,58 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("Tree Node Repository Data REST test")
 class TreeNodeRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("Retrieve tree name from node")
   void retrieveTreeName() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.treeName").value("Mòdul consulta municipal"));
+      .andExpect(jsonPath("$.treeName").value("Provincial"));
   }
 
   @Test
+  @DisplayName("Retrieve folder")
   void retrieveFolder() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5345)
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(true));
-    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5345)
+    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isNotFound());
   }
 
   @Test
+  @DisplayName("Retrieve leaf")
   void retrieveLeaf() throws Exception {
-    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 5351)
+    mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 3)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.isFolder").value(false));
-    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 5351)
+    mvc.perform(get(URIConstants.TREE_NODE_CARTOGRAPHY_URI, 3)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk());
   }
 
   @Test
+  @DisplayName("Retrieve nodes from tree")
   void retrieveNodesFromTree() throws Exception {
     mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(489)))
-      .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(80)))
-      .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == false)]", hasSize(409)));
+      .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(9)))
+      .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(4)))
+      .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == false)]", hasSize(5)));
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @DisplayName("New nodes can be posted")
   void newTreeNodesCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\"}";
 
@@ -93,9 +98,9 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @DisplayName("New nodes with parent can be posted")
   void newTreeNodesWithParentCanBePosted() throws Exception {
-    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/2\",\"parent\":\"http://localhost/api/tree-nodes/416\"}";
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\",\"parent\":\"http://localhost/api/tree-nodes/1\"}";
 
     MvcResult result = mvc.perform(
         post(URIConstants.TREE_NODES_URI)

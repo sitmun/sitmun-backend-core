@@ -19,7 +19,6 @@ import org.springframework.web.util.UriTemplate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 
 
 @SpringBootTest
@@ -58,7 +57,6 @@ class DownloadTaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<DownloadTask> opTask = downloadTaskRepository.findById(taskId);
@@ -67,7 +65,6 @@ class DownloadTaskEventHandlerTest {
       assertEquals("SHP", opTask.get().getFormat());
       assertEquals("http://www.example.com/", opTask.get().getPath());
       assertEquals("U", opTask.get().getScope());
-    });
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
       .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
@@ -111,7 +108,6 @@ class DownloadTaskEventHandlerTest {
       )
       .andExpect(MockMvcResultMatchers.status().isOk());
 
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<DownloadTask> opTask = downloadTaskRepository.findById(taskId);
@@ -120,7 +116,6 @@ class DownloadTaskEventHandlerTest {
       assertEquals("ZIP", opTask.get().getFormat());
       assertEquals("http://www.example2.com/", opTask.get().getPath());
       assertEquals("U", opTask.get().getScope());
-    });
 
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
@@ -145,7 +140,6 @@ class DownloadTaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<Task> opTask = taskRepository.findById(taskId);
@@ -159,7 +153,6 @@ class DownloadTaskEventHandlerTest {
       downloadTaskRepository.save(downloadTask);
 
       downloadTaskEventHandler.synchronize();
-    });
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

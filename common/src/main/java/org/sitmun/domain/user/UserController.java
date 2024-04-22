@@ -59,9 +59,8 @@ public class UserController {
       mergedUser = userRepository.save(mergedUser);
       publisher.publishEvent(new AfterSaveEvent(mergedUser));
       return ResponseEntity.ok(userToDto(mergedUser));
-    } else {
-      return ResponseEntity.notFound().build();
     }
+      return ResponseEntity.notFound().build();
   }
 
   private static User getUser(UserDTO updatedUser, User user) {

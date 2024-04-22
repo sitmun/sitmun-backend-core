@@ -13,9 +13,9 @@ public class BoundingBoxValidator
     if (value == null) {
       return true;
     }
-    boolean result = true;
     constraintValidatorContext.disableDefaultConstraintViolation();
 
+    boolean result = true;
     if (value.getMaxX() == null) {
       constraintValidatorContext.buildConstraintViolationWithTemplate("maxX must not be null")
         .addConstraintViolation();

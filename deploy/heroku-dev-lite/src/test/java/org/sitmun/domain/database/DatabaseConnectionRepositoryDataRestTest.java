@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -15,7 +16,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,6 +47,7 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create a DatabaseConnection and then update the password")
+  @WithMockUser(roles = "ADMIN")
   void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -60,12 +61,10 @@ class DatabaseConnectionRepositoryDataRestTest {
 
     String[] parts = uri.split("/");
     Integer id = Integer.parseInt(parts[parts.length - 1]);
-    final String[] oldPassword = new String[1];
-    withMockSitmunAdmin(() -> {
       Optional<DatabaseConnection> databaseConnection = repository.findById(id);
       assertTrue(databaseConnection.isPresent());
+    final String[] oldPassword = new String[1];
       oldPassword[0] = databaseConnection.get().getPassword();
-    });
 
     String content = "{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"new-password\" }";
 
@@ -75,11 +74,9 @@ class DatabaseConnectionRepositoryDataRestTest {
       .with(user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
-    withMockSitmunAdmin(() -> {
-      Optional<DatabaseConnection> databaseConnection = repository.findById(id);
+    databaseConnection = repository.findById(id);
       assertTrue(databaseConnection.isPresent());
       assertNotEquals(oldPassword[0], databaseConnection.get().getPassword());
-    });
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)
@@ -89,6 +86,7 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create a DatabaseConnection and then keep the password")
+  @WithMockUser(roles = "ADMIN")
   void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -102,12 +100,10 @@ class DatabaseConnectionRepositoryDataRestTest {
 
     String[] parts = uri.split("/");
     Integer id = Integer.parseInt(parts[parts.length - 1]);
-    final String[] oldPassword = new String[1];
-    withMockSitmunAdmin(() -> {
       Optional<DatabaseConnection> databaseConnection = repository.findById(id);
       assertTrue(databaseConnection.isPresent());
+    final String[] oldPassword = new String[1];
       oldPassword[0] = databaseConnection.get().getPassword();
-    });
 
     String content = "{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\"}";
 
@@ -117,11 +113,9 @@ class DatabaseConnectionRepositoryDataRestTest {
       .with(user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
-    withMockSitmunAdmin(() -> {
-      Optional<DatabaseConnection> databaseConnection = repository.findById(id);
+    databaseConnection = repository.findById(id);
       assertTrue(databaseConnection.isPresent());
       assertEquals(oldPassword[0], databaseConnection.get().getPassword());
-    });
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)
@@ -153,11 +147,9 @@ class DatabaseConnectionRepositoryDataRestTest {
       .with(user(Fixtures.admin()))
     ).andExpect(status().isOk());
 
-    withMockSitmunAdmin(() -> {
       Optional<DatabaseConnection> databaseConnection = repository.findById(id);
       assertTrue(databaseConnection.isPresent());
       assertNull(databaseConnection.get().getPassword());
-    });
 
     mvc.perform(delete(uri)
       .contentType(MediaType.APPLICATION_JSON)

@@ -25,35 +25,33 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
   public String convertToDatabaseColumn(List<String> list) {
     if (list == null) {
       return null;
-    } else if (list.isEmpty()) {
+    }
+    if (list.isEmpty()) {
       return "";
-    } else {
+    }
       return list.stream().map(it -> {
         if (it == null) {
           return "null";
-        } else {
-          return it.trim();
         }
+          return it.trim();
       }).collect(Collectors.joining(DELIMITER));
-    }
   }
 
   @Override
   public List<String> convertToEntityAttribute(String dbData) {
     if (dbData == null) {
       return null;
-    } else if (dbData.trim().isEmpty()) {
+    }
+    if (dbData.trim().isEmpty()) {
       return Collections.emptyList();
-    } else {
+    }
       return Arrays.stream(dbData.split(DELIMITER))
         .map(String::trim)
         .map(it -> {
           if ("null".equals(it)) {
             return null;
-          } else {
-            return it;
           }
+            return it;
         }).collect(Collectors.toList());
-    }
   }
 }

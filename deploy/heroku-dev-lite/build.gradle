@@ -82,3 +82,10 @@ jib {
 springBoot {
   getMainClass().set("org.sitmun.Application")
 }
+
+tasks.register('removeDB', Delete) {
+  delete 'build/sitmundb.mv.db'
+  delete 'build/sitmundb.trace.db'
+}
+
+test.dependsOn 'removeDB'

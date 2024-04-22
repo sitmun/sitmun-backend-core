@@ -49,9 +49,8 @@ public class DatabaseConnectionController {
       service.testDriver(connection);
       service.testConnection(connection);
       return ResponseEntity.ok().build();
-    } else {
-      return ResponseEntity.notFound().build();
     }
+      return ResponseEntity.notFound().build();
   }
 
 

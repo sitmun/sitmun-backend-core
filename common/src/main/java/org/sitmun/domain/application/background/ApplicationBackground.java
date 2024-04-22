@@ -56,7 +56,7 @@ public class ApplicationBackground {
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ABC_BACKID", foreignKey = @ForeignKey(name = "STM_ABC_FK_FON"))
   @NotNull
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Background background;
 
   /**
@@ -64,7 +64,7 @@ public class ApplicationBackground {
    * It can be used for sorting the list of backgrounds in a view.
    */
   @Column(name = "ABC_ORDER", precision = 6)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer order;
 
   @Override

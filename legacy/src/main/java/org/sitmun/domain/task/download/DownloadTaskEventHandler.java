@@ -39,7 +39,9 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateDownloadTasks(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     if (downloadTaskRepository.existsById(task.getId())) {
       downloadTaskRepository.deleteById(task.getId());
     }
@@ -57,7 +59,9 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     if (downloadTaskRepository.existsById(task.getId())) {
       downloadTaskRepository.deleteById(task.getId());
     }
@@ -96,9 +100,8 @@ public class DownloadTaskEventHandler implements SyncEntityHandler {
       newProperties.put("path", downloadTask.get().getPath());
       task.setProperties(newProperties);
       return Optional.of(task);
-    } else {
-      return Optional.empty();
     }
+      return Optional.empty();
   }
 }
 

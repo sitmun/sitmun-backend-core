@@ -11,7 +11,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-abstract public class BaseTest {
+public abstract class BaseTest {
 
   protected MockMvc mvc;
   @Autowired

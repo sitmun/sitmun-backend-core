@@ -16,7 +16,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   private static final String URI_TEMPLATE = "/api/helpers/capabilities?url={0}";
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("A request with a percent-encoded ampersand succeeds")
   void usePercentEncodedAmpersand() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://sitmun.diba.cat/wms/servlet/ACE1M?request=GetCapabilities%26service=WMS"))
@@ -29,7 +29,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
   void extractKnownWMSService130() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
@@ -43,7 +43,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.1.1")
   void extractKnownWMSService111() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
@@ -57,7 +57,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a bad request to a WMS")
   void extractFailedService() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
@@ -71,7 +71,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a request to HTML page")
   void extractHtmlPage() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
@@ -84,7 +84,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a request to a not found page")
   void extract404Page() throws Exception {
     mvc.perform(get(URI_TEMPLATE,
@@ -97,7 +97,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Extract from a request to an nonexistent domain")
   void extractNonExistentDomain() throws Exception {
     mvc.perform(get(URI_TEMPLATE,

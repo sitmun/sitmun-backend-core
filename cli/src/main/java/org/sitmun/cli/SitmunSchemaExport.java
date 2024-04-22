@@ -53,7 +53,7 @@ public class SitmunSchemaExport implements Callable<Void> {
     return null;
   }
 
-  private MetadataSources mapAnnotatedClasses(ServiceRegistry serviceRegistry) {
+  private static MetadataSources mapAnnotatedClasses(ServiceRegistry serviceRegistry) {
     MetadataSources sources = new MetadataSources(serviceRegistry);
 
     final Reflections reflections = new Reflections((Object[]) ENTITY_PACKAGES);

@@ -59,7 +59,7 @@ public class ApplicationTerritory {
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ATE_TERID", foreignKey = @ForeignKey(name = "STM_ATE_FK_TER"))
   @NotNull
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Territory territory;
 
 
@@ -67,7 +67,7 @@ public class ApplicationTerritory {
    * Initial extension of the application on the territory.
    */
   @Column(name = "ATE_INIEXT", length = 250)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Convert(converter = EnvelopeToStringConverter.class)
   @BoundingBox
   private Envelope initialExtent;

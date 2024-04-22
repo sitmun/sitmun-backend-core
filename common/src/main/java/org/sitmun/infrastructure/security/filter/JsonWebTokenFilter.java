@@ -38,8 +38,8 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       filterChain.doFilter(httpServletRequest, httpServletResponse);
       return;
     }
-    String jwtToken = requestTokenHeader.substring(7);
     try {
+      String jwtToken = requestTokenHeader.substring(7);
       String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
       if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);

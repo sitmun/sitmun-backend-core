@@ -63,8 +63,7 @@ public class AuthenticationController {
       String token = jsonWebTokenService.generateToken(userDetails);
       return ResponseEntity.ok()
         .body(new AuthenticationResponse(token));
-    } else {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 }

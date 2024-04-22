@@ -39,7 +39,7 @@ public class LdapPasswordStorage implements PasswordStorage {
   @Override
   public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
     String url = StringUtils.hasText(host) && StringUtils.hasText(baseDN)
-      ? this.host + "/" + this.baseDN
+      ? host + "/" + baseDN
       : null;
     authenticationManagerBuilder.ldapAuthentication()
       .passwordEncoder(ldapPasswordEncoder())

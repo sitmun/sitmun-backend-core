@@ -60,14 +60,14 @@ public class Application {
   @Column(name = "APP_TYPE", length = PersistenceConstants.IDENTIFIER)
   @NotNull
   @CodeList(CodeListsConstants.APPLICATION_TYPE)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String type;
 
   /**
    * Title to be shown in the browser and in the application when it is internal.
    */
   @Column(name = "APP_TITLE", length = PersistenceConstants.SHORT_DESCRIPTION)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String title;
 
   /**

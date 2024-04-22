@@ -54,10 +54,13 @@ public class DownloadTask {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+        return true;
+    }
 
-    if (!(o instanceof DownloadTask))
-      return false;
+    if (!(o instanceof DownloadTask)) {
+        return false;
+    }
 
     DownloadTask other = (DownloadTask) o;
 

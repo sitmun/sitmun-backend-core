@@ -10,7 +10,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-abstract public class BaseTest {
+public abstract class BaseTest {
 
   protected MockMvc mvc;
   @Autowired

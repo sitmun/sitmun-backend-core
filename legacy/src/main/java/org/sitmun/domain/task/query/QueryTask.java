@@ -53,10 +53,13 @@ public class QueryTask {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+        return true;
+    }
 
-    if (!(o instanceof QueryTask))
-      return false;
+    if (!(o instanceof QueryTask)) {
+        return false;
+    }
 
     QueryTask other = (QueryTask) o;
 

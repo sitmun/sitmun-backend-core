@@ -52,7 +52,9 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateDownloadTasks(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     taskParameterRepository.deleteAllByTask(task);
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
@@ -76,7 +78,7 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
 
   }
 
-  private Stream<TaskParameter> computeTaskParameters(Task task, QueryParameter parameter) {
+  private static Stream<TaskParameter> computeTaskParameters(Task task, QueryParameter parameter) {
     return Stream.of(
       TaskParameter.builder()
         .task(task)
@@ -104,7 +106,9 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (nonAccept(task)) return;
+    if (nonAccept(task)) {
+        return;
+    }
     taskParameterRepository.deleteAllByTask(task);
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
@@ -152,9 +156,8 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
       newProperties.put("description", queryTask.get().getDescription());
       task.setProperties(newProperties);
       return Optional.of(task);
-    } else {
-      return Optional.empty();
     }
+      return Optional.empty();
   }
 
   List<QueryParameter> extractParameters(Task task) {
@@ -186,8 +189,11 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
             SQL, Optional.ofNullable(qp.getValue())).entrySet().stream().map(
             it -> {
               Optional<String> r;
-              if (it.getValue().isPresent()) r = Optional.empty();
-              else r = Optional.of(it.getKey());
+              if (it.getValue().isPresent()) {
+                  r = Optional.empty();
+              } else {
+                  r = Optional.of(it.getKey());
+              }
               return r;
             }
           ).filter(Optional::isPresent).map(Optional::get).collect(joining(", "));

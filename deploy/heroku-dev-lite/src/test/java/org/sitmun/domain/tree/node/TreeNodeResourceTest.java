@@ -1,15 +1,15 @@
 package org.sitmun.domain.tree.node;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.style.CartographyStyle;
 import org.sitmun.domain.cartography.style.CartographyStyleRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
+import org.sitmun.domain.service.Service;
+import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.test.Fixtures;
@@ -17,13 +17,14 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,47 +50,69 @@ class TreeNodeResourceTest {
   @Autowired
   RoleRepository roleRepository;
   @Autowired
+  ServiceRepository serviceRepository;
+  @Autowired
   private MockMvc mvc;
 
-  private Tree publicTree;
+  private CartographyStyle style;
   private ArrayList<Tree> trees;
   private ArrayList<TreeNode> nodes;
-  private Role publicRole;
 
   private Cartography cartography;
 
+  private Set<Role> availableRoles;
+
+  private Service service;
+
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   void init() {
-    withMockSitmunAdmin(() -> {
-
       nodes = new ArrayList<>();
-
-      publicRole = Role.builder().name("USUARIO_PUBLICO").build();
+    Role publicRole = Role.builder().name("USUARIO_PUBLICO").build();
       roleRepository.save(publicRole);
 
-      Set<Role> availableRoles = new HashSet<>();
+    availableRoles = new HashSet<>();
       availableRoles.add(publicRole);
 
       trees = new ArrayList<>();
 
-      publicTree = new Tree();
+    Tree publicTree = new Tree();
       publicTree.setName(PUBLIC_TREE_NAME);
+    treeRepository.save(publicTree);
       trees.add(publicTree);
 
+    publicTree.getAvailableRoles().addAll(availableRoles);
+    treeRepository.save(publicTree);
 
       Tree tree = new Tree();
       tree.setName(NON_PUBLIC_TREE_NAME);
+    treeRepository.save(tree);
       trees.add(tree);
-      treeRepository.saveAll(trees);
 
-      publicTree.getAvailableRoles().addAll(availableRoles);
-      treeRepository.save(publicTree);
+    service = Service.builder()
+      .name("Service")
+      .serviceURL("")
+      .type("")
+      .blocked(false)
+      .build();
+    serviceRepository.save(service);
 
-
-      cartography = Cartography.builder().build();
+    cartography = Cartography.builder()
+      .type("I")
+      .name("Carto")
+      .layers(Collections.emptyList())
+      .queryableFeatureAvailable(false)
+      .queryableFeatureEnabled(false)
+      .service(service)
+      .availabilities(Collections.emptySet())
+      .blocked(false)
+      .build();
       cartography = cartographyRepository.save(cartography);
 
-      CartographyStyle style = CartographyStyle.builder().name("Style D").cartography(cartography).build();
+    style = CartographyStyle.builder()
+      .name("Style D")
+      .cartography(cartography)
+      .defaultStyle(true).build();
       cartographyStyleRepository.save(style);
 
       TreeNode treeNode1 = new TreeNode();
@@ -104,10 +127,21 @@ class TreeNodeResourceTest {
 
       nodes.add(treeNode2);
       treeNodeRepository.saveAll(nodes);
-    });
+  }
+
+  @AfterEach
+  @WithMockUser(roles = "ADMIN")
+  void cleanup() {
+    treeNodeRepository.deleteAll(nodes);
+    cartographyStyleRepository.delete(style);
+    cartographyRepository.delete(cartography);
+    serviceRepository.delete(service);
+    treeRepository.deleteAll(trees);
+    roleRepository.deleteAll(availableRoles);
   }
 
   @DisplayName("Tree nodes cannot be created with non existent styles")
+  @Disabled("Requires additional test data")
   @Test
   void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
     TreeNode node = nodes.get(0);

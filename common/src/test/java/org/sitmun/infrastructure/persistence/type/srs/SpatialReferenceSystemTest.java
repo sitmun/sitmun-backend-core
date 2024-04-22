@@ -35,7 +35,7 @@ class SpatialReferenceSystemTest extends BaseTest {
 
   @Test
   @DisplayName("Single projection pass")
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   void singleProjectionPass() throws Exception {
     mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
@@ -47,7 +47,7 @@ class SpatialReferenceSystemTest extends BaseTest {
 
   @Test
   @DisplayName("Single other value fail")
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   void singleOtherValueFail() throws Exception {
     mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
@@ -59,7 +59,7 @@ class SpatialReferenceSystemTest extends BaseTest {
 
   @Test
   @DisplayName("Multiple projections pass")
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   void multipleProjectionPass() throws Exception {
     mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)
@@ -70,7 +70,7 @@ class SpatialReferenceSystemTest extends BaseTest {
 
   @Test
   @DisplayName("Multiple projections with other value fail")
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   void multipleProjectionsWithOtherValueFail() throws Exception {
     mvc.perform(post(URIConstants.SERVICES_URI)
         .contentType(APPLICATION_JSON)

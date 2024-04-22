@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -64,7 +63,6 @@ class ExtractFMETaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Task task = taskRepository.findById(taskId).orElseGet(() -> Assertions.fail("Task not found"));
@@ -74,7 +72,6 @@ class ExtractFMETaskEventHandlerTest {
       assertEquals("CAPAS", list.get(0).getName());
       assertEquals("FME", list.get(0).getType());
       assertEquals("1,2", list.get(0).getValue());
-    });
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
       .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
@@ -115,7 +112,6 @@ class ExtractFMETaskEventHandlerTest {
       )
       .andExpect(MockMvcResultMatchers.status().isOk());
 
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Task task = taskRepository.findById(taskId).orElseGet(() -> Assertions.fail("Task not found"));
@@ -125,7 +121,6 @@ class ExtractFMETaskEventHandlerTest {
       assertEquals("CAPAS", list.get(0).getName());
       assertEquals("FME", list.get(0).getType());
       assertEquals("3,4", list.get(0).getValue());
-    });
 
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
@@ -151,8 +146,8 @@ class ExtractFMETaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
-      String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
+
+    String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<Task> opTask = taskRepository.findById(taskId);
       Assertions.assertTrue(opTask.isPresent());
@@ -166,7 +161,6 @@ class ExtractFMETaskEventHandlerTest {
       taskParameterRepository.save(taskParameter);
 
       extractFMETaskEventHandler.synchronize();
-    });
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

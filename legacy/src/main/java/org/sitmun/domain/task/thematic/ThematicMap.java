@@ -175,10 +175,13 @@ public class ThematicMap {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+        return true;
+    }
 
-    if (!(o instanceof ThematicMap))
-      return false;
+    if (!(o instanceof ThematicMap)) {
+        return false;
+    }
 
     ThematicMap other = (ThematicMap) o;
 

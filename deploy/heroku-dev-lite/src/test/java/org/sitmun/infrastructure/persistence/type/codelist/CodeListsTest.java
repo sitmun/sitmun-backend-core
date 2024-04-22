@@ -170,14 +170,14 @@ class CodeListsTest {
   @DisplayName("Check service.parameterType")
   void checkServiceParameterType() {
     assertThat(select(CodeListsConstants.SERVICE_PARAMETER_TYPE))
-      .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM");
+      .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM", "WMTS");
   }
 
   @Test
   @DisplayName("Check service.type")
   void checkServiceType() {
     assertThat(select(CodeListsConstants.SERVICE_TYPE))
-      .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS");
+      .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS", "WMTS");
   }
 
   @Test

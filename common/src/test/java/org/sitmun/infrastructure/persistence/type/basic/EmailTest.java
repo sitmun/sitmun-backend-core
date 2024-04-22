@@ -24,7 +24,7 @@ class EmailTest extends BaseTest {
   private static final String PROPERTY_WITH_EMAIL = "territorialAuthorityEmail";
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Pass if email value is valid")
   void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
@@ -33,7 +33,7 @@ class EmailTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail if email value is wrong")
   void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)

@@ -21,9 +21,9 @@ public class Liquibase extends SpringLiquibase {
 
   private final TaskExecutor taskExecutor;
 
-  private boolean runAsync = false;
+  private boolean runAsync;
 
-  private boolean syncLegacy = false;
+  private boolean syncLegacy;
 
   private boolean onStartupUpdate = true;
 

@@ -25,7 +25,7 @@ class MinMaxTest extends BaseTest {
   private static final String PROPERTY_WITH_MIN_MAX = "transparency";
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail if value is below min")
   void failIfValueIsBelowMin() throws Exception {
     postEntityWithMinMaxValue(INVALID_BELOW_MIN)
@@ -34,7 +34,7 @@ class MinMaxTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail if value is above max")
   void failIfValueIsAboveMax() throws Exception {
     postEntityWithMinMaxValue(INVALID_UPPER_MAX)
@@ -43,7 +43,7 @@ class MinMaxTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Pass if value is in range")
   void passIfValueIsInRange() throws Exception {
     postEntityWithMinMaxValue(VALID_VALUE)

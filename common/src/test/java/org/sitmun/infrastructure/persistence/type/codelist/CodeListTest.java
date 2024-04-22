@@ -26,7 +26,7 @@ class CodeListTest extends BaseTest {
   private CodeListValueRepository codeListValueRepository;
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Pass if code list value exists")
   void passIfCodeListValueIsValid() throws Exception {
 
@@ -44,7 +44,7 @@ class CodeListTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = {"ADMIN"})
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail if code list value does not exist")
   void failIfCodeListValueIsWrong() throws Exception {
 

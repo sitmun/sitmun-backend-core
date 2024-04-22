@@ -31,13 +31,17 @@ public class DashboardInfoContributor implements InfoContributor {
     builder.withDetail(TAG, hierarchiseMetrics(collectMetrics()));
   }
 
-  private Map<String, Object> collectMetrics() {
-    return Search.in(meterRegistry)
-      .name(name -> name.startsWith(DashboardConfig.METRICS_PREFIX))
-      .meters().stream()
-      .map(this::processMetric)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  private static Pair<String, Double> processMetric(Meter meter) {
+    if (meter instanceof Gauge) {
+      Gauge gauge = (Gauge) meter;
+      String id = gauge.getId().getName().substring(DashboardConfig.METRICS_PREFIX.length());
+      String suffix = gauge.getId().getTag(TAG);
+      if (suffix != null) {
+        id = id + '.' + suffix;
+      }
+      return Pair.of(id, gauge.value());
+    }
+      return null;
   }
 
   private Map<String, Object> hierarchiseMetrics(Map<String, Object> map) {
@@ -50,6 +54,15 @@ public class DashboardInfoContributor implements InfoContributor {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
+  private Map<String, Object> collectMetrics() {
+    return Search.in(meterRegistry)
+      .name(name -> name.startsWith(DashboardConfig.METRICS_PREFIX))
+      .meters().stream()
+      .map(DashboardInfoContributor::processMetric)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
   private Map.Entry<String, Object> processEntry(Map.Entry<String, List<Pair<String[], Object>>> entry) {
     Object newValue = toValue(entry.getValue().stream()
       .map(value -> Pair.of(
@@ -58,17 +71,17 @@ public class DashboardInfoContributor implements InfoContributor {
       ).collect(toList()));
     if (newValue != null) {
       return new AbstractMap.SimpleEntry<>(entry.getKey(), newValue);
-    } else {
-        return null;
     }
+    return null;
   }
 
   private Object toValue(List<Pair<String[], Object>> list) {
     if (list.isEmpty()) {
       return null;
-    } else if (list.size() == 1 && list.get(0).getKey().length == 0) {
+    }
+    if (list.size() == 1 && list.get(0).getKey().length == 0) {
       return list.get(0).getValue();
-    } else {
+    }
       return list.stream()
         .filter(entry -> entry.getKey().length != 0)
         .collect(groupingBy(entry -> entry.getKey()[0]))
@@ -76,20 +89,5 @@ public class DashboardInfoContributor implements InfoContributor {
         .map(this::processEntry)
         .filter(Objects::nonNull)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-  }
-
-  private Pair<String, Double> processMetric(Meter meter) {
-    if (meter instanceof Gauge) {
-      Gauge gauge = (Gauge) meter;
-      String id = gauge.getId().getName().substring(DashboardConfig.METRICS_PREFIX.length());
-      String suffix = gauge.getId().getTag(TAG);
-      if (suffix != null) {
-        id = id + '.' + suffix;
-      }
-      return Pair.of(id, gauge.value());
-    } else {
-      return null;
-    }
   }
 }

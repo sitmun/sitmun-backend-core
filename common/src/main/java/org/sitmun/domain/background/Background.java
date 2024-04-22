@@ -51,7 +51,7 @@ public class Background {
    */
   @Column(name = "BAC_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
   /**
@@ -59,7 +59,7 @@ public class Background {
    */
   @Column(name = "BAC_IMAGE", length = PersistenceConstants.URL)
   @Http
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String image;
 
   /**
@@ -87,7 +87,7 @@ public class Background {
    */
   @ManyToOne
   @JoinColumn(name = "BAC_GGIID", foreignKey = @ForeignKey(name = "STM_BAC_FK_GGI"))
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private CartographyPermission cartographyGroup;
 
   /**

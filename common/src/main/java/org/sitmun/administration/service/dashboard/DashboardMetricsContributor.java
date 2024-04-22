@@ -11,17 +11,18 @@ public interface DashboardMetricsContributor extends Runnable {
   default MultiGauge.Row<Number> getDateNumberRow(Object[] entry) {
     if (entry == null) {
       return null;
-    } else if (entry.length == 4 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
+    }
+    if (entry.length == 4 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
       String key = MessageFormat.format("{0,number,0000}-{1,number,00}-{2,number,00}", entry[0], entry[1], entry[2]);
       Number value = (Number) entry[3];
       return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, key), value);
-    } else if (entry.length == 3 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
+    }
+    if (entry.length == 3 && Arrays.stream(entry).allMatch(Objects::nonNull)) {
       String key = MessageFormat.format("{0,number,0000}-{1,number,00}", entry[0], entry[1]);
       Number value = (Number) entry[2];
       return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, key), value);
-    } else {
-      return null;
     }
+      return null;
   }
 
   /**
@@ -38,8 +39,7 @@ public interface DashboardMetricsContributor extends Runnable {
       String label = (String) entry[1];
       Number value = (Number) entry[2];
       return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, label), value);
-    } else {
-      return null;
     }
+      return null;
   }
 }

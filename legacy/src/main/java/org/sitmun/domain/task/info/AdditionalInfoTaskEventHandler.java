@@ -50,7 +50,9 @@ public class AdditionalInfoTaskEventHandler implements SyncEntityHandler {
   @HandleAfterSave
   @Transactional
   public void updateDownloadTasks(@NonNull Task task) {
-    if (notAccepted(task)) return;
+    if (notAccepted(task)) {
+        return;
+    }
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
     }
@@ -82,7 +84,9 @@ public class AdditionalInfoTaskEventHandler implements SyncEntityHandler {
   @HandleBeforeDelete
   @Transactional
   public void deleteParameters(@NonNull Task task) {
-    if (notAccepted(task)) return;
+    if (notAccepted(task)) {
+        return;
+    }
     if (queryTaskRepository.existsById(task.getId())) {
       queryTaskRepository.deleteById(task.getId());
     }
@@ -120,9 +124,8 @@ public class AdditionalInfoTaskEventHandler implements SyncEntityHandler {
       newProperties.put("description", queryTask.get().getDescription());
       task.setProperties(newProperties);
       return Optional.of(task);
-    } else {
-      return Optional.empty();
     }
+      return Optional.empty();
   }
 
   List<BasicParameter> extractParameters(Task task) {

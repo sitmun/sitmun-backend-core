@@ -42,7 +42,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
   /**
@@ -50,7 +50,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_OFFICIAL")
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean official = false;
 
@@ -59,7 +59,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_TOP")
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean topType = false;
 
@@ -68,7 +68,7 @@ public class TerritoryType {
    */
   @Column(name = "TET_BOTTOM")
   @NotBlank
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean bottomType = false;
 

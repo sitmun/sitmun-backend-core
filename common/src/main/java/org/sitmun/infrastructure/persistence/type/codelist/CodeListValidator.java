@@ -21,8 +21,7 @@ public class CodeListValidator implements ConstraintValidator<CodeList, String> 
   public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
     if (value != null) {
       return codeRepository.existsByCodeListNameAndValue(codeList, value);
-    } else {
-      return true;
     }
+      return true;
   }
 }

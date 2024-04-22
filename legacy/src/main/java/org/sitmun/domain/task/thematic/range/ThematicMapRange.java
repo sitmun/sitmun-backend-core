@@ -116,10 +116,13 @@ public class ThematicMapRange {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+        return true;
+    }
 
-    if (!(o instanceof ThematicMapRange))
-      return false;
+    if (!(o instanceof ThematicMapRange)) {
+        return false;
+    }
 
     ThematicMapRange other = (ThematicMapRange) o;
 

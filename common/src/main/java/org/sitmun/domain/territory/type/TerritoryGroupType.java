@@ -45,7 +45,7 @@ public class TerritoryGroupType {
    */
   @NotBlank
   @Column(name = "GTT_NAME", length = PersistenceConstants.SHORT_DESCRIPTION)
-  @JsonView({ClientConfigurationViews.ApplicationTerritory.class})
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
   @Override

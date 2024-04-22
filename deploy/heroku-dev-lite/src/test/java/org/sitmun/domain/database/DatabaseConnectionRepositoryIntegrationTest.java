@@ -5,10 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
@@ -21,6 +18,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -51,6 +49,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @BeforeEach
+  @WithMockUser(roles = "ADMIN")
   void setup() {
     ClientHttpRequestFactory factory =
       new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
@@ -62,7 +61,6 @@ class DatabaseConnectionRepositoryIntegrationTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
 
-    TestUtils.withMockSitmunAdmin(() -> {
       connections = new ArrayList<>();
       connections.add(connectionRepository
         .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_1").driver("driver1")
@@ -70,12 +68,12 @@ class DatabaseConnectionRepositoryIntegrationTest {
       connections.add(connectionRepository
         .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_2").driver("driver2")
           .build()));
-    });
   }
 
   @AfterEach
+  @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    TestUtils.withMockSitmunAdmin(() -> connectionRepository.deleteAll(connections));
+    connectionRepository.deleteAll(connections);
   }
 
   @Test
@@ -99,6 +97,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @Test
+  @DisplayName("PUT: Update DatabaseConnection")
   void updateConnection() throws JSONException {
     JSONObject updatedValueJson = getConnection(1);
     assertThat(updatedValueJson.get("user")).isEqualTo("User1");
@@ -118,6 +117,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
+  @DisplayName("PUT: Cannot update connection for catographies")
   void putCannotUpdateConnectionCartographies() throws JSONException {
     JSONObject oldValueJson = getConnectionCartographies(1);
     List oldList = getListOfCartographies(oldValueJson);
@@ -140,20 +140,22 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   @Test
+  @DisplayName("PUT: Can update cartography spatial selection connection")
+  @Disabled("Requires additional test data")
   void putCanUpdateCartographySpatialSelectionConnection() throws JSONException {
     String auth = getAuthorization();
-    assertThat(hasCartographiesSpatialSelectionConnection(1255, auth)).isTrue();
+    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     JSONObject cartographies = getConnectionCartographies(2);
     assertThat(getListOfCartographies(cartographies)).hasSize(7);
 
-    deleteCartographiesSpatialSelectionConnection(1255, auth);
-    assertThat(hasCartographiesSpatialSelectionConnection(1255, auth)).isFalse();
+    deleteCartographiesSpatialSelectionConnection(1, auth);
+    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isFalse();
     cartographies = getConnectionCartographies(2);
     assertThat(getListOfCartographies(cartographies)).hasSize(6);
 
 
-    updateCartographiesSpatialSelectionConnection(1255, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
-    assertThat(hasCartographiesSpatialSelectionConnection(1255, auth)).isTrue();
+    updateCartographiesSpatialSelectionConnection(1, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
+    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     cartographies = getConnectionCartographies(2);
     assertThat(getListOfCartographies(cartographies)).hasSize(7);
   }

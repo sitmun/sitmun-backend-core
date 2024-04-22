@@ -12,6 +12,7 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sitmun.test.TestUtils.withMockSitmunAdmin;
 
 
 @SpringBootTest
@@ -44,6 +44,7 @@ class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @WithMockUser(roles = "ADMIN")
   void postBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
@@ -71,7 +72,6 @@ class BasicTaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<Task> opTask = taskRepository.findById(taskId);
@@ -89,7 +89,6 @@ class BasicTaskEventHandlerTest {
       assertEquals("A title 2", parameters.get(1).getValue());
       assertEquals("ANY", parameters.get(1).getType());
       assertEquals(2, parameters.get(1).getOrder());
-    });
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
       .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
@@ -135,6 +134,7 @@ class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @WithMockUser(roles = "ADMIN")
   void updateBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
@@ -182,7 +182,6 @@ class BasicTaskEventHandlerTest {
       )
       .andExpect(MockMvcResultMatchers.status().isOk());
 
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<Task> opTask = taskRepository.findById(taskId);
@@ -195,7 +194,6 @@ class BasicTaskEventHandlerTest {
       assertEquals("A title 3", parameters.get(0).getValue());
       assertEquals("ANY", parameters.get(0).getType());
       assertEquals(3, parameters.get(0).getOrder());
-    });
 
     // Cleanup
     mvc.perform(MockMvcRequestBuilders.delete(location)
@@ -206,6 +204,7 @@ class BasicTaskEventHandlerTest {
 
   @Test
   @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
+  @WithMockUser(roles = "ADMIN")
   void syncBasicTaskWithParameters() throws Exception {
     String newTask = "{" +
       "\"name\": \"A name\"," +
@@ -220,7 +219,6 @@ class BasicTaskEventHandlerTest {
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertNotNull(location);
-    withMockSitmunAdmin(() -> {
       String id = new UriTemplate("http://localhost/api/tasks/{id}").match(location).get("id");
       Integer taskId = Integer.parseInt(id);
       Optional<Task> opTask = taskRepository.findById(taskId);
@@ -233,7 +231,6 @@ class BasicTaskEventHandlerTest {
       taskParameterRepository.save(param2);
 
       basicTaskEventHandler.synchronize();
-    });
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

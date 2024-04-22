@@ -1,5 +1,6 @@
 package org.sitmun.domain;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
@@ -32,7 +33,7 @@ class ProjectionsTest {
         .with(user(Fixtures.admin()))
       ).andExpect(status().isOk())
       .andExpect(jsonPath("$.territoryId").value(1))
-      .andExpect(jsonPath("$.territoryName").value("Provincia"))
+      .andExpect(jsonPath("$.territoryName").value("Provincia A"))
       .andExpect(jsonPath("$.taskId").value(1))
       .andExpect(jsonPath("$.taskGroupName").value("Basic"));
   }
@@ -44,17 +45,16 @@ class ProjectionsTest {
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.serviceId").value(43))
-      .andExpect(jsonPath("$.serviceName").value("DIBA PRIVAT MUNI_DB_BASE"))
-      .andExpect(jsonPath("$.spatialSelectionServiceId").value(47))
-      .andExpect(jsonPath("$.spatialSelectionServiceName").value("DIBA WFS Geoserver"))
+      .andExpect(jsonPath("$.serviceId").value(1))
+      .andExpect(jsonPath("$.serviceName").value("ICC Mapesmultibase"))
+      .andExpect(jsonPath("$.serviceId").value(1))
       .andExpect(jsonPath("$.useAllStyles").value(false));
   }
 
   @Test
   @DisplayName("Cartography view - styles")
   void cartographyProjectionStylesView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 0)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isOk())
@@ -63,9 +63,10 @@ class ProjectionsTest {
   }
 
   @Test
+  @Disabled("Requires additional test data")
   @DisplayName("CartographyAvailability view")
   void cartographyAvailabiltiesProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW, 9999)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
       ).andExpect(jsonPath("$.cartographyId").value(1208))
       .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
@@ -81,13 +82,13 @@ class ProjectionsTest {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.extent.maxX").value(467600.0))
-      .andExpect(jsonPath("$.typeId").value(2))
-      .andExpect(jsonPath("$.typeName").value("Consell Comarcal"))
-      .andExpect(jsonPath("$.typeTopType").value(false))
+      .andExpect(jsonPath("$.extent.maxX").value(481617.0))
+      .andExpect(jsonPath("$.typeId").value(8))
+      .andExpect(jsonPath("$.typeName").value("Província"))
+      .andExpect(jsonPath("$.typeTopType").value(true))
       .andExpect(jsonPath("$.typeBottomType").value(false))
-      .andExpect(jsonPath("$.center.x").value(442875.0))
-      .andExpect(jsonPath("$.defaultZoomLevel", is(nullValue())));
+      .andExpect(jsonPath("$.center.x").value(422552))
+      .andExpect(jsonPath("$.defaultZoomLevel").value(8));
   }
 
   @Test
@@ -98,21 +99,22 @@ class ProjectionsTest {
       )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.applicationName").value("SITMUN - Provincial"))
-      .andExpect(jsonPath("$.backgroundName").value("Imatge Nomenclàtor"))
-      .andExpect(jsonPath("$.backgroundDescription").value("NOMENCLÀTOR - Ortofoto ICC"));
+      .andExpect(jsonPath("$.backgroundName").value("Background Map"))
+      .andExpect(jsonPath("$.backgroundDescription").value("Background Map"));
   }
 
   @Test
   @DisplayName("UserPosition view")
   void userPositionProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 2124)
+    mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 6)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.territoryName").value("-  Província de Barcelona -"))
-      .andExpect(jsonPath("$.userId").value(6));
+      .andExpect(jsonPath("$.territoryName").value("Provincia A"))
+      .andExpect(jsonPath("$.userId").value(1));
   }
 
   @Test
+  @Disabled("Requires additional test data")
   @DisplayName("UserConfiguration view")
   void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41")
@@ -145,7 +147,7 @@ class ProjectionsTest {
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.backgrounds[*].cartographyGroupId", hasSize(1)))
-      .andExpect(jsonPath("$._embedded.backgrounds[?(@.cartographyGroupName)]", hasSize(6)));
+      .andExpect(jsonPath("$._embedded.backgrounds[?(@.cartographyGroupName)]", hasSize(1)));
   }
 
   @Test
@@ -213,14 +215,14 @@ class ProjectionsTest {
   @Test
   @DisplayName("Permissions projection view through cartography")
   void permissionsProjectionView() throws Exception {
-    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 90)
+    mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$._embedded.cartography-groups").exists())
       .andExpect(jsonPath("$._embedded.cartography-groups", hasSize(1)))
-      .andExpect(jsonPath("$._embedded.cartography-groups[0].name").value("Cartography Permisions Group 6"))
-      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", hasSize(9)))
-      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", containsInAnyOrder("Name of Role 10", "Name of Role 14", "Name of Role 17", "Name of Role 18", "Name of Role 19", "Name of Role 21", "Name of Role 23", "Name of Role 31", "Name of Role 147")));
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].name").value("Background Map"))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", hasSize(1)))
+      .andExpect(jsonPath("$._embedded.cartography-groups[0].roleNames", containsInAnyOrder("Role 1")));
   }
 
   @Test

@@ -110,7 +110,7 @@ class TerritoryRepositoryDataRestTest {
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.center.x").value(422552.0))
-      .andExpect(jsonPath("$.center.y").value(4623846.5))
+      .andExpect(jsonPath("$.center.y").value(4623846.0))
     ;
   }
 
