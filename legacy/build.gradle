@@ -19,6 +19,7 @@ dependencies {
   implementation project(':common')
 
   implementation 'org.liquibase:liquibase-core'
+  implementation 'com.mattbertolini:liquibase-slf4j:2.0.0'
 
   implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
   implementation "com.google.guava:guava:${guava_version}"
