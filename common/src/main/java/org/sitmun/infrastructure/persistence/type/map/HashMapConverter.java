@@ -39,6 +39,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
     if (dbData == null) {
       return null;
     }
+    if (dbData.isBlank()) {
+      return null;
+    }
     JavaType type = objectMapper.getTypeFactory().constructParametricType(Map.class, String.class, Object.class);
     try {
       return objectMapper.readValue(dbData, type);
