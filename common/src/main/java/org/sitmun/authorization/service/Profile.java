@@ -12,7 +12,6 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter

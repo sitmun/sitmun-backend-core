@@ -93,8 +93,7 @@ public class Application {
   /**
    * The JSP viewer to be loaded in this application when it is internal or a link to the
    * external application.
-   *
-   *  TODO Rename this property to "Url" and change the type to URL.
+   * TODO Rename this property to "Url" and change the type to URL.
    */
   @Column(name = "APP_TEMPLATE", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String jspTemplate;

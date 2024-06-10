@@ -58,11 +58,6 @@ class UserResourceTest {
   @Autowired
   private MockMvc mockMvc;
   private User organizacionAdmin;
-  private User territory1User;
-  private User territory2User;
-
-  private Territory territory1;
-  private Territory territory2;
 
 
   private Role organizacionAdminRole;
@@ -86,17 +81,17 @@ class UserResourceTest {
 
       territories = new ArrayList<>();
       users = new ArrayList<>();
-      territory1 = Territory.builder()
-        .name("Territorio 1")
-        .code("")
-        .blocked(false)
-        .build();
+    Territory territory1 = Territory.builder()
+      .name("Territorio 1")
+      .code("")
+      .blocked(false)
+      .build();
 
-      territory2 = Territory.builder()
-        .name("Territorio 2")
-        .code("")
-        .blocked(false)
-        .build();
+    Territory territory2 = Territory.builder()
+      .name("Territorio 2")
+      .code("")
+      .blocked(false)
+      .build();
       territories.add(territory1);
       territories.add(territory2);
 
@@ -117,27 +112,27 @@ class UserResourceTest {
       users.add(organizacionAdmin);
 
       // Territory 1 user
-      territory1User = User.builder()
-        .administrator(false)
-        .blocked(USER_BLOCKED)
-        .firstName(USER_FIRSTNAME)
-        .lastName(USER_LASTNAME)
-        .password(USER_PASSWORD)
-        .username(TERRITORY1_USER_USERNAME)
-        .build();
+    User territory1User = User.builder()
+      .administrator(false)
+      .blocked(USER_BLOCKED)
+      .firstName(USER_FIRSTNAME)
+      .lastName(USER_LASTNAME)
+      .password(USER_PASSWORD)
+      .username(TERRITORY1_USER_USERNAME)
+      .build();
 
       territory1User = userRepository.save(territory1User);
       users.add(territory1User);
 
       // Territory 2 user
-      territory2User = User.builder()
-        .administrator(false)
-        .blocked(USER_BLOCKED)
-        .firstName(USER_FIRSTNAME)
-        .lastName(USER_LASTNAME)
-        .password(USER_PASSWORD)
-        .username(TERRITORY2_USER_USERNAME)
-        .build();
+    User territory2User = User.builder()
+      .administrator(false)
+      .blocked(USER_BLOCKED)
+      .firstName(USER_FIRSTNAME)
+      .lastName(USER_LASTNAME)
+      .password(USER_PASSWORD)
+      .username(TERRITORY2_USER_USERNAME)
+      .build();
       territory2User = userRepository.save(territory2User);
       users.add(territory2User);
 

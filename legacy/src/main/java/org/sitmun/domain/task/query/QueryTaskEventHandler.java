@@ -197,8 +197,7 @@ public class QueryTaskEventHandler implements SyncEntityHandler {
               return r;
             }
           ).filter(Optional::isPresent).map(Optional::get).collect(joining(", "));
-          log.info("For Task " + task.getId() + " (task type = " + task.getType().getId() + ")" +
-            " parameter " + qp.getKey() + " not extracted: " + fail + " param rows not found");
+          log.info("For Task {} (task type = {}) parameter {} not extracted: {} param rows not found", task.getId(), task.getType().getId(), qp.getKey(), fail);
           result = Optional.empty();
         }
         return result;

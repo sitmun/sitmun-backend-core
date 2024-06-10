@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UserDetailsImplementation implements UserDetails {
-  private static final long serialVersionUID = 1L;
 
   @Getter
   private final Integer id;

@@ -58,7 +58,7 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
           .maxY(extractDouble(values[3]))
           .build();
       } catch (Exception e) {
-        log.error('[' + dbData + "] cannot be parsed to Envelope", e);
+        log.error("[{}] cannot be parsed to Envelope", dbData, e);
         return null;
       }
   }
