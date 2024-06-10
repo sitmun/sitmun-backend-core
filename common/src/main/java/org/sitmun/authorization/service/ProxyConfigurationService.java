@@ -6,9 +6,9 @@ import org.sitmun.authorization.dto.decorators.QueryFixedFiltersDecorator;
 import org.sitmun.authorization.dto.decorators.QueryPaginationDecorator;
 import org.sitmun.authorization.dto.decorators.QueryVaryFiltersDecorator;
 import org.sitmun.authorization.exception.BadRequestException;
-import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
+import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
@@ -34,7 +34,7 @@ public class ProxyConfigurationService {
 
   private static final String VARY_KEY = "VARY";
 
-  private final CartographyRepository cartographyRepository;
+  private final ServiceRepository serviceRepository;
 
   private final TaskRepository taskRepository;
 
@@ -51,11 +51,11 @@ public class ProxyConfigurationService {
   @Value("${sitmun.proxy.config-response-validity-in-seconds}")
   private int responseValidityTime;
 
-  public ProxyConfigurationService(CartographyRepository cartographyRepository,
+  public ProxyConfigurationService(ServiceRepository serviceRepository,
                                    TaskRepository taskRepository, UserRepository userRepository,
                                    TerritoryRepository territoryRepository, QueryFixedFiltersDecorator queryFixedFiltersDecorator,
                                    QueryVaryFiltersDecorator queryVaryFiltersDecorator, QueryPaginationDecorator queryPaginationDecorator) {
-    this.cartographyRepository = cartographyRepository;
+    this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.territoryRepository = territoryRepository;
@@ -135,6 +135,7 @@ public class ProxyConfigurationService {
   }
 
   public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, long expirationTimeToken) {
+    log.info("Fetching configuration for service type {} with id {}", configProxyRequest.getType(), configProxyRequest.getTypeId());
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
     if (CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequest.getType())) {
@@ -143,10 +144,8 @@ public class ProxyConfigurationService {
         configType.set(CONNECTION_TYPE_KEY);
       });
     } else {
-      cartographyRepository.findById(configProxyRequest.getTypeId()).ifPresent(cartography -> {
-        Service service = cartography.getService();
-        Map<String, String> parameters = configProxyRequest.getParameters();
-        parameters.put("LAYERS", String.join(",", cartography.getLayers()));
+      log.info("Searching service type {} with id {}", configProxyRequest.getType(), configProxyRequest.getTypeId());
+      serviceRepository.findById(configProxyRequest.getTypeId()).ifPresent(service -> {
         payload.set(getOgcWmsConfiguration(service, configProxyRequest));
         configType.set(service.getType());
       });
@@ -160,7 +159,7 @@ public class ProxyConfigurationService {
         .payload(payload.get())
         .build();
     }
-    throw new BadRequestException("Bad request");
+    throw new BadRequestException("Bad request for service type {} with id {}");
   }
 
   public void applyDecorators(ConfigProxyDto configProxyDto, ConfigProxyRequest configProxyRequest, String username) {

@@ -34,23 +34,44 @@ public class ProxyConfigurationController {
 
   @PostMapping(produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<ConfigProxyDto> getServiceConfiguration(@RequestBody ConfigProxyRequest configProxyRequest) {
-    String username = WebSecurityConfigurer.PUBLIC_USER_NAME;
+    log.info("Requesting configuration for appId:{} terId:{} type:{} typeId:{}",
+      configProxyRequest.getAppId(),
+      configProxyRequest.getTerId(),
+      configProxyRequest.getType(),
+      configProxyRequest.getTypeId());
     String token = configProxyRequest.getToken();
+    String username = null;
     long expirationTime = 0;
     if (StringUtils.hasText(token)) {
+      log.info("Request has token");
       try {
         username = jsonWebTokenService.getUsernameFromToken(token);
         expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
       } catch (ExpiredJwtException e) {
-        log.error("JWT is expired");
+        log.error("JWT is expired for user {}", username);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      } catch (Exception e) {
+        log.error("JWT is invalid for user {}", username);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       }
+      log.info("Token identifies user {} with expiration time {}", username, expirationTime);
+    } else {
+      username = WebSecurityConfigurer.PUBLIC_USER_NAME;
+      log.info("No token identifies user {} with expiration time {}", username, expirationTime);
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
-      ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
-      proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequest, username);
-      return ResponseEntity.ok().body(configProxyDto);
+      log.info("User {} is authorized to access the requested configuration", username);
+      try {
+        ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
+        proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequest, username);
+        log.info("User {} is informed of the configuration", username);
+        return ResponseEntity.ok().body(configProxyDto);
+      } catch (Exception e) {
+        log.error("Error getting configuration for user {}", username, e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
     }
+    log.error("Unauthorized: User {} is not authorized to access the requested configuration", username);
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 }
