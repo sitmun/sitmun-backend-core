@@ -143,9 +143,14 @@ public interface ProfileMapper {
 
   @AfterMapping
   default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
-    Comparator<ApplicationBackground> order = Comparator.nullsLast(Comparator.comparing(ApplicationBackground::getOrder));
     List<BackgroundDto> backgrounds = profile.getApplication().getBackgrounds().stream()
-      .sorted(order)
+      .peek(it -> {
+        // TODO Provide a default value to order
+        if (it.getOrder() == null) {
+          it.setOrder(0);
+        }
+      })
+      .sorted(Comparator.comparingInt(ApplicationBackground::getOrder))
       .map(ApplicationBackground::getBackground)
       .filter(Background::getActive)
       .map(Background::getCartographyGroup)
