@@ -1,2 +1,2 @@
-BAC_ID,BAC_NAME,BAC_DESC,BAC_ACTIVE,BAC_GGIID,BAC_CREATED
-1,Background Map,Background Map,1,2,NULL
+BAC_ID,BAC_NAME,BAC_DESC,BAC_ACTIVE,BAC_GGIID,BAC_CREATED,BAC_IMAGE
+1,Background Map,Background Map,1,2,NULL,http://example.com/background_map.png

@@ -52,10 +52,11 @@ public interface ProfileMapper {
       .build();
   }
 
-  default BackgroundDto mapCartographyPermissionToBackground(CartographyPermission background) {
+  default BackgroundDto map(Background background) {
     return BackgroundDto.builder()
-      .id("group/" + background.getId())
+      .id("group/" + background.getCartographyGroup().getId())
       .title(background.getName())
+      .thumbnail(background.getImage())
       .build();
   }
 
@@ -150,10 +151,10 @@ public interface ProfileMapper {
           it.setOrder(0);
         }
       })
-      .sorted(Comparator.comparingInt(ApplicationBackground::getOrder))      .map(ApplicationBackground::getBackground)
+      .sorted(Comparator.comparingInt(ApplicationBackground::getOrder))
+      .map(ApplicationBackground::getBackground)
       .filter(Background::getActive)
-      .map(Background::getCartographyGroup)
-      .map(this::mapCartographyPermissionToBackground)
+      .map(this::map)
       .collect(Collectors.toList());
     builder.backgrounds(backgrounds);
 

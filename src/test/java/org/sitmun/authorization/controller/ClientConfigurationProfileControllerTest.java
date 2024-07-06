@@ -100,6 +100,7 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.backgrounds").isArray())
       .andExpect(jsonPath("$.backgrounds[?(@.id=='group/2')].title", hasItem("Background Map")))
+      .andExpect(jsonPath("$.backgrounds[?(@.id=='group/2')].thumbnail", hasItem("http://example.com/background_map.png")))
       .andExpect(jsonPath("$.groups[?(@.id=='group/2')].title", hasItem("Background Map")));
   }
 

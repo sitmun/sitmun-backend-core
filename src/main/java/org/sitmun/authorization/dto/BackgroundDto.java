@@ -11,4 +11,5 @@ import lombok.Setter;
 public class BackgroundDto {
   private String id;
   private String title;
+  private String thumbnail;
 }

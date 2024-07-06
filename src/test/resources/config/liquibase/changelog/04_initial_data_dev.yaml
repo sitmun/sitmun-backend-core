@@ -589,6 +589,9 @@ databaseChangeLog:
               - column:
                   name: BAC_CREATED
                   type: DATETIME
+              - column:
+                  name: BAC_IMAGE
+                  type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('BAC_ID', 1);
         - loadData:
