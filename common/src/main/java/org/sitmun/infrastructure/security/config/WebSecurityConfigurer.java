@@ -38,7 +38,8 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     "/swagger-ui/**",
     "/swagger-ui.*",
     "/dist/**",
-    "/workspace.html"
+    "/workspace.html",
+    "/api/dashboard/health",
   };
 
   private final SecurityEntryPoint unauthorizedHandler;
