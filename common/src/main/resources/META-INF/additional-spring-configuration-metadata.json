@@ -31,16 +31,6 @@
       "description": "Rebuild properties from legacy tables on Startup."
     },
     {
-      "name": "spring.liquibase.run-async",
-      "type": "java.lang.Boolean",
-      "description": "Run liquibase asynchronously."
-    },
-    {
-      "name": "spring.liquibase.sync-legacy",
-      "type": "java.lang.Boolean",
-      "description": "Run synchronization code."
-    },
-    {
       "name": "sitmun.module",
       "type": "java.lang.String",
       "description": "SITMUN module name."
@@ -49,11 +39,6 @@
       "name": "sitmun.version",
       "type": "java.lang.String",
       "description": "SITMUN version."
-    },
-    {
-      "name": "spring.liquibase.on-startup-update",
-      "type": "java.lang.Boolean",
-      "description": "Run on startup updates."
     }
   ]
 }

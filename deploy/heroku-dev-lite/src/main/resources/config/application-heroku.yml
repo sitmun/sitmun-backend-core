@@ -46,8 +46,6 @@ spring:
   liquibase:
     change-log: classpath:config/liquibase/master.xml
     contexts: dev
-    run-async: true
-    sync-legacy: true
 
 security:
   authentication:

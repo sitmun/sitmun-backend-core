@@ -32,9 +32,6 @@ class DownloadTaskEventHandlerTest {
   TaskRepository taskRepository;
 
   @Autowired
-  DownloadTaskEventHandler downloadTaskEventHandler;
-
-  @Autowired
   private MockMvc mvc;
 
   @Test
@@ -151,8 +148,6 @@ class DownloadTaskEventHandlerTest {
         .path("http://www.example3.com/")
         .scope("U").build();
       downloadTaskRepository.save(downloadTask);
-
-      downloadTaskEventHandler.synchronize();
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

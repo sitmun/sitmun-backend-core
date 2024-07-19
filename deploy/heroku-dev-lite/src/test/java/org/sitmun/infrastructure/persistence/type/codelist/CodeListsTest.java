@@ -40,7 +40,7 @@ class CodeListsTest {
       CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT,
       CodeListsConstants.CARTOGRAPHY_PARAMETER_TYPE,
       CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE,
-      // DATABASE_CONNECTION_DRIVER,
+      CodeListsConstants.DATABASE_CONNECTION_DRIVER,
       // DOWNLOAD_TASK_FORMAT,
       CodeListsConstants.DOWNLOAD_TASK_SCOPE,
       CodeListsConstants.QUERY_TASK_SCOPE,

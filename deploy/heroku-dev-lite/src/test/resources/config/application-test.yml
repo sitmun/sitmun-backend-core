@@ -22,9 +22,6 @@ management:
       base-path: /api/dashboard
 
 spring:
-  sql:
-    init:
-      mode: never
   jackson:
     serialization:
       indent-output: true
@@ -56,9 +53,6 @@ spring:
   liquibase:
     change-log: classpath:config/liquibase/master.xml
     contexts: dev
-    run-async: false
-    sync-legacy: true
-    on-startup-update: true
 
 security:
   authentication:

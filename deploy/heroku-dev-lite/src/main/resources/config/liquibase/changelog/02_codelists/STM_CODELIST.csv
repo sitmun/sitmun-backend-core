@@ -103,3 +103,4 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 106,service.authenticationMode,HTTP Basic authentication,TRUE,FALSE,HTTP Basic authentication
 107,service.type,WMTS,FALSE,FALSE,WMTS
 108,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
+109,databaseConnection.driver,org.h2.Driver,TRUE,FALSE,H2 Driver (org.h2.Driver)

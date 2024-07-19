@@ -37,9 +37,6 @@ class BasicTaskEventHandlerTest {
   TaskRepository taskRepository;
 
   @Autowired
-  BasicTaskEventHandler basicTaskEventHandler;
-
-  @Autowired
   private MockMvc mvc;
 
   @Test
@@ -229,8 +226,6 @@ class BasicTaskEventHandlerTest {
       taskParameterRepository.save(param1);
       TaskParameter param2 = TaskParameter.builder().name("title 2").value("A title 2").value("ANY").order(2).task(task).build();
       taskParameterRepository.save(param2);
-
-      basicTaskEventHandler.synchronize();
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

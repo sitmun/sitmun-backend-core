@@ -39,9 +39,6 @@ class ExtractFMETaskEventHandlerTest {
   TaskRepository taskRepository;
 
   @Autowired
-  ExtractFMETaskEventHandler extractFMETaskEventHandler;
-
-  @Autowired
   private MockMvc mvc;
 
   @Test
@@ -159,8 +156,6 @@ class ExtractFMETaskEventHandlerTest {
         .value("6,7")
         .order(1).build();
       taskParameterRepository.save(taskParameter);
-
-      extractFMETaskEventHandler.synchronize();
 
     mvc.perform(MockMvcRequestBuilders.get(location)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

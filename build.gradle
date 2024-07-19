@@ -119,3 +119,7 @@ tasks.register('herokuDevLocal', JavaExec) {
   description = "Run as local the Heroku deployment"
   classpath = files("deploy/heroku-dev-full/build/libs/heroku-dev-full-${version}.jar")
 }
+
+tasks.withType(Test).configureEach {
+  useJUnitPlatform()
+}
