@@ -32,3 +32,7 @@ jacocoTestReport {
 }
 
 test.finalizedBy jacocoTestReport
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

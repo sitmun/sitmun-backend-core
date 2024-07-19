@@ -22,6 +22,9 @@ management:
       base-path: /api/dashboard
 
 spring:
+  sql:
+    init:
+      mode: never
   jackson:
     serialization:
       indent-output: true

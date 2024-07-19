@@ -76,3 +76,7 @@ jib {
 springBoot {
   getMainClass().set("org.sitmun.Application")
 }
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

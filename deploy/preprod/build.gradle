@@ -130,3 +130,7 @@ def sql(scriptName, user, password) {
           src: scriptName
   )
 }
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
