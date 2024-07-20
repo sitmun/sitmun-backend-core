@@ -6,7 +6,7 @@ plugins {
 
   id 'com.github.node-gradle.node' version '3.0.1' apply false
 
-  id 'org.springframework.boot' version '2.5.15' apply false
+  id 'org.springframework.boot' version '2.6.15' apply false
   id 'io.spring.dependency-management' version '1.0.15.RELEASE' apply false
 
   id 'org.ajoberstar.git-publish' version '2.1.3' apply false
@@ -23,7 +23,7 @@ plugins {
 }
 
 rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_5")
+  activeRecipe("org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_6")
 }
 repositories {
   mavenCentral()

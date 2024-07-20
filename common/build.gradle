@@ -24,7 +24,8 @@ dependencies {
   testImplementation 'com.unboundid:unboundid-ldapsdk'
 
   testImplementation 'org.hamcrest:hamcrest'
-  testImplementation 'org.junit.jupiter:junit-jupiter'
+
+  implementation "com.google.guava:guava:${guava_version}"
 
   implementation "com.querydsl:querydsl-jpa:${querydls_version}"
 

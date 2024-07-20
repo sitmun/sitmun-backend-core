@@ -44,17 +44,18 @@ dependencies {
   testImplementation 'org.springframework.security:spring-security-test'
 
   testImplementation 'org.hibernate:hibernate-core'
-  testImplementation "org.junit.jupiter:junit-jupiter:5.10.3"
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+  testImplementation 'com.fasterxml.jackson.core:jackson-databind'
   testImplementation 'com.querydsl:querydsl-jpa'
 
   testImplementation "org.assertj:assertj-core:${assertj_core_version}"
   testImplementation "org.json:json:${json_version}"
   testImplementation 'com.unboundid:unboundid-ldapsdk'
-  testImplementation "org.hamcrest:hamcrest:2.2"
-    testImplementation 'org.springframework.ldap:spring-ldap-core'
+  testImplementation 'org.hamcrest:hamcrest'
+  testImplementation 'org.springframework.ldap:spring-ldap-core'
   testImplementation 'org.springframework.boot:spring-boot-starter-security'
   testImplementation 'org.springframework.security:spring-security-ldap'
+  testImplementation "com.google.guava:guava:${guava_version}"
 }
 
 jacocoTestReport {
