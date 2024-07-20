@@ -25,11 +25,8 @@ dependencies {
 
   testImplementation 'org.hamcrest:hamcrest'
   testImplementation 'org.junit.jupiter:junit-jupiter'
-  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-  annotationProcessor 'com.querydsl:querydsl-apt::jpa'
-  annotationProcessor 'javax.annotation:javax.annotation-api'
-  implementation 'com.querydsl:querydsl-jpa'
+  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
 
   implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
   implementation 'com.squareup.okhttp3:okhttp'
@@ -44,10 +41,15 @@ dependencies {
   implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
 
   implementation "org.mapstruct:mapstruct:${mapstruct_version}"
-  annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
 
   implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
-  
+
+  annotationProcessor 'javax.annotation:javax.annotation-api'
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
+  annotationProcessor 'javax.persistence:javax.persistence-api'
+  annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
