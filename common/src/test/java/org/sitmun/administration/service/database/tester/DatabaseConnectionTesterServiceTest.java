@@ -40,8 +40,8 @@ class DatabaseConnectionTesterServiceTest {
     DatabaseConnection connection = DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdbc:h2:mem:testdb")
-      .name("sa")
-      .password("password")
+      .user("sa")
+      .password(null)
       .build();
     sut.testDriver(connection);
     assertTrue(sut.testConnection(connection));
@@ -52,8 +52,8 @@ class DatabaseConnectionTesterServiceTest {
     DatabaseConnection connection = DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdb:h2:mem:testdb")
-      .name("sa")
-      .password("password")
+      .user("sa")
+      .password(null)
       .build();
     sut.testDriver(connection);
     DatabaseSQLException exception = assertThrows(DatabaseSQLException.class, () -> sut.testConnection(connection));

@@ -4,10 +4,10 @@ package org.sitmun.infrastructure.persistence.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.stereotype.Component;
-import org.springframework.context.event.EventListener;
 
 import java.util.Collection;
 

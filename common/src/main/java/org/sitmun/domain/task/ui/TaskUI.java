@@ -9,7 +9,6 @@ import org.sitmun.domain.task.type.TaskType;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-
 import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;

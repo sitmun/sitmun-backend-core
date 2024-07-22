@@ -9,9 +9,12 @@ import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,8 +31,12 @@ class BoundingBoxTest extends BaseTest {
       .minY(4611482.0)
       .maxX(437423.0)
       .maxY(4618759.0).build();
-    postWithCustomEnvelope(envelope)
-      .andExpect(status().isCreated());
+    MvcResult result = postWithCustomEnvelope(envelope)
+      .andExpect(status().isCreated())
+      .andReturn();
+    String location = result.getResponse().getHeader("Location");
+    assertNotNull(location);
+    mvc.perform(delete(location));
   }
 
   @Test

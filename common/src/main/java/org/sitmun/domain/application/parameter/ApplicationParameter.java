@@ -11,7 +11,6 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
 import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;

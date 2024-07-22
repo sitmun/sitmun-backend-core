@@ -81,6 +81,8 @@ public class URIConstants {
 
   public static final String SERVICE_URI = SERVICES_URI + "/{0}";
 
+  public static final String SERVICE_LAYERS_URI = SERVICE_URI + "/layers";
+
   public static final String TASKS_URI = "http://localhost/api/tasks";
 
   public static final String TASKS_URI_PROJECTION_VIEW = TASKS_URI + "?projection=view";
@@ -149,4 +151,24 @@ public class URIConstants {
   public static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
   public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";
 
+  public static final String CONFIG_CLIENT_URI = "http://localhost/api/config/client";
+
+  public static final String CONFIG_CLIENT_APPLICATION_URI = CONFIG_CLIENT_URI + "/application";
+
+  public static final String CONFIG_CLIENT_APPLICATION_TERRITORIES_URI = CONFIG_CLIENT_APPLICATION_URI + "/{0}/territories";
+
+  public static final String CONFIG_CLIENT_TERRITORY_URI = CONFIG_CLIENT_URI + "/territory";
+
+  public static final String CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI = CONFIG_CLIENT_TERRITORY_URI + "/{0}/applications";
+
+  public static final String CONFIG_CLIENT_PROFILE_URI = CONFIG_CLIENT_URI + "/profile/{0}/{1}";
+
+  public static final String CONFIG_PROXY_URI = "http://localhost/api/config/proxy";
+
+  public static final String CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW =
+    "/api/cartography-availabilities/{0}?projection=view";
+
+  public static final String TASK_PROJECTION_CARTOGRAPHY_VIEW = TASKS_URI + "/{0}/cartography?projection=view";
+
+  public static final String APPLICATION_PARAMETERS_URI = APPLICATION_URI + "/parameters";
 }

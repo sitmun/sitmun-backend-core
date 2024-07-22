@@ -57,8 +57,8 @@ class DatabaseConnectionControllerTest extends BaseTest {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdbc:h2:mem:testdb")
-      .name("sa")
-      .password("password")
+      .user("sa")
+      .password(null)
       .build()));
     mvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isOk());
@@ -79,8 +79,8 @@ class DatabaseConnectionControllerTest extends BaseTest {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
       .url("jdbc:h2:mem:testdb")
-      .name("sa")
-      .password("password")
+      .user("sa")
+      .password(null)
       .build()));
     mvc.perform(get("/api/connections/0/test"))
       .andExpect(status().isUnauthorized());
@@ -92,7 +92,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+        .content("{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : \"password\" }"))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
@@ -104,7 +104,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   void failPostTestIfDatabaseConnectionException() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : null }"))
       .andExpect(status().isInternalServerError())
       .andExpect(jsonPath("$.error").value("Internal Server Error"))
       .andExpect(jsonPath("$.message").value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
@@ -116,7 +116,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   void databaseConnectionPostTestSuccess() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : null }"))
       .andExpect(status().isOk());
   }
 
@@ -125,7 +125,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   void failPostTestIfNoCredentials() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"name\" : \"sa\", \"password\" : \"password\" }"))
+        .content("{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdbc:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : null }"))
       .andExpect(status().isUnauthorized());
   }
 }
