@@ -8,10 +8,6 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # =====================================================================================================================
 
-sitmun:
-  module: SITMUN Core
-  version: 3.0-SNAPSHOT
-
 spring:
   application:
     name: SITMUN
@@ -75,6 +71,14 @@ spring:
     change-log: classpath:config/liquibase/master.xml
     contexts: dev
 
+security:
+  authentication:
+    jwt:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+      token-validity-in-miliseconds: 36000000
+    middleware:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+
 server:
   servlet:
     session:
@@ -84,3 +88,10 @@ server:
 # ===================================================================
 # SITMUN specific properties
 # ===================================================================
+
+sitmun:
+  module: SITMUN Core
+  version: 3.0-SNAPSHOT
+  proxy:
+    config-response-validity-in-seconds: 3600
+

@@ -23,7 +23,6 @@ dependencyManagement {
 
 dependencies {
   implementation project(':common')
-  implementation project(':legacy')
 
   implementation 'org.postgresql:postgresql'
   implementation 'com.h2database:h2' // for local development

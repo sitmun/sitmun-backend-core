@@ -1,6 +1,5 @@
 rootProject.name = 'sitmun-backend-core'
 
-include 'legacy'
 include 'common'
 include 'cli'
 include 'deploy:heroku-dev-full'

@@ -50,9 +50,7 @@ spring:
               action: create
               create-target: create.sql
               create-source: metadata
-  liquibase:
-    change-log: classpath:config/liquibase/master.xml
-    contexts: dev
+
 
 security:
   authentication:

@@ -45,6 +45,9 @@ dependencies {
 
   implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
 
+  implementation 'org.liquibase:liquibase-core'
+  implementation 'com.mattbertolini:liquibase-slf4j:2.0.0'
+
   annotationProcessor 'javax.annotation:javax.annotation-api'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
   annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"

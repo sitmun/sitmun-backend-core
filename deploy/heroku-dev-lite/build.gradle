@@ -24,7 +24,6 @@ dependencyManagement {
 
 dependencies {
   implementation project(':common')
-  implementation project(':legacy')
 
   implementation 'com.zaxxer:HikariCP'
 
@@ -34,8 +33,6 @@ dependencies {
   liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
   liquibaseRuntime 'info.picocli:picocli:4.6.1'
   liquibaseRuntime 'org.postgresql:postgresql'
-
-  testImplementation project(':common')
 
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: "com.vaadin.external.google", module: "android-json"
