@@ -118,14 +118,6 @@ create table stm_connect
   con_user       varchar2(50 char),
   primary key (con_id)
 );
-create table stm_download
-(
-  dow_id   number(10, 0) not null,
-  dow_ext  varchar2(50 char),
-  dow_path varchar2(4000 char),
-  dow_type varchar2(50 char),
-  primary key (dow_id)
-);
 create table stm_fil_gi
 (
   fgi_id        number(10, 0) not null,
@@ -272,26 +264,6 @@ create table stm_par_ser
   pse_value varchar2(250 char),
   pse_serid number(10, 0),
   primary key (pse_id)
-);
-create table stm_par_tsk
-(
-  ptt_id        number(10, 0) not null,
-  ptt_default   varchar2(250 char),
-  ptt_editable  number(1, 0),
-  ptt_format    varchar2(50 char),
-  ptt_help      varchar2(250 char),
-  ptt_maxlen    number(10, 0),
-  ptt_name      varchar2(50 char),
-  ptt_order     number(10, 0),
-  ptt_valuerel  varchar2(512 char),
-  ptt_filterrel varchar2(512 char),
-  ptt_required  number(1, 0),
-  ptt_select    varchar2(1500 char),
-  ptt_selectabl number(1, 0),
-  ptt_type      varchar2(50 char),
-  ptt_value     varchar2(4000 char),
-  ptt_taskid    number(10, 0),
-  primary key (ptt_id)
 );
 create table stm_post
 (
@@ -620,8 +592,6 @@ alter table stm_par_sgi
   add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
 alter table stm_par_ser
   add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
-alter table stm_par_tsk
-  add constraint STM_PTT_FK_TAS foreign key (ptt_taskid) references stm_task on delete cascade;
 alter table stm_post
   add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;
 alter table stm_post

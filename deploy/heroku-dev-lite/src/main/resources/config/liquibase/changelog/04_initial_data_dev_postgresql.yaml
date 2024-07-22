@@ -847,26 +847,6 @@ databaseChangeLog:
                   type: STRING
         - loadData:
             encoding: UTF-8
-            file: 04_initial_data_dev/STM_DOWNLOAD.csv
-            relativeToChangelogFile: true
-            tableName: STM_DOWNLOAD
-            usePreparedStatements: true
-            quotchar: '"'
-            columns:
-              - column:
-                  name: DOW_ID
-                  type: NUMERIC
-              - column:
-                  name: DOW_EXT
-                  type: STRING
-              - column:
-                  name: DOW_TYPE
-                  type: STRING
-              - column:
-                  name: DOW_PATH
-                  type: STRING
-        - loadData:
-            encoding: UTF-8
             file: 04_initial_data_dev/STM_ROL_TSK.csv
             relativeToChangelogFile: true
             tableName: STM_ROL_TSK
@@ -987,34 +967,6 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSE_ID', 533);
-        - loadData:
-            encoding: UTF-8
-            file: 04_initial_data_dev/STM_PAR_TSK.csv
-            relativeToChangelogFile: true
-            tableName: STM_PAR_TSK
-            usePreparedStatements: true
-            quotchar: '"'
-            columns:
-              - column:
-                  name: PTT_ID
-                  type: NUMERIC
-              - column:
-                  name: PTT_NAME
-                  type: STRING
-              - column:
-                  name: PTT_VALUE
-                  type: STRING
-              - column:
-                  name: PTT_TYPE
-                  type: STRING
-              - column:
-                  name: PTT_ORDER
-                  type: STRING
-              - column:
-                  name: PTT_TASKID
-                  type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PTT_ID', 9366);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_STY_GI.csv

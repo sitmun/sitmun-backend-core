@@ -773,26 +773,6 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 34);
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_DOWNLOAD.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_DOWNLOAD
-        #            usePreparedStatements: true
-        #            quotchar: "\""
-        #            columns:
-        #              - column:
-        #                  name: DOW_ID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: DOW_EXT
-        #                  type: STRING
-        #              - column:
-        #                  name: DOW_TYPE
-        #                  type: STRING
-        #              - column:
-        #                  name: DOW_PATH
-        #                  type: STRING
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_ROL_TSK.csv
@@ -942,34 +922,3 @@ databaseChangeLog:
                   type: NUMERIC
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
-
-
-#        - loadData:
-#            encoding: UTF-8
-#            file: 04_initial_data_dev/STM_PAR_TSK.csv
-#            relativeToChangelogFile: true
-#            tableName: STM_PAR_TSK
-#            usePreparedStatements: true
-#            columns:
-#              - column:
-#                  name: PTT_ID
-#                  type: NUMERIC
-#              - column:
-#                  name: PTT_NAME
-#                  type: STRING
-#              - column:
-#                  name: PTT_VALUE
-#                  type: STRING
-#              - column:
-#                  name: PTT_TYPE
-#                  type: STRING
-#              - column:
-#                  name: PTT_ORDER
-#                  type: STRING
-#              - column:
-#                  name: PTT_TASKID
-#                  type: NUMERIC
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PTT_ID', 9390);
-#        - sql:
-#            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
