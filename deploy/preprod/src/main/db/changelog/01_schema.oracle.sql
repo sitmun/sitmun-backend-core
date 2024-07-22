@@ -462,49 +462,6 @@ create table stm_territory
   primary key (ter_id) using index tablespace ${index_tablespace}
 );
 
-create table stm_the_rank
-(
-  trk_position number(10, 0) not null,
-  trk_valuenul number(1, 0),
-  trk_color    varchar2(30 char),
-  trk_size     number(10, 0),
-  trk_style    varchar2(30 char),
-  trk_desc     varchar2(250 char),
-  trk_colorint varchar2(30 char),
-  trk_styleint varchar2(30 char),
-  trk_valuemax number(19, 11),
-  trk_valuemin number(19, 11),
-  trk_name     varchar2(50 char),
-  trk_value    varchar2(30 char),
-  trk_theid    number(10, 0) not null,
-  primary key (trk_theid, trk_position) using index tablespace ${index_tablespace}
-);
-
-create table stm_thematic
-(
-  the_id           number(10, 0) not null,
-  the_sizemax      number(10, 0),
-  the_sizemin      number(10, 0),
-  the_desc         varchar2(250 char),
-  the_destination  varchar2(50 char),
-  the_colormax     varchar2(250 char),
-  the_expiration   timestamp,
-  the_name         varchar2(50 char),
-  the_ranknum      number(10, 0),
-  the_rankrec      number(1, 0),
-  the_dataref      number(1, 0),
-  the_colormin     varchar2(250 char),
-  the_taggable     number(1, 0),
-  the_transparency number(10, 0),
-  the_ranktype     varchar2(50 char),
-  the_urlws        varchar2(4000 char),
-  the_valuetype    varchar2(50 char),
-  the_giid         number(10, 0),
-  the_taskid       number(10, 0),
-  the_userid       number(10, 0),
-  primary key (the_id) using index tablespace ${index_tablespace}
-);
-
 create table stm_translation
 (
   tra_id     number(10, 0) not null,
@@ -844,20 +801,6 @@ alter table stm_territory
 
 alter table stm_territory
   add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;
-
-alter table stm_the_rank
-  add constraint STM_TRK_FK_THE foreign key (trk_theid) references stm_thematic
-  on delete cascade;
-
-alter table stm_thematic
-  add constraint STM_THE_FK_GEO foreign key (the_giid) references stm_geoinfo;
-
-alter table stm_thematic
-  add constraint STM_THE_FK_TAS foreign key (the_taskid) references stm_task
-  on delete cascade;
-
-alter table stm_thematic
-  add constraint STM_THE_FK_USE foreign key (the_userid) references stm_user;
 
 alter table stm_translation
   add constraint STM_TRA_FK_LAN foreign key (tra_lanid) references stm_language;

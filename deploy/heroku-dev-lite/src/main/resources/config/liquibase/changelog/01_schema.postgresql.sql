@@ -417,47 +417,6 @@ create table stm_territory
   ter_typid   int4,
   primary key (ter_id)
 );
-create table stm_the_rank
-(
-  trk_position int4 not null,
-  trk_valuenul boolean,
-  trk_color    varchar(30),
-  trk_size     int4,
-  trk_style    varchar(30),
-  trk_desc     varchar(250),
-  trk_colorint varchar(30),
-  trk_styleint varchar(30),
-  trk_valuemax numeric(19, 11),
-  trk_valuemin numeric(19, 11),
-  trk_name     varchar(50),
-  trk_value    varchar(30),
-  trk_theid    int4 not null,
-  primary key (trk_theid, trk_position)
-);
-create table stm_thematic
-(
-  the_id           int4 not null,
-  the_sizemax      int4,
-  the_sizemin      int4,
-  the_desc         varchar(250),
-  the_destination  varchar(50),
-  the_colormax     varchar(250),
-  the_expiration   timestamp,
-  the_name         varchar(50),
-  the_ranknum      int4,
-  the_rankrec      boolean,
-  the_dataref      boolean,
-  the_colormin     varchar(250),
-  the_taggable     boolean,
-  the_transparency int4,
-  the_ranktype     varchar(50),
-  the_urlws        varchar(4000),
-  the_valuetype    varchar(50),
-  the_giid         int4,
-  the_taskid       int4,
-  the_userid       int4,
-  primary key (the_id)
-);
 create table stm_translation
 (
   tra_id     int4 not null,
@@ -634,10 +593,6 @@ alter table if exists stm_taskrel
 
 alter table if exists stm_territory add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
 alter table if exists stm_territory add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;
-alter table if exists stm_the_rank add constraint STM_TRK_FK_THE foreign key (trk_theid) references stm_thematic on delete cascade;
-alter table if exists stm_thematic add constraint STM_THE_FK_GEO foreign key (the_giid) references stm_geoinfo;
-alter table if exists stm_thematic add constraint STM_THE_FK_TAS foreign key (the_taskid) references stm_task on delete cascade;
-alter table if exists stm_thematic add constraint STM_THE_FK_USE foreign key (the_userid) references stm_user;
 alter table if exists stm_translation add constraint STM_TRA_FK_LAN foreign key (tra_lanid) references stm_language;
 alter table if exists stm_tree add constraint STM_TRE_FK_USE foreign key (tre_userid) references stm_user;
 alter table if exists stm_tree_nod add constraint STM_TNO_FK_GEO foreign key (tno_giid) references stm_geoinfo;
