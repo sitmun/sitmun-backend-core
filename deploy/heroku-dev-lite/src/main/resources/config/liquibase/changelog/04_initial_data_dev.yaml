@@ -793,28 +793,6 @@ databaseChangeLog:
         #              - column:
         #                  name: DOW_PATH
         #                  type: STRING
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_QUERY.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_QUERY
-        #            usePreparedStatements: true
-        #            quotchar: "\""
-        #            columns:
-        #              - column:
-        #                  name: QUE_ID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: QUE_COMMAND
-        #                  type: STRING
-        #              - column:
-        #                  name: QUE_TYPE
-        #                  type: STRING
-        #              - column:
-        #                  name: QUE_DESC
-        #                  type: STRING
-        #        - sql:
-        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 32279);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_ROL_TSK.csv

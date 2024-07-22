@@ -307,15 +307,6 @@ create table stm_post
   pos_userid     number(10,0),
   primary key (pos_id)
 );
-create table stm_query
-(
-  que_id      number(10,0) not null,
-  que_command varchar2(250 char),
-  que_desc    varchar2(250 char),
-  que_type    varchar2(50 char),
-  que_taskid  number(10,0),
-  primary key (que_id)
-);
 create table stm_rol_ggi
 (
   rgg_roleid number(10,0) not null,
@@ -667,8 +658,6 @@ alter table stm_post
   add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;
 alter table stm_post
   add constraint STM_POS_FK_USE foreign key (pos_userid) references stm_user on delete cascade;
-alter table stm_query
-  add constraint STM_QUE_FK_TASM foreign key (que_taskid) references stm_task;
 alter table stm_rol_ggi
   add constraint STM_RGG_FK_GGI foreign key (rgg_ggiid) references stm_grp_gi;
 alter table stm_rol_ggi
