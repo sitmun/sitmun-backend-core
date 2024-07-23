@@ -44,8 +44,9 @@ spring:
       hibernate:
         dialect: org.sitmun.infrastructure.persistence.dialect.PostgresSQL93DialectFixed
   liquibase:
-    change-log: classpath:config/liquibase/master.xml
+    change-log: liquibase/master.xml
     contexts: dev
+    enabled: false
 
 security:
   authentication:

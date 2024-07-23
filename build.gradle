@@ -1,38 +1,91 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
   id 'java'
   id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
   id 'jacoco'
   id 'org.sonarqube' version '3.3'
 
-  id 'com.github.node-gradle.node' version '3.0.1' apply false
+  id 'org.springframework.boot' version '2.7.18'
+  id 'io.spring.dependency-management' version '1.1.6'
 
-  id 'org.springframework.boot' version '2.7.18' apply false
-  id 'io.spring.dependency-management' version '1.1.6' apply false
+  id 'org.ajoberstar.git-publish' version '2.1.3'
 
-  id 'org.ajoberstar.git-publish' version '2.1.3' apply false
+  id 'com.github.johnrengelman.processes' version '0.5.0'
+  id 'org.springdoc.openapi-gradle-plugin' version '1.3.0'
 
-  id 'com.github.johnrengelman.processes' version '0.5.0' apply false
-  id 'org.springdoc.openapi-gradle-plugin' version '1.3.0' apply false
+  id 'io.freefair.lombok' version '6.4.3.1'
 
-  id 'io.freefair.lombok' version '6.4.3.1' apply false
-
-  id 'com.google.cloud.tools.jib' version '3.3.1' apply false
-
-  id 'org.liquibase.gradle' version '2.2.0' apply false
+  id 'org.liquibase.gradle' version '2.2.0'
 }
 
-subprojects {
-  group = 'org.sitmun'
+group = 'org.sitmun'
 
-  def targetJavaVersion = JavaVersion.VERSION_11
-  sourceCompatibility = "${targetJavaVersion}"
-  targetCompatibility = "${targetJavaVersion}"
+def targetJavaVersion = JavaVersion.VERSION_11
+sourceCompatibility = "${targetJavaVersion}"
+targetCompatibility = "${targetJavaVersion}"
 
-  repositories {
-    mavenLocal()
-    mavenCentral()
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencyManagement {
+  imports {
+    mavenBom SpringBootPlugin.BOM_COORDINATES
   }
+}
 
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+  implementation 'org.springframework.ldap:spring-ldap-core'
+  implementation 'org.springframework.security:spring-security-ldap'
+  testImplementation 'com.unboundid:unboundid-ldapsdk'
+
+  implementation 'org.postgresql:postgresql'
+  implementation 'com.oracle.database.jdbc:ojdbc8'
+
+  testImplementation 'org.hamcrest:hamcrest'
+
+  implementation "com.google.guava:guava:${guava_version}"
+
+  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
+
+  implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
+  implementation 'com.squareup.okhttp3:okhttp'
+  implementation 'com.squareup.okhttp3:logging-interceptor'
+
+  implementation "org.json:json:${json_version}"
+  implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
+  implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
+  implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+
+  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+
+  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
+
+  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+
+  implementation 'org.liquibase:liquibase-core'
+  implementation 'com.mattbertolini:liquibase-slf4j:2.0.0'
+
+  annotationProcessor 'javax.annotation:javax.annotation-api'
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
+  annotationProcessor 'javax.persistence:javax.persistence-api'
+  annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+
+  testImplementation('org.springframework.boot:spring-boot-starter-test') {
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
+  }
+  testImplementation 'org.springframework.security:spring-security-test'
+  testImplementation 'com.h2database:h2'
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +95,14 @@ subprojects {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 tasks.register('stage') {
-  dependsOn ':processResources', ':deploy:heroku-dev-full:build'
+  dependsOn ':processResources', ':bootJar'
+  it.doLast {
+    copy {
+      from "build/libs/sitmun-backend-core-${version}.jar"
+      into "."
+      rename "sitmun-backend-core-${version}.jar", "sitmun.jar"
+    }
+  }
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
@@ -60,7 +120,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 heroku {
-  def procFile = ["web": "java -Dserver.port=\$PORT \$JAVA_OPTS -jar sitmun.jar"]
+  def procFile = ["web": "java -Dserver.port=\$PORT \$JAVA_OPTS -cp \"sitmun.jar:env/heroku/resources/config\" org.springframework.boot.loader.JarLauncher"]
   appName = "sitmun-backend-core"
   includes = ["sitmun.jar"]
   includeBuildDir = false
@@ -69,13 +129,6 @@ heroku {
 
 tasks.named("deployHeroku") {
   it.dependsOn 'stage'
-  it.doFirst {
-    copy {
-      from "deploy/heroku-dev-full/build/libs/heroku-dev-full-${version}.jar"
-      into "."
-      rename "heroku-dev-full-${version}.jar", "sitmun.jar"
-    }
-  }
   it.doLast {
     delete "sitmun.jar"
   }
@@ -105,9 +158,44 @@ tasks.register('herokuDevLocal', JavaExec) {
   dependsOn 'stage'
   group = "Run"
   description = "Run as local the Heroku deployment"
-  classpath = files("deploy/heroku-dev-full/build/libs/heroku-dev-full-${version}.jar")
+  classpath = files("build/libs/sitmun-backend-core-${version}.jar")
 }
 
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
 }
+
+compileJava.inputs.files(processResources)
+
+jacocoTestReport {
+  reports {
+    xml.required.set(true)
+  }
+}
+
+test.finalizedBy jacocoTestReport
+
+tasks.register("codeCoverageReport", JacocoReport) {
+  jacocoClasspath = project.configurations.jacocoAnt
+  subprojects { subproject ->
+    subproject.plugins.withType(JacocoPlugin).configureEach {
+      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
+        if (testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
+          sourceSets subproject.sourceSets.main
+          executionData(testTask)
+        } else {
+          logger.warn('Jacoco extension is disabled for test task \'{}\' in project \'{}\'. this test task will be excluded from jacoco report.', testTask.getName(), subproject.getName())
+        }
+      }
+      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
+        rootProject.tasks.codeCoverageReport.dependsOn(it)
+      }
+    }
+  }
+
+}
+
+rootProject.tasks.sonarqube {
+  dependsOn(tasks.codeCoverageReport)
+}
+
