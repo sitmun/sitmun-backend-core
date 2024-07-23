@@ -1,38 +1,21 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Project deploy preprod
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# Pre production
 
+Add the [Liquibase Gradle Plugin](https://github.com/liquibase/liquibase-gradle-plugin).
+```groovy
 buildscript {
   dependencies {
     classpath 'com.oracle.database.jdbc:ojdbc10:19.22.0.0'
   }
 }
 
-import org.apache.tools.ant.taskdefs.condition.Os
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 plugins {
-  id 'java'
-  id 'org.springframework.boot'
-  id 'io.spring.dependency-management'
-
-  id 'org.liquibase.gradle'
-  id 'com.google.cloud.tools.jib'
+  id 'org.liquibase.gradle' version '2.2.2'
 }
+```
 
-configurations {
-  sqlRuntime
-}
-
-dependencyManagement {
-  imports {
-    mavenBom SpringBootPlugin.BOM_COORDINATES
-  }
-}
-
+Set up dependencies.
+```groovy
 dependencies {
-
-  implementation project(':common')
   implementation 'org.postgresql:postgresql'
   implementation 'com.oracle.database.jdbc:ojdbc8'
 
@@ -42,11 +25,15 @@ dependencies {
   liquibaseRuntime 'org.postgresql:postgresql'
   liquibaseRuntime 'com.oracle.database.jdbc:ojdbc8'
 }
+```
 
+Liquibase configuration.
+
+```groovy
 liquibase {
   activities {
     main {
-      changelogFile 'deploy/preprod/src/main/db/main.xml'
+      changelogFile 'data/main.xml'
       url project.ext.database_url
       username project.ext.database_sitmun_user
       password project.ext.database_sitmun_password
@@ -57,31 +44,11 @@ liquibase {
     }
   }
 }
+```
 
-jib {
-  from {
-    if (Os.isArch("aarch64")) {
-      image = 'arm64v8/amazoncorretto:11'
-    } else {
-      image = 'amazoncorretto:11'
-    }
-  }
-  to {
-    image = "${name}:latest"
-  }
-  container {
-    mainClass = 'org.sitmun.Application'
-  }
-}
+Management tasks.
 
-springBoot {
-  getMainClass().set("org.sitmun.Application")
-}
-
-bootJar {
-  archiveFileName = "sitmun-backend-${archiveVersion.get()}.jar"
-}
-
+```groovy
 tasks.register('dropSitmunUser') {
   dependsOn 'prepareSql'
   group = 'sitmun'
@@ -90,7 +57,7 @@ tasks.register('dropSitmunUser') {
     def user = project.ext.database_admin_user
     def password = project.ext.database_admin_password
     def type = project.ext.database_type
-    def script = layout.buildDirectory.file("db/drop-user-${type}.sql").get()
+    def script = layout.buildDirectory.file("data/templates/drop-user-${type}.sql").get()
     sql(script, user, password)
   }
 }
@@ -103,7 +70,7 @@ tasks.register('createSitmunUser') {
     def user = project.ext.database_admin_user
     def password = project.ext.database_admin_password
     def type = project.ext.database_type
-    def script = layout.buildDirectory.file("db/create-user-${type}.sql").get()
+    def script = layout.buildDirectory.file("data/templates/create-user-${type}.sql").get()
     sql(script, user, password)
   }
 }
@@ -111,13 +78,13 @@ tasks.register('createSitmunUser') {
 tasks.register('prepareSql', Copy) {
   group = 'sitmun'
   description = 'Prepare the sql files'
-  from layout.projectDirectory.dir('src/main/db/templates')
+  from layout.projectDirectory.dir('data/templates')
   expand(
     user: project.ext.database_sitmun_user,
     password: project.ext.database_sitmun_password,
     tablespace: project.ext.database_sitmun_tablespace
   )
-  into layout.buildDirectory.dir('db')
+  into layout.buildDirectory.dir('data')
 }
 
 def sql(scriptName, user, password) {
@@ -130,7 +97,18 @@ def sql(scriptName, user, password) {
           src: scriptName
   )
 }
+```
 
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-}
+`gradle.properties`
+
+```properties
+database_type=oracle
+database_url=jdbc:oracle:thin:@localhost:1521/FREE
+database_driver=oracle.jdbc.driver.OracleDriver
+database_sitmun_user=stm3
+database_sitmun_password=stm3
+database_sitmun_data_tablespace=users
+database_sitmun_index_tablespace=users
+database_admin_user=sys as sysdba
+database_admin_password=st
+```
