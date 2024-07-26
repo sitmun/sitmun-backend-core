@@ -87,7 +87,7 @@ public class CartographyPermission {
   private Set<Cartography> members = new HashSet<>();
 
   /**
-   * The the roles allowed to access the members.
+   * The roles allowed to access the members.
    */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(

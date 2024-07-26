@@ -11,7 +11,7 @@ public final class PersistenceConstants {
   public static final int BCP47_LANGUAGE_TAG = 20;
 
   /**
-   * Machine and human readable identifiers, code lists.
+   * Machine and human-readable identifiers, code lists.
    */
   public static final int IDENTIFIER = 50;
 

@@ -55,7 +55,7 @@ public class TerritoryType {
   private Boolean official = false;
 
   /**
-   * If {@code true}, the territory is root in the territories hierarchy.
+   * If {@code true}, the territory is root in the territories' hierarchy.
    */
   @Column(name = "TET_TOP")
   @NotBlank
@@ -64,7 +64,7 @@ public class TerritoryType {
   private Boolean topType = false;
 
   /**
-   * If {@code true}, the territory is leaf in the territories hierarchy.
+   * If {@code true}, the territory is leaf in the territories' hierarchy.
    */
   @Column(name = "TET_BOTTOM")
   @NotBlank

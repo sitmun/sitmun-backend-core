@@ -46,7 +46,7 @@ public class Tree {
   private Integer id;
 
   /**
-   * Tree name.na
+   * Tree name.
    */
   @Column(name = "TRE_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank

@@ -29,7 +29,7 @@ public interface CartographyAvailabilityProjection {
   String getOwner();
 
   /**
-   * Id of the territory allowed to access to the cartography.
+   * Identifier of the territory allowed to access to the cartography.
    */
   @Value("#{target.territory?.id}")
   String getTerritoryId();
@@ -47,7 +47,7 @@ public interface CartographyAvailabilityProjection {
   String getTerritoryName();
 
   /**
-   * Id of the cartography allowed to access.
+   * Identifier of the cartography allowed to access.
    */
   @Value("#{target.cartography?.id}")
   Integer getCartographyId();

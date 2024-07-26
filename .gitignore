@@ -48,4 +48,3 @@ sitmun.jar
 
 # Exclude Heroku files
 .env
-Procfile

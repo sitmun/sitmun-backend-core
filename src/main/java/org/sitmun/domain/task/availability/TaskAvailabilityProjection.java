@@ -18,7 +18,7 @@ public interface TaskAvailabilityProjection {
   Date getCreatedDate();
 
   /**
-   * Id of the territory allowed to access to the task.
+   * Identifier of the territory allowed to access to the task.
    */
   @Value("#{target.territory?.id}")
   Integer getTerritoryId();
@@ -30,7 +30,7 @@ public interface TaskAvailabilityProjection {
   String getTerritoryName();
 
   /**
-   * Id of the task allowed to the territory.
+   * Identifier of the task allowed to the territory.
    */
   @Value("#{target.task?.id}")
   Integer getTaskId();

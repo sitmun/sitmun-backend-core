@@ -191,7 +191,7 @@ public interface CartographyProjection {
   String getSpatialSelectionServiceName();
 
   /**
-   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by an style.
+   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by a style.
    */
   @Value("#{target.useAllStyles}")
   Boolean getUseAllStyles();
