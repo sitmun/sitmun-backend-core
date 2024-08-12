@@ -1,5 +1,6 @@
 package org.sitmun.authorization.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.sitmun.authorization.dto.*;
 import org.sitmun.authorization.service.ProfileService;
@@ -23,6 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/config/client")
+@Slf4j
 public class ClientConfigurationController {
 
   private final ProfileService profileService;
@@ -104,7 +106,14 @@ public class ClientConfigurationController {
       profile.getServices().forEach(service -> {
         service.setIsProxied(proxyForce);
         if (proxyForce) {
-          String uri = UriComponentsBuilder.fromUriString(proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}")
+          String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";  
+          log.info("Creating forced proxy URL for appId:{} terId:{} type:{} typeId:{} with template:{}",
+            appId,
+            terrId,
+            service.getType(),
+            service.getId().substring(8),
+            uriTemplate);
+          String uri = UriComponentsBuilder.fromUriString(uriTemplate)
             .build(appId, terrId, service.getType(), service.getId().substring(8))
             .toString();
           service.setUrl(uri);
