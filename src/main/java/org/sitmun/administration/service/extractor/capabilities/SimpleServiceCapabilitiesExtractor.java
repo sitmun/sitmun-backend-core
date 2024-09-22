@@ -1,23 +1,28 @@
 package org.sitmun.administration.service.extractor.capabilities;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import org.json.XML;
+import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.administration.service.extractor.capabilities.ExtractedMetadata.ExtractedMetadataBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Service
-public
-class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor {
+public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor {
+
+  private final HttpClientFactory httpClientFactory;
+
+  public SimpleServiceCapabilitiesExtractor(@Autowired HttpClientFactory httpClientFactory) {
+    this.httpClientFactory = httpClientFactory;
+  }
 
   @Override
   public ExtractedMetadata extract(String url) {
-    OkHttpClient client = new OkHttpClient();
     ExtractedMetadataBuilder builder = new ExtractedMetadataBuilder();
 
     try {
@@ -26,7 +31,7 @@ class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor
         .header("Accept", "*/*")
         .build();
 
-      try (Response response = client.newCall(request).execute()) {
+      try (Response response = httpClientFactory.getClient(url).newCall(request).execute()) {
         builder.success(response.code() == 200 && response.body() != null);
         ResponseBody body = response.body();
         if (body != null) {

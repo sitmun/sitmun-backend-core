@@ -1,7 +1,11 @@
 package org.sitmun.administration.service.extractor.capabilities;
 
+import kotlin.collections.EmptyList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.service.extractor.HttpClientFactory;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("SimpleServiceCapabilitiesExtractor test")
 class SimpleServiceCapabilitiesExtractorTest {
 
-  private final SimpleServiceCapabilitiesExtractor extractor = new SimpleServiceCapabilitiesExtractor();
+  private final HttpClientFactory factory = new HttpClientFactory(List.of("*"));
+
+  private final SimpleServiceCapabilitiesExtractor extractor = new SimpleServiceCapabilitiesExtractor(factory);
 
   @Test
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")

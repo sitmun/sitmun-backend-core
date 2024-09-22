@@ -2,6 +2,9 @@ package org.sitmun.administration.service.extractor.featuretype;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.service.extractor.HttpClientFactory;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,7 +12,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("SimpleServiceCapabilitiesExtractor test")
 class SimpleFeatureTypeExtractorTest {
 
-  private final SimpleFeatureTypeExtractor extractor = new SimpleFeatureTypeExtractor();
+  private final HttpClientFactory factory = new HttpClientFactory(List.of("*"));
+
+  private final SimpleFeatureTypeExtractor extractor = new SimpleFeatureTypeExtractor(factory);
 
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
