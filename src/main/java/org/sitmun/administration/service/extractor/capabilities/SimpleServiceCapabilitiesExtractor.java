@@ -31,7 +31,7 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
         .header("Accept", "*/*")
         .build();
 
-      try (Response response = httpClientFactory.getClient(url).newCall(request).execute()) {
+      try (Response response = httpClientFactory.executeRequest(request)) {
         builder.success(response.code() == 200 && response.body() != null);
         ResponseBody body = response.body();
         if (body != null) {

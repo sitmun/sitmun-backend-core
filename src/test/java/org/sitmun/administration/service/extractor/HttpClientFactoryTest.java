@@ -1,6 +1,5 @@
 package org.sitmun.administration.service.extractor;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.assertj.core.util.Lists;
@@ -21,7 +20,7 @@ class HttpClientFactoryTest {
   public void failWithASSLHandhakeException() {
     String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
     List<String> unsafeAllowedHosts = Lists.list();
-    OkHttpClient client = new HttpClientFactory(unsafeAllowedHosts).getClient(url);
+    HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
 
     Request request = new Request.Builder()
       .url(url)
@@ -29,7 +28,7 @@ class HttpClientFactoryTest {
       .build();
 
     assertThrows(SSLHandshakeException.class, () -> {
-      try (Response response = client.newCall(request).execute()) {
+      try (Response response = client.executeRequest(request)) {
         // Do nothing
       }
     });
@@ -40,14 +39,14 @@ class HttpClientFactoryTest {
   public void anyRequestUseTheUnsafeClient() {
     String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
     List<String> unsafeAllowedHosts = Lists.list("*");
-    OkHttpClient client = new HttpClientFactory(unsafeAllowedHosts).getClient(url);
+    HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
 
     Request request = new Request.Builder()
       .url(url)
       .header("Accept", "*/*")
       .build();
 
-    try(Response response = client.newCall(request).execute()) {
+    try(Response response = client.executeRequest(request)) {
       // Do nothing
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -59,14 +58,14 @@ class HttpClientFactoryTest {
   public void useUnsafeClientWhenDomainMatches() {
     String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
     List<String> unsafeAllowedHosts = Lists.list("ovc.catastro.meh.es");
-    OkHttpClient client = new HttpClientFactory(unsafeAllowedHosts).getClient(url);
+    HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
 
     Request request = new Request.Builder()
       .url(url)
       .header("Accept", "*/*")
       .build();
 
-    try(Response response = client.newCall(request).execute()) {
+    try(Response response = client.executeRequest(request)) {
       // Do nothing
     } catch (IOException e) {
       throw new RuntimeException(e);

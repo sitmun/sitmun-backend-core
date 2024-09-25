@@ -2,12 +2,13 @@ package org.sitmun.administration.service.extractor;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.*;
-import java.net.URI;
-import java.security.cert.CertificateException;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -24,9 +25,12 @@ public class HttpClientFactory {
     unsafeClient = configureToIgnoreCertificate(new OkHttpClient.Builder()).build();
   }
 
-  public OkHttpClient getClient(String url) {
+  public Response executeRequest(Request httpRequest) throws IOException {
+    return getClient(httpRequest.url().host()).newCall(httpRequest).execute();
+  }
+
+  private OkHttpClient getClient(String host) {
     try {
-      String host = new URI(url).getHost();
       if (unsafeAllowedHosts.contains("*") || unsafeAllowedHosts.contains(host)) {
         log.warn("Using Unsafe Client");
         return unsafeClient;
