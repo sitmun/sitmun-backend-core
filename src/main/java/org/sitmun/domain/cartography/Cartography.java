@@ -70,7 +70,7 @@ public class Cartography {
   /**
    * Cartography description.
    */
-  @Column(name = "GEO_ABSTRACT", length = SHORT_DESCRIPTION)
+  @Column(name = "GEO_ABSTRACT", length = LONG_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String description;
 

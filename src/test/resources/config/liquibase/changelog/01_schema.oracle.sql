@@ -140,7 +140,7 @@ create table stm_geoinfo
   geo_blocked    number(1,0),
   geo_created    timestamp,
   geo_dataurl    varchar2(4000 char),
-  geo_abstract   varchar2(250 char),
+  geo_abstract   varchar2(4000 char),
   geo_geomtype   varchar2(50 char),
   geo_layers     varchar2(800 char),
   geo_legendtip  varchar2(50 char),
