@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -140,6 +141,20 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", hasSize(2)))
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", containsInAnyOrder("node/1", "node/7")))
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
+  }
+
+  @Test
+  @DisplayName("Ensure order in children")
+  void treeNodeOrder() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andDo(print())
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", containsInRelativeOrder("node/1", "node/7")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/1'].order", hasItem(1)))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].order", hasItem(2)))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]", containsInRelativeOrder("node/9", "node/8")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].order", hasItem(1)))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/8'].order", hasItem(2)));
   }
 
   @Test

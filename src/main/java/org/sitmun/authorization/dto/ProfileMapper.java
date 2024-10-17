@@ -113,20 +113,17 @@ public interface ProfileMapper {
 
     allNodes.forEach(it -> {
       String id = "node/" + it.getId();
-      String resource = null;
-      List<String> children = null;
-      if (it.getCartographyId() != null) {
-        resource = "layer/" + it.getCartographyId();
-      } else {
-        children = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
-      }
-      NodeDto nodeDto = NodeDto.builder()
+      NodeDto.NodeDtoBuilder nodeDtoBuilder = NodeDto.builder()
         .title(it.getName())
-        .resource(resource)
-        .children(children)
         .isRadio(it.getRadio())
-        .build();
-      nodes.put(id, nodeDto);
+        .order(it.getOrder());
+      if (it.getCartographyId() != null) {
+        nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
+      } else {
+        List<String> nodeChildren = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
+        nodeDtoBuilder = nodeDtoBuilder.children(nodeChildren);
+      }
+      nodes.put(id, nodeDtoBuilder.build());
     });
 
     return TreeDto.builder()
