@@ -16,6 +16,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
+import org.sitmun.infrastructure.persistence.type.point.Point;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -155,7 +156,7 @@ public interface ProfileMapper {
       .collect(Collectors.toList());
     builder.backgrounds(backgrounds);
 
-    computeApplicationExtent(profile, builder);
+    completeApplicationDto(profile, builder);
 
     Set<Tree> trees = profile.getApplication().getTrees();
 
@@ -164,30 +165,30 @@ public interface ProfileMapper {
     }
   }
 
-  private static void computeApplicationExtent(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
-    Optional<ApplicationTerritory> applicationTerritory = profile.getApplication().getTerritories().stream().filter(it -> Objects.equals(it.getTerritory().getId(), profile.getTerritory().getId()))
-      .findFirst();
+  private static void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
+    ApplicationDto applicationDto = builder.build().getApplication();
+    Integer selectedTerritory = profile.getTerritory().getId();
 
-    Envelope extentCandidate = applicationTerritory.map(ApplicationTerritory::getInitialExtent).orElse(null);
+    Envelope defaultEnvelope = profile.getTerritory().getExtent();
+    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
 
-    if (extentCandidate == null) {
-      extentCandidate = profile.getTerritory().getExtent();
+    profile.getApplication().getTerritories().stream()
+      .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
+      .findFirst()
+      .map(ApplicationTerritory::getInitialExtent)
+      .ifPresent(applicationDto::setInitialExtentFromEnvelope);
+
+    Integer defaultZoomLevel = profile.getTerritory().getDefaultZoomLevel();
+    applicationDto.setDefaultZoomLevel(defaultZoomLevel);
+
+    Point point = profile.getTerritory().getCenter();
+    if (point != null) {
+      PointOfInterestDto poi = PointOfInterestDto.builder().x(point.getX()).y(point.getY()).build();
+      applicationDto.setPointOfInterest(poi);
     }
 
-    if (extentCandidate != null) {
-      ApplicationDto application = builder.build().getApplication();
-      application.setInitialExtent(new Double[]{
-          extentCandidate.getMinX(),
-          extentCandidate.getMinY(),
-          extentCandidate.getMaxX(),
-          extentCandidate.getMaxY()
-        }
-      );
-      builder.application(application);
-    }
+    builder.application(applicationDto);
   }
-
-
 
   default String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) {

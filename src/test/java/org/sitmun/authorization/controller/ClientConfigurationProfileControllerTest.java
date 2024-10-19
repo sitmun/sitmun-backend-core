@@ -164,4 +164,23 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.global.proxy", is("https://middleware.com")));
   }
+
+  @Test
+  @DisplayName("Get application zoom")
+  void zooms() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(jsonPath("$.application.defaultZoomLevel", is(8)));
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 3))
+      .andExpect(jsonPath("$.application.defaultZoomLevel", nullValue()));
+  }
+
+  @Test
+  @DisplayName("Get application point of interest")
+  void pointOfInterest() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(jsonPath("$.application.pointOfInterest.x", is(422552.0)))
+      .andExpect(jsonPath("$.application.pointOfInterest.y", is(4623846.0)));
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 3))
+      .andExpect(jsonPath("$.application.pointOfInterest", nullValue()));
+  }
 }

@@ -128,26 +128,17 @@ public class Territory {
 
   /**
    * Center of the territory.
-   *
-   * @deprecated Replaced by {@link ApplicationTerritory#getInitialExtent()} because
-   * it is not a property of the territory but of the application in this territory,
-   * and it is better to use the extent of the view.
    */
   @Column(name = "TER_CENTER", length = PersistenceConstants.VALUE)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Convert(converter = PointToStringConverter.class)
-  @Deprecated(forRemoval = true)
   private Point center;
 
   /**
    * Default zoom level.
-   *
-   * @deprecated Replaced by {@link ApplicationTerritory#getInitialExtent()} because
-   * it is not a property of the territory but of the application in this territory.
    */
   @Column(name = "TER_ZOOM")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
-  @Deprecated(forRemoval = true)
   private Integer defaultZoomLevel;
 
 
@@ -262,20 +253,6 @@ public class Territory {
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<ApplicationTerritory> applications = new HashSet<>();
-
-  /**
-   * @deprecated Not necessary anymore because the {@link #center} is also deprecated.
-   */
-  @PostLoad
-  @Deprecated(forRemoval = true)
-  public void postLoad() {
-    if (center == null && extent != null) {
-      center = Point.builder()
-        .x((extent.getMaxX() - extent.getMinX()) / 2 + extent.getMinX())
-        .y((extent.getMaxY() - extent.getMinY()) / 2 + extent.getMinY())
-        .build();
-    }
-  }
 
   @Override
   public boolean equals(Object obj) {
