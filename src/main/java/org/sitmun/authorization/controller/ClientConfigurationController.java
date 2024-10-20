@@ -104,9 +104,9 @@ public class ClientConfigurationController {
   private Function<ProfileDto, ProfileDto> getProfileDtoProfileDtoFunction(String appId, String terrId) {
     return profile -> {
       profile.getServices().forEach(service -> {
-        service.setIsProxied(proxyForce);
-        if (proxyForce) {
-          String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";  
+        if (proxyForce || service.getIsProxied()) {
+          service.setIsProxied(true);
+          String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";
           log.info("Creating forced proxy URL for appId:{} terId:{} type:{} typeId:{} with template:{}",
             appId,
             terrId,

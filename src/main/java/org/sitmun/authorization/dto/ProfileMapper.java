@@ -47,6 +47,7 @@ public interface ProfileMapper {
       .id("service/" + service.getId())
       .url(service.getServiceURL())
       .type(service.getType())
+      .isProxied(service.getIsProxied())
       .parameters(service.getParameters().stream()
         .filter(it -> Objects.equals(it.getType(), service.getType()))
         .map(it -> new String[]{it.getName(), it.getValue()}).collect(java.util.stream.Collectors.toMap(it -> it[0], it -> it[1])))

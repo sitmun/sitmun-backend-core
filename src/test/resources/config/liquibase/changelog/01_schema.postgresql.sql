@@ -1,577 +1,675 @@
 --liquibase formatted sql
 --changeset sitmun:1 dbms:postgresql
 
-create table stm_app
+CREATE TABLE STM_APP
 (
-  app_id       int4 not null,
-  app_entrym   boolean,
-  app_entrys   boolean,
-  app_created  timestamp,
-  app_template varchar(250),
-  app_name     varchar(50),
-  app_scales   varchar(250),
-  app_project  varchar(50),
-  app_theme    varchar(30),
-  app_title    varchar(250),
-  app_refresh  boolean,
-  app_type     varchar(50),
-  app_ggiid    int4,
-  primary key (app_id)
+  APP_ID       INT4 NOT NULL,
+  APP_ENTRYM   BOOLEAN,
+  APP_ENTRYS   BOOLEAN,
+  APP_CREATED  TIMESTAMP,
+  APP_TEMPLATE VARCHAR(250),
+  APP_NAME     VARCHAR(50),
+  APP_SCALES   VARCHAR(250),
+  APP_PROJECT  VARCHAR(50),
+  APP_THEME    VARCHAR(30),
+  APP_TITLE    VARCHAR(250),
+  APP_REFRESH  BOOLEAN,
+  APP_TYPE     VARCHAR(50),
+  APP_GGIID    INT4,
+  PRIMARY KEY (APP_ID)
 );
 
-create table stm_app_bckg
+CREATE TABLE STM_APP_BCKG
 (
-  abc_id     int4 not null,
-  abc_order  int4,
-  abc_appid  int4,
-  abc_backid int4,
-  primary key (abc_id)
+  ABC_ID     INT4 NOT NULL,
+  ABC_ORDER  INT4,
+  ABC_APPID  INT4,
+  ABC_BACKID INT4,
+  PRIMARY KEY (ABC_ID)
 );
 
-create table stm_app_ter
+CREATE TABLE STM_APP_TER
 (
-  ate_id     int4 not null,
-  ate_appid  int4,
-  ate_terid  int4,
-  ate_iniext varchar(250),
-  primary key (ate_id)
+  ATE_ID     INT4 NOT NULL,
+  ATE_APPID  INT4,
+  ATE_TERID  INT4,
+  ATE_INIEXT VARCHAR(250),
+  PRIMARY KEY (ATE_ID)
 );
 
-create table stm_app_rol
+CREATE TABLE STM_APP_ROL
 (
-  aro_roleid int4 not null,
-  aro_appid  int4 not null,
-  primary key (aro_appid, aro_roleid)
-);
-create table stm_app_tree
-(
-  atr_treeid int4 not null,
-  atr_appid  int4 not null,
-  primary key (atr_appid, atr_treeid)
-);
-create table stm_avail_gi
-(
-  agi_id      int4 not null,
-  agi_created timestamp,
-  agi_owner   varchar(50),
-  agi_giid    int4,
-  agi_terid   int4,
-  primary key (agi_id)
-);
-create table stm_avail_tsk
-(
-  ats_id      int4 not null,
-  ats_created timestamp,
-  ats_taskid  int4,
-  ats_terid   int4,
-  primary key (ats_id)
-);
-create table stm_backgrd
-(
-  bac_id      int4 not null,
-  bac_active  boolean,
-  bac_created timestamp,
-  bac_desc    varchar(250),
-  bac_image   varchar(4000),
-  bac_name    varchar(50),
-  bac_ggiid   int4,
-  primary key (bac_id)
-);
-create table stm_codelist
-(
-  cod_id          int4 not null,
-  cod_list        varchar(50),
-  cod_description varchar(250),
-  cod_system      boolean,
-  cod_default     boolean,
-  cod_value       varchar(50),
-  primary key (cod_id)
-);
-create table stm_comment
-(
-  com_id      int4 not null,
-  com_coord_x float8,
-  com_coord_y float8,
-  com_created timestamp,
-  com_desc    varchar(1000),
-  com_email   varchar(250),
-  com_name    varchar(250),
-  com_title   varchar(500),
-  com_appid   int4 not null,
-  com_userid  int4 not null,
-  primary key (com_id)
-);
-create table stm_conf
-(
-  cnf_id    int4 not null,
-  cnf_name  varchar(50),
-  cnf_value varchar(250),
-  primary key (cnf_id)
-);
-create table stm_connect
-(
-  con_id         int4 not null,
-  con_driver     varchar(50),
-  con_name       varchar(50),
-  con_pwd        varchar(50),
-  con_connection varchar(250),
-  con_user       varchar(50),
-  primary key (con_id)
-);
-create table stm_fil_gi
-(
-  fgi_id        int4 not null,
-  fgi_column    varchar(50),
-  fgi_name      varchar(50),
-  fgi_required  boolean,
-  fgi_type      varchar(50),
-  fgi_valuetype varchar(50),
-  fgi_value     varchar(4000),
-  fgi_giid      int4,
-  fgi_typid     int4,
-  primary key (fgi_id)
-);
-create table stm_geoinfo
-(
-  geo_id         int4    not null,
-  geo_filter_gfi boolean,
-  geo_filter_gm  boolean,
-  geo_filter_ss  boolean,
-  geo_blocked    boolean,
-  geo_created    timestamp,
-  geo_dataurl    varchar(4000),
-  geo_abstract   varchar(4000),
-  geo_geomtype   varchar(50),
-  geo_layers     varchar(800),
-  geo_legendtip  varchar(50),
-  geo_legendurl  varchar(4000),
-  geo_maxscale   int4,
-  geo_metaurl    varchar(4000),
-  geo_minscale   int4,
-  geo_name       varchar(100),
-  geo_order      int4,
-  geo_queryabl   boolean,
-  geo_queryact   boolean,
-  geo_querylay   varchar(500),
-  geo_selectabl  boolean,
-  geo_selectlay  varchar(500),
-  geo_source     varchar(50),
-  geo_thematic   boolean,
-  geo_transp     int4,
-  geo_type       varchar(50),
-  geo_styid      int4,
-  geo_serid      int4,
-  geo_styuseall  boolean not null default false,
-  geo_connid     int4,
-  geo_serselid   int4,
-  primary key (geo_id)
-);
-create table stm_ggi_gi
-(
-  ggg_ggiid int4 not null,
-  ggg_giid  int4 not null,
-  primary key (ggg_giid, ggg_ggiid)
-);
-create table stm_grp_gi
-(
-  ggi_id   int4 not null,
-  ggi_name varchar(50),
-  ggi_type varchar(50),
-  primary key (ggi_id)
-);
-create table stm_grp_ter
-(
-  gte_terid  int4 not null,
-  gte_termid int4 not null,
-  primary key (gte_termid, gte_terid)
-);
-create table stm_grp_tsk
-(
-  gts_id   int4 not null,
-  gts_name varchar(50),
-  primary key (gts_id)
-);
-create table stm_gter_typ
-(
-  gtt_id   int4 not null,
-  gtt_name varchar(250),
-  primary key (gtt_id)
-);
-create table stm_language
-(
-  lan_id        int4 not null,
-  lan_name      varchar(50),
-  lan_shortname varchar(20),
-  primary key (lan_id)
-);
-create table stm_log
-(
-  log_id     int4 not null,
-  log_buffer boolean,
-  log_count  int4,
-  log_data   varchar(250),
-  log_date   timestamp,
-  log_email  varchar(250),
-  log_format varchar(50),
-  log_other  varchar(4000),
-  log_srs    varchar(50),
-  log_terext varchar(250),
-  log_ter    varchar(50),
-  log_type   varchar(50),
-  log_appid  int4,
-  log_giid   int4,
-  log_taskid int4,
-  log_terid  int4,
-  log_userid int4,
-  primary key (log_id)
-);
-create table stm_par_app
-(
-  pap_id    int4 not null,
-  pap_name  varchar(50),
-  pap_type  varchar(50),
-  pap_value varchar(250),
-  pap_appid int4,
-  primary key (pap_id)
-);
-create table stm_par_gi
-(
-  pgi_id     int4 not null,
-  pgi_format varchar(50),
-  pgi_name   varchar(50),
-  pgi_order  int4,
-  pgi_type   varchar(50),
-  pgi_value  varchar(250),
-  pgi_giid   int4,
-  primary key (pgi_id)
-);
-create table stm_par_sgi
-(
-  psg_id     int4 not null,
-  psg_format varchar(50),
-  psg_name   varchar(50),
-  psg_order  int4,
-  psg_type   varchar(50),
-  psg_value  varchar(250),
-  psg_giid   int4,
-  primary key (psg_id)
-);
-create table stm_par_ser
-(
-  pse_id    int4 not null,
-  pse_name  varchar(50),
-  pse_type  varchar(50),
-  pse_value varchar(250),
-  pse_serid int4,
-  primary key (pse_id)
-);
-create table stm_post
-(
-  pos_id         int4 not null,
-  pos_created    timestamp,
-  pos_updated    timestamp,
-  pos_email      varchar(250),
-  pos_expiration timestamp,
-  pos_post       varchar(250),
-  pos_org        varchar(250),
-  pos_type       varchar(50),
-  pos_terid      int4,
-  pos_userid     int4,
-  primary key (pos_id)
-);
-create table stm_rol_ggi
-(
-  rgg_roleid int4 not null,
-  rgg_ggiid  int4 not null,
-  primary key (rgg_ggiid, rgg_roleid)
-);
-create table stm_rol_tsk
-(
-  rts_taskid int4 not null,
-  rts_roleid int4 not null,
-  primary key (rts_roleid, rts_taskid)
-);
-create table stm_role
-(
-  rol_id   int4 not null,
-  rol_note varchar(500),
-  rol_name varchar(50),
-  primary key (rol_id)
-);
-create table stm_sequence
-(
-  SEQ_NAME  varchar(255) not null,
-  SEQ_COUNT int8,
-  primary key (SEQ_NAME)
-);
-create table stm_service
-(
-  ser_id       int4 not null,
-  ser_blocked  boolean,
-  ser_created  timestamp,
-  ser_abstract varchar(250),
-  ser_infourl  varchar(4000),
-  ser_legend   varchar(4000),
-  ser_name     varchar(60),
-  ser_nat_prot varchar(50),
-  ser_url      varchar(4000),
-  ser_projects varchar(1000),
-  ser_protocol varchar(50),
-  ser_auth_mod varchar(50),
-  ser_user     varchar(50),
-  ser_pwd      varchar(50),
-  primary key (ser_id)
-);
-create table stm_sty_gi
-(
-  sgi_id          int4    not null,
-  sgi_abstract    varchar(250),
-  sgi_lurl_format varchar(255),
-  sgi_lurl_height int4,
-  sgi_lurl_url    varchar(255),
-  sgi_lurl_width  int4,
-  sgi_name        varchar(50),
-  sgi_title       varchar(50),
-  sgi_default     boolean not null default false,
-  sgi_giid        int4,
-  primary key (sgi_id)
-);
-create table stm_task
-(
-  tas_id      int4 not null,
-  tas_name    varchar(512),
-  tas_created timestamp,
-  tas_order   int4,
-  tas_giid    int4,
-  tas_serid   int4,
-  tas_gtaskid int4,
-  tas_ttaskid int4,
-  tas_tuiid   int4,
-  tas_connid  int4,
-  tas_params  text,
-  primary key (tas_id)
-);
-create table stm_taskrel
-(
-  tar_id        int4 not null,
-  tar_type      varchar(50),
-  tar_taskid    int4,
-  tar_taskrelid int4,
-  primary key (tar_id)
-);
-create table stm_ter_typ
-(
-  tet_id       int4    not null,
-  tet_name     varchar(50),
-  tet_official boolean not null,
-  tet_top      boolean not null,
-  tet_bottom   boolean not null,
-  primary key (tet_id)
-);
-create table stm_territory
-(
-  ter_id      int4 not null,
-  ter_blocked boolean,
-  ter_codter  varchar(50),
-  ter_created timestamp,
-  ter_extent  varchar(250),
-  ter_center  varchar(250),
-  ter_legal   varchar(50),
-  ter_zoom    int4,
-  ter_name    varchar(250),
-  ter_note    varchar(250),
-  ter_scope   varchar(50),
-  ter_address varchar(250),
-  ter_email   varchar(50),
-  ter_logo    varchar(4000),
-  ter_admname varchar(250),
-  ter_gtypid  int4,
-  ter_typid   int4,
-  primary key (ter_id)
-);
-create table stm_translation
-(
-  tra_id     int4 not null,
-  tra_column varchar(50),
-  tra_eleid  int4,
-  tra_name   varchar(250),
-  tra_lanid  int4,
-  primary key (tra_id)
-);
-create table stm_tree
-(
-  tre_id       int4 not null,
-  tre_abstract varchar(250),
-  tre_image    varchar(4000),
-  tre_name     varchar(50),
-  tre_userid   int4,
-  primary key (tre_id)
-);
-create table stm_tree_nod
-(
-  tno_id         int4 not null,
-  tno_active     boolean,
-  tno_dataurl    varchar(4000),
-  tno_abstract   varchar(250),
-  tno_filter_gfi boolean,
-  tno_filter_gm  boolean,
-  tno_filter_se  boolean,
-  tno_metaurl    varchar(4000),
-  tno_name       varchar(80),
-  tno_order      int4,
-  tno_queryact   boolean,
-  tno_radio      boolean,
-  tno_tooltip    varchar(100),
-  tno_giid       int4,
-  tno_parentid   int4,
-  tno_treeid     int4,
-  tno_style      varchar(50),
-  primary key (tno_id)
-);
-create table stm_tree_rol
-(
-  tro_treeid int4 not null,
-  tro_roleid int4 not null,
-  primary key (tro_roleid, tro_treeid)
-);
-create table stm_tsk_typ
-(
-  tty_id       int4 not null,
-  tty_enabled  boolean,
-  tty_name     varchar(50),
-  tty_order    int4,
-  tty_spec     text,
-  tty_title    varchar(50),
-  tty_parentid int4,
-  primary key (tty_id)
-);
-create table stm_tsk_ui
-(
-  tui_id      int4 not null,
-  tui_name    varchar(50),
-  tui_order   int4,
-  tui_tooltip varchar(100),
-  tui_type    varchar(30),
-  primary key (tui_id)
-);
-create table stm_user
-(
-  use_id        int4 not null,
-  use_adm       boolean,
-  use_blocked   boolean,
-  use_created   timestamp,
-  use_updated   timestamp,
-  use_name      varchar(30),
-  use_generic   boolean,
-  use_ident     varchar(50),
-  use_identtype varchar(50),
-  use_surname   varchar(40),
-  use_pwd       varchar(128),
-  use_user      varchar(50),
-  primary key (use_id)
-);
-create table stm_usr_conf
-(
-  uco_id      int4 not null,
-  uco_rolem   boolean,
-  uco_created timestamp,
-  uco_roleid  int4,
-  uco_terid   int4,
-  uco_userid  int4,
-  primary key (uco_id)
+  ARO_ROLEID INT4 NOT NULL,
+  ARO_APPID  INT4 NOT NULL,
+  PRIMARY KEY (ARO_APPID, ARO_ROLEID)
 );
 
-alter table if exists stm_app_bckg add constraint STM_APF_UK unique (abc_appid, abc_backid);
+CREATE TABLE STM_APP_TREE
+(
+  ATR_TREEID INT4 NOT NULL,
+  ATR_APPID  INT4 NOT NULL,
+  PRIMARY KEY (ATR_APPID, ATR_TREEID)
+);
 
-alter table if exists stm_app_ter add constraint STM_APT_UK unique (ate_appid, ate_terid);
+CREATE TABLE STM_AVAIL_GI
+(
+  AGI_ID      INT4 NOT NULL,
+  AGI_CREATED TIMESTAMP,
+  AGI_OWNER   VARCHAR(50),
+  AGI_GIID    INT4,
+  AGI_TERID   INT4,
+  PRIMARY KEY (AGI_ID)
+);
 
-alter table if exists stm_avail_gi add constraint STM_DCA_UK unique (agi_terid, agi_giid);
-alter table if exists stm_avail_tsk add constraint STM_DTA_UK unique (ats_terid, ats_taskid);
-alter table if exists stm_codelist add constraint UKh4jn7sfgmudoc896blvfqbv3b unique (cod_list, cod_value);
-alter table if exists stm_conf add constraint STM_CONF_NAME_UK unique (cnf_name);
-alter table if exists stm_gter_typ add constraint STM_GTT_NOM_UK unique (gtt_name);
-alter table if exists stm_language add constraint UKpia9a18thhka1ncr9cnyjl0j8 unique (lan_shortname);
-alter table if exists stm_post add constraint UKt67t88dokixqn9vehtt1aej1x unique (pos_userid, pos_terid);
-alter table if exists stm_role add constraint STM_ROL_NOM_UK unique (rol_name);
-alter table if exists stm_ter_typ add constraint STM_TET_NOM_UK unique (tet_name);
-alter table if exists stm_territory add constraint STM_TER_NOM_UK unique (ter_name);
-alter table if exists stm_translation add constraint UK2k84kv6jxbmsdvwew4lj4ro0g unique (tra_eleid, tra_column, tra_lanid);
-alter table if exists stm_user add constraint STM_USU_USU_UK unique (use_user);
-alter table if exists stm_usr_conf add constraint STM_UCF_UK unique (uco_userid, uco_terid, uco_roleid, uco_rolem);
-alter table if exists stm_app add constraint STM_APP_FK_GGI foreign key (app_ggiid) references stm_grp_gi;
+CREATE TABLE STM_AVAIL_TSK
+(
+  ATS_ID      INT4 NOT NULL,
+  ATS_CREATED TIMESTAMP,
+  ATS_TASKID  INT4,
+  ATS_TERID   INT4,
+  PRIMARY KEY (ATS_ID)
+);
 
-alter table if exists stm_app_ter add constraint STM_ATE_FK_APP foreign key (ate_appid) references stm_app on delete cascade;
+CREATE TABLE STM_BACKGRD
+(
+  BAC_ID      INT4 NOT NULL,
+  BAC_ACTIVE  BOOLEAN,
+  BAC_CREATED TIMESTAMP,
+  BAC_DESC    VARCHAR(250),
+  BAC_IMAGE   VARCHAR(4000),
+  BAC_NAME    VARCHAR(50),
+  BAC_GGIID   INT4,
+  PRIMARY KEY (BAC_ID)
+);
 
-alter table if exists stm_app_ter add constraint STM_ATE_FK_TER foreign key (ate_terid) references stm_territory on delete cascade;
+CREATE TABLE STM_CODELIST
+(
+  COD_ID          INT4 NOT NULL,
+  COD_LIST        VARCHAR(50),
+  COD_DESCRIPTION VARCHAR(250),
+  COD_SYSTEM      BOOLEAN,
+  COD_DEFAULT     BOOLEAN,
+  COD_VALUE       VARCHAR(50),
+  PRIMARY KEY (COD_ID)
+);
 
-alter table if exists stm_app_rol add constraint STM_ARO_FK_APP foreign key (aro_appid) references stm_app;
-alter table if exists stm_app_rol add constraint STM_ARO_FK_ROL foreign key (aro_roleid) references stm_role;
-alter table if exists stm_app_tree add constraint STM_ATR_FK_APP foreign key (atr_appid) references stm_app;
-alter table if exists stm_app_tree add constraint STM_ATR_FK_TRE foreign key (atr_treeid) references stm_tree;
-alter table if exists stm_avail_gi add constraint STM_AGI_FK_GEO foreign key (agi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_avail_gi add constraint STM_AGI_FK_TER foreign key (agi_terid) references stm_territory on delete cascade;
-alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TAS foreign key (ats_taskid) references stm_task on delete cascade;
-alter table if exists stm_avail_tsk add constraint STM_ATS_FK_TER foreign key (ats_terid) references stm_territory on delete cascade;
-alter table if exists stm_backgrd add constraint STM_BAC_FK_GGI foreign key (bac_ggiid) references stm_grp_gi;
-alter table if exists stm_comment add constraint STM_COM_FK_APP foreign key (com_appid) references stm_app on delete cascade;
-alter table if exists stm_comment add constraint STM_COM_FK_USE foreign key (com_userid) references stm_user on delete cascade;
-alter table if exists stm_fil_gi add constraint STM_FGI_FK_GEO foreign key (fgi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_fil_gi add constraint STM_FGI_FK_TET foreign key (fgi_typid) references stm_ter_typ;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SGI foreign key (geo_styid) references stm_sty_gi;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SER foreign key (geo_serid) references stm_service;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_CON foreign key (geo_connid) references stm_connect;
-alter table if exists stm_geoinfo add constraint STM_GEO_FK_SERSEL foreign key (geo_serselid) references stm_service;
-alter table if exists stm_ggi_gi add constraint STM_GGG_FK_GEO foreign key (ggg_giid) references stm_geoinfo;
-alter table if exists stm_ggi_gi add constraint STM_GGG_FK_GGI foreign key (ggg_ggiid) references stm_grp_gi;
-alter table if exists stm_grp_ter add constraint STM_GTE_FK_TERM foreign key (gte_termid) references stm_territory;
-alter table if exists stm_grp_ter add constraint STM_GTE_FK_TER foreign key (gte_terid) references stm_territory;
-alter table if exists stm_log add constraint FKkevxkue4e8ua7nqisdf9qtt9u foreign key (log_appid) references stm_app;
-alter table if exists stm_log add constraint FKd40r7bqkxmosokqr544elcyrt foreign key (log_giid) references stm_geoinfo;
-alter table if exists stm_log add constraint FKcw6u4jp3wvnkh7ypdl81uyfwc foreign key (log_taskid) references stm_task;
-alter table if exists stm_log add constraint FKm77t0wvsov0pqy99pfbyedip7 foreign key (log_terid) references stm_territory;
-alter table if exists stm_log add constraint FK2p47bcwkdbn91h2oxuf5csir8 foreign key (log_userid) references stm_user;
-alter table if exists stm_par_app add constraint STM_PAP_FK_APP foreign key (pap_appid) references stm_app on delete cascade;
-alter table if exists stm_par_gi add constraint STM_PGI_FK_GEO foreign key (pgi_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_par_sgi add constraint STM_PSG_FK_GEO foreign key (psg_giid) references stm_geoinfo on delete cascade;
-alter table if exists stm_par_ser add constraint STM_PSE_FK_SER foreign key (pse_serid) references stm_service on delete cascade;
-alter table if exists stm_post add constraint STM_POS_FK_TER foreign key (pos_terid) references stm_territory on delete cascade;
-alter table if exists stm_post add constraint STM_POS_FK_USE foreign key (pos_userid) references stm_user on delete cascade;
-alter table if exists stm_rol_ggi add constraint STM_RGG_FK_GGI foreign key (rgg_ggiid) references stm_grp_gi;
-alter table if exists stm_rol_ggi add constraint STM_RGG_FK_ROL foreign key (rgg_roleid) references stm_role;
-alter table if exists stm_rol_tsk add constraint STM_RTS_FK_ROL foreign key (rts_roleid) references stm_role;
-alter table if exists stm_rol_tsk add constraint STM_RTS_FK_TAS foreign key (rts_taskid) references stm_task;
-alter table if exists stm_sty_gi add constraint STM_SGI_FK_GEO foreign key (sgi_giid) references stm_geoinfo;
+CREATE TABLE STM_COMMENT
+(
+  COM_ID      INT4 NOT NULL,
+  COM_COORD_X FLOAT8,
+  COM_COORD_Y FLOAT8,
+  COM_CREATED TIMESTAMP,
+  COM_DESC    VARCHAR(1000),
+  COM_EMAIL   VARCHAR(250),
+  COM_NAME    VARCHAR(250),
+  COM_TITLE   VARCHAR(500),
+  COM_APPID   INT4 NOT NULL,
+  COM_USERID  INT4 NOT NULL,
+  PRIMARY KEY (COM_ID)
+);
 
-alter table if exists stm_task
-  add constraint STM_TAS_FK_GEO foreign key (tas_giid) references stm_geoinfo;
-alter table if exists stm_task
-  add constraint STM_TAS_FK_SER foreign key (tas_serid) references stm_service;
-alter table if exists stm_task
-  add constraint STM_TAS_FK_GTS foreign key (tas_gtaskid) references stm_grp_tsk;
-alter table if exists stm_task
-  add constraint STM_TAS_FK_TTY foreign key (tas_ttaskid) references stm_tsk_typ;
-alter table if exists stm_task
-  add constraint STM_TAS_FK_TUI foreign key (tas_tuiid) references stm_tsk_ui;
-alter table if exists stm_task
-  add constraint STM_TAS_FK_CON foreign key (tas_connid) references stm_connect;
+CREATE TABLE STM_CONF
+(
+  CNF_ID    INT4 NOT NULL,
+  CNF_NAME  VARCHAR(50),
+  CNF_VALUE VARCHAR(250),
+  PRIMARY KEY (CNF_ID)
+);
 
-alter table if exists stm_taskrel
-  add constraint STM_TAR_FK_TAS foreign key (tar_taskid) references stm_task on
-delete
-cascade;
-alter table if exists stm_taskrel
-  add constraint STM_TAR_FK_TAS_REL foreign key (tar_taskrelid) references stm_task;
+CREATE TABLE STM_CONNECT
+(
+  CON_ID         INT4 NOT NULL,
+  CON_DRIVER     VARCHAR(50),
+  CON_NAME       VARCHAR(50),
+  CON_PWD        VARCHAR(50),
+  CON_CONNECTION VARCHAR(250),
+  CON_USER       VARCHAR(50),
+  PRIMARY KEY (CON_ID)
+);
 
-alter table if exists stm_territory add constraint STM_TER_FK_TET foreign key (ter_gtypid) references stm_gter_typ;
-alter table if exists stm_territory add constraint STM_TER_FK_TGR foreign key (ter_typid) references stm_ter_typ;
-alter table if exists stm_translation add constraint STM_TRA_FK_LAN foreign key (tra_lanid) references stm_language;
-alter table if exists stm_tree add constraint STM_TRE_FK_USE foreign key (tre_userid) references stm_user;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_GEO foreign key (tno_giid) references stm_geoinfo;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_TNO foreign key (tno_parentid) references stm_tree_nod;
-alter table if exists stm_tree_nod add constraint STM_TNO_FK_TRE foreign key (tno_treeid) references stm_tree on delete cascade;
-alter table if exists stm_tree_rol add constraint STM_TRO_FK_ROL foreign key (tro_roleid) references stm_role;
-alter table if exists stm_tree_rol add constraint STM_TRO_FK_TRE foreign key (tro_treeid) references stm_tree;
-alter table if exists stm_tsk_typ add constraint STM_TSK_TYP_TTY foreign key (tty_parentid) references stm_tsk_typ on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_ROL foreign key (uco_roleid) references stm_role on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_TER foreign key (uco_terid) references stm_territory on delete cascade;
-alter table if exists stm_usr_conf add constraint STM_UCF_FK_USU foreign key (uco_userid) references stm_user on delete cascade
+CREATE TABLE STM_FIL_GI
+(
+  FGI_ID        INT4 NOT NULL,
+  FGI_COLUMN    VARCHAR(50),
+  FGI_NAME      VARCHAR(50),
+  FGI_REQUIRED  BOOLEAN,
+  FGI_TYPE      VARCHAR(50),
+  FGI_VALUETYPE VARCHAR(50),
+  FGI_VALUE     VARCHAR(4000),
+  FGI_GIID      INT4,
+  FGI_TYPID     INT4,
+  PRIMARY KEY (FGI_ID)
+);
+
+CREATE TABLE STM_GEOINFO
+(
+  GEO_ID         INT4    NOT NULL,
+  GEO_FILTER_GFI BOOLEAN,
+  GEO_FILTER_GM  BOOLEAN,
+  GEO_FILTER_SS  BOOLEAN,
+  GEO_BLOCKED    BOOLEAN,
+  GEO_CREATED    TIMESTAMP,
+  GEO_DATAURL    VARCHAR(4000),
+  GEO_ABSTRACT   VARCHAR(4000),
+  GEO_GEOMTYPE   VARCHAR(50),
+  GEO_LAYERS     VARCHAR(800),
+  GEO_LEGENDTIP  VARCHAR(50),
+  GEO_LEGENDURL  VARCHAR(4000),
+  GEO_MAXSCALE   INT4,
+  GEO_METAURL    VARCHAR(4000),
+  GEO_MINSCALE   INT4,
+  GEO_NAME       VARCHAR(100),
+  GEO_ORDER      INT4,
+  GEO_QUERYABL   BOOLEAN,
+  GEO_QUERYACT   BOOLEAN,
+  GEO_QUERYLAY   VARCHAR(500),
+  GEO_SELECTABL  BOOLEAN,
+  GEO_SELECTLAY  VARCHAR(500),
+  GEO_SOURCE     VARCHAR(50),
+  GEO_THEMATIC   BOOLEAN,
+  GEO_TRANSP     INT4,
+  GEO_TYPE       VARCHAR(50),
+  GEO_STYID      INT4,
+  GEO_SERID      INT4,
+  GEO_STYUSEALL  BOOLEAN NOT NULL DEFAULT FALSE,
+  GEO_CONNID     INT4,
+  GEO_SERSELID   INT4,
+  PRIMARY KEY (GEO_ID)
+);
+
+CREATE TABLE STM_GGI_GI
+(
+  GGG_GGIID INT4 NOT NULL,
+  GGG_GIID  INT4 NOT NULL,
+  PRIMARY KEY (GGG_GIID, GGG_GGIID)
+);
+
+CREATE TABLE STM_GRP_GI
+(
+  GGI_ID   INT4 NOT NULL,
+  GGI_NAME VARCHAR(50),
+  GGI_TYPE VARCHAR(50),
+  PRIMARY KEY (GGI_ID)
+);
+
+CREATE TABLE STM_GRP_TER
+(
+  GTE_TERID  INT4 NOT NULL,
+  GTE_TERMID INT4 NOT NULL,
+  PRIMARY KEY (GTE_TERMID, GTE_TERID)
+);
+
+CREATE TABLE STM_GRP_TSK
+(
+  GTS_ID   INT4 NOT NULL,
+  GTS_NAME VARCHAR(50),
+  PRIMARY KEY (GTS_ID)
+);
+
+CREATE TABLE STM_GTER_TYP
+(
+  GTT_ID   INT4 NOT NULL,
+  GTT_NAME VARCHAR(250),
+  PRIMARY KEY (GTT_ID)
+);
+
+CREATE TABLE STM_LANGUAGE
+(
+  LAN_ID        INT4 NOT NULL,
+  LAN_NAME      VARCHAR(50),
+  LAN_SHORTNAME VARCHAR(20),
+  PRIMARY KEY (LAN_ID)
+);
+
+CREATE TABLE STM_LOG
+(
+  LOG_ID     INT4 NOT NULL,
+  LOG_BUFFER BOOLEAN,
+  LOG_COUNT  INT4,
+  LOG_DATA   VARCHAR(250),
+  LOG_DATE   TIMESTAMP,
+  LOG_EMAIL  VARCHAR(250),
+  LOG_FORMAT VARCHAR(50),
+  LOG_OTHER  VARCHAR(4000),
+  LOG_SRS    VARCHAR(50),
+  LOG_TEREXT VARCHAR(250),
+  LOG_TER    VARCHAR(50),
+  LOG_TYPE   VARCHAR(50),
+  LOG_APPID  INT4,
+  LOG_GIID   INT4,
+  LOG_TASKID INT4,
+  LOG_TERID  INT4,
+  LOG_USERID INT4,
+  PRIMARY KEY (LOG_ID)
+);
+
+CREATE TABLE STM_PAR_APP
+(
+  PAP_ID    INT4 NOT NULL,
+  PAP_NAME  VARCHAR(50),
+  PAP_TYPE  VARCHAR(50),
+  PAP_VALUE VARCHAR(250),
+  PAP_APPID INT4,
+  PRIMARY KEY (PAP_ID)
+);
+
+CREATE TABLE STM_PAR_GI
+(
+  PGI_ID     INT4 NOT NULL,
+  PGI_FORMAT VARCHAR(50),
+  PGI_NAME   VARCHAR(50),
+  PGI_ORDER  INT4,
+  PGI_TYPE   VARCHAR(50),
+  PGI_VALUE  VARCHAR(250),
+  PGI_GIID   INT4,
+  PRIMARY KEY (PGI_ID)
+);
+
+CREATE TABLE STM_PAR_SGI
+(
+  PSG_ID     INT4 NOT NULL,
+  PSG_FORMAT VARCHAR(50),
+  PSG_NAME   VARCHAR(50),
+  PSG_ORDER  INT4,
+  PSG_TYPE   VARCHAR(50),
+  PSG_VALUE  VARCHAR(250),
+  PSG_GIID   INT4,
+  PRIMARY KEY (PSG_ID)
+);
+
+CREATE TABLE STM_PAR_SER
+(
+  PSE_ID    INT4 NOT NULL,
+  PSE_NAME  VARCHAR(50),
+  PSE_TYPE  VARCHAR(50),
+  PSE_VALUE VARCHAR(250),
+  PSE_SERID INT4,
+  PRIMARY KEY (PSE_ID)
+);
+
+CREATE TABLE STM_POST
+(
+  POS_ID         INT4 NOT NULL,
+  POS_CREATED    TIMESTAMP,
+  POS_UPDATED    TIMESTAMP,
+  POS_EMAIL      VARCHAR(250),
+  POS_EXPIRATION TIMESTAMP,
+  POS_POST       VARCHAR(250),
+  POS_ORG        VARCHAR(250),
+  POS_TYPE       VARCHAR(50),
+  POS_TERID      INT4,
+  POS_USERID     INT4,
+  PRIMARY KEY (POS_ID)
+);
+
+CREATE TABLE STM_ROL_GGI
+(
+  RGG_ROLEID INT4 NOT NULL,
+  RGG_GGIID  INT4 NOT NULL,
+  PRIMARY KEY (RGG_GGIID, RGG_ROLEID)
+);
+
+CREATE TABLE STM_ROL_TSK
+(
+  RTS_TASKID INT4 NOT NULL,
+  RTS_ROLEID INT4 NOT NULL,
+  PRIMARY KEY (RTS_ROLEID, RTS_TASKID)
+);
+
+CREATE TABLE STM_ROLE
+(
+  ROL_ID   INT4 NOT NULL,
+  ROL_NOTE VARCHAR(500),
+  ROL_NAME VARCHAR(50),
+  PRIMARY KEY (ROL_ID)
+);
+
+CREATE TABLE STM_SEQUENCE
+(
+  SEQ_NAME  VARCHAR(255) NOT NULL,
+  SEQ_COUNT INT8,
+  PRIMARY KEY (SEQ_NAME)
+);
+
+CREATE TABLE STM_SERVICE
+(
+  SER_ID       INT4                  NOT NULL,
+  SER_BLOCKED  BOOLEAN,
+  SER_PROXIED  BOOLEAN DEFAULT FALSE NOT NULL,
+  SER_CREATED  TIMESTAMP,
+  SER_ABSTRACT VARCHAR(250),
+  SER_INFOURL  VARCHAR(4000),
+  SER_LEGEND   VARCHAR(4000),
+  SER_NAME     VARCHAR(60),
+  SER_NAT_PROT VARCHAR(50),
+  SER_URL      VARCHAR(4000),
+  SER_PROJECTS VARCHAR(1000),
+  SER_PROTOCOL VARCHAR(50),
+  SER_AUTH_MOD VARCHAR(50),
+  SER_USER     VARCHAR(50),
+  SER_PWD      VARCHAR(50),
+  PRIMARY KEY (SER_ID)
+);
+
+CREATE TABLE STM_STY_GI
+(
+  SGI_ID          INT4    NOT NULL,
+  SGI_ABSTRACT    VARCHAR(250),
+  SGI_LURL_FORMAT VARCHAR(255),
+  SGI_LURL_HEIGHT INT4,
+  SGI_LURL_URL    VARCHAR(255),
+  SGI_LURL_WIDTH  INT4,
+  SGI_NAME        VARCHAR(50),
+  SGI_TITLE       VARCHAR(50),
+  SGI_DEFAULT     BOOLEAN NOT NULL DEFAULT FALSE,
+  SGI_GIID        INT4,
+  PRIMARY KEY (SGI_ID)
+);
+
+CREATE TABLE STM_TASK
+(
+  TAS_ID      INT4 NOT NULL,
+  TAS_NAME    VARCHAR(512),
+  TAS_CREATED TIMESTAMP,
+  TAS_ORDER   INT4,
+  TAS_GIID    INT4,
+  TAS_SERID   INT4,
+  TAS_GTASKID INT4,
+  TAS_TTASKID INT4,
+  TAS_TUIID   INT4,
+  TAS_CONNID  INT4,
+  TAS_PARAMS  TEXT,
+  PRIMARY KEY (TAS_ID)
+);
+
+CREATE TABLE STM_TASKREL
+(
+  TAR_ID        INT4 NOT NULL,
+  TAR_TYPE      VARCHAR(50),
+  TAR_TASKID    INT4,
+  TAR_TASKRELID INT4,
+  PRIMARY KEY (TAR_ID)
+);
+
+CREATE TABLE STM_TER_TYP
+(
+  TET_ID       INT4    NOT NULL,
+  TET_NAME     VARCHAR(50),
+  TET_OFFICIAL BOOLEAN NOT NULL,
+  TET_TOP      BOOLEAN NOT NULL,
+  TET_BOTTOM   BOOLEAN NOT NULL,
+  PRIMARY KEY (TET_ID)
+);
+
+CREATE TABLE STM_TERRITORY
+(
+  TER_ID      INT4 NOT NULL,
+  TER_BLOCKED BOOLEAN,
+  TER_CODTER  VARCHAR(50),
+  TER_CREATED TIMESTAMP,
+  TER_EXTENT  VARCHAR(250),
+  TER_CENTER  VARCHAR(250),
+  TER_LEGAL   VARCHAR(50),
+  TER_ZOOM    INT4,
+  TER_NAME    VARCHAR(250),
+  TER_NOTE    VARCHAR(250),
+  TER_SCOPE   VARCHAR(50),
+  TER_ADDRESS VARCHAR(250),
+  TER_EMAIL   VARCHAR(50),
+  TER_LOGO    VARCHAR(4000),
+  TER_ADMNAME VARCHAR(250),
+  TER_GTYPID  INT4,
+  TER_TYPID   INT4,
+  PRIMARY KEY (TER_ID)
+);
+
+CREATE TABLE STM_TRANSLATION
+(
+  TRA_ID     INT4 NOT NULL,
+  TRA_COLUMN VARCHAR(50),
+  TRA_ELEID  INT4,
+  TRA_NAME   VARCHAR(250),
+  TRA_LANID  INT4,
+  PRIMARY KEY (TRA_ID)
+);
+
+CREATE TABLE STM_TREE
+(
+  TRE_ID       INT4 NOT NULL,
+  TRE_ABSTRACT VARCHAR(250),
+  TRE_IMAGE    VARCHAR(4000),
+  TRE_NAME     VARCHAR(50),
+  TRE_USERID   INT4,
+  PRIMARY KEY (TRE_ID)
+);
+
+CREATE TABLE STM_TREE_NOD
+(
+  TNO_ID         INT4 NOT NULL,
+  TNO_ACTIVE     BOOLEAN,
+  TNO_DATAURL    VARCHAR(4000),
+  TNO_ABSTRACT   VARCHAR(250),
+  TNO_FILTER_GFI BOOLEAN,
+  TNO_FILTER_GM  BOOLEAN,
+  TNO_FILTER_SE  BOOLEAN,
+  TNO_METAURL    VARCHAR(4000),
+  TNO_NAME       VARCHAR(80),
+  TNO_ORDER      INT4,
+  TNO_QUERYACT   BOOLEAN,
+  TNO_RADIO      BOOLEAN,
+  TNO_TOOLTIP    VARCHAR(100),
+  TNO_GIID       INT4,
+  TNO_PARENTID   INT4,
+  TNO_TREEID     INT4,
+  TNO_STYLE      VARCHAR(50),
+  PRIMARY KEY (TNO_ID)
+);
+
+CREATE TABLE STM_TREE_ROL
+(
+  TRO_TREEID INT4 NOT NULL,
+  TRO_ROLEID INT4 NOT NULL,
+  PRIMARY KEY (TRO_ROLEID, TRO_TREEID)
+);
+
+CREATE TABLE STM_TSK_TYP
+(
+  TTY_ID       INT4 NOT NULL,
+  TTY_ENABLED  BOOLEAN,
+  TTY_NAME     VARCHAR(50),
+  TTY_ORDER    INT4,
+  TTY_SPEC     TEXT,
+  TTY_TITLE    VARCHAR(50),
+  TTY_PARENTID INT4,
+  PRIMARY KEY (TTY_ID)
+);
+
+CREATE TABLE STM_TSK_UI
+(
+  TUI_ID      INT4 NOT NULL,
+  TUI_NAME    VARCHAR(50),
+  TUI_ORDER   INT4,
+  TUI_TOOLTIP VARCHAR(100),
+  TUI_TYPE    VARCHAR(30),
+  PRIMARY KEY (TUI_ID)
+);
+
+CREATE TABLE STM_USER
+(
+  USE_ID        INT4 NOT NULL,
+  USE_ADM       BOOLEAN,
+  USE_BLOCKED   BOOLEAN,
+  USE_CREATED   TIMESTAMP,
+  USE_UPDATED   TIMESTAMP,
+  USE_NAME      VARCHAR(30),
+  USE_GENERIC   BOOLEAN,
+  USE_IDENT     VARCHAR(50),
+  USE_IDENTTYPE VARCHAR(50),
+  USE_SURNAME   VARCHAR(40),
+  USE_PWD       VARCHAR(128),
+  USE_USER      VARCHAR(50),
+  PRIMARY KEY (USE_ID)
+);
+
+CREATE TABLE STM_USR_CONF
+(
+  UCO_ID      INT4 NOT NULL,
+  UCO_ROLEM   BOOLEAN,
+  UCO_CREATED TIMESTAMP,
+  UCO_ROLEID  INT4,
+  UCO_TERID   INT4,
+  UCO_USERID  INT4,
+  PRIMARY KEY (UCO_ID)
+);
+
+ALTER TABLE IF EXISTS STM_APP_BCKG ADD CONSTRAINT STM_APF_UK UNIQUE (ABC_APPID, ABC_BACKID);
+
+ALTER TABLE IF EXISTS STM_APP_TER ADD CONSTRAINT STM_APT_UK UNIQUE (ATE_APPID, ATE_TERID);
+
+ALTER TABLE IF EXISTS STM_AVAIL_GI ADD CONSTRAINT STM_DCA_UK UNIQUE (AGI_TERID, AGI_GIID);
+
+ALTER TABLE IF EXISTS STM_AVAIL_TSK ADD CONSTRAINT STM_DTA_UK UNIQUE (ATS_TERID, ATS_TASKID);
+
+ALTER TABLE IF EXISTS STM_CODELIST ADD CONSTRAINT UKH4JN7SFGMUDOC896BLVFQBV3B UNIQUE (COD_LIST, COD_VALUE);
+
+ALTER TABLE IF EXISTS STM_CONF ADD CONSTRAINT STM_CONF_NAME_UK UNIQUE (CNF_NAME);
+
+ALTER TABLE IF EXISTS STM_GTER_TYP ADD CONSTRAINT STM_GTT_NOM_UK UNIQUE (GTT_NAME);
+
+ALTER TABLE IF EXISTS STM_LANGUAGE ADD CONSTRAINT UKPIA9A18THHKA1NCR9CNYJL0J8 UNIQUE (LAN_SHORTNAME);
+
+ALTER TABLE IF EXISTS STM_POST ADD CONSTRAINT UKT67T88DOKIXQN9VEHTT1AEJ1X UNIQUE (POS_USERID, POS_TERID);
+
+ALTER TABLE IF EXISTS STM_ROLE ADD CONSTRAINT STM_ROL_NOM_UK UNIQUE (ROL_NAME);
+
+ALTER TABLE IF EXISTS STM_TER_TYP ADD CONSTRAINT STM_TET_NOM_UK UNIQUE (TET_NAME);
+
+ALTER TABLE IF EXISTS STM_TERRITORY ADD CONSTRAINT STM_TER_NOM_UK UNIQUE (TER_NAME);
+
+ALTER TABLE IF EXISTS STM_TRANSLATION ADD CONSTRAINT UK2K84KV6JXBMSDVWEW4LJ4RO0G UNIQUE (TRA_ELEID, TRA_COLUMN, TRA_LANID);
+
+ALTER TABLE IF EXISTS STM_USER ADD CONSTRAINT STM_USU_USU_UK UNIQUE (USE_USER);
+
+ALTER TABLE IF EXISTS STM_USR_CONF ADD CONSTRAINT STM_UCF_UK UNIQUE (UCO_USERID, UCO_TERID, UCO_ROLEID, UCO_ROLEM);
+
+ALTER TABLE IF EXISTS STM_APP ADD CONSTRAINT STM_APP_FK_GGI FOREIGN KEY (APP_GGIID) REFERENCES STM_GRP_GI;
+
+ALTER TABLE IF EXISTS STM_APP_TER ADD CONSTRAINT STM_ATE_FK_APP FOREIGN KEY (ATE_APPID) REFERENCES STM_APP ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_APP_TER ADD CONSTRAINT STM_ATE_FK_TER FOREIGN KEY (ATE_TERID) REFERENCES STM_TERRITORY ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_APP_ROL ADD CONSTRAINT STM_ARO_FK_APP FOREIGN KEY (ARO_APPID) REFERENCES STM_APP;
+
+ALTER TABLE IF EXISTS STM_APP_ROL ADD CONSTRAINT STM_ARO_FK_ROL FOREIGN KEY (ARO_ROLEID) REFERENCES STM_ROLE;
+
+ALTER TABLE IF EXISTS STM_APP_TREE ADD CONSTRAINT STM_ATR_FK_APP FOREIGN KEY (ATR_APPID) REFERENCES STM_APP;
+
+ALTER TABLE IF EXISTS STM_APP_TREE ADD CONSTRAINT STM_ATR_FK_TRE FOREIGN KEY (ATR_TREEID) REFERENCES STM_TREE;
+
+ALTER TABLE IF EXISTS STM_AVAIL_GI ADD CONSTRAINT STM_AGI_FK_GEO FOREIGN KEY (AGI_GIID) REFERENCES STM_GEOINFO ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_AVAIL_GI ADD CONSTRAINT STM_AGI_FK_TER FOREIGN KEY (AGI_TERID) REFERENCES STM_TERRITORY ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_AVAIL_TSK ADD CONSTRAINT STM_ATS_FK_TAS FOREIGN KEY (ATS_TASKID) REFERENCES STM_TASK ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_AVAIL_TSK ADD CONSTRAINT STM_ATS_FK_TER FOREIGN KEY (ATS_TERID) REFERENCES STM_TERRITORY ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_BACKGRD ADD CONSTRAINT STM_BAC_FK_GGI FOREIGN KEY (BAC_GGIID) REFERENCES STM_GRP_GI;
+
+ALTER TABLE IF EXISTS STM_COMMENT ADD CONSTRAINT STM_COM_FK_APP FOREIGN KEY (COM_APPID) REFERENCES STM_APP ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_COMMENT ADD CONSTRAINT STM_COM_FK_USE FOREIGN KEY (COM_USERID) REFERENCES STM_USER ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_FIL_GI ADD CONSTRAINT STM_FGI_FK_GEO FOREIGN KEY (FGI_GIID) REFERENCES STM_GEOINFO ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_FIL_GI ADD CONSTRAINT STM_FGI_FK_TET FOREIGN KEY (FGI_TYPID) REFERENCES STM_TER_TYP;
+
+ALTER TABLE IF EXISTS STM_GEOINFO ADD CONSTRAINT STM_GEO_FK_SGI FOREIGN KEY (GEO_STYID) REFERENCES STM_STY_GI;
+
+ALTER TABLE IF EXISTS STM_GEOINFO ADD CONSTRAINT STM_GEO_FK_SER FOREIGN KEY (GEO_SERID) REFERENCES STM_SERVICE;
+
+ALTER TABLE IF EXISTS STM_GEOINFO ADD CONSTRAINT STM_GEO_FK_CON FOREIGN KEY (GEO_CONNID) REFERENCES STM_CONNECT;
+
+ALTER TABLE IF EXISTS STM_GEOINFO ADD CONSTRAINT STM_GEO_FK_SERSEL FOREIGN KEY (GEO_SERSELID) REFERENCES STM_SERVICE;
+
+ALTER TABLE IF EXISTS STM_GGI_GI ADD CONSTRAINT STM_GGG_FK_GEO FOREIGN KEY (GGG_GIID) REFERENCES STM_GEOINFO;
+
+ALTER TABLE IF EXISTS STM_GGI_GI ADD CONSTRAINT STM_GGG_FK_GGI FOREIGN KEY (GGG_GGIID) REFERENCES STM_GRP_GI;
+
+ALTER TABLE IF EXISTS STM_GRP_TER ADD CONSTRAINT STM_GTE_FK_TERM FOREIGN KEY (GTE_TERMID) REFERENCES STM_TERRITORY;
+
+ALTER TABLE IF EXISTS STM_GRP_TER ADD CONSTRAINT STM_GTE_FK_TER FOREIGN KEY (GTE_TERID) REFERENCES STM_TERRITORY;
+
+ALTER TABLE IF EXISTS STM_LOG ADD CONSTRAINT FKKEVXKUE4E8UA7NQISDF9QTT9U FOREIGN KEY (LOG_APPID) REFERENCES STM_APP;
+
+ALTER TABLE IF EXISTS STM_LOG ADD CONSTRAINT FKD40R7BQKXMOSOKQR544ELCYRT FOREIGN KEY (LOG_GIID) REFERENCES STM_GEOINFO;
+
+ALTER TABLE IF EXISTS STM_LOG ADD CONSTRAINT FKCW6U4JP3WVNKH7YPDL81UYFWC FOREIGN KEY (LOG_TASKID) REFERENCES STM_TASK;
+
+ALTER TABLE IF EXISTS STM_LOG ADD CONSTRAINT FKM77T0WVSOV0PQY99PFBYEDIP7 FOREIGN KEY (LOG_TERID) REFERENCES STM_TERRITORY;
+
+ALTER TABLE IF EXISTS STM_LOG ADD CONSTRAINT FK2P47BCWKDBN91H2OXUF5CSIR8 FOREIGN KEY (LOG_USERID) REFERENCES STM_USER;
+
+ALTER TABLE IF EXISTS STM_PAR_APP ADD CONSTRAINT STM_PAP_FK_APP FOREIGN KEY (PAP_APPID) REFERENCES STM_APP ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_PAR_GI ADD CONSTRAINT STM_PGI_FK_GEO FOREIGN KEY (PGI_GIID) REFERENCES STM_GEOINFO ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_PAR_SGI ADD CONSTRAINT STM_PSG_FK_GEO FOREIGN KEY (PSG_GIID) REFERENCES STM_GEOINFO ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_PAR_SER ADD CONSTRAINT STM_PSE_FK_SER FOREIGN KEY (PSE_SERID) REFERENCES STM_SERVICE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_POST ADD CONSTRAINT STM_POS_FK_TER FOREIGN KEY (POS_TERID) REFERENCES STM_TERRITORY ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_POST ADD CONSTRAINT STM_POS_FK_USE FOREIGN KEY (POS_USERID) REFERENCES STM_USER ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_ROL_GGI ADD CONSTRAINT STM_RGG_FK_GGI FOREIGN KEY (RGG_GGIID) REFERENCES STM_GRP_GI;
+
+ALTER TABLE IF EXISTS STM_ROL_GGI ADD CONSTRAINT STM_RGG_FK_ROL FOREIGN KEY (RGG_ROLEID) REFERENCES STM_ROLE;
+
+ALTER TABLE IF EXISTS STM_ROL_TSK ADD CONSTRAINT STM_RTS_FK_ROL FOREIGN KEY (RTS_ROLEID) REFERENCES STM_ROLE;
+
+ALTER TABLE IF EXISTS STM_ROL_TSK ADD CONSTRAINT STM_RTS_FK_TAS FOREIGN KEY (RTS_TASKID) REFERENCES STM_TASK;
+
+ALTER TABLE IF EXISTS STM_STY_GI ADD CONSTRAINT STM_SGI_FK_GEO FOREIGN KEY (SGI_GIID) REFERENCES STM_GEOINFO;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_GEO FOREIGN KEY (TAS_GIID) REFERENCES STM_GEOINFO;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_SER FOREIGN KEY (TAS_SERID) REFERENCES STM_SERVICE;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_GTS FOREIGN KEY (TAS_GTASKID) REFERENCES STM_GRP_TSK;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_TTY FOREIGN KEY (TAS_TTASKID) REFERENCES STM_TSK_TYP;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_TUI FOREIGN KEY (TAS_TUIID) REFERENCES STM_TSK_UI;
+
+ALTER TABLE IF EXISTS STM_TASK ADD CONSTRAINT STM_TAS_FK_CON FOREIGN KEY (TAS_CONNID) REFERENCES STM_CONNECT;
+
+ALTER TABLE IF EXISTS STM_TASKREL ADD CONSTRAINT STM_TAR_FK_TAS FOREIGN KEY (TAR_TASKID) REFERENCES STM_TASK ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_TASKREL ADD CONSTRAINT STM_TAR_FK_TAS_REL FOREIGN KEY (TAR_TASKRELID) REFERENCES STM_TASK;
+
+ALTER TABLE IF EXISTS STM_TERRITORY ADD CONSTRAINT STM_TER_FK_TET FOREIGN KEY (TER_GTYPID) REFERENCES STM_GTER_TYP;
+
+ALTER TABLE IF EXISTS STM_TERRITORY ADD CONSTRAINT STM_TER_FK_TGR FOREIGN KEY (TER_TYPID) REFERENCES STM_TER_TYP;
+
+ALTER TABLE IF EXISTS STM_TRANSLATION ADD CONSTRAINT STM_TRA_FK_LAN FOREIGN KEY (TRA_LANID) REFERENCES STM_LANGUAGE;
+
+ALTER TABLE IF EXISTS STM_TREE ADD CONSTRAINT STM_TRE_FK_USE FOREIGN KEY (TRE_USERID) REFERENCES STM_USER;
+
+ALTER TABLE IF EXISTS STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_GEO FOREIGN KEY (TNO_GIID) REFERENCES STM_GEOINFO;
+
+ALTER TABLE IF EXISTS STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD;
+
+ALTER TABLE IF EXISTS STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TRE FOREIGN KEY (TNO_TREEID) REFERENCES STM_TREE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_TREE_ROL ADD CONSTRAINT STM_TRO_FK_ROL FOREIGN KEY (TRO_ROLEID) REFERENCES STM_ROLE;
+
+ALTER TABLE IF EXISTS STM_TREE_ROL ADD CONSTRAINT STM_TRO_FK_TRE FOREIGN KEY (TRO_TREEID) REFERENCES STM_TREE;
+
+ALTER TABLE IF EXISTS STM_TSK_TYP ADD CONSTRAINT STM_TSK_TYP_TTY FOREIGN KEY (TTY_PARENTID) REFERENCES STM_TSK_TYP ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_USR_CONF ADD CONSTRAINT STM_UCF_FK_ROL FOREIGN KEY (UCO_ROLEID) REFERENCES STM_ROLE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_USR_CONF ADD CONSTRAINT STM_UCF_FK_TER FOREIGN KEY (UCO_TERID) REFERENCES STM_TERRITORY ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS STM_USR_CONF ADD CONSTRAINT STM_UCF_FK_USU FOREIGN KEY (UCO_USERID) REFERENCES STM_USER ON DELETE CASCADE

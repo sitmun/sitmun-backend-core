@@ -134,6 +134,14 @@ public class Service {
   private Boolean blocked;
 
   /**
+   * <code>true</code> if the service is blocked and cannot be used.
+   */
+  @NotNull
+  @Column(name = "SER_PROXIED", nullable = false)
+  @Builder.Default
+  private Boolean isProxied = false;
+
+  /**
    * Layers provided by this service.
    */
   @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
