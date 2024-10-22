@@ -14,10 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.sitmun.test.TestUtils.asJsonString;
@@ -56,15 +53,57 @@ class TaskRepositoryDataRestTest extends BaseTest {
     territoryRepository.save(territory);
     tasks = new ArrayList<>();
 
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("string", "value");
-    parameters.put("real", 1.0);
-    parameters.put("integer", 1);
-    parameters.put("array", new String[]{"one", "two", "three"});
+    Map<String, Object> string = new HashMap<>();
+    string.put("name", "string");
+    string.put("type", "string");
+    string.put("value", "value");
+
+    Map<String, Object> number = new HashMap<>();
+    number.put("name", "number");
+    number.put("type", "number");
+    number.put("value", "1.0");
+
+    Map<String, Object> integer = new HashMap<>();
+    integer.put("name", "number");
+    integer.put("type", "number");
+    integer.put("value", "1");
+
+    Map<String, Object> array = new HashMap<>();
+    array.put("name", "array");
+    array.put("type", "array");
+    array.put("value", "[\"one\", \"two\", \"three\"]");
+
+    Map<String, Object> object = new HashMap<>();
+    object.put("name", "object");
+    object.put("type", "object");
+    object.put("value", "{\"one\": \"two\", \"three\": 3}");
+
+    Map<String, Object> bool = new HashMap<>();
+    bool.put("name", "boolean");
+    bool.put("type", "boolean");
+    bool.put("value", "true");
+
+    Map<String, Object> none = new HashMap<>();
+    none.put("name", "null");
+    none.put("type", "null");
+    none.put("value", null);
+
+
+    List<Map<String, Object>> list = new ArrayList<>();
+    list.add(string);
+    list.add(number);
+    list.add(integer);
+    list.add(array);
+    list.add(object);
+    list.add(bool);
+    list.add(none);
+
+    Map<String, Object> container = new HashMap<>();
+    container.put("parameters", list);
 
     task = Task.builder()
       .name(TASK_NAME)
-      .properties(parameters)
+      .properties(container)
       .build();
     tasks.add(task);
     Task taskWithAvailabilities = new Task();
@@ -96,7 +135,8 @@ class TaskRepositoryDataRestTest extends BaseTest {
     String location = mvc.perform(post(URIConstants.TASKS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(task))
-      ).andExpect(status().isCreated())
+      )
+      .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertThat(location).isNotNull();
@@ -105,7 +145,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
-      .andExpect(jsonPath("$.properties.string", equalTo("value")));
+      .andExpect(jsonPath("$.properties.parameters[0].name", equalTo("string")));
 
       String[] paths = URI.create(location).getPath().split("/");
       Integer id = Integer.parseInt(paths[paths.length - 1]);

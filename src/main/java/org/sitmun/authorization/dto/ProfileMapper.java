@@ -1,5 +1,7 @@
 package org.sitmun.authorization.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -67,10 +69,58 @@ public interface ProfileMapper {
     if (task.getUi() != null) {
       control = task.getUi().getName();
     }
+
+    Map<String, Object> parameters = new HashMap<>();
+    Map<String, Object> properties = task.getProperties();
+    if (properties != null) {
+      parameters = new HashMap<>();
+      //noinspection unchecked
+      List<Map<String, String>> listOfParameters = (List<Map<String, String>>) properties.getOrDefault("parameters", Collections.emptyList());
+      for (Map<String, String> param : listOfParameters) {
+        if (param.containsKey("name") && param.containsKey("type") && param.containsKey("value")) {
+          String name = param.get("name");
+          String type = param.get("type");
+          String value = param.get("value");
+          switch (type) {
+            case "string":
+              if (value == null) {
+                value = "";
+              }
+              parameters.put(name, value);
+              break;
+            case "number":
+              parameters.put(name, Double.parseDouble(value));
+              break;
+            case "array":
+              try {
+                parameters.put(name, new ObjectMapper().readValue(value, List.class));
+              } catch (JsonProcessingException e) {
+                e.printStackTrace();
+              }
+              break;
+            case "object":
+              try {
+                parameters.put(name, new ObjectMapper().readValue(value, Map.class));
+              } catch (JsonProcessingException e) {
+                e.printStackTrace();
+              }
+              break;
+            case "boolean":
+              parameters.put(name, Boolean.parseBoolean(value));
+              break;
+            case "null":
+              parameters.put(name, null);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
     return TaskDto.builder()
       .id("task/" + task.getId())
       .uiControl(control)
-      .parameters(task.getProperties())
+      .parameters(parameters)
       .build();
   }
 

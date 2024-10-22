@@ -1,5 +1,6 @@
 package org.sitmun.test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.sitmun.authentication.dto.AuthenticationResponse;
@@ -11,10 +12,16 @@ public class TestUtils {
 
   private static final String ADMIN_USERNAME = "admin";
   private static final String ADMIN_PASSWORD = "admin";
+  private static final ObjectMapper mapper;
+  static {
+    mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+  }
+
 
   public static String asJsonString(Object obj) {
     try {
-      return new ObjectMapper().writeValueAsString(obj);
+      return mapper.writeValueAsString(obj);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

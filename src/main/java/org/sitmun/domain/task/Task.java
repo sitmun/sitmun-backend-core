@@ -14,6 +14,7 @@ import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
+import org.sitmun.infrastructure.persistence.type.map.Parameters;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -80,6 +81,7 @@ public class Task {
   @Column(name = "TAS_PARAMS")
   @Lob
   @Convert(converter = HashMapConverter.class)
+  @Parameters
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Map<String, Object> properties;
 
