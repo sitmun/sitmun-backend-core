@@ -517,6 +517,9 @@ databaseChangeLog:
               - column:
                   name: APP_CREATED
                   type: DATETIME
+              - column:
+                  name: APP_LOGO
+                  type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 4);
         - loadData:

@@ -37,6 +37,7 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.application.theme", is("sitmun-base")))
+      .andExpect(jsonPath("$.application.logo", is("https://sitmun.org/Documents/Imatges/8480img1320220524090127.jpg")))
       .andExpect(jsonPath("$.application.srs", is("EPSG:25831")))
       .andExpect(jsonPath("$.application.initialExtent", hasItems(363487.0, 4561229.0, 481617.0, 4686464.0)));
   }

@@ -17,6 +17,8 @@ public class ApplicationDto {
   private String srs;
   @JsonProperty("situation-map")
   private String situationMap;
+  private String logo;
+  private String description;
 
   // The following fields are related to the Territory
 

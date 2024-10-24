@@ -12,6 +12,7 @@ import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.Tree;
+import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
@@ -53,6 +54,19 @@ public class Application {
   @Column(name = "APP_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String name;
+
+  /**
+   * Application description.
+   */
+  @Column(name = "APP_DESCRIPTION", length = PersistenceConstants.LONG_DESCRIPTION)
+  private String description;
+
+  /**
+   * Link to the application logo.
+   */
+  @Column(name = "APP_LOGO", length = PersistenceConstants.URL)
+  @Http
+  private String logo;
 
   /**
    * Application type (external or internal).
