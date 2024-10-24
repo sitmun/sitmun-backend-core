@@ -13,6 +13,7 @@ public class NodeDto {
   String title;
   String resource;
   Boolean isRadio;
+  Boolean loadData;
   Integer order;
   List<String> children;
 }

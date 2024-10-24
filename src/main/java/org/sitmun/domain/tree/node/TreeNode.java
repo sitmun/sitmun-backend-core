@@ -83,6 +83,15 @@ public class TreeNode {
   @Column(name = "TNO_RADIO")
   private Boolean radio;
 
+
+  /**
+   * Specifies the behavior of a folder node in the SITMUN viewer layer tree.
+   * False by default, when true all contained layers are loaded when (the user)
+   * clicks on the layer title (in the SITMUN viewer).
+   */
+  @Column(name = "TNO_LOADDATA", nullable = false)
+  private Boolean loadData = false;
+
   /**
    * Order of the node within the tree.
    */

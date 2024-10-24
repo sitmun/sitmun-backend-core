@@ -140,7 +140,9 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]").isArray())
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", hasSize(2)))
       .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]", containsInAnyOrder("node/1", "node/7")))
-      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")));
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].loadData", hasItem(false)))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")))
+      .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].loadData", hasItem(false)));
   }
 
   @Test

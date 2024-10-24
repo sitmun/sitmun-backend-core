@@ -158,6 +158,7 @@ public interface ProfileMapper {
 
     NodeDto rootNodeDto = NodeDto.builder()
       .title(tree.getName())
+      .loadData(false)
       .children(rootChildren)
       .build();
 
@@ -168,6 +169,7 @@ public interface ProfileMapper {
       NodeDto.NodeDtoBuilder nodeDtoBuilder = NodeDto.builder()
         .title(it.getName())
         .isRadio(it.getRadio())
+        .loadData(it.getLoadData())
         .order(it.getOrder());
       if (it.getCartographyId() != null) {
         nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
