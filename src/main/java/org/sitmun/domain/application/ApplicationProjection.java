@@ -89,4 +89,9 @@ public interface ApplicationProjection {
   @Value("#{target.createdDate}")
   Date getCreatedDate();
 
+  /**
+   * Application logo.
+   */
+  @Value("#{target.logo}")
+  String getLogo();
 }
