@@ -94,4 +94,10 @@ public interface ApplicationProjection {
    */
   @Value("#{target.logo}")
   String getLogo();
+
+  /**
+   * Application description.
+   */
+  @Value("#{target.description}")
+  String getDescription();
 }
