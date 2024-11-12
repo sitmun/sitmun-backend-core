@@ -31,27 +31,32 @@ Before you begin, ensure you have met the following requirements:
 To install the SITMUN Proxy Middleware, follow these steps:
 
 1. Clone the repository:
+
     ```bash
     git clone https://github.com/sitmun/sitmun-backend-core.git
     ```
 
 2. Change to the directory of the repository:
+
     ```bash
-    cd ssitmun-backend-core
+    cd sitmun-backend-core
     ```
 
 3. Edit the file named `.env` inside the directory.
-    ```
+
 4. Start the SITMUN Backend Core:
+
     ```bash
     docker compose up
     ```
+
    This command will build and start all the services defined in the `docker-compose.yml` file.
 
 5. Access the SITMUN Middleware Proxy at [http://localhost:9001/api/dashboard/health](http://localhost:9002/actuator/health) and expect:
-   ```json
-   {"status":"UP"}
-   ```
+
+    ```json
+    {"status":"UP"}
+    ```
 
 See [SITMUN Application Stack](https://github.com/sitmun/sitmun-application-stack) as an example of how to deploy and run the proxy as parte of the SITMUN stack.
 
@@ -62,8 +67,8 @@ are:
 
 - `env\heroku`: This configuration includes all necessary configuration files and data required to deploy a
   development instance of the **SITMUN backend core** on the Heroku platform using GitHub Actions. This deployment uses a **Heroku Data postgres** as database. It can be accessed
-  at https://sitmun-backend-core.herokuapp.com/. The API definitions for this deployment can be found
-  at https://sitmun-backend-core.herokuapp.com/swagger-ui/index.html.
+  at <https://sitmun-backend-core.herokuapp.com/>. The API definitions for this deployment can be found
+  at <https://sitmun-backend-core.herokuapp.com/swagger-ui/index.html>.
 - `env\preprod`: This configuration is intended for running a pre production instance of the **SITMUN backend core** . It includes all necessary configuration files and data for testing the system in preproduction.
 
 It is possible to run the `env\heroku` configuration locally by executing the following commands:
@@ -89,6 +94,7 @@ Additionally, the `spring.datasource.hikari.auto-commit` property is set to `fal
 ## Uninstalling SITMUN Backend Core
 
 To stop and remove all services, volumes, and networks defined in the `docker-compose.yml` file, use:
+
 ```bash
 docker compose down -v
 ```
