@@ -43,6 +43,14 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Territory SRS overrides SRS application")
+  void territorySrsOverridesSrsApplication() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 2))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.application.srs", is("EPSG:25830")));
+  }
+
+  @Test
   @DisplayName("Get application extent from territory")
   void applicationExtentFromTerritory() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 2))

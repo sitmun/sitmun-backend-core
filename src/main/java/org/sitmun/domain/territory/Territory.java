@@ -20,6 +20,7 @@ import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.sitmun.infrastructure.persistence.type.point.PointToStringConverter;
+import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -176,6 +177,13 @@ public class Territory {
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date createdDate;
+
+  /**
+   * Projection to be used in this application when it is internal.
+   */
+  @Column(name = "TER_PROJECT", length = PersistenceConstants.IDENTIFIER)
+  @Srs
+  private String srs;
 
   /**
    * Territory typology.

@@ -240,6 +240,10 @@ public interface ProfileMapper {
       applicationDto.setPointOfInterest(poi);
     }
 
+    if (profile.getTerritory().getSrs() != null) {
+      applicationDto.setSrs(profile.getTerritory().getSrs());
+    }
+
     builder.application(applicationDto);
   }
 

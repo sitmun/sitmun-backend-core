@@ -181,6 +181,9 @@ databaseChangeLog:
               - column:
                   name: TER_ZOOM    # DEPRECATED
                   type: NUMERIC     # DEPRECATED
+              - column:
+                  name: TER_PROJECT
+                  type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
         - loadData:

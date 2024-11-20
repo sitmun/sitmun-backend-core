@@ -141,4 +141,9 @@ public interface TerritoryProjection {
   @Value("#{target.defaultZoomLevel}")
   Integer getDefaultZoomLevel();
 
+  /**
+   * Projection to be used in this territory.
+   */
+  @Value("#{target.srs}")
+  String getSrs();
 }
