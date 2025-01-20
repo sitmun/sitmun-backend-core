@@ -411,9 +411,11 @@ create table stm_tree
 (
   tre_id       int4 not null,
   tre_abstract varchar(250),
-  tre_image    varchar(4000),
+  tre_image    text,
+  tre_image_name varchar2(4000),
   tre_name     varchar(50),
   tre_userid   int4,
+  tre_type     varchar(50),
   primary key (tre_id)
 );
 create table stm_tree_nod
@@ -435,6 +437,11 @@ create table stm_tree_nod
   tno_parentid   int4,
   tno_treeid     int4,
   tno_style      varchar(50),
+  tno_image      text,
+  tno_image_name varchar2(4000),
+  tno_view_mode  varchar2(50),
+  tno_taskid     int4,
+  tno_filterable boolean,
   primary key (tno_id)
 );
 create table stm_tree_rol

@@ -30,6 +30,7 @@ public final class CodeListsConstants {
   public static final String QUERY_TASK_SCOPE = "queryTask.scope";
   public static final String USER_POSITION_TYPE = "userPosition.type";
   public static final String USER_IDENTIFICATION_TYPE = "user.identificationType";
+  public static final String TREE_TYPE = "tree.type";
 
   private CodeListsConstants() {
   }

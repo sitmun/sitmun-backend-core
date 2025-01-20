@@ -1,15 +1,19 @@
 package org.sitmun.domain.tree.node;
 
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
+import org.sitmun.infrastructure.utils.ImageTransformer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -64,6 +68,12 @@ public class TreeNode {
    */
   @Column(name = "TNO_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String description;
+
+  /**
+   * Type.
+   */
+  @Column(name = "TNO_TYPE", length = PersistenceConstants.IDENTIFIER)
+  private String type;
 
   /**
    * Tooltip text.
@@ -143,6 +153,37 @@ public class TreeNode {
   private String style;
 
   /**
+   * Image.
+   */
+  @Column(name = "TNO_IMAGE")
+  private String image;
+
+  /**
+   * Image name.
+   */
+  @Column(name = "TNO_IMAGE_NAME")
+  private String imageName;
+
+  /**
+   * View mode.
+   */
+  @Column(name = "TNO_VIEW_MODE")
+  private String viewMode;
+
+  /**
+   * Filterable.
+   */
+  @Column(name = "TNO_FILTERABLE")
+  private Boolean filterable;
+
+  /**
+   * Task associated to this node.
+   */
+  @JoinColumn(name = "TNO_TASKID", foreignKey = @ForeignKey(name = "STM_TNO_FK_TASK"))
+  @ManyToOne
+  private Task task;
+
+  /**
    * Tree.
    */
   @OnDelete(action = OnDeleteAction.CASCADE)
@@ -172,6 +213,11 @@ public class TreeNode {
       return cartography.getId();
     }
     return null;
+  }
+  
+  @JsonSetter("image")
+  public void imageDeserialize(String image) {
+	  this.image = ImageTransformer.scaleImage(image, type);
   }
 
   @Override

@@ -25,6 +25,9 @@ public interface TreeNodeProjection {
   @Value("#{target.description}")
   String getDescription();
 
+  @Value("#{target.type}")
+  String getnodetype();
+
   @Value("#{target.tooltip}")
   String getTooltip();
 
@@ -84,5 +87,35 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.style}")
   String getStyle();
+
+  /**
+   * Tree node image
+   */
+  @Value("#{target.image}")
+  String getImage();
+
+  /**
+   * Tree node image name
+   */
+  @Value("#{target.imageName}")
+  String getImageName();
+
+  /**
+   * Tree node view mode
+   */
+  @Value("#{target.viewMode}")
+  String getViewMode();
+
+  /**
+   * Tree node filterable
+   */
+  @Value("#{target.filterable}")
+  String getFilterable();
+
+  /**
+   * Task identifier.
+   */
+  @Value("#{target.task?.id}")
+  Integer getTaskId();
 
 }
