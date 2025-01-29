@@ -106,6 +106,6 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 111,application.type,APP Turística,false,false,app-turistica
 112,treenode.folder.type,Cartografía,false,true,cartography
 113,treenode.final.type,Cartografía,false,true,cartography
-114,treenode.folder.type,Menú,false,false,menu
-115,treenode.folder.type,Lista,false,false,list
+114,treenode.folder.type,Menú,true,false,menu
+115,treenode.folder.type,Lista,true,false,list
 116,treenode.final.type,Tarea,false,false,task

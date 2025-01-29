@@ -1,7 +1,6 @@
 package org.sitmun.domain.tree.node;
 
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.*;
@@ -12,6 +11,7 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
+import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.utils.ImageTransformer;
 
@@ -215,9 +215,10 @@ public class TreeNode {
     return null;
   }
   
-  @JsonSetter("image")
-  public void imageDeserialize(String image) {
-	  this.image = ImageTransformer.scaleImage(image, type);
+  @PrePersist
+  @PreUpdate
+  public void imageDeserialize() throws IllegalImageException {
+	  this.image = ImageTransformer.getInstance().scaleImage(image, type);
   }
 
   @Override

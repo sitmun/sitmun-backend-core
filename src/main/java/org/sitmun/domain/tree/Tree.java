@@ -1,7 +1,6 @@
 package org.sitmun.domain.tree;
 
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.*;
@@ -12,6 +11,7 @@ import org.sitmun.domain.application.Application;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
+import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.utils.ImageTransformer;
 
@@ -128,9 +128,10 @@ public class Tree {
   @Builder.Default
   private Set<Application> availableApplications = new HashSet<>();
 
-  @JsonSetter("image")
-  public void imageDeserialize(String image) {
-	  this.image = ImageTransformer.scaleImage(image, type);
+  @PrePersist
+  @PreUpdate
+  public void imageDeserialize() throws IllegalImageException {
+	  this.image = ImageTransformer.getInstance().scaleImage(image, type);
   }
 
   @Override
