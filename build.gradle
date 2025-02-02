@@ -48,7 +48,7 @@ dependencies {
   testImplementation 'com.unboundid:unboundid-ldapsdk'
 
   implementation 'org.postgresql:postgresql'
-  implementation 'com.oracle.database.jdbc:ojdbc8'
+  implementation 'com.oracle.database.jdbc:ojdbc11-production'
 
   testImplementation 'org.hamcrest:hamcrest'
 
@@ -73,7 +73,7 @@ dependencies {
   implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
 
   implementation 'org.liquibase:liquibase-core'
-  implementation 'com.mattbertolini:liquibase-slf4j:2.0.0'
+  implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
 
   annotationProcessor 'javax.annotation:javax.annotation-api'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
