@@ -52,6 +52,17 @@ class PointToStringConverterTest {
     assertEquals("430492 4611482", string);
   }
 
+  @Test
+  @DisplayName("A point with null values to a null string")
+  void processPointsWithNull() {
+    Point point = Point.builder()
+      .x(null)
+      .y(null)
+      .build();
+    String string = converter.convertToDatabaseColumn(point);
+    assertNull(string);
+  }
+
   /**
    * Points with decimals converted.
    */

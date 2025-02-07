@@ -28,7 +28,7 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
     }
-      throw new IllegalArgumentException("Value " + obj + " is not a Number");
+    throw new IllegalArgumentException("Value " + obj + " is not a Number");
   }
 
   @Override
@@ -36,10 +36,13 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
     if (envelope == null) {
       return null;
     }
-      return formatInstance().format(new Object[]{
-        envelope.getX(),
-        envelope.getY(),
-      });
+    if (envelope.getX() == null || envelope.getY() == null) {
+      return null;
+    }
+    return formatInstance().format(new Object[]{
+      envelope.getX(),
+      envelope.getY(),
+    });
   }
 
   @Override
@@ -47,15 +50,15 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
     if (dbData == null) {
       return null;
     }
-      try {
-        Object[] values = formatInstance().parse(dbData);
-        return Point.builder()
-          .x(extractDouble(values[0]))
-          .y(extractDouble(values[1]))
-          .build();
-      } catch (Exception e) {
-        log.error("[{}] cannot be parsed to Point", dbData, e);
-        return null;
-      }
+    try {
+      Object[] values = formatInstance().parse(dbData);
+      return Point.builder()
+        .x(extractDouble(values[0]))
+        .y(extractDouble(values[1]))
+        .build();
+    } catch (Exception e) {
+      log.error("[{}] cannot be parsed to Point", dbData, e);
+      return null;
+    }
   }
 }
