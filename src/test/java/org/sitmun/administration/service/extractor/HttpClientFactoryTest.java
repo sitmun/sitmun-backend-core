@@ -18,7 +18,7 @@ class HttpClientFactoryTest {
   @Test
   @DisplayName("Fail with SSLHandshakeException")
   public void failWithASSLHandhakeException() {
-    String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
+    String url = "https://untrusted-root.badssl.com/";
     List<String> unsafeAllowedHosts = Lists.list();
     HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
 
