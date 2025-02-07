@@ -31,8 +31,7 @@ public class ServiceCapabilitiesExtractorController {
    */
   @GetMapping("/helpers/capabilities")
   @ResponseBody
-  public
-  ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
+  public ResponseEntity<ExtractedMetadata> extractCapabilities(@RequestParam("url") String url) {
     Iterator<ServiceCapabilitiesExtractor> iterator = extractors.iterator();
     ExtractedMetadata capabilities = ExtractedMetadata.builder().success(false).reason("No available extractor").build();
     while (iterator.hasNext()) {

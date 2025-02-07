@@ -105,11 +105,11 @@ public class CartographyFilter {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographyFilter)) {
-        return false;
+      return false;
     }
 
     CartographyFilter other = (CartographyFilter) obj;

@@ -75,11 +75,11 @@ public class TerritoryType {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TerritoryType)) {
-        return false;
+      return false;
     }
 
     TerritoryType other = (TerritoryType) obj;

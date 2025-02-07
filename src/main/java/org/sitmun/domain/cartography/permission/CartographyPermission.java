@@ -117,11 +117,11 @@ public class CartographyPermission {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographyPermission)) {
-        return false;
+      return false;
     }
 
     CartographyPermission other = (CartographyPermission) obj;

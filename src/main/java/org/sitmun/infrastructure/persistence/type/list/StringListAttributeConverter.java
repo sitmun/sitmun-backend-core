@@ -29,12 +29,12 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
     if (list.isEmpty()) {
       return "";
     }
-      return list.stream().map(it -> {
-        if (it == null) {
-          return "null";
-        }
-          return it.trim();
-      }).collect(Collectors.joining(DELIMITER));
+    return list.stream().map(it -> {
+      if (it == null) {
+        return "null";
+      }
+      return it.trim();
+    }).collect(Collectors.joining(DELIMITER));
   }
 
   @Override
@@ -45,13 +45,13 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
     if (dbData.trim().isEmpty()) {
       return Collections.emptyList();
     }
-      return Arrays.stream(dbData.split(DELIMITER))
-        .map(String::trim)
-        .map(it -> {
-          if ("null".equals(it)) {
-            return null;
-          }
-            return it;
-        }).collect(Collectors.toList());
+    return Arrays.stream(dbData.split(DELIMITER))
+      .map(String::trim)
+      .map(it -> {
+        if ("null".equals(it)) {
+          return null;
+        }
+        return it;
+      }).collect(Collectors.toList());
   }
 }

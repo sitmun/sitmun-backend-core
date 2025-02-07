@@ -36,6 +36,34 @@ public class UserController {
     this.publisher = publisher;
   }
 
+  private static User getUser(UserDTO updatedUser, User user) {
+    user.setUsername(updatedUser.getUsername());
+    user.setPassword(updatedUser.getPassword());
+    user.setFirstName(updatedUser.getFirstName());
+    user.setLastName(updatedUser.getLastName());
+    user.setIdentificationNumber(updatedUser.getIdentificationNumber());
+    user.setIdentificationType(updatedUser.getIdentificationType());
+    user.setAdministrator(updatedUser.getAdministrator());
+    user.setBlocked(updatedUser.getBlocked());
+    user.setGeneric(updatedUser.getGeneric());
+    return user;
+  }
+
+  private static UserDTO userToDto(User user) {
+    return UserDTO.builder()
+      .id(user.getId())
+      .username(user.getUsername())
+      .passwordSet(user.getPassword() != null && !user.getPassword().isEmpty())
+      .firstName(user.getFirstName())
+      .lastName(user.getLastName())
+      .identificationNumber(user.getIdentificationNumber())
+      .identificationType(user.getIdentificationType())
+      .administrator(user.getAdministrator())
+      .blocked(user.getBlocked())
+      .generic(user.getGeneric())
+      .build();
+  }
+
   /**
    * Update en existing account.
    *
@@ -60,20 +88,7 @@ public class UserController {
       publisher.publishEvent(new AfterSaveEvent(mergedUser));
       return ResponseEntity.ok(userToDto(mergedUser));
     }
-      return ResponseEntity.notFound().build();
-  }
-
-  private static User getUser(UserDTO updatedUser, User user) {
-    user.setUsername(updatedUser.getUsername());
-    user.setPassword(updatedUser.getPassword());
-    user.setFirstName(updatedUser.getFirstName());
-    user.setLastName(updatedUser.getLastName());
-    user.setIdentificationNumber(updatedUser.getIdentificationNumber());
-    user.setIdentificationType(updatedUser.getIdentificationType());
-    user.setAdministrator(updatedUser.getAdministrator());
-    user.setBlocked(updatedUser.getBlocked());
-    user.setGeneric(updatedUser.getGeneric());
-    return user;
+    return ResponseEntity.notFound().build();
   }
 
   /**
@@ -85,20 +100,5 @@ public class UserController {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-  }
-
-  private static UserDTO userToDto(User user) {
-    return UserDTO.builder()
-      .id(user.getId())
-      .username(user.getUsername())
-      .passwordSet(user.getPassword() != null && !user.getPassword().isEmpty())
-      .firstName(user.getFirstName())
-      .lastName(user.getLastName())
-      .identificationNumber(user.getIdentificationNumber())
-      .identificationType(user.getIdentificationType())
-      .administrator(user.getAdministrator())
-      .blocked(user.getBlocked())
-      .generic(user.getGeneric())
-      .build();
   }
 }

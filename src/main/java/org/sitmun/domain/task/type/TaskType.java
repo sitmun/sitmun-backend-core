@@ -98,7 +98,7 @@ public class TaskType {
 
   public Boolean getFolder() {
     if (children != null) {
-        return !children.isEmpty();
+      return !children.isEmpty();
     }
     return false;
   }
@@ -106,11 +106,11 @@ public class TaskType {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TaskType)) {
-        return false;
+      return false;
     }
 
     TaskType other = (TaskType) obj;

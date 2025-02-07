@@ -153,11 +153,11 @@ public class Log {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Log)) {
-        return false;
+      return false;
     }
 
     Log otherLog = (Log) obj;

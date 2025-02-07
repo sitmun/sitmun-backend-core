@@ -112,11 +112,11 @@ public class DatabaseConnection {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof DatabaseConnection)) {
-        return false;
+      return false;
     }
 
     DatabaseConnection other = (DatabaseConnection) obj;

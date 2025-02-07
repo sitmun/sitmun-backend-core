@@ -18,5 +18,5 @@ public class ProfileDto {
   private List<ServiceDto> services;
   private List<TaskDto> tasks;
   private List<TreeDto> trees;
-  private Map<String,String> global;
+  private Map<String, String> global;
 }

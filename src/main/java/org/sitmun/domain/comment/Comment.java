@@ -110,11 +110,11 @@ public class Comment {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Comment)) {
-        return false;
+      return false;
     }
 
     Comment other = (Comment) obj;

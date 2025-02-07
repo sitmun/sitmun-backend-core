@@ -25,6 +25,7 @@ public class ApplicationDto {
   private Integer defaultZoomLevel;
   private PointOfInterestDto pointOfInterest;
   private Double[] initialExtent;
+
   public void setInitialExtentFromEnvelope(Envelope initialExtent) {
     setInitialExtent(new Double[]{
       initialExtent.getMinX(),
@@ -32,5 +33,5 @@ public class ApplicationDto {
       initialExtent.getMaxX(),
       initialExtent.getMaxY()
     });
-    }
+  }
 }

@@ -95,11 +95,11 @@ public class CartographySpatialSelectionParameter {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographySpatialSelectionParameter)) {
-        return false;
+      return false;
     }
 
     CartographySpatialSelectionParameter other = (CartographySpatialSelectionParameter) obj;

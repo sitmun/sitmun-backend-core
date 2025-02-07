@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("HttpClientFactory tests")
 class HttpClientFactoryTest {
 
   @Test
   @DisplayName("Fail with SSLHandshakeException")
-  public void failWithASSLHandhakeException() {
+  void failWithASSLHandhakeException() {
     String url = "https://untrusted-root.badssl.com/";
     List<String> unsafeAllowedHosts = Lists.list();
     HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
@@ -28,7 +29,8 @@ class HttpClientFactoryTest {
       .build();
 
     assertThrows(SSLHandshakeException.class, () -> {
-      try (Response response = client.executeRequest(request)) {
+      //noinspection EmptyTryBlock
+      try (Response ignored = client.executeRequest(request)) {
         // Do nothing
       }
     });
@@ -36,7 +38,7 @@ class HttpClientFactoryTest {
 
   @Test
   @DisplayName("Any request use the unsafe client")
-  public void anyRequestUseTheUnsafeClient() {
+  void anyRequestUseTheUnsafeClient() {
     String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
     List<String> unsafeAllowedHosts = Lists.list("*");
     HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
@@ -46,16 +48,17 @@ class HttpClientFactoryTest {
       .header("Accept", "*/*")
       .build();
 
-    try(Response response = client.executeRequest(request)) {
+    //noinspection EmptyTryBlock
+    try(Response ignored = client.executeRequest(request)) {
       // Do nothing
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      fail(e);
     }
   }
 
   @Test
   @DisplayName("Use unsafe client when domain matches")
-  public void useUnsafeClientWhenDomainMatches() {
+  void useUnsafeClientWhenDomainMatches() {
     String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
     List<String> unsafeAllowedHosts = Lists.list("ovc.catastro.meh.es");
     HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
@@ -65,10 +68,11 @@ class HttpClientFactoryTest {
       .header("Accept", "*/*")
       .build();
 
-    try(Response response = client.executeRequest(request)) {
+    //noinspection EmptyTryBlock
+    try(Response ignored = client.executeRequest(request)) {
       // Do nothing
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      fail(e);
     }
   }
 }

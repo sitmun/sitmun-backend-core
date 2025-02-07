@@ -8,7 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Map;
 
-public class ParametersValidator implements ConstraintValidator<Parameters, Map<String,Object>> {
+public class ParametersValidator implements ConstraintValidator<Parameters, Map<String, Object>> {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,7 +41,7 @@ public class ParametersValidator implements ConstraintValidator<Parameters, Map<
       }
     }
 
-    for(int i = 0; i < list.size(); i++) {
+    for (int i = 0; i < list.size(); i++) {
       @SuppressWarnings("unchecked")
       Map<Object, Object> parameter = (Map<Object, Object>) list.get(i);
       if (!(parameter.containsKey("name") && parameter.containsKey("type") && parameter.containsKey("value"))) {
@@ -115,8 +115,8 @@ public class ParametersValidator implements ConstraintValidator<Parameters, Map<
               .addConstraintViolation();
             result = false;
           }
-       } else {
-          constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": " +name + " property contains '" + value + "' when of unexpected type '" + type + "'")
+        } else {
+          constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": " + name + " property contains '" + value + "' when of unexpected type '" + type + "'")
             .addConstraintViolation();
           result = false;
         }

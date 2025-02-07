@@ -76,11 +76,11 @@ public class ApplicationTerritory {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof ApplicationTerritory)) {
-        return false;
+      return false;
     }
 
     ApplicationTerritory other = (ApplicationTerritory) obj;

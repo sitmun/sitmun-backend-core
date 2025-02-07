@@ -74,11 +74,11 @@ public class TaskUI {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TaskType)) {
-        return false;
+      return false;
     }
 
     TaskType other = (TaskType) obj;

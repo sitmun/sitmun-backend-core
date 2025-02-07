@@ -197,11 +197,11 @@ public class Service {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Service)) {
-        return false;
+      return false;
     }
 
     Service other = (Service) obj;

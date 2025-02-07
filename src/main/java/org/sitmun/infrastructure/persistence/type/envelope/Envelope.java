@@ -41,10 +41,10 @@ public class Envelope {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
-        return false;
+      return false;
     }
     Envelope envelope = (Envelope) obj;
     return Objects.equals(minY, envelope.minY) && Objects.equals(maxX, envelope.maxX) && Objects.equals(maxY, envelope.maxY) && Objects.equals(minX, envelope.minX);

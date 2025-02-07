@@ -33,6 +33,22 @@ public class ProfileService {
     this.configurationParameterRepository = configurationParameterRepository;
   }
 
+  private static Supplier<PageImpl<Territory>> emptyPageSupplier(Pageable pageable) {
+    return () -> new PageImpl<>(Collections.emptyList(), pageable, 0);
+  }
+
+  /**
+   * Extract a page from a list of territories sorted by name.
+   *
+   * @param territories the list of territories sorted by name
+   * @param pageable    the pagination information
+   * @return a page of territories
+   */
+  private static PageImpl<Territory> extractPageFromTerritories(List<Territory> territories, Pageable pageable) {
+    final int start = Math.min((int) pageable.getOffset(), territories.size());
+    final int end = Math.min((start + pageable.getPageSize()), territories.size());
+    return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
+  }
 
   /**
    * Get the list of territories for the user in a given application.
@@ -49,24 +65,8 @@ public class ProfileService {
       .map(territories -> {
         territories.sort(Comparator.comparing(Territory::getName));
         return extractPageFromTerritories(territories, pageable);
-        })
+      })
       .orElseGet(emptyPageSupplier(pageable));
-  }
-
-  private static Supplier<PageImpl<Territory>> emptyPageSupplier(Pageable pageable) {
-    return () -> new PageImpl<>(Collections.emptyList(), pageable, 0);
-  }
-
-  /**
-   * Extract a page from a list of territories sorted by name.
-   * @param territories the list of territories sorted by name
-   * @param pageable the pagination information
-   * @return a page of territories
-   */
-  private static PageImpl<Territory> extractPageFromTerritories(List<Territory> territories, Pageable pageable) {
-    final int start = Math.min((int) pageable.getOffset(), territories.size());
-    final int end = Math.min((start + pageable.getPageSize()), territories.size());
-    return new PageImpl<>(territories.subList(start, end), pageable, territories.size());
   }
 
   /**

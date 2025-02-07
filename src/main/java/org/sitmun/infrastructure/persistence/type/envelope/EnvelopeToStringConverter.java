@@ -28,7 +28,7 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
     if (obj instanceof Number) {
       return ((Number) obj).doubleValue();
     }
-      throw new IllegalArgumentException("Value " + obj + " is not a Number");
+    throw new IllegalArgumentException("Value " + obj + " is not a Number");
   }
 
   @Override
@@ -36,12 +36,12 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
     if (envelope == null) {
       return null;
     }
-      return formatInstance().format(new Object[]{
-        envelope.getMinX(),
-        envelope.getMinY(),
-        envelope.getMaxX(),
-        envelope.getMaxY()
-      });
+    return formatInstance().format(new Object[]{
+      envelope.getMinX(),
+      envelope.getMinY(),
+      envelope.getMaxX(),
+      envelope.getMaxY()
+    });
   }
 
   @Override
@@ -49,17 +49,17 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
     if (dbData == null) {
       return null;
     }
-      try {
-        Object[] values = formatInstance().parse(dbData);
-        return Envelope.builder()
-          .minX(extractDouble(values[0]))
-          .minY(extractDouble(values[1]))
-          .maxX(extractDouble(values[2]))
-          .maxY(extractDouble(values[3]))
-          .build();
-      } catch (Exception e) {
-        log.error("[{}] cannot be parsed to Envelope", dbData, e);
-        return null;
-      }
+    try {
+      Object[] values = formatInstance().parse(dbData);
+      return Envelope.builder()
+        .minX(extractDouble(values[0]))
+        .minY(extractDouble(values[1]))
+        .maxX(extractDouble(values[2]))
+        .maxY(extractDouble(values[3]))
+        .build();
+    } catch (Exception e) {
+      log.error("[{}] cannot be parsed to Envelope", dbData, e);
+      return null;
+    }
   }
 }

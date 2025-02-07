@@ -41,8 +41,7 @@ public class DatabaseConnectionController {
    */
   @GetMapping("/connections/{id}/test")
   @ResponseBody
-  public
-  ResponseEntity<String> testConnection(@PathVariable("id") Integer id) {
+  public ResponseEntity<String> testConnection(@PathVariable("id") Integer id) {
     Optional<DatabaseConnection> connectionOp = repository.findById(id);
     if (connectionOp.isPresent()) {
       DatabaseConnection connection = connectionOp.get();
@@ -50,7 +49,7 @@ public class DatabaseConnectionController {
       service.testConnection(connection);
       return ResponseEntity.ok().build();
     }
-      return ResponseEntity.notFound().build();
+    return ResponseEntity.notFound().build();
   }
 
 
@@ -61,8 +60,7 @@ public class DatabaseConnectionController {
    */
   @PostMapping("/connections/test")
   @ResponseBody
-  public
-  ResponseEntity<String> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
+  public ResponseEntity<String> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
     service.testDriver(connection);
     service.testConnection(connection);
     return ResponseEntity.ok().build();

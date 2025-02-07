@@ -100,11 +100,11 @@ public class Background {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Background)) {
-        return false;
+      return false;
     }
 
     Background other = (Background) obj;

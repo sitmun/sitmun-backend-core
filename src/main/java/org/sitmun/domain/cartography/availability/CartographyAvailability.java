@@ -78,11 +78,11 @@ public class CartographyAvailability {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographyAvailability)) {
-        return false;
+      return false;
     }
 
     CartographyAvailability other = (CartographyAvailability) obj;

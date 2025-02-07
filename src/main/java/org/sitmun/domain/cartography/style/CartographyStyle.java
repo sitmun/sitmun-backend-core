@@ -88,11 +88,11 @@ public class CartographyStyle {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographyStyle)) {
-        return false;
+      return false;
     }
 
     CartographyStyle other = (CartographyStyle) obj;

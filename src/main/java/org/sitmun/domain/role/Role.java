@@ -131,11 +131,11 @@ public class Role {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Role)) {
-        return false;
+      return false;
     }
 
     Role other = (Role) obj;

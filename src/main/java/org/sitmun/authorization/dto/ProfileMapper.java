@@ -25,6 +25,35 @@ import java.util.stream.Collectors;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProfileMapper {
+  private static void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
+    ApplicationDto applicationDto = builder.build().getApplication();
+    Integer selectedTerritory = profile.getTerritory().getId();
+
+    Envelope defaultEnvelope = profile.getTerritory().getExtent();
+    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
+
+    profile.getApplication().getTerritories().stream()
+      .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
+      .findFirst()
+      .map(ApplicationTerritory::getInitialExtent)
+      .ifPresent(applicationDto::setInitialExtentFromEnvelope);
+
+    Integer defaultZoomLevel = profile.getTerritory().getDefaultZoomLevel();
+    applicationDto.setDefaultZoomLevel(defaultZoomLevel);
+
+    Point point = profile.getTerritory().getCenter();
+    if (point != null) {
+      PointOfInterestDto poi = PointOfInterestDto.builder().x(point.getX()).y(point.getY()).build();
+      applicationDto.setPointOfInterest(poi);
+    }
+
+    if (profile.getTerritory().getSrs() != null) {
+      applicationDto.setSrs(profile.getTerritory().getSrs());
+    }
+
+    builder.application(applicationDto);
+  }
+
   ProfileDto map(Profile profile);
 
   default CartographyDto map(Cartography cartography) {
@@ -124,7 +153,6 @@ public interface ProfileMapper {
       .build();
   }
 
-
   default TreeDto map(Tree tree) {
     Set<TreeNode> allNodes = tree.getAllNodes();
 
@@ -189,7 +217,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default Map<String,String> map(List<ConfigurationParameter> global) {
+  default Map<String, String> map(List<ConfigurationParameter> global) {
     return global.stream().collect(Collectors.toMap(ConfigurationParameter::getName, ConfigurationParameter::getValue));
   }
 
@@ -216,35 +244,6 @@ public interface ProfileMapper {
     if (trees != null) {
       builder.trees(trees.stream().map(this::map).collect(Collectors.toList()));
     }
-  }
-
-  private static void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
-    ApplicationDto applicationDto = builder.build().getApplication();
-    Integer selectedTerritory = profile.getTerritory().getId();
-
-    Envelope defaultEnvelope = profile.getTerritory().getExtent();
-    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
-
-    profile.getApplication().getTerritories().stream()
-      .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
-      .findFirst()
-      .map(ApplicationTerritory::getInitialExtent)
-      .ifPresent(applicationDto::setInitialExtentFromEnvelope);
-
-    Integer defaultZoomLevel = profile.getTerritory().getDefaultZoomLevel();
-    applicationDto.setDefaultZoomLevel(defaultZoomLevel);
-
-    Point point = profile.getTerritory().getCenter();
-    if (point != null) {
-      PointOfInterestDto poi = PointOfInterestDto.builder().x(point.getX()).y(point.getY()).build();
-      applicationDto.setPointOfInterest(poi);
-    }
-
-    if (profile.getTerritory().getSrs() != null) {
-      applicationDto.setSrs(profile.getTerritory().getSrs());
-    }
-
-    builder.application(applicationDto);
   }
 
   default String mapCartographyPermissionToString(CartographyPermission value) {

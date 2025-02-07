@@ -94,10 +94,10 @@ public class UserDetailsImplementation implements UserDetails {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
-        return false;
+      return false;
     }
     UserDetailsImplementation user = (UserDetailsImplementation) obj;
     return Objects.equals(id, user.id);

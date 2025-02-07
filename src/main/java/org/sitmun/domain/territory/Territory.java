@@ -265,11 +265,11 @@ public class Territory {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Territory)) {
-        return false;
+      return false;
     }
 
     Territory other = (Territory) obj;

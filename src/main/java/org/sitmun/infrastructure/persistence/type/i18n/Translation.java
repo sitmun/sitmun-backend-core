@@ -67,11 +67,11 @@ public class Translation {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Translation)) {
-        return false;
+      return false;
     }
 
     Translation other = (Translation) obj;

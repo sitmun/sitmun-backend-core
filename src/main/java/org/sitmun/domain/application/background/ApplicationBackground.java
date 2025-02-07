@@ -70,11 +70,11 @@ public class ApplicationBackground {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof ApplicationBackground)) {
-        return false;
+      return false;
     }
 
     ApplicationBackground other = (ApplicationBackground) obj;

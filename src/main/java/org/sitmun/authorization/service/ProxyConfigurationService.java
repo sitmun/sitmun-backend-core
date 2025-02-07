@@ -117,11 +117,6 @@ public class ProxyConfigurationService {
     return sql;
   }
 
-  public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
-    // TODO Implement user validation
-    return true;
-  }
-
   private static DatasourcePayloadDto getDatasourceConfiguration(Task task) {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
@@ -132,6 +127,11 @@ public class ProxyConfigurationService {
       .driver(databaseConnection.getDriver())
       .sql(sql)
       .build() : null;
+  }
+
+  public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
+    // TODO Implement user validation
+    return true;
   }
 
   public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, long expirationTimeToken) {

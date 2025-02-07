@@ -64,6 +64,6 @@ public class AuthenticationController {
       return ResponseEntity.ok()
         .body(new AuthenticationResponse(token));
     }
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 }

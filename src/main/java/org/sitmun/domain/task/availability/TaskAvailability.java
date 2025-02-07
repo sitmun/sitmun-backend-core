@@ -71,11 +71,11 @@ public class TaskAvailability {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TaskAvailability)) {
-        return false;
+      return false;
     }
 
     TaskAvailability other = (TaskAvailability) obj;

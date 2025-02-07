@@ -49,11 +49,11 @@ public class TaskGroup {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TaskGroup)) {
-        return false;
+      return false;
     }
 
     TaskGroup other = (TaskGroup) obj;

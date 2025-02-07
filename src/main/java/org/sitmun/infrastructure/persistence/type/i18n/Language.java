@@ -53,11 +53,11 @@ public class Language {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Language)) {
-        return false;
+      return false;
     }
 
     Language other = (Language) obj;

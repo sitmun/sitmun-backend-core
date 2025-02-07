@@ -196,11 +196,11 @@ public class Application {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof Application)) {
-        return false;
+      return false;
     }
 
     Application other = (Application) obj;

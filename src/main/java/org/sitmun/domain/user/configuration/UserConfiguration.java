@@ -24,7 +24,7 @@ import java.util.Objects;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_USR_CONF", uniqueConstraints = @UniqueConstraint(name = "STM_UCF_UK", columnNames = {"UCO_USERID", "UCO_TERID", "UCO_ROLEID",
-        "UCO_ROLEM"}))
+  "UCO_ROLEM"}))
 @Builder
 @Getter
 @Setter
@@ -97,11 +97,11 @@ public class UserConfiguration {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof UserConfiguration)) {
-        return false;
+      return false;
     }
 
     UserConfiguration other = (UserConfiguration) obj;

@@ -118,11 +118,11 @@ public class UserPosition {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof UserPosition)) {
-        return false;
+      return false;
     }
 
     UserPosition other = (UserPosition) obj;

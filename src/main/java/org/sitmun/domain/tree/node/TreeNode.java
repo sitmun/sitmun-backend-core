@@ -177,11 +177,11 @@ public class TreeNode {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TreeNode)) {
-        return false;
+      return false;
     }
 
     TreeNode other = (TreeNode) obj;

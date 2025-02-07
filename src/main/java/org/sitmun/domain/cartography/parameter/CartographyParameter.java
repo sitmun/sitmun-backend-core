@@ -89,11 +89,11 @@ public class CartographyParameter {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CartographyParameter)) {
-        return false;
+      return false;
     }
 
     CartographyParameter other = (CartographyParameter) obj;

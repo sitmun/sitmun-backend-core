@@ -56,11 +56,11 @@ public class ConfigurationParameter {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof ApplicationParameter)) {
-        return false;
+      return false;
     }
 
     ApplicationParameter other = (ApplicationParameter) obj;

@@ -51,11 +51,11 @@ public class TerritoryGroupType {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof TerritoryGroupType)) {
-        return false;
+      return false;
     }
 
     TerritoryGroupType other = (TerritoryGroupType) obj;

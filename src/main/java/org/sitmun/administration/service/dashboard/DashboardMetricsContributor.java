@@ -22,7 +22,7 @@ public interface DashboardMetricsContributor extends Runnable {
       Number value = (Number) entry[2];
       return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, key), value);
     }
-      return null;
+    return null;
   }
 
   /**
@@ -40,6 +40,6 @@ public interface DashboardMetricsContributor extends Runnable {
       Number value = (Number) entry[2];
       return MultiGauge.Row.of(Tags.of(DashboardInfoContributor.TAG, label), value);
     }
-      return null;
+    return null;
   }
 }

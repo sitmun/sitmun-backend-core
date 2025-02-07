@@ -96,11 +96,11 @@ public class CodeListValue {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof CodeListValue)) {
-        return false;
+      return false;
     }
 
     CodeListValue other = (CodeListValue) obj;

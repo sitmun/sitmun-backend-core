@@ -80,11 +80,11 @@ public class ServiceParameter {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
     if (!(obj instanceof ServiceParameter)) {
-        return false;
+      return false;
     }
 
     ServiceParameter other = (ServiceParameter) obj;
