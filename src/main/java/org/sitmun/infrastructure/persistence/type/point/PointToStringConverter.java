@@ -57,7 +57,7 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
         .y(extractDouble(values[1]))
         .build();
     } catch (Exception e) {
-      log.error("[{}] cannot be parsed to Point", dbData, e);
+      log.error("[{}] cannot be parsed to Point", dbData);
       return null;
     }
   }
