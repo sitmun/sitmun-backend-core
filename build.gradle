@@ -86,6 +86,7 @@ dependencies {
   }
   testImplementation 'org.springframework.security:spring-security-test'
   testImplementation 'com.h2database:h2'
+  compileOnly 'org.projectlombok:lombok:1.18.36'
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

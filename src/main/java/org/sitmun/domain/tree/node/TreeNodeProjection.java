@@ -25,6 +25,9 @@ public interface TreeNodeProjection {
   @Value("#{target.description}")
   String getDescription();
 
+  @Value("#{target.type}")
+  String getnodetype();
+
   @Value("#{target.tooltip}")
   String getTooltip();
 
@@ -56,9 +59,9 @@ public interface TreeNodeProjection {
   Boolean getFilterSelectable();
 
   /**
-   * If this node is a folder then the cartography must be null.
+   * If this node is a folder then the cartography and task must be null.
    */
-  @Value("#{target.cartography == null}")
+  @Value("#{target.cartography == null && target.task == null}")
   Boolean getIsFolder();
 
   /**
@@ -72,6 +75,18 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.cartography?.id}")
   Integer getCartographyId();
+  
+  /**
+   * Task name.
+   */
+  @Value("#{target.task?.name}")
+  String getTaskName();
+
+  /**
+   * Task identifier.
+   */
+  @Value("#{target.task?.id}")
+  Integer getTaskId();
 
   /**
    * Tree name projection.
@@ -84,5 +99,29 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.style}")
   String getStyle();
+
+  /**
+   * Tree node image
+   */
+  @Value("#{target.image}")
+  String getImage();
+
+  /**
+   * Tree node image name
+   */
+  @Value("#{target.imageName}")
+  String getImageName();
+
+  /**
+   * Tree node view mode
+   */
+  @Value("#{target.viewMode}")
+  String getViewMode();
+
+  /**
+   * Tree node filterable
+   */
+  @Value("#{target.filterable}")
+  Boolean getFilterable();
 
 }

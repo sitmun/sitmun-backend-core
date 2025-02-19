@@ -2,14 +2,18 @@ package org.sitmun.domain.tree;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
-import org.sitmun.infrastructure.persistence.type.basic.Http;
+import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
+import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.utils.ImageTransformer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -56,10 +60,15 @@ public class Tree {
   /**
    * Representative image or icon.
    */
-  @Column(name = "TRE_IMAGE", length = PersistenceConstants.URL)
-  @Http
+  @Column(name = "TRE_IMAGE")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String image;
+
+  /**
+   * Representative image or icon name.
+   */
+  @Column(name = "TRE_IMAGE_NAME")
+  private String imageName;
 
   /**
    * Description.
@@ -67,6 +76,14 @@ public class Tree {
   @Column(name = "TRE_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String description;
+
+  /**
+   * Type.
+   */
+  @Column(name = "TRE_TYPE", length = PersistenceConstants.IDENTIFIER)
+  @CodeList(CodeListsConstants.TREE_TYPE)
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  private String type;
 
   /**
    * Tree owner.
@@ -111,6 +128,12 @@ public class Tree {
   @Builder.Default
   private Set<Application> availableApplications = new HashSet<>();
 
+  @PrePersist
+  @PreUpdate
+  public void imageDeserialize() throws IllegalImageException {
+	  this.image = ImageTransformer.getInstance().scaleImage(image, type);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -130,4 +153,5 @@ public class Tree {
   public int hashCode() {
     return getClass().hashCode();
   }
+
 }

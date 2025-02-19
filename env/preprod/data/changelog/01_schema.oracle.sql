@@ -446,9 +446,11 @@ create table stm_tree
 (
   tre_id       number(10, 0) not null,
   tre_abstract varchar2(250 char),
-  tre_image    varchar2(4000 char),
+  tre_image      CLOB,
+  tre_image_name varchar2(4000),
   tre_name     varchar2(50 char),
   tre_userid   number(10, 0),
+  tre_type     varchar2(50, char),
   primary key (tre_id) using index tablespace ${index_tablespace}
 );
 
@@ -471,6 +473,11 @@ create table stm_tree_nod
   tno_parentid   number(10, 0),
   tno_treeid     number(10, 0),
   tno_style      varchar2(50 char),
+  tno_image      CLOB,
+  tno_image_name varchar2(4000),
+  tno_view_mode  varchar2(50),
+  tno_taskid     number(10, 0),
+  tno_filterable number(1, 0),
   primary key (tno_id) using index tablespace ${index_tablespace}
 );
 
