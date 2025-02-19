@@ -1,6 +1,6 @@
 COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
-1,application.type,E,FALSE,FALSE,External
-2,application.type,I,FALSE,FALSE,Internal
+1,application.type,E,FALSE,FALSE,External application
+2,application.type,I,FALSE,FALSE,Internal application
 3,applicationParameter.type,MOBILE,FALSE,FALSE,Mobile app parameter
 4,applicationParameter.type,Nomenclator,FALSE,FALSE,Nomenclator parameter
 5,applicationParameter.type,PRINT_TEMPLATE,FALSE,FALSE,Print template
@@ -103,4 +103,11 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 106,service.authenticationMode,HTTP Basic authentication,TRUE,FALSE,HTTP Basic authentication
 107,service.type,WMTS,FALSE,FALSE,WMTS
 108,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
-109,databaseConnection.driver,org.h2.Driver,TRUE,FALSE,H2 Driver (org.h2.Driver)
+109,tree.type,cartography,FALSE,TRUE,Cartography
+110,tree.type,tourist,FALSE,FALSE,Tourist application
+111,application.type,T,FALSE,FALSE,Tourist application
+112,treenode.folder.type,cartography,FALSE,TRUE,Cartography
+113,treenode.leaf.type,cartography,FALSE,TRUE,Cartography
+114,treenode.folder.type,menu,TRUE,FALSE,Menu
+115,treenode.folder.type,list,TRUE,FALSE,List
+116,treenode.leaf.type,task,FALSE,FALSE,Task

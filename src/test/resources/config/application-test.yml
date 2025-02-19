@@ -81,5 +81,18 @@ sitmun:
     users-per-application.size: 30 # last days
   proxy:
     config-response-validity-in-seconds: 3600
-
-
+  ui:
+    image:
+      supportedFormats:
+        - png
+        - jpg
+        - jpeg
+      defaultWidth: 125
+      defaultHeight: 125
+      sizes:
+        - type: menu
+          width: 50
+          height: 50
+        - type: list
+          width: 25
+          height: 25

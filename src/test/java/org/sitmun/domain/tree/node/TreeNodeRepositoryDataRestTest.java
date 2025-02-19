@@ -10,8 +10,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -127,5 +129,60 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
   }
 
+  @Test
+  @DisplayName("New nodes with image data can be posted")
+  void newTreeNodesWithImageDataCanBePosted() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABaElEQVR42mNk\"}";
 
+    MvcResult result = mvc.perform(
+        post(URIConstants.TREE_NODES_URI)
+          .content(content)
+          .with(user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
+      .andExpect(jsonPath("$.image").value("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABaElEQVR42mNk"))
+      .andExpect(jsonPath("$.name").value("test"))
+      .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin())))
+      .andExpect(status().isOk());
+
+
+    mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isNoContent())
+      .andReturn();
+  }
+
+  @Test
+  @DisplayName("New nodes with image can be posted")
+  void newTreeNodesWithImageUriCanBePosted() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"https://avatars.githubusercontent.com/u/24718368?s=96&v=4\"}";
+
+    MvcResult result = mvc.perform(
+        post(URIConstants.TREE_NODES_URI)
+          .content(content)
+          .with(user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
+      .andDo(MockMvcResultHandlers.print())
+      .andExpect(jsonPath("$.image").value(startsWith("data:image/png;base64,iVBOR")))
+      .andExpect(jsonPath("$.name").value("test"))
+      .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin())))
+      .andExpect(status().isOk());
+
+
+    mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isNoContent())
+      .andReturn();
+  }
 }

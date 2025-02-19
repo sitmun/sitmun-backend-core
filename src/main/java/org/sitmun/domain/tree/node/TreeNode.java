@@ -2,7 +2,6 @@ package org.sitmun.domain.tree.node;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,9 +10,7 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
-import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
-import org.sitmun.infrastructure.utils.ImageTransformer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -99,7 +96,8 @@ public class TreeNode {
    * False by default, when true all contained layers are loaded when (the user)
    * clicks on the layer title (in the SITMUN viewer).
    */
-  @Column(name = "TNO_LOADDATA", nullable = false)
+  @Builder.Default
+  @Column(name = "TNO_LOAD_DATA", nullable = false)
   private Boolean loadData = false;
 
   /**
@@ -156,6 +154,7 @@ public class TreeNode {
    * Image.
    */
   @Column(name = "TNO_IMAGE")
+  @Lob
   private String image;
 
   /**
@@ -213,12 +212,6 @@ public class TreeNode {
       return cartography.getId();
     }
     return null;
-  }
-  
-  @PrePersist
-  @PreUpdate
-  public void imageDeserialize() throws IllegalImageException {
-	  this.image = ImageTransformer.getInstance().scaleImage(image, type);
   }
 
   @Override

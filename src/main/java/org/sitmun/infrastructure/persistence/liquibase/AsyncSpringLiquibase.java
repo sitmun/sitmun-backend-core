@@ -19,7 +19,7 @@ public class AsyncSpringLiquibase extends SpringLiquibase {
   }
 
   @Override
-  public void afterPropertiesSet() throws LiquibaseException {
+  public void afterPropertiesSet()  {
     if (env.acceptsProfiles(Constants.heroku)) {
       taskExecutor.execute(() -> {
         try {
@@ -30,8 +30,12 @@ public class AsyncSpringLiquibase extends SpringLiquibase {
         }
       });
     } else {
-      log.debug("Starting Liquibase synchronously");
-      initDb();
+      try {
+        log.warn("Starting Liquibase synchronously");
+        initDb();
+      } catch (LiquibaseException e) {
+        log.error("Liquibase could not start correctly, your database is NOT ready: {}", e.getMessage(), e);
+      }
     }
   }
 
@@ -40,7 +44,7 @@ public class AsyncSpringLiquibase extends SpringLiquibase {
     watch.start();
     super.afterPropertiesSet();
     watch.stop();
-    log.debug("Started Liquibase in {} ms", watch.getTotalTimeMillis());
+    log.warn("Started Liquibase in {} ms", watch.getTotalTimeMillis());
   }
 
 }
