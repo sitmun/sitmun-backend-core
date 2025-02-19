@@ -185,4 +185,34 @@ class TreeNodeRepositoryDataRestTest {
       .andExpect(status().isNoContent())
       .andReturn();
   }
+
+  @Test
+  @DisplayName("New nodes with image with extension can be posted")
+  void newTreeNodesWithImageWithExtensionUriCanBePosted() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"https://raw.githubusercontent.com/sitmun/community/master/logotip%20SITMUN%20JPG/horitzontal/01.principal-horit-normal.jpg\"}";
+
+    MvcResult result = mvc.perform(
+        post(URIConstants.TREE_NODES_URI)
+          .content(content)
+          .with(user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
+      .andDo(MockMvcResultHandlers.print())
+      .andExpect(jsonPath("$.image").value(startsWith("data:image/jpeg;base64,/9j/4AAQSkZJRg")))
+      .andExpect(jsonPath("$.name").value("test"))
+      .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin())))
+      .andExpect(status().isOk());
+
+
+    mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isNoContent())
+      .andReturn();
+  }
+
 }

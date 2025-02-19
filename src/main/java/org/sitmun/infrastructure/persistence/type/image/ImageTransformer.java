@@ -119,9 +119,12 @@ public class ImageTransformer {
   }
 
   private void validateFormat(String format) throws IllegalImageException {
-    if (!imageScalingProperties.getSupportedFormats().contains(format)) {
-      throw new IllegalImageException("Image format not supported (" + format + ")");
+    for(String supportedFormat : imageScalingProperties.getSupportedFormats()) {
+      if (format.equalsIgnoreCase(supportedFormat)) {
+        return;
+      }
     }
+    throw new IllegalImageException("Image format not supported (" + format + ")");
   }
 }
 
