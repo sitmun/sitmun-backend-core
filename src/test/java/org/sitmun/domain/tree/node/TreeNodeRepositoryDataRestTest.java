@@ -3,6 +3,7 @@ package org.sitmun.domain.tree.node;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.infrastructure.persistence.type.image.ImageDataUri;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Base64;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,6 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("Tree Node Repository Data REST test")
 class TreeNodeRepositoryDataRestTest {
+
+  private static final String PNG_8X8_TRANSPARENT = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII";
+  private static final String PNG_125X125_TRANSPARENT = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AQAAAACn+1GIAAAAIElEQVR4XmP4jwp+MIwKjAqMCowKjAqMCowKjAqQIAAAMVDFL8q1f5EAAAAASUVORK5CYII=";
 
   @Autowired
   private MockMvc mvc;
@@ -130,25 +141,53 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with image data can be posted")
-  void newTreeNodesWithImageDataCanBePosted() throws Exception {
-    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABaElEQVR42mNk\"}";
+  @DisplayName("New nodes with image data can be posted and resized")
+  void newTreeNodesWithImageDataCanBePostedAndResized() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\""+ PNG_8X8_TRANSPARENT +"\"}";
 
     MvcResult result = mvc.perform(
         post(URIConstants.TREE_NODES_URI)
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
-      .andExpect(jsonPath("$.image").value("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABaElEQVR42mNk"))
+      .andExpect(jsonPath("$.image").value(PNG_125X125_TRANSPARENT))
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
+    validateSizeOfResponseImage(response);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk());
 
+    mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isNoContent())
+      .andReturn();
+  }
+
+  @Test
+  @DisplayName("New nodes with image data with right size are not resized")
+  void newTreeNodesWithImageDataWithRightSizeAreNotResized() throws Exception {
+    String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\""+ PNG_125X125_TRANSPARENT +"\"}";
+
+    MvcResult result = mvc.perform(
+        post(URIConstants.TREE_NODES_URI)
+          .content(content)
+          .with(user(Fixtures.admin()))
+      ).andExpect(status().isCreated())
+      .andExpect(jsonPath("$.image").value(PNG_125X125_TRANSPARENT))
+      .andExpect(jsonPath("$.name").value("test"))
+      .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    validateSizeOfResponseImage(response);
+
+    mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
+        .with(user(Fixtures.admin())))
+      .andExpect(status().isOk());
 
     mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin()))
@@ -173,6 +212,7 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
+    validateSizeOfResponseImage(response);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
@@ -202,17 +242,34 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
+    validateSizeOfResponseImage(response);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk());
-
 
     mvc.perform(delete(URIConstants.TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin()))
       )
       .andExpect(status().isNoContent())
       .andReturn();
+  }
+
+  private void validateSizeOfResponseImage(String response) {
+    String data = JsonPath.parse(response).read("$.image", String.class);
+    ImageDataUri dataUri = ImageDataUri.parse(data);
+    assertNotNull(dataUri);
+    byte[] imageBytes = Base64.getDecoder().decode(dataUri.getData());
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes)) {
+      BufferedImage image = ImageIO.read(bais);
+      if (image == null) {
+        throw new IOException("Failed to decode image");
+      }
+      assertEquals(125, image.getWidth());
+      assertEquals(125, image.getHeight());
+    } catch (IOException e) {
+      fail("Failed to decode image: " + e.getMessage());
+    }
   }
 
 }

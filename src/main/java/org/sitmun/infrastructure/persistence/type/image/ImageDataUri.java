@@ -56,7 +56,7 @@ public class ImageDataUri {
    * @param uri the data URI string to parse
    * @return an ImageDataUri object if the URI is valid, null otherwise
    */
-  static ImageDataUri parse(String uri) {
+  public static ImageDataUri parse(String uri) {
     if (uri == null || !uri.startsWith("data:")) {
       return null;
     }
