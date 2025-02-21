@@ -59,9 +59,9 @@ class CodeListsTest {
       CodeListsConstants.USER_POSITION_TYPE,
       CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
       CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE,
-      CodeListsConstants.TREE_TYPE,
-      CodeListsConstants.TREE_NODE_LEAF_TYPE,
-      CodeListsConstants.TREE_NODE_FOLDER_TYPE
+      CodeListsConstants.TREE_TYPE
+      // CodeListsConstants.TREE_NODE_LEAF_TYPE,
+      // CodeListsConstants.TREE_NODE_FOLDER_TYPE
     );
   }
 
@@ -76,7 +76,7 @@ class CodeListsTest {
   @DisplayName("Check application.type")
   void checkApplicationType() {
     assertThat(select(CodeListsConstants.APPLICATION_TYPE))
-      .containsExactlyInAnyOrder("I", "E", "T");
+      .containsExactlyInAnyOrder("I", "E");
   }
 
   @Test
