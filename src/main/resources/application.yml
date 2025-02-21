@@ -1,0 +1,31 @@
+sitmun:
+  startup:
+    code-lists:
+      check-on-startup: true
+      database-connection-drivers:
+        - driver-class: org.postgresql.Driver
+          description: PostgreSQL JDBC Driver
+        - driver-class: oracle.jdbc.OracleDriver
+          description: Oracle JDBC driver
+      code-list-values:
+        - code-list-name: application.type
+          value: T
+          description: Tourist application
+        - code-list-name: tree.type
+          value: tourist
+          description: Tourist application
+        - code-list-name: treenode.folder.type
+          value: cartography
+          description: Cartography
+        - code-list-name: treenode.leaf.type
+          value: cartography
+          description: Cartography
+        - code-list-name: treenode.folder.type
+          value: menu
+          description: Menu
+        - code-list-name: treenode.folder.type
+          value: list
+          description: List
+        - code-list-name: treenode.leaf.type
+          value: task
+          description: Task

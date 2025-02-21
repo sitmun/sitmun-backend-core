@@ -104,10 +104,3 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 107,service.type,WMTS,FALSE,FALSE,WMTS
 108,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
 109,tree.type,cartography,FALSE,TRUE,Cartography
-110,tree.type,tourist,FALSE,FALSE,Tourist application
-111,application.type,T,FALSE,FALSE,Tourist application
-112,treenode.folder.type,cartography,FALSE,TRUE,Cartography
-113,treenode.leaf.type,cartography,FALSE,TRUE,Cartography
-114,treenode.folder.type,menu,TRUE,FALSE,Menu
-115,treenode.folder.type,list,TRUE,FALSE,List
-116,treenode.leaf.type,task,FALSE,FALSE,Task

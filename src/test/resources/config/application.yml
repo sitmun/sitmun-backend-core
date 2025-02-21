@@ -94,4 +94,9 @@ sitmun:
   version: 3.0-SNAPSHOT
   proxy:
     config-response-validity-in-seconds: 3600
-
+  startup:
+    code-lists:
+      check-on-startup: true
+      database-connection-drivers:
+        - driver-class: org.h2.Driver
+          description: H2 JDBC Driver
