@@ -61,7 +61,7 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
       .andExpect(jsonPath("$.size", is(1)))
       .andExpect(jsonPath("$.number", is(1)))
       .andExpect(jsonPath("$.totalPages", is(5)))
-      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
+      .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
   }
 
   @Test

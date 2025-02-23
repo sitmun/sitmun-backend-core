@@ -2,6 +2,7 @@ package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -23,8 +24,9 @@ import org.sitmun.infrastructure.persistence.type.point.Point;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface ProfileMapper {
+@Slf4j
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class ProfileMapper {
   private static void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
     ApplicationDto applicationDto = builder.build().getApplication();
     Integer selectedTerritory = profile.getTerritory().getId();
@@ -54,9 +56,9 @@ public interface ProfileMapper {
     builder.application(applicationDto);
   }
 
-  ProfileDto map(Profile profile);
+  public abstract ProfileDto map(Profile profile);
 
-  default CartographyDto map(Cartography cartography) {
+  CartographyDto map(Cartography cartography) {
     return CartographyDto.builder()
       .id("layer/" + cartography.getId())
       .title(cartography.getName())
@@ -65,7 +67,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default CartographyPermissionDto map(CartographyPermission cartographyPermission) {
+  CartographyPermissionDto map(CartographyPermission cartographyPermission) {
     return CartographyPermissionDto.builder()
       .id("group/" + cartographyPermission.getId())
       .title(cartographyPermission.getName())
@@ -73,7 +75,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default ServiceDto map(Service service) {
+  ServiceDto map(Service service) {
     return ServiceDto.builder()
       .id("service/" + service.getId())
       .url(service.getServiceURL())
@@ -85,7 +87,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default BackgroundDto map(Background background) {
+  BackgroundDto map(Background background) {
     return BackgroundDto.builder()
       .id("group/" + background.getCartographyGroup().getId())
       .title(background.getName())
@@ -93,7 +95,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default TaskDto map(Task task) {
+  TaskDto map(Task task) {
     String control = null;
     if (task.getUi() != null) {
       control = task.getUi().getName();
@@ -124,14 +126,14 @@ public interface ProfileMapper {
               try {
                 parameters.put(name, new ObjectMapper().readValue(value, List.class));
               } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error("Error processing array", e);
               }
               break;
             case "object":
               try {
                 parameters.put(name, new ObjectMapper().readValue(value, Map.class));
               } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error("Error processing object", e);
               }
               break;
             case "boolean":
@@ -153,7 +155,7 @@ public interface ProfileMapper {
       .build();
   }
 
-  default TreeDto map(Tree tree) {
+  TreeDto map(Tree tree) {
     Set<TreeNode> allNodes = tree.getAllNodes();
 
     Map<String, List<TreeNode>> listNodes = new HashMap<>();
@@ -217,12 +219,12 @@ public interface ProfileMapper {
       .build();
   }
 
-  default Map<String, String> map(List<ConfigurationParameter> global) {
+  Map<String, String> map(List<ConfigurationParameter> global) {
     return global.stream().collect(Collectors.toMap(ConfigurationParameter::getName, ConfigurationParameter::getValue));
   }
 
   @AfterMapping
-  default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
+  void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
     List<BackgroundDto> backgrounds = profile.getApplication().getBackgrounds().stream()
       .peek(it -> {
         // TODO Provide a default value to order
@@ -246,11 +248,10 @@ public interface ProfileMapper {
     }
   }
 
-  default String mapCartographyPermissionToString(CartographyPermission value) {
+  String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) {
       return null;
     }
     return "group/" + value.getId();
   }
-
 }

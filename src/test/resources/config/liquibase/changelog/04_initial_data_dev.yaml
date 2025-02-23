@@ -642,27 +642,27 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATE_ID', 2);
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_AVAIL_GI.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_AVAIL_GI
-        #            usePreparedStatements: true
-        #            columns:
-        #              - column:
-        #                  name: AGI_ID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: AGI_TERID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: AGI_GIID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: AGI_CREATED
-        #                  type: DATETIME
-        #        - sql:
-        #            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_AVAIL_GI.csv
+            relativeToChangelogFile: true
+            tableName: STM_AVAIL_GI
+            usePreparedStatements: true
+            columns:
+              - column:
+                  name: AGI_ID
+                  type: NUMERIC
+              - column:
+                  name: AGI_TERID
+                  type: NUMERIC
+              - column:
+                  name: AGI_GIID
+                  type: NUMERIC
+              - column:
+                  name: AGI_CREATED
+                  type: DATETIME
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
         - sql:
             sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
         - loadData:
@@ -887,7 +887,7 @@ databaseChangeLog:
                   name: ATS_TASKID
                   type: NUMERIC
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 1);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 2);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_PAR_SER.csv

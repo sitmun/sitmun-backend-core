@@ -1,8 +1,5 @@
-package org.sitmun.domain.task;
+package org.sitmun.domain.cartography.permission;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
@@ -21,50 +18,21 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @DataJpaTest
-class TaskRepositoryTest {
-
+@DisplayName("Cartography Permission Repository JPA test")
+class CartographyPermissionRepositoryTest {
   @Autowired
-  private TaskRepository taskRepository;
+  private CartographyPermissionRepository cartographyPermissionRepository;
 
   @Autowired
   private RoleRepository roleRepository;
 
-  private Task task;
-
-  @BeforeEach
-  void init() {
-    task = new Task();
-  }
-
-  @AfterEach
-  void cleanup() {
-    taskRepository.delete(task);
-  }
-
   @Test
-  void saveTask() {
-    Assertions.assertThat(task.getId()).isNull();
-    taskRepository.save(task);
-    Assertions.assertThat(task.getId()).isNotZero();
-  }
-
-  @Test
-  void findOneTaskById() {
-    Assertions.assertThat(task.getId()).isNull();
-    taskRepository.save(task);
-    Assertions.assertThat(task.getId()).isNotZero();
-
-    Assertions.assertThat(taskRepository.findById(task.getId())).isNotNull();
-  }
-
-  @Test
-  @DisplayName("Find tasks by roles and territory")
-  void findTasksByRolesAndTerritory() {
+  @DisplayName("Find permissions by username, application and territory")
+  void findPermissionsByUsernameApplicationAndTerritory() {
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
-    List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
-    assertThat(cp).hasSize(2);
+    List<CartographyPermission> cp = cartographyPermissionRepository.findByRolesAndTerritory(roles, 1);
+    assertThat(cp).hasSize(3);
   }
 
   @TestConfiguration
@@ -72,9 +40,8 @@ class TaskRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    TaskExecutor taskExecutor() {
+    public TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }
-
 }

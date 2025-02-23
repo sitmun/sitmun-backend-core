@@ -3,6 +3,8 @@ package org.sitmun.domain.cartography;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,6 +18,9 @@ import org.springframework.core.task.TaskExecutor;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
@@ -24,6 +29,9 @@ class CartographyRepositoryTest {
 
   @Autowired
   private CartographyRepository cartographyRepository;
+
+  @Autowired
+  private RoleRepository roleRepository;
 
   @Test
   @DisplayName("Save a Cartography")
@@ -55,6 +63,14 @@ class CartographyRepositoryTest {
       .selectableFeatureEnabled(true)
       .thematic(true)
       .transparency(0);
+  }
+
+  @Test
+  @DisplayName("Find cartographies by roles and territory")
+  void findCartographiesByRolesAndTerritory() {
+    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
+    List<Cartography> cp = cartographyRepository.findByRolesAndTerritory(roles, 1);
+    assertThat(cp).hasSize(7);
   }
 
   @TestConfiguration

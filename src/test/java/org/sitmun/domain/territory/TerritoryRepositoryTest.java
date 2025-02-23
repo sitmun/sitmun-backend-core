@@ -1,7 +1,7 @@
 package org.sitmun.domain.territory;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.territory.type.TerritoryType;
 import org.sitmun.domain.territory.type.TerritoryTypeRepository;
@@ -14,11 +14,16 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @DataJpaTest
+@DisplayName("Territory Repository Test")
 class TerritoryRepositoryTest {
 
   @Autowired
@@ -44,19 +49,35 @@ class TerritoryRepositoryTest {
   }
 
   @Test
+  @DisplayName("Save a territory")
   void saveTerritory() {
-    Assertions.assertThat(territory.getId()).isNull();
+    assertThat(territory.getId()).isNull();
     territoryRepository.save(territory);
-    Assertions.assertThat(territory.getId()).isNotZero();
+    assertThat(territory.getId()).isNotZero();
   }
 
   @Test
+  @DisplayName("Find a territory by id")
   void findOneTerritoryById() {
-    Assertions.assertThat(territory.getId()).isNull();
+    assertThat(territory.getId()).isNull();
     territoryRepository.save(territory);
-    Assertions.assertThat(territory.getId()).isNotZero();
+    assertThat(territory.getId()).isNotZero();
 
-    Assertions.assertThat(territoryRepository.findById(territory.getId())).isNotNull();
+    assertThat(territoryRepository.findById(territory.getId())).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Find territories for a user and an application")
+  void findTerritoriesByUserAndApplication() {
+    Page<Territory> territories = territoryRepository.findByUserAndApplication("public", 1, PageRequest.of(0, 10));
+    assertThat(territories.getTotalElements()).isEqualTo(3);
+  }
+
+  @Test
+  @DisplayName("Find territories for a user")
+  void findTerritoriesOfAnUser() {
+    Page<Territory> territories = territoryRepository.findByUser("public", PageRequest.of(0, 10));
+    assertThat(territories.getTotalElements()).isEqualTo(2);
   }
 
   @TestConfiguration

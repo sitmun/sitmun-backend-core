@@ -3,18 +3,19 @@ package org.sitmun.authorization.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.sitmun.authorization.dto.*;
-import org.sitmun.authorization.service.ProfileService;
+import org.sitmun.authorization.service.AuthorizationService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -27,7 +28,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class ClientConfigurationController {
 
-  private final ProfileService profileService;
+  private final AuthorizationService authorizationService;
+  private final ProfileMapper profileMapper;
+
   @Value("${sitmun.proxy.force:false}")
   private boolean proxyForce;
   @Value("${sitmun.proxy.url:}")
@@ -36,15 +39,18 @@ public class ClientConfigurationController {
   /**
    * Constructor.
    */
-  public ClientConfigurationController(ProfileService profileService) {
-    this.profileService = profileService;
+  public ClientConfigurationController(AuthorizationService authorizationService, ProfileMapper profileMapper) {
+    this.authorizationService = authorizationService;
+    this.profileMapper = profileMapper;
   }
 
   @GetMapping(path = "/application/{appId}/territories", produces = APPLICATION_JSON_VALUE)
-  @ResponseBody
   public Page<TerritoryDtoLittle> getApplicationTerritories(@CurrentSecurityContext SecurityContext context, @PathVariable Integer appId, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Territory> page = profileService.getApplicationTerritories(username, appId, pageable);
+    if (pageable.getSort().isUnsorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
+    }
+    Page<Territory> page = authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
     List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
@@ -57,10 +63,12 @@ public class ClientConfigurationController {
    * @return a page of a list of applications
    */
   @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
-  @ResponseBody
   public Page<ApplicationDtoLittle> getApplications(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = profileService.getApplications(username, pageable);
+    if (pageable.getSort().isUnsorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("title")));
+    }
+    Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
@@ -73,38 +81,41 @@ public class ClientConfigurationController {
    * @return a page of a list of applications
    */
   @GetMapping(path = "/territory/{terrId}/applications", produces = APPLICATION_JSON_VALUE)
-  @ResponseBody
   public Page<ApplicationDtoLittle> getTerritoryApplications(@CurrentSecurityContext SecurityContext context, @PathVariable Integer terrId, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Application> page = profileService.getTerritoryApplications(username, terrId, pageable);
+    if (pageable.getSort().isUnsorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("title")));
+    }
+    Page<Application> page = authorizationService.findApplicationsByUserAndTerritory(username, terrId, pageable);
     List<ApplicationDtoLittle> applications = Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
     return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
   }
 
   @GetMapping(path = "/territory", produces = APPLICATION_JSON_VALUE)
-  @ResponseBody
   public Page<TerritoryDtoLittle> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    Page<Territory> page = profileService.getTerritories(username, pageable);
+    if (pageable.getSort().isUnsorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
+    }
+    Page<Territory> page = authorizationService.findTerritoriesByUser(username, pageable);
     List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
 
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<ProfileDto> getProfile(@CurrentSecurityContext SecurityContext context, @PathVariable("appId") String appId, @PathVariable("terrId") String terrId) {
+  public ResponseEntity<ProfileDto> getProfile(@CurrentSecurityContext SecurityContext context, @PathVariable("appId") Integer appId, @PathVariable("terrId") Integer terrId) {
     String username = context.getAuthentication().getName();
-
-    return profileService.buildProfile(username, appId, terrId)
-      .map(profile -> Mappers.getMapper(ProfileMapper.class).map(profile))
+    return authorizationService.createProfile(username, appId, terrId)
+      .map(profileMapper::map)
       .map(getProfileDtoProfileDtoFunction(appId, terrId))
       .map(profile -> ResponseEntity.ok().body(profile))
       .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
   }
 
-  private Function<ProfileDto, ProfileDto> getProfileDtoProfileDtoFunction(String appId, String terrId) {
+  private Function<ProfileDto, ProfileDto> getProfileDtoProfileDtoFunction(Integer appId, Integer terrId) {
     return profile -> {
       profile.getServices().forEach(service -> {
-        if (proxyForce || service.getIsProxied()) {
+        if (proxyForce || Boolean.TRUE.equals(service.getIsProxied())) {
           service.setIsProxied(true);
           String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";
           log.info("Creating forced proxy URL for appId:{} terId:{} type:{} typeId:{} with template:{}",

@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -130,6 +131,18 @@ class ApplicationRepositoryTest {
     Integer id = application.getId();
     applicationRepository.delete(application);
     assertThat(applicationRepository.findById(id)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Find applications by username")
+  void findApplicationsByUsername() {
+    assertThat(applicationRepository.findByUser("public", PageRequest.of(0, 10))).hasSize(4);
+  }
+
+  @Test
+  @DisplayName("Find applications by username and territory")
+  void findApplicationsByUsernameAndTerritory() {
+    assertThat(applicationRepository.findByUserAndTerritory("public", 1, PageRequest.of(0, 10))).hasSize(4);
   }
 
   @TestConfiguration
