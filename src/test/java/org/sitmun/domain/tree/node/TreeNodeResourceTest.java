@@ -20,11 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -170,4 +168,12 @@ class TreeNodeResourceTest {
       .andExpect(jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
   }
 
+  @Test
+  @DisplayName("Find nodes based on a list of trees")
+  void findNodesBasedOnTreeList() {
+    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
+    List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
+    List<TreeNode> nodes = treeNodeRepository.findByTrees(tr);
+    assertThat(nodes).hasSize(9);
+  }
 }

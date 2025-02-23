@@ -259,20 +259,20 @@ databaseChangeLog:
                   type: STRING
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 3);
-        #        - loadData:
-        #            encoding: UTF-8
-        #            file: 04_initial_data_dev/STM_TREE_ROL.csv
-        #            relativeToChangelogFile: true
-        #            tableName: STM_TREE_ROL
-        #            usePreparedStatements: true
-        #            quotchar: "\""
-        #            columns:
-        #              - column:
-        #                  name: TRO_TREEID
-        #                  type: NUMERIC
-        #              - column:
-        #                  name: TRO_ROLEID
-        #                  type: NUMERIC
+        - loadData:
+            encoding: UTF-8
+            file: 04_initial_data_dev/STM_TREE_ROL.csv
+            relativeToChangelogFile: true
+            tableName: STM_TREE_ROL
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: TRO_TREEID
+                  type: NUMERIC
+              - column:
+                  name: TRO_ROLEID
+                  type: NUMERIC
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_SERVICE.csv

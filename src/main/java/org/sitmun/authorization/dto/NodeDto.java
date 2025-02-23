@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 public class NodeDto {
+  String uri;
   String title;
   String resource;
   Boolean isRadio;

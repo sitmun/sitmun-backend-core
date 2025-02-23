@@ -65,7 +65,7 @@ public class ApplicationBackground {
    */
   @Column(name = "ABC_ORDER", precision = 6)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
-  private Integer order;
+  private Integer order = 0;
 
   @Override
   public boolean equals(Object obj) {

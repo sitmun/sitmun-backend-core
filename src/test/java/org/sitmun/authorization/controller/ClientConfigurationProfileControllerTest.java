@@ -73,8 +73,7 @@ class ClientConfigurationProfileControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].title", hasItem("WMTS Bases - ICGC- Topo")))
       .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].layers[0]", hasItem("topo")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service", hasItem("service/1")))
-      .andExpect(jsonPath("$.layers[?(@.id=='layer/4')].title", hasItem("Límites administrativos")));
+      .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service", hasItem("service/1")));
   }
 
   @Test
@@ -96,11 +95,7 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.groups[?(@.id=='group/2')].title", hasItem("Background Map")))
-      .andExpect(jsonPath("$.groups[?(@.id=='group/2')].layers.*", hasItems("layer/1", "layer/2")))
-      .andExpect(jsonPath("$.groups[?(@.id=='group/1')].title", hasItem("Cartography Group")))
-      .andExpect(jsonPath("$.groups[?(@.id=='group/1')].layers[0]", hasItem("layer/3")))
-      .andExpect(jsonPath("$.groups[?(@.id=='group/3')].title", hasItem("Situation Map")))
-      .andExpect(jsonPath("$.groups[?(@.id=='group/3')].layers[0]", hasItem("layer/4")));
+      .andExpect(jsonPath("$.groups[?(@.id=='group/2')].layers.*", hasItems("layer/1", "layer/2")));
   }
 
   @Test
@@ -194,4 +189,22 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 3))
       .andExpect(jsonPath("$.application.pointOfInterest", nullValue()));
   }
+
+  @Test
+  @DisplayName("Get the root page in incremental mode")
+  void modePageRootPage() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI_FILTERED, 1, 1, "none"))
+      .andExpect(jsonPath("$.trees[0].rootNode", is("node/tree/1")))
+      .andExpect(jsonPath("$.trees[0].nodes.size()", is(10)));
+
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI_FILTERED, 1, 1, "node"))
+      .andExpect(jsonPath("$.trees[0].rootNode", is("node/tree/1")))
+      .andExpect(jsonPath("$.trees[0].nodes.size()", is(3)));
+
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI_FILTERED, 1, 1, "node/1"))
+      .andDo(print())
+      .andExpect(jsonPath("$.trees[0].rootNode", is("node/1")))
+      .andExpect(jsonPath("$.trees[0].nodes.size()", is(3)));
+  }
+
 }

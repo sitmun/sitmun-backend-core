@@ -2,7 +2,10 @@ package org.sitmun.domain.tree;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,12 +16,20 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @DataJpaTest
 class TreeRepositoryTest {
 
   @Autowired
   private TreeRepository treeRepository;
+
+  @Autowired
+  private RoleRepository roleRepository;
+
   private Tree tree;
 
   @BeforeEach
@@ -42,6 +53,14 @@ class TreeRepositoryTest {
     Assertions.assertThat(tree.getId()).isNotZero();
 
     Assertions.assertThat(treeRepository.findById(tree.getId())).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Find trees by roles and territory")
+  void findTreesByRolesAndTerritory() {
+    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
+    List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
+    assertThat(tr).hasSize(1);
   }
 
   @TestConfiguration

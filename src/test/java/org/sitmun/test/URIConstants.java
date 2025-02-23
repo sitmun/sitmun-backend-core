@@ -163,6 +163,8 @@ public class URIConstants {
 
   public static final String CONFIG_CLIENT_PROFILE_URI = CONFIG_CLIENT_URI + "/profile/{0}/{1}";
 
+  public static final String CONFIG_CLIENT_PROFILE_URI_FILTERED = CONFIG_CLIENT_PROFILE_URI + "?filter={0}";
+
   public static final String CONFIG_PROXY_URI = "http://localhost/api/config/proxy";
 
   public static final String CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW =
