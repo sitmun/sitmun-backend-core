@@ -28,9 +28,10 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, Integer
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
-  @Query("SELECT DISTINCT tsk FROM Task tsk, TaskAvailability tav, Role rol WHERE " +
-    "rol member tsk.roles AND rol in ?1 " +          // Task is linked to any of the roles
-    "AND tsk = tav.task AND tav.territory.id = ?2")  // AND the task is available to the territory
+  @Query("SELECT tsk FROM Task tsk WHERE tsk.id in " +      // Because we cannot use DISTINCT in Oracle
+    "(SELECT tsk.id FROM Task tsk, TaskAvailability tav, Role rol WHERE " +
+    "rol member tsk.roles AND rol in ?1 " +                 // Task is linked to any of the roles
+    "AND tsk.id = tav.task.id AND tav.territory.id = ?2)")  // AND the task is available to the territory
   List<Task> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 
   @Override
