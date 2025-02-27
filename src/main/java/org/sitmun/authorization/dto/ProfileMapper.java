@@ -179,11 +179,17 @@ public abstract class ProfileMapper {
   private NodeDto createNode(TreeNode it, Map<String, List<TreeNode>> listNodes, String id) {
     NodeDto.NodeDtoBuilder nodeDtoBuilder = NodeDto.builder()
       .title(it.getName())
+      .description(it.getDescription())
       .isRadio(it.getRadio())
       .loadData(it.getLoadData())
+      .type(it.getType())
+      .image(it.getImage())
       .order(it.getOrder());
     if (it.getCartographyId() != null) {
       nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
+    } else if (it.getTaskId() != null) {
+      nodeDtoBuilder = nodeDtoBuilder.action("task/" + it.getTaskId());
+      nodeDtoBuilder = nodeDtoBuilder.viewMode(it.getViewMode());
     } else {
       List<String> nodeChildren = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
       nodeDtoBuilder = nodeDtoBuilder.children(nodeChildren);

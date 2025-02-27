@@ -12,9 +12,14 @@ import java.util.List;
 public class NodeDto {
   String uri;
   String title;
+  String description;
   String resource;
+  String action;
   Boolean isRadio;
   Boolean loadData;
+  String type;
+  String viewMode;
+  String image;
   Integer order;
   List<String> children;
 }
