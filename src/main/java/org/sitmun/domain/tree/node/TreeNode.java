@@ -214,6 +214,14 @@ public class TreeNode {
     return null;
   }
 
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  public Integer getTaskId() {
+    if (task != null) {
+      return task.getId();
+    }
+    return null;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
