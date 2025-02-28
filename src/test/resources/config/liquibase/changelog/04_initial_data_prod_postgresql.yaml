@@ -35,9 +35,6 @@ databaseChangeLog:
                   name: USE_BLOCKED
                   type: BOOLEAN
               - column:
-                  name: USE_GENERIC
-                  type: BOOLEAN
-              - column:
                   name: USE_CREATED
                   type: DATETIME
         - sql:

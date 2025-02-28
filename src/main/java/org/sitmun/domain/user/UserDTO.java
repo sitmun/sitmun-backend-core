@@ -62,11 +62,6 @@ public class UserDTO {
   private Boolean blocked;
 
   /**
-   * If <code>true</code>, the user acts on behalf of any citizen.
-   */
-  private Boolean generic;
-
-  /**
    * Creation date.
    */
   private Date createdDate;

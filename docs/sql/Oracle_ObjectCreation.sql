@@ -184,8 +184,7 @@ CREATE TABLE STM_USER
   USE_IDENT     VARCHAR2(20), -- número de identificación de la persona
   USE_IDENTTYPE VARCHAR2(3),  -- tipo de identificación (DNI, NIE, Passaport, etc.)
   USE_ADM       NUMBER(1) CHECK ("USE_ADM" IN (0, 1)) NOT NULL,
-  USE_BLOCKED   NUMBER(1) CHECK ("USE_BLOCKED" IN (0, 1)) NOT NULL,
-  USE_GENERIC   NUMBER(1) CHECK ("USE_GENERIC" IN (0, 1))
+  USE_BLOCKED   NUMBER(1) CHECK ("USE_BLOCKED" IN (0, 1)) NOT NULL
 );
 PROMPT
 Creando Primary Key on 'STM_USER'

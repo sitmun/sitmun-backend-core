@@ -101,12 +101,6 @@ public class User {
   @NotNull
   private Boolean blocked;
 
-  /**
-   * If <code>true</code>, the user acts on behalf of any citizen.
-   */
-  @Column(name = "USE_GENERIC")
-  private Boolean generic;
-
 
   /**
    * Creation date.

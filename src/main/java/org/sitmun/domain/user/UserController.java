@@ -45,7 +45,6 @@ public class UserController {
     user.setIdentificationType(updatedUser.getIdentificationType());
     user.setAdministrator(updatedUser.getAdministrator());
     user.setBlocked(updatedUser.getBlocked());
-    user.setGeneric(updatedUser.getGeneric());
     return user;
   }
 
@@ -60,7 +59,6 @@ public class UserController {
       .identificationType(user.getIdentificationType())
       .administrator(user.getAdministrator())
       .blocked(user.getBlocked())
-      .generic(user.getGeneric())
       .build();
   }
 
