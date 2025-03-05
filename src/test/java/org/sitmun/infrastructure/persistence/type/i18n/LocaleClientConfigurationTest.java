@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,23 +15,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class LanguageRepositoryDataRestTest {
+@DisplayName("Locale Client Configuration Test")
+class LocaleClientConfigurationTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("Obtain original client profile")
   void obtainOriginalVersion() throws Exception {
-    mvc.perform(get(URIConstants.LANGUAGES_URI))
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("English"));
+      .andExpect(jsonPath("$.backgrounds[0].title").value("Background Map"));
   }
 
   @Test
-  void obtainTranslatedVersionSpa() throws Exception {
-    mvc.perform(get(URIConstants.LANGUAGES_URI + "?lang=es"))
+  @DisplayName("Obtain client profile in Spanish")
+  void obtainOriginalClientProfile() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI  + "?lang=es", 1, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("Inglés"));
+      .andExpect(jsonPath("$.backgrounds[0].title").value("Mapa de fondo"));
   }
-
 }

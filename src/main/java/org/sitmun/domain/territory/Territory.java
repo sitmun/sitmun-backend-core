@@ -18,6 +18,7 @@ import org.sitmun.infrastructure.persistence.type.boundingbox.BoundingBox;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.sitmun.infrastructure.persistence.type.point.PointToStringConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
@@ -74,6 +75,7 @@ public class Territory {
    */
   @Column(name = "TER_NAME", length = PersistenceConstants.SHORT_DESCRIPTION)
   @NotBlank
+  @I18n
   @JsonView({ClientConfigurationViews.Base.class, ClientConfigurationViews.ApplicationTerritory.class})
   private String name;
 

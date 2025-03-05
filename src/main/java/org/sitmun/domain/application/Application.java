@@ -14,6 +14,7 @@ import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
@@ -53,12 +54,14 @@ public class Application {
    */
   @Column(name = "APP_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
+  @I18n
   private String name;
 
   /**
    * Application description.
    */
   @Column(name = "APP_DESCRIPTION", length = PersistenceConstants.LONG_DESCRIPTION)
+  @I18n
   private String description;
 
   /**
@@ -82,6 +85,7 @@ public class Application {
    */
   @Column(name = "APP_TITLE", length = PersistenceConstants.SHORT_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String title;
 
   /**

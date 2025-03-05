@@ -8,6 +8,7 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -52,6 +53,7 @@ public class Background {
   @Column(name = "BAC_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String name;
 
   /**
@@ -66,6 +68,7 @@ public class Background {
    * Description.
    */
   @Column(name = "BAC_DESC", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @I18n
   private String description;
 
   /**

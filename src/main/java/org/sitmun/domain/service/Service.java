@@ -12,6 +12,7 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
@@ -63,6 +64,7 @@ public class Service {
    * Service description.
    */
   @Column(name = "SER_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @I18n
   private String description;
 
   /**

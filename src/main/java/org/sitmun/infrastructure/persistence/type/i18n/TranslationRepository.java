@@ -14,8 +14,9 @@ import java.util.List;
 public interface TranslationRepository
   extends PagingAndSortingRepository<Translation, Integer> {
 
-  @Query("select tr from Translation tr where tr.element = :entityId and tr.language.shortname = :locale")
-  List<Translation> findByEntityIdAndLocale(
+  @Query("select tr from Translation tr where tr.element = :entityId and tr.column like :entity% and tr.language.shortname = :locale")
+  List<Translation> findTranslation(
     @Param("entityId") Integer entityId,
+    @Param("entity") String coordinates,
     @Param("locale") String locale);
 }

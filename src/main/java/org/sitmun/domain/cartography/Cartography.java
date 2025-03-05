@@ -17,6 +17,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -72,6 +73,7 @@ public class Cartography {
    */
   @Column(name = "GEO_ABSTRACT", length = LONG_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String description;
 
   /**

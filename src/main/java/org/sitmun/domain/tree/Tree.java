@@ -11,6 +11,7 @@ import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -52,6 +53,7 @@ public class Tree {
   @Column(name = "TRE_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String name;
 
   /**
@@ -73,6 +75,7 @@ public class Tree {
    */
   @Column(name = "TRE_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String description;
 
   /**

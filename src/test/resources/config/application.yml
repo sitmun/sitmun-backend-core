@@ -92,6 +92,7 @@ server:
 sitmun:
   module: SITMUN Core
   version: 3.0-SNAPSHOT
+  language: en
   proxy:
     config-response-validity-in-seconds: 3600
   startup:

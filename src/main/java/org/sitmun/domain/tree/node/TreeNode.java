@@ -11,6 +11,7 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -58,12 +59,14 @@ public class TreeNode {
   @Column(name = "TNO_NAME", length = 80)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String name;
 
   /**
    * Description.
    */
   @Column(name = "TNO_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @I18n
   private String description;
 
   /**

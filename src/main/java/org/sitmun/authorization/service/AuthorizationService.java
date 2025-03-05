@@ -23,6 +23,7 @@ import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ public class AuthorizationService {
   private final TaskRepository taskRepository;
   private final TreeRepository treeRepository;
   private final TreeNodeRepository treeNodeRepository;
+  private final TranslationService translationService;
 
   public AuthorizationService(ApplicationRepository applicationRepository,
                               TerritoryRepository territoryRepository, RoleRepository roleRepository,
@@ -55,7 +57,8 @@ public class AuthorizationService {
                               CartographyRepository cartographyRepository,
                               TaskRepository taskRepository,
                               BackgroundRepository backgroundRepository, TreeRepository treeRepository,
-                              TreeNodeRepository treeNodeRepository) {
+                              TreeNodeRepository treeNodeRepository,
+                              TranslationService translationService) {
     this.applicationRepository = applicationRepository;
     this.territoryRepository = territoryRepository;
     this.roleRepository = roleRepository;
@@ -66,6 +69,7 @@ public class AuthorizationService {
     this.backgroundRepository = backgroundRepository;
     this.treeRepository = treeRepository;
     this.treeNodeRepository = treeNodeRepository;
+    this.translationService = translationService;
   }
 
   /**
@@ -148,13 +152,26 @@ public class AuthorizationService {
     }
 
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory(context.getUsername(), context.getAppId(), context.getTerritoryId());
+    roles.forEach(translationService::updateInternationalization);
 
     List<Background> backgrounds = backgroundRepository.findActiveByApplication(context.getAppId()).stream().map(objects -> (Background) objects[1]).collect(Collectors.toList());
+    backgrounds.forEach(translationService::updateInternationalization);
+
     List<CartographyPermission> cartographyPermissions = cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    cartographyPermissions.forEach(translationService::updateInternationalization);
+
     List<Cartography> layers = cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    layers.forEach(translationService::updateInternationalization);
+
     List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    tasks.forEach(translationService::updateInternationalization);
+
     List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
+    trees.forEach(translationService::updateInternationalization);
+
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);
+    nodes.forEach(translationService::updateInternationalization);
+
     Map<Tree, List<TreeNode>> treeNodes = nodes.stream().collect(Collectors.groupingBy(TreeNode::getTree));
 
     List<ConfigurationParameter> global = ImmutableList.copyOf(configurationParameterRepository.findAll());
