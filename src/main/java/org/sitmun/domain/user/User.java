@@ -14,6 +14,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
@@ -65,13 +66,13 @@ public class User {
   /**
    * User first name.
    */
-  @Column(name = "USE_NAME", length = 30)
+  @Column(name = "USE_NAME", length = PersistenceConstants.IDENTIFIER)
   private String firstName;
 
   /**
    * User last name.
    */
-  @Column(name = "USE_SURNAME", length = 40)
+  @Column(name = "USE_SURNAME", length = PersistenceConstants.IDENTIFIER)
   private String lastName;
 
   /**
@@ -101,6 +102,12 @@ public class User {
   @NotNull
   private Boolean blocked;
 
+  /**
+   * User email.
+   */
+  @Column(name = "USE_EMAIL", length = PersistenceConstants.IDENTIFIER)
+  @Email
+  private String email;
 
   /**
    * Creation date.

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
+@Import(TranslationService.class)
 @DisplayName("CodeLists Test")
 class CodeListsTest {
 

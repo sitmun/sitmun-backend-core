@@ -40,6 +40,8 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     "/dist/**",
     "/workspace.html",
     "/api/dashboard/health",
+    "/api/profile",
+    "/api/profile/**",
   };
 
   private final SecurityEntryPoint unauthorizedHandler;

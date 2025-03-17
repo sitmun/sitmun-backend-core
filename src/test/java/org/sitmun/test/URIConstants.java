@@ -2,6 +2,8 @@ package org.sitmun.test;
 
 public class URIConstants {
 
+  public static final String HAL_PROFILE_URI = "http://localhost/api/profile";
+
   public static final String ACCOUNT_URI = "http://localhost/api/account";
 
   public static final String APPLICATIONS_URI = "http://localhost/api/applications";

@@ -206,7 +206,7 @@ class ProjectionsTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.id").value(301001))
       .andExpect(jsonPath("$.element").value(1))
-      .andExpect(jsonPath("$.column").value("name"))
+      .andExpect(jsonPath("$.column").value("Language.name"))
       .andExpect(jsonPath("$.languageName").value("Catalan"))
       .andExpect(jsonPath("$.languageShortname").value("ca"))
       .andExpect(jsonPath("$.translation").value("Anglès"));

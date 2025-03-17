@@ -51,6 +51,36 @@ class UserRepositoryDataRestTest {
       .andReturn().getResponse();
   }
 
+  @Test
+  @DisplayName("POST: rejects an invalid email")
+  void invalidEmail() throws Exception {
+    mvc.perform(post(URIConstants.USER_URI)
+        .content("{" +
+          "\"administrator\":false," +
+          "\"blocked\":false," +
+          "\"email\":\"false\"" +
+          "}")
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[?(@.property=='email')].message").value("must be a well-formed email address"));
+  }
+
+  @Test
+  @DisplayName("POST: accepts a valid email")
+  void validEmail() throws Exception {
+    response = mvc.perform(post(URIConstants.USER_URI)
+        .content("{" +
+          "\"administrator\":false," +
+          "\"blocked\":false," +
+          "\"email\":\"false@false.com\"" +
+          "}")
+        .with(user(Fixtures.admin()))
+      )
+      .andExpect(status().isCreated())
+      .andReturn().getResponse();
+  }
+
   @AfterEach
   void cleanup() throws Exception {
     if (response != null) {
