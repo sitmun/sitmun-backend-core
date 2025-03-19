@@ -14,4 +14,5 @@
   <include file="changelog/04_initial_data_prod_postgresql.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/05_translations.yaml" relativeToChangelogFile="true"/>
   <include file="changelog/06_params.yaml" relativeToChangelogFile="true"/>
+  <include file="changelog/07_add_territory_description.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

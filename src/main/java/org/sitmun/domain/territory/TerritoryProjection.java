@@ -29,6 +29,12 @@ public interface TerritoryProjection {
   String getName();
 
   /**
+   * Territory description.
+   */
+  @Value("#{target.description}")
+  String getDescription();
+
+  /**
    * Territorial authority name.
    */
   @Value("#{target.territorialAuthorityName}")

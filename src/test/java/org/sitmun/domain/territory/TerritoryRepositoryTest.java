@@ -1,5 +1,6 @@
 package org.sitmun.domain.territory;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,22 +31,35 @@ class TerritoryRepositoryTest {
   private TerritoryRepository territoryRepository;
   @Autowired
   private TerritoryTypeRepository territoryTypeRepository;
+
   private Territory territory;
+  private TerritoryType type;
 
   @BeforeEach
   void init() {
-    TerritoryType type = TerritoryType.builder().build();
+    type = TerritoryType.builder().build();
     type.setName("tipo Territorio 1");
     territoryTypeRepository.save(type);
 
     territory = Territory.builder()
       .name("Admin")
+      .description("Test territory description")
       .blocked(false)
       .territorialAuthorityEmail("email@email.org")
       .createdDate(new Date())
       .territorialAuthorityName("Test")
       .type(type)
       .build();
+  }
+
+  @AfterEach
+  void clean() {
+    if (territory.getId() != null) {
+      territoryRepository.deleteById(territory.getId());
+    }
+    if (type.getId() != null) {
+      territoryTypeRepository.deleteById(type.getId());
+    }
   }
 
   @Test
@@ -64,6 +78,15 @@ class TerritoryRepositoryTest {
     assertThat(territory.getId()).isNotZero();
 
     assertThat(territoryRepository.findById(territory.getId())).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Save and retrieve territory description")
+  void saveAndRetrieveTerritoryDescription() {
+    territoryRepository.save(territory);
+    Territory savedTerritory = territoryRepository.findById(territory.getId()).orElse(null);
+    assertThat(savedTerritory).isNotNull();
+    assertThat(savedTerritory.getDescription()).isEqualTo("Test territory description");
   }
 
   @Test

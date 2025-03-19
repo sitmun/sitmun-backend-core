@@ -80,6 +80,13 @@ public class Territory {
   private String name;
 
   /**
+   * Territory description.
+   */
+  @Column(name = "TER_DESCRIPTION", length = PersistenceConstants.LONG_DESCRIPTION)
+  @JsonView({ClientConfigurationViews.Base.class, ClientConfigurationViews.ApplicationTerritory.class})
+  private String description;
+
+  /**
    * Territorial authority name.
    */
   @Column(name = "TER_ADMNAME", length = PersistenceConstants.SHORT_DESCRIPTION)
