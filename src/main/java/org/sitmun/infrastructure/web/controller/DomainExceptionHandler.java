@@ -72,4 +72,17 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       .build();
     return handleExceptionInternal(ex, response, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
   }
+
+  @ExceptionHandler(NullPointerException.class)
+  public ResponseEntity<DomainExceptionResponse> handleAnyException(Exception exception, WebRequest request) {
+    logger.error("Error", exception);
+    DomainExceptionResponse response = DomainExceptionResponse.builder()
+      .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+      .message(exception.getLocalizedMessage())
+      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+      .path(((ServletWebRequest) request).getRequest().getRequestURI())
+      .build();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
 }

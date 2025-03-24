@@ -2,6 +2,8 @@ package org.sitmun.infrastructure.persistence.type.map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,18 +13,24 @@ import java.util.Map;
 public class ParametersValidator implements ConstraintValidator<Parameters, Map<String, Object>> {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-
+  private final Logger logger = LoggerFactory.getLogger(ParametersValidator.class);
 
   @Override
   public boolean isValid(Map<String, Object> map, ConstraintValidatorContext constraintValidatorContext) {
 
+    if (map == null) {
+      return true;
+    }
+
     if (!map.containsKey("parameters")) {
+      logger.error("[parameters] property was expected");
       constraintValidatorContext.buildConstraintViolationWithTemplate("[parameters] property was expected")
         .addConstraintViolation();
       return false;
     }
 
     if (!(map.get("parameters") instanceof List)) {
+      logger.error("[parameters] property must be a list");
       constraintValidatorContext.buildConstraintViolationWithTemplate("[parameters] property must be a list")
         .addConstraintViolation();
       return false;

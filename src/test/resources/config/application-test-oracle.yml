@@ -9,8 +9,12 @@
 
 logging:
   level:
-    ROOT: INFO
+    root: INFO
     org.sitmun.plugin.core: INFO
+
+# ===================================================================
+# Management
+# ===================================================================
 
 management:
   metrics:
@@ -20,6 +24,15 @@ management:
   endpoints:
     web:
       base-path: /api/dashboard
+      exposure:
+        include: "health,info"
+  health:
+    ldap:
+      enabled: false
+
+# ===================================================================
+# Spring
+# ===================================================================
 
 spring:
   jackson:
@@ -35,6 +48,8 @@ spring:
       maximum-pool-size: 2
       leak-detection-threshold: 15000
       connection-timeout: 10000
+  liquibase:
+    enabled: false
   h2:
     console:
       enabled: false
