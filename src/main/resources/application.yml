@@ -29,3 +29,18 @@ sitmun:
         - code-list-name: treenode.leaf.type
           value: task
           description: Task
+        - code-list-name: treenode.folder.type
+          value: fav
+          description: Favorites
+        - code-list-name: treenode.folder.type
+          value: map
+          description: Map
+        - code-list-name: treenode.viewmode
+          value: dl
+          description: Detailed list
+        - code-list-name: treenode.viewmode
+          value: ne
+          description: Near elements
+        - code-list-name: treenode.viewmode
+          value: sch
+          description: Schedule

@@ -48,6 +48,75 @@ public class ParametersValidator implements ConstraintValidator<Parameters, Map<
         return false;
       }
     }
+    if (map.get("command") != null) {
+      result = isQueryValid(list, constraintValidatorContext);
+    } else {
+      result = isBasicValid(list, constraintValidatorContext);
+    }
+    
+    return result;
+  }
+
+  private boolean isQueryValid(List<Object> list, ConstraintValidatorContext constraintValidatorContext) {
+    boolean result = true;
+
+    for (int i = 0; i < list.size(); i++) {
+      @SuppressWarnings("unchecked")
+      Map<Object, Object> parameter = (Map<Object, Object>) list.get(i);
+      if (!(parameter.containsKey("key") && parameter.containsKey("type") && parameter.containsKey("value") && parameter.containsKey("label"))) {
+        constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": Must have the properties [key], [type], [label] and [value]")
+          .addConstraintViolation();
+        result = false;
+      } else if (parameter.size() != 5) {
+        constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": Must have only the properties [name], [type], [label] and [value]")
+          .addConstraintViolation();
+        result = false;
+      } else if (!(parameter.get("key") instanceof String)) {
+        constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": [key] property must be a string")
+          .addConstraintViolation();
+        result = false;
+      } else if (!(parameter.get("type") instanceof String)) {
+        constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": [type] property must be a string")
+          .addConstraintViolation();
+        result = false;
+      } else {
+        String key = (String) parameter.get("key");
+        String type = (String) parameter.get("type");
+        Object value = parameter.get("value");
+
+        //noinspection StatementWithEmptyBody
+        if ("A".equals(type)) {
+          // Any value is valid
+          // null is considered equal to the empty string
+        } else if ("C".equals(type)) {
+          if (value instanceof String) {
+            try {
+              objectMapper.readValue(value.toString(), List.class);
+            } catch (JsonProcessingException e) {
+              constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": " + key + " property contains '" + value + "' when array was expected")
+                .addConstraintViolation();
+              result = false;
+            }
+          }
+        } else if ("I".equals(type)) {
+          if (value != null) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": " + key + " property contains '" + value + "' when null was expected")
+              .addConstraintViolation();
+            result = false;
+          }
+        } else {
+          constraintValidatorContext.buildConstraintViolationWithTemplate("Entry " + i + ": " + key + " property contains '" + value + "' when of unexpected type '" + type + "'")
+            .addConstraintViolation();
+          result = false;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private boolean isBasicValid(List<Object> list, ConstraintValidatorContext constraintValidatorContext) {
+    boolean result = true;
 
     for (int i = 0; i < list.size(); i++) {
       @SuppressWarnings("unchecked")
@@ -130,6 +199,7 @@ public class ParametersValidator implements ConstraintValidator<Parameters, Map<
         }
       }
     }
+
     return result;
   }
 }

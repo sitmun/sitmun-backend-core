@@ -196,17 +196,25 @@ public class AuthorizationService {
       .build());
   }
 
+  private List<TreeNode> pruneNodes(List<TreeNode> nodes, Integer pivotNode) {
+    List<TreeNode> prunedNodes = nodes.stream()
+      .filter(node -> node != null && (Objects.equals(node.getId(), pivotNode) || Objects.equals(node.getParentId(), pivotNode)))
+      .collect(Collectors.toList());
+    return prunedNodes;
+  }
+
   private Profile pruneProfile(Profile profile) {
 
     if (profile.getContext().getNodeSectionBehaviour().nodePageMode()) {
 
       Integer pivotNode = profile.getContext().getNodeId();
-
+      
       profile.getTreeNodes().forEach((tree, nodes) -> {
         Integer size = nodes.size();
-        List<TreeNode> prunedNodes = nodes.stream()
-          .filter(node -> node != null && (Objects.equals(node.getId(), pivotNode) || Objects.equals(node.getParentId(), pivotNode)))
-          .collect(Collectors.toList());
+        List<TreeNode> prunedNodes = pruneNodes(nodes, pivotNode);
+        if (pivotNode == null && prunedNodes.size() == 1) {
+          prunedNodes = pruneNodes(nodes, prunedNodes.get(0).getId());
+        }
         log.info("Pruned {} nodes to {} nodes using as pivot {}", size, prunedNodes.size(), pivotNode);
         profile.getTreeNodes().put(tree, prunedNodes);
       });

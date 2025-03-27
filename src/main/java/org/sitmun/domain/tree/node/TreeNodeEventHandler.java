@@ -26,7 +26,8 @@ public class TreeNodeEventHandler {
   @HandleBeforeCreate
   @Transactional(rollbackFor = RequirementException.class)
   public void handleTreeNodeCreate(@NotNull TreeNode treeNode) {
-    treeNode.setImage(imageTransformer.scaleImage(treeNode.getImage(), treeNode.getType()));
+	String type = treeNode.getParent() != null ? treeNode.getParent().getType() : treeNode.getType();
+	treeNode.setImage(imageTransformer.scaleImage(treeNode.getImage(), type));
 
     Cartography cartography = treeNode.getCartography();
     String style = treeNode.getStyle();
