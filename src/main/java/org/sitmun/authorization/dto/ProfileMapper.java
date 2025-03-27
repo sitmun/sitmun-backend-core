@@ -152,7 +152,12 @@ public abstract class ProfileMapper {
           case VIRTUAL_ROOT_ALL_NODES:
           case VIRTUAL_ROOT_NODE_PAGE:
             rootNodeCandidate = "node/tree/" + tree.getId();
-            nodes.put(rootNodeCandidate, createRootNode(tree, allNodes));
+            NodeDto rootNode = createRootNode(tree, allNodes);
+            if (rootNode.getChildren().size() == 1) {
+              rootNodeCandidate = rootNode.getChildren().get(0);
+            } else {
+              nodes.put(rootNodeCandidate, rootNode);
+            }
             break;
           case ANY_NODE_PAGE:
             rootNodeCandidate = "node/" + profile.getContext().getNodeId();
@@ -184,16 +189,20 @@ public abstract class ProfileMapper {
       .loadData(it.getLoadData())
       .type(it.getType())
       .image(it.getImage())
-      .order(it.getOrder());
+      .order(it.getOrder())
+      .mapping(it.getMapping());
     if (it.getCartographyId() != null) {
       nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
-    } else if (it.getTaskId() != null) {
+    }
+    if (it.getTaskId() != null) {
       nodeDtoBuilder = nodeDtoBuilder.action("task/" + it.getTaskId());
       nodeDtoBuilder = nodeDtoBuilder.viewMode(it.getViewMode());
-    } else {
-      List<String> nodeChildren = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
+    }
+    List<String> nodeChildren = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
+    if (!nodeChildren.isEmpty()) {
       nodeDtoBuilder = nodeDtoBuilder.children(nodeChildren);
     }
+
     return nodeDtoBuilder.build();
   }
 
@@ -259,6 +268,11 @@ public abstract class ProfileMapper {
         String type = param.get("type");
         String value = param.get("value");
         typeBasedConversion(type, value, parameters, name);
+      } else if (param.containsKey("key") && param.containsKey("type") && param.containsKey("value")) {
+        String name = param.get("key");
+        String type = param.get("type");
+        String value = param.get("value");
+        typeBasedConversion(type, value, parameters, name);
       }
     }
     return parameters;
@@ -266,6 +280,7 @@ public abstract class ProfileMapper {
 
   private void typeBasedConversion(String type, String value, Map<String, Object> parameters, String name) {
     switch (type) {
+      case "A":
       case "string":
         if (value == null) {
           value = "";
@@ -275,6 +290,7 @@ public abstract class ProfileMapper {
       case "number":
         parameters.put(name, Double.parseDouble(value));
         break;
+      case "C":
       case "array":
         try {
           parameters.put(name, new ObjectMapper().readValue(value, List.class));
@@ -292,6 +308,7 @@ public abstract class ProfileMapper {
       case "boolean":
         parameters.put(name, Boolean.parseBoolean(value));
         break;
+      case "I":
       case "null":
         parameters.put(name, null);
         break;

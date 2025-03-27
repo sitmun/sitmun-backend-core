@@ -6,16 +6,21 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
+import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -170,6 +175,7 @@ public class TreeNode {
    * View mode.
    */
   @Column(name = "TNO_VIEW_MODE")
+  @CodeList(CodeListsConstants.TREE_NODE_VIEWMODE)
   private String viewMode;
 
   /**
@@ -200,6 +206,11 @@ public class TreeNode {
   @JoinColumn(name = "TNO_GIID", foreignKey = @ForeignKey(name = "STM_TNO_FK_GEO"))
   @ManyToOne
   private Cartography cartography;
+
+  @Column(name = "TNO_MAPPING")
+  @Lob
+  @Convert(converter = HashMapConverter.class)
+  private Map<String, Object> mapping;
 
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   public Integer getParentId() {

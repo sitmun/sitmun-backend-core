@@ -1,6 +1,8 @@
 package org.sitmun.domain.tree.node;
 
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
@@ -123,5 +125,11 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.filterable}")
   Boolean getFilterable();
+
+  /**
+   * Tree node mapping
+   */
+  @Value("#{target.mapping}")
+  Map<String, Object> getMapping();
 
 }
