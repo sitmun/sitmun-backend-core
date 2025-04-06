@@ -22,9 +22,8 @@ public interface TerritoryRepository extends PagingAndSortingRepository<Territor
 
   @RestResource(exported = false)
   @Query("SELECT DISTINCT t FROM Territory t WHERE " +
-    "t.id IN (SELECT uc.territory.id FROM UserConfiguration uc, Application app WHERE uc.territory in (select at.territory from app.territories at) AND uc.user.username = ?1 AND uc.appliesToChildrenTerritories = false) " +
-    "OR t.id IN (SELECT uc.territory.id FROM UserConfiguration uc, Application app WHERE uc.territory in (select at.territory from app.territories at) AND uc.user.username = ?1 AND uc.appliesToChildrenTerritories = true AND uc.role member app.availableRoles AND app.accessParentTerritory = true) " +
-    "OR t.id IN (SELECT childTerritory.id FROM Territory childTerritory, UserConfiguration uc, Application app WHERE childTerritory in (select at.territory from app.territories at) AND childTerritory member uc.territory.members AND uc.user.username = ?1 AND uc.appliesToChildrenTerritories = true AND uc.role member app.availableRoles AND app.accessChildrenTerritory = true)"
-  )
+    "t.id IN (SELECT uc.territory.id FROM UserConfiguration uc, Application app WHERE uc.user.username = ?1 AND uc.role member app.availableRoles AND uc.appliesToChildrenTerritories = false) " +
+    "OR t.id IN (SELECT uc.territory.id FROM UserConfiguration uc, Application app WHERE uc.user.username = ?1 AND uc.role member app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true) " +
+    "OR t.id IN (SELECT childTerritory.id FROM Territory childTerritory, UserConfiguration uc, Application app WHERE childTerritory member uc.territory.members AND uc.user.username = ?1 AND uc.role member app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)")
   Page<Territory> findByUser(String username, Pageable pageable);
 }

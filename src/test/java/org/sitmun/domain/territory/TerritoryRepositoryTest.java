@@ -100,7 +100,7 @@ class TerritoryRepositoryTest {
   @DisplayName("Find territories for a user")
   void findTerritoriesOfAnUser() {
     Page<Territory> territories = territoryRepository.findByUser("public", PageRequest.of(0, 10));
-    assertThat(territories.getTotalElements()).isEqualTo(2);
+    assertThat(territories.getTotalElements()).isEqualTo(3);
   }
 
   @TestConfiguration
