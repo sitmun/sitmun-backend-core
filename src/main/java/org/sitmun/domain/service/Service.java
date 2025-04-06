@@ -63,7 +63,7 @@ public class Service {
   /**
    * Service description.
    */
-  @Column(name = "SER_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @Column(name = "SER_ABSTRACT", length = PersistenceConstants.LONG_DESCRIPTION)
   @I18n
   private String description;
 

@@ -60,7 +60,7 @@ public class Translation {
   /**
    * Translation.
    */
-  @Column(name = "TRA_NAME", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @Column(name = "TRA_NAME", length = PersistenceConstants.LONG_DESCRIPTION)
   @NotBlank
   private String translation;
 
