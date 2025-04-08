@@ -146,10 +146,13 @@ public class AuthorizationService {
     if (application.isEmpty()) {
       return Optional.empty();
     }
+    application.ifPresent(translationService::updateInternationalization);
+
     Optional<Territory> territory = territoryRepository.findById(context.getTerritoryId());
     if (territory.isEmpty()) {
       return Optional.empty();
     }
+    territory.ifPresent(translationService::updateInternationalization);
 
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory(context.getUsername(), context.getAppId(), context.getTerritoryId());
     roles.forEach(translationService::updateInternationalization);

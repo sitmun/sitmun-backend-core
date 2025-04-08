@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1
+      id: 7
       author: sitmun
       changes:
         - addColumn:
