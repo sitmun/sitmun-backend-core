@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -103,15 +104,21 @@ public abstract class ProfileMapper {
       control = task.getUi().getName();
     }
 
+    String url = null;
     Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
       parameters = convertToJsonObject(properties);
+      String scope = (String) properties.get("scope");
+      if ("web-api-query".equals(scope)) {
+        url = (String) properties.get("command");
+      }
     }
     return TaskDto.builder()
       .id("task/" + task.getId())
       .uiControl(control)
       .parameters(parameters)
+      .url(url)
       .build();
   }
 
@@ -256,7 +263,7 @@ public abstract class ProfileMapper {
     builder.application(applicationDto);
   }
 
-  @NotNull
+  @Nullable
   private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
     Map<String, Object> parameters;
     parameters = new HashMap<>();
@@ -274,6 +281,9 @@ public abstract class ProfileMapper {
         String value = param.get("value");
         typeBasedConversion(type, value, parameters, name);
       }
+    }
+    if (parameters.isEmpty()) {
+      return null;
     }
     return parameters;
   }
