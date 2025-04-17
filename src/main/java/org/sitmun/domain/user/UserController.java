@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
@@ -27,7 +28,6 @@ public class UserController {
   private final SpringValidatorAdapter springValidator;
 
   private final UserRepository userRepository;
-
   private final ApplicationEventPublisher publisher;
 
   /**
@@ -48,6 +48,7 @@ public class UserController {
     user.setIdentificationType(updatedUser.getIdentificationType());
     user.setAdministrator(updatedUser.getAdministrator());
     user.setBlocked(updatedUser.getBlocked());
+    user.setEmail(updatedUser.getEmail());
     return user;
   }
 
@@ -62,6 +63,8 @@ public class UserController {
       .identificationType(user.getIdentificationType())
       .administrator(user.getAdministrator())
       .blocked(user.getBlocked())
+      .email(user.getEmail())
+      .createdDate(user.getCreatedDate())
       .build();
   }
 

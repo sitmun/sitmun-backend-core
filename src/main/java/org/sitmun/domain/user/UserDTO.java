@@ -65,4 +65,9 @@ public class UserDTO {
    * Creation date.
    */
   private Date createdDate;
+
+  /**
+   * User email
+   */
+  private String email;
 }

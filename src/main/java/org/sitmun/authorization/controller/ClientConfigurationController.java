@@ -7,6 +7,10 @@ import org.sitmun.authorization.service.AuthorizationService;
 import org.sitmun.authorization.service.ProfileContext;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.territory.TerritoryDTO;
+import org.sitmun.domain.user.position.UserPosition;
+import org.sitmun.domain.user.position.UserPositionDTO;
+import org.sitmun.domain.user.position.UserPositionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -25,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.sitmun.authorization.service.ProfileContext.NodeSectionBehaviour.*;
-import static org.sitmun.authorization.service.ProfileContext.NodeSectionBehaviour.VIRTUAL_ROOT_ALL_NODES;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
@@ -38,6 +41,7 @@ public class ClientConfigurationController {
 
   private final AuthorizationService authorizationService;
   private final ProfileMapper profileMapper;
+  private final UserPositionRepository userPositionRepository;
 
   @Value("${sitmun.proxy.force:false}")
   private boolean proxyForce;
@@ -52,9 +56,10 @@ public class ClientConfigurationController {
    * @param authorizationService the authorization service
    * @param profileMapper the profile mapper
    */
-  public ClientConfigurationController(AuthorizationService authorizationService, ProfileMapper profileMapper) {
+  public ClientConfigurationController(AuthorizationService authorizationService, ProfileMapper profileMapper, UserPositionRepository userPositionRepository) {
     this.authorizationService = authorizationService;
     this.profileMapper = profileMapper;
+    this.userPositionRepository = userPositionRepository;
   }
 
   /**
@@ -66,14 +71,39 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/application/{appId}/territories", produces = APPLICATION_JSON_VALUE)
-  public Page<TerritoryDtoLittle> getApplicationTerritories(@CurrentSecurityContext SecurityContext context, @PathVariable Integer appId, Pageable pageable) {
+  public Page<TerritoryDTO> getApplicationTerritories(@CurrentSecurityContext SecurityContext context, @PathVariable Integer appId, Pageable pageable) {
     String username = context.getAuthentication().getName();
     if (pageable.getSort().isUnsorted()) {
       pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
     }
     Page<Territory> page = authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
-    List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
+    List<TerritoryDTO> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
+  }
+
+  /**
+   * Update a UserPosition from the user
+   */
+  @PutMapping(path = "/territory/position", produces = APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseEntity<UserPositionDTO> editTerritoryPositions(@RequestBody UserPositionDTO positionDTOs) {
+    userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);
+    return ResponseEntity.ok(positionDTOs);
+  }
+
+  private UserPositionDTO convertUserPositionToDTO(UserPosition userPosition) {
+    return UserPositionDTO.builder()
+      .id(userPosition.getId())
+      .name(userPosition.getName())
+      .organization(userPosition.getOrganization())
+      .email(userPosition.getEmail())
+      .createdDate(userPosition.getCreatedDate())
+      .lastModifiedDate(userPosition.getLastModifiedDate())
+      .expirationDate(userPosition.getExpirationDate())
+      .type(userPosition.getType())
+      .userId(userPosition.getUser() != null ? userPosition.getUser().getId() : null)
+      .territoryId(userPosition.getTerritory() != null ? userPosition.getTerritory().getId() : null)
+      .build();
   }
 
   /**
@@ -121,13 +151,13 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/territory", produces = APPLICATION_JSON_VALUE)
-  public Page<TerritoryDtoLittle> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
+  public Page<TerritoryDTO> getTerritories(@CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
     if (pageable.getSort().isUnsorted()) {
       pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
     }
     Page<Territory> page = authorizationService.findTerritoriesByUser(username, pageable);
-    List<TerritoryDtoLittle> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
+    List<TerritoryDTO> territories = Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
   }
 

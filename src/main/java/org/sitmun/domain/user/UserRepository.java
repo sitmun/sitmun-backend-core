@@ -17,6 +17,9 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
   @RestResource(exported = false)
   Optional<User> findByUsername(String username);
 
+  @RestResource(exported = false)
+  Optional<User> findByEmail(String email);
+
   @Query(name = "dashboard.usersPerApplicationSinceDate")
   Iterable<Object[]> usersPerApplicationSinceDate(@Param("sinceDate") Date sinceDate);
 

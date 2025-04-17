@@ -139,6 +139,8 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.PUT, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.POST, "/api/user-verification/**").hasAuthority(SecurityRole.ROLE_USER.name())
       .antMatchers(HttpMethod.POST, "/api/config/proxy/**").hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
       .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
       .anyRequest().authenticated();
