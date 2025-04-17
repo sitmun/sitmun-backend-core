@@ -54,6 +54,18 @@ spring:
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  mail:
+    host: localhost
+    port: 1025
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
   main:
     allow-bean-definition-overriding: true
   task:
@@ -76,6 +88,7 @@ security:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
+      token-recovery-password-validity-in-miliseconds: 300000 # 5 minutes
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
 
@@ -84,6 +97,9 @@ server:
     session:
       cookie:
         http-only: true
+
+front:
+  url: "http://front_url"
 
 # ===================================================================
 # SITMUN specific properties

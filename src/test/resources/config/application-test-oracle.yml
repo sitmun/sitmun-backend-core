@@ -66,23 +66,42 @@ spring:
               action: create
               create-target: create.sql
               create-source: metadata
-
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+    contexts: dev
+  mail:
+    host: sitmun-backend-core-maildev-1
+    port: 1025
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+      mail.smtp.starttls.enable: false
+      mail.smtp.starttls.required: false
+    from: "no-reply@sitmun.com"
 
 security:
   authentication:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
+      token-recovery-password-validity-in-miliseconds: 300000 # 5 minutes
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
-
-test:
-  ldap:
-    ldif: src/test/resources/config/ldap/test-server.ldif
-    schema: src/test/resources/config/ldap/test-schema.ldif
-
+    ldap:
+      host: ldap://localhost:1389
+      base_dn: dc=example,dc=com
+      id_attribute: uid
+      user_ldap: cn=admin
+      password_ldap: admin
 server:
   port: 8080
+
+front:
+  url: "http://front_url"
 
 # ===================================================================
 # SITMUN specific properties
