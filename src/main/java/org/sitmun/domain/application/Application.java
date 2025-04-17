@@ -135,6 +135,21 @@ public class Application {
   @Column(name = "APP_ENTRYM")
   private Boolean accessChildrenTerritory;
 
+  @Column(name = "APP_MAINTENANCE_INFORMATION")
+  private String maintenanceInformation;
+
+  @Column(name = "APP_UNAVAILABLE")
+  private Boolean isUnavailable;
+
+  @Column(name = "APP_PRIVATE")
+  private Boolean appPrivate;
+
+  @Column(name = "APP_LAST_UPDATE")
+  private Date lastUpdate;
+
+  @Column(name = "APP_CREATOR_ID")
+  private Integer creatorId;
+
   /**
    * Situation map when the application is internal.
    */

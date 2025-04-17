@@ -14,7 +14,6 @@ import java.util.Map;
 public class TaskDto {
   private String id;
   @JsonProperty("ui-control")
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   private String uiControl;
 
   @JsonProperty("url")

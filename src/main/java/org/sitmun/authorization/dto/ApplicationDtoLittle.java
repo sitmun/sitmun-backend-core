@@ -1,5 +1,7 @@
 package org.sitmun.authorization.dto;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +13,9 @@ public class ApplicationDtoLittle {
   private String type;
   private String logo;
   private String description;
+  private String maintenanceInformation;
+  private Boolean isUnavailable;
+  private Boolean appPrivate;
+  private Date lastUpdate;
+  private String creator;
 }
