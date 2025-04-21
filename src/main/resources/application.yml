@@ -44,3 +44,30 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: sch
           description: Schedule
+        - code-list-name: taskEntity.jsonParamType
+          value: string
+          description: string
+        - code-list-name: taskEntity.jsonParamType
+          value: number
+          description: number
+        - code-list-name: taskEntity.jsonParamType
+          value: boolean
+          description: boolean
+        - code-list-name: taskEntity.jsonParamType
+          value: object
+          description: object
+        - code-list-name: taskEntity.jsonParamType
+          value: array
+          description: array
+        - code-list-name: taskEntity.jsonParamType
+          value: "null"
+          description: "null"
+        - code-list-name: taskEntity.queryType
+          value: A
+          description: tasksEntity.autocomplete
+        - code-list-name: taskEntity.queryType
+          value: I
+          description: tasksEntity.input
+        - code-list-name: taskEntity.queryType
+          value: C
+          description: tasksEntity.combo

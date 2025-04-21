@@ -49,6 +49,12 @@ public interface TaskProjection {
   @Value("#{target.cartography?.name}")
   String getCartographyName();
 
+  @Value("#{target.connection?.id}")
+  Integer getConnectionId();
+
+  @Value("#{target.connection?.name}")
+  String getConnectionName();
+
   @Value("#{target.type?.id}")
   Integer getTypeId();
 

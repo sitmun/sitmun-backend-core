@@ -30,6 +30,18 @@ public interface TaskAvailabilityProjection {
   String getTerritoryName();
 
   /**
+   * Code of the territory allowed to access to the task.
+   */
+  @Value("#{target.territory?.code}")
+  String getTerritoryCode();
+
+  /**
+   * Name of the territory type allowed to the territory.
+   */
+  @Value("#{target.territory?.type?.name}")
+  String getTerritoryTypeName();
+
+  /**
    * Identifier of the task allowed to the territory.
    */
   @Value("#{target.task?.id}")
