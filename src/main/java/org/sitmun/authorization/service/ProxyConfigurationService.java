@@ -159,7 +159,7 @@ public class ProxyConfigurationService {
         .payload(payload.get())
         .build();
     }
-    throw new BadRequestException("Bad request for service type {} with id {}");
+    throw new BadRequestException("Bad request for service type "+configProxyRequest.getType()+" with id "+configProxyRequest.getType());
   }
 
   public void applyDecorators(ConfigProxyDto configProxyDto, ConfigProxyRequest configProxyRequest, String username) {
