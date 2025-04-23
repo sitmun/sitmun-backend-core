@@ -81,6 +81,7 @@ sitmun:
     users-per-application.size: 30 # last days
   proxy:
     config-response-validity-in-seconds: 3600
+    url: http://localhost:8080/middleware
   ui:
     image:
       supportedFormats:

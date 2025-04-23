@@ -135,6 +135,24 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("Get task query web")
+  void taskTaskQueryWeb() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/35')].parameters.codigo.label", hasItem("codigo")))
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/35')].url", hasItem("https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}")));
+  }
+
+  @Test
+  @DisplayName("Get task query sql")
+  void taskTaskQuerySql() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/34')].parameters.${limit}.label", hasItem("limit")))
+      .andExpect(jsonPath("$.tasks[?(@.id=='task/34')].url", hasItem("http://localhost:8080/middleware/proxy/1/1/SQL/34")));
+  }
+
+  @Test
   @DisplayName("Get tree details")
   void tree() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))

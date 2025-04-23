@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import org.sitmun.authorization.service.Profile;
+import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
@@ -17,19 +15,26 @@ import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring",
+  unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public abstract class ProfileMapper {
 
-  public abstract ProfileDto map(Profile profile);
+  @Autowired
+  private List<TaskMapper> taskMappers;
+
+  public abstract ProfileDto map(Profile profile, @Context Application application, @Context Territory territory);
 
   /**
    * Maps a Background entity to a BackgroundDto.
@@ -98,28 +103,17 @@ public abstract class ProfileMapper {
    * @param task the Task entity to map
    * @return the mapped TaskDto
    */
-  TaskDto map(Task task) {
-    String control = null;
-    if (task.getUi() != null) {
-      control = task.getUi().getName();
+  TaskDto map(Task task, @Context Application application, @Context Territory territory) {
+    Optional<TaskDto> taskDto = taskMappers.stream().filter(taskMapper -> taskMapper.accept(task)).findFirst()
+      .map(taskMapper -> taskMapper.map(task, application, territory));
+    if (taskDto.isPresent()) {
+      return taskDto.get();
+    } else {
+      log.warn("No task mapper found for task id: {}", task.getId());
+      return TaskDto.builder()
+        .id("task/" + task.getId())
+        .build();
     }
-
-    String url = null;
-    Map<String, Object> parameters = new HashMap<>();
-    Map<String, Object> properties = task.getProperties();
-    if (properties != null) {
-      parameters = convertToJsonObject(properties);
-      String scope = (String) properties.get("scope");
-      if ("web-api-query".equals(scope)) {
-        url = (String) properties.get("command");
-      }
-    }
-    return TaskDto.builder()
-      .id("task/" + task.getId())
-      .uiControl(control)
-      .parameters(parameters)
-      .url(url)
-      .build();
   }
 
   TreeDto map(Tree tree) {
@@ -261,70 +255,6 @@ public abstract class ProfileMapper {
     copyPointFromTerritory(applicationDto, profile);
     copySrsFromTerritory(applicationDto, profile);
     builder.application(applicationDto);
-  }
-
-  @Nullable
-  private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
-    Map<String, Object> parameters;
-    parameters = new HashMap<>();
-    //noinspection unchecked
-    List<Map<String, String>> listOfParameters = (List<Map<String, String>>) properties.getOrDefault("parameters", Collections.emptyList());
-    for (Map<String, String> param : listOfParameters) {
-      if (param.containsKey("name") && param.containsKey("type") && param.containsKey("value")) {
-        String name = param.get("name");
-        String type = param.get("type");
-        String value = param.get("value");
-        typeBasedConversion(type, value, parameters, name);
-      } else if (param.containsKey("key") && param.containsKey("type") && param.containsKey("value")) {
-        String name = param.get("key");
-        String type = param.get("type");
-        String value = param.get("value");
-        typeBasedConversion(type, value, parameters, name);
-      }
-    }
-    if (parameters.isEmpty()) {
-      return null;
-    }
-    return parameters;
-  }
-
-  private void typeBasedConversion(String type, String value, Map<String, Object> parameters, String name) {
-    switch (type) {
-      case "A":
-      case "string":
-        if (value == null) {
-          value = "";
-        }
-        parameters.put(name, value);
-        break;
-      case "number":
-        parameters.put(name, Double.parseDouble(value));
-        break;
-      case "C":
-      case "array":
-        try {
-          parameters.put(name, new ObjectMapper().readValue(value, List.class));
-        } catch (JsonProcessingException e) {
-          log.error("Error processing array", e);
-        }
-        break;
-      case "object":
-        try {
-          parameters.put(name, new ObjectMapper().readValue(value, Map.class));
-        } catch (JsonProcessingException e) {
-          log.error("Error processing object", e);
-        }
-        break;
-      case "boolean":
-        parameters.put(name, Boolean.parseBoolean(value));
-        break;
-      case "I":
-      case "null":
-        parameters.put(name, null);
-        break;
-      default:
-        break;
-    }
   }
 
 

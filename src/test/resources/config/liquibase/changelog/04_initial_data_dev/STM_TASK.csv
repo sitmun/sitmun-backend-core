@@ -37,3 +37,8 @@ TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONN
 #,,,,,,,,,
 32,Welcome Panel,NULL,1,1,32,NULL,NULL,NULL,NULL
 33,Help Panel,NULL,1,1,33,NULL,NULL,NULL,NULL
+#,,,,,,,,,
+# Query tasks
+#,,,,,,,,,
+34,Events,NULL,5,5,NULL,NULL,1,NULL,"{""parameters"":[{""key"": ""${limit}"",""label"": ""limit"",""type"": ""A"",""value"": ""10"",""order"": null}],""scope"":""sql-query"",""command"":""select * from order limit ${limit}""}"
+35,Timetable,NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}"",""scope"":""web-api-query"",""parameters"":[{""key"":""codigo"",""label"":""codigo"",""type"":""I"",""value"":null,""order"":null}]}"

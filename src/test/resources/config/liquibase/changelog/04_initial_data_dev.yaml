@@ -778,7 +778,7 @@ databaseChangeLog:
                   name: TAS_PARAMS
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 34);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 36);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_ROL_TSK.csv

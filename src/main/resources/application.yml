@@ -71,3 +71,12 @@ sitmun:
         - code-list-name: taskEntity.queryType
           value: C
           description: tasksEntity.combo
+        - code-list-name: queryTask.scope
+          value: sql-query
+          description: "SQL Query"
+        - code-list-name: queryTask.scope
+          value: web-api-query
+          description: "Web API Query"
+        - code-list-name: queryTask.scope
+          value: cartography-query
+          description: "Cartography Query"

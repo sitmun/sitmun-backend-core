@@ -173,7 +173,7 @@ public class ClientConfigurationController {
       .build();
 
     return authorizationService.createProfile(profileContext)
-      .map(profileMapper::map)
+      .map(it -> profileMapper.map(it, it.getApplication(), it.getTerritory()))
       .map(decorateWithFilter(profileContext))
       .map(decorateWithProxy(profileContext))
       .map(profile -> ResponseEntity.ok().body(profile))
