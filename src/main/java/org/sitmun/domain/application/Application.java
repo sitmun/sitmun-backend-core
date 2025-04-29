@@ -141,9 +141,6 @@ public class Application {
   @Column(name = "APP_UNAVAILABLE")
   private Boolean isUnavailable;
 
-  @Column(name = "APP_PRIVATE")
-  private Boolean appPrivate;
-
   @Column(name = "APP_LAST_UPDATE")
   private Date lastUpdate;
 
