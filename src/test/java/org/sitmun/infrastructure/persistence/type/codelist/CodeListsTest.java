@@ -8,6 +8,7 @@ import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -21,7 +22,7 @@ import java.util.stream.StreamSupport;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@DataJpaTest
+@SpringBootTest
 @Import(TranslationService.class)
 @DisplayName("CodeLists Test")
 class CodeListsTest {
@@ -78,7 +79,7 @@ class CodeListsTest {
   @DisplayName("Check application.type")
   void checkApplicationType() {
     assertThat(select(CodeListsConstants.APPLICATION_TYPE))
-      .containsExactlyInAnyOrder("I", "E");
+      .containsExactlyInAnyOrder("I", "E", "ED", "T");
   }
 
   @Test

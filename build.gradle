@@ -75,6 +75,8 @@ dependencies {
   implementation 'org.liquibase:liquibase-core'
   implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
 
+  compileOnly "org.jetbrains:annotations:${jetbrains_annotations_version}"
+
   annotationProcessor 'javax.annotation:javax.annotation-api'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
   annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"

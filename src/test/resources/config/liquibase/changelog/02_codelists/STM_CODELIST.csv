@@ -104,4 +104,3 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 107,service.type,WMTS,FALSE,FALSE,WMTS
 108,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
 109,tree.type,cartography,FALSE,TRUE,Cartography
-110,application.type,ED,FALSE,FALSE,Edition application

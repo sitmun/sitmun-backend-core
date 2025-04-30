@@ -13,6 +13,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import javax.persistence.FlushModeType;
 import java.net.URI;
 import java.util.*;
 
@@ -158,11 +159,11 @@ class TaskRepositoryDataRestTest extends BaseTest {
   void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(33)));
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
 
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(33)));
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
   }
 
   @Test
@@ -178,7 +179,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
   void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(37)));
   }
 
   @Test

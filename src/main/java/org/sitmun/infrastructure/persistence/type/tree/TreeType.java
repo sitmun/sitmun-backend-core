@@ -1,5 +1,8 @@
 package org.sitmun.infrastructure.persistence.type.tree;
 
+import jdk.jfr.Experimental;
+import org.jetbrains.annotations.ApiStatus;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
@@ -11,6 +14,7 @@ import static java.lang.annotation.ElementType.TYPE;;
 @Constraint(validatedBy = TreeValidator.class)
 @Target(TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@ApiStatus.Experimental
 public @interface TreeType {
 
   /**

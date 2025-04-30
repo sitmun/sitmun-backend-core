@@ -40,8 +40,8 @@ class RoleRepositoryDataRestTest {
     mvc.perform(get(URIConstants.ROLE_TASKS_URI, 1)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.*.*", hasSize(33)))
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(33)));
+      .andExpect(jsonPath("$._embedded.*.*", hasSize(35)))
+      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
   }
 
   @Test

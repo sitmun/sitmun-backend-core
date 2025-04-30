@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.tree;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.tree.Tree;
 
@@ -13,6 +14,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Slf4j
+@ApiStatus.Experimental
 public class TreeValidator implements ConstraintValidator<TreeType, Tree> {
 
   @Override
