@@ -100,4 +100,28 @@ public interface ApplicationProjection {
    */
   @Value("#{target.description}")
   String getDescription();
+
+  /**
+   * Information of maintenance
+   */
+  @Value("#{target.maintenanceInformation}")
+  String getMaintenanceInformation();
+
+  /**
+   * Is the app usable
+   */
+  @Value("#{target.isUnavailable}")
+  Boolean IsUnavailable();
+
+  /**
+   * Last update date
+   */
+  @Value("#{target.lastUpdate}")
+  Date getLastUpdate();
+
+  /**
+   * Creator ID of the app
+   */
+  @Value("#{target.creatorId}")
+  Integer getCreatorId();
 }

@@ -14,7 +14,10 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/account")
@@ -99,4 +102,28 @@ public class UserController {
     Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
+
+  @GetMapping("/{id}")
+  @ResponseBody
+  public ResponseEntity<UserDTO> getAccountById(@PathVariable Integer id) {
+    Optional<UserDTO> storedUser = userRepository.findById(id).map(UserController::userToDto);
+    return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
+  /**
+   * Get all accounts
+   */
+  @GetMapping("/all")
+  @ResponseBody
+  public ResponseEntity<List<UserDTO>> getAllAccounts() {
+    List<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false).collect(Collectors.toList());
+    if (users.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    List<UserDTO> userDTOs = users.stream()
+      .map(UserController::userToDto)
+      .collect(Collectors.toList());
+    return ResponseEntity.ok(userDTOs);
+  }
+
 }
