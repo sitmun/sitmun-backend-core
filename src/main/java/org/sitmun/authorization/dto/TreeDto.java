@@ -12,6 +12,7 @@ import java.util.Map;
 public class TreeDto {
   private String id;
   private String title;
+  private String type;
   private String image;
   private String rootNode;
   private Map<String, NodeDto> nodes;

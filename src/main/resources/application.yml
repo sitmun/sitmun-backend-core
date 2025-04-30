@@ -11,6 +11,9 @@ sitmun:
         - code-list-name: application.type
           value: T
           description: Tourist application
+        - code-list-name: application.type
+          value: ED
+          description: Edition application
         - code-list-name: tree.type
           value: tourist
           description: Tourist application

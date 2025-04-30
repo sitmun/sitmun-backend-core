@@ -12,6 +12,7 @@ import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.tree.TreeType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -29,6 +30,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@TreeType
 public class Tree {
 
   /**
