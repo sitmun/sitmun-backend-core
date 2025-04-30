@@ -120,6 +120,7 @@ public abstract class ProfileMapper {
     return TreeDto.builder()
       .id("tree/" + tree.getId())
       .title(tree.getName())
+      .type(tree.getType())
       .image(tree.getImage())
       .build();
   }

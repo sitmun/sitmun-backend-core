@@ -8,6 +8,7 @@ import lombok.Setter;
 public class ApplicationDtoLittle {
   private int id;
   private String title;
+  private String type;
   private String logo;
   private String description;
 }
