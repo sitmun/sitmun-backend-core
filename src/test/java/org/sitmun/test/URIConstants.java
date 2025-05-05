@@ -133,6 +133,8 @@ public class URIConstants {
 
   public static final String TREE_NODE_TREE_URI = TREE_NODE_URI + "/tree";
 
+  public static final String TREE_AVAILABLE_APPLICATIONS_URI = "http://localhost/api/trees/{0}/availableApplications";
+
   public static final String USER_URI = "http://localhost/api/users";
 
   public static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =

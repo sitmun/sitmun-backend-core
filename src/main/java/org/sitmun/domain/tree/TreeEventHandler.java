@@ -68,7 +68,7 @@ public class TreeEventHandler {
 
   private boolean validateTuristicApp(Application app) {
     List<Tree> trees = List.copyOf(app.getTrees());
-    boolean valid = trees.isEmpty();
+    boolean valid = false;
     if (trees.size() == 1 && "tourist".equals(trees.get(0).getType())) {
       valid = true;
     }
