@@ -1,4 +1,5 @@
-TRE_ID,TRE_NAME
-1,Provincial
-2,Municipal
-3,Supramunicipal
+TRE_ID,TRE_NAME,TRE_TYPE
+1,Provincial,cartography
+2,Municipal,cartography
+3,Supramunicipal,cartography
+4,Turistico,touristic
