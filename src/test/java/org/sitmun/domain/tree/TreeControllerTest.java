@@ -27,7 +27,7 @@ class TreeControllerTest extends BaseTest {
 
   @Test
   @DisplayName("Fail 400 when try save touristic tree with non touristic application")
-  void saveTouristicTreeWithNonTuristicApplication() throws Exception {
+  void saveTouristicTreeWithNonTouristicApplication() throws Exception {
     // From
     String applications = "http://localhost/api/applications/1";
 
@@ -41,7 +41,7 @@ class TreeControllerTest extends BaseTest {
 
   @Test
   @DisplayName("Fail 400 when try save non touristic tree with touristic application")
-  void saveNoTouristicTreeWithTuristicApplication() throws Exception {
+  void saveNoTouristicTreeWithTouristicApplication() throws Exception {
     // From
     String applications = "http://localhost/api/applications/6";
 

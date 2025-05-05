@@ -34,24 +34,23 @@ public class TreeEventHandler {
 
   @HandleBeforeLinkSave
   @Transactional(rollbackFor = RequirementException.class)
-  public void handleTreeApplicationLink(@NotNull Tree tree, Set<Application> link) {
+  public void handleTreeApplicationLink(@NotNull Tree tree, Set<Application> ignoredLink) {
     List<Application> apps = List.copyOf(tree.getAvailableApplications());
-    if ("tourist".equals(tree.getType())) {
-      validateTuristicTree(apps);
+    if ("touristic".equals(tree.getType())) {
+      validateTouristicTree(apps);
     } else {
-      validateNoTuristicTree(apps);
+      validateNoTouristicTree(apps);
     }
   }
 
-  private void validateTuristicTree(List<Application> apps) {
+  private void validateTouristicTree(List<Application> apps) {
     if (!(apps.isEmpty() || (apps.size() == 1 && "T".equals(apps.get(0).getType())))) {
       throw new RequirementException("Touristic tree only can be linked with 0..1 tourist application");
     }
   }
 
-  private void validateNoTuristicTree(List<Application> apps) {
-    boolean valid = true;
-    valid = apps.stream().allMatch(a -> validAppTrees(a));
+  private void validateNoTouristicTree(List<Application> apps) {
+    boolean valid = apps.stream().allMatch(this::validAppTrees);
     
     if (!valid) {
       throw new RequirementException("A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree");
@@ -61,17 +60,13 @@ public class TreeEventHandler {
   private boolean validAppTrees(Application app) {
     boolean valid = !"T".equals(app.getType());
     if (!valid) {
-      valid = validateTuristicApp(app);
+      valid = validateTouristicApp(app);
     }
     return valid;
   }
 
-  private boolean validateTuristicApp(Application app) {
+  private boolean validateTouristicApp(Application app) {
     List<Tree> trees = List.copyOf(app.getTrees());
-    boolean valid = false;
-    if (trees.size() == 1 && "tourist".equals(trees.get(0).getType())) {
-      valid = true;
-    }
-    return valid;
+    return trees.size() == 1 && "touristic".equals(trees.get(0).getType());
   }
 }
