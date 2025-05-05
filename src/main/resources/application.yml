@@ -15,7 +15,7 @@ sitmun:
           value: ED
           description: Edition application
         - code-list-name: tree.type
-          value: tourist
+          value: touristic
           description: Tourist application
         - code-list-name: treenode.folder.type
           value: cartography

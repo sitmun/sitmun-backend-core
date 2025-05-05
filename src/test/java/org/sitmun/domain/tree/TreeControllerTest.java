@@ -9,24 +9,23 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @DisplayName("Tree controller test")
-public class TreeControllerTest extends BaseTest {
+class TreeControllerTest extends BaseTest {
 
   @Autowired
   private MockMvc mockMvc;
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail 400 when try save touristic tree with non touristic application")
   void saveTouristicTreeWithNonTuristicApplication() throws Exception {
     // From
@@ -36,11 +35,11 @@ public class TreeControllerTest extends BaseTest {
       .content(applications).header("Content-Type", "text/uri-list")
       .with(user(Fixtures.admin())))
       .andDo(print())
-      .andExpect(status().isBadRequest());
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("Touristic tree only can be linked with 0..1 tourist application"));
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("Fail 400 when try save non touristic tree with touristic application")
   void saveNoTouristicTreeWithTuristicApplication() throws Exception {
     // From
@@ -50,6 +49,7 @@ public class TreeControllerTest extends BaseTest {
       .content(applications).header("Content-Type", "text/uri-list")
       .with(user(Fixtures.admin())))
       .andDo(print())
-      .andExpect(status().isBadRequest());
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.message").value("A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree"));
   }
 }
