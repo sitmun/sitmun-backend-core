@@ -10,10 +10,9 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
-
-import javax.validation.constraints.NotNull;
 
 @Component
 @RepositoryEventHandler
@@ -34,7 +33,7 @@ public class TreeEventHandler {
 
   @HandleBeforeLinkSave
   @Transactional(rollbackFor = RequirementException.class)
-  public void handleTreeApplicationLink(@NotNull Tree tree, Set<Application> ignoredLink) {
+  public void handleTreeApplicationLink(@NotNull Tree tree, Set<Application> ignoredOldLinks) {
     List<Application> apps = List.copyOf(tree.getAvailableApplications());
     if ("touristic".equals(tree.getType())) {
       validateTouristicTree(apps);
@@ -51,7 +50,7 @@ public class TreeEventHandler {
 
   private void validateNoTouristicTree(List<Application> apps) {
     boolean valid = apps.stream().allMatch(this::validAppTrees);
-    
+
     if (!valid) {
       throw new RequirementException("A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree");
     }
