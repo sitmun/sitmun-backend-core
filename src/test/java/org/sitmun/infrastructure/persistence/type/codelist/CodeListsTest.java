@@ -62,9 +62,16 @@ class CodeListsTest {
       CodeListsConstants.USER_POSITION_TYPE,
       CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
       CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE,
-      CodeListsConstants.TREE_TYPE
+      CodeListsConstants.TREE_TYPE,
       // CodeListsConstants.TREE_NODE_LEAF_TYPE,
       // CodeListsConstants.TREE_NODE_FOLDER_TYPE
+      "databaseConnection.driver",
+      "queryTask.parameterType",
+      "taskEntity.jsonParamType",
+      "taskEntity.queryType",
+      "treenode.folder.type",
+      "treenode.leaf.type",
+      "treenode.viewmode"
     );
   }
 
@@ -162,7 +169,7 @@ class CodeListsTest {
   @DisplayName("Check queryTask.scope")
   void checkQueryTaskScope() {
     assertThat(select(CodeListsConstants.QUERY_TASK_SCOPE))
-      .containsExactlyInAnyOrder("URL", "SQL", "WS", "INFORME", "TAREA");
+      .containsExactlyInAnyOrder("INFORME", "SQL", "TAREA", "URL", "WS", "cartography-query", "sql-query", "web-api-query");
   }
 
   @Test

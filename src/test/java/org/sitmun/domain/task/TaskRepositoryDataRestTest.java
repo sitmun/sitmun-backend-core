@@ -1,9 +1,12 @@
 package org.sitmun.domain.task;
 
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.sitmun.domain.task.availability.TaskAvailability;
 import org.sitmun.domain.task.availability.TaskAvailabilityRepository;
+import org.sitmun.domain.task.type.TaskType;
+import org.sitmun.domain.task.type.TaskTypeRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.test.BaseTest;
@@ -12,21 +15,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.FlushModeType;
 import java.net.URI;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.sitmun.test.TestUtils.asJsonString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DisplayName("Task Repository Data REST Test")
 class TaskRepositoryDataRestTest extends BaseTest {
 
   private static final String TASK_NAME = "Task Name";
+
+  @Autowired
+  TaskTypeRepository taskTypeRepository;
 
   @Autowired
   TaskRepository taskRepository;
@@ -46,6 +54,8 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   void init() {
 
+    TaskType basic = taskTypeRepository.findById(1).orElseThrow();
+
     territory = Territory.builder()
       .name("Territorio 1")
       .code("")
@@ -54,6 +64,34 @@ class TaskRepositoryDataRestTest extends BaseTest {
     territoryRepository.save(territory);
     tasks = new ArrayList<>();
 
+    Map<String, Object> container = fixtureProperties();
+
+    task = Task.builder()
+      .name(TASK_NAME)
+      .properties(container)
+      .build();
+    tasks.add(task);
+    Task taskWithAvailabilities = new Task();
+    taskWithAvailabilities.setName("Task with availabilities");
+    tasks.add(taskWithAvailabilities);
+    taskRepository.saveAll(tasks);
+
+    assertNotNull(task.getId());
+    task.setType(basic);
+    taskRepository.save(task);
+    assertEquals(TASK_NAME, task.getName());
+
+    availabilities = new ArrayList<>();
+    TaskAvailability taskAvailability1 = new TaskAvailability();
+    taskAvailability1.setTask(taskWithAvailabilities);
+    taskAvailability1.setTerritory(territory);
+    taskAvailability1.setCreatedDate(new Date());
+    availabilities.add(taskAvailability1);
+    taskAvailabilityRepository.saveAll(availabilities);
+  }
+
+  @NotNull
+  private static Map<String, Object> fixtureProperties() {
     Map<String, Object> string = new HashMap<>();
     string.put("name", "string");
     string.put("type", "string");
@@ -89,7 +127,6 @@ class TaskRepositoryDataRestTest extends BaseTest {
     none.put("type", "null");
     none.put("value", null);
 
-
     List<Map<String, Object>> list = new ArrayList<>();
     list.add(string);
     list.add(number);
@@ -101,24 +138,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
     Map<String, Object> container = new HashMap<>();
     container.put("parameters", list);
-
-    task = Task.builder()
-      .name(TASK_NAME)
-      .properties(container)
-      .build();
-    tasks.add(task);
-    Task taskWithAvailabilities = new Task();
-    taskWithAvailabilities.setName("Task with availabilities");
-    tasks.add(taskWithAvailabilities);
-    taskRepository.saveAll(tasks);
-
-    availabilities = new ArrayList<>();
-    TaskAvailability taskAvailability1 = new TaskAvailability();
-    taskAvailability1.setTask(taskWithAvailabilities);
-    taskAvailability1.setTerritory(territory);
-    taskAvailability1.setCreatedDate(new Date());
-    availabilities.add(taskAvailability1);
-    taskAvailabilityRepository.saveAll(availabilities);
+    return container;
   }
 
   @AfterEach
@@ -132,17 +152,25 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   @DisplayName("Create a new task")
+  @Transactional
   void postTask() throws Exception {
+    Task task = Task.builder()
+      .name(TASK_NAME)
+      .properties(fixtureProperties())
+      .build();
+    
     String location = mvc.perform(post(URIConstants.TASKS_URI)
         .contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(task))
       )
+      .andDo(print())
       .andExpect(status().isCreated())
       .andReturn().getResponse().getHeader("Location");
 
     Assertions.assertThat(location).isNotNull();
 
     mvc.perform(get(location))
+      .andDo(print())
       .andExpect(status().isOk())
       .andExpect(content().contentType(MediaTypes.HAL_JSON))
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
@@ -204,6 +232,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @DisplayName("This endpoint is disabled for anonymous creation")
+  @Transactional
   void postTaskAsPublicUserFails() throws Exception {
     mvc.perform(post(URIConstants.TASKS_URI)
       .contentType(MediaType.APPLICATION_JSON)

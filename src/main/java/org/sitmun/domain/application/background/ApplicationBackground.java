@@ -65,6 +65,7 @@ public class ApplicationBackground {
    */
   @Column(name = "ABC_ORDER", precision = 6)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @Builder.Default
   private Integer order = 0;
 
   @Override

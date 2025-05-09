@@ -83,3 +83,9 @@ sitmun:
         - code-list-name: queryTask.scope
           value: cartography-query
           description: "Cartography Query"
+        - code-list-name: queryTask.parameterType
+          value: template
+          description: "Template parameter"
+        - code-list-name: queryTask.parameterType
+          value: query
+          description: "Query parameter"

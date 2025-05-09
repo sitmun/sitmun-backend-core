@@ -255,7 +255,7 @@ databaseChangeLog:
                   name: TRE_NAME
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 3);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 4);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_TREE_ROL.csv
@@ -516,7 +516,7 @@ databaseChangeLog:
                   name: APP_LOGO
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 5);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 6);
         - loadData:
             encoding: UTF-8
             file: 04_initial_data_dev/STM_APP_TREE.csv

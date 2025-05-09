@@ -36,6 +36,7 @@ public class TaskQueryWebService implements TaskMapper {
     }
     return TaskDto.builder()
       .id("task/" + task.getId())
+      .type("simple")
       .parameters(parameters)
       .url(url)
       .build();

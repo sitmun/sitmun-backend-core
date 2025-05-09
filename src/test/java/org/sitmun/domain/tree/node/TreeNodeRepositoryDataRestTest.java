@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -206,7 +208,6 @@ class TreeNodeRepositoryDataRestTest {
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
-      .andDo(MockMvcResultHandlers.print())
       .andExpect(jsonPath("$.image").value(startsWith("data:image/png;base64,iVBOR")))
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
@@ -236,7 +237,6 @@ class TreeNodeRepositoryDataRestTest {
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
-      .andDo(MockMvcResultHandlers.print())
       .andExpect(jsonPath("$.image").value(startsWith("data:image/jpeg;base64,/9j/4AAQSkZJRg")))
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();

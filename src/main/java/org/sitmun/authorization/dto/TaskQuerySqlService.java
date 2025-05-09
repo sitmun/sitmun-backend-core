@@ -42,6 +42,7 @@ public class TaskQuerySqlService implements TaskMapper {
     // http://localhost:9000/middleware/proxy/19/4/SQL/32286
     return TaskDto.builder()
       .id("task/" + task.getId())
+      .type("simple")
       .parameters(parameters)
       .url(url)
       .build();

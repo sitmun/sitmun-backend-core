@@ -327,7 +327,7 @@ class ApplicationResourceTest {
     mvc.perform(get(URIConstants.APPLICATIONS_URI)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.applications", hasSize(7)));
+      .andExpect(jsonPath("$._embedded.applications", hasSize(8)));
   }
 
 }

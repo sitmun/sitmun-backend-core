@@ -21,6 +21,9 @@ public class TaskDto {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private String url;
 
+  @JsonProperty("type")
+  private String type;
+
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private Map<String, Object> parameters;
 }

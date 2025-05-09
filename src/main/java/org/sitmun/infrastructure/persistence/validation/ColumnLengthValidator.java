@@ -10,6 +10,7 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.persistence.Column;
+import javax.persistence.Lob;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -92,8 +93,9 @@ public class ColumnLengthValidator implements Validator {
      */
     private static @NotNull Consumer<Field> getFieldConsumer(BeanWrapper beanWrapper, String propertyName) {
         return field -> {
+            Lob lob = field.getAnnotation(Lob.class);
             Column column = field.getAnnotation(Column.class);
-            if (column != null && column.length() > 0) {
+            if (lob == null && column != null && column.length() > 0) {
                 String value = (String) beanWrapper.getPropertyValue(propertyName);
                 if (value != null && value.length() > column.length()) {
                     beanWrapper.setPropertyValue(propertyName, value.substring(0, column.length()));
