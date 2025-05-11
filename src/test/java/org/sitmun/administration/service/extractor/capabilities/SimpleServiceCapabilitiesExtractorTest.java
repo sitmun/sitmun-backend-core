@@ -1,6 +1,5 @@
 package org.sitmun.administration.service.extractor.capabilities;
 
-import kotlin.collections.EmptyList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.extractor.HttpClientFactory;

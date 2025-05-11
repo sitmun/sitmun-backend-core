@@ -1,10 +1,7 @@
 package org.sitmun.authorization.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import org.sitmun.authorization.service.Profile;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
@@ -30,7 +27,7 @@ public class TaskQueryWebService implements TaskMapper {
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
       parameters = convertToJsonObject(properties);
-      if (properties.get("command") != null) {;
+      if (properties.get("command") != null) {
         url = properties.get("command").toString();
       }
     }
@@ -44,21 +41,24 @@ public class TaskQueryWebService implements TaskMapper {
 
   @Nullable
   private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
-    Map<String, Object> parameters;
-    parameters = new HashMap<>();
-    //noinspection unchecked
-    List<Map<String, String>> listOfParameters = (List<Map<String, String>>) properties.getOrDefault("parameters", Collections.emptyList());
-    for (Map<String, String> param : listOfParameters) {
-      if (param.containsKey("key")) {
-        String key = param.get("key");
-        HashMap<String, String> values = new HashMap<>(param);
-        values.remove("key");
-        parameters.put(key, values);
+    Map<String, Object> parameters = new HashMap<>();
+    
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> listOfParameters = (List<Map<String, Object>>) properties.getOrDefault("parameters", Collections.emptyList());
+    
+    for (Map<String, Object> param : listOfParameters) {
+      if (param.containsKey("name") && param.containsKey("type") && param.containsKey("mandatory")) {
+        String name = String.valueOf(param.get("name"));
+        String type = String.valueOf(param.get("type"));
+        Boolean mandatory = Boolean.valueOf(String.valueOf(param.get("mandatory")));
+        
+        Map<String, Object> values = new HashMap<>();
+        values.put("type", type);
+        values.put("mandatory", mandatory);
+        parameters.put(name, values);
       }
     }
-    if (parameters.isEmpty()) {
-      return null;
-    }
-    return parameters;
+    
+    return parameters.isEmpty() ? null : parameters;
   }
 }

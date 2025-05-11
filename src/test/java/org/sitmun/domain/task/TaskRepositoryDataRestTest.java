@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.FlushModeType;
 import java.net.URI;
 import java.util.*;
 

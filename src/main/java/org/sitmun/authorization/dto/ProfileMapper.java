@@ -1,10 +1,6 @@
 package org.sitmun.authorization.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mapstruct.*;
 import org.sitmun.authorization.service.Profile;
 import org.sitmun.domain.application.Application;

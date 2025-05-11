@@ -1,13 +1,8 @@
 package org.sitmun.domain.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.Errors;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Component
