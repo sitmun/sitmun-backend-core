@@ -65,6 +65,17 @@ public class UserController {
       .build();
   }
 
+  private static UserDTOLittle userToDtoLittle(User user) {
+    return UserDTOLittle.builder()
+      .id(user.getId())
+      .username(user.getUsername())
+      .firstName(user.getFirstName())
+      .lastName(user.getLastName())
+      .email(user.getEmail())
+      .createdDate(user.getCreatedDate())
+      .build();
+  }
+
   /**
    * Update en existing account.
    *
@@ -110,6 +121,12 @@ public class UserController {
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @GetMapping("/public/{id}")
+  public ResponseEntity<UserDTOLittle> getAccountByIdPublic(@PathVariable Integer id) {
+    Optional<UserDTOLittle> storedUser = userRepository.findById(id).map(UserController::userToDtoLittle);
+    return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
   /**
    * Get all accounts
    */
@@ -125,5 +142,4 @@ public class UserController {
       .collect(Collectors.toList());
     return ResponseEntity.ok(userDTOs);
   }
-
 }

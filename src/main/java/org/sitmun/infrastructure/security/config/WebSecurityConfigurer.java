@@ -133,6 +133,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
       .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
       .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/account/public/**").permitAll()
       .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
       .antMatchers(HttpMethod.GET, "/api/account/all").hasAnyAuthority(SecurityRole.ROLE_ADMIN.name())
       .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
