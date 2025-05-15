@@ -5,6 +5,8 @@ import java.util.Date;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.Map;
+
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 
 @Getter
@@ -22,6 +24,7 @@ public class ApplicationDto {
 
   private String logo;
   private String description;
+  private Map<String, Object> headerParams;
   private String maintenanceInformation;
   private Boolean isUnavailable;
   private Boolean appPrivate;

@@ -20,6 +20,8 @@ import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
+import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
+import org.sitmun.infrastructure.persistence.type.map.Parameters;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -209,6 +211,15 @@ public class Application {
   @Transient
   @JsonView(ClientConfigurationViews.Base.class)
   private List<String> warnings;
+
+  /**
+   * Header params for maps sections.
+   * @param obj
+   */
+  @Column(name = "APP_HEADERPARAMS")
+  @Convert(converter = HashMapConverter.class)
+  @Parameters
+  private Map<String, Object> headerParams;
 
   @Override
   public boolean equals(Object obj) {
