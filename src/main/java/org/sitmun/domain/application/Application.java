@@ -21,7 +21,6 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
-import org.sitmun.infrastructure.persistence.type.map.Parameters;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -218,7 +217,7 @@ public class Application {
    */
   @Column(name = "APP_HEADERPARAMS")
   @Convert(converter = HashMapConverter.class)
-  @Parameters
+  @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Map<String, Object> headerParams;
 
   @Override
