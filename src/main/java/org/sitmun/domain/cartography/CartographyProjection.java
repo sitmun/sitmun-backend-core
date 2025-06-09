@@ -202,4 +202,9 @@ public interface CartographyProjection {
   @Value("#{target.styles.![name]}")
   List<String> getStylesNames();
 
+  @Value("#{target.spatialSelectionConnection?.id}")
+  String getSpatialSelectionConnectionId();
+
+  @Value("#{target.spatialSelectionConnection?.name}")
+  String getSpatialSelectionConnectionName();
 }

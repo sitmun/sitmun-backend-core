@@ -53,6 +53,7 @@ public class CartographyStyleEventHandler {
    * @param cartographyStyle the new or changed cartography style.
    */
   @HandleBeforeSave
+  @Transactional
   public void handleChanges(@NotNull CartographyStyle cartographyStyle) {
     entityManager.detach(cartographyStyle);
     Optional<CartographyStyle> oldStyle = cartographyStyleRepository.findById(cartographyStyle.getId());

@@ -36,13 +36,13 @@ public interface CartographyFilterProjection {
    * Territorial level id.
    */
   @Value("#{target.territorialLevel?.id}")
-  Integer getTerrorialLevelId();
+  Integer getTerritorialLevelId();
 
   /**
    * Territorial level name.
    */
   @Value("#{target.territorialLevel?.name}")
-  String getTerrorialLevelName();
+  String getTerritorialLevelName();
 
   /**
    * Column where the filter applies.

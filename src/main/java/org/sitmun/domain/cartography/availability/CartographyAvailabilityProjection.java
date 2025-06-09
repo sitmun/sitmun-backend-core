@@ -32,7 +32,7 @@ public interface CartographyAvailabilityProjection {
    * Identifier of the territory allowed to access to the cartography.
    */
   @Value("#{target.territory?.id}")
-  String getTerritoryId();
+  Integer getTerritoryId();
 
   /**
    * Geographic code of the territory allowed to access to the cartography.
@@ -45,6 +45,9 @@ public interface CartographyAvailabilityProjection {
    */
   @Value("#{target.territory?.name}")
   String getTerritoryName();
+
+  @Value("#{target.territory?.type?.name}")
+  String getTerritoryType();
 
   /**
    * Identifier of the cartography allowed to access.

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 /**
- * Projections for REST views of tree node.
+ * Projections for REST views of the tree node.
  */
 @Projection(name = "view", types = TreeNode.class)
 public interface TreeNodeProjection {
@@ -28,7 +28,7 @@ public interface TreeNodeProjection {
   String getDescription();
 
   @Value("#{target.type}")
-  String getnodetype();
+  String getNodeType();
 
   @Value("#{target.tooltip}")
   String getTooltip();
@@ -61,7 +61,7 @@ public interface TreeNodeProjection {
   Boolean getFilterSelectable();
 
   /**
-   * If this node is a folder then the cartography and task must be null.
+   * If this node is a folder, then the cartography and task must be null.
    */
   @Value("#{target.cartography == null && target.task == null}")
   Boolean getIsFolder();
@@ -89,6 +89,9 @@ public interface TreeNodeProjection {
    */
   @Value("#{target.task?.id}")
   Integer getTaskId();
+
+  @Value("#{target.tree?.id}")
+  String getTreeId();
 
   /**
    * Tree name projection.
