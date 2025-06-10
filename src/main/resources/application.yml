@@ -47,6 +47,18 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: sch
           description: Schedule
+        - code-list-name: treenode.viewmode
+          value: evtcat
+          description: Events categories
+        - code-list-name: treenode.viewmode
+          value: evt
+          description: Events
+        - code-list-name: treenode.viewmode
+          value: evtloc
+          description: Events locations
+        - code-list-name: treenode.folder.type
+          value: nm
+          description: Near me
         - code-list-name: taskEntity.jsonParamType
           value: string
           description: string

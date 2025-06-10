@@ -50,14 +50,14 @@ public class TaskQuerySqlService implements TaskMapper {
     List<Map<String, Object>> listOfParameters = (List<Map<String, Object>>) properties.getOrDefault("parameters", Collections.emptyList());
     
     for (Map<String, Object> param : listOfParameters) {
-      if (param.containsKey("name") && param.containsKey("type") && param.containsKey("mandatory")) {
+      if (param.containsKey("name") && param.containsKey("type") && param.containsKey("required")) {
         String name = String.valueOf(param.get("name"));
         String type = String.valueOf(param.get("type"));
-        Boolean mandatory = Boolean.valueOf(String.valueOf(param.get("mandatory")));
+        Boolean required = Boolean.valueOf(String.valueOf(param.get("required")));
         
         Map<String, Object> values = new HashMap<>();
         values.put("type", type);
-        values.put("mandatory", mandatory);
+        values.put("required", required);
         parameters.put(name, values);
       }
     }
