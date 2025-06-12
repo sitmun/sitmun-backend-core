@@ -53,7 +53,6 @@ public class TaskQueryCartographyService implements TaskMapper {
       .build();
   }
 
-  @Nullable
   private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
     Map<String, Object> parameters = new HashMap<>();
     
@@ -71,7 +70,7 @@ public class TaskQueryCartographyService implements TaskMapper {
       }
     }
     
-    return parameters.isEmpty() ? null : parameters;
+    return parameters;
   }
 
   private Map<String, Object> getParametersObject(String type, Boolean required, String value) {
