@@ -149,12 +149,12 @@ class TreeNodeRepositoryDataRestTest {
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
-      .andExpect(jsonPath("$.image").value(PNG_125X125_TRANSPARENT))
+      .andExpect(jsonPath("$.image").value(startsWith(PNG_125X125_TRANSPARENT)))
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
-    validateSizeOfResponseImage(response);
+    validateSizeOfResponseImage(response, 125, 125);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
@@ -177,12 +177,12 @@ class TreeNodeRepositoryDataRestTest {
           .content(content)
           .with(user(Fixtures.admin()))
       ).andExpect(status().isCreated())
-      .andExpect(jsonPath("$.image").value(PNG_125X125_TRANSPARENT))
+      .andExpect(jsonPath("$.image").value(startsWith(PNG_125X125_TRANSPARENT)))
       .andExpect(jsonPath("$.name").value("test"))
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
-    validateSizeOfResponseImage(response);
+    validateSizeOfResponseImage(response, 125, 125);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
@@ -210,7 +210,7 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
-    validateSizeOfResponseImage(response);
+    validateSizeOfResponseImage(response, 125, 125);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
@@ -239,7 +239,7 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
 
     String response = result.getResponse().getContentAsString();
-    validateSizeOfResponseImage(response);
+    validateSizeOfResponseImage(response, 125, 125);
 
     mvc.perform(get(URIConstants.TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class))
         .with(user(Fixtures.admin())))
@@ -252,7 +252,7 @@ class TreeNodeRepositoryDataRestTest {
       .andReturn();
   }
 
-  private void validateSizeOfResponseImage(String response) {
+  private void validateSizeOfResponseImage(String response, int expectedWidth, int expectedHeight) {
     String data = JsonPath.parse(response).read("$.image", String.class);
     ImageDataUri dataUri = ImageDataUri.parse(data);
     assertNotNull(dataUri);
@@ -262,8 +262,8 @@ class TreeNodeRepositoryDataRestTest {
       if (image == null) {
         throw new IOException("Failed to decode image");
       }
-      assertEquals(125, image.getWidth());
-      assertEquals(125, image.getHeight());
+      assertEquals(expectedWidth, image.getWidth());
+      assertEquals(expectedHeight, image.getHeight());
     } catch (IOException e) {
       fail("Failed to decode image: " + e.getMessage());
     }

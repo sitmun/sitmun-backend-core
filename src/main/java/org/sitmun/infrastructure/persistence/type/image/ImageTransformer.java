@@ -37,6 +37,7 @@ public class ImageTransformer {
 
     int width = imageScalingProperties.getDefaultWidth();
     int height = imageScalingProperties.getDefaultHeight();
+    log.info("Scaling image {} to {}x{}", image, width, height);
     ImageProperty imgProperty = imageScalingProperties.getImagePropertyByType(type);
 
     if (imgProperty != null) {

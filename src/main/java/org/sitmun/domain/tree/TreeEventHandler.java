@@ -1,5 +1,6 @@
 package org.sitmun.domain.tree;
 
+import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.image.ImageTransformer;
@@ -35,7 +36,7 @@ public class TreeEventHandler {
   @Transactional(rollbackFor = RequirementException.class)
   public void handleTreeApplicationLink(@NotNull Tree tree, Set<Application> ignoredOldLinks) {
     List<Application> apps = List.copyOf(tree.getAvailableApplications());
-    if ("touristic".equals(tree.getType())) {
+    if (DomainConstants.Trees.isTouristicTree(tree)) {
       validateTouristicTree(apps);
     } else {
       validateNoTouristicTree(apps);
@@ -43,9 +44,13 @@ public class TreeEventHandler {
   }
 
   private void validateTouristicTree(List<Application> apps) {
-    if (!(apps.isEmpty() || (apps.size() == 1 && "T".equals(apps.get(0).getType())))) {
-      throw new RequirementException("Touristic tree only can be linked with 0..1 tourist application");
+    if (apps.isEmpty()) {
+      return; // No applications linked, valid case
     }
+    if (apps.size() == 1 && DomainConstants.Applications.isTouristicApplication(apps.get(0))) {
+      return; // Valid case with one touristic application
+    }
+    throw new RequirementException("Touristic tree only can be linked with 0..1 tourist application");
   }
 
   private void validateNoTouristicTree(List<Application> apps) {
@@ -57,15 +62,14 @@ public class TreeEventHandler {
   }
 
   private boolean validAppTrees(Application app) {
-    boolean valid = !"T".equals(app.getType());
-    if (!valid) {
-      valid = validateTouristicApp(app);
+    if (DomainConstants.Applications.isTouristicApplication(app)) {
+      return validateTouristicApp(app);
     }
-    return valid;
+    return true;
   }
 
   private boolean validateTouristicApp(Application app) {
     List<Tree> trees = List.copyOf(app.getTrees());
-    return trees.size() == 1 && "touristic".equals(trees.get(0).getType());
+    return trees.size() == 1 && DomainConstants.Trees.isTouristicTree(trees.get(0));
   }
 }
