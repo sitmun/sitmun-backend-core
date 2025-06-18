@@ -88,12 +88,12 @@ sitmun:
         - png
         - jpg
         - jpeg
-      defaultWidth: 125
-      defaultHeight: 125
+      defaultWidth: 500
+      defaultHeight: 250
       sizes:
         - type: menu
           width: 50
           height: 50
         - type: list
-          width: 25
-          height: 25
+          width: 350
+          height: 350
