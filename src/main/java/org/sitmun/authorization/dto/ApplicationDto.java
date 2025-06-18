@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.Date;
+
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 
 @Getter
@@ -19,8 +21,11 @@ public class ApplicationDto {
   private String situationMap;
   private String logo;
   private String description;
-
-  // The following fields are related to the Territory
+  private String maintenanceInformation;
+  private Boolean isUnavailable;
+  private Boolean appPrivate;
+  private Date lastUpdate;
+  private String creator;
 
   private Integer defaultZoomLevel;
   private PointOfInterestDto pointOfInterest;

@@ -561,6 +561,29 @@ create table STM_USUARIO
   primary key (USU_CODIGO)
 );
 
+CREATE TABLE STM_APP
+(
+  APP_ID       NUMBER(11) NOT NULL,
+  APP_NAME     VARCHAR2(80) NOT NULL,
+  APP_TYPE     VARCHAR2(250),
+  APP_TITLE    VARCHAR2(250),                             -- a mostrar en la interficie
+  APP_THEME    VARCHAR2(30),                              -- tema a aplicar a la interfície. define el css a utilizar.
+  APP_SCALES   VARCHAR2(250),                             -- lista de escalas separadas por comas
+  APP_PROJECT  VARCHAR2(250),                             -- la proyecciona a utilizar en esta aplicacion.
+  APP_TEMPLATE VARCHAR2(250),                             -- el visor jsp a cargar para esta aplicación
+  APP_REFRESH  NUMBER(1) CHECK ("APP_REFRESH" IN (0, 1)), -- indica si la aplicación tiene un boton de "actualizar mapa" o si al activar un layer se actualiza autom.
+  APP_ENTRYS   NUMBER(1) CHECK ("APP_ENTRYS" IN (0, 1)),  -- supramunicipal entrar por padre
+  APP_ENTRYM   NUMBER(1) CHECK ("APP_ENTRYM" IN (0, 1)),  -- supramunicipal entrar por hijo
+  APP_GGIID    NUMBER(11),
+  APP_CREATED  TIMESTAMP(6),
+  APP_LOGO        VARCHAR(4000)
+  APP_MAINTENANCE_INFORMATION VARCHAR2(80),
+  APP_UNAVAILABLE BOOLEAN DEFAULT FALSE NOT NULL,
+  APP_LAST_UPDATE TIMESTAMP(6),
+  APP_CREATOR_ID INTEGER,
+  APP_DESCRIPTION VARCHAR2(250),
+);
+
 create table STM_USUCONF
 (
   UCF_CODIGO numeric(11, 0) not null,
