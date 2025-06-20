@@ -111,7 +111,7 @@ public interface ApplicationProjection {
    * Is the app usable
    */
   @Value("#{target.isUnavailable}")
-  Boolean IsUnavailable();
+  Boolean getIsUnavailable();
 
   /**
    * Last update date
@@ -122,6 +122,6 @@ public interface ApplicationProjection {
   /**
    * Creator ID of the app
    */
-  @Value("#{target.creatorId}")
+  @Value("#{target.creator?.id}")
   Integer getCreatorId();
 }

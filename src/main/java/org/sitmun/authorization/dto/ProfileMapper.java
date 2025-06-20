@@ -14,6 +14,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
+import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,13 @@ public abstract class ProfileMapper {
   private List<TaskMapper> taskMappers;
 
   public abstract ProfileDto map(Profile profile, @Context Application application, @Context Territory territory);
+
+  String map(User user) {
+    if (user == null) {
+      return null;
+    }
+    return user.getUsername();
+  }
 
   /**
    * Maps a Background entity to a BackgroundDto.

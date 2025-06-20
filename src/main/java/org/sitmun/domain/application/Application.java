@@ -12,6 +12,7 @@ import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.Tree;
+import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
@@ -121,31 +122,36 @@ public class Application {
    * {@code False} if an "update map" button is required.
    */
   @Column(name = "APP_REFRESH")
-  private Boolean treeAutoRefresh;
+  @Builder.Default
+  private Boolean treeAutoRefresh = true;
 
   /**
    * Can access a "parent" territory.
    */
   @Column(name = "APP_ENTRYS")
-  private Boolean accessParentTerritory;
+  @Builder.Default
+  private Boolean accessParentTerritory = false;
 
   /**
    * Can access a "children" territory.
    */
   @Column(name = "APP_ENTRYM")
-  private Boolean accessChildrenTerritory;
+  @Builder.Default
+  private Boolean accessChildrenTerritory = false;
 
-  @Column(name = "APP_MAINTENANCE_INFORMATION")
+  @Column(name = "APP_MAINTENANCE_INFORMATION", length = PersistenceConstants.LONG_DESCRIPTION)
   private String maintenanceInformation;
 
   @Column(name = "APP_UNAVAILABLE")
-  private Boolean isUnavailable;
+  @Builder.Default
+  private Boolean isUnavailable = false;
 
   @Column(name = "APP_LAST_UPDATE")
   private Date lastUpdate;
 
-  @Column(name = "APP_CREATOR_ID")
-  private Integer creatorId;
+  @ManyToOne
+  @JoinColumn(name = "APP_CREATORID")
+  private User creator;
 
   /**
    * Situation map when the application is internal.
@@ -229,4 +235,21 @@ public class Application {
     return getClass().hashCode();
   }
 
+/*
+  @PrePersist
+  @PreUpdate
+  public void ensureDefaults() {
+    if (isUnavailable == null) {
+      isUnavailable = false;
+    }
+    if (treeAutoRefresh == null) {
+      treeAutoRefresh = true;
+    }
+    if (accessParentTerritory == null) {
+      accessParentTerritory = false;
+    }
+    if (accessChildrenTerritory == null) {
+      accessChildrenTerritory = false;
+    }
+  } */
 }
