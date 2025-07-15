@@ -27,7 +27,6 @@ public class UserController {
   private final SpringValidatorAdapter springValidator;
 
   private final UserRepository userRepository;
-
   private final ApplicationEventPublisher publisher;
 
   /**
@@ -48,6 +47,7 @@ public class UserController {
     user.setIdentificationType(updatedUser.getIdentificationType());
     user.setAdministrator(updatedUser.getAdministrator());
     user.setBlocked(updatedUser.getBlocked());
+    user.setEmail(updatedUser.getEmail());
     return user;
   }
 
@@ -63,6 +63,7 @@ public class UserController {
       .administrator(user.getAdministrator())
       .blocked(user.getBlocked())
       .email(user.getEmail())
+      .createdDate(user.getCreatedDate())
       .build();
   }
 
@@ -78,7 +79,7 @@ public class UserController {
   }
 
   /**
-   * Update en existing account.
+   * Update an existing account.
    *
    * @param updatedUser account to be updated
    * @return ok if the account has been updated

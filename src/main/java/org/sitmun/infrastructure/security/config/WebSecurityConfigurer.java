@@ -1,6 +1,5 @@
 package org.sitmun.infrastructure.security.config;
 
-import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
@@ -143,6 +142,8 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.PUT, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .antMatchers(HttpMethod.POST, "/api/user-verification/**").hasAuthority(SecurityRole.ROLE_USER.name())
       .antMatchers(HttpMethod.POST, "/api/config/proxy/**").hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
       .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
       .anyRequest().authenticated();

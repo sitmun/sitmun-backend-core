@@ -37,7 +37,7 @@ public class UserDTO {
   private Boolean passwordSet;
 
   /**
-   * User first name.
+   * User's first name.
    */
   private String firstName;
 
@@ -70,4 +70,5 @@ public class UserDTO {
    * Creation date.
    */
   private Date createdDate;
+
 }
