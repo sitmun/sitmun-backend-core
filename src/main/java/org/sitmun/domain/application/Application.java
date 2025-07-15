@@ -19,6 +19,7 @@ import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -147,6 +148,8 @@ public class Application {
   private Boolean isUnavailable = false;
 
   @Column(name = "APP_LAST_UPDATE")
+  @Temporal(TemporalType.TIMESTAMP)
+  @LastModifiedDate
   private Date lastUpdate;
 
   @ManyToOne
@@ -235,21 +238,4 @@ public class Application {
     return getClass().hashCode();
   }
 
-/*
-  @PrePersist
-  @PreUpdate
-  public void ensureDefaults() {
-    if (isUnavailable == null) {
-      isUnavailable = false;
-    }
-    if (treeAutoRefresh == null) {
-      treeAutoRefresh = true;
-    }
-    if (accessParentTerritory == null) {
-      accessParentTerritory = false;
-    }
-    if (accessChildrenTerritory == null) {
-      accessChildrenTerritory = false;
-    }
-  } */
 }
