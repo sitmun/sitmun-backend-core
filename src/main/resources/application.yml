@@ -1,3 +1,17 @@
+# =====================================================================================================================
+# Spring Boot configuration
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+management:
+  health:
+    ldap:
+      enabled: false
+    mail:
+      enabled: false
+
 sitmun:
   startup:
     code-lists:

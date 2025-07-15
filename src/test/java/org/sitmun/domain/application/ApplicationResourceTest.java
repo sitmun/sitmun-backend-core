@@ -56,7 +56,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Log
 @DisplayName("Application Repository Data REST test")
-@Transactional
 class ApplicationResourceTest {
 
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
@@ -99,7 +98,7 @@ class ApplicationResourceTest {
   private MockMvc mvc;
 
   private Integer backAppId;
-  private ArrayList<Tree> trees;
+  private Set<Tree> trees;
   private Set<Service> services;
   private Set<Cartography> cartographies;
   private Set<CartographyAvailability> cartographyAvailabilities;
@@ -113,7 +112,7 @@ class ApplicationResourceTest {
 
   @BeforeEach
   @WithMockUser(roles = "ADMIN")
-  public void init() {
+  void init() {
 
       territory = Territory.builder()
         .name("Territorio 1")
@@ -132,7 +131,7 @@ class ApplicationResourceTest {
       availableRoles.add(publicRole);
 
       //Trees
-      trees = new ArrayList<>();
+      trees = new HashSet<>();
       Tree publicTree = new Tree();
       publicTree.setName(PUBLIC_TREE_NAME);
       trees.add(publicTree);
@@ -141,7 +140,7 @@ class ApplicationResourceTest {
       publicTree.setAvailableRoles(availableRoles);
       treeRepository.save(publicTree);
 
-      Set<Tree> trees = new HashSet<>();
+      trees = new HashSet<>();
       trees.add(publicTree);
 
       //Services
@@ -151,7 +150,6 @@ class ApplicationResourceTest {
         .serviceURL("")
         .blocked(false)
         .build();
-      //publicService.setLayers(cartographies);
 
       services = new HashSet<>();
       services.add(publicService);
@@ -180,7 +178,6 @@ class ApplicationResourceTest {
       cartographyAvailabilities = new HashSet<>();
       cartographyAvailabilities.add(publicCartographyAvailability);
       cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
-      // publicCartographyAvailability = cartographyAvailabilities.iterator().next();
 
       //Tree nodes
       treeNodes = new HashSet<>();
@@ -190,7 +187,6 @@ class ApplicationResourceTest {
       publicTreeNode.setTree(publicTree);
       treeNodes.add(publicTreeNode);
       treeNodeRepository.saveAll(treeNodes);
-      // publicTreeNode = treeNodes.iterator().next();
 
       //Cartography group
       cartographyPermissions = new HashSet<>();
@@ -286,19 +282,19 @@ class ApplicationResourceTest {
 
   @AfterEach
   @WithMockUser(roles = "ADMIN")
-  public void cleanup() {
+  void cleanup() {
       applicationParameters
-        .forEach((item) -> applicationParameterRepository.deleteById(item.getId()));
-      applications.forEach((item) -> applicationRepository.deleteById(item.getId()));
-      backgrounds.forEach((item) -> backgroundRepository.deleteById(item.getId()));
+        .forEach(item -> applicationParameterRepository.deleteById(item.getId()));
+      applications.forEach(item -> applicationRepository.deleteById(item.getId()));
+      backgrounds.forEach(item -> backgroundRepository.deleteById(item.getId()));
       cartographyPermissions
-        .forEach((item) -> cartographyPermissionRepository.deleteById(item.getId()));
+        .forEach(item -> cartographyPermissionRepository.deleteById(item.getId()));
       cartographyAvailabilities
-        .forEach((item) -> cartographyAvailabilityRepository.deleteById(item.getId()));
-      treeNodes.forEach((item) -> treeNodeRepository.deleteById(item.getId()));
-      trees.forEach((item) -> treeRepository.deleteById(item.getId()));
-      cartographies.forEach((item) -> cartographyRepository.deleteById(item.getId()));
-      services.forEach((item) -> serviceRepository.deleteById(item.getId()));
+        .forEach(item -> cartographyAvailabilityRepository.deleteById(item.getId()));
+      treeNodes.forEach(item -> treeNodeRepository.deleteById(item.getId()));
+      trees.forEach(item -> treeRepository.deleteById(item.getId()));
+      cartographies.forEach(item -> cartographyRepository.deleteById(item.getId()));
+      services.forEach(item -> serviceRepository.deleteById(item.getId()));
       territoryRepository.delete(territory);
       roleRepository.delete(publicRole);
   }
@@ -315,7 +311,6 @@ class ApplicationResourceTest {
   @Test
   @DisplayName("GET: information about the layers of an application")
   void getServiceLayersAsPublic() throws Exception {
-    // TODO
     // ok is expected
     mvc.perform(get(URIConstants.SERVICE_LAYERS_URI, 1)
         .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))

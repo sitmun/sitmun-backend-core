@@ -50,6 +50,20 @@ spring:
               action: create
               create-target: create.sql
               create-source: metadata
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    from: "noreply@sitmun.test"
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+        transport:
+          protocol: smtp
 
 
 security:
@@ -57,6 +71,7 @@ security:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
+      token-recovery-password-validity-in-miliseconds: 300000 # 5 minutes
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
 

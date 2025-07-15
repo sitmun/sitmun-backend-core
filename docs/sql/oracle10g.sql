@@ -79,6 +79,30 @@ create table STM_APPARB
   primary key (APA_CODAPP, APA_CODARB)
 );
 
+create table stm_token_user (
+  user_token_id bigserial primary key,
+  user_mail varchar2(50) not null,
+  token_id varchar2(150) NOT NULL,
+  expire_at timestamp
+);
+
+CREATE TABLE STM_USER
+(
+  USE_ID        INTEGER NOT NULL,
+  USE_USER      VARCHAR2(30),
+  USE_PWD       VARCHAR2(128),
+  USE_NAME      VARCHAR2(30),
+  USE_SURNAME   VARCHAR2(40),
+  USE_IDENT     VARCHAR2(20),
+  USE_IDENTTYPE VARCHAR2(3),
+  USE_ADM       BOOLEAN NOT NULL,
+  USE_BLOCKED   BOOLEAN NOT NULL,
+  USE_GENERIC   BOOLEAN,
+  USE_CREATED   TIMESTAMP(6),
+  USE_UPDATED   TIMESTAMP(6),
+  USE_MAIL      VARCHAR2(50) UNIQUE NULL
+);
+
 create table STM_APPFON
 (
   APF_CODIGO number(11, 0) not null,

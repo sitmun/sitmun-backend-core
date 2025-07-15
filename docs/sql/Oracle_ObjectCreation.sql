@@ -193,6 +193,12 @@ ALTER TABLE STM_USER
 ALTER TABLE STM_USER
   ADD CONSTRAINT STM_USE_NAME_UK UNIQUE (USE_USER) USING INDEX TABLESPACE STM3_NDX;
 
+create table stm_token_user (
+  user_token_id bigserial primary key,
+  user_mail varchar2(50) not null,
+  token_id varchar2(150) NOT NULL,
+  expire_at timestamp
+);
 
 --------------------------------------------------
 -- Configuración de usuarios
@@ -440,7 +446,6 @@ PROMPT
 Creando Primary Key on 'STM_APP'
 ALTER TABLE STM_APP
   ADD CONSTRAINT STM_APP_PK PRIMARY KEY (APP_ID) USING INDEX TABLESPACE STM3_NDX;
-
 
 --------------------------------------------------
 PROMPT
