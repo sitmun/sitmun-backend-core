@@ -1,6 +1,4 @@
 package org.sitmun.domain.user.position;
-
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
