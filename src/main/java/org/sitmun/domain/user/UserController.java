@@ -62,6 +62,7 @@ public class UserController {
       .identificationType(user.getIdentificationType())
       .administrator(user.getAdministrator())
       .blocked(user.getBlocked())
+      .email(user.getEmail())
       .build();
   }
 

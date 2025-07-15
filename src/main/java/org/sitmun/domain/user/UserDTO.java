@@ -17,6 +17,11 @@ public class UserDTO {
   private Integer id;
 
   /**
+   * User mail
+   */
+  private String email;
+
+  /**
    * User login.
    */
   private String username;

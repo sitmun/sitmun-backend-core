@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.security.config;
 
+import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
@@ -131,6 +132,9 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .authorizeRequests()
       .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
       .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
+      .antMatchers(HttpMethod.POST, "/api/recover-password").permitAll()
+      .antMatchers(HttpMethod.PUT, "/api/recover-password").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/userTokenValid").permitAll()
       .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
       .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
       .antMatchers(HttpMethod.GET, "/api/account/public/**").permitAll()
