@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
