@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.Date;
 import java.util.Optional;
@@ -34,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "classpath:config/application-test.yml")
 @ActiveProfiles("test")
 @DisplayName("Password Recovery Controller Tests - Test Profile Only (No Mail)")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RecoverPasswordControllerNoMailTest {
 
   @Autowired
@@ -56,7 +60,11 @@ class RecoverPasswordControllerNoMailTest {
   void setUp() {
     // Clean up any existing test data
     userTokenRepository.deleteAll();
-    userRepository.deleteAll();
+    
+    // Only delete test-specific users, preserve admin user
+    userRepository.findByUsername("testuser").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
     // Create test user
     testUser = User.builder()
@@ -92,18 +100,24 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("POST: Send recovery email should fail when mail profile is not active")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailShouldFailWhenMailProfileNotActive() throws Exception {
     checkServiceUnavailable("test@example.com");
   }
 
   @Test
   @DisplayName("POST: Send recovery email with username should fail when mail profile is not active")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithUsernameShouldFailWhenMailProfileNotActive() throws Exception {
     checkServiceUnavailable("testuser");
   }
 
   @Test
   @DisplayName("POST: Send recovery email with invalid login should still return for security")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithInvalidLoginShouldStillReturnSuccessForSecurity() throws Exception {
     checkServiceUnavailable("nonexistent@example.com");
   }
@@ -123,6 +137,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("POST: Send recovery email with empty login should still fail with bad request")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithEmptyLoginShouldFailWithBadRequest() throws Exception {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin("");
@@ -135,6 +151,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("POST: Send recovery email with null login should still fail with bad request")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithNullLoginShouldFailWithBadRequest() throws Exception {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin(null);
@@ -147,6 +165,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with valid token should succeed even without mail profile")
+  @Transactional
+  @Rollback
   void resetPasswordWithValidTokenShouldSucceedEvenWithoutMailProfile() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -170,6 +190,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with expired token should fail with server error")
+  @Transactional
+  @Rollback
   void resetPasswordWithExpiredTokenShouldFailWithServerError() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(expiredToken);
@@ -193,6 +215,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with invalid token should fail with server error")
+  @Transactional
+  @Rollback
   void resetPasswordWithInvalidTokenShouldFailWithServerError() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken("invalid-token");
@@ -212,6 +236,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with empty password should still fail with bad request")
+  @Transactional
+  @Rollback
   void resetPasswordWithEmptyPasswordShouldFailWithBadRequest() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -230,6 +256,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with null password should still fail with bad request")
+  @Transactional
+  @Rollback
   void resetPasswordWithNullPasswordShouldFailWithBadRequest() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -248,6 +276,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with null token should still fail with bad request")
+  @Transactional
+  @Rollback
   void resetPasswordWithNullTokenShouldFailWithBadRequest() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(null);
@@ -266,6 +296,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with very short password should succeed (no validation)")
+  @Transactional
+  @Rollback
   void resetPasswordWithVeryShortPasswordShouldSucceed() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -285,6 +317,8 @@ class RecoverPasswordControllerNoMailTest {
 
   @Test
   @DisplayName("PUT: Reset password with very long password should still fail with bad request")
+  @Transactional
+  @Rollback
   void resetPasswordWithVeryLongPasswordShouldFailWithBadRequest() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);

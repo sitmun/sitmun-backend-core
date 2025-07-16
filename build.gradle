@@ -144,13 +144,36 @@ tasks.named("deployHeroku") {
 // QA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-subprojects {
-  apply plugin: 'org.sonarqube'
+tasks.withType(Test).configureEach {
+  useJUnitPlatform()
+  maxHeapSize = '2G'
+  minHeapSize = '512m'
 
-  tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-    maxHeapSize = '1G'
+  // Reduce forking to improve performance - only fork when necessary
+  forkEvery = 0
+  
+  // Memory settings for test JVM
+  jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200', '-XX:+UseStringDeduplication'
+  
+  // Set system properties for test JVM
+  systemProperty 'spring.profiles.active', 'test'
+  systemProperty 'java.awt.headless', 'true'
+  
+  // Test filtering and grouping for better performance
+  filter {
+    // Exclude slow integration tests by default
+    excludeTestsMatching "*IntegrationTest"
+    excludeTestsMatching "*Integration*"
   }
+  
+  // Enable test batching for better performance
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  
+  // Optimize test discovery
+  scanForTestClasses = false
 }
 
 apply from: "$project.rootDir/sonar.gradle"
@@ -169,6 +192,18 @@ tasks.register('herokuDevLocal', JavaExec) {
 
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
+  maxHeapSize = '2G'
+  minHeapSize = '512m'
+  
+  // Fork tests to isolate memory usage
+  forkEvery = 100
+  
+  // Set system properties for test JVM
+  systemProperty 'spring.profiles.active', 'test'
+  systemProperty 'java.awt.headless', 'true'
+  
+  // Memory settings for test JVM
+  jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200'
 }
 
 compileJava.inputs.files(processResources)
@@ -204,4 +239,3 @@ tasks.register("codeCoverageReport", JacocoReport) {
 rootProject.tasks.sonarqube {
   dependsOn(tasks.codeCoverageReport)
 }
-

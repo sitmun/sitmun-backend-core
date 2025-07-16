@@ -19,6 +19,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.Date;
 import java.util.Optional;
@@ -36,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(MockMailConfig.class)
 @ActiveProfiles({"test", "mail"})
 @DisplayName("Password Recovery Controller Tests")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RecoverPasswordControllerTest {
 
   @Autowired
@@ -58,7 +62,11 @@ class RecoverPasswordControllerTest {
   void setUp() {
     // Clean up any existing test data
     userTokenRepository.deleteAll();
-    userRepository.deleteAll();
+    
+    // Only delete test-specific users, preserve admin user
+    userRepository.findByUsername("testuser").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
     // Create test user
     testUser = User.builder()
@@ -94,18 +102,24 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("POST: Send recovery email with valid email")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithValidEmail() throws Exception {
     checkService("test@example.com", 3);
   }
 
   @Test
   @DisplayName("POST: Send recovery email with valid username")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithValidUsername() throws Exception {
     checkService("testuser", 3);
   }
 
   @Test
   @DisplayName("POST: Send recovery email with invalid login")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithInvalidLogin() throws Exception {
     checkService("nonexistent@example.com", 2);
   }
@@ -125,6 +139,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("POST: Send recovery email with empty login")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithEmptyLogin() throws Exception {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin("");
@@ -137,6 +153,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("POST: Send recovery email with null login")
+  @Transactional
+  @Rollback
   void sendRecoveryEmailWithNullLogin() throws Exception {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin(null);
@@ -149,6 +167,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with valid token")
+  @Transactional
+  @Rollback
   void resetPasswordWithValidToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -172,6 +192,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with expired token")
+  @Transactional
+  @Rollback
   void resetPasswordWithExpiredToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(expiredToken);
@@ -192,6 +214,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with invalid token")
+  @Transactional
+  @Rollback
   void resetPasswordWithInvalidToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken("invalid-token");
@@ -212,6 +236,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with empty password")
+  @Transactional
+  @Rollback
   void resetPasswordWithEmptyPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -231,6 +257,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with null password")
+  @Transactional
+  @Rollback
   void resetPasswordWithNullPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -244,6 +272,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with null token")
+  @Transactional
+  @Rollback
   void resetPasswordWithNullToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(null);
@@ -257,6 +287,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with very short password")
+  @Transactional
+  @Rollback
   void resetPasswordWithVeryShortPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);
@@ -276,6 +308,8 @@ class RecoverPasswordControllerTest {
 
   @Test
   @DisplayName("PUT: Reset password with very long password")
+  @Transactional
+  @Rollback
   void resetPasswordWithVeryLongPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setToken(validToken);

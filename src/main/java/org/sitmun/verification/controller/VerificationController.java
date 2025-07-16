@@ -41,6 +41,7 @@ public class VerificationController {
       response = new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
     }
     catch (BadCredentialsException e){
+      log.warn("Invalid credentials for user {}: {}", body.getUsername(), e.getMessage());
       response = new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
     return response;
@@ -49,10 +50,9 @@ public class VerificationController {
    * Verify is this email is already used
    */
   @PostMapping("/verify-email")
-  @SecurityRequirements
-  public ResponseEntity<Boolean> verifyEmail(@Valid @RequestBody String email) {
-    boolean emailAlreadyTaken;
-    emailAlreadyTaken = this.userRepository.findByEmail(email.toLowerCase()).isPresent();
+  public ResponseEntity<Boolean> verifyEmail(@RequestBody(required = false) String email) {
+    if (email == null) ResponseEntity.ok(true);
+    boolean emailAlreadyTaken = userRepository.findByEmail(email).isPresent();
     return ResponseEntity.ok(emailAlreadyTaken);
   }
 }
