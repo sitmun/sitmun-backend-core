@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ class UserResourceIntegrationTest {
 
 
   @Test
-  @DisplayName("Create new user and delete")
+  @DisplayName("POST: Create new user and delete")
   void createNewUserAndDelete() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
@@ -94,15 +95,16 @@ class UserResourceIntegrationTest {
         new HttpEntity<>(headers), String.class);
     assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
+    URI location = createdUser.getHeaders().getLocation();
+    final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
     HttpClientErrorException thrown = assertThrows(HttpClientErrorException.class, () ->
-      restTemplate.exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET,
-        new HttpEntity<>(headers), User.class)
+      restTemplate.exchange(location, HttpMethod.GET, entityHeaders, User.class)
     );
     assertThat(thrown.getRawStatusCode()).isEqualTo(404);
   }
 
   @Test
-  @DisplayName("Create new user without login")
+  @DisplayName("POST: Create new user without login")
   void cannotPostWithoutLogin() {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
@@ -111,7 +113,7 @@ class UserResourceIntegrationTest {
   }
 
   @Test
-  @DisplayName("Get all users")
+  @DisplayName("GET: Get all users")
   void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));

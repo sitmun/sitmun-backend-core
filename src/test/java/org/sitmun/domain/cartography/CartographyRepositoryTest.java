@@ -34,7 +34,7 @@ class CartographyRepositoryTest {
   private RoleRepository roleRepository;
 
   @Test
-  @DisplayName("Save a Cartography")
+  @DisplayName("Save a new cartography to database")
   void saveCartography() {
     Cartography cartography = cartographyBuilder().build();
     Assertions.assertThat(cartography.getId()).isNull();
@@ -43,7 +43,7 @@ class CartographyRepositoryTest {
   }
 
   @Test
-  @DisplayName("Find a Cartography by id")
+  @DisplayName("Find a cartography by its ID")
   void findOneCartographyById() {
     Cartography cartography = cartographyBuilder().build();
     Assertions.assertThat(cartography.getId()).isNull();

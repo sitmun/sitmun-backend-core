@@ -2,6 +2,7 @@ package org.sitmun.domain.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.test.URIConstants;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("User Controller Test")
 class UserControllerTest {
 
   private static final String USER_USERNAME = "user";
@@ -74,6 +76,7 @@ class UserControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Read user account with valid token")
   void readAccount() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
@@ -84,12 +87,14 @@ class UserControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Read user account without token should fail")
   void readAccountWithoutToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI))
       .andExpect(status().isUnauthorized());
   }
 
   @Test
+  @DisplayName("GET: Read user account with expired token should fail")
   void readAccountWithExpiredToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI)
       .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken)
@@ -97,6 +102,7 @@ class UserControllerTest {
   }
 
   @Test
+  @DisplayName("PUT: Update account but keep the password")
   void updateAccountButKeepThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
@@ -128,6 +134,7 @@ class UserControllerTest {
   }
 
   @Test
+  @DisplayName("PUT: Update account and clear the password")
   void updateAccountButClearThePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +

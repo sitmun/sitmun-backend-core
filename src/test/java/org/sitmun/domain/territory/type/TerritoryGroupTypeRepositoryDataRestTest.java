@@ -33,7 +33,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
   private TerritoryGroupTypeRepository repository;
 
   @Test
-  @DisplayName("Must not be null")
+  @DisplayName("POST: Must not be null")
   void mustNotBeNull() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI + "?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
@@ -45,7 +45,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Must not be blank")
+  @DisplayName("POST: Must not be blank")
   void mustNotBeBlank() throws Exception {
     mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI + "?lang=EN")
         .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +57,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Group can be created and deleted")
+  @DisplayName("POST/DELETE: Group can be created and deleted")
   void groupCanBeCreatedAndDeleted() throws Exception {
     long count = repository.count();
     MvcResult result = mvc.perform(post(URIConstants.TERRITORY_GROUP_TYPES_URI)

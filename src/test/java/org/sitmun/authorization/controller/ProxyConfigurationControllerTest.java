@@ -54,7 +54,7 @@ class ProxyConfigurationControllerTest {
    * Test a proxy configuration service for database connection with public user
    */
   @Test
-  @DisplayName("Get database connection details with public user")
+  @DisplayName("POST: Get database connection details with public user")
   void readConnectionPublicUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
       .appId(1).terId(1).type("SQL").typeId(23).method("GET").build();
@@ -73,7 +73,7 @@ class ProxyConfigurationControllerTest {
    * Test a proxy configuration service for database connection with user token
    */
   @Test
-  @DisplayName("Get database connection details with user with token")
+  @DisplayName("POST: Get database connection details with user with token")
   void readConnectionOtherUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
       .appId(1).terId(1).type("SQL").typeId(23).method("GET").token(getUserToken()).build();
@@ -92,7 +92,7 @@ class ProxyConfigurationControllerTest {
    * Test a proxy configuration service for service with public user
    */
   @Test
-  @DisplayName("Get WMTS web service details with user with token")
+  @DisplayName("POST: Get WMTS web service details with user with token")
   void readServicePublicUser() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
       .appId(1).terId(1).type("WMTS").typeId(1)
@@ -115,7 +115,7 @@ class ProxyConfigurationControllerTest {
    * proxy key
    */
   @Test
-  @DisplayName("Unauthorized request returns 401")
+  @DisplayName("POST: Unauthorized request returns 401")
   void proxyUnauthorized() throws Exception {
 
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
@@ -133,7 +133,7 @@ class ProxyConfigurationControllerTest {
    * Test a proxy configuration service for database connection with pagination
    */
   @Test
-  @DisplayName("Get database query with pagination")
+  @DisplayName("POST: Get database query with pagination")
   void readConnectionWithPagination() throws Exception {
     HashMap<String, String> parameters = new HashMap<>();
     parameters.put("OFFSET", "100");
@@ -153,7 +153,7 @@ class ProxyConfigurationControllerTest {
   }
 
   @Test
-  @DisplayName("Get database query with context filters (USER_ID, TERR_ID, APP_ID and TERR_COD)")
+  @DisplayName("POST: Get database query with context filters (USER_ID, TERR_ID, APP_ID and TERR_COD)")
   void readConnectionWithFixedFilters() throws Exception {
     ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
       .appId(1).terId(1).type("SQL").typeId(28)
@@ -171,7 +171,7 @@ class ProxyConfigurationControllerTest {
   }
 
   @Test
-  @DisplayName("Get database query with client filters")
+  @DisplayName("POST: Get database query with client filters")
   void readConnectionWithVaryFilters() throws Exception {
     HashMap<String, String> parameters = new HashMap<>();
     parameters.put("columnA", "123");
@@ -191,7 +191,7 @@ class ProxyConfigurationControllerTest {
   }
 
   @Test
-  @DisplayName("Get database query with context and client filters")
+  @DisplayName("POST: Get database query with context and client filters")
   void readConnectionWithFixedAndVaryFilters() throws Exception {
     HashMap<String, String> parameters = new HashMap<>();
     parameters.put("columnA", "123");

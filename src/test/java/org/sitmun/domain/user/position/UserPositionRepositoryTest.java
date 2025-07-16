@@ -2,6 +2,7 @@ package org.sitmun.domain.user.position;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
@@ -21,6 +22,7 @@ import java.util.Date;
 
 
 @DataJpaTest
+@DisplayName("User Position Repository JPA Test")
 class UserPositionRepositoryTest {
 
   @Autowired
@@ -65,6 +67,7 @@ class UserPositionRepositoryTest {
   }
 
   @Test
+  @DisplayName("Save a new user position to database")
   void saveUserPosition() {
     Assertions.assertThat(userPosition.getId()).isNull();
     userPositionRepository.save(userPosition);
@@ -72,6 +75,7 @@ class UserPositionRepositoryTest {
   }
 
   @Test
+  @DisplayName("Find a user position by its ID")
   void findOneUserPositionById() {
     Assertions.assertThat(userPosition.getId()).isNull();
     userPositionRepository.save(userPosition);

@@ -66,7 +66,7 @@ class AuthenticationControllerLdapEnabledTest {
   }
 
   @Test
-  @DisplayName("A user that fails in LDAP and exists in SITMUN, must pass.")
+  @DisplayName("POST: A user that fails in LDAP and exists in SITMUN, must pass.")
   void ldapFailureUserDetailsSuccessfulLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
@@ -80,7 +80,7 @@ class AuthenticationControllerLdapEnabledTest {
   }
 
   @Test
-  @DisplayName("A user that exists in LDAP and exists in SITMUN, must pass.")
+  @DisplayName("POST: A user that exists in LDAP and exists in SITMUN, must pass.")
   void successfulLdapLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("internal");
@@ -94,7 +94,7 @@ class AuthenticationControllerLdapEnabledTest {
   }
 
   @Test
-  @DisplayName("A user that exists in LDAP and does not exist in SITMUN, must fail.")
+  @DisplayName("POST: A user that exists in LDAP and does not exist in SITMUN, must fail.")
   void successfulLdapLoginNoExistsSitmun() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("nositmunuser");

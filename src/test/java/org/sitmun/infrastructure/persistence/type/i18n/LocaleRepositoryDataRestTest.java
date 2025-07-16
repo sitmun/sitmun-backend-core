@@ -15,14 +15,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("Locale Repository Data Rest Test")
+@DisplayName("Locale Repository Data REST test")
 class LocaleRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Obtain original version")
+  @DisplayName("GET: Obtain original version")
   void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI))
       .andExpect(status().isOk())
@@ -30,7 +30,7 @@ class LocaleRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Obtain translated version Spa")
+  @DisplayName("GET: Obtain translated version Spa")
   void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI + "?lang=es"))
       .andExpect(status().isOk())

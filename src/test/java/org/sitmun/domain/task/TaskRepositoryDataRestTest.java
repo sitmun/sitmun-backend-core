@@ -21,9 +21,11 @@ import java.net.URI;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.sitmun.test.TestUtils.asJsonString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -143,24 +145,35 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @AfterEach
   @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    taskAvailabilityRepository.deleteAll(availabilities);
-    taskRepository.deleteAll(tasks);
-    territoryRepository.delete(territory);
+    // Clean up availabilities first (child entities)
+    if (availabilities != null && !availabilities.isEmpty()) {
+      taskAvailabilityRepository.deleteAll(availabilities);
+    }
+
+    // Clean up tasks
+    if (tasks != null && !tasks.isEmpty()) {
+      taskRepository.deleteAll(tasks);
+    }
+
+    // Clean up territory last (parent entity)
+    if (territory != null && territory.getId() != null) {
+      territoryRepository.delete(territory);
+    }
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Create a new task")
+  @DisplayName("POST: Create a new task")
   @Transactional
   void postTask() throws Exception {
-    Task task = Task.builder()
+    Task newTask = Task.builder()
       .name(TASK_NAME)
       .properties(fixtureProperties())
       .build();
-    
+
     String location = mvc.perform(post(URIConstants.TASKS_URI)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(task))
+        .content(asJsonString(newTask))
       )
       .andDo(print())
       .andExpect(status().isCreated())
@@ -175,14 +188,14 @@ class TaskRepositoryDataRestTest extends BaseTest {
       .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
       .andExpect(jsonPath("$.properties.parameters[0].name", equalTo("string")));
 
-      String[] paths = URI.create(location).getPath().split("/");
-      Integer id = Integer.parseInt(paths[paths.length - 1]);
-      taskRepository.findById(id).ifPresent((it) -> tasks.add(it));
+    String[] paths = URI.create(location).getPath().split("/");
+    Integer id = Integer.parseInt(paths[paths.length - 1]);
+    taskRepository.findById(id).ifPresent(it -> tasks.add(it));
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Get tasks per application")
+  @DisplayName("GET: Get tasks per application")
   void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
       .andExpect(status().isOk())
@@ -194,7 +207,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("This endpoint is disabled for anonymous access")
+  @DisplayName("GET: This endpoint is disabled for anonymous access")
   void getTasksAsPublic() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI))
       .andExpect(status().isUnauthorized());
@@ -202,7 +215,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("This endpoint is enabled for ROLE_ADMIN")
+  @DisplayName("GET: This endpoint is enabled for ROLE_ADMIN")
   void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
       .andExpect(status().isOk())
@@ -211,7 +224,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Access enabled to the cartography of a task")
+  @DisplayName("GET: Access enabled to the cartography of a task")
   @Disabled("Requires additional test data")
   void getCartographyView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_CARTOGRAPHY_VIEW, 1))
@@ -221,7 +234,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Tasks can be filtered")
+  @DisplayName("GET: Tasks can be filtered")
   @Disabled("Requires additional test data")
   void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
@@ -230,7 +243,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("This endpoint is disabled for anonymous creation")
+  @DisplayName("POST: This endpoint is disabled for anonymous creation")
   @Transactional
   void postTaskAsPublicUserFails() throws Exception {
     mvc.perform(post(URIConstants.TASKS_URI)
@@ -241,7 +254,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Access enabled to the roles of a task")
+  @DisplayName("GET: Access enabled to the roles of a task")
   void getRolesOfATask() throws Exception {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
       .andExpect(status().isOk())

@@ -138,7 +138,7 @@ class TreeNodeResourceTest {
     roleRepository.deleteAll(availableRoles);
   }
 
-  @DisplayName("Tree nodes cannot be created with non existent styles")
+  @DisplayName("POST: Tree nodes cannot be created with non existent styles")
   @Disabled("Requires additional test data")
   @Test
   void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
@@ -154,7 +154,7 @@ class TreeNodeResourceTest {
       .andExpect(jsonPath("$.message").value("Tree node style not found in the tree node cartography's styles"));
   }
 
-  @DisplayName("Tree nodes styles require a cartography")
+  @DisplayName("POST: Tree nodes styles require a cartography")
   @Test
   void nodesStylesRequireCartography() throws Exception {
     TreeNode node = nodes.get(0);
@@ -169,11 +169,11 @@ class TreeNodeResourceTest {
   }
 
   @Test
-  @DisplayName("Find nodes based on a list of trees")
+  @DisplayName("GET: Find nodes based on a list of trees")
   void findNodesBasedOnTreeList() {
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
     List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
-    List<TreeNode> nodes = treeNodeRepository.findByTrees(tr);
-    assertThat(nodes).hasSize(9);
+    List<TreeNode> nodesFound = treeNodeRepository.findByTrees(tr);
+    assertThat(nodesFound).hasSize(9);
   }
 }

@@ -29,8 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class TerritoryRepositoryDataRestTest {
 
   @Autowired
-  TerritoryRepository territoryRepository;
-  @Autowired
   private MockMvc mvc;
 
   private MockHttpServletResponse response;
@@ -83,7 +81,7 @@ class TerritoryRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("GET: cannot access a public")
+  @DisplayName("POST: cannot access as public")
   void createTerritoriesAsPublicFails() throws Exception {
     mvc.perform(post(URIConstants.TERRITORIES_URI)
       .contentType(MediaType.APPLICATION_JSON)

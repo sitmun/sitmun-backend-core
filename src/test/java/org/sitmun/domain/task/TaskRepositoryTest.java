@@ -21,8 +21,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @DataJpaTest
+@DisplayName("Task Repository JPA Test")
 class TaskRepositoryTest {
 
   @Autowired
@@ -44,6 +44,7 @@ class TaskRepositoryTest {
   }
 
   @Test
+  @DisplayName("Save a new task to database")
   void saveTask() {
     Assertions.assertThat(task.getId()).isNull();
     taskRepository.save(task);
@@ -51,7 +52,8 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void findOneTaskById() {
+  @DisplayName("Find a task by its ID")
+  void findTaskById() {
     Assertions.assertThat(task.getId()).isNull();
     taskRepository.save(task);
     Assertions.assertThat(task.getId()).isNotZero();
@@ -60,7 +62,7 @@ class TaskRepositoryTest {
   }
 
   @Test
-  @DisplayName("Find tasks by roles and territory")
+  @DisplayName("Find tasks filtered by roles and territory")
   void findTasksByRolesAndTerritory() {
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
     List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
@@ -76,5 +78,4 @@ class TaskRepositoryTest {
       return new SyncTaskExecutor();
     }
   }
-
 }

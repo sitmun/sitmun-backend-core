@@ -3,6 +3,7 @@ package org.sitmun.domain.user.position;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Transactional(rollbackFor = Exception.class)
 @Rollback
+@DisplayName("User Position Repository Data REST Test")
 class UserPositionRepositoryDataRestTest {
 
   @Autowired
@@ -130,6 +132,7 @@ class UserPositionRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: Create user position when user configuration is created via REST")
   void shouldCreateUserPositionWhenUserConfigurationIsCreatedViaRest() throws Exception {
     // Ensure no UserPosition exists initially
     Optional<UserPosition> existingPosition = userPositionRepository.findByUserAndTerritory(user, territory);
@@ -155,6 +158,7 @@ class UserPositionRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: Prevent duplicate user position when user configuration is updated via REST")
   void shouldNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest() throws Exception {
     // Create a UserPosition manually first
     UserPosition existingPosition = UserPosition.builder()

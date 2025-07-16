@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
+@DisplayName("Tree Repository JPA Test")
 class TreeRepositoryTest {
 
   @Autowired
@@ -40,6 +41,7 @@ class TreeRepositoryTest {
   }
 
   @Test
+  @DisplayName("Save a new tree to database")
   void saveTerritory() {
     Assertions.assertThat(tree.getId()).isNull();
     treeRepository.save(tree);
@@ -47,6 +49,7 @@ class TreeRepositoryTest {
   }
 
   @Test
+  @DisplayName("Find a tree by its ID")
   void findOneTerritoryById() {
     Assertions.assertThat(tree.getId()).isNull();
     treeRepository.save(tree);

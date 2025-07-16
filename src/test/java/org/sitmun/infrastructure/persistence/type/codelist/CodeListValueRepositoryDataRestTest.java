@@ -29,8 +29,8 @@ class CodeListValueRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Check availability of databaseConnection.driver")
-  void obtainDrivers() throws Exception {
+  @DisplayName("GET: Check availability of databaseConnection.driver")
+  void checkDatabaseConnectionDriverAvailability() throws Exception {
     mvc.perform(get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
         .with(user(Fixtures.admin())))
       .andExpect(status().isOk())

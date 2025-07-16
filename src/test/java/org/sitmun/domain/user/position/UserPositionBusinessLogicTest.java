@@ -3,6 +3,7 @@ package org.sitmun.domain.user.position;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
@@ -30,6 +31,7 @@ import java.util.Optional;
 @DataJpaTest
 @Import({UserPositionBusinessLogic.class, LiquibaseConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DisplayName("User Position Business Logic JPA Test")
 class UserPositionBusinessLogicTest {
 
   @Autowired
@@ -116,7 +118,8 @@ class UserPositionBusinessLogicTest {
   }
 
   @Test
-  void shouldCreateUserPositionWhenUserConfigurationIsProvided() {
+  @DisplayName("Create user position when user configuration is provided")
+  void createUserPositionWithUserConfiguration() {
     userPositionRepository.findByUserAndTerritory(user, territory).ifPresent(userPositionRepository::delete);
     Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory)).isEmpty();
 
@@ -134,7 +137,8 @@ class UserPositionBusinessLogicTest {
   }
 
   @Test
-  void shouldNotCreateDuplicateUserPosition() {
+  @DisplayName("Prevent duplicate user position creation")
+  void preventDuplicateUserPositionCreation() {
     // Create a UserPosition manually first
     UserPosition existingPosition = UserPosition.builder()
       .user(user)
@@ -157,7 +161,8 @@ class UserPositionBusinessLogicTest {
   }
 
   @Test
-  void shouldHandleNullUserGracefully() {
+  @DisplayName("Handle null user gracefully without throwing exception")
+  void handleNullUserGracefully() {
     UserConfiguration configWithNullUser = UserConfiguration.builder()
       .user(null)
       .territory(territory)
@@ -170,7 +175,8 @@ class UserPositionBusinessLogicTest {
   }
 
   @Test
-  void shouldHandleNullTerritoryGracefully() {
+  @DisplayName("Handle null territory gracefully without throwing exception")
+  void handleNullTerritoryGracefully() {
     UserConfiguration configWithNullTerritory = UserConfiguration.builder()
       .user(user)
       .territory(null)

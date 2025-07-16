@@ -1,11 +1,13 @@
 package org.sitmun.administration.service.database.tester;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.database.DatabaseConnection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Database Connection Tester Service Test")
 class DatabaseConnectionTesterServiceTest {
 
   private DatabaseConnectionTesterService sut;
@@ -16,12 +18,14 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  @DisplayName("Test driver with valid driver class")
   void testDriver() {
     DatabaseConnection connection = DatabaseConnection.builder().driver("org.h2.Driver").build();
     assertTrue(sut.testDriver(connection));
   }
 
   @Test
+  @DisplayName("Test driver with invalid driver class should throw exception")
   void testDriverException() {
     DatabaseConnection connection = DatabaseConnection.builder().driver("org.h2.DriverX").build();
     DatabaseConnectionDriverNotFoundException exception = assertThrows(DatabaseConnectionDriverNotFoundException.class, () -> sut.testDriver(connection));
@@ -29,6 +33,7 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  @DisplayName("Test driver with null driver should throw exception")
   void testNullDriverException() {
     DatabaseConnection connection = DatabaseConnection.builder().driver(null).build();
     DatabaseConnectionDriverNotFoundException exception = assertThrows(DatabaseConnectionDriverNotFoundException.class, () -> sut.testDriver(connection));
@@ -36,6 +41,7 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  @DisplayName("Test connection with valid parameters")
   void testConnection() {
     DatabaseConnection connection = DatabaseConnection.builder()
       .driver("org.h2.Driver")
@@ -48,6 +54,7 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  @DisplayName("Test connection with invalid URL should throw exception")
   void testConnectionException() {
     DatabaseConnection connection = DatabaseConnection.builder()
       .driver("org.h2.Driver")

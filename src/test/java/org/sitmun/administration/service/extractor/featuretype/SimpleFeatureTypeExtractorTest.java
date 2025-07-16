@@ -9,7 +9,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("SimpleServiceCapabilitiesExtractor test")
+@DisplayName("Simple Feature Type Extractor test")
 class SimpleFeatureTypeExtractorTest {
 
   private final HttpClientFactory factory = new HttpClientFactory(List.of("*"));

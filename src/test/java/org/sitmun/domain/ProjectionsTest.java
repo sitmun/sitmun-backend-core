@@ -16,19 +16,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
-
-@DisplayName("Projections test")
+@DisplayName("Data Projections Integration Test")
 class ProjectionsTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  @DisplayName("TaskAvailability view")
-  void taskAvailabilityProjectionView() throws Exception {
+  @DisplayName("GET: Retrieve task availability projection with territory and task details")
+  void taskAvailabilityProjection() throws Exception {
     mvc.perform(get(URIConstants.TASK_AVAILABILITY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
       ).andExpect(status().isOk())
@@ -39,7 +37,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Cartography view")
+  @DisplayName("GET: Retrieve cartography projection with service information")
   void cartographyProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
         .with(user(Fixtures.admin()))
@@ -52,7 +50,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Cartography view - styles")
+  @DisplayName("GET: Retrieve cartography projection with style names")
   void cartographyProjectionStylesView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
         .with(user(Fixtures.admin()))
@@ -64,7 +62,7 @@ class ProjectionsTest {
 
   @Test
   @Disabled("Requires additional test data")
-  @DisplayName("CartographyAvailability view")
+  @DisplayName("GET: Retrieve cartography availability projection with detailed information")
   void cartographyAvailabiltiesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
@@ -77,7 +75,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Territory view")
+  @DisplayName("GET: Retrieve territory projection with extent and type information")
   void territoryProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TERRITORY_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin())))
@@ -92,7 +90,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("ApplicationBackground view")
+  @DisplayName("GET: Retrieve application background projection with background details")
   void applicationBackgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_BACKGROUND_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
@@ -104,7 +102,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("UserPosition view")
+  @DisplayName("GET: Retrieve user position projection with territory and user information")
   void userPositionProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_POSITION_PROJECTION_VIEW, 6)
         .with(user(Fixtures.admin())))
@@ -115,7 +113,7 @@ class ProjectionsTest {
 
   @Test
   @Disabled("Requires additional test data")
-  @DisplayName("UserConfiguration view")
+  @DisplayName("GET: Retrieve user configuration projection with filtered results")
   void userConfigurationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41")
         .with(user(Fixtures.admin())))
@@ -141,7 +139,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Backgrounds view")
+  @DisplayName("GET: Retrieve backgrounds projection with cartography group information")
   void backgroundProjectionView() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUNDS_URI_PROJECTION_VIEW)
         .with(user(Fixtures.admin())))
@@ -151,7 +149,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Application view")
+  @DisplayName("GET: Retrieve application projection with situation map information")
   void applicationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.APPLICATION_PROJECTION_VIEW, 1)
         .with(user(Fixtures.admin()))
@@ -161,7 +159,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Tasks view")
+  @DisplayName("GET: Retrieve tasks projection with group and type information")
   void tasksProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 2)
         .with(user(Fixtures.admin())))
@@ -181,7 +179,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Tree Nodes view")
+  @DisplayName("GET: Retrieve tree nodes projection with folder and leaf information")
   void treeNodesProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
@@ -199,7 +197,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Translations view")
+  @DisplayName("GET: Retrieve translations projection with language information")
   void translationProjectionView() throws Exception {
     mvc.perform(get(URIConstants.TRANSLATION_URI_PROJECTION, 301001)
         .with(user(Fixtures.admin())))
@@ -213,7 +211,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Permissions projection view through cartography")
+  @DisplayName("GET: Retrieve permissions projection through cartography")
   void permissionsProjectionView() throws Exception {
     mvc.perform(get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
@@ -226,7 +224,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Permissions projection view through background")
+  @DisplayName("GET: Retrieve permissions projection through background")
   void permissionsProjectionView2() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 1)
         .with(user(Fixtures.admin())))
@@ -236,7 +234,7 @@ class ProjectionsTest {
   }
 
   @Test
-  @DisplayName("Permissions projection view type")
+  @DisplayName("GET: Retrieve permissions projection type information")
   void permissionsProjectionType() throws Exception {
     mvc.perform(get(URIConstants.BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 1)
         .with(user(Fixtures.admin())))

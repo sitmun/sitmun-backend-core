@@ -22,7 +22,7 @@ class LocaleClientConfigurationTest {
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Obtain original client profile")
+  @DisplayName("GET: Obtain original client profile")
   void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -30,7 +30,7 @@ class LocaleClientConfigurationTest {
   }
 
   @Test
-  @DisplayName("Obtain client profile in Spanish")
+  @DisplayName("GET: Obtain client profile in Spanish")
   void obtainOriginalClientProfile() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI  + "?lang=es", 1, 1))
       .andExpect(status().isOk())

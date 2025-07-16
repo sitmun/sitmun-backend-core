@@ -39,7 +39,7 @@ class TreeNodeRepositoryDataRestTest {
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Retrieve tree name from node")
+  @DisplayName("GET: Retrieve tree name from node")
   void retrieveTreeName() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
@@ -48,7 +48,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Retrieve folder")
+  @DisplayName("GET: Retrieve folder")
   void retrieveFolder() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 1)
         .with(user(Fixtures.admin())))
@@ -60,7 +60,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Retrieve leaf")
+  @DisplayName("GET: Retrieve leaf")
   void retrieveLeaf() throws Exception {
     mvc.perform(get(URIConstants.TREE_NODE_URI_PROJECTION, 3)
         .with(user(Fixtures.admin())))
@@ -72,7 +72,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("Retrieve nodes from tree")
+  @DisplayName("GET: Retrieve nodes from tree")
   void retrieveNodesFromTree() throws Exception {
     mvc.perform(get(URIConstants.TREE_ALL_NODES_URI, 1)
         .with(user(Fixtures.admin())))
@@ -83,7 +83,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes can be posted")
+  @DisplayName("POST: New nodes can be posted")
   void newTreeNodesCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\"}";
 
@@ -110,7 +110,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with parent can be posted")
+  @DisplayName("POST: New nodes with parent can be posted")
   void newTreeNodesWithParentCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\",\"parent\":\"http://localhost/api/tree-nodes/1\"}";
 
@@ -140,7 +140,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with image data can be posted and resized")
+  @DisplayName("POST: New nodes with image data can be posted and resized")
   void newTreeNodesWithImageDataCanBePostedAndResized() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\""+ PNG_8X8_TRANSPARENT +"\"}";
 
@@ -168,7 +168,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with image data with right size are not resized")
+  @DisplayName("POST: New nodes with image data with right size are not resized")
   void newTreeNodesWithImageDataWithRightSizeAreNotResized() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\""+ PNG_125X125_TRANSPARENT +"\"}";
 
@@ -196,7 +196,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with image can be posted")
+  @DisplayName("POST: New nodes with image can be posted")
   void newTreeNodesWithImageUriCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"https://avatars.githubusercontent.com/u/24718368?s=96&v=4\"}";
 
@@ -225,7 +225,7 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("New nodes with image with extension can be posted")
+  @DisplayName("POST: New nodes with image with extension can be posted")
   void newTreeNodesWithImageWithExtensionUriCanBePosted() throws Exception {
     String content = "{\"name\":\"test\",\"tree\":\"http://localhost/api/trees/1\", \"image\":\"https://raw.githubusercontent.com/sitmun/community/master/logotip%20SITMUN%20JPG/horitzontal/01.principal-horit-normal.jpg\"}";
 

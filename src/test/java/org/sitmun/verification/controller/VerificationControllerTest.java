@@ -48,7 +48,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify password with valid credentials should return true")
+  @DisplayName("POST: Verify password with valid credentials should return true")
   void verifyPasswordWithValidCredentials() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -63,7 +63,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify password with invalid credentials should return false")
+  @DisplayName("POST: Verify password with invalid credentials should return false")
   void verifyPasswordWithInvalidCredentials() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -78,7 +78,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify password with empty username should return bad request")
+  @DisplayName("POST: Verify password with empty username should return bad request")
   void verifyPasswordWithEmptyUsername() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("");
@@ -92,7 +92,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify password with null password should return bad request")
+  @DisplayName("POST: Verify password with null password should return bad request")
   void verifyPasswordWithNullPassword() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -106,7 +106,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify email with existing email should return true")
+  @DisplayName("POST: Verify email with existing email should return true")
   void verifyEmailWithExistingEmail() throws Exception {
     // Create a test user first
     User testUser = new User();
@@ -131,7 +131,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify email with non-existing email should return false")
+  @DisplayName("POST: Verify email with non-existing email should return false")
   void verifyEmailWithNonExistingEmail() throws Exception {
     String email = "nonexistent@example.com";
 
@@ -144,7 +144,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify email with empty email should return false")
+  @DisplayName("POST: Verify email with empty email should return false")
   void verifyEmailWithEmptyEmail() throws Exception {
     mvc.perform(post("/api/user-verification/verify-email")
         .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
@@ -155,7 +155,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify email with null email should return false")
+  @DisplayName("POST: Verify email with null email should return false")
   void verifyEmailWithNullEmail() throws Exception {
     mvc.perform(post("/api/user-verification/verify-email")
         .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
@@ -166,7 +166,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Verify email should be case insensitive")
+  @DisplayName("POST: Verify email should be case insensitive")
   void verifyEmailCaseInsensitive() throws Exception {
     // Create a test user with lowercase email
     User testUser = new User();
@@ -189,7 +189,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("Unauthenticated requests should be rejected")
+  @DisplayName("POST: Unauthenticated requests should be rejected")
   void unauthenticatedRequestsShouldBeRejected() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");

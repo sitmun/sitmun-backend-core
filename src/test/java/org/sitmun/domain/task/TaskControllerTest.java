@@ -1,6 +1,7 @@
 package org.sitmun.domain.task;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
 import org.sitmun.Application;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@DisplayName("Task Controller Test")
 class TaskControllerTest {
 
   @Autowired
@@ -44,7 +46,7 @@ class TaskControllerTest {
 
   @Test
   @Disabled("Requires additional test data")
-  @DisplayName("Ensure legacy query task is properly handled")
+  @DisplayName("PUT: Ensure legacy query task is properly handled")
   void ensureLegacyQueryTaskIsHandled() throws Exception {
 
     // From

@@ -30,7 +30,7 @@ class TreeControllerTest extends BaseTest {
   private TreeRepository treeRepository;
 
   @Test
-  @DisplayName("Fail 400 when try save touristic tree with non touristic application")
+  @DisplayName("PUT: Fail 400 when try save touristic tree with non touristic application")
   void saveTouristicTreeWithNonTouristicApplication() throws Exception {
     // From
     String applications = "http://localhost/api/applications/1";
@@ -43,7 +43,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Fail 400 when try save non touristic tree with touristic application")
+  @DisplayName("PUT: Fail 400 when try save non touristic tree with touristic application")
   void saveNoTouristicTreeWithTouristicApplication() throws Exception {
     // From
     String applications = "http://localhost/api/applications/6";
@@ -56,7 +56,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Check that updating and removing standard trees works as expected")
+  @DisplayName("PUT: Check that updating and removing standard trees works as expected")
   @Transactional
   void updateAndRemoveATree() throws Exception {
     // From

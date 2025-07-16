@@ -32,7 +32,7 @@ class ClientConfigurationProfileControllerTest {
 
 
   @Test
-  @DisplayName("Get application details")
+  @DisplayName("GET: Get application details")
   void applicationDetails() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -43,7 +43,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Territory SRS overrides SRS application")
+  @DisplayName("GET: Territory SRS overrides SRS application")
   void territorySrsOverridesSrsApplication() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 2))
       .andExpect(status().isOk())
@@ -51,7 +51,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get application extent from territory")
+  @DisplayName("GET: Get application extent from territory")
   void applicationExtentFromTerritory() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 2))
       .andExpect(status().isOk())
@@ -59,7 +59,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get application extent from the link between territory and application")
+  @DisplayName("GET: Get application extent from the link between territory and application")
   void applicationExtentFromLinkToTerritory() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 3))
       .andExpect(status().isOk())
@@ -67,7 +67,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get layers details")
+  @DisplayName("GET: Get layers details")
   void layers() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get services details")
+  @DisplayName("GET: Get services details")
   void services() throws Exception {
     String url = proxyForce ? proxyUrl + "/proxy/1/1/WMTS/1" : "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service";
 
@@ -90,7 +90,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get groups details")
+  @DisplayName("GET: Get groups details")
   void groups() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get backgrounds details")
+  @DisplayName("GET: Get backgrounds details")
   void backgrounds() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get situation map details")
+  @DisplayName("GET: Get situation map details")
   void situationMap() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -118,7 +118,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get tasks details")
+  @DisplayName("GET: Get tasks details")
   void tasks() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -126,7 +126,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get task parameters details")
+  @DisplayName("GET: Get task parameters details")
   void taskParameters() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -135,7 +135,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get task query web")
+  @DisplayName("GET: Get task query web")
   void taskTaskQueryWeb() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -144,7 +144,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get task query sql")
+  @DisplayName("GET: Get task query sql")
   void taskTaskQuerySql() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -153,7 +153,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get tree details")
+  @DisplayName("GET: Get tree details")
   void tree() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -168,7 +168,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Ensure order in children")
+  @DisplayName("GET: Ensure order in children")
   void treeNodeOrder() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andDo(print())
@@ -182,7 +182,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get proxy details")
+  @DisplayName("GET: Get proxy details")
   void proxy() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(status().isOk())
@@ -190,7 +190,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get application zoom")
+  @DisplayName("GET: Get application zoom")
   void zooms() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(jsonPath("$.application.defaultZoomLevel", is(8)));
@@ -199,7 +199,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get application point of interest")
+  @DisplayName("GET: Get application point of interest")
   void pointOfInterest() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
       .andExpect(jsonPath("$.application.pointOfInterest.x", is(422552.0)))
@@ -209,7 +209,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("Get the root page in incremental mode")
+  @DisplayName("GET: Get the root page in incremental mode")
   void modePageRootPage() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI_FILTERED, 1, 1, "none"))
       .andExpect(jsonPath("$.trees[0].rootNode", is("node/tree/1")))

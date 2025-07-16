@@ -12,18 +12,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
-
-@DisplayName("Profiles test")
+@DisplayName("HAL Profiles Integration Test")
 class ProfilesTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Profile view")
+  @DisplayName("GET: Retrieve HAL profile root with links")
   void profileView() throws Exception {
     mvc.perform(get(URIConstants.HAL_PROFILE_URI)
         .accept("application/hal+json")
@@ -32,7 +30,7 @@ class ProfilesTest {
   }
 
   @Test
-  @DisplayName("Profile entity view")
+  @DisplayName("GET: Retrieve HAL profile entity documentation for applications")
   void profileEntityView() throws Exception {
     mvc.perform(get(URIConstants.HAL_PROFILE_URI + "/applications")
         .accept("application/hal+json")

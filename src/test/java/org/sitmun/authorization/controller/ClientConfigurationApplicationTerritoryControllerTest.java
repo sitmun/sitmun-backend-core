@@ -29,7 +29,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Page with public user")
+  @DisplayName("GET: Page with public user")
   void readPublicUser() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1))
       .andExpect(status().isOk())
@@ -38,7 +38,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   }
 
   @Test
-  @DisplayName("Page with authenticated user")
+  @DisplayName("GET: Page with authenticated user")
   void readOtherUser() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1)
         .with(user("internal"))
@@ -57,7 +57,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   }
 
   @Test
-  @DisplayName("Territories in an application are sorted in alphabetic order")
+  @DisplayName("GET: Territories in an application are sorted in alphabetic order")
   void territoriesAreInAlphabeticOrder() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1)
         .with(user("internal"))
@@ -71,7 +71,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   }
 
   @Test
-  @DisplayName("Get specific page")
+  @DisplayName("GET: Get specific page")
   void readOtherUserWithPagination() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI + "?size=1&page=1", 1)
         .with(user("internal"))
@@ -85,7 +85,7 @@ class ClientConfigurationApplicationTerritoryControllerTest {
   }
 
   @Test
-  @DisplayName("Request out of bounds")
+  @DisplayName("GET: Request out of bounds")
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_TERRITORIES_URI + "?size=1&page=5", 1)
         .with(user("internal"))

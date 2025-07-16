@@ -52,7 +52,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position with valid data should return success")
+  @DisplayName("PUT: Update territory position with valid data should return success")
   void editTerritoryPositionsWithValidData() throws Exception {
     // TODO: Refactor to use either POST or PUT with id
     mvc.perform(put("/api/config/client/territory/position")
@@ -70,7 +70,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position with internal user should return success and expected content")
+  @DisplayName("PUT: Update territory position with internal user should return success and expected content")
   void editTerritoryPositionsWithInternalUser() throws Exception {
     // TODO: Refactor to use either POST or PUT with id
     mvc.perform(put("/api/config/client/territory/position")
@@ -83,7 +83,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position without authentication should return unauthorized")
+  @DisplayName("PUT: Update territory position without authentication should return unauthorized")
   void editTerritoryPositionsWithoutAuthentication() throws Exception {
     // TODO: Refactor to protect the endpoint with security
     mvc.perform(put("/api/config/client/territory/position")
@@ -93,7 +93,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position with null ID should return bad request")
+  @DisplayName("PUT: Update territory position with null ID should return bad request")
   void editTerritoryPositionsWithNullId() throws Exception {
     // TODO: Refactor to use POST
     UserPositionDTO positionWithNullId = UserPositionDTO.builder()
@@ -114,7 +114,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position with empty name should return success")
+  @DisplayName("PUT: Update territory position with empty name should return success")
   void editTerritoryPositionsWithEmptyName() throws Exception {
     // TODO: Refactor to use PUT with id
     UserPositionDTO positionWithEmptyName = UserPositionDTO.builder()
@@ -136,7 +136,7 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("Update territory position with missing required fields should return success")
+  @DisplayName("PUT: Update territory position with missing required fields should return success")
   void editTerritoryPositionsWithMissingFields() throws Exception {
     // TODO: Refactor to use PUT with id
     UserPositionDTO minimalPosition = UserPositionDTO.builder()

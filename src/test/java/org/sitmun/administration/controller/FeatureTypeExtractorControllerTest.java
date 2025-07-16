@@ -17,7 +17,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
+  @DisplayName("GET: Extract from a DescribeFeatureType request to a WFS 2.0")
   void extractKnownFeatureWFS20() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE"))
       .andExpect(status().isOk())
@@ -29,7 +29,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a DescribeFeatureType request to a WFS 1.1.0")
+  @DisplayName("GET: Extract from a DescribeFeatureType request to a WFS 1.1.0")
   void extractKnownFeatureWFS110() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&version=1.1.0&typeNames=RED_REGENTE"))
       .andExpect(status().isOk())
@@ -41,7 +41,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a bad request to a WFS")
+  @DisplayName("GET: Extract from a bad request to a WFS")
   void extractFailedService() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?"))
       .andExpect(status().isBadRequest())
@@ -53,7 +53,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a request to HTML page")
+  @DisplayName("GET: Extract from a request to HTML page")
   void extractHtmlPage() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/"))
       .andExpect(status().isBadRequest())
@@ -64,7 +64,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a request to a not found page")
+  @DisplayName("GET: Extract from a request to a not found page")
   void extract404Page() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/not-found"))
       .andExpect(status().isBadRequest())
@@ -75,7 +75,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Extract from a request to an nonexistent domain")
+  @DisplayName("GET: Extract from a request to an nonexistent domain")
   void extractNonExistentDomain() throws Exception {
     mvc.perform(get(URI_TEMPLATE, "https://fake"))
       .andExpect(status().isBadRequest())

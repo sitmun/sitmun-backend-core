@@ -23,7 +23,7 @@ class AuthenticationControllerTest {
   private MockMvc mvc;
 
   @Test
-  @DisplayName("Admin user must login")
+  @DisplayName("POST: Admin user must login")
   void successfulLogin() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
@@ -37,7 +37,7 @@ class AuthenticationControllerTest {
   }
 
   @Test
-  @DisplayName("User with wrong credentials must fail")
+  @DisplayName("POST: User with wrong credentials must fail")
   void loginFailure() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");

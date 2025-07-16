@@ -19,13 +19,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("BoundingBox validation test")
+@DisplayName("Bounding Box Utility Test")
 class BoundingBoxTest extends BaseTest {
 
   @Test
-  @DisplayName("Pass if meets conditions of BoundingBox")
+  @DisplayName("Test bounding box creation")
   @WithMockUser(roles = "ADMIN")
-  void passIfBoundingBoxIsValid() throws Exception {
+  void testBoundingBoxCreation() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)
@@ -40,9 +40,9 @@ class BoundingBoxTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Fails if null values or max < min")
+  @DisplayName("Test bounding box equality")
   @WithMockUser(roles = "ADMIN")
-  void failIfNullValuesOrMaxLessThanMin() throws Exception {
+  void testBoundingBoxEquality() throws Exception {
     Envelope envelope = Envelope.builder()
       .minX(430492.0)
       .minY(4611482.0)

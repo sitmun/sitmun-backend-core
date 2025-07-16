@@ -178,7 +178,7 @@ class UserResourceTest {
 
   @Test
   @DisplayName("POST: Create a new user")
-  void createNewUserAndDelete() throws Exception {
+  void createUser() throws Exception {
     String content = "{" +
       "\"username\":\"new user\"," +
       "\"firstName\":\"new name\"," +
@@ -344,7 +344,7 @@ class UserResourceTest {
   @Test
   @DisplayName("PUT: Update password")
   @WithMockUser(roles = "ADMIN")
-  void updateUserPassword() throws Exception {
+  void updatePassword() throws Exception {
     String content = "{" +
       "\"username\":\"user\"," +
       "\"firstName\":\"NameChanged\"," +

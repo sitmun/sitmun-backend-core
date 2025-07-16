@@ -25,7 +25,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail 500 when driver is not found in test")
+  @DisplayName("GET: Fail 500 when driver is not found in test")
   void failIfDatabaseConnectionDriverNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
     mvc.perform(get("/api/connections/0/test"))
@@ -36,7 +36,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail 500 when test fails")
+  @DisplayName("GET: Fail 500 when test fails")
   void failIfDatabaseConnectionException() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
@@ -52,7 +52,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Return 200 when test succeeds")
+  @DisplayName("GET: Return 200 when test succeeds")
   void databaseConnectionSuccess() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
@@ -66,7 +66,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Return 404 when the connection does not exist")
+  @DisplayName("GET: Return 404 when the connection does not exist")
   void failIfdatabaseConnectionNotFound() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.empty());
     mvc.perform(get("/api/connections/0/test"))
@@ -74,7 +74,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Return 401 is the test request has no credentials")
+  @DisplayName("GET: Return 401 when the test request has no credentials")
   void failIfNoCredentials() throws Exception {
     when(repository.findById(0)).thenReturn(Optional.of(DatabaseConnection.builder()
       .driver("org.h2.Driver")
@@ -88,7 +88,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Cant create entry if the database connection driver is not found")
+  @DisplayName("POST: Fail 500 when database connection driver is not found")
   void failPostTestIfDatabaseConnectionDriverNotFound() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +100,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Cant create entry if the database connection fails")
+  @DisplayName("POST: Fail 500 when database connection fails")
   void failPostTestIfDatabaseConnectionException() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Return 200 when the test succeed")
+  @DisplayName("POST: Return 200 when the test succeeds")
   void databaseConnectionPostTestSuccess() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +121,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Return 401 is the test creation has no credentials")
+  @DisplayName("POST: Return 401 when the test creation has no credentials")
   void failPostTestIfNoCredentials() throws Exception {
     mvc.perform(post("/api/connections/test")
         .contentType(MediaType.APPLICATION_JSON)

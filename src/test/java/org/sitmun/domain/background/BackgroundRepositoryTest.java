@@ -25,7 +25,7 @@ class BackgroundRepositoryTest {
   private BackgroundRepository backgroundRepository;
 
   @Test
-  @DisplayName("Find active background by app")
+  @DisplayName("Find active background by application")
   void findActiveBackgroundsByApp() {
     List<Object[]> cp = backgroundRepository.findActiveByApplication(1);
     assertThat(cp).hasSize(1);

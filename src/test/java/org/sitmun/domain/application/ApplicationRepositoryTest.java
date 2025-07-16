@@ -32,9 +32,8 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @DataJpaTest
-@DisplayName("Application Repository JPA test")
+@DisplayName("Application Repository JPA Test")
 class ApplicationRepositoryTest {
 
   @Autowired
@@ -46,7 +45,7 @@ class ApplicationRepositoryTest {
   private Application application;
 
   @BeforeEach
-  public void init() {
+  void init() {
 
     application = Application.builder()
       .name("Test")
@@ -98,16 +97,16 @@ class ApplicationRepositoryTest {
   }
 
   @Test
-  @DisplayName("Create an application")
-  void saveApplication() {
+  @DisplayName("Create a new application with all related entities")
+  void createApplicationWithAllEntities() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
   }
 
   @Test
-  @DisplayName("Find an application by id")
-  void findOneApplicationById() {
+  @DisplayName("Find an application by its ID with all related entities")
+  void findApplicationByIdWithAllEntities() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
@@ -122,8 +121,8 @@ class ApplicationRepositoryTest {
   }
 
   @Test
-  @DisplayName("Delete an application by id")
-  void deleteApplicationById() {
+  @DisplayName("Remove an application by its ID")
+  void removeApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     Assumptions.assumeThat(application.getId()).isNotZero();
@@ -134,13 +133,13 @@ class ApplicationRepositoryTest {
   }
 
   @Test
-  @DisplayName("Find applications by username")
+  @DisplayName("Find applications filtered by username")
   void findApplicationsByUsername() {
     assertThat(applicationRepository.findByUser("public", PageRequest.of(0, 10))).hasSize(4);
   }
 
   @Test
-  @DisplayName("Find applications by username and territory")
+  @DisplayName("Find applications filtered by username and territory")
   void findApplicationsByUsernameAndTerritory() {
     assertThat(applicationRepository.findByUserAndTerritory("public", 1, PageRequest.of(0, 10))).hasSize(4);
   }
@@ -150,7 +149,7 @@ class ApplicationRepositoryTest {
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }

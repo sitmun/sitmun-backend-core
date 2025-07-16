@@ -1,6 +1,7 @@
 package org.sitmun.domain.task.type;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
@@ -18,12 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("Task Types Repository Data REST Test")
 class TaskTypesRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Test
+  @DisplayName("GET: Retrieve task types with defined specifications")
   void definedSpecifications() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
         .contentType(MediaType.APPLICATION_JSON)
