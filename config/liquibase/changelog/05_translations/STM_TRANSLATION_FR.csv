@@ -1,0 +1,6 @@
+TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
+501001,1,Language.name,5,Anglais
+501002,2,Language.name,5,Espagnol
+501003,3,Language.name,5,Catalan
+501004,4,Language.name,5,Aranais
+501005,5,Language.name,5,Français

@@ -2,21 +2,18 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
   id 'java'
-  id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
-  id 'jacoco'
-  id 'org.sonarqube' version '3.3'
-
+  
   id 'org.springframework.boot' version '2.7.18'
   id 'io.spring.dependency-management' version '1.1.6'
-
-  id 'org.ajoberstar.git-publish' version '3.0.1'
-
-  id 'com.github.johnrengelman.processes' version '0.5.0'
-  id 'org.springdoc.openapi-gradle-plugin' version '1.5.0'
-
+  
   id 'io.freefair.lombok' version '6.4.3.1'
-
+  id 'org.springdoc.openapi-gradle-plugin' version '1.5.0'
   id 'org.liquibase.gradle' version '2.2.0'
+  
+  id 'jacoco'
+  id 'org.sonarqube' version '3.3'
+  
+  id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
 }
 
 group = 'org.sitmun'
@@ -37,72 +34,105 @@ dependencyManagement {
 }
 
 dependencies {
+  // Data persistence and REST API
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  
+  // Security and validation
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  
+  // Monitoring and templating
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
-  implementation 'org.springframework.ldap:spring-ldap-core'
-  implementation 'org.springframework.security:spring-security-ldap'
-  testImplementation 'com.unboundid:unboundid-ldapsdk'
-
-  implementation 'com.h2database:h2' // Uncomment this line to use H2 database in development
+  
+  // Development and testing database
+  implementation 'com.h2database:h2'
+  
+  // Production databases
   implementation 'org.postgresql:postgresql'
   implementation 'com.oracle.database.jdbc:ojdbc11-production'
 
-  testImplementation 'org.hamcrest:hamcrest'
+  // Database migration
+  implementation 'org.liquibase:liquibase-core'
+  implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+  
+  // Query building
+  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
+  
+  // Object mapping
+  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
 
+  // Apache Commons utilities
+  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+  
+  // Google Guava utilities
   implementation "com.google.guava:guava:${guava_version}"
 
-  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
-
+  // OkHttp client with logging
   implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
   implementation 'com.squareup.okhttp3:okhttp'
   implementation 'com.squareup.okhttp3:logging-interceptor'
 
+  // JSON processing
   implementation "org.json:json:${json_version}"
+  
+  // JWT token handling
   implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
   implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
   implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
 
+  // OpenAPI/Swagger documentation
   implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
   implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
 
-  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
+  // LDAP profile
+  implementation 'org.springframework.ldap:spring-ldap-core'
+  implementation 'org.springframework.security:spring-security-ldap'
 
-  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+  // Mail profile
+  implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-  implementation 'org.liquibase:liquibase-core'
-  implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-
-  compileOnly "org.jetbrains:annotations:${jetbrains_annotations_version}"
-
+  // Core annotation processing
   annotationProcessor 'javax.annotation:javax.annotation-api'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
   annotationProcessor 'javax.persistence:javax.persistence-api'
+  
+  // QueryDSL code generation
+  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
+  
+  // MapStruct code generation
   annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
 
+  // Development-time annotations
+  compileOnly "org.jetbrains:annotations:${jetbrains_annotations_version}"
+
+  // Spring Boot test support
   testImplementation('org.springframework.boot:spring-boot-starter-test') {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
+  
+  // Security testing
   testImplementation 'org.springframework.security:spring-security-test'
-  testImplementation 'com.h2database:h2'
-
-  implementation 'org.springframework.boot:spring-boot-starter-mail'
+  
+  // Testing utilities
+  testImplementation 'org.hamcrest:hamcrest'
+  
+  // LDAP testing (embedded LDAP server)
+  testImplementation 'com.unboundid:unboundid-ldapsdk'
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Stage task:
-// - build app module
-// - do not run tests
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ============================================================================
+// HEROKU DEPLOYMENT CONFIGURATION
+// ============================================================================
 
+// Stage task for Heroku deployment
 tasks.register('stage') {
+  group = 'Heroku'
+  description = 'Prepare application for Heroku deployment'
   dependsOn ':processResources', ':bootJar'
-  it.doLast {
+  
+  doLast {
     copy {
       from "build/libs/sitmun-backend-core-${version}.jar"
       into "."
@@ -111,39 +141,42 @@ tasks.register('stage') {
   }
 }
 
-gradle.taskGraph.whenReady { taskGraph ->
-  if (taskGraph.hasTask(stage)) {
-    subprojects {
-      test.enabled = false
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Heroku deployment:
-// - contributes the task deployHeroku
-// - expects the stage task has been successfully executed
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Heroku configuration
 heroku {
-  def procFile = ["web": "java -Dserver.port=\$PORT \$JAVA_OPTS -cp \"sitmun.jar:env/heroku/resources/config\" org.springframework.boot.loader.JarLauncher"]
   appName = "sitmun-backend-core"
   includes = ["sitmun.jar"]
   includeBuildDir = false
+  
+  def procFile = [
+    "web": "java -Dspring.profiles.active=heroku -Dserver.port=\$PORT \$JAVA_OPTS -cp sitmun.jar org.springframework.boot.loader.JarLauncher"
+  ]
   processTypes(procFile)
 }
 
+// Deploy to Heroku
 tasks.named("deployHeroku") {
-  it.dependsOn 'stage'
-  it.doLast {
+  group = 'Heroku'
+  description = 'Deploy the application to Heroku'
+  dependsOn 'stage'
+  
+  doLast {
     delete "sitmun.jar"
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// QA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Local Heroku testing
+tasks.register('herokuDevLocal', JavaExec) {
+  group = 'Heroku'
+  description = 'Run the Heroku deployment locally'
+  dependsOn 'stage'
+  classpath = files("build/libs/sitmun-backend-core-${version}.jar")
+}
 
+// ============================================================================
+// TESTING AND QUALITY ASSURANCE CONFIGURATION
+// ============================================================================
+
+// Test configuration
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
   maxHeapSize = '2G'
@@ -159,83 +192,26 @@ tasks.withType(Test).configureEach {
   systemProperty 'spring.profiles.active', 'test'
   systemProperty 'java.awt.headless', 'true'
   
-  // Test filtering and grouping for better performance
-  filter {
-    // Exclude slow integration tests by default
-    excludeTestsMatching "*IntegrationTest"
-    excludeTestsMatching "*Integration*"
-  }
-  
-  // Enable test batching for better performance
+  // Test logging
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
   }
-  
-  // Optimize test discovery
-  scanForTestClasses = false
 }
 
-apply from: "$project.rootDir/sonar.gradle"
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Run as local
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-tasks.register('herokuDevLocal', JavaExec) {
-  dependsOn 'stage'
-  group = "Run"
-  description = "Run as local the Heroku deployment"
-  classpath = files("build/libs/sitmun-backend-core-${version}.jar")
-}
-
-tasks.withType(Test).configureEach {
-  useJUnitPlatform()
-  maxHeapSize = '2G'
-  minHeapSize = '512m'
-  
-  // Fork tests to isolate memory usage
-  forkEvery = 100
-  
-  // Set system properties for test JVM
-  systemProperty 'spring.profiles.active', 'test'
-  systemProperty 'java.awt.headless', 'true'
-  
-  // Memory settings for test JVM
-  jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200'
-}
-
-compileJava.inputs.files(processResources)
-
+// Code coverage reporting
 jacocoTestReport {
   reports {
     xml.required.set(true)
+    html.required.set(true)
   }
 }
 
 test.finalizedBy jacocoTestReport
 
-tasks.register("codeCoverageReport", JacocoReport) {
-  jacocoClasspath = project.configurations.jacocoAnt
-  subprojects { subproject ->
-    subproject.plugins.withType(JacocoPlugin).configureEach {
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
-        if (testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
-          sourceSets subproject.sourceSets.main
-          executionData(testTask)
-        } else {
-          logger.warn('Jacoco extension is disabled for test task \'{}\' in project \'{}\'. this test task will be excluded from jacoco report.', testTask.getName(), subproject.getName())
-        }
-      }
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
-        rootProject.tasks.codeCoverageReport.dependsOn(it)
-      }
-    }
-  }
-
-}
+// SonarQube integration
+apply from: "$project.rootDir/sonar.gradle"
 
 rootProject.tasks.sonarqube {
-  dependsOn(tasks.codeCoverageReport)
+  dependsOn(tasks.jacocoTestReport)
 }

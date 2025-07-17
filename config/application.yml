@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    change-log: classpath:config/liquibase/master.yaml
+    contexts: prod
+  mail:
+    from: "no-reply@sitmun.com"
+
+security:
+  authentication:
+    jwt:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+      token-validity-in-miliseconds: 36000000
+      token-recovery-password-validity-in-miliseconds: 36000000
+    middleware:
+      secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+
+front:
+  url: "http://front_url"
+
+sitmun:
+  language: en
+  proxy:
+    config-response-validity-in-seconds: 3600
+  startup:
+    code-lists:
+      check-on-startup: true
+      database-connection-drivers:
+        - driver-class: org.h2.Driver
+          description: H2 JDBC Driver
+        - driver-class: org.postgresql.Driver
+          description: PostgreSQL JDBC Driver
+        - driver-class: oracle.jdbc.OracleDriver
+          description: Oracle JDBC driver 
+

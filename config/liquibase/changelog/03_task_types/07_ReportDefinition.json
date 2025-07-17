@@ -1,0 +1,115 @@
+{
+  "form": {
+    "label": "tasksEntity.generalData",
+    "elements": {
+      "type": {
+        "hidden": true,
+        "value": 5,
+        "required": true
+      },
+      "name": {
+        "label": "tasksEntity.name",
+        "control": "input",
+        "required": true
+      },
+      "group": {
+        "label": "tasksEntity.group",
+        "control": "selector",
+        "selector": {
+          "data": "taskGroup",
+          "name": "name",
+          "value": "id"
+        },
+        "required": true
+      },
+      "service": {
+        "label": "tasksEntity.service",
+        "control": "selector",
+        "selector": {
+          "data": "service",
+          "name": "name",
+          "value": "id",
+          "queryParams": {
+            "type": "FME"
+          }
+        },
+        "required": true
+      },
+      "layer": {
+        "label": "tasksEntity.layer",
+        "control": "input"
+      },
+      "task": {
+        "label": "tasksEntity.locator",
+        "control": "selector",
+        "selector": {
+          "data": "tasks",
+          "queryParams": {
+            "type.id": "4",
+            "projection": "view"
+          },
+          "name": "name",
+          "value": "id"
+        }
+      }
+    }
+  },
+  "tables": [
+    {
+      "link": "roles",
+      "label": "tasksEntity.roles",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "roles",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "false"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "name": {
+          "label": "tasksEntity.name",
+          "editable": "false"
+        }
+      }
+    },
+    {
+      "link": "availabilities",
+      "label": "tasksEntity.territory",
+      "controlAdd": {
+        "control": "selectorPopup",
+        "data": "availabilities",
+        "columns": {
+          "id": {
+            "label": "tasksEntity.id",
+            "editable": "false"
+          },
+          "name": {
+            "label": "tasksEntity.name",
+            "editable": "true"
+          }
+        }
+      },
+      "columns": {
+        "id": {
+          "label": "tasksEntity.id",
+          "editable": "false"
+        },
+        "territoryName": {
+          "label": "tasksEntity.name",
+          "editable": "true"
+        }
+      }
+    }
+  ]
+}

@@ -39,7 +39,6 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     "/swagger-ui.*",
     "/dist/**",
     "/workspace.html",
-    "/api/dashboard/health",
     "/api/profile",
     "/api/profile/**",
   };
@@ -145,6 +144,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
       .antMatchers(HttpMethod.PUT, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
       .antMatchers(HttpMethod.POST, "/api/user-verification/**").hasAuthority(SecurityRole.ROLE_USER.name())
       .antMatchers(HttpMethod.POST, "/api/config/proxy/**").hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
+      .antMatchers("/api/dashboard/health").permitAll()
       .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
       .anyRequest().authenticated();
 

@@ -1,0 +1,7 @@
+SER_ID,SER_NAME,SER_URL,SER_PROJECTS,SER_INFOURL,SER_CREATED,SER_PROTOCOL,SER_BLOCKED
+1,ICC Mapesmultibase,https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service,NULL,NULL,NULL,WMTS,0
+2,PNOA,https://www.ign.es/wms-inspire/pnoa-ma,NULL,NULL,NULL,WMS,0
+3,Delimitacions Barcelona,https://sitmun.diba.cat/arcgis/services/PUBLIC/DTE50/MapServer/WmsServer,NULL,NULL,NULL,WMS,0
+4,ICC BT25M,https://geoserveis.icgc.cat/icc_bt25m/wms/service,NULL,NULL,NULL,WMS,0
+5,ICC BT50M,https://geoserveis.icgc.cat/icc_bt50m/wms/service,NULL,NULL,NULL,WMS,0
+6,ICC Mapesbase,https://geoserveis.icgc.cat/icc_mapesbase/wms/service,NULL,NULL,NULL,WMS,0

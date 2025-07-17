@@ -1,0 +1,10 @@
+TNO_ID,TNO_PARENTID,TNO_NAME,TNO_TOOLTIP,TNO_ACTIVE,TNO_ORDER,TNO_TREEID,TNO_GIID,TNO_RADIO
+1,NULL,Topográficos,Topográficos,1,1,1,NULL,0
+2,1,Topográfico 1:50.000,Topográfico 1:50.000,1,1,1,NULL,0
+3,2,Toponímia,Toponímia,1,1,1,6,NULL
+4,2,Altimetría,Altimetría,1,2,1,7,NULL
+5,1,Topográfico 1:25.000,Topográfico 1:25.000,1,2,1,NULL,0
+6,5,1:25.000 ICGC,1:25.000 ICGC,1,0,1,5,NULL
+7,NULL,Ortofotos,Ortofotos,1,2,1,NULL,1
+8,7,Actual,Actual,1,2,1,8,NULL
+9,7,Infrarrojo,Infrarrojo,1,1,1,9,NULL

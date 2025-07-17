@@ -1,8 +1,8 @@
 # =====================================================================================================================
-# Spring Boot configuration.
+# Spring Boot configuration for test environment.
 #
-# This configuration will be overridden by the Spring profile you use,
-# for example application-test.yml if you use the "dev" profile.
+# This configuration provides the base test settings and will be overridden by 
+# profile-specific configurations like application-test.yml, application-ldap.yml, etc.
 #
 # Full reference is available at:
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
@@ -12,10 +12,7 @@ spring:
   application:
     name: SITMUN
   profiles:
-    # The commented value for `active` can be replaced with valid Spring profiles to load.
-    # Otherwise, it will be filled in by gradle when building the JAR file
-    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or
-    #`-Dspring.profiles.active` set in `JAVA_OPTS`
+    # Default test profile - can be overridden by @ActiveProfiles annotation
     active: test
   jmx:
     enabled: false
@@ -37,11 +34,11 @@ spring:
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
-      # modify batch size as necessary
+      # Optimize batch operations for testing
       hibernate.jdbc.batch_size: 25
       hibernate.order_inserts: true
       hibernate.order_updates: true
-      # modify fetch size as necessary
+      # Optimize fetch size for testing
       hibernate.jdbc.fetch_size: 150
       hibernate.criteria.literal_handling_mode: BIND
       hibernate.query.fail_on_pagination_over_collection_fetch: true
@@ -70,17 +67,17 @@ spring:
     allow-bean-definition-overriding: true
   task:
     execution:
-      thread-name-prefix: sample-task-
+      thread-name-prefix: test-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: sample-scheduling-
+      thread-name-prefix: test-scheduling-
       pool:
         size: 2
   liquibase:
-    change-log: classpath:config/liquibase/master.xml
+    change-log: classpath:config/liquibase/master.yaml
     contexts: dev
 
 security:
@@ -88,7 +85,7 @@ security:
     jwt:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
       token-validity-in-miliseconds: 36000000
-      token-recovery-password-validity-in-miliseconds: 300000 # 5 minutes
+      token-recovery-password-validity-in-miliseconds: 300000 # 5 minutes for testing
     middleware:
       secret: 9ef80c644166846897f6a87d3cf6ab204d144229
 
@@ -102,7 +99,7 @@ front:
   url: "http://front_url"
 
 # ===================================================================
-# SITMUN specific properties
+# SITMUN specific properties for testing
 # ===================================================================
 
 sitmun:
@@ -117,3 +114,7 @@ sitmun:
       database-connection-drivers:
         - driver-class: org.h2.Driver
           description: H2 JDBC Driver
+        - driver-class: org.postgresql.Driver
+          description: PostgreSQL JDBC Driver
+        - driver-class: oracle.jdbc.OracleDriver
+          description: Oracle JDBC driver
