@@ -41,5 +41,8 @@ public class AuthorizationConstants {
     
     /** Query task type identifier */
     public static final String QUERY = "query";
+    
+    /** Edition task type identifier */
+    public static final String EDITION = "edition";
   }
 }

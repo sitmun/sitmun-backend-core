@@ -72,6 +72,10 @@ public final class DomainConstants {
      */
     public static final String QUERY = "Query";
     /**
+     * Edit task type identifier
+     */
+    public static final String EDIT = "Edit";
+    /**
      * Task property key for scope
      */
     public static final String PROPERTY_SCOPE = "scope";
@@ -111,6 +115,14 @@ public final class DomainConstants {
      * Web API query scope identifier
      */
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
+    /**
+     * Feature service edition scope identifier
+     */
+    public static final String SCOPE_FEATURES_SERVICE_EDIT = "feat-edit";
+    /**
+     * Database edition scope identifier
+     */
+    public static final String SCOPE_DATA_BASE_EDIT = "db-edit";
     /**
      * String type identifier
      */
@@ -163,6 +175,19 @@ public final class DomainConstants {
     }
 
     /**
+     * Checks if a task is of type Edition.
+     *
+     * @param task Task to check
+     * @return true if task is Edition type, false otherwise
+     */
+    public static boolean isEditionTask(Task task) {
+      if (task == null || task.getType() == null) {
+        return false;
+      }
+      return EDIT.equals(task.getType().getTitle());
+    }
+
+    /**
      * Checks if a task is a Cartography Query task.
      *
      * @param task Task to check
@@ -206,6 +231,22 @@ public final class DomainConstants {
           return false;
         }
         return SCOPE_WEB_API_QUERY.equals(task.getProperties().get(PROPERTY_SCOPE));
+      }
+      return false;
+    }
+
+    /**
+     * Checks if a task is a Cartography Edition task.
+     *
+     * @param task Task to check
+     * @return true if task is a Cartography Edition task, false otherwise
+     */
+    public static boolean isCartographyEditionTask(Task task) {
+      if (isEditionTask(task)) {
+        if (task.getProperties() == null) {
+          return false;
+        }
+        return SCOPE_FEATURES_SERVICE_EDIT.equals(task.getProperties().get(PROPERTY_SCOPE));
       }
       return false;
     }
