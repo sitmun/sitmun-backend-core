@@ -88,9 +88,10 @@ public class TaskQueryCartographyService implements TaskMapper {
                     param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
                 String name = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_NAME));
                 String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
+                String value = param.containsKey(DomainConstants.Tasks.PARAMETERS_VALUE) ? String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_VALUE)) : null;
                 Boolean required = Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));
 
-                Map<String, Object> values = getParametersObject(type, required, null);
+                Map<String, Object> values = getParametersObject(type, required, value);
                 parameters.put(name, values);
             }
         }
