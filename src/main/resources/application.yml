@@ -136,6 +136,9 @@ sitmun:
         - code-list-name: tree.type
           value: touristic
           description: Tourist application
+        - code-list-name: tree.type
+          value: edition
+          description: Edition tree
         - code-list-name: treenode.folder.type
           value: cartography
           description: Cartography
@@ -175,6 +178,9 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: evtloc
           description: Events locations
+        - code-list-name: treenode.viewmode
+          value: ms
+          description: Map search
         - code-list-name: treenode.folder.type
           value: nm
           description: Near me
@@ -220,3 +226,24 @@ sitmun:
         - code-list-name: queryTask.parameterType
           value: query
           description: "Query parameter"
+        - code-list-name: editTask.scope
+          value: feat-edit
+          description: "Features service edition (WFS)"
+        - code-list-name: editTask.scope
+          value: db-edit
+          description: "Database edition"
+        - code-list-name: editTask.fieldType
+          value: text
+          description: "Text"
+        - code-list-name: editTask.fieldType
+          value: date
+          description: "Date"
+        - code-list-name: editTask.fieldType
+          value: image
+          description: "Image"
+        - code-list-name: editTask.fieldType
+          value: number
+          description: "Number"
+        - code-list-name: editTask.fieldType
+          value: listbox
+          description: "ListBox"
