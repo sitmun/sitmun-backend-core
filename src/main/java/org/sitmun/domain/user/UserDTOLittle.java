@@ -1,12 +1,9 @@
 package org.sitmun.domain.user;
 
+import java.util.Date;
 import lombok.*;
 
-import java.util.Date;
-
-/**
- * User DTO.
- */
+/** User DTO. */
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -15,28 +12,18 @@ import java.util.Date;
 public class UserDTOLittle {
   private Integer id;
 
-  /**
-   * User mail
-   */
+  /** User mail */
   private String email;
 
-  /**
-   * User login.
-   */
+  /** User login. */
   private String username;
 
-  /**
-   * User first name.
-   */
+  /** User first name. */
   private String firstName;
 
-  /**
-   * User last name.
-   */
+  /** User last name. */
   private String lastName;
 
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   private Date createdDate;
 }

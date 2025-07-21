@@ -11,7 +11,10 @@ public class GenericDashboardMetricsContributor implements DashboardMetricsContr
 
   private final DashboardProperties.MetricDefinition definition;
 
-  public GenericDashboardMetricsContributor(MultiGauge gauge, EntityManager entityManager, DashboardProperties.MetricDefinition definition) {
+  public GenericDashboardMetricsContributor(
+      MultiGauge gauge,
+      EntityManager entityManager,
+      DashboardProperties.MetricDefinition definition) {
     this.gauge = gauge;
     this.entityManager = entityManager;
     this.definition = definition;

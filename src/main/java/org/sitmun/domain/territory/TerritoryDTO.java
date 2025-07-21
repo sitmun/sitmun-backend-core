@@ -1,12 +1,13 @@
 package org.sitmun.domain.territory;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.*;
 import org.sitmun.domain.territory.type.TerritoryTypeDTO;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeDTO;
 import org.sitmun.infrastructure.persistence.type.point.PointDTO;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Builder(toBuilder = true)
 @Getter
@@ -30,6 +31,5 @@ public class TerritoryDTO {
   private String note;
   private String legal;
   private Date createdDate;
-  @Builder.Default
-  private Set<UserPositionDTO> positions = new HashSet<>();
+  @Builder.Default private Set<UserPositionDTO> positions = new HashSet<>();
 }

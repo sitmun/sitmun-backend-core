@@ -1,5 +1,8 @@
 package org.sitmun.domain.background;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
@@ -13,18 +16,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 @DataJpaTest
 @DisplayName("Background Repository JPA test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BackgroundRepositoryTest {
 
-  @Autowired
-  private BackgroundRepository backgroundRepository;
+  @Autowired private BackgroundRepository backgroundRepository;
 
   @Test
   @DisplayName("Find active background by application")
@@ -43,4 +40,3 @@ class BackgroundRepositoryTest {
     }
   }
 }
-

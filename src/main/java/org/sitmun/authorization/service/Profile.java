@@ -1,5 +1,7 @@
 package org.sitmun.authorization.service;
 
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +15,6 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter

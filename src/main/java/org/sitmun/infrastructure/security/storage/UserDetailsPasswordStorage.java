@@ -18,9 +18,11 @@ public class UserDetailsPasswordStorage implements PasswordStorage {
   }
 
   @Override
-  public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-    authenticationManagerBuilder.userDetailsService(userDetailsService)
-      .passwordEncoder(passwordEncoder());
+  public void addPasswordStorage(AuthenticationManagerBuilder authenticationManagerBuilder)
+      throws Exception {
+    authenticationManagerBuilder
+        .userDetailsService(userDetailsService)
+        .passwordEncoder(passwordEncoder());
   }
 
   public PasswordEncoder passwordEncoder() {

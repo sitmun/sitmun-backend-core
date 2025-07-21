@@ -14,8 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 @DisplayName("User Repository JPA Test")
 class UserRepositoryTest {
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
   private User user;
 
@@ -61,5 +60,4 @@ class UserRepositoryTest {
 
     Assertions.assertThat(userRepository.findById(user.getId())).isNotNull();
   }
-
 }

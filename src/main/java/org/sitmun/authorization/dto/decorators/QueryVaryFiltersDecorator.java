@@ -1,12 +1,11 @@
 package org.sitmun.authorization.dto.decorators;
 
-import org.sitmun.authorization.dto.DatasourcePayloadDto;
-import org.sitmun.authorization.dto.PayloadDto;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
+import org.sitmun.authorization.dto.DatasourcePayloadDto;
+import org.sitmun.authorization.dto.PayloadDto;
+import org.springframework.stereotype.Component;
 
 @Component
 public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>> {

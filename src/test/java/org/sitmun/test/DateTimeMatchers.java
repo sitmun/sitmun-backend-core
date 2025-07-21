@@ -1,10 +1,9 @@
 package org.sitmun.test;
 
+import java.time.format.DateTimeFormatter;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-
-import java.time.format.DateTimeFormatter;
 
 public class DateTimeMatchers {
   public static Matcher<String> isIso8601DateAndTime() {

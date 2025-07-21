@@ -1,12 +1,11 @@
 package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -19,7 +18,12 @@ public class OgcWmsPayloadDto extends PayloadDto {
   private HttpSecurityDto security;
 
   @Builder
-  public OgcWmsPayloadDto(List<String> vary, String uri, String method, Map<String, String> parameters, HttpSecurityDto security) {
+  public OgcWmsPayloadDto(
+      List<String> vary,
+      String uri,
+      String method,
+      Map<String, String> parameters,
+      HttpSecurityDto security) {
     super(vary);
     this.uri = uri;
     this.method = method;

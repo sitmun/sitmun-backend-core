@@ -1,6 +1,7 @@
 package org.sitmun.domain.user.position;
-import lombok.*;
+
 import java.util.Date;
+import lombok.*;
 
 @Data
 @Builder

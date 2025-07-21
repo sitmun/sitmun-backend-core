@@ -1,5 +1,8 @@
 package org.sitmun.domain.user.position;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
+import java.util.Optional;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,23 +13,21 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 @Tag(name = "user position")
 @RepositoryRestResource(collectionResourceRel = "user-positions", path = "user-positions")
 public interface UserPositionRepository extends JpaRepository<UserPosition, Integer> {
 
   @Modifying
   @Transactional
-  @Query("UPDATE UserPosition up SET " +
-    "up.name = :#{#dto.name}, " +
-    "up.organization = :#{#dto.organization}, " +
-    "up.email = :#{#dto.email}, " +
-    "up.lastModifiedDate = CURRENT_TIMESTAMP, " +
-    "up.expirationDate = :#{#dto.expirationDate}, " +
-    "up.type = :#{#dto.type} " +
-    "WHERE up.id = :id")
+  @Query(
+      "UPDATE UserPosition up SET "
+          + "up.name = :#{#dto.name}, "
+          + "up.organization = :#{#dto.organization}, "
+          + "up.email = :#{#dto.email}, "
+          + "up.lastModifiedDate = CURRENT_TIMESTAMP, "
+          + "up.expirationDate = :#{#dto.expirationDate}, "
+          + "up.type = :#{#dto.type} "
+          + "WHERE up.id = :id")
   void updatePosition(@Param("id") Integer id, @Param("dto") UserPositionDTO dto);
 
   @Transactional

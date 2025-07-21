@@ -10,8 +10,10 @@ public final class CodeListsConstants {
   public static final String CARTOGRAPHY_LEGEND_TYPE = "cartography.legendType";
   public static final String CARTOGRAPHY_PARAMETER_FORMAT = "cartographyParameter.format";
   public static final String CARTOGRAPHY_PARAMETER_TYPE = "cartographyParameter.type";
-  public static final String CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT = "cartographySpatialSelectionParameter.format";
-  public static final String CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE = "cartographySpatialSelectionParameter.type";
+  public static final String CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT =
+      "cartographySpatialSelectionParameter.format";
+  public static final String CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE =
+      "cartographySpatialSelectionParameter.type";
   public static final String CARTOGRAPHY_PERMISSION_TYPE = "cartographyPermission.type";
   public static final String DATABASE_CONNECTION_DRIVER = "databaseConnection.driver";
   public static final String DOWNLOAD_TASK_FORMAT = "downloadTask.format";
@@ -35,6 +37,5 @@ public final class CodeListsConstants {
   public static final String TREE_NODE_FOLDER_TYPE = "treenode.folder.type";
   public static final String TREE_NODE_VIEWMODE = "treenode.viewmode";
 
-  private CodeListsConstants() {
-  }
+  private CodeListsConstants() {}
 }

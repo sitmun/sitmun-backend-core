@@ -1,9 +1,9 @@
 package org.sitmun.infrastructure.persistence.type.image;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Image Data URI utility class test")
 class ImageDataUriTest {
@@ -28,5 +28,4 @@ class ImageDataUriTest {
     assertFalse(ImageDataUri.isDataUri("data:plain/text;base64,base64Data"));
     assertNull(ImageDataUri.parse("data:plain/text;base64,base64Data"));
   }
-
 }

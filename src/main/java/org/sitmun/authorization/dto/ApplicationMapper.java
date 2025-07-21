@@ -1,11 +1,10 @@
 package org.sitmun.authorization.dto;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.user.User;
-
-import java.util.List;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ApplicationMapper {

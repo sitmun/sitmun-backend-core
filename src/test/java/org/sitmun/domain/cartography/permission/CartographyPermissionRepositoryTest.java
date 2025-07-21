@@ -1,5 +1,8 @@
 package org.sitmun.domain.cartography.permission;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
@@ -15,25 +18,20 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DataJpaTest
 @DisplayName("Cartography Permission Repository JPA test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CartographyPermissionRepositoryTest {
-  @Autowired
-  private CartographyPermissionRepository cartographyPermissionRepository;
+  @Autowired private CartographyPermissionRepository cartographyPermissionRepository;
 
-  @Autowired
-  private RoleRepository roleRepository;
+  @Autowired private RoleRepository roleRepository;
 
   @Test
   @DisplayName("Find permissions by username, application and territory")
   void findPermissionsByUsernameApplicationAndTerritory() {
     List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
-    List<CartographyPermission> cp = cartographyPermissionRepository.findByRolesAndTerritory(roles, 1);
+    List<CartographyPermission> cp =
+        cartographyPermissionRepository.findByRolesAndTerritory(roles, 1);
     assertThat(cp).hasSize(3);
   }
 

@@ -5,9 +5,7 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 
-/**
- * Constants and utility methods for domain entities.
- */
+/** Constants and utility methods for domain entities. */
 public final class DomainConstants {
   private DomainConstants() {
     // Prevent instantiation
@@ -18,9 +16,7 @@ public final class DomainConstants {
       // Prevent instantiation
     }
 
-    /**
-     * Application type identifier for Touristic
-     */
+    /** Application type identifier for Touristic */
     public static final String TYPE_TOURISTIC = "T";
 
     /**
@@ -38,9 +34,7 @@ public final class DomainConstants {
       // Prevent instantiation
     }
 
-    /**
-     * Application type identifier for Touristic
-     */
+    /** Application type identifier for Touristic */
     public static final String TYPE_TOURISTIC = "touristic";
 
     /**
@@ -51,101 +45,76 @@ public final class DomainConstants {
      */
     public static boolean isTouristicTree(Tree type) {
       return type != null && TYPE_TOURISTIC.equals(type.getType());
-
     }
   }
 
-  /**
-   * Constants and utility methods for Task-related operations.
-   */
+  /** Constants and utility methods for Task-related operations. */
   public static final class Tasks {
     private Tasks() {
       // Prevent instantiation
     }
 
-    /**
-     * Basic task type identifier
-     */
+    /** Basic task type identifier */
     public static final String BASIC = "Basic";
-    /**
-     * Query task type identifier
-     */
+
+    /** Query task type identifier */
     public static final String QUERY = "Query";
-    /**
-     * Edit task type identifier
-     */
+
+    /** Edit task type identifier */
     public static final String EDIT = "Edit";
-    /**
-     * Task property key for scope
-     */
+
+    /** Task property key for scope */
     public static final String PROPERTY_SCOPE = "scope";
-    /**
-     * Task property key for command
-     */
+
+    /** Task property key for command */
     public static final String PROPERTY_COMMAND = "command";
-    /**
-     * Task property key for parameters
-     */
+
+    /** Task property key for parameters */
     public static final String PROPERTY_PARAMETERS = "parameters";
-    /**
-     * Parameter name key
-     */
+
+    /** Parameter name key */
     public static final String PARAMETERS_NAME = "name";
-    /**
-     * Parameter type key
-     */
+
+    /** Parameter type key */
     public static final String PARAMETERS_TYPE = "type";
-    /**
-     * Parameter value key
-     */
+
+    /** Parameter value key */
     public static final String PARAMETERS_VALUE = "value";
-    /**
-     * Parameter required flag key
-     */
+
+    /** Parameter required flag key */
     public static final String PARAMETERS_REQUIRED = "required";
-    /**
-     * Cartography query scope identifier
-     */
+
+    /** Cartography query scope identifier */
     public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
-    /**
-     * SQL query scope identifier
-     */
+
+    /** SQL query scope identifier */
     public static final String SCOPE_SQL_QUERY = "sql-query";
-    /**
-     * Web API query scope identifier
-     */
+
+    /** Web API query scope identifier */
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
-    /**
-     * Feature service edition scope identifier
-     */
+
+    /** Feature service edition scope identifier */
     public static final String SCOPE_FEATURES_SERVICE_EDIT = "feat-edit";
-    /**
-     * Database edition scope identifier
-     */
+
+    /** Database edition scope identifier */
     public static final String SCOPE_DATA_BASE_EDIT = "db-edit";
-    /**
-     * String type identifier
-     */
+
+    /** String type identifier */
     public static final String TYPE_STRING = "string";
-    /**
-     * Number type identifier
-     */
+
+    /** Number type identifier */
     public static final String TYPE_NUMBER = "number";
-    /**
-     * Array type identifier
-     */
+
+    /** Array type identifier */
     public static final String TYPE_ARRAY = "array";
-    /**
-     * Object type identifier
-     */
+
+    /** Object type identifier */
     public static final String TYPE_OBJECT = "object";
-    /**
-     * Boolean type identifier
-     */
+
+    /** Boolean type identifier */
     public static final String TYPE_BOOLEAN = "boolean";
-    /**
-     * Null type identifier
-     */
+
+    /** Null type identifier */
     public static final String TYPE_NULL = "null";
 
     /**
@@ -252,17 +221,13 @@ public final class DomainConstants {
     }
   }
 
-  /**
-   * Constants and utility methods for Service-related operations.
-   */
+  /** Constants and utility methods for Service-related operations. */
   public static final class Services {
     private Services() {
       // Prevent instantiation
     }
 
-    /**
-     * WFS service type identifier
-     */
+    /** WFS service type identifier */
     public static final String TYPE_WFS = "WFS";
 
     /**

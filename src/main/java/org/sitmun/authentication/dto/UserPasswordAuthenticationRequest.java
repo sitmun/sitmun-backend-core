@@ -6,9 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * DTO object for storing a user's credentials.
- */
+/** DTO object for storing a user's credentials. */
 @Setter
 @Getter
 public class UserPasswordAuthenticationRequest {

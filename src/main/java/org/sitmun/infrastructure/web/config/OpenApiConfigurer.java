@@ -19,8 +19,7 @@ public class OpenApiConfigurer {
   private final String apiVersion;
 
   public OpenApiConfigurer(
-    @Value("${sitmun.module}") String moduleName,
-    @Value("${sitmun.version}") String apiVersion) {
+      @Value("${sitmun.module}") String moduleName, @Value("${sitmun.version}") String apiVersion) {
     this.moduleName = moduleName;
     this.apiVersion = apiVersion;
   }
@@ -35,24 +34,22 @@ public class OpenApiConfigurer {
     final String securitySchemeName = "bearerAuth";
     final String apiTitle = String.format("%s API", StringUtils.capitalize(moduleName));
     return new OpenAPI()
-      .addSecurityItem(new SecurityRequirement()
-        .addList(securitySchemeName))
-      .components(
-        new Components()
-          .addSecuritySchemes(securitySchemeName,
-            new SecurityScheme()
-              .name(securitySchemeName)
-              .type(SecurityScheme.Type.HTTP)
-              .scheme("bearer")
-              .bearerFormat("JWT")
-          )
-      )
-      .info(new Info()
-        .title(apiTitle)
-        .version(apiVersion)
-        .description(
-          "Configuration manager of SITMUN applications."
-            + "<br/><br/>**Note**: In active development."
-        ));
+        .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    securitySchemeName,
+                    new SecurityScheme()
+                        .name(securitySchemeName)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")))
+        .info(
+            new Info()
+                .title(apiTitle)
+                .version(apiVersion)
+                .description(
+                    "Configuration manager of SITMUN applications."
+                        + "<br/><br/>**Note**: In active development."));
   }
 }

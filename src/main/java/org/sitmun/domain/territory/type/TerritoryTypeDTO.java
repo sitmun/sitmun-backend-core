@@ -1,4 +1,5 @@
 package org.sitmun.domain.territory.type;
+
 import lombok.*;
 
 @Builder(toBuilder = true)

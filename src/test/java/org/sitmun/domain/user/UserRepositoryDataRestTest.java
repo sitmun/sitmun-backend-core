@@ -1,5 +1,12 @@
 package org.sitmun.domain.user;
 
+import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,21 +19,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("User Repository Data REST test")
 class UserRepositoryDataRestTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   private MockHttpServletResponse response;
 
@@ -38,47 +36,52 @@ class UserRepositoryDataRestTest {
   @Test
   @DisplayName("POST: minimum set of properties")
   void create() throws Exception {
-    response = mvc.perform(post(URIConstants.USER_URI)
-        .content("{" +
-          "\"administrator\":false," +
-          "\"blocked\":false" +
-          "}")
-        .with(user(Fixtures.admin()))
-      )
-      .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
-      .andExpect(jsonPath("$.passwordSet").value(false))
-      .andReturn().getResponse();
+    response =
+        mvc.perform(
+                post(URIConstants.USER_URI)
+                    .content("{" + "\"administrator\":false," + "\"blocked\":false" + "}")
+                    .with(user(Fixtures.admin())))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()))
+            .andExpect(jsonPath("$.passwordSet").value(false))
+            .andReturn()
+            .getResponse();
   }
 
   @Test
   @DisplayName("POST: rejects an invalid email")
   void invalidEmail() throws Exception {
-    mvc.perform(post(URIConstants.USER_URI)
-        .content("{" +
-          "\"administrator\":false," +
-          "\"blocked\":false," +
-          "\"email\":\"false\"" +
-          "}")
-        .with(user(Fixtures.admin()))
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.errors[?(@.property=='email')].message").value("must be a well-formed email address"));
+    mvc.perform(
+            post(URIConstants.USER_URI)
+                .content(
+                    "{"
+                        + "\"administrator\":false,"
+                        + "\"blocked\":false,"
+                        + "\"email\":\"false\""
+                        + "}")
+                .with(user(Fixtures.admin())))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.errors[?(@.property=='email')].message")
+                .value("must be a well-formed email address"));
   }
 
   @Test
   @DisplayName("POST: accepts a valid email")
   void validEmail() throws Exception {
-    response = mvc.perform(post(URIConstants.USER_URI)
-        .content("{" +
-          "\"administrator\":false," +
-          "\"blocked\":false," +
-          "\"email\":\"false@false.com\"" +
-          "}")
-        .with(user(Fixtures.admin()))
-      )
-      .andExpect(status().isCreated())
-      .andReturn().getResponse();
+    response =
+        mvc.perform(
+                post(URIConstants.USER_URI)
+                    .content(
+                        "{"
+                            + "\"administrator\":false,"
+                            + "\"blocked\":false,"
+                            + "\"email\":\"false@false.com\""
+                            + "}")
+                    .with(user(Fixtures.admin())))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse();
   }
 
   @AfterEach
@@ -86,9 +89,8 @@ class UserRepositoryDataRestTest {
     if (response != null) {
       String location = response.getHeader("Location");
       if (location != null) {
-        mvc.perform(delete(location)
-          .with(user(Fixtures.admin()))
-        ).andExpect(status().isNoContent());
+        mvc.perform(delete(location).with(user(Fixtures.admin())))
+            .andExpect(status().isNoContent());
       }
     }
   }

@@ -1,15 +1,14 @@
 package org.sitmun.domain.task;
 
 import jakarta.validation.constraints.NotNull;
-import org.sitmun.domain.task.type.TaskType;
-import org.springframework.data.rest.core.RepositoryConstraintViolationException;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.sitmun.domain.task.type.TaskType;
+import org.springframework.data.rest.core.RepositoryConstraintViolationException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 
 public interface TaskValidator {
 
@@ -20,7 +19,7 @@ public interface TaskValidator {
   default Errors init(@NotNull Task task) {
     TaskType type = task.getType();
     String typeName = type != null ? type.getTitle() : "unknown";
-    return new BeanPropertyBindingResult(task, "Task "+typeName);
+    return new BeanPropertyBindingResult(task, "Task " + typeName);
   }
 
   default @NotNull Map<String, Object> getProperties(@NotNull Task task) {
@@ -44,10 +43,11 @@ public interface TaskValidator {
       throw new RepositoryConstraintViolationException(errors);
     }
 
-    Object rawParameters= map.get("parameters");
-    if(!(rawParameters instanceof List<?> parameters)) {
+    Object rawParameters = map.get("parameters");
+    if (!(rawParameters instanceof List<?> parameters)) {
       Errors errors = init(task);
-      errors.rejectValue("properties", "parameters.notList", "[parameters] property must be a list");
+      errors.rejectValue(
+          "properties", "parameters.notList", "[parameters] property must be a list");
       throw new RepositoryConstraintViolationException(errors);
     }
 
@@ -55,7 +55,8 @@ public interface TaskValidator {
     for (Object obj : parameters) {
       if (!(obj instanceof Map<?, ?> parameterMap)) {
         Errors errors = init(task);
-        errors.rejectValue("properties", "parameters.notListOfMaps", "[parameters] must be a list of maps");
+        errors.rejectValue(
+            "properties", "parameters.notListOfMaps", "[parameters] must be a list of maps");
         throw new RepositoryConstraintViolationException(errors);
       }
       //noinspection unchecked

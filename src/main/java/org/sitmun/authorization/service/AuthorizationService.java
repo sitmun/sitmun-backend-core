@@ -1,6 +1,11 @@
 package org.sitmun.authorization.service;
 
 import com.google.common.collect.ImmutableList;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.sitmun.domain.application.Application;
@@ -28,12 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Service
 public class AuthorizationService {
@@ -50,15 +49,18 @@ public class AuthorizationService {
   private final TreeNodeRepository treeNodeRepository;
   private final TranslationService translationService;
 
-  public AuthorizationService(ApplicationRepository applicationRepository,
-                              TerritoryRepository territoryRepository, RoleRepository roleRepository,
-                              ConfigurationParameterRepository configurationParameterRepository,
-                              CartographyPermissionRepository cartographyPermissionRepository,
-                              CartographyRepository cartographyRepository,
-                              TaskRepository taskRepository,
-                              BackgroundRepository backgroundRepository, TreeRepository treeRepository,
-                              TreeNodeRepository treeNodeRepository,
-                              TranslationService translationService) {
+  public AuthorizationService(
+      ApplicationRepository applicationRepository,
+      TerritoryRepository territoryRepository,
+      RoleRepository roleRepository,
+      ConfigurationParameterRepository configurationParameterRepository,
+      CartographyPermissionRepository cartographyPermissionRepository,
+      CartographyRepository cartographyRepository,
+      TaskRepository taskRepository,
+      BackgroundRepository backgroundRepository,
+      TreeRepository treeRepository,
+      TreeNodeRepository treeNodeRepository,
+      TranslationService translationService) {
     this.applicationRepository = applicationRepository;
     this.territoryRepository = territoryRepository;
     this.roleRepository = roleRepository;
@@ -73,11 +75,11 @@ public class AuthorizationService {
   }
 
   /**
-   * The list of applications for a user.
-   * The logic is as follows:
+   * The list of applications for a user. The logic is as follows:
+   *
    * <ul>
-   *   <li>From the application, we can discover the roles (ROLE).</li>
-   *   <li>We match all user configuration where (USER, *, ROLE, *)</li>
+   *   <li>From the application, we can discover the roles (ROLE).
+   *   <li>We match all user configuration where (USER, *, ROLE, *)
    * </ul>
    */
   public Page<Application> findApplicationsByUser(String username, Pageable pageable) {
@@ -85,54 +87,59 @@ public class AuthorizationService {
   }
 
   /**
-   * The list of territories for a user.
-   * The logic is as follows:
+   * The list of territories for a user. The logic is as follows:
+   *
    * <ul>
-   *   <li>We match all user configuration where (USER, *, ROLE, *)</li>
-   *   <li>From the territory, we can discover the roles (USER, TERRITORY, *, FALSE).</li>
-   *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the application if {@link Application#getAccessParentTerritory()} is `true`</li>
-   *   <li>When a parent territory matches (USER, TERRITORY-PARENT, *, TRUE) we consider included the application if {@link Application#getAccessChildrenTerritory()} ()} is `true`</li>
-   *   <li>And ensure that the territory included is related to the application of the role</li>
+   *   <li>We match all user configuration where (USER, *, ROLE, *)
+   *   <li>From the territory, we can discover the roles (USER, TERRITORY, *, FALSE).
+   *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the
+   *       application if {@link Application#getAccessParentTerritory()} is `true`
+   *   <li>When a parent territory matches (USER, TERRITORY-PARENT, *, TRUE) we consider included
+   *       the application if {@link Application#getAccessChildrenTerritory()} ()} is `true`
+   *   <li>And ensure that the territory included is related to the application of the role
    * </ul>
    */
   public Page<Territory> findTerritoriesByUser(String username, Pageable pageable) {
     return territoryRepository.findByUser(username, pageable);
   }
 
-
   /**
-   * Get the list of territories for the user in a given application.
-   * The logic is as follows:
+   * Get the list of territories for the user in a given application. The logic is as follows:
+   *
    * <ul>
-   *   <li>From the application, we can discover the roles (ROLE).</li>
-   *   <li>We match all user configuration where (USER, territory, ROLE, *)</li>
-   *   <li>When a user configuration is (USER, territory, ROLE, TRUE) we consider included the territory if {@link Application#getAccessParentTerritory()} is `true`</li>
+   *   <li>From the application, we can discover the roles (ROLE).
+   *   <li>We match all user configuration where (USER, territory, ROLE, *)
+   *   <li>When a user configuration is (USER, territory, ROLE, TRUE) we consider included the
+   *       territory if {@link Application#getAccessParentTerritory()} is `true`
    * </ul>
    */
-  public Page<Territory> findTerritoriesByUserAndApplication(String username, Integer appId, Pageable pageable) {
+  public Page<Territory> findTerritoriesByUserAndApplication(
+      String username, Integer appId, Pageable pageable) {
     return territoryRepository.findByUserAndApplication(username, appId, pageable);
   }
 
   /**
-   * Get the list of applications for the user in a given territory.
-   * The logic is as follows:
+   * Get the list of applications for the user in a given territory. The logic is as follows:
+   *
    * <ul>
-   *   <li>We match all user configurations where (USER, TERRITORY, *, false)</li>
-   *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the territory if {@link Application#getAccessParentTerritory()} is `true`</li>
+   *   <li>We match all user configurations where (USER, TERRITORY, *, false)
+   *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the
+   *       territory if {@link Application#getAccessParentTerritory()} is `true`
    * </ul>
    */
-  public Page<Application> findApplicationsByUserAndTerritory(String username, Integer territoryId, Pageable pageable) {
+  public Page<Application> findApplicationsByUserAndTerritory(
+      String username, Integer territoryId, Pageable pageable) {
     return applicationRepository.findByUserAndTerritory(username, territoryId, pageable);
   }
 
-  /**
-   * Refina la lista de aplicaciones restringiendo a una única aplicación.
-   */
-  public Optional<Application> findApplicationByIdAndUserAndTerritory(String username, Integer appId, Integer territoryId) {
+  /** Refina la lista de aplicaciones restringiendo a una única aplicación. */
+  public Optional<Application> findApplicationByIdAndUserAndTerritory(
+      String username, Integer appId, Integer territoryId) {
     return applicationRepository.findByIdAndUserAndTerritory(username, appId, territoryId);
   }
 
-  public List<Role> findRolesByApplicationAndUserAndTerritory(String username, Integer appId, Integer territoryId) {
+  public List<Role> findRolesByApplicationAndUserAndTerritory(
+      String username, Integer appId, Integer territoryId) {
     return roleRepository.findRolesByApplicationAndUserAndTerritory(username, appId, territoryId);
   }
 
@@ -142,7 +149,9 @@ public class AuthorizationService {
 
   @NotNull
   private Optional<Profile> buildProfile(ProfileContext context) {
-    Optional<Application> application = findApplicationByIdAndUserAndTerritory(context.getUsername(), context.getAppId(), context.getTerritoryId());
+    Optional<Application> application =
+        findApplicationByIdAndUserAndTerritory(
+            context.getUsername(), context.getAppId(), context.getTerritoryId());
     if (application.isEmpty()) {
       return Optional.empty();
     }
@@ -154,16 +163,23 @@ public class AuthorizationService {
     }
     territory.ifPresent(translationService::updateInternationalization);
 
-    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory(context.getUsername(), context.getAppId(), context.getTerritoryId());
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            context.getUsername(), context.getAppId(), context.getTerritoryId());
     roles.forEach(translationService::updateInternationalization);
 
-    List<Background> backgrounds = backgroundRepository.findActiveByApplication(context.getAppId()).stream().map(objects -> (Background) objects[1]).collect(Collectors.toList());
+    List<Background> backgrounds =
+        backgroundRepository.findActiveByApplication(context.getAppId()).stream()
+            .map(objects -> (Background) objects[1])
+            .collect(Collectors.toList());
     backgrounds.forEach(translationService::updateInternationalization);
 
-    List<CartographyPermission> cartographyPermissions = cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    List<CartographyPermission> cartographyPermissions =
+        cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
     cartographyPermissions.forEach(translationService::updateInternationalization);
 
-    List<Cartography> layers = cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    List<Cartography> layers =
+        cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
     layers.forEach(translationService::updateInternationalization);
 
     List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
@@ -175,34 +191,45 @@ public class AuthorizationService {
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);
     nodes.forEach(translationService::updateInternationalization);
 
-    Map<Tree, List<TreeNode>> treeNodes = nodes.stream().collect(Collectors.groupingBy(TreeNode::getTree));
+    Map<Tree, List<TreeNode>> treeNodes =
+        nodes.stream().collect(Collectors.groupingBy(TreeNode::getTree));
 
-    List<ConfigurationParameter> global = ImmutableList.copyOf(configurationParameterRepository.findAll());
+    List<ConfigurationParameter> global =
+        ImmutableList.copyOf(configurationParameterRepository.findAll());
 
     List<org.sitmun.domain.service.Service> services = new ArrayList<>();
     layers.forEach(layer -> services.add(layer.getService()));
     tasks.forEach(task -> services.add(task.getService()));
-    List<org.sitmun.domain.service.Service> filteredServices = services.stream().filter(Objects::nonNull).filter(distinctByKey(org.sitmun.domain.service.Service::getId)).collect(Collectors.toList());
+    List<org.sitmun.domain.service.Service> filteredServices =
+        services.stream()
+            .filter(Objects::nonNull)
+            .filter(distinctByKey(org.sitmun.domain.service.Service::getId))
+            .collect(Collectors.toList());
 
-    return Optional.of(Profile.builder()
-      .application(application.get())
-      .territory(territory.get())
-      .backgrounds(backgrounds)
-      .groups(cartographyPermissions)
-      .layers(layers)
-      .tasks(tasks)
-      .services(filteredServices)
-      .trees(trees)
-      .treeNodes(treeNodes)
-      .context(context)
-      .global(global)
-      .build());
+    return Optional.of(
+        Profile.builder()
+            .application(application.get())
+            .territory(territory.get())
+            .backgrounds(backgrounds)
+            .groups(cartographyPermissions)
+            .layers(layers)
+            .tasks(tasks)
+            .services(filteredServices)
+            .trees(trees)
+            .treeNodes(treeNodes)
+            .context(context)
+            .global(global)
+            .build());
   }
 
   private List<TreeNode> pruneNodes(List<TreeNode> nodes, Integer pivotNode) {
     return nodes.stream()
-      .filter(node -> node != null && (Objects.equals(node.getId(), pivotNode) || Objects.equals(node.getParentId(), pivotNode)))
-      .collect(Collectors.toList());
+        .filter(
+            node ->
+                node != null
+                    && (Objects.equals(node.getId(), pivotNode)
+                        || Objects.equals(node.getParentId(), pivotNode)))
+        .collect(Collectors.toList());
   }
 
   private Profile pruneProfile(Profile profile) {
@@ -210,90 +237,135 @@ public class AuthorizationService {
     if (profile.getContext().getNodeSectionBehaviour().nodePageMode()) {
 
       Integer pivotNode = profile.getContext().getNodeId();
-      
-      profile.getTreeNodes().forEach((tree, nodes) -> {
-        Integer size = nodes.size();
-        List<TreeNode> prunedNodes = pruneNodes(nodes, pivotNode);
-        if (pivotNode == null && prunedNodes.size() == 1) {
-          prunedNodes = pruneNodes(nodes, prunedNodes.get(0).getId());
-        }
-        log.info("Pruned {} nodes to {} nodes using as pivot {}", size, prunedNodes.size(), pivotNode);
-        profile.getTreeNodes().put(tree, prunedNodes);
-      });
+
+      profile
+          .getTreeNodes()
+          .forEach(
+              (tree, nodes) -> {
+                Integer size = nodes.size();
+                List<TreeNode> prunedNodes = pruneNodes(nodes, pivotNode);
+                if (pivotNode == null && prunedNodes.size() == 1) {
+                  prunedNodes = pruneNodes(nodes, prunedNodes.get(0).getId());
+                }
+                log.info(
+                    "Pruned {} nodes to {} nodes using as pivot {}",
+                    size,
+                    prunedNodes.size(),
+                    pivotNode);
+                profile.getTreeNodes().put(tree, prunedNodes);
+              });
     }
 
-    profile.setTrees(profile.getTrees().stream()
-      .filter(tree -> !profile.getTreeNodes().get(tree).isEmpty())
-      .collect(Collectors.toList()));
+    profile.setTrees(
+        profile.getTrees().stream()
+            .filter(tree -> !profile.getTreeNodes().get(tree).isEmpty())
+            .collect(Collectors.toList()));
 
     // Prune cartography layers that either:
     // - Do not belong to a node
     // - Do not belong to a task
     // - Do not belong to a background
 
-    profile.getLayers().removeIf(layer -> {
-      boolean belongsToNode = profile.getTreeNodes().values().stream()
-        .flatMap(Collection::stream)
-        .map(TreeNode::getCartography)
-        .filter(Objects::nonNull)
-        .map(Cartography::getId)
-        .anyMatch(cartographyId -> Objects.equals(layer.getId(), cartographyId));
+    profile
+        .getLayers()
+        .removeIf(
+            layer -> {
+              boolean belongsToNode =
+                  profile.getTreeNodes().values().stream()
+                      .flatMap(Collection::stream)
+                      .map(TreeNode::getCartography)
+                      .filter(Objects::nonNull)
+                      .map(Cartography::getId)
+                      .anyMatch(cartographyId -> Objects.equals(layer.getId(), cartographyId));
 
-      boolean belongsToTask = profile.getTasks().stream()
-        .map(Task::getCartography)
-        .filter(Objects::nonNull)
-        .map(Cartography::getId)
-        .anyMatch(cartographyId -> Objects.equals(cartographyId, layer.getId()));
+              boolean belongsToTask =
+                  profile.getTasks().stream()
+                      .map(Task::getCartography)
+                      .filter(Objects::nonNull)
+                      .map(Cartography::getId)
+                      .anyMatch(cartographyId -> Objects.equals(cartographyId, layer.getId()));
 
-      boolean belongsToBackground = profile.getBackgrounds().stream()
-        .flatMap(background -> Optional.ofNullable(background.getCartographyGroup())
-          .map(CartographyPermission::getMembers)
-          .orElseGet(Collections::emptySet).stream())
-        .anyMatch(member -> Objects.equals(member.getId(), layer.getId()));
+              boolean belongsToBackground =
+                  profile.getBackgrounds().stream()
+                      .flatMap(
+                          background ->
+                              Optional.ofNullable(background.getCartographyGroup())
+                                  .map(CartographyPermission::getMembers)
+                                  .orElseGet(Collections::emptySet)
+                                  .stream())
+                      .anyMatch(member -> Objects.equals(member.getId(), layer.getId()));
 
-      log.info("Layer {} belongs to node: {}, task: {}, background: {} => remove: {}", layer.getId(), belongsToNode, belongsToTask, belongsToBackground, !belongsToNode && !belongsToTask && !belongsToBackground);
-      return !belongsToNode && !belongsToTask && !belongsToBackground;
-    });
+              log.info(
+                  "Layer {} belongs to node: {}, task: {}, background: {} => remove: {}",
+                  layer.getId(),
+                  belongsToNode,
+                  belongsToTask,
+                  belongsToBackground,
+                  !belongsToNode && !belongsToTask && !belongsToBackground);
+              return !belongsToNode && !belongsToTask && !belongsToBackground;
+            });
 
     // Prune groups that are not related to backgrounds
-    profile.getGroups().removeIf(permission -> {
-      boolean belongsToBackground = profile.getBackgrounds().stream()
-        .flatMap(background -> Optional.ofNullable(background.getCartographyGroup()).stream())
-        .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
+    profile
+        .getGroups()
+        .removeIf(
+            permission -> {
+              boolean belongsToBackground =
+                  profile.getBackgrounds().stream()
+                      .flatMap(
+                          background ->
+                              Optional.ofNullable(background.getCartographyGroup()).stream())
+                      .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
 
-      log.info("Group {} belongs to background: {} => remove: {}", permission.getId(), belongsToBackground, !belongsToBackground);
-      return !belongsToBackground;
-    });
+              log.info(
+                  "Group {} belongs to background: {} => remove: {}",
+                  permission.getId(),
+                  belongsToBackground,
+                  !belongsToBackground);
+              return !belongsToBackground;
+            });
 
     // Prune services that either:
     // - Do not belong to a task
     // - Do not belong to a node
     // - Do not belong to a layer
-    profile.getServices().removeIf(service -> {
-      boolean belongsToTask = profile.getTasks().stream()
-        .map(Task::getService)
-        .filter(Objects::nonNull)
-        .map(org.sitmun.domain.service.Service::getId)
-        .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+    profile
+        .getServices()
+        .removeIf(
+            service -> {
+              boolean belongsToTask =
+                  profile.getTasks().stream()
+                      .map(Task::getService)
+                      .filter(Objects::nonNull)
+                      .map(org.sitmun.domain.service.Service::getId)
+                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
 
-      boolean belongsToNode = profile.getTreeNodes().values().stream()
-        .flatMap(Collection::stream)
-        .map(TreeNode::getCartography)
-        .filter(Objects::nonNull)
-        .map(Cartography::getService)
-        .filter(Objects::nonNull)
-        .map(org.sitmun.domain.service.Service::getId)
-        .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+              boolean belongsToNode =
+                  profile.getTreeNodes().values().stream()
+                      .flatMap(Collection::stream)
+                      .map(TreeNode::getCartography)
+                      .filter(Objects::nonNull)
+                      .map(Cartography::getService)
+                      .filter(Objects::nonNull)
+                      .map(org.sitmun.domain.service.Service::getId)
+                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
 
-      boolean belongsToLayer = profile.getLayers().stream()
-        .map(Cartography::getService)
-        .filter(Objects::nonNull)
-        .map(org.sitmun.domain.service.Service::getId)
-        .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+              boolean belongsToLayer =
+                  profile.getLayers().stream()
+                      .map(Cartography::getService)
+                      .filter(Objects::nonNull)
+                      .map(org.sitmun.domain.service.Service::getId)
+                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
 
-      log.info("Service {} belongs to task: {}, node: {}, layer: {} => remove: {}", service.getId(), belongsToTask, belongsToNode, belongsToLayer, !belongsToTask && !belongsToNode && !belongsToLayer);
-      return !belongsToTask && !belongsToNode && !belongsToLayer;
-    });
+              log.info(
+                  "Service {} belongs to task: {}, node: {}, layer: {} => remove: {}",
+                  service.getId(),
+                  belongsToTask,
+                  belongsToNode,
+                  belongsToLayer,
+                  !belongsToTask && !belongsToNode && !belongsToLayer);
+              return !belongsToTask && !belongsToNode && !belongsToLayer;
+            });
     return profile;
   }
 

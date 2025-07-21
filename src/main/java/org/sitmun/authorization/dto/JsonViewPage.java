@@ -1,11 +1,10 @@
 package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
-
-import java.util.List;
 
 public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T> {
 
@@ -32,9 +31,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getContent();
   }
 
-  /**
-   * Total pages.
-   */
+  /** Total pages. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
@@ -42,9 +39,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getTotalPages();
   }
 
-  /**
-   * Returns the size of this page.
-   */
+  /** Returns the size of this page. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
@@ -52,9 +47,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return getContent().size();
   }
 
-  /**
-   * Return the number of the slice
-   */
+  /** Return the number of the slice */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull

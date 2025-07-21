@@ -19,27 +19,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Controller to authenticate users.
- */
+/** Controller to authenticate users. */
 @RestController
 @RequestMapping("/api/authenticate")
 @Tag(name = "authentication", description = "authentication with JWT")
 public class AuthenticationController {
 
-  final
-  AuthenticationManager authenticationManager;
+  final AuthenticationManager authenticationManager;
 
-  final
-  UserDetailsService userDetailsService;
+  final UserDetailsService userDetailsService;
 
-  final
-  PasswordEncoder encoder;
+  final PasswordEncoder encoder;
 
-  final
-  JsonWebTokenService jsonWebTokenService;
+  final JsonWebTokenService jsonWebTokenService;
 
-  public AuthenticationController(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder encoder, JsonWebTokenService jsonWebTokenService) {
+  public AuthenticationController(
+      AuthenticationManager authenticationManager,
+      UserDetailsService userDetailsService,
+      PasswordEncoder encoder,
+      JsonWebTokenService jsonWebTokenService) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.encoder = encoder;
@@ -54,14 +52,15 @@ public class AuthenticationController {
    */
   @PostMapping
   @SecurityRequirements
-  public ResponseEntity<AuthenticationResponse> authenticateUser(@Valid @RequestBody UserPasswordAuthenticationRequest body) {
-    Authentication authentication = authenticationManager.authenticate(
-      new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
+  public ResponseEntity<AuthenticationResponse> authenticateUser(
+      @Valid @RequestBody UserPasswordAuthenticationRequest body) {
+    Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
     if (authentication.isAuthenticated()) {
       UserDetails userDetails = userDetailsService.loadUserByUsername(body.getUsername());
       String token = jsonWebTokenService.generateToken(userDetails);
-      return ResponseEntity.ok()
-        .body(new AuthenticationResponse(token));
+      return ResponseEntity.ok().body(new AuthenticationResponse(token));
     }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }

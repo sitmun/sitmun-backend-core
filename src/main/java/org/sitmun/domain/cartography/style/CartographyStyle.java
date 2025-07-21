@@ -3,17 +3,14 @@ package org.sitmun.domain.cartography.style;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 
-import java.util.Objects;
-
-/**
- * Geographic Information style.
- */
+/** Geographic Information style. */
 @Entity
 @Table(name = "STM_STY_GI")
 @Builder
@@ -23,43 +20,33 @@ import java.util.Objects;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CartographyStyle {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_STY_GI_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "SGI_ID",
-    allocationSize = 1)
+      name = "STM_STY_GI_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "SGI_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_STY_GI_GEN")
   @Column(name = "SGI_ID")
   private Integer id;
 
-  /**
-   * Style name.
-   */
+  /** Style name. */
   @Column(name = "SGI_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String name;
 
-  /**
-   * Style title.
-   */
+  /** Style title. */
   @Column(name = "SGI_TITLE", length = PersistenceConstants.TITLE)
   private String title;
 
-  /**
-   * Style abstract.
-   */
+  /** Style abstract. */
   @Column(name = "SGI_ABSTRACT", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String description;
 
-  /**
-   * Style legend.
-   */
+  /** Style legend. */
   @Embedded
   @AttributeOverride(name = "width", column = @Column(name = "SGI_LURL_WIDTH"))
   @AttributeOverride(name = "height", column = @Column(name = "SGI_LURL_HEIGHT"))
@@ -69,16 +56,14 @@ public class CartographyStyle {
 
   /**
    * This is the preferred style. At most one is preferred per Cartography.
-   * <p>
-   * If more than one is set as preferred, the behaviour is undefined.
+   *
+   * <p>If more than one is set as preferred, the behaviour is undefined.
    */
   @Column(name = "SGI_DEFAULT")
   @NotNull
   private Boolean defaultStyle;
 
-  /**
-   * Cartography that owns the style.
-   */
+  /** Cartography that owns the style. */
   @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "SGI_GIID", foreignKey = @ForeignKey(name = "STM_SGI_FK_GEO"))
@@ -103,4 +88,3 @@ public class CartographyStyle {
     return getClass().hashCode();
   }
 }
-

@@ -5,5 +5,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "log")
 @RepositoryRestResource(collectionResourceRel = "logs", path = "logs")
-public interface LogRepository extends org.springframework.data.jpa.repository.JpaRepository<Log, Integer> {
-}
+public interface LogRepository
+    extends org.springframework.data.jpa.repository.JpaRepository<Log, Integer> {}

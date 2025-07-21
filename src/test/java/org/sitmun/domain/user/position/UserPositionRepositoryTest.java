@@ -1,5 +1,6 @@
 package org.sitmun.domain.user.position;
 
+import java.util.Date;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,20 +20,14 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
-import java.util.Date;
-
-
 @DataJpaTest
 @DisplayName("User Position Repository JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserPositionRepositoryTest {
 
-  @Autowired
-  private UserPositionRepository userPositionRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private TerritoryRepository territorioRepository;
+  @Autowired private UserPositionRepository userPositionRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private TerritoryRepository territorioRepository;
   private UserPosition userPosition;
 
   @BeforeEach
@@ -49,23 +44,24 @@ class UserPositionRepositoryTest {
     user.setPermissions(null);
     userRepository.save(user);
 
-    Territory territory = Territory.builder()
-      .name("Admin")
-      .blocked(false)
-      .territorialAuthorityEmail("email@email.org")
-      .createdDate(new Date())
-      .territorialAuthorityName("Test")
-      .build();
+    Territory territory =
+        Territory.builder()
+            .name("Admin")
+            .blocked(false)
+            .territorialAuthorityEmail("email@email.org")
+            .createdDate(new Date())
+            .territorialAuthorityName("Test")
+            .build();
     territorioRepository.save(territory);
 
-    userPosition = UserPosition.builder()
-      .name("Test")
-      .createdDate(new Date())
-      .organization("Test")
-      .territory(territory)
-      .user(user)
-      .build();
-
+    userPosition =
+        UserPosition.builder()
+            .name("Test")
+            .createdDate(new Date())
+            .organization("Test")
+            .territory(territory)
+            .user(user)
+            .build();
   }
 
   @Test

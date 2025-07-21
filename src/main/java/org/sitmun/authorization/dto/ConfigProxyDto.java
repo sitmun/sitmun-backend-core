@@ -16,7 +16,9 @@ public class ConfigProxyDto {
   private long exp;
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-  @JsonSubTypes({@JsonSubTypes.Type(OgcWmsPayloadDto.class), @JsonSubTypes.Type(DatasourcePayloadDto.class)})
+  @JsonSubTypes({
+    @JsonSubTypes.Type(OgcWmsPayloadDto.class),
+    @JsonSubTypes.Type(DatasourcePayloadDto.class)
+  })
   private PayloadDto payload;
-
 }

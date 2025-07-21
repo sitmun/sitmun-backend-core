@@ -1,5 +1,12 @@
 package org.sitmun.domain.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashSet;
 import org.assertj.core.api.Assumptions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
@@ -25,63 +32,51 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.PageRequest;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DataJpaTest
 @DisplayName("Application Repository JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ApplicationRepositoryTest {
 
-  @Autowired
-  private ApplicationRepository applicationRepository;
-  @Autowired
-  private CartographyPermissionRepository cartographyPermissionRepository;
-  @Autowired
-  private BackgroundRepository backgroundRepository;
+  @Autowired private ApplicationRepository applicationRepository;
+  @Autowired private CartographyPermissionRepository cartographyPermissionRepository;
+  @Autowired private BackgroundRepository backgroundRepository;
   private Application application;
 
   @BeforeEach
   void init() {
 
-    application = Application.builder()
-      .name("Test")
-      .createdDate(Date.from(Instant.now()))
-      .trees(null)
-      .treeAutoRefresh(true)
-      .scales(null)
-      .situationMap(null)
-      .parameters(null)
-      .srs(null)
-      .parameters(new HashSet<>())
-      .theme(null)
-      .type(null)
-      .title("Test")
-      .availableRoles(new HashSet<>())
-      .backgrounds(new HashSet<>())
-      .build();
+    application =
+        Application.builder()
+            .name("Test")
+            .createdDate(Date.from(Instant.now()))
+            .trees(null)
+            .treeAutoRefresh(true)
+            .scales(null)
+            .situationMap(null)
+            .parameters(null)
+            .srs(null)
+            .parameters(new HashSet<>())
+            .theme(null)
+            .type(null)
+            .title("Test")
+            .availableRoles(new HashSet<>())
+            .backgrounds(new HashSet<>())
+            .build();
 
-    Role rol = Role.builder()
-      .name("Rol 1")
-      .build();
+    Role rol = Role.builder().name("Rol 1").build();
     application.getAvailableRoles().add(rol);
 
-      CartographyPermission backgroundMap = CartographyPermission.builder()
-              .name("Background map")
-              .build();
-      cartographyPermissionRepository.save(backgroundMap);
+    CartographyPermission backgroundMap =
+        CartographyPermission.builder().name("Background map").build();
+    cartographyPermissionRepository.save(backgroundMap);
 
     Background background = new Background();
     background.setActive(true);
     background.setDescription(null);
     background.setName("fondo");
     background.setCartographyGroup(backgroundMap);
-    background.setCreatedDate(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    background.setCreatedDate(
+        Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
     backgroundRepository.save(background);
 
     ApplicationBackground applicationBackground = new ApplicationBackground();
@@ -113,7 +108,6 @@ class ApplicationRepositoryTest {
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
 
-
     application = applicationRepository.findById(application.getId()).orElseGet(Assertions::fail);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(application.getAvailableRoles()).isNotEmpty();
@@ -143,7 +137,8 @@ class ApplicationRepositoryTest {
   @Test
   @DisplayName("Find applications filtered by username and territory")
   void findApplicationsByUsernameAndTerritory() {
-    assertThat(applicationRepository.findByUserAndTerritory("public", 1, PageRequest.of(0, 10))).hasSize(4);
+    assertThat(applicationRepository.findByUserAndTerritory("public", 1, PageRequest.of(0, 10)))
+        .hasSize(4);
   }
 
   @TestConfiguration

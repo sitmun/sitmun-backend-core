@@ -25,8 +25,8 @@ public class TreeNodeEventHandler {
   @HandleBeforeCreate
   @Transactional(rollbackFor = RequirementException.class)
   public void handleTreeNodeCreate(@NotNull TreeNode treeNode) {
-	String type = treeNode.getParent() != null ? treeNode.getParent().getType() : "";
-	treeNode.setImage(imageTransformer.scaleImage(treeNode.getImage(), type));
+    String type = treeNode.getParent() != null ? treeNode.getParent().getType() : "";
+    treeNode.setImage(imageTransformer.scaleImage(treeNode.getImage(), type));
 
     Cartography cartography = treeNode.getCartography();
     String style = treeNode.getStyle();
@@ -36,7 +36,8 @@ public class TreeNodeEventHandler {
         if (cartography.getStyles().stream().anyMatch(it -> trimmedStyle.equals(it.getName()))) {
           treeNode.setStyle(trimmedStyle);
         } else {
-          throw new RequirementException("Tree node style not found in the tree node cartography's styles");
+          throw new RequirementException(
+              "Tree node style not found in the tree node cartography's styles");
         }
       } else {
         throw new RequirementException("Tree node style requires a tree node with cartography");

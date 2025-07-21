@@ -20,8 +20,7 @@ import org.springframework.core.task.TaskExecutor;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TreeNodeRepositoryTest {
 
-  @Autowired
-  private TreeNodeRepository treeNodeRepository;
+  @Autowired private TreeNodeRepository treeNodeRepository;
   private TreeNode treeNode;
 
   @BeforeEach

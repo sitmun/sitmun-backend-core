@@ -1,9 +1,8 @@
 package org.sitmun.domain.task;
 
+import java.util.Objects;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 public class TaskQueryValidator implements TaskValidator {

@@ -7,8 +7,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 @TestConfiguration
 public class MockMailConfig {
-    @Bean
-    public JavaMailSender javaMailSender() {
-        return Mockito.mock(JavaMailSender.class);
-    }
-} 
+  @Bean
+  public JavaMailSender javaMailSender() {
+    return Mockito.mock(JavaMailSender.class);
+  }
+}

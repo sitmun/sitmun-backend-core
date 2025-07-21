@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.web.config;
 
+import java.util.Locale;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
@@ -8,8 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-
-import java.util.Locale;
 
 @Configuration
 public class LocaleConfigurer implements WebMvcConfigurer {
@@ -30,7 +29,7 @@ public class LocaleConfigurer implements WebMvcConfigurer {
 
   @Bean
   public MappedInterceptor localeInterceptor() {
-    return new MappedInterceptor(new String[]{"/**"}, localeChangeInterceptor());
+    return new MappedInterceptor(new String[] {"/**"}, localeChangeInterceptor());
   }
 
   @Override

@@ -9,5 +9,4 @@ public interface TaskMapper {
   boolean accept(Task task);
 
   TaskDto map(Task task, Application application, Territory territory);
-
 }

@@ -6,5 +6,4 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "service parameter")
 @RepositoryRestResource(collectionResourceRel = "service-parameters", path = "service-parameters")
-public interface ServiceParameterRepository extends JpaRepository<ServiceParameter, Integer> {
-}
+public interface ServiceParameterRepository extends JpaRepository<ServiceParameter, Integer> {}

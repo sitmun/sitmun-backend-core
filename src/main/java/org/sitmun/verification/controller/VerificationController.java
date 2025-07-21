@@ -24,31 +24,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class VerificationController {
   private final AuthenticationManager authenticationManager;
   private final UserRepository userRepository;
-  VerificationController(AuthenticationManager authenticationManager, UserRepository userRepository) {
+
+  VerificationController(
+      AuthenticationManager authenticationManager, UserRepository userRepository) {
     this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
   }
-  /**
-   * Verify if the user password is valid
-   */
+
+  /** Verify if the user password is valid */
   @PostMapping("/verify-password")
   @SecurityRequirements
-  public ResponseEntity<Boolean> verifyPassword(@Valid @RequestBody UserPasswordAuthenticationRequest body) {
+  public ResponseEntity<Boolean> verifyPassword(
+      @Valid @RequestBody UserPasswordAuthenticationRequest body) {
     ResponseEntity<Boolean> response;
-    try{
-      Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
+    try {
+      Authentication authentication =
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
       response = new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
-    }
-    catch (BadCredentialsException e){
+    } catch (BadCredentialsException e) {
       log.warn("Invalid credentials for user {}: {}", body.getUsername(), e.getMessage());
       response = new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
     return response;
   }
-  /**
-   * Verify is this email is already used
-   */
+
+  /** Verify is this email is already used */
   @PostMapping("/verify-email")
   public ResponseEntity<Boolean> verifyEmail(@RequestBody(required = false) String email) {
     if (email == null) ResponseEntity.ok(true);

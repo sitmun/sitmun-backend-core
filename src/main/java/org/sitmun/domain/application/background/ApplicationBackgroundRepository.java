@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "application background")
-@RepositoryRestResource(collectionResourceRel = "application-backgrounds", path = "application-backgrounds")
+@RepositoryRestResource(
+    collectionResourceRel = "application-backgrounds",
+    path = "application-backgrounds")
 public interface ApplicationBackgroundRepository
-  extends JpaRepository<ApplicationBackground, Integer> {
-}
+    extends JpaRepository<ApplicationBackground, Integer> {}

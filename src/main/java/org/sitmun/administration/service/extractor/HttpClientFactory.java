@@ -1,18 +1,17 @@
 package org.sitmun.administration.service.extractor;
 
+import java.io.IOException;
+import java.util.List;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -22,7 +21,8 @@ public class HttpClientFactory {
   private final OkHttpClient safeClient;
   private final OkHttpClient unsafeClient;
 
-  public HttpClientFactory(@Value("${sitmun.client.unsafe-allowed-hosts:*}") List<String> unsafeAllowedHosts) {
+  public HttpClientFactory(
+      @Value("${sitmun.client.unsafe-allowed-hosts:*}") List<String> unsafeAllowedHosts) {
     this.unsafeAllowedHosts = unsafeAllowedHosts;
     safeClient = new OkHttpClient.Builder().build();
     unsafeClient = configureToIgnoreCertificate(new OkHttpClient.Builder()).build();
@@ -33,22 +33,23 @@ public class HttpClientFactory {
     try {
 
       // Create a trust manager that does not validate certificate chains
-      final TrustManager[] trustAllCerts = new TrustManager[]{
-        new X509TrustManager() {
-          @Override
-          public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-          }
+      final TrustManager[] trustAllCerts =
+          new TrustManager[] {
+            new X509TrustManager() {
+              @Override
+              public void checkClientTrusted(
+                  java.security.cert.X509Certificate[] chain, String authType) {}
 
-          @Override
-          public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-          }
+              @Override
+              public void checkServerTrusted(
+                  java.security.cert.X509Certificate[] chain, String authType) {}
 
-          @Override
-          public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[]{};
-          }
-        }
-      };
+              @Override
+              public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[] {};
+              }
+            }
+          };
 
       // Install the all-trusting trust manager
       final SSLContext sslContext = SSLContext.getInstance("SSL");

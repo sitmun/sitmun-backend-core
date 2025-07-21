@@ -1,5 +1,9 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.URIConstants;
@@ -8,32 +12,26 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Locale Repository Data REST test")
 class LocaleRepositoryDataRestTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   @Test
   @DisplayName("GET: Obtain original version")
   void obtainOriginalVersion() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("English"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("English"));
   }
 
   @Test
   @DisplayName("GET: Obtain translated version Spa")
   void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI + "?lang=es"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("Inglés"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("Inglés"));
   }
 }

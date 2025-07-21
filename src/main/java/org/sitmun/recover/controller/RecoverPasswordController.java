@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
@@ -29,13 +32,7 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
-/**
- * Controller to authenticate users.
- */
+/** Controller to authenticate users. */
 @Slf4j
 @RestController
 @RequestMapping("/api/recover-password")
@@ -60,11 +57,11 @@ public class RecoverPasswordController {
   private final ApplicationEventPublisher publisher;
 
   public RecoverPasswordController(
-    MailService mailService,
-    UserRepository userRepository,
-    Validator validator,
-    ApplicationEventPublisher publisher,
-    UserTokenService userTokenService) {
+      MailService mailService,
+      UserRepository userRepository,
+      Validator validator,
+      ApplicationEventPublisher publisher,
+      UserTokenService userTokenService) {
     this.mailService = mailService;
     this.userRepository = userRepository;
     this.publisher = publisher;
@@ -77,12 +74,14 @@ public class RecoverPasswordController {
   public ResponseEntity<String> sendEmailUser(@Valid @RequestBody UserLoginRecoverRequest body) {
     if (!mailService.isAvailable()) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body("Mail service is not available. Please enable the 'mail' profile to use password recovery.");
+          .body(
+              "Mail service is not available. Please enable the 'mail' profile to use password recovery.");
     }
 
     try {
       String login = body.getLogin();
-      boolean isLoginExist = this.userRepository.findByEmail(login).isPresent(); // Is user mail exist
+      boolean isLoginExist =
+          this.userRepository.findByEmail(login).isPresent(); // Is user mail exist
       if (!isLoginExist) { // Otherwise, get user where login is nickname then get mail
         var optionalUser = this.userRepository.findByUsername(login);
         isLoginExist = optionalUser.isPresent();
@@ -97,7 +96,8 @@ public class RecoverPasswordController {
       if (isLoginExist && login != null && !login.trim().isEmpty()) {
         token = this.generateRandomToken();
         long currentTimeMillis = new Date().getTime();
-        UserTokenDTO userTokenDTO = new UserTokenDTO(null, login, token, new Date(currentTimeMillis + recoveryValidity));
+        UserTokenDTO userTokenDTO =
+            new UserTokenDTO(null, login, token, new Date(currentTimeMillis + recoveryValidity));
         userTokenService.saveUserToken(userTokenDTO);
         String resetUrl = frontUrl + "/auth/forgot-password/" + token;
         EmailForgotPassword email = mailService.buildForgotPasswordEmail(resetUrl);
@@ -107,25 +107,28 @@ public class RecoverPasswordController {
     } catch (MailNotImplementedException e) {
       log.error("Mail service not available", e);
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body("Mail service is not available. Please enable the 'mail' profile to use password recovery.");
+          .body(
+              "Mail service is not available. Please enable the 'mail' profile to use password recovery.");
     } catch (EmailTemplateException e) {
       log.error("Email template rendering failed", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Server error: Failed to render forgot password email body");
+          .body("Server error: Failed to render forgot password email body");
     } catch (Exception e) {
       log.error("Unexpected error during password recovery", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Server error: " + e.getMessage());
+          .body("Server error: " + e.getMessage());
     }
   }
 
   @PutMapping()
   @SecurityRequirements
-  public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+  public ResponseEntity<String> resetPassword(
+      @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
     try {
       // Get login from UserToken
-      UserTokenDTO userToken = userTokenService.getUserTokenByToken(resetPasswordRequest.getToken());
-      if(userToken == null) {
+      UserTokenDTO userToken =
+          userTokenService.getUserTokenByToken(resetPasswordRequest.getToken());
+      if (userToken == null) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
@@ -164,13 +167,11 @@ public class RecoverPasswordController {
 
       return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully");
     } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
     }
   }
 
-  /**
-   * We generate a random string
-   */
+  /** We generate a random string */
   private String generateRandomToken() {
     return UUID.randomUUID().toString();
   }

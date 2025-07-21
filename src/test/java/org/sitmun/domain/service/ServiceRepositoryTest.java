@@ -20,8 +20,7 @@ import org.springframework.core.task.TaskExecutor;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ServiceRepositoryTest {
 
-  @Autowired
-  private ServiceRepository serviceRepository;
+  @Autowired private ServiceRepository serviceRepository;
   private Service service;
 
   @BeforeEach

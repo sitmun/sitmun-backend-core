@@ -1,4 +1,5 @@
 package org.sitmun.infrastructure.persistence.type.point;
+
 import lombok.*;
 
 @Builder(toBuilder = true)

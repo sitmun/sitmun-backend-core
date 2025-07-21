@@ -1,5 +1,7 @@
 package org.sitmun.authorization.controller;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.dto.ConfigProxyDto;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 @RestController
 @RequestMapping("/api/config/proxy")
 @Slf4j
@@ -26,19 +26,22 @@ public class ProxyConfigurationController {
 
   private final JsonWebTokenService jsonWebTokenService;
 
-  public ProxyConfigurationController(ProxyConfigurationService proxyConfigurationService,
-                                      JsonWebTokenService jsonWebTokenService) {
+  public ProxyConfigurationController(
+      ProxyConfigurationService proxyConfigurationService,
+      JsonWebTokenService jsonWebTokenService) {
     this.proxyConfigurationService = proxyConfigurationService;
     this.jsonWebTokenService = jsonWebTokenService;
   }
 
   @PostMapping(produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<ConfigProxyDto> getServiceConfiguration(@RequestBody ConfigProxyRequest configProxyRequest) {
-    log.info("Requesting configuration for appId:{} terId:{} type:{} typeId:{}",
-      configProxyRequest.getAppId(),
-      configProxyRequest.getTerId(),
-      configProxyRequest.getType(),
-      configProxyRequest.getTypeId());
+  public ResponseEntity<ConfigProxyDto> getServiceConfiguration(
+      @RequestBody ConfigProxyRequest configProxyRequest) {
+    log.info(
+        "Requesting configuration for appId:{} terId:{} type:{} typeId:{}",
+        configProxyRequest.getAppId(),
+        configProxyRequest.getTerId(),
+        configProxyRequest.getType(),
+        configProxyRequest.getTypeId());
     String token = configProxyRequest.getToken();
     String username = null;
     long expirationTime = 0;
@@ -62,7 +65,8 @@ public class ProxyConfigurationController {
     if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {
       log.info("User {} is authorized to access the requested configuration", username);
       try {
-        ConfigProxyDto configProxyDto = proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
+        ConfigProxyDto configProxyDto =
+            proxyConfigurationService.getConfiguration(configProxyRequest, expirationTime);
         proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequest, username);
         log.info("User {} is informed of the configuration", username);
         return ResponseEntity.ok().body(configProxyDto);
@@ -71,7 +75,8 @@ public class ProxyConfigurationController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
     }
-    log.error("Unauthorized: User {} is not authorized to access the requested configuration", username);
+    log.error(
+        "Unauthorized: User {} is not authorized to access the requested configuration", username);
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 }

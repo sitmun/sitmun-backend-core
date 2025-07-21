@@ -9,11 +9,13 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 
 @Tag(name = "application parameter")
-@RepositoryRestResource(collectionResourceRel = "application-parameters", path = "application-parameters")
+@RepositoryRestResource(
+    collectionResourceRel = "application-parameters",
+    path = "application-parameters")
 public interface ApplicationParameterRepository
-  extends JpaRepository<ApplicationParameter, Integer>,
-  QuerydslPredicateExecutor<ApplicationParameter>,
-  QuerydslBinderCustomizer<QApplicationParameter> {
-  default void customize(@NonNull QuerydslBindings querydslBindings, @NonNull QApplicationParameter root) {
-  }
+    extends JpaRepository<ApplicationParameter, Integer>,
+        QuerydslPredicateExecutor<ApplicationParameter>,
+        QuerydslBinderCustomizer<QApplicationParameter> {
+  default void customize(
+      @NonNull QuerydslBindings querydslBindings, @NonNull QApplicationParameter root) {}
 }

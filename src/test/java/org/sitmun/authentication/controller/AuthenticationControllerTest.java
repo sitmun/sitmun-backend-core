@@ -1,5 +1,9 @@
 package org.sitmun.authentication.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
@@ -10,17 +14,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Authentication Controller basic tests")
 class AuthenticationControllerTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   @Test
   @DisplayName("POST: Admin user must login")
@@ -29,11 +28,12 @@ class AuthenticationControllerTest {
     login.setUsername("admin");
     login.setPassword("admin");
 
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+    mvc.perform(
+            post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
 
   @Test
@@ -43,9 +43,10 @@ class AuthenticationControllerTest {
     login.setUsername("admin");
     login.setPassword("other");
 
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isUnauthorized());
+    mvc.perform(
+            post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isUnauthorized());
   }
 }

@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-/**
- * DTO object for storing a user's credentials.
- */
+
+/** DTO object for storing a user's credentials. */
 @Setter
 @Getter
 public class ResetPasswordRequest {
@@ -16,6 +15,5 @@ public class ResetPasswordRequest {
   @Size(min = 1, max = 50)
   private String password;
 
-  @NotNull
-  private String token;
+  @NotNull private String token;
 }

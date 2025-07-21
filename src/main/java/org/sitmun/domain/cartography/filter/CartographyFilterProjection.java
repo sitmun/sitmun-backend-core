@@ -1,64 +1,45 @@
 package org.sitmun.domain.cartography.filter;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.List;
-
-/**
- * Projections for REST views of an application.
- */
+/** Projections for REST views of an application. */
 @Projection(name = "view", types = CartographyFilter.class)
 public interface CartographyFilterProjection {
 
   @Value("#{target.id}")
   Integer getId();
 
-  /**
-   * Filter name.
-   */
+  /** Filter name. */
   @Value("#{target.name}")
   String getName();
 
-  /**
-   * If <code>true</code>, this filter is required.
-   */
+  /** If <code>true</code>, this filter is required. */
   @Value("#{target.required}")
   Boolean getRequired();
 
-  /**
-   * Type of filter: custom or required.
-   */
+  /** Type of filter: custom or required. */
   @Value("#{target.type}")
   String getType();
 
-  /**
-   * Territorial level id.
-   */
+  /** Territorial level id. */
   @Value("#{target.territorialLevel?.id}")
   Integer getTerritorialLevelId();
 
-  /**
-   * Territorial level name.
-   */
+  /** Territorial level name. */
   @Value("#{target.territorialLevel?.name}")
   String getTerritorialLevelName();
 
-  /**
-   * Column where the filter applies.
-   */
+  /** Column where the filter applies. */
   @Value("#{target.column}")
   String getColumn();
 
-  /**
-   * A row is part of the filter if the value of the column is one of these values.
-   */
+  /** A row is part of the filter if the value of the column is one of these values. */
   @Value("#{target.values}")
   List<String> getValues();
 
-  /**
-   * Type of filter value.
-   */
+  /** Type of filter value. */
   @Value("#{target.valueType}")
   String getValueType();
 }

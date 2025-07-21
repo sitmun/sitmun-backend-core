@@ -2,21 +2,27 @@ package org.sitmun.infrastructure.persistence.type.envelope;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.text.MessageFormat;
 import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * Map a {@link Envelope} to a String.
- */
+/** Map a {@link Envelope} to a String. */
 @Converter
 @Slf4j
 public class EnvelopeToStringConverter implements AttributeConverter<Envelope, String> {
 
   public static final String RECISION = "######";
 
-  public static final String FORMAT = "{0,number,#." + RECISION + "} {1,number,#." + RECISION + "} {2,number,#." + RECISION + "} {3,number,#." + RECISION + '}';
+  public static final String FORMAT =
+      "{0,number,#."
+          + RECISION
+          + "} {1,number,#."
+          + RECISION
+          + "} {2,number,#."
+          + RECISION
+          + "} {3,number,#."
+          + RECISION
+          + '}';
 
   public static final Locale defaultLocale = Locale.US;
 
@@ -36,12 +42,11 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
     if (envelope == null) {
       return null;
     }
-    return formatInstance().format(new Object[]{
-      envelope.getMinX(),
-      envelope.getMinY(),
-      envelope.getMaxX(),
-      envelope.getMaxY()
-    });
+    return formatInstance()
+        .format(
+            new Object[] {
+              envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY()
+            });
   }
 
   @Override
@@ -52,11 +57,11 @@ public class EnvelopeToStringConverter implements AttributeConverter<Envelope, S
     try {
       Object[] values = formatInstance().parse(dbData);
       return Envelope.builder()
-        .minX(extractDouble(values[0]))
-        .minY(extractDouble(values[1]))
-        .maxX(extractDouble(values[2]))
-        .maxY(extractDouble(values[3]))
-        .build();
+          .minX(extractDouble(values[0]))
+          .minY(extractDouble(values[1]))
+          .maxX(extractDouble(values[2]))
+          .maxY(extractDouble(values[3]))
+          .build();
     } catch (Exception e) {
       log.error("[{}] cannot be parsed to Envelope", dbData, e);
       return null;

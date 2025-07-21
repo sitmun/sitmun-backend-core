@@ -1,15 +1,11 @@
 package org.sitmun.domain.task;
 
-
+import java.util.Date;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.Date;
-import java.util.Map;
-
-/**
- * Projections for REST views of a task.
- */
+/** Projections for REST views of a task. */
 @Projection(name = "view", types = Task.class)
 public interface TaskProjection {
 

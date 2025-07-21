@@ -1,5 +1,12 @@
 package org.sitmun.domain.tree.node;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.*;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.sitmun.domain.cartography.Cartography;
@@ -17,18 +24,8 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,20 +36,13 @@ class TreeNodeResourceTest {
   private static final String PUBLIC_TREENODE_NAME = "Tree Node";
   private static final String PUBLIC_TREE_NAME = "Tree";
   private static final String NON_PUBLIC_TREE_NAME = "Non-Tree Name";
-  @Autowired
-  TreeRepository treeRepository;
-  @Autowired
-  TreeNodeRepository treeNodeRepository;
-  @Autowired
-  CartographyRepository cartographyRepository;
-  @Autowired
-  CartographyStyleRepository cartographyStyleRepository;
-  @Autowired
-  RoleRepository roleRepository;
-  @Autowired
-  ServiceRepository serviceRepository;
-  @Autowired
-  private MockMvc mvc;
+  @Autowired TreeRepository treeRepository;
+  @Autowired TreeNodeRepository treeNodeRepository;
+  @Autowired CartographyRepository cartographyRepository;
+  @Autowired CartographyStyleRepository cartographyStyleRepository;
+  @Autowired RoleRepository roleRepository;
+  @Autowired ServiceRepository serviceRepository;
+  @Autowired private MockMvc mvc;
 
   private CartographyStyle style;
   private ArrayList<Tree> trees;
@@ -88,30 +78,34 @@ class TreeNodeResourceTest {
     treeRepository.save(tree);
     trees.add(tree);
 
-    service = Service.builder()
-      .name("Service")
-      .serviceURL("http://localhost/api/services/1")
-      .type("service-type")
-      .blocked(false)
-      .build();
+    service =
+        Service.builder()
+            .name("Service")
+            .serviceURL("http://localhost/api/services/1")
+            .type("service-type")
+            .blocked(false)
+            .build();
     serviceRepository.save(service);
 
-    cartography = Cartography.builder()
-      .type("I")
-      .name("Carto")
-      .layers(List.of("Layer 1", "Layer 2"))
-      .queryableFeatureAvailable(false)
-      .queryableFeatureEnabled(false)
-      .service(service)
-      .availabilities(Collections.emptySet())
-      .blocked(false)
-      .build();
+    cartography =
+        Cartography.builder()
+            .type("I")
+            .name("Carto")
+            .layers(List.of("Layer 1", "Layer 2"))
+            .queryableFeatureAvailable(false)
+            .queryableFeatureEnabled(false)
+            .service(service)
+            .availabilities(Collections.emptySet())
+            .blocked(false)
+            .build();
     cartography = cartographyRepository.save(cartography);
 
-    style = CartographyStyle.builder()
-      .name("Style D")
-      .cartography(cartography)
-      .defaultStyle(true).build();
+    style =
+        CartographyStyle.builder()
+            .name("Style D")
+            .cartography(cartography)
+            .defaultStyle(true)
+            .build();
     cartographyStyleRepository.save(style);
 
     TreeNode treeNode1 = new TreeNode();
@@ -148,10 +142,12 @@ class TreeNodeResourceTest {
     json.put("tree", "/" + node.getTree().getId());
     json.put("cartography", "/" + cartography.getId());
     json.put("style", "Style D");
-    mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.message").value("Tree node style not found in the tree node cartography's styles"));
+    mvc.perform(
+            post(URIConstants.TREE_NODES_URI).content(json.toString()).with(user(Fixtures.admin())))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value("Tree node style not found in the tree node cartography's styles"));
   }
 
   @DisplayName("POST: Tree nodes styles require a cartography")
@@ -162,10 +158,11 @@ class TreeNodeResourceTest {
     json.put("name", node.getName());
     json.put("tree", "/" + node.getTree().getId());
     json.put("style", "Style D");
-    mvc.perform(post(URIConstants.TREE_NODES_URI).content(json.toString())
-        .with(user(Fixtures.admin())))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
+    mvc.perform(
+            post(URIConstants.TREE_NODES_URI).content(json.toString()).with(user(Fixtures.admin())))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
   }
 
   @Test

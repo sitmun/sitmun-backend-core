@@ -4,22 +4,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Represents an image data URI.
- */
+/** Represents an image data URI. */
 @Getter
 @Setter
 @Builder
 public class ImageDataUri {
 
-  /**
-   * The format of the image (e.g., png, jpeg).
-   */
+  /** The format of the image (e.g., png, jpeg). */
   String format;
 
-  /**
-   * The base64-encoded image data.
-   */
+  /** The base64-encoded image data. */
   String data;
 
   /**

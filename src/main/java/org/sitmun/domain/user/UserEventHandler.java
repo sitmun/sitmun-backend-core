@@ -20,7 +20,8 @@ public class UserEventHandler {
   }
 
   /**
-   * If the password is null or empty, this method sets the password null, and otherwise encodes its.
+   * If the password is null or empty, this method sets the password null, and otherwise encodes
+   * its.
    *
    * @param user the new user
    */
@@ -36,9 +37,8 @@ public class UserEventHandler {
   }
 
   /**
-   * If the password is null, this method keeps the last value if exists,
-   * if the password is empty, this method clears it,
-   * and otherwise the password is encoded.
+   * If the password is null, this method keeps the last value if exists, if the password is empty,
+   * this method clears it, and otherwise the password is encoded.
    *
    * @param user the new user after being loaded from database and updated with PUT data
    */

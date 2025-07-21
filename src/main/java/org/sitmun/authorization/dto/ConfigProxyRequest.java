@@ -1,10 +1,8 @@
 package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.Map;
+import lombok.*;
 
 @Getter
 @Setter
@@ -26,7 +24,6 @@ public class ConfigProxyRequest {
   private int typeId;
 
   @JsonProperty("method")
-  @Value("GET")
   private String method;
 
   @JsonProperty("parameters")
@@ -37,5 +34,4 @@ public class ConfigProxyRequest {
 
   @JsonProperty("id_token")
   private String token;
-
 }

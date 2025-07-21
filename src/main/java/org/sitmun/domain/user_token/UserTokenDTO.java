@@ -1,8 +1,7 @@
 package org.sitmun.domain.user_token;
 
-import lombok.*;
-
 import java.util.Date;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,18 +11,12 @@ import java.util.Date;
 public class UserTokenDTO {
   private Long id;
 
-  /**
-   * User mail
-   */
+  /** User mail */
   private String userMail;
 
-  /**
-   * Token for reset password
-   */
+  /** Token for reset password */
   private String tokenId;
 
-  /**
-   * Token expiration date
-   */
+  /** Token expiration date */
   private Date expireAt;
 }

@@ -1,5 +1,7 @@
 package org.sitmun.administration.service.extractor.featuretype;
 
+import java.io.IOException;
+import java.util.Optional;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -9,9 +11,6 @@ import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.administration.service.extractor.featuretype.ExtractedMetadata.ExtractedMetadataBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @Service
 public class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
@@ -27,10 +26,7 @@ public class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
     ExtractedMetadataBuilder builder = new ExtractedMetadataBuilder();
 
     try {
-      Request request = new Request.Builder()
-        .url(url)
-        .header("Accept", "*/*")
-        .build();
+      Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
 
       try (Response response = httpClientFactory.executeRequest(request)) {
         builder.success(response.code() == 200 && response.body() != null);
@@ -49,7 +45,8 @@ public class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
             }
             builder.asJson(json.toMap());
 
-            Optional<String> root = json.toMap().keySet().stream().filter(it -> it.endsWith(":schema")).findFirst();
+            Optional<String> root =
+                json.toMap().keySet().stream().filter(it -> it.endsWith(":schema")).findFirst();
             if (root.isPresent()) {
               JSONObject schema = json.getJSONObject(root.get());
               String[] qname = root.get().split(":");

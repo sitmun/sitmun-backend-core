@@ -1,5 +1,6 @@
 package org.sitmun.administration.service.extractor.capabilities;
 
+import java.io.IOException;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -9,8 +10,6 @@ import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.administration.service.extractor.capabilities.ExtractedMetadata.ExtractedMetadataBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesExtractor {
@@ -26,10 +25,7 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
     ExtractedMetadataBuilder builder = new ExtractedMetadataBuilder();
 
     try {
-      Request request = new Request.Builder()
-        .url(url)
-        .header("Accept", "*/*")
-        .build();
+      Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
 
       try (Response response = httpClientFactory.executeRequest(request)) {
         builder.success(response.code() == 200 && response.body() != null);
@@ -47,10 +43,11 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
               return builder.success(false).reason("Not a well formed XML").build();
             }
             builder.asJson(json.toMap());
-            if (json.has("WMS_Capabilities") &&
-              json.getJSONObject("WMS_Capabilities").has("version")) {
+            if (json.has("WMS_Capabilities")
+                && json.getJSONObject("WMS_Capabilities").has("version")) {
               builder.type("OGC:WMS " + json.getJSONObject("WMS_Capabilities").get("version"));
-            } else if (json.has("WMT_MS_Capabilities") && json.getJSONObject("WMT_MS_Capabilities").has("version")) {
+            } else if (json.has("WMT_MS_Capabilities")
+                && json.getJSONObject("WMT_MS_Capabilities").has("version")) {
               builder.type("OGC:WMS " + json.getJSONObject("WMT_MS_Capabilities").get("version"));
             } else {
               builder.success(false).reason("Not a standard OGC:WMS Capabilities response");

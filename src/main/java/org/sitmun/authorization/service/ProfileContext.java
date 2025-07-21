@@ -18,6 +18,7 @@ public class ProfileContext {
     VIRTUAL_ROOT_ALL_NODES,
     VIRTUAL_ROOT_NODE_PAGE,
     ANY_NODE_PAGE;
+
     public boolean nodePageMode() {
       return this == VIRTUAL_ROOT_NODE_PAGE || this == ANY_NODE_PAGE;
     }

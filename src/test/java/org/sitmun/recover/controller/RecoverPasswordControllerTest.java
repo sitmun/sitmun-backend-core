@@ -1,5 +1,14 @@
 package org.sitmun.recover.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,24 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.annotation.Rollback;
-
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,17 +41,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class RecoverPasswordControllerTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-  @Autowired
-  private UserTokenRepository userTokenRepository;
+  @Autowired private UserTokenRepository userTokenRepository;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
   private User testUser;
   private String validToken;
@@ -63,41 +57,44 @@ class RecoverPasswordControllerTest {
   void setUp() {
     // Clean up any existing test data
     userTokenRepository.deleteAll();
-    
+
     // Only delete test-specific users, preserve admin user
     userRepository.findByUsername("testuser").ifPresent(userRepository::delete);
     userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
     userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
     // Create test user
-    testUser = User.builder()
-      .username("testuser")
-      .email("test@example.com")
-      .firstName("Test")
-      .lastName("User")
-      .password("oldpassword")
-      .administrator(false)
-      .blocked(false)
-      .build();
+    testUser =
+        User.builder()
+            .username("testuser")
+            .email("test@example.com")
+            .firstName("Test")
+            .lastName("User")
+            .password("oldpassword")
+            .administrator(false)
+            .blocked(false)
+            .build();
     // Let the UserEventHandler encode the password
     testUser = userRepository.save(testUser);
 
     // Create valid token
     validToken = UUID.randomUUID().toString();
-    UserToken validUserToken = UserToken.builder()
-      .userMail(testUser.getEmail())
-      .tokenId(validToken)
-      .expireAt(new Date(System.currentTimeMillis() + 300000)) // 5 minutes from now
-      .build();
+    UserToken validUserToken =
+        UserToken.builder()
+            .userMail(testUser.getEmail())
+            .tokenId(validToken)
+            .expireAt(new Date(System.currentTimeMillis() + 300000)) // 5 minutes from now
+            .build();
     userTokenRepository.save(validUserToken);
 
     // Create expired token
     expiredToken = UUID.randomUUID().toString();
-    UserToken expiredUserToken = UserToken.builder()
-      .userMail(testUser.getEmail())
-      .tokenId(expiredToken)
-      .expireAt(new Date(System.currentTimeMillis() - 300000)) // 5 minutes ago
-      .build();
+    UserToken expiredUserToken =
+        UserToken.builder()
+            .userMail(testUser.getEmail())
+            .tokenId(expiredToken)
+            .expireAt(new Date(System.currentTimeMillis() - 300000)) // 5 minutes ago
+            .build();
     userTokenRepository.save(expiredUserToken);
   }
 
@@ -129,11 +126,12 @@ class RecoverPasswordControllerTest {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin(login);
 
-    mvc.perform(post("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isOk())
-      .andExpect(content().string("Mail sent"));
+    mvc.perform(
+            post("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Mail sent"));
 
     assertThat(userTokenRepository.count()).isEqualTo(tokens);
   }
@@ -146,10 +144,11 @@ class RecoverPasswordControllerTest {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin("");
 
-    mvc.perform(post("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            post("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -160,10 +159,11 @@ class RecoverPasswordControllerTest {
     UserLoginRecoverRequest request = new UserLoginRecoverRequest();
     request.setLogin(null);
 
-    mvc.perform(post("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            post("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -175,11 +175,12 @@ class RecoverPasswordControllerTest {
     request.setToken(validToken);
     request.setPassword("newpassword123");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isOk())
-      .andExpect(content().string("Password reset successfully"));
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Password reset successfully"));
 
     // Verify password was updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -200,11 +201,12 @@ class RecoverPasswordControllerTest {
     request.setToken(expiredToken);
     request.setPassword("newpassword123");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isInternalServerError())
-      .andExpect(content().string("Server error"));
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(content().string("Server error"));
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -222,11 +224,12 @@ class RecoverPasswordControllerTest {
     request.setToken("invalid-token");
     request.setPassword("newpassword123");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isInternalServerError())
-      .andExpect(content().string("Server error"));
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(content().string("Server error"));
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -244,10 +247,11 @@ class RecoverPasswordControllerTest {
     request.setToken(validToken);
     request.setPassword("");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -265,10 +269,11 @@ class RecoverPasswordControllerTest {
     request.setToken(validToken);
     request.setPassword(null);
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -280,10 +285,11 @@ class RecoverPasswordControllerTest {
     request.setToken(null);
     request.setPassword("newpassword123");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -295,11 +301,12 @@ class RecoverPasswordControllerTest {
     request.setToken(validToken);
     request.setPassword("a");
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isOk())
-      .andExpect(content().string("Password reset successfully"));
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Password reset successfully"));
 
     // Verify password was updated (the controller accepts short passwords)
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -316,10 +323,11 @@ class RecoverPasswordControllerTest {
     request.setToken(validToken);
     request.setPassword("a".repeat(51)); // Exceeds max length of 50
 
-    mvc.perform(put("/api/recover-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            put("/api/recover-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -327,4 +335,4 @@ class RecoverPasswordControllerTest {
     // Don't check password encoding in tests as it may not be properly encoded
     assertThat(updatedUser.get().getPassword()).isNotNull();
   }
-} 
+}

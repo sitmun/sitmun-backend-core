@@ -1,7 +1,12 @@
 package org.sitmun.domain.role;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,28 +25,19 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RoleRepositoryIntegrationTest {
 
-  @Autowired
-  RoleRepository roleRepository;
+  @Autowired RoleRepository roleRepository;
   private RestTemplate restTemplate;
   private ArrayList<Role> roles;
-  @LocalServerPort
-  private int port;
+  @LocalServerPort private int port;
 
   @BeforeEach
   @WithMockUser(roles = "ADMIN")
   void setup() {
     ClientHttpRequestFactory factory =
-      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -50,11 +46,9 @@ class RoleRepositoryIntegrationTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
 
-      roles = new ArrayList<>();
-      roles.add(roleRepository
-        .save(Role.builder().name("RoleRepositoryTest_1").build()));
-      roles.add(roleRepository
-        .save(Role.builder().name("RoleRepositoryTest_2").build()));
+    roles = new ArrayList<>();
+    roles.add(roleRepository.save(Role.builder().name("RoleRepositoryTest_1").build()));
+    roles.add(roleRepository.save(Role.builder().name("RoleRepositoryTest_2").build()));
   }
 
   @AfterEach
@@ -70,17 +64,15 @@ class RoleRepositoryIntegrationTest {
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
-      restTemplate
-        .exchange("http://localhost:" + port + "/api/roles", HttpMethod.GET, entity, String.class);
+        restTemplate.exchange(
+            "http://localhost:" + port + "/api/roles", HttpMethod.GET, entity, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
     assertThat(context.read("$._embedded.roles[*].id", JSONArray.class))
-      .containsAll(
-        roles.stream().map(Role::getId).collect(Collectors.toList()));
+        .containsAll(roles.stream().map(Role::getId).collect(Collectors.toList()));
     assertThat(context.read("$._embedded.roles[*].name", JSONArray.class))
-      .containsAll(
-        roles.stream().map(Role::getName).collect(Collectors.toList()));
+        .containsAll(roles.stream().map(Role::getName).collect(Collectors.toList()));
   }
 }

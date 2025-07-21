@@ -1,6 +1,10 @@
 package org.sitmun.infrastructure.security.core.userdetails;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.security.core.SecurityRole;
@@ -8,15 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 public class UserDetailsImplementation implements UserDetails {
 
-  @Getter
-  private final Integer id;
+  @Getter private final Integer id;
 
   private final String username;
 
@@ -26,9 +24,12 @@ public class UserDetailsImplementation implements UserDetails {
 
   private final Collection<? extends GrantedAuthority> authorities;
 
-  public UserDetailsImplementation(Integer id, String username, String password,
-                                   Collection<? extends GrantedAuthority> authorities,
-                                   Boolean enabled) {
+  public UserDetailsImplementation(
+      Integer id,
+      String username,
+      String password,
+      Collection<? extends GrantedAuthority> authorities,
+      Boolean enabled) {
     this.id = id;
     this.username = username;
     this.password = password;
@@ -43,17 +44,13 @@ public class UserDetailsImplementation implements UserDetails {
     } else {
       roles = Lists.newArrayList(SecurityRole.ROLE_USER);
     }
-    List<GrantedAuthority> authorities = roles.stream()
-      .map(role -> new SimpleGrantedAuthority(role.name()))
-      .collect(Collectors.toList());
+    List<GrantedAuthority> authorities =
+        roles.stream()
+            .map(role -> new SimpleGrantedAuthority(role.name()))
+            .collect(Collectors.toList());
 
     return new UserDetailsImplementation(
-      user.getId(),
-      user.getUsername(),
-      user.getPassword(),
-      authorities,
-      !user.getBlocked()
-    );
+        user.getId(), user.getUsername(), user.getPassword(), authorities, !user.getBlocked());
   }
 
   @Override

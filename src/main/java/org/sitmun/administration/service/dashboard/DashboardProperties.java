@@ -23,6 +23,5 @@ public class DashboardProperties {
 
     private Integer size = 0;
     private String query = null;
-
   }
 }

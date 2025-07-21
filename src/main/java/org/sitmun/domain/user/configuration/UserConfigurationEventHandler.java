@@ -10,9 +10,9 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 /**
- * Event handler for UserConfiguration entities.
- * Automatically creates a UserPosition when a UserConfiguration is inserted or updated
- * and the tuple (user, territory) doesn't exist in UserPosition.
+ * Event handler for UserConfiguration entities. Automatically creates a UserPosition when a
+ * UserConfiguration is inserted or updated and the tuple (user, territory) doesn't exist in
+ * UserPosition.
  */
 @Component
 @RepositoryEventHandler
@@ -27,8 +27,8 @@ public class UserConfigurationEventHandler {
   }
 
   /**
-   * Handle UserConfiguration creation.
-   * Creates a UserPosition if the tuple (user, territory) doesn't exist.
+   * Handle UserConfiguration creation. Creates a UserPosition if the tuple (user, territory)
+   * doesn't exist.
    *
    * @param userConfiguration the created user configuration
    */
@@ -38,8 +38,8 @@ public class UserConfigurationEventHandler {
   }
 
   /**
-   * Handle UserConfiguration update.
-   * Creates a UserPosition if the tuple (user, territory) doesn't exist.
+   * Handle UserConfiguration update. Creates a UserPosition if the tuple (user, territory) doesn't
+   * exist.
    *
    * @param userConfiguration the updated user configuration
    */
@@ -47,4 +47,4 @@ public class UserConfigurationEventHandler {
   public void handleUserConfigurationUpdate(@NotNull UserConfiguration userConfiguration) {
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
   }
-} 
+}

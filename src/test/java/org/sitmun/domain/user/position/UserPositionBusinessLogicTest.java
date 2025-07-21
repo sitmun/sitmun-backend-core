@@ -1,5 +1,7 @@
 package org.sitmun.domain.user.position;
 
+import java.util.Date;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,9 +28,6 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.Date;
-import java.util.Optional;
-
 @DataJpaTest
 @Import({UserPositionBusinessLogic.class, LiquibaseConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -36,23 +35,17 @@ import java.util.Optional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserPositionBusinessLogicTest {
 
-  @Autowired
-  private UserPositionBusinessLogic userPositionBusinessLogic;
+  @Autowired private UserPositionBusinessLogic userPositionBusinessLogic;
 
-  @Autowired
-  private UserPositionRepository userPositionRepository;
+  @Autowired private UserPositionRepository userPositionRepository;
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-  @Autowired
-  private TerritoryRepository territoryRepository;
+  @Autowired private TerritoryRepository territoryRepository;
 
-  @Autowired
-  private RoleRepository roleRepository;
+  @Autowired private RoleRepository roleRepository;
 
-  @Autowired
-  private TerritoryTypeRepository territoryTypeRepository;
+  @Autowired private TerritoryTypeRepository territoryTypeRepository;
 
   private User user;
   private Territory territory;
@@ -63,12 +56,13 @@ class UserPositionBusinessLogicTest {
   @BeforeEach
   void setUp() {
     // Create and persist TerritoryType with all required fields
-    TerritoryType type = TerritoryType.builder()
-      .name("Test Type")
-      .official(false)
-      .topType(false)
-      .bottomType(false)
-      .build();
+    TerritoryType type =
+        TerritoryType.builder()
+            .name("Test Type")
+            .official(false)
+            .topType(false)
+            .bottomType(false)
+            .build();
     type = territoryTypeRepository.save(type);
 
     // Create test user
@@ -83,31 +77,30 @@ class UserPositionBusinessLogicTest {
     user = userRepository.save(user);
 
     // Create test territory with managed TerritoryType and all required fields (no code)
-    territory = Territory.builder()
-      .name("Test Territory")
-      .code("Test code")
-      .blocked(false)
-      .territorialAuthorityEmail("admin@example.com")
-      .createdDate(new Date())
-      .territorialAuthorityName("Test Authority")
-      .type(type)
-      .build();
+    territory =
+        Territory.builder()
+            .name("Test Territory")
+            .code("Test code")
+            .blocked(false)
+            .territorialAuthorityEmail("admin@example.com")
+            .createdDate(new Date())
+            .territorialAuthorityName("Test Authority")
+            .type(type)
+            .build();
     territory = territoryRepository.save(territory);
 
     // Create test role
-    role = Role.builder()
-      .name("Test Role")
-      .description("Test role description")
-      .build();
+    role = Role.builder().name("Test Role").description("Test role description").build();
     role = roleRepository.save(role);
 
     // Create test user configuration
-    userConfiguration = UserConfiguration.builder()
-      .user(user)
-      .territory(territory)
-      .role(role)
-      .appliesToChildrenTerritories(false)
-      .build();
+    userConfiguration =
+        UserConfiguration.builder()
+            .user(user)
+            .territory(territory)
+            .role(role)
+            .appliesToChildrenTerritories(false)
+            .build();
     // Record initial UserPosition count
     initialUserPositionCount = userPositionRepository.count();
   }
@@ -122,14 +115,17 @@ class UserPositionBusinessLogicTest {
   @Test
   @DisplayName("Create user position when user configuration is provided")
   void createUserPositionWithUserConfiguration() {
-    userPositionRepository.findByUserAndTerritory(user, territory).ifPresent(userPositionRepository::delete);
+    userPositionRepository
+        .findByUserAndTerritory(user, territory)
+        .ifPresent(userPositionRepository::delete);
     Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory)).isEmpty();
 
     // Call the business logic method directly
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
 
     // Verify UserPosition was created
-    Optional<UserPosition> createdPosition = userPositionRepository.findByUserAndTerritory(user, territory);
+    Optional<UserPosition> createdPosition =
+        userPositionRepository.findByUserAndTerritory(user, territory);
     Assertions.assertThat(createdPosition).isPresent();
     UserPosition position = createdPosition.get();
     Assertions.assertThat(position.getUser()).isEqualTo(user);
@@ -142,14 +138,15 @@ class UserPositionBusinessLogicTest {
   @DisplayName("Prevent duplicate user position creation")
   void preventDuplicateUserPositionCreation() {
     // Create a UserPosition manually first
-    UserPosition existingPosition = UserPosition.builder()
-      .user(user)
-      .territory(territory)
-      .name("Existing Position")
-      .organization("Existing Organization")
-      .email("existing@example.com")
-      .createdDate(new Date())
-      .build();
+    UserPosition existingPosition =
+        UserPosition.builder()
+            .user(user)
+            .territory(territory)
+            .name("Existing Position")
+            .organization("Existing Organization")
+            .email("existing@example.com")
+            .createdDate(new Date())
+            .build();
     existingPosition = userPositionRepository.save(existingPosition);
 
     // Call the business logic method directly
@@ -165,29 +162,31 @@ class UserPositionBusinessLogicTest {
   @Test
   @DisplayName("Handle null user gracefully without throwing exception")
   void handleNullUserGracefully() {
-    UserConfiguration configWithNullUser = UserConfiguration.builder()
-      .user(null)
-      .territory(territory)
-      .role(role)
-      .appliesToChildrenTerritories(false)
-      .build();
-    Assertions.assertThatCode(() -> 
-      userPositionBusinessLogic.createUserPositionIfNotExists(configWithNullUser)
-    ).doesNotThrowAnyException();
+    UserConfiguration configWithNullUser =
+        UserConfiguration.builder()
+            .user(null)
+            .territory(territory)
+            .role(role)
+            .appliesToChildrenTerritories(false)
+            .build();
+    Assertions.assertThatCode(
+            () -> userPositionBusinessLogic.createUserPositionIfNotExists(configWithNullUser))
+        .doesNotThrowAnyException();
   }
 
   @Test
   @DisplayName("Handle null territory gracefully without throwing exception")
   void handleNullTerritoryGracefully() {
-    UserConfiguration configWithNullTerritory = UserConfiguration.builder()
-      .user(user)
-      .territory(null)
-      .role(role)
-      .appliesToChildrenTerritories(false)
-      .build();
-    Assertions.assertThatCode(() -> 
-      userPositionBusinessLogic.createUserPositionIfNotExists(configWithNullTerritory)
-    ).doesNotThrowAnyException();
+    UserConfiguration configWithNullTerritory =
+        UserConfiguration.builder()
+            .user(user)
+            .territory(null)
+            .role(role)
+            .appliesToChildrenTerritories(false)
+            .build();
+    Assertions.assertThatCode(
+            () -> userPositionBusinessLogic.createUserPositionIfNotExists(configWithNullTerritory))
+        .doesNotThrowAnyException();
   }
 
   @TestConfiguration
@@ -198,4 +197,4 @@ class UserPositionBusinessLogicTest {
       return new SyncTaskExecutor();
     }
   }
-} 
+}

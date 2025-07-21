@@ -1,5 +1,8 @@
 package org.sitmun.domain.task.type;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,25 +16,22 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Task Types Repository Data REST Test")
 class TaskTypesRepositoryDataRestTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   @Test
   @DisplayName("GET: Retrieve task types with defined specifications")
   void definedSpecifications() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-      ).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.task-types[?(@.specification != null)]", Matchers.hasSize(9)));
+    mvc.perform(
+            MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.task-types[?(@.specification != null)]", Matchers.hasSize(9)));
   }
 }

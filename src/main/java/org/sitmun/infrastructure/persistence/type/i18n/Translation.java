@@ -3,16 +3,15 @@ package org.sitmun.infrastructure.persistence.type.i18n;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 
-import java.util.Objects;
-
-/**
- * Available translations.
- */
+/** Available translations. */
 @Entity
-@Table(name = "STM_TRANSLATION", uniqueConstraints = @UniqueConstraint(columnNames = {"TRA_ELEID", "TRA_COLUMN", "TRA_LANID"}))
+@Table(
+    name = "STM_TRANSLATION",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"TRA_ELEID", "TRA_COLUMN", "TRA_LANID"}))
 @Builder
 @Getter
 @Setter
@@ -20,46 +19,36 @@ import java.util.Objects;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Translation {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_TRANSLATION_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "TRA_ID",
-    allocationSize = 1)
+      name = "STM_TRANSLATION_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "TRA_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TRANSLATION_GEN")
   @Column(name = "TRA_ID")
   private Integer id;
 
-  /**
-   * Row identifier.
-   */
+  /** Row identifier. */
   @Column(name = "TRA_ELEID")
   @NotNull
   private Integer element;
 
-  /**
-   * Table and Column identifier.
-   */
+  /** Table and Column identifier. */
   @Column(name = "TRA_COLUMN", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String column;
 
-  /**
-   * Translation language.
-   */
+  /** Translation language. */
   @ManyToOne
   @JoinColumn(name = "TRA_LANID", foreignKey = @ForeignKey(name = "STM_TRA_FK_LAN"))
   @NotNull
   private Language language;
 
-  /**
-   * Translation.
-   */
+  /** Translation. */
   @Column(name = "TRA_NAME", length = PersistenceConstants.LONG_DESCRIPTION)
   @NotBlank
   private String translation;

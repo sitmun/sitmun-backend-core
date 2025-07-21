@@ -1,10 +1,9 @@
 package org.sitmun.administration.service.extractor.featuretype;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Map;
 
 @Builder
 @Getter

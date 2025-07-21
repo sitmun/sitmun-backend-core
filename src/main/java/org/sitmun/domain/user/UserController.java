@@ -2,6 +2,9 @@ package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Validator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
@@ -14,10 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/account")
 @Tag(name = "account", description = "user account management")
@@ -28,10 +27,9 @@ public class UserController {
   private final UserRepository userRepository;
   private final ApplicationEventPublisher publisher;
 
-  /**
-   * Constructor.
-   */
-  public UserController(Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
+  /** Constructor. */
+  public UserController(
+      Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
     springValidator = new SpringValidatorAdapter(validator);
     this.userRepository = userRepository;
     this.publisher = publisher;
@@ -52,29 +50,29 @@ public class UserController {
 
   private static UserDTO userToDto(User user) {
     return UserDTO.builder()
-      .id(user.getId())
-      .username(user.getUsername())
-      .passwordSet(user.getPassword() != null && !user.getPassword().isEmpty())
-      .firstName(user.getFirstName())
-      .lastName(user.getLastName())
-      .identificationNumber(user.getIdentificationNumber())
-      .identificationType(user.getIdentificationType())
-      .administrator(user.getAdministrator())
-      .blocked(user.getBlocked())
-      .email(user.getEmail())
-      .createdDate(user.getCreatedDate())
-      .build();
+        .id(user.getId())
+        .username(user.getUsername())
+        .passwordSet(user.getPassword() != null && !user.getPassword().isEmpty())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .identificationNumber(user.getIdentificationNumber())
+        .identificationType(user.getIdentificationType())
+        .administrator(user.getAdministrator())
+        .blocked(user.getBlocked())
+        .email(user.getEmail())
+        .createdDate(user.getCreatedDate())
+        .build();
   }
 
   private static UserDTOLittle userToDtoLittle(User user) {
     return UserDTOLittle.builder()
-      .id(user.getId())
-      .username(user.getUsername())
-      .firstName(user.getFirstName())
-      .lastName(user.getLastName())
-      .email(user.getEmail())
-      .createdDate(user.getCreatedDate())
-      .build();
+        .id(user.getId())
+        .username(user.getUsername())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .email(user.getEmail())
+        .createdDate(user.getCreatedDate())
+        .build();
   }
 
   /**
@@ -103,13 +101,12 @@ public class UserController {
     return ResponseEntity.notFound().build();
   }
 
-  /**
-   * Get accounts.
-   */
+  /** Get accounts. */
   @GetMapping
   public ResponseEntity<UserDTO> getAccount() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
+    Optional<UserDTO> storedUser =
+        userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
@@ -121,22 +118,20 @@ public class UserController {
 
   @GetMapping("/public/{id}")
   public ResponseEntity<UserDTOLittle> getAccountByIdPublic(@PathVariable Integer id) {
-    Optional<UserDTOLittle> storedUser = userRepository.findById(id).map(UserController::userToDtoLittle);
+    Optional<UserDTOLittle> storedUser =
+        userRepository.findById(id).map(UserController::userToDtoLittle);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  /**
-   * Get all accounts
-   */
+  /** Get all accounts */
   @GetMapping("/all")
   public ResponseEntity<List<UserDTO>> getAllAccounts() {
     List<User> users = userRepository.findAll().stream().toList();
     if (users.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
-    List<UserDTO> userDTOs = users.stream()
-      .map(UserController::userToDto)
-      .collect(Collectors.toList());
+    List<UserDTO> userDTOs =
+        users.stream().map(UserController::userToDto).collect(Collectors.toList());
     return ResponseEntity.ok(userDTOs);
   }
 }

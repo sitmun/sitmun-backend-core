@@ -1,12 +1,11 @@
 package org.sitmun.infrastructure.startup;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
 
 @Component
 @ConfigurationProperties(prefix = "sitmun.startup.code-lists")
@@ -15,7 +14,8 @@ import java.util.List;
 public class StartupCodelistsProperties {
 
   private boolean checkOnStartup = true;
-  private List<DatabaseConnectionDriverDefinition> databaseConnectionDrivers = Collections.emptyList();
+  private List<DatabaseConnectionDriverDefinition> databaseConnectionDrivers =
+      Collections.emptyList();
   private List<CodeListValueDefinition> codeListValues = Collections.emptyList();
 
   @Getter
@@ -33,5 +33,4 @@ public class StartupCodelistsProperties {
     private String description;
     private boolean isDefault = false;
   }
-
 }

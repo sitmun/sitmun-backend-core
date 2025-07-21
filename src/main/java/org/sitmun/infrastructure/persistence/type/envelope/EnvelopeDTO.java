@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.envelope;
 
 import lombok.*;
+
 @Builder(toBuilder = true)
 @Getter
 @Setter

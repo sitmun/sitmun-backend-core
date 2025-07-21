@@ -1,5 +1,9 @@
 package org.sitmun.authorization.dto;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.AuthorizationConstants;
@@ -9,14 +13,9 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Maps web service query tasks to DTOs.
- * Handles conversion of task properties and parameters for web API queries.
+ * Maps web service query tasks to DTOs. Handles conversion of task properties and parameters for
+ * web API queries.
  */
 @Slf4j
 @Component
@@ -24,6 +23,7 @@ public class TaskQueryWebService implements TaskMapper {
 
   /**
    * Checks if the task is a web API query task.
+   *
    * @param task Task to check
    * @return true if task is a web API query
    */
@@ -33,6 +33,7 @@ public class TaskQueryWebService implements TaskMapper {
 
   /**
    * Maps a web service query task to a TaskDto.
+   *
    * @param task Task to map
    * @param application Application context
    * @param territory Territory context
@@ -49,15 +50,16 @@ public class TaskQueryWebService implements TaskMapper {
       }
     }
     return TaskDto.builder()
-      .id("task/" + task.getId())
-      .type(AuthorizationConstants.TaskDto.SIMPLE)
-      .parameters(parameters)
-      .url(url)
-      .build();
+        .id("task/" + task.getId())
+        .type(AuthorizationConstants.TaskDto.SIMPLE)
+        .parameters(parameters)
+        .url(url)
+        .build();
   }
 
   /**
    * Converts task properties to a parameter map.
+   *
    * @param properties Task properties to convert
    * @return Map of parameter names to their type and required status, or null if empty
    */
@@ -66,15 +68,19 @@ public class TaskQueryWebService implements TaskMapper {
     Map<String, Object> parameters = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    List<Map<String, Object>> listOfParameters = (List<Map<String, Object>>) properties.getOrDefault(DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
+    List<Map<String, Object>> listOfParameters =
+        (List<Map<String, Object>>)
+            properties.getOrDefault(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
 
     for (Map<String, Object> param : listOfParameters) {
-      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME) &&
-        param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE) &&
-        param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
+      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME)
+          && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
+          && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
         String name = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_NAME));
         String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
-        Boolean required = Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));
+        Boolean required =
+            Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));
 
         Map<String, Object> values = new HashMap<>();
         values.put(AuthorizationConstants.TaskDto.PARAMETER_TYPE, type);

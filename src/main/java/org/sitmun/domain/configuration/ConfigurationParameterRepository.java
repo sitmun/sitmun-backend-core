@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "configuration parameter")
-@RepositoryRestResource(collectionResourceRel = "configuration-parameters", path = "configuration-parameters")
+@RepositoryRestResource(
+    collectionResourceRel = "configuration-parameters",
+    path = "configuration-parameters")
 public interface ConfigurationParameterRepository
-  extends JpaRepository<ConfigurationParameter, Integer> {
-}
+    extends JpaRepository<ConfigurationParameter, Integer> {}

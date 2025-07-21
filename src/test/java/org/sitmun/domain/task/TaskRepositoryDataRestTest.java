@@ -1,5 +1,16 @@
 package org.sitmun.domain.task;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.sitmun.test.TestUtils.asJsonString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.net.URI;
+import java.util.*;
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -17,34 +28,18 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
-import java.util.*;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.sitmun.test.TestUtils.asJsonString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @DisplayName("Task Repository Data REST Test")
 class TaskRepositoryDataRestTest extends BaseTest {
 
   private static final String TASK_NAME = "Task Name";
 
-  @Autowired
-  TaskTypeRepository taskTypeRepository;
+  @Autowired TaskTypeRepository taskTypeRepository;
 
-  @Autowired
-  TaskRepository taskRepository;
+  @Autowired TaskRepository taskRepository;
 
-  @Autowired
-  TaskAvailabilityRepository taskAvailabilityRepository;
+  @Autowired TaskAvailabilityRepository taskAvailabilityRepository;
 
-  @Autowired
-  TerritoryRepository territoryRepository;
+  @Autowired TerritoryRepository territoryRepository;
 
   private Territory territory;
   private Task task;
@@ -57,20 +52,13 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
     TaskType basic = taskTypeRepository.findById(1).orElseThrow();
 
-    territory = Territory.builder()
-      .name("Territorio 1")
-      .code("some-code")
-      .blocked(false)
-      .build();
+    territory = Territory.builder().name("Territorio 1").code("some-code").blocked(false).build();
     territoryRepository.save(territory);
     tasks = new ArrayList<>();
 
     Map<String, Object> container = fixtureProperties();
 
-    task = Task.builder()
-      .name(TASK_NAME)
-      .properties(container)
-      .build();
+    task = Task.builder().name(TASK_NAME).properties(container).build();
     tasks.add(task);
     Task taskWithAvailabilities = new Task();
     taskWithAvailabilities.setName("Task with availabilities");
@@ -166,27 +154,27 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @DisplayName("POST: Create a new task")
   @Transactional
   void postTask() throws Exception {
-    Task newTask = Task.builder()
-      .name(TASK_NAME)
-      .properties(fixtureProperties())
-      .build();
+    Task newTask = Task.builder().name(TASK_NAME).properties(fixtureProperties()).build();
 
-    String location = mvc.perform(post(URIConstants.TASKS_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(newTask))
-      )
-      .andDo(print())
-      .andExpect(status().isCreated())
-      .andReturn().getResponse().getHeader("Location");
+    String location =
+        mvc.perform(
+                post(URIConstants.TASKS_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(newTask)))
+            .andDo(print())
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getHeader("Location");
 
     Assertions.assertThat(location).isNotNull();
 
     mvc.perform(get(location))
-      .andDo(print())
-      .andExpect(status().isOk())
-      .andExpect(content().contentType(MediaTypes.HAL_JSON))
-      .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
-      .andExpect(jsonPath("$.properties.parameters[0].name", equalTo("string")));
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
+        .andExpect(jsonPath("$.properties.parameters[0].name", equalTo("string")));
 
     String[] paths = URI.create(location).getPath().split("/");
     Integer id = Integer.parseInt(paths[paths.length - 1]);
@@ -198,19 +186,18 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @DisplayName("GET: Get tasks per application")
   void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
 
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
   }
 
   @Test
   @DisplayName("GET: This endpoint is disabled for anonymous access")
   void getTasksAsPublic() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI))
-      .andExpect(status().isUnauthorized());
+    mvc.perform(get(URIConstants.TASKS_URI)).andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -218,8 +205,8 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @DisplayName("GET: This endpoint is enabled for ROLE_ADMIN")
   void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(37)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(37)));
   }
 
   @Test
@@ -228,8 +215,8 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @Disabled("Requires additional test data")
   void getCartographyView() throws Exception {
     mvc.perform(get(URIConstants.TASK_PROJECTION_CARTOGRAPHY_VIEW, 1))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id", is(88)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is(88)));
   }
 
   @Test
@@ -238,18 +225,20 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @Disabled("Requires additional test data")
   void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
   }
 
   @Test
   @DisplayName("POST: This endpoint is disabled for anonymous creation")
   @Transactional
   void postTaskAsPublicUserFails() throws Exception {
-    mvc.perform(post(URIConstants.TASKS_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(asJsonString(task))
-    ).andExpect(status().is4xxClientError()).andReturn();
+    mvc.perform(
+            post(URIConstants.TASKS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(task)))
+        .andExpect(status().is4xxClientError())
+        .andReturn();
   }
 
   @Test
@@ -257,8 +246,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @DisplayName("GET: Access enabled to the roles of a task")
   void getRolesOfATask() throws Exception {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.roles", hasSize(1)));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.roles", hasSize(1)));
   }
-
 }

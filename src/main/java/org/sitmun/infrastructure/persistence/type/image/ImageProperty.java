@@ -10,9 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageProperty {
-	
-	private String type;
-	private int width;
-	private int height;
 
+  private String type;
+  private int width;
+  private int height;
 }

@@ -1,9 +1,14 @@
 package org.sitmun.authentication.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.LDAPException;
+import java.net.URI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,12 +22,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.net.URI;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,8 +41,7 @@ class AuthenticationControllerLdapMailTest {
   @Value("${test.ldap.schema}")
   private String schema;
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   private InMemoryDirectoryServer directoryServer;
 
@@ -51,9 +49,7 @@ class AuthenticationControllerLdapMailTest {
   void setupLdapServer() throws LDAPException {
     InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(baseDN);
     int port = URI.create(url).getPort();
-    config.setListenerConfigs(
-      InMemoryListenerConfig.createLDAPConfig("LDAP", port)
-    );
+    config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP", port));
     directoryServer = new InMemoryDirectoryServer(config);
     directoryServer.applyChangesFromLDIF(schema);
     directoryServer.importFromLDIF(false, ldif);
@@ -72,10 +68,11 @@ class AuthenticationControllerLdapMailTest {
     login.setUsername("admin");
     login.setPassword("admin");
 
-    mvc.perform(post("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(login)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id_token").exists());
+    mvc.perform(
+            post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id_token").exists());
   }
-} 
+}

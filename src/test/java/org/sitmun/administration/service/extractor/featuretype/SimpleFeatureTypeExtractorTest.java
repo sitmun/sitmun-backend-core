@@ -1,13 +1,12 @@
 package org.sitmun.administration.service.extractor.featuretype;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Simple Feature Type Extractor test")
 class SimpleFeatureTypeExtractorTest {
@@ -19,7 +18,9 @@ class SimpleFeatureTypeExtractorTest {
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
   void extractKnownFeatureWFS20() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE");
+    ExtractedMetadata doc =
+        extractor.extract(
+            "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("GML Schema", doc.getType());
@@ -33,7 +34,9 @@ class SimpleFeatureTypeExtractorTest {
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 1.1.0")
   void extractKnownFeatureWFS110() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&version=1.1.0&typeNames=RED_REGENTE");
+    ExtractedMetadata doc =
+        extractor.extract(
+            "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&version=1.1.0&typeNames=RED_REGENTE");
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("GML Schema", doc.getType());

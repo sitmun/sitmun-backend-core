@@ -1,6 +1,10 @@
 package org.sitmun.recover.service;
 
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.recover.dto.EmailForgotPassword;
+import org.sitmun.recover.dto.EmailObject;
+import org.sitmun.recover.exception.EmailTemplateException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
@@ -8,11 +12,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.sitmun.recover.dto.EmailObject;
-import org.sitmun.recover.dto.EmailForgotPassword;
-import org.sitmun.recover.exception.EmailTemplateException;
-
-import java.util.Map;
 
 @Service
 @Profile("mail")
@@ -36,13 +35,13 @@ public class EmailService implements MailService {
 
   @Override
   public void sendEmail(String from, String to, EmailObject emailObject) {
-      SimpleMailMessage message = new SimpleMailMessage();
-      message.setFrom(from);
-      message.setTo(to);
-      message.setSubject(emailObject.getSubject());
-      message.setText(emailObject.getBody());
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom(from);
+    message.setTo(to);
+    message.setSubject(emailObject.getSubject());
+    message.setText(emailObject.getBody());
 
-      mailSender.send(message);
+    mailSender.send(message);
   }
 
   @Override

@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Business logic component for UserPosition operations.
- * Handles the creation of UserPosition entities when UserConfiguration is created or updated.
+ * Business logic component for UserPosition operations. Handles the creation of UserPosition
+ * entities when UserConfiguration is created or updated.
  */
 @Component
 @Slf4j
@@ -44,17 +44,18 @@ public class UserPositionBusinessLogic {
 
     if (existingPosition.isEmpty()) {
       // Create new UserPosition
-      UserPosition newPosition = UserPosition.builder()
-        .user(user)
-        .territory(territory)
-        .build();
+      UserPosition newPosition = UserPosition.builder().user(user).territory(territory).build();
 
       userPositionRepository.save(newPosition);
-      log.info("Created new UserPosition for user {} in territory {}", 
-        user.getUsername(), territory.getName());
+      log.info(
+          "Created new UserPosition for user {} in territory {}",
+          user.getUsername(),
+          territory.getName());
     } else {
-      log.debug("UserPosition already exists for user {} in territory {}", 
-        user.getUsername(), territory.getName());
+      log.debug(
+          "UserPosition already exists for user {} in territory {}",
+          user.getUsername(),
+          territory.getName());
     }
   }
-} 
+}

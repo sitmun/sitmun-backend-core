@@ -1,19 +1,18 @@
 package org.sitmun.administration.service.dashboard;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.search.Search;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 @Component
 public class DashboardInfoContributor implements InfoContributor {
@@ -45,29 +44,36 @@ public class DashboardInfoContributor implements InfoContributor {
 
   private Map<String, Object> hierarchiseMetrics(Map<String, Object> map) {
     return map.entrySet().stream()
-      .map(entry -> Pair.of(entry.getKey().split("\\."), entry.getValue()))
-      .collect(groupingBy(entry -> entry.getKey()[0]))
-      .entrySet().stream()
-      .map(this::processEntry)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .map(entry -> Pair.of(entry.getKey().split("\\."), entry.getValue()))
+        .collect(groupingBy(entry -> entry.getKey()[0]))
+        .entrySet()
+        .stream()
+        .map(this::processEntry)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private Map<String, Object> collectMetrics() {
     return Search.in(meterRegistry)
-      .name(name -> name.startsWith(DashboardConfig.METRICS_PREFIX))
-      .meters().stream()
-      .map(DashboardInfoContributor::processMetric)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .name(name -> name.startsWith(DashboardConfig.METRICS_PREFIX))
+        .meters()
+        .stream()
+        .map(DashboardInfoContributor::processMetric)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private Map.Entry<String, Object> processEntry(Map.Entry<String, List<Pair<String[], Object>>> entry) {
-    Object newValue = toValue(entry.getValue().stream()
-      .map(value -> Pair.of(
-        Arrays.stream(value.getKey()).skip(1).toArray(String[]::new),
-        value.getValue())
-      ).collect(toList()));
+  private Map.Entry<String, Object> processEntry(
+      Map.Entry<String, List<Pair<String[], Object>>> entry) {
+    Object newValue =
+        toValue(
+            entry.getValue().stream()
+                .map(
+                    value ->
+                        Pair.of(
+                            Arrays.stream(value.getKey()).skip(1).toArray(String[]::new),
+                            value.getValue()))
+                .collect(toList()));
     if (newValue != null) {
       return new AbstractMap.SimpleEntry<>(entry.getKey(), newValue);
     }
@@ -82,11 +88,12 @@ public class DashboardInfoContributor implements InfoContributor {
       return list.get(0).getValue();
     }
     return list.stream()
-      .filter(entry -> entry.getKey().length != 0)
-      .collect(groupingBy(entry -> entry.getKey()[0]))
-      .entrySet().stream()
-      .map(this::processEntry)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .filter(entry -> entry.getKey().length != 0)
+        .collect(groupingBy(entry -> entry.getKey()[0]))
+        .entrySet()
+        .stream()
+        .map(this::processEntry)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }

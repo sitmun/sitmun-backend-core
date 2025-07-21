@@ -22,8 +22,9 @@ spring:
   # JPA Configuration for H2
   jpa:
     hibernate:
-      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: none
     properties:
+      dialect: org.hibernate.dialect.H2Dialect
       hibernate:
         # Disable CLOB creation for better database compatibility
         jdbc:

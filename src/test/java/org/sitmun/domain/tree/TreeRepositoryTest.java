@@ -1,5 +1,8 @@
 package org.sitmun.domain.tree;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,21 +20,14 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 @DataJpaTest
 @DisplayName("Tree Repository JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TreeRepositoryTest {
 
-  @Autowired
-  private TreeRepository treeRepository;
+  @Autowired private TreeRepository treeRepository;
 
-  @Autowired
-  private RoleRepository roleRepository;
+  @Autowired private RoleRepository roleRepository;
 
   private Tree tree;
 
@@ -39,7 +35,6 @@ class TreeRepositoryTest {
   void init() {
     tree = new Tree();
     tree.setName("Test");
-
   }
 
   @Test

@@ -6,5 +6,4 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "territory type")
 @RepositoryRestResource(collectionResourceRel = "territory-types", path = "territory-types")
-public interface TerritoryTypeRepository extends JpaRepository<TerritoryType, Integer> {
-}
+public interface TerritoryTypeRepository extends JpaRepository<TerritoryType, Integer> {}

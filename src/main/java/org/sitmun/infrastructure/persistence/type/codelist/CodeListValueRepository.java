@@ -8,9 +8,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "code list")
 @RepositoryRestResource(collectionResourceRel = "codelist-values", path = "codelist-values")
-public interface CodeListValueRepository extends
-  JpaRepository<CodeListValue, Integer>,
-  QuerydslPredicateExecutor<CodeListValue> {
+public interface CodeListValueRepository
+    extends JpaRepository<CodeListValue, Integer>, QuerydslPredicateExecutor<CodeListValue> {
 
   boolean existsByCodeListNameAndValue(String codeList, String code);
 

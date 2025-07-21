@@ -1,12 +1,5 @@
 package org.sitmun.infrastructure.persistence.type.image;
 
-import lombok.extern.slf4j.Slf4j;
-import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
-import org.springframework.stereotype.Component;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -19,6 +12,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Iterator;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.persistence.exception.IllegalImageException;
+import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
@@ -114,10 +113,14 @@ public class ImageTransformer {
   }
 
   private String encodeImageToBase64(BufferedImage image, String formatName) {
-    try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       ImageIO.write(image, formatName, baos);
       byte[] imageBytes = baos.toByteArray();
-      return ImageDataUri.builder().format(formatName).data(Base64.getEncoder().encodeToString(imageBytes)).build().toDataUri();
+      return ImageDataUri.builder()
+          .format(formatName)
+          .data(Base64.getEncoder().encodeToString(imageBytes))
+          .build()
+          .toDataUri();
     } catch (IOException e) {
       log.error("Failed to encode image to Base64", e);
       throw new IllegalImageException("Failed to encode image to Base64: " + e.getMessage());
@@ -135,7 +138,8 @@ public class ImageTransformer {
       log.error("Failed to get image format from URL {}", url, e);
       throw new IllegalImageException("Failed to get image format from URL: " + e.getMessage());
     }
-    throw new IllegalImageException("Supplied url is not a image"); // Image format can not be detected
+    throw new IllegalImageException(
+        "Supplied url is not a image"); // Image format can not be detected
   }
 
   private void validateFormat(String format) throws IllegalImageException {
@@ -147,4 +151,3 @@ public class ImageTransformer {
     throw new IllegalImageException("Image format not supported (" + format + ")");
   }
 }
-

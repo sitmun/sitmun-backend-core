@@ -1,27 +1,26 @@
 package org.sitmun.verification.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.test.TestUtils;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.test.annotation.DirtiesContext;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,11 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class VerificationControllerTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
   @BeforeEach
   void cleanUp() {
@@ -54,12 +51,13 @@ class VerificationControllerTest {
     request.setUsername("admin");
     request.setPassword("admin");
 
-    mvc.perform(post("/api/user-verification/verify-password")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(true));
+    mvc.perform(
+            post("/api/user-verification/verify-password")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
   }
 
   @Test
@@ -69,12 +67,13 @@ class VerificationControllerTest {
     request.setUsername("admin");
     request.setPassword("wrongpassword");
 
-    mvc.perform(post("/api/user-verification/verify-password")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$").value(false));
+    mvc.perform(
+            post("/api/user-verification/verify-password")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$").value(false));
   }
 
   @Test
@@ -84,11 +83,12 @@ class VerificationControllerTest {
     request.setUsername("");
     request.setPassword("admin");
 
-    mvc.perform(post("/api/user-verification/verify-password")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            post("/api/user-verification/verify-password")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -98,11 +98,12 @@ class VerificationControllerTest {
     request.setUsername("admin");
     request.setPassword(null);
 
-    mvc.perform(post("/api/user-verification/verify-password")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isBadRequest());
+    mvc.perform(
+            post("/api/user-verification/verify-password")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -116,18 +117,19 @@ class VerificationControllerTest {
     testUser.setAdministrator(false);
     testUser.setBlocked(false);
     userRepository.save(testUser);
-    
+
     // Verify the user was saved
     assertThat(userRepository.findByEmail("test@example.com")).isPresent();
 
     String email = "test@example.com";
 
-    mvc.perform(post("/api/user-verification/verify-email")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.TEXT_PLAIN)
-        .content( email ))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(true));
+    mvc.perform(
+            post("/api/user-verification/verify-email")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.TEXT_PLAIN)
+                .content(email))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
   }
 
   @Test
@@ -135,34 +137,37 @@ class VerificationControllerTest {
   void verifyEmailWithNonExistingEmail() throws Exception {
     String email = "nonexistent@example.com";
 
-    mvc.perform(post("/api/user-verification/verify-email")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.TEXT_PLAIN)
-        .content(email))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(false));
+    mvc.perform(
+            post("/api/user-verification/verify-email")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.TEXT_PLAIN)
+                .content(email))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(false));
   }
 
   @Test
   @DisplayName("POST: Verify email with empty email should return false")
   void verifyEmailWithEmptyEmail() throws Exception {
-    mvc.perform(post("/api/user-verification/verify-email")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.TEXT_PLAIN)
-        .content(""))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(false));
+    mvc.perform(
+            post("/api/user-verification/verify-email")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.TEXT_PLAIN)
+                .content(""))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(false));
   }
 
   @Test
   @DisplayName("POST: Verify email with null email should return false")
   void verifyEmailWithNullEmail() throws Exception {
-    mvc.perform(post("/api/user-verification/verify-email")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("null"))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(false));
+    mvc.perform(
+            post("/api/user-verification/verify-email")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("null"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(false));
   }
 
   @Test
@@ -180,12 +185,13 @@ class VerificationControllerTest {
     // Try with uppercase email
     String email = "TESTCASE@EXAMPLE.COM";
 
-    mvc.perform(post("/api/user-verification/verify-email")
-        .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
-        .contentType(MediaType.TEXT_PLAIN)
-        .content(email))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$").value(true));
+    mvc.perform(
+            post("/api/user-verification/verify-email")
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
+                .contentType(MediaType.TEXT_PLAIN)
+                .content(email))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
   }
 
   @Test
@@ -195,9 +201,10 @@ class VerificationControllerTest {
     request.setUsername("admin");
     request.setPassword("admin");
 
-    mvc.perform(post("/api/user-verification/verify-password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestUtils.asJsonString(request)))
-      .andExpect(status().isUnauthorized());
+    mvc.perform(
+            post("/api/user-verification/verify-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isUnauthorized());
   }
-} 
+}

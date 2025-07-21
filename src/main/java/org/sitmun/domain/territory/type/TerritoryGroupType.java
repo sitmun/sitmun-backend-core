@@ -1,14 +1,12 @@
 package org.sitmun.domain.territory.type;
 
-
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Objects;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
-
-import java.util.Objects;
 
 /**
  * Type of grouping of territorial entities.
@@ -16,7 +14,9 @@ import java.util.Objects;
  * @deprecated
  */
 @Entity
-@Table(name = "STM_GTER_TYP", uniqueConstraints = @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = "GTT_NAME"))
+@Table(
+    name = "STM_GTER_TYP",
+    uniqueConstraints = @UniqueConstraint(name = "STM_GTT_NOM_UK", columnNames = "GTT_NAME"))
 @Builder
 @Getter
 @Setter
@@ -25,24 +25,20 @@ import java.util.Objects;
 @Deprecated(forRemoval = true)
 public class TerritoryGroupType {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_GTER_TYP_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "GTT_ID",
-    allocationSize = 1)
+      name = "STM_GTER_TYP_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "GTT_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GTER_TYP_GEN")
   @Column(name = "GTT_ID")
   private Integer id;
 
-  /**
-   * Name.
-   */
+  /** Name. */
   @NotBlank
   @Column(name = "GTT_NAME", length = PersistenceConstants.SHORT_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)

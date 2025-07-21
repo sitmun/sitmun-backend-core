@@ -5,5 +5,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Tag(name = "comment")
 @RepositoryRestResource(collectionResourceRel = "comments", path = "comments")
-public interface CommentRepository extends org.springframework.data.jpa.repository.JpaRepository<Comment, Integer> {
-}
+public interface CommentRepository
+    extends org.springframework.data.jpa.repository.JpaRepository<Comment, Integer> {}

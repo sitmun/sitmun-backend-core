@@ -9,11 +9,13 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 
 @Tag(name = "application territory")
-@RepositoryRestResource(collectionResourceRel = "application-territory", path = "application-territory")
+@RepositoryRestResource(
+    collectionResourceRel = "application-territory",
+    path = "application-territory")
 public interface ApplicationTerritoryRepository
-  extends JpaRepository<ApplicationTerritory, Integer>,
-  QuerydslPredicateExecutor<ApplicationTerritory>,
-  QuerydslBinderCustomizer<QApplicationTerritory> {
-  default void customize(@NonNull QuerydslBindings querydslBindings, @NonNull QApplicationTerritory root) {
-  }
+    extends JpaRepository<ApplicationTerritory, Integer>,
+        QuerydslPredicateExecutor<ApplicationTerritory>,
+        QuerydslBinderCustomizer<QApplicationTerritory> {
+  default void customize(
+      @NonNull QuerydslBindings querydslBindings, @NonNull QApplicationTerritory root) {}
 }

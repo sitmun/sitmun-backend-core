@@ -1,12 +1,9 @@
 package org.sitmun.domain.user;
 
+import java.util.Date;
 import lombok.*;
 
-import java.util.Date;
-
-/**
- * User DTO.
- */
+/** User DTO. */
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -16,59 +13,36 @@ public class UserDTO {
 
   private Integer id;
 
-  /**
-   * User mail
-   */
+  /** User mail */
   private String email;
 
-  /**
-   * User login.
-   */
+  /** User login. */
   private String username;
 
-  /**
-   * User password hash.
-   */
+  /** User password hash. */
   private String password;
 
-  /**
-   * User password hash.
-   */
+  /** User password hash. */
   private Boolean passwordSet;
 
-  /**
-   * User's first name.
-   */
+  /** User's first name. */
   private String firstName;
 
-  /**
-   * User last name.
-   */
+  /** User last name. */
   private String lastName;
 
-  /**
-   * User identification number.
-   */
+  /** User identification number. */
   private String identificationNumber;
 
-  /**
-   * User identification type.
-   */
+  /** User identification type. */
   private String identificationType;
 
-  /**
-   * If <code>true</code>, the user is a system administrator.
-   */
+  /** If <code>true</code>, the user is a system administrator. */
   private Boolean administrator;
 
-  /**
-   * If <code>true</code>, the user is blocked and cannot log to the system.
-   */
+  /** If <code>true</code>, the user is blocked and cannot log to the system. */
   private Boolean blocked;
 
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   private Date createdDate;
-
 }

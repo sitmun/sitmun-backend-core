@@ -1,11 +1,10 @@
 package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Date;
-
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 
 @Getter
@@ -17,8 +16,10 @@ public class ApplicationDto {
   private String type;
   private String theme;
   private String srs;
+
   @JsonProperty("situation-map")
   private String situationMap;
+
   private String logo;
   private String description;
   private String maintenanceInformation;
@@ -32,11 +33,12 @@ public class ApplicationDto {
   private Double[] initialExtent;
 
   public void setInitialExtentFromEnvelope(Envelope initialExtent) {
-    setInitialExtent(new Double[]{
-      initialExtent.getMinX(),
-      initialExtent.getMinY(),
-      initialExtent.getMaxX(),
-      initialExtent.getMaxY()
-    });
+    setInitialExtent(
+        new Double[] {
+          initialExtent.getMinX(),
+          initialExtent.getMinY(),
+          initialExtent.getMaxX(),
+          initialExtent.getMaxY()
+        });
   }
 }

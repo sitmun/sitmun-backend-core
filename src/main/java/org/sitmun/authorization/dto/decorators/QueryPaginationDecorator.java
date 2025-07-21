@@ -1,14 +1,12 @@
 package org.sitmun.authorization.dto.decorators;
 
+import java.util.Map;
 import org.sitmun.authorization.dto.DatasourcePayloadDto;
 import org.sitmun.authorization.dto.PayloadDto;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Component
 public class QueryPaginationDecorator implements Decorator<Map<String, String>> {
-
 
   public static final String SQL_LIMIT = "LIMIT";
 

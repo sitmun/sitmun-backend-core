@@ -1,10 +1,9 @@
 package org.sitmun.authorization.dto;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

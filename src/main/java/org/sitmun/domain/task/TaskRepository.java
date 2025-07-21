@@ -2,6 +2,8 @@ package org.sitmun.domain.task;
 
 import com.querydsl.core.types.dsl.SimpleExpression;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Set;
 import org.sitmun.domain.role.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,26 +15,26 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.lang.NonNull;
 
-import java.util.List;
-import java.util.Set;
-
 @Tag(name = "task")
 @RepositoryRestResource(collectionResourceRel = "tasks", path = "tasks")
-public interface TaskRepository extends JpaRepository<Task, Integer>,
-  QuerydslPredicateExecutor<Task>,
-  QuerydslBinderCustomizer<QTask> {
+public interface TaskRepository
+    extends JpaRepository<Task, Integer>,
+        QuerydslPredicateExecutor<Task>,
+        QuerydslBinderCustomizer<QTask> {
 
   Iterable<Task> findAllByTypeId(@NonNull Integer typeId);
 
-  @Query("""
-        select task 
-        from Task task, Application app, Role role 
+  @Query(
+      """
+        select task
+        from Task task, Application app, Role role
         where app.id = :applicationId and role member of app.availableRoles and role member of task.roles
                 """)
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
-  @Query("""
+  @Query(
+      """
     SELECT tsk FROM Task tsk WHERE tsk.id in
     (SELECT tsk.id FROM Task tsk, TaskAvailability tav, Role rol WHERE
     rol member tsk.roles AND rol in ?1

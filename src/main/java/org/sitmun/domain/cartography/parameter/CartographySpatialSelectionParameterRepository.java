@@ -1,6 +1,5 @@
 package org.sitmun.domain.cartography.parameter;
 
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -10,10 +9,9 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  */
 @Tag(name = "cartography spatial selection parameter")
 @RepositoryRestResource(
-  collectionResourceRel = "cartography-spatial-selection-parameters",
-  itemResourceRel = "cartography-spatial-selection-parameter",
-  path = "cartography-spatial-selection-parameters")
+    collectionResourceRel = "cartography-spatial-selection-parameters",
+    itemResourceRel = "cartography-spatial-selection-parameter",
+    path = "cartography-spatial-selection-parameters")
 @Deprecated
 public interface CartographySpatialSelectionParameterRepository
-  extends JpaRepository<CartographySpatialSelectionParameter, Integer> {
-}
+    extends JpaRepository<CartographySpatialSelectionParameter, Integer> {}

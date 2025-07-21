@@ -1,54 +1,39 @@
 package org.sitmun.domain.territory;
 
+import java.util.Date;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.Date;
-
-/**
- * Projections for REST views of a territory.
- */
+/** Projections for REST views of a territory. */
 @Projection(name = "view", types = Territory.class)
 public interface TerritoryProjection {
 
   @Value("#{target.id}")
   Integer getId();
 
-  /**
-   * Geographic code.
-   */
+  /** Geographic code. */
   @Value("#{target.code}")
   String getCode();
 
-  /**
-   * Territory name.
-   */
+  /** Territory name. */
   @Value("#{target.name}")
   String getName();
 
-  /**
-   * Territory description.
-   */
+  /** Territory description. */
   @Value("#{target.description}")
   String getDescription();
 
-  /**
-   * Territorial authority name.
-   */
+  /** Territorial authority name. */
   @Value("#{target.territorialAuthorityName}")
   String getTerritorialAuthorityName();
 
-  /**
-   * Territorial authority address.
-   */
+  /** Territorial authority address. */
   @Value("#{target.territorialAuthorityAddress}")
   String getTerritorialAuthorityAddress();
 
-  /**
-   * Territorial authority email.
-   */
+  /** Territorial authority email. */
   @Value("#{target.territorialAuthorityEmail}")
   String getTerritorialAuthorityEmail();
 
@@ -61,33 +46,23 @@ public interface TerritoryProjection {
   @Deprecated(forRemoval = true)
   String getScope();
 
-  /**
-   * Link to the territorial authority logo.
-   */
+  /** Link to the territorial authority logo. */
   @Value("#{target.territorialAuthorityLogo}")
   String getTerritorialAuthorityLogo();
 
-  /**
-   * Bounding box of the territory.
-   */
+  /** Bounding box of the territory. */
   @Value("#{target.extent}")
   Envelope getExtent();
 
-  /**
-   * <code>true</code> if the territory is blocked.
-   */
+  /** <code>true</code> if the territory is blocked. */
   @Value("#{target.blocked}")
   Boolean getBlocked();
 
-  /**
-   * Notes.
-   */
+  /** Notes. */
   @Value("#{target.note}")
   String getNote();
 
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   @Value("#{target.createdDate}")
   Date getCreatedDate();
 
@@ -109,47 +84,31 @@ public interface TerritoryProjection {
   @Deprecated(forRemoval = true)
   String getGroupTypeName();
 
-  /**
-   * Type identifier.
-   */
+  /** Type identifier. */
   @Value("#{target.type?.id}")
   Integer getTypeId();
 
-  /**
-   * Type name.
-   */
+  /** Type name. */
   @Value("#{target.type?.name}")
   String getTypeName();
 
-
-  /**
-   * Type is top.
-   */
+  /** Type is top. */
   @Value("#{target.type?.topType}")
   Boolean getTypeTopType();
 
-  /**
-   * Type is bottom.
-   */
+  /** Type is bottom. */
   @Value("#{target.type?.bottomType}")
   Boolean getTypeBottomType();
 
-
-  /**
-   * Center of the territory.
-   */
+  /** Center of the territory. */
   @Value("#{target.center}")
   Point getCenter();
 
-  /**
-   * Default zoom level.
-   */
+  /** Default zoom level. */
   @Value("#{target.defaultZoomLevel}")
   Integer getDefaultZoomLevel();
 
-  /**
-   * Projection to be used in this territory.
-   */
+  /** Projection to be used in this territory. */
   @Value("#{target.srs}")
   String getSrs();
 }

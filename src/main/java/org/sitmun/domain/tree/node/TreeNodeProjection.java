@@ -1,20 +1,14 @@
 package org.sitmun.domain.tree.node;
 
-
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-/**
- * Projections for REST views of the tree node.
- */
+/** Projections for REST views of the tree node. */
 @Projection(name = "view", types = TreeNode.class)
 public interface TreeNodeProjection {
 
-  /**
-   * Make accesible the parent node.
-   */
+  /** Make accesible the parent node. */
   @Value("#{target.parent?.id}")
   Integer getParent();
 
@@ -60,79 +54,54 @@ public interface TreeNodeProjection {
   @Value("#{target.filterSelectable}")
   Boolean getFilterSelectable();
 
-  /**
-   * If this node is a folder, then the cartography and task must be null.
-   */
+  /** If this node is a folder, then the cartography and task must be null. */
   @Value("#{target.cartography == null && target.task == null}")
   Boolean getIsFolder();
 
-  /**
-   * Cartography name.
-   */
+  /** Cartography name. */
   @Value("#{target.cartography?.name}")
   String getCartographyName();
 
-  /**
-   * Cartography identifier.
-   */
+  /** Cartography identifier. */
   @Value("#{target.cartography?.id}")
   Integer getCartographyId();
-  
-  /**
-   * Task name.
-   */
+
+  /** Task name. */
   @Value("#{target.task?.name}")
   String getTaskName();
 
-  /**
-   * Task identifier.
-   */
+  /** Task identifier. */
   @Value("#{target.task?.id}")
   Integer getTaskId();
 
   @Value("#{target.tree?.id}")
   String getTreeId();
 
-  /**
-   * Tree name projection.
-   */
+  /** Tree name projection. */
   @Value("#{target.tree?.name}")
   String getTreeName();
 
-  /**
-   * Tree node style
-   */
+  /** Tree node style */
   @Value("#{target.style}")
   String getStyle();
 
-  /**
-   * Tree node image
-   */
+  /** Tree node image */
   @Value("#{target.image}")
   String getImage();
 
-  /**
-   * Tree node image name
-   */
+  /** Tree node image name */
   @Value("#{target.imageName}")
   String getImageName();
 
-  /**
-   * Tree node view mode
-   */
+  /** Tree node view mode */
   @Value("#{target.viewMode}")
   String getViewMode();
 
-  /**
-   * Tree node filterable
-   */
+  /** Tree node filterable */
   @Value("#{target.filterable}")
   Boolean getFilterable();
 
-  /**
-   * Tree node mapping
-   */
+  /** Tree node mapping */
   @Value("#{target.mapping}")
   Map<String, Object> getMapping();
-
 }

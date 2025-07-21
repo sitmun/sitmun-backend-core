@@ -220,8 +220,6 @@ tasks.register('testH2', Test) {
   group = 'verification'
   description = 'Run tests with H2 in-memory database'
   
-  systemProperty 'spring.profiles.active', 'test,h2'
-  
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
@@ -305,7 +303,7 @@ spotless {
   java {
     removeUnusedImports()
     googleJavaFormat('1.28.0')
-    importOrder 'java', 'javax', 'org', 'com'
+    // importOrder 'java', 'javax', 'org', 'com'
     target '**/*.java'
     targetExclude '**/generated-sources/**'
   }

@@ -1,6 +1,8 @@
 package org.sitmun.domain.tree;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Set;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
@@ -11,9 +13,6 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 @Component
 @RepositoryEventHandler
@@ -50,14 +49,16 @@ public class TreeEventHandler {
     if (apps.size() == 1 && DomainConstants.Applications.isTouristicApplication(apps.get(0))) {
       return; // Valid case with one touristic application
     }
-    throw new RequirementException("Touristic tree only can be linked with 0..1 tourist application");
+    throw new RequirementException(
+        "Touristic tree only can be linked with 0..1 tourist application");
   }
 
   private void validateNoTouristicTree(List<Application> apps) {
     boolean valid = apps.stream().allMatch(this::validAppTrees);
 
     if (!valid) {
-      throw new RequirementException("A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree");
+      throw new RequirementException(
+          "A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree");
     }
   }
 

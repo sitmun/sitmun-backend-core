@@ -1,5 +1,11 @@
 package org.sitmun.domain.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,14 +26,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("User Resource Integration Test")
 class UserResourceIntegrationTest {
@@ -39,17 +37,15 @@ class UserResourceIntegrationTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
-  @Autowired
-  HypermediaRestTemplateConfigurer configurer;
-  @LocalServerPort
-  private int port;
+  @Autowired HypermediaRestTemplateConfigurer configurer;
+  @LocalServerPort private int port;
   private RestTemplate restTemplate;
   private User organizacionAdmin;
 
   @BeforeEach
   void init() {
     ClientHttpRequestFactory factory =
-      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -68,7 +64,6 @@ class UserResourceIntegrationTest {
     organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
   }
 
-
   @Test
   @DisplayName("POST: Create new user and delete")
   void createNewUserAndDelete() {
@@ -79,28 +74,34 @@ class UserResourceIntegrationTest {
     HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
 
     ResponseEntity<User> createdUser =
-      restTemplate
-        .postForEntity("http://localhost:{port}/api/users", entity, User.class, port);
+        restTemplate.postForEntity("http://localhost:{port}/api/users", entity, User.class, port);
 
     assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdUser.getHeaders().getLocation()).isNotNull();
 
-    ResponseEntity<User> exists = restTemplate
-      .exchange(createdUser.getHeaders().getLocation(), HttpMethod.GET, new HttpEntity<>(headers),
-        User.class);
+    ResponseEntity<User> exists =
+        restTemplate.exchange(
+            createdUser.getHeaders().getLocation(),
+            HttpMethod.GET,
+            new HttpEntity<>(headers),
+            User.class);
     assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    ResponseEntity<String> deleted = restTemplate
-      .exchange(createdUser.getHeaders().getLocation(), HttpMethod.DELETE,
-        new HttpEntity<>(headers), String.class);
+    ResponseEntity<String> deleted =
+        restTemplate.exchange(
+            createdUser.getHeaders().getLocation(),
+            HttpMethod.DELETE,
+            new HttpEntity<>(headers),
+            String.class);
     assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
     URI location = createdUser.getHeaders().getLocation();
     final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
-    HttpClientErrorException thrown = assertThrows(HttpClientErrorException.class, () ->
-      restTemplate.exchange(location, HttpMethod.GET, entityHeaders, User.class)
-    );
-    assertThat(thrown.getRawStatusCode()).isEqualTo(404);
+    HttpClientErrorException thrown =
+        assertThrows(
+            HttpClientErrorException.class,
+            () -> restTemplate.exchange(location, HttpMethod.GET, entityHeaders, User.class));
+    assertThat(thrown.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
   @Test
@@ -108,8 +109,11 @@ class UserResourceIntegrationTest {
   void cannotPostWithoutLogin() {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
-    assertThrows(HttpClientErrorException.Unauthorized.class, () -> restTemplate
-      .postForEntity("http://localhost:{port}/api/users", newUser, User.class, port));
+    assertThrows(
+        HttpClientErrorException.Unauthorized.class,
+        () ->
+            restTemplate.postForEntity(
+                "http://localhost:{port}/api/users", newUser, User.class, port));
   }
 
   @Test
@@ -118,14 +122,15 @@ class UserResourceIntegrationTest {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
 
-    ResponseEntity<CollectionModel<User>> response = restTemplate
-      .exchange("http://localhost:{port}/api/users", HttpMethod.GET,
-        new HttpEntity<CollectionModel<User>>(headers),
-        new TypeReferences.CollectionModelType<>() {
-        }, port);
+    ResponseEntity<CollectionModel<User>> response =
+        restTemplate.exchange(
+            "http://localhost:{port}/api/users",
+            HttpMethod.GET,
+            new HttpEntity<CollectionModel<User>>(headers),
+            new TypeReferences.CollectionModelType<>() {},
+            port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().getContent()).hasSize(5);
   }
-
 }
