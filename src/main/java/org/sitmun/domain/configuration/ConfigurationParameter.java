@@ -1,13 +1,13 @@
 package org.sitmun.domain.configuration;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -59,11 +59,9 @@ public class ConfigurationParameter {
       return true;
     }
 
-    if (!(obj instanceof ApplicationParameter)) {
+    if (!(obj instanceof ApplicationParameter other)) {
       return false;
     }
-
-    ApplicationParameter other = (ApplicationParameter) obj;
 
     return Objects.equals(id, other.getId());
   }

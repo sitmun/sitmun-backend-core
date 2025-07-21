@@ -2,6 +2,11 @@ package org.sitmun.domain.cartography;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -22,11 +27,6 @@ import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConver
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 import static org.sitmun.domain.PersistenceConstants.*;
@@ -361,11 +361,9 @@ public class Cartography {
       return true;
     }
 
-    if (!(obj instanceof Cartography)) {
+    if (!(obj instanceof Cartography other)) {
       return false;
     }
-
-    Cartography other = (Cartography) obj;
 
     return Objects.equals(id, other.getId());
   }

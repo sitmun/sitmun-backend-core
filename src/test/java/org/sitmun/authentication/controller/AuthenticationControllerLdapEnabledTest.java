@@ -9,13 +9,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
@@ -26,14 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({"test", "ldap"})
+@AdditiveActiveProfiles(value = "ldap")
 @DisplayName("Authentication Controller LDAP enabled tests")
 class AuthenticationControllerLdapEnabledTest {
 
   @Value("${sitmun.authentication.ldap.url}")
   private String url;
 
-  @Value("${sitmun.authentication.ldap.base_dn}")
+  @Value("${sitmun.authentication.ldap.base-dn}")
   private String baseDN;
 
   @Value("${test.ldap.ldif}")

@@ -1,14 +1,17 @@
 package org.sitmun.domain.database;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.CodeListsConstants;
+import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueRepository;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -24,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("DatabaseConnection Repository Data REST test")
 class DatabaseConnectionRepositoryDataRestTest {
 
@@ -32,6 +36,17 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Autowired
   private MockMvc mvc;
+
+  @Autowired
+  private CodeListValueRepository codeListValueRepository;
+
+  @BeforeEach
+  void setUp() {
+    // Ensure H2 driver is available as a valid value in the database
+    boolean h2DriverExists = codeListValueRepository.existsByCodeListNameAndValue(
+      CodeListsConstants.DATABASE_CONNECTION_DRIVER, "org.h2.Driver");
+    assertThat(h2DriverExists).isTrue();
+  }
 
   @Test
   @DisplayName("GET: List DatabaseConnection")
@@ -47,7 +62,6 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create a DatabaseConnection and then update the password")
-  @WithMockUser(roles = "ADMIN")
   void updateUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +100,6 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create a DatabaseConnection and then keep the password")
-  @WithMockUser(roles = "ADMIN")
   void keepUserPassword() throws Exception {
     String uri = mvc.perform(post(URIConstants.CONNECTIONS_URI)
         .contentType(MediaType.APPLICATION_JSON)

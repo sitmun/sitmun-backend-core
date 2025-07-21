@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: sitmun
+      changes:
+        - loadData:
+            encoding: UTF-8
+            file: 06_params/STM_CONF.csv
+            relativeToChangelogFile: true
+            tableName: STM_CONF
+            columns:
+              - column:
+                  name: CNF_ID
+                  type: NUMERIC
+              - column:
+                  name: CNF_NAME
+                  type: STRING
+              - column:
+                  name: CNF_VALUE
+                  type: STRING
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('CNF_ID', 6);

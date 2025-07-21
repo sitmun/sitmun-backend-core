@@ -2,7 +2,11 @@ package org.sitmun.domain.tree;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Length;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -13,8 +17,7 @@ import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import java.sql.Types;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -59,8 +62,7 @@ public class Tree {
   /**
    * Representative image or icon.
    */
-  @Column(name = "TRE_IMAGE")
-  @Lob
+  @Column(name = "TRE_IMAGE", length = Length.LONG32)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String image;
 
@@ -135,11 +137,9 @@ public class Tree {
       return true;
     }
 
-    if (!(obj instanceof Tree)) {
+    if (!(obj instanceof Tree other)) {
       return false;
     }
-
-    Tree other = (Tree) obj;
 
     return Objects.equals(id, other.getId());
   }

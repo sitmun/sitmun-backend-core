@@ -1,9 +1,9 @@
 package org.sitmun.domain.user_token;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import java.util.Date;
 
 @Entity

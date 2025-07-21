@@ -23,10 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,19 +97,19 @@ class DatabaseConnectionRepositoryIntegrationTest {
   @DisplayName("PUT: Update DatabaseConnection")
   void updateConnection() throws JSONException {
     JSONObject updatedValueJson = getConnection(1);
-    assertThat(updatedValueJson.get("user")).isEqualTo("User1");
+    assertThat(Objects.requireNonNull(updatedValueJson).get("user")).isEqualTo("User1");
 
     String auth = getAuthorization();
 
     updatedValueJson.put("user", "User3");
     updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(1).get("user")).isEqualTo("User3");
+    assertThat(Objects.requireNonNull(getConnection(1)).get("user")).isEqualTo("User3");
 
     updatedValueJson.put("user", "User1");
     updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(1).get("user")).isEqualTo("User1");
+    assertThat(Objects.requireNonNull(getConnection(1)).get("user")).isEqualTo("User1");
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -120,7 +117,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   @DisplayName("PUT: Cannot update connection for catographies")
   void putCannotUpdateConnectionCartographies() throws JSONException {
     JSONObject oldValueJson = getConnectionCartographies(1);
-    List oldList = getListOfCartographies(oldValueJson);
+    List oldList = getListOfCartographies(Objects.requireNonNull(oldValueJson));
 
     String auth = getAuthorization();
 
@@ -134,7 +131,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
     updateConnectionCartograhies(1, newList, auth);
 
     oldValueJson = getConnectionCartographies(1);
-    List updatedList = getListOfCartographies(oldValueJson);
+    List updatedList = getListOfCartographies(Objects.requireNonNull(oldValueJson));
 
     assertThat(updatedList).containsExactlyInAnyOrderElementsOf(oldList);
   }
@@ -146,18 +143,18 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String auth = getAuthorization();
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     JSONObject cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(7);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
 
     deleteCartographiesSpatialSelectionConnection(1, auth);
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isFalse();
     cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(6);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(6);
 
 
     updateCartographiesSpatialSelectionConnection(1, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(7);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
   }
 
   private String getAuthorization() {

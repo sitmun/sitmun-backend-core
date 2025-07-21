@@ -2,12 +2,13 @@ package org.sitmun.domain.territory.type;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -49,7 +50,7 @@ public class TerritoryType {
    * `true` if this is an official type.
    */
   @Column(name = "TET_OFFICIAL")
-  @NotBlank
+  @NotNull
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean official = false;
@@ -58,7 +59,7 @@ public class TerritoryType {
    * If {@code true}, the territory is root in the territories' hierarchy.
    */
   @Column(name = "TET_TOP")
-  @NotBlank
+  @NotNull
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean topType = false;
@@ -67,7 +68,7 @@ public class TerritoryType {
    * If {@code true}, the territory is leaf in the territories' hierarchy.
    */
   @Column(name = "TET_BOTTOM")
-  @NotBlank
+  @NotNull
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
   private Boolean bottomType = false;
@@ -78,11 +79,9 @@ public class TerritoryType {
       return true;
     }
 
-    if (!(obj instanceof TerritoryType)) {
+    if (!(obj instanceof TerritoryType other)) {
       return false;
     }
-
-    TerritoryType other = (TerritoryType) obj;
 
     return Objects.equals(id, other.getId());
   }

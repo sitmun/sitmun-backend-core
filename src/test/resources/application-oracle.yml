@@ -1,0 +1,43 @@
+# =====================================================================================================================
+# PostgreSQL Database Configuration for Tests
+#
+# This profile provides PostgreSQL database configuration for testing.
+# Use with: --spring.profiles.active=test,postgres
+# =====================================================================================================================
+
+spring:
+  # PostgreSQL Database Configuration
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:oracle:thin:@//localhost:1521/sitmun3
+    username: sitmun3
+    password: sitmun3
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      poolName: TestPostgresHikari
+      maximum-pool-size: 2
+      minimum-idle: 1
+      leak-detection-threshold: 15000
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 600000
+      data-source-properties:
+        reWriteBatchedInserts: true
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+
+  # JPA Configuration for Oracle
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+
+  # Liquibase Configuration for Oracle
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-oracle.yaml
+    enabled: true
+    drop-first: true
+    url: jdbc:oracle:thin:@//localhost:1521/sitmun3?oracle.net.CONNECT_TIMEOUT=5000
+

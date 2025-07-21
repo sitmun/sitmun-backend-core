@@ -59,7 +59,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
 
     territory = Territory.builder()
       .name("Territorio 1")
-      .code("")
+      .code("some-code")
       .blocked(false)
       .build();
     territoryRepository.save(territory);

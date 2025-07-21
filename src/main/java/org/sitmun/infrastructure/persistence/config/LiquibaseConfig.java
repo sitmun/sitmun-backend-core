@@ -18,14 +18,20 @@ import javax.sql.DataSource;
 @Slf4j
 public class LiquibaseConfig {
 
-  @Autowired
-  private Environment env;
+  private final Environment env;
 
-  @Autowired
-  private TaskExecutor taskExecutor;
+  private final TaskExecutor taskExecutor;
 
-  @Autowired
-  private LiquibaseProperties liquibaseProperties;
+  private final LiquibaseProperties liquibaseProperties;
+
+  public LiquibaseConfig(
+    LiquibaseProperties liquibaseProperties,
+    TaskExecutor taskExecutor,
+    Environment env) {
+    this.liquibaseProperties = liquibaseProperties;
+    this.taskExecutor = taskExecutor;
+    this.env = env;
+  }
 
   @Bean
   public SpringLiquibase liquibase(DataSource dataSource) {

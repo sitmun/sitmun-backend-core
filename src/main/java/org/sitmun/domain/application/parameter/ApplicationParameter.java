@@ -1,6 +1,9 @@
 package org.sitmun.domain.application.parameter;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -8,9 +11,6 @@ import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
@@ -80,11 +80,9 @@ public class ApplicationParameter {
       return true;
     }
 
-    if (!(obj instanceof ApplicationParameter)) {
+    if (!(obj instanceof ApplicationParameter other)) {
       return false;
     }
-
-    ApplicationParameter other = (ApplicationParameter) obj;
 
     return Objects.equals(id, other.getId());
   }

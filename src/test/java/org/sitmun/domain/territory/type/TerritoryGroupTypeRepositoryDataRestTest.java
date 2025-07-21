@@ -1,5 +1,6 @@
 package org.sitmun.domain.territory.type;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.test.Fixtures;
@@ -69,6 +70,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
     assertThat(repository.count()).isEqualTo(count + 1);
     String location = result.getResponse().getHeader("Location");
     assertThat(location).isNotNull();
+    Assertions.assertNotNull(location);
     mvc.perform(delete(location)
         .with(user(Fixtures.admin()))
       )

@@ -59,7 +59,7 @@ public class HttpClientFactory {
       builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
       builder.hostnameVerifier((hostname, session) -> true);
     } catch (Exception e) {
-      log.warn("Exception while configuring IgnoreSslCertificate: " + e.getMessage(), e);
+      log.warn("Exception while configuring IgnoreSslCertificate: {}", e.getMessage(), e);
     }
     return builder;
   }
@@ -77,7 +77,7 @@ public class HttpClientFactory {
         return safeClient;
       }
     } catch (Exception e) {
-      log.warn("Exception while creating client: " + e.getMessage(), e);
+      log.warn("Exception while creating client: {}", e.getMessage(), e);
       return safeClient;
     }
   }

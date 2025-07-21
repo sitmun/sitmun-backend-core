@@ -1,10 +1,10 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -56,11 +56,9 @@ public class Language {
       return true;
     }
 
-    if (!(obj instanceof Language)) {
+    if (!(obj instanceof Language other)) {
       return false;
     }
-
-    Language other = (Language) obj;
 
     return Objects.equals(id, other.getId());
   }

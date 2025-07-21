@@ -1,12 +1,15 @@
 package org.sitmun.domain.task;
 
+import jakarta.validation.constraints.NotNull;
 import org.sitmun.domain.task.type.TaskType;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
-import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public interface TaskValidator {
 
@@ -42,23 +45,21 @@ public interface TaskValidator {
     }
 
     Object rawParameters= map.get("parameters");
-    if(!(rawParameters instanceof List)) {
+    if(!(rawParameters instanceof List<?> parameters)) {
       Errors errors = init(task);
       errors.rejectValue("properties", "parameters.notList", "[parameters] property must be a list");
       throw new RepositoryConstraintViolationException(errors);
     }
 
-    @SuppressWarnings("unchecked")
-    List<Object> parameters = (List<Object>) rawParameters;
     List<Map<String, Object>> result = new ArrayList<>();
     for (Object obj : parameters) {
-      if (!(obj instanceof Map)) {
+      if (!(obj instanceof Map<?, ?> parameterMap)) {
         Errors errors = init(task);
         errors.rejectValue("properties", "parameters.notListOfMaps", "[parameters] must be a list of maps");
         throw new RepositoryConstraintViolationException(errors);
       }
       //noinspection unchecked
-      result.add((Map<String, Object>) obj);
+      result.add((Map<String, Object>) parameterMap);
     }
     return result;
   }

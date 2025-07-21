@@ -9,7 +9,6 @@ import org.springframework.data.rest.webmvc.support.RepositoryConstraintViolatio
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -57,20 +56,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     RepositoryConstraintViolationException exception) {
     return new ResponseEntity<>(new RepositoryConstraintViolationExceptionMessage(exception, messageSourceAccessor),
       new HttpHeaders(), HttpStatus.BAD_REQUEST);
-  }
-
-  @Override
-  @NonNull
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(
-    HttpMessageNotReadableException ex, @NonNull HttpHeaders headers, @NonNull HttpStatus status, @NonNull WebRequest request) {
-    DomainExceptionResponse response = DomainExceptionResponse.builder()
-      .error(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
-      .message(ex.getLocalizedMessage())
-      .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
-      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
-      .path(((ServletWebRequest) request).getRequest().getRequestURI())
-      .build();
-    return handleExceptionInternal(ex, response, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
   }
 
   @ExceptionHandler(NullPointerException.class)

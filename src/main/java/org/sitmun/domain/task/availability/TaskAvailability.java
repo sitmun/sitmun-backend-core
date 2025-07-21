@@ -1,6 +1,8 @@
 package org.sitmun.domain.task.availability;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -9,8 +11,6 @@ import org.sitmun.domain.territory.Territory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -74,11 +74,9 @@ public class TaskAvailability {
       return true;
     }
 
-    if (!(obj instanceof TaskAvailability)) {
+    if (!(obj instanceof TaskAvailability other)) {
       return false;
     }
-
-    TaskAvailability other = (TaskAvailability) obj;
 
     return Objects.equals(id, other.getId());
   }

@@ -1,6 +1,9 @@
 package org.sitmun.domain.cartography.filter;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,9 +14,6 @@ import org.sitmun.domain.territory.type.TerritoryType;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -108,11 +108,9 @@ public class CartographyFilter {
       return true;
     }
 
-    if (!(obj instanceof CartographyFilter)) {
+    if (!(obj instanceof CartographyFilter other)) {
       return false;
     }
-
-    CartographyFilter other = (CartographyFilter) obj;
 
     return Objects.equals(id, other.getId());
   }

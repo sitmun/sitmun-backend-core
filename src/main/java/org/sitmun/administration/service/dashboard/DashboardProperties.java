@@ -22,6 +22,7 @@ public class DashboardProperties {
   public static class MetricDefinition {
 
     private Integer size = 0;
+    private String query = null;
 
   }
 }

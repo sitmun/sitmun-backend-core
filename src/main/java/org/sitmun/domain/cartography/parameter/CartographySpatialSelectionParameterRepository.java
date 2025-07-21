@@ -2,7 +2,7 @@ package org.sitmun.domain.cartography.parameter;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
@@ -15,5 +15,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
   path = "cartography-spatial-selection-parameters")
 @Deprecated
 public interface CartographySpatialSelectionParameterRepository
-  extends PagingAndSortingRepository<CartographySpatialSelectionParameter, Integer> {
+  extends JpaRepository<CartographySpatialSelectionParameter, Integer> {
 }

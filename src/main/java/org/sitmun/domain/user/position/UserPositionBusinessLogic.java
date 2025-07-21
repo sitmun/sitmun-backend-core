@@ -1,5 +1,6 @@
 package org.sitmun.domain.user.position;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.configuration.UserConfiguration;
@@ -7,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * Business logic component for UserPosition operations.

@@ -2,6 +2,9 @@ package org.sitmun.domain.service.parameter;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,9 +14,6 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.service.Service;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -83,13 +83,11 @@ public class ServiceParameter {
       return true;
     }
 
-    if (!(obj instanceof ServiceParameter)) {
+    if (!(obj instanceof ServiceParameter other)) {
       return false;
     }
 
-    ServiceParameter other = (ServiceParameter) obj;
-
-    return Objects.equals(id, other.getId());
+      return Objects.equals(id, other.getId());
   }
 
   @Override

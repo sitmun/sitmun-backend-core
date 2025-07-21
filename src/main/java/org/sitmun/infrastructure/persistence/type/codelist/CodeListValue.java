@@ -1,14 +1,14 @@
 package org.sitmun.infrastructure.persistence.type.codelist;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -99,11 +99,9 @@ public class CodeListValue {
       return true;
     }
 
-    if (!(obj instanceof CodeListValue)) {
+    if (!(obj instanceof CodeListValue other)) {
       return false;
     }
-
-    CodeListValue other = (CodeListValue) obj;
 
     return Objects.equals(id, other.getId());
   }

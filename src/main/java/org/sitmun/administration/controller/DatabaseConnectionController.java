@@ -1,5 +1,6 @@
 package org.sitmun.administration.controller;
 
+import jakarta.validation.constraints.NotNull;
 import org.sitmun.administration.service.database.tester.DatabaseConnectionDriverNotFoundException;
 import org.sitmun.administration.service.database.tester.DatabaseConnectionTesterService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;

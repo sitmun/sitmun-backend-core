@@ -27,8 +27,7 @@ public class DashboardInfoContributor implements InfoContributor {
   }
 
   private static Pair<String, Double> processMetric(Meter meter) {
-    if (meter instanceof Gauge) {
-      Gauge gauge = (Gauge) meter;
+    if (meter instanceof Gauge gauge) {
       String id = gauge.getId().getName().substring(DashboardConfig.METRICS_PREFIX.length());
       String suffix = gauge.getId().getTag(TAG);
       if (suffix != null) {

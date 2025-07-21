@@ -1,6 +1,8 @@
 package org.sitmun.domain.log;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.Application;
@@ -11,8 +13,6 @@ import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -156,11 +156,9 @@ public class Log {
       return true;
     }
 
-    if (!(obj instanceof Log)) {
+    if (!(obj instanceof Log otherLog)) {
       return false;
     }
-
-    Log otherLog = (Log) obj;
 
     return Objects.equals(id, otherLog.getId());
   }

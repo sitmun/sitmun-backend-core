@@ -21,16 +21,17 @@ public class QueryPaginationDecorator implements Decorator<Map<String, String>> 
 
   @Override
   public void addBehavior(Map<String, String> target, PayloadDto payload) {
-    DatasourcePayloadDto datasourcePayloadDto = (DatasourcePayloadDto) payload;
-    String sql = datasourcePayloadDto.getSql();
-    if (sql != null && !sql.isEmpty()) {
-      if (target.containsKey(SQL_LIMIT)) {
-        sql = sql + ' ' + SQL_LIMIT + ' ' + target.get(SQL_LIMIT);
+    if (payload instanceof DatasourcePayloadDto datasourcePayloadDto) {
+      String sql = datasourcePayloadDto.getSql();
+      if (sql != null && !sql.isEmpty()) {
+        if (target.containsKey(SQL_LIMIT)) {
+          sql = sql + ' ' + SQL_LIMIT + ' ' + target.get(SQL_LIMIT);
+        }
+        if (target.containsKey(SQL_OFFSET)) {
+          sql = sql + ' ' + SQL_OFFSET + ' ' + target.get(SQL_OFFSET);
+        }
+        datasourcePayloadDto.setSql(sql);
       }
-      if (target.containsKey(SQL_OFFSET)) {
-        sql = sql + ' ' + SQL_OFFSET + ' ' + target.get(SQL_OFFSET);
-      }
-      datasourcePayloadDto.setSql(sql);
     }
   }
 }

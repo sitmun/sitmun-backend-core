@@ -1,5 +1,7 @@
 package org.sitmun.infrastructure.persistence.validation;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanWrapper;
@@ -9,8 +11,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import javax.persistence.Column;
-import javax.persistence.Lob;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.Optional;

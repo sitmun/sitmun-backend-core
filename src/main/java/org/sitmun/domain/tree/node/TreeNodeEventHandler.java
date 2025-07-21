@@ -1,6 +1,7 @@
 package org.sitmun.domain.tree.node;
 
 import com.google.common.base.Strings;
+import jakarta.validation.constraints.NotNull;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.image.ImageTransformer;
@@ -10,13 +11,11 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
-
 @Component
 @RepositoryEventHandler
 public class TreeNodeEventHandler {
 
-  ImageTransformer imageTransformer;
+  final ImageTransformer imageTransformer;
 
   TreeNodeEventHandler(ImageTransformer imageTransformer) {
     this.imageTransformer = imageTransformer;

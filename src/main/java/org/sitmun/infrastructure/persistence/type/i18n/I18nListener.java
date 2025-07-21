@@ -1,13 +1,12 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.PostLoad;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.PostLoad;
 
 @Component
 @Slf4j

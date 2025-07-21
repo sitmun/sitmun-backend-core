@@ -1,5 +1,9 @@
 package org.sitmun.domain.cartography.parameter;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -8,10 +12,6 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 
-import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
@@ -98,11 +98,9 @@ public class CartographySpatialSelectionParameter {
       return true;
     }
 
-    if (!(obj instanceof CartographySpatialSelectionParameter)) {
+    if (!(obj instanceof CartographySpatialSelectionParameter other)) {
       return false;
     }
-
-    CartographySpatialSelectionParameter other = (CartographySpatialSelectionParameter) obj;
 
     return Objects.equals(id, other.getId());
   }

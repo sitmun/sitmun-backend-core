@@ -1,11 +1,10 @@
 package org.sitmun.domain.database;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
-
-import javax.validation.constraints.NotNull;
 
 @Component
 @RepositoryEventHandler

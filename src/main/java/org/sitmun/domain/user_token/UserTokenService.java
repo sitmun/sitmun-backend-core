@@ -1,11 +1,9 @@
 package org.sitmun.domain.user_token;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -13,10 +11,13 @@ import java.util.Optional;
 @Transactional
 public class UserTokenService {
 
-    @Autowired
-    private UserTokenRepository userTokenRepository;
+    private final UserTokenRepository userTokenRepository;
 
-    public UserToken saveUserToken(UserTokenDTO userTokenDTO) {
+  public UserTokenService(UserTokenRepository userTokenRepository) {
+    this.userTokenRepository = userTokenRepository;
+  }
+
+  public UserToken saveUserToken(UserTokenDTO userTokenDTO) {
       UserToken userToken = UserToken.builder()
         .userMail(userTokenDTO.getUserMail())
         .tokenId(userTokenDTO.getTokenId())
@@ -39,7 +40,7 @@ public class UserTokenService {
 
     public UserTokenDTO updateUserToken(String userMail, String token, boolean newIsActive) {
       Optional<UserToken> userTokenOptional = this.userTokenRepository.findByUserMailAndTokenId(userMail, token);
-      if (!userTokenOptional.isPresent()) {
+      if (userTokenOptional.isEmpty()) {
         return null;
       }
       UserToken userToken = userTokenOptional.get();

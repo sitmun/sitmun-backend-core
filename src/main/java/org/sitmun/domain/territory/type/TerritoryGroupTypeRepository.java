@@ -1,7 +1,7 @@
 package org.sitmun.domain.territory.type;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
@@ -11,5 +11,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "territory-group-types", path = "territory-group-types")
 @Deprecated
 public interface TerritoryGroupTypeRepository
-  extends PagingAndSortingRepository<TerritoryGroupType, Integer> {
+  extends JpaRepository<TerritoryGroupType, Integer> {
 }

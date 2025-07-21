@@ -1,11 +1,11 @@
 package org.sitmun.infrastructure.persistence.type.basic;
 
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import jakarta.validation.ReportAsSingleViolation;
 import org.hibernate.validator.constraints.ConstraintComposition;
 import org.hibernate.validator.constraints.URL;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
-import javax.validation.ReportAsSingleViolation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 

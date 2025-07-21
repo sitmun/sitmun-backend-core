@@ -3,22 +3,25 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
   id 'java'
   
-  id 'org.springframework.boot' version '2.7.18'
+  id 'org.springframework.boot' version '3.0.0'
   id 'io.spring.dependency-management' version '1.1.6'
   
-  id 'io.freefair.lombok' version '6.4.3.1'
-  id 'org.springdoc.openapi-gradle-plugin' version '1.5.0'
+  id 'io.freefair.lombok' version '8.4'
+  id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
   id 'org.liquibase.gradle' version '2.2.0'
   
   id 'jacoco'
   id 'org.sonarqube' version '3.3'
   
   id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
+  id 'com.avast.gradle.docker-compose' version '0.17.12'
+
+  id 'com.diffplug.spotless' version '7.2.0'
 }
 
 group = 'org.sitmun'
 
-def targetJavaVersion = JavaVersion.VERSION_11
+def targetJavaVersion = JavaVersion.VERSION_17
 sourceCompatibility = "${targetJavaVersion}"
 targetCompatibility = "${targetJavaVersion}"
 
@@ -47,18 +50,18 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
   
   // Development and testing database
-  implementation 'com.h2database:h2'
+  implementation "com.h2database:h2"
   
   // Production databases
   implementation 'org.postgresql:postgresql'
   implementation 'com.oracle.database.jdbc:ojdbc11-production'
 
   // Database migration
-  implementation 'org.liquibase:liquibase-core'
+  implementation "org.liquibase:liquibase-core:${liquibase_version}"
   implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
   
   // Query building
-  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
+  implementation "com.querydsl:querydsl-jpa:${querydls_version}:jakarta"
   
   // Object mapping
   implementation "org.mapstruct:mapstruct:${mapstruct_version}"
@@ -83,8 +86,7 @@ dependencies {
   implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
 
   // OpenAPI/Swagger documentation
-  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+  implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc_openapi_version}"
 
   // LDAP profile
   implementation 'org.springframework.ldap:spring-ldap-core'
@@ -94,12 +96,12 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-mail'
 
   // Core annotation processing
-  annotationProcessor 'javax.annotation:javax.annotation-api'
+  annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
   annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-  annotationProcessor 'javax.persistence:javax.persistence-api'
+  annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
   
   // QueryDSL code generation
-  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
+  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jakarta"
   
   // MapStruct code generation
   annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
@@ -175,6 +177,20 @@ tasks.register('herokuDevLocal', JavaExec) {
 // ============================================================================
 // TESTING AND QUALITY ASSURANCE CONFIGURATION
 // ============================================================================
+// 
+// Database Testing with Docker Compose Plugin
+// ------------------------------------------
+// The project uses the Gradle Docker Compose plugin for PostgreSQL testing.
+// This provides automatic container lifecycle management with health checks.
+// 
+// Available tasks:
+// - testPostgres: Run tests with PostgreSQL (automatically starts/stops container)
+// - startPostgresTest: Start PostgreSQL container manually
+// - stopPostgresTest: Stop PostgreSQL container manually  
+// - cleanPostgresTest: Clean up containers and volumes
+// 
+// Configuration: docker/test-postgres-compose.yml
+// ============================================================================
 
 // Test configuration
 tasks.withType(Test).configureEach {
@@ -189,10 +205,77 @@ tasks.withType(Test).configureEach {
   jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200', '-XX:+UseStringDeduplication'
   
   // Set system properties for test JVM
-  systemProperty 'spring.profiles.active', 'test'
+  systemProperty 'spring.profiles.active', 'test,h2'
   systemProperty 'java.awt.headless', 'true'
   
   // Test logging
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+}
+
+// H2 Database Tests (default)
+tasks.register('testH2', Test) {
+  group = 'verification'
+  description = 'Run tests with H2 in-memory database'
+  
+  systemProperty 'spring.profiles.active', 'test,h2'
+  
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+}
+
+// PostgreSQL Database Tests
+tasks.register('testPostgres', Test) {
+  group = 'verification'
+  description = 'Run tests with PostgreSQL database using Docker Compose'
+  systemProperty 'spring.profiles.active', 'postgres'
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  doFirst {
+    sleep(5000) // Wait for Postgres container to be ready
+  }
+}
+
+tasks.register('testOracle', Test) {
+  group = 'verification'
+  description = 'Run tests with OracleSQL database using Docker Compose'
+  systemProperty 'spring.profiles.active', 'oracle'
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  doFirst {
+    sleep(10000) // Wait for Oracle container to be ready
+  }
+}
+
+// Docker Compose configuration for PostgreSQL testing
+dockerCompose {
+  projectName = 'sitmun-backend-core'
+  postgres {
+    useComposeFiles = ['docker/postgres/test-docker-compose.yml']
+    isRequiredBy(project.tasks.testPostgres)
+  }
+  oracle {
+    useComposeFiles = ['docker/oracle/test-docker-compose.yml']
+    isRequiredBy(project.tasks.testOracle)
+  }
+}
+
+// All Database Tests
+tasks.register('testAll', Test) {
+  group = 'verification'
+  description = 'Run tests with both H2 and PostgreSQL databases'
+  
+  dependsOn testH2, testPostgres
+  
+  // This task will run both test suites
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
@@ -214,4 +297,16 @@ apply from: "$project.rootDir/sonar.gradle"
 
 rootProject.tasks.sonarqube {
   dependsOn(tasks.jacocoTestReport)
+}
+
+// Spotless code formatting
+
+spotless {
+  java {
+    removeUnusedImports()
+    googleJavaFormat('1.28.0')
+    importOrder 'java', 'javax', 'org', 'com'
+    target '**/*.java'
+    targetExclude '**/generated-sources/**'
+  }
 }

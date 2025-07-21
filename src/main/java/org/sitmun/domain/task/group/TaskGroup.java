@@ -2,12 +2,12 @@ package org.sitmun.domain.task.group;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -52,11 +52,9 @@ public class TaskGroup {
       return true;
     }
 
-    if (!(obj instanceof TaskGroup)) {
+    if (!(obj instanceof TaskGroup other)) {
       return false;
     }
-
-    TaskGroup other = (TaskGroup) obj;
 
     return Objects.equals(id, other.getId());
   }

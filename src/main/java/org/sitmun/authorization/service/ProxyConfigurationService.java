@@ -48,7 +48,7 @@ public class ProxyConfigurationService {
 
   private final QueryPaginationDecorator queryPaginationDecorator;
 
-  @Value("${sitmun.proxy.config-response-validity-in-seconds}")
+  @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds}")
   private int responseValidityTime;
 
   public ProxyConfigurationService(ServiceRepository serviceRepository,
@@ -130,7 +130,7 @@ public class ProxyConfigurationService {
   }
 
   public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
-    // TODO Implement user validation
+    // TODO: Implement user validation
     return true;
   }
 

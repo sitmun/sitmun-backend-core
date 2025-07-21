@@ -2,6 +2,8 @@ package org.sitmun.domain.application.background;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -9,8 +11,6 @@ import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.background.Background;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -74,11 +74,9 @@ public class ApplicationBackground {
       return true;
     }
 
-    if (!(obj instanceof ApplicationBackground)) {
+    if (!(obj instanceof ApplicationBackground other)) {
       return false;
     }
-
-    ApplicationBackground other = (ApplicationBackground) obj;
 
     return Objects.equals(id, other.getId());
   }

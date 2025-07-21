@@ -23,7 +23,7 @@ import java.util.Map;
 @Component
 public class TaskQuerySqlService implements TaskMapper {
 
-  @Value("${sitmun.proxy.url:}")
+  @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
 
   /**

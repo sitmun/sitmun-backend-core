@@ -2,12 +2,12 @@ package org.sitmun.domain.territory.type;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -54,11 +54,9 @@ public class TerritoryGroupType {
       return true;
     }
 
-    if (!(obj instanceof TerritoryGroupType)) {
+    if (!(obj instanceof TerritoryGroupType other)) {
       return false;
     }
-
-    TerritoryGroupType other = (TerritoryGroupType) obj;
 
     return Objects.equals(id, other.getId());
   }

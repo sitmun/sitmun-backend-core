@@ -2,7 +2,12 @@ package org.sitmun.domain.tree.node;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.Length;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
@@ -16,10 +21,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
+import java.sql.Types;
 import java.util.Map;
 import java.util.Objects;
 
@@ -161,8 +163,7 @@ public class TreeNode {
   /**
    * Image.
    */
-  @Column(name = "TNO_IMAGE")
-  @Lob
+  @Column(name = "TNO_IMAGE", length = Length.LONG32)
   private String image;
 
   /**
@@ -207,8 +208,7 @@ public class TreeNode {
   @ManyToOne
   private Cartography cartography;
 
-  @Column(name = "TNO_MAPPING")
-  @Lob
+  @Column(name = "TNO_MAPPING", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   private Map<String, Object> mapping;
 
@@ -242,11 +242,9 @@ public class TreeNode {
       return true;
     }
 
-    if (!(obj instanceof TreeNode)) {
+    if (!(obj instanceof TreeNode other)) {
       return false;
     }
-
-    TreeNode other = (TreeNode) obj;
 
     return Objects.equals(id, other.getId());
   }

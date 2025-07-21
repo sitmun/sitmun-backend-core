@@ -43,9 +43,9 @@ public class ClientConfigurationController {
   private final ProfileMapper profileMapper;
   private final UserPositionRepository userPositionRepository;
 
-  @Value("${sitmun.proxy.force:false}")
+  @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
-  @Value("${sitmun.proxy.url:}")
+  @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
   @Value("${sitmun.backend.url:}")
   private String backendUrl;

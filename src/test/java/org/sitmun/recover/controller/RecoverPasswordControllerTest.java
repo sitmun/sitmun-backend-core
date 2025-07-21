@@ -9,13 +9,14 @@ import org.sitmun.domain.user_token.UserToken;
 import org.sitmun.domain.user_token.UserTokenRepository;
 import org.sitmun.recover.dto.ResetPasswordRequest;
 import org.sitmun.recover.dto.UserLoginRecoverRequest;
+import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.context.annotation.Import;
@@ -36,9 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(MockMailConfig.class)
-@ActiveProfiles({"test", "mail"})
 @DisplayName("Password Recovery Controller Tests")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@AdditiveActiveProfiles("mail")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class RecoverPasswordControllerTest {
 
   @Autowired

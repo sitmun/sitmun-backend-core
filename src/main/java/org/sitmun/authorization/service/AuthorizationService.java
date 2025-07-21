@@ -200,10 +200,9 @@ public class AuthorizationService {
   }
 
   private List<TreeNode> pruneNodes(List<TreeNode> nodes, Integer pivotNode) {
-    List<TreeNode> prunedNodes = nodes.stream()
+    return nodes.stream()
       .filter(node -> node != null && (Objects.equals(node.getId(), pivotNode) || Objects.equals(node.getParentId(), pivotNode)))
       .collect(Collectors.toList());
-    return prunedNodes;
   }
 
   private Profile pruneProfile(Profile profile) {

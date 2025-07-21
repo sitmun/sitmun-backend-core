@@ -3,6 +3,8 @@ package org.sitmun.domain.cartography.permission;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -13,8 +15,6 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.role.Role;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -120,11 +120,9 @@ public class CartographyPermission {
       return true;
     }
 
-    if (!(obj instanceof CartographyPermission)) {
+    if (!(obj instanceof CartographyPermission other)) {
       return false;
     }
-
-    CartographyPermission other = (CartographyPermission) obj;
 
     return Objects.equals(id, other.getId());
   }

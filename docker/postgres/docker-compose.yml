@@ -1,0 +1,52 @@
+services:
+  sitmun-backend:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+    container_name: sitmun-backend
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/dashboard/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - sitmun-network-postgres
+    restart: unless-stopped
+    volumes:
+      - ../../config:/app/config:ro
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sitmun3
+      SPRING_DATASOURCE_USERNAME: sitmun3
+      SPRING_DATASOURCE_PASSWORD: sitmun3
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_LIQUIBASE_CONTEXTS: postgres
+      SITMUN_BACKEND_URL: http://localhost:8080/
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks:
+      - sitmun-network-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: sitmun3
+      POSTGRES_USER: sitmun3
+      POSTGRES_PASSWORD: sitmun3
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sitmun3"]
+      interval: 30s
+      timeout: 30s
+      start_period: 5s
+      retries: 3
+
+networks:
+  sitmun-network-postgres:
+    driver: bridge

@@ -2,7 +2,10 @@ package org.sitmun.domain.task.type;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Length;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
@@ -10,7 +13,7 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 
-import javax.persistence.*;
+import java.sql.Types;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -91,8 +94,7 @@ public class TaskType {
   /**
    * Task type specification
    */
-  @Column(name = "TTY_SPEC")
-  @Lob
+  @Column(name = "TTY_SPEC", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   private Map<String, Object> specification;
 
@@ -109,11 +111,9 @@ public class TaskType {
       return true;
     }
 
-    if (!(obj instanceof TaskType)) {
+    if (!(obj instanceof TaskType other)) {
       return false;
     }
-
-    TaskType other = (TaskType) obj;
 
     return Objects.equals(id, other.getId());
   }

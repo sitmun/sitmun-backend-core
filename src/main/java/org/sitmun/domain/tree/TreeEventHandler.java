@@ -1,5 +1,6 @@
 package org.sitmun.domain.tree;
 
+import jakarta.validation.constraints.NotNull;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
@@ -11,7 +12,6 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +19,7 @@ import java.util.Set;
 @RepositoryEventHandler
 public class TreeEventHandler {
 
-  ImageTransformer imageTransformer;
+  final ImageTransformer imageTransformer;
 
   TreeEventHandler(ImageTransformer imageTransformer) {
     this.imageTransformer = imageTransformer;

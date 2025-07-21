@@ -34,9 +34,8 @@ class ServiceRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: minimum set of properties")
-  @Disabled("Potential freeze of active connections. @Transactional may be required in REST controllers.")
   void create() throws Exception {
-    response = mvc.perform(post(URIConstants.SERVICE_URI)
+    response = mvc.perform(post(URIConstants.SERVICES_URI)
         .content("{" +
           "\"name\":\"test\"," +
           "\"type\":\"WMS\"," +

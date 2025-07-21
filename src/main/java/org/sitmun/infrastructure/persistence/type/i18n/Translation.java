@@ -1,11 +1,11 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -70,11 +70,9 @@ public class Translation {
       return true;
     }
 
-    if (!(obj instanceof Translation)) {
+    if (!(obj instanceof Translation other)) {
       return false;
     }
-
-    Translation other = (Translation) obj;
 
     return Objects.equals(id, other.getId());
   }

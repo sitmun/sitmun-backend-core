@@ -1,7 +1,7 @@
 package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sitmun.domain.user.configuration.UserConfigurationRepository;
+import jakarta.validation.Validator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
@@ -14,11 +14,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/account")
@@ -86,7 +84,6 @@ public class UserController {
    * @return ok if the account has been updated
    */
   @PutMapping
-  @ResponseBody
   public ResponseEntity<UserDTO> saveAccount(@RequestBody UserDTO updatedUser) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Optional<User> storedUser = userRepository.findByUsername(authentication.getName());
@@ -110,7 +107,6 @@ public class UserController {
    * Get accounts.
    */
   @GetMapping
-  @ResponseBody
   public ResponseEntity<UserDTO> getAccount() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Optional<UserDTO> storedUser = userRepository.findByUsername(authentication.getName()).map(UserController::userToDto);
@@ -118,7 +114,6 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  @ResponseBody
   public ResponseEntity<UserDTO> getAccountById(@PathVariable Integer id) {
     Optional<UserDTO> storedUser = userRepository.findById(id).map(UserController::userToDto);
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -134,9 +129,8 @@ public class UserController {
    * Get all accounts
    */
   @GetMapping("/all")
-  @ResponseBody
   public ResponseEntity<List<UserDTO>> getAllAccounts() {
-    List<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false).collect(Collectors.toList());
+    List<User> users = userRepository.findAll().stream().toList();
     if (users.isEmpty()) {
       return ResponseEntity.notFound().build();
     }

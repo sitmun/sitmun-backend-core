@@ -16,19 +16,19 @@ import java.util.Date;
 @RequestMapping("/api/userTokenValid")
 @Tag(name = "userToken", description = "user token controller")
 public class UserTokenController {
-  private UserTokenService userTokenService;
+  private final UserTokenService userTokenService;
 
   public UserTokenController(UserTokenService userTokenService){
     this.userTokenService = userTokenService;
   }
 
   @GetMapping
-  public ResponseEntity<Boolean> IsTokenValid(String token) {
+  public ResponseEntity<Boolean> isTokenValid(String token) {
     UserTokenDTO userToken = this.userTokenService.getUserTokenByToken(token);
     if(userToken == null){
       throw new ResponseStatusException(HttpStatus.CONFLICT);
     }
-    Boolean isTokenValid = false;
+    boolean isTokenValid = false;
     if(new Date().before(userToken.getExpireAt())){
       isTokenValid = true;
     }

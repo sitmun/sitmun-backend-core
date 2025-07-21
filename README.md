@@ -3,172 +3,201 @@
 
 # SITMUN Backend Core
 
-The SITMUN backend core is a key component of the SITMUN software system.
-It is built using **Java 11** and **Spring Boot 2.7.18**.
-It provides a REST API that allows users to access the backend business logic and interact with the SITMUN database.
-The backend core is designed to provide the foundation for the SITMUN system.
-
-The SITMUN backend core is structured as a **Gradle project**,
-which provides a clean and maintainable codebase structure.
-This structure allows for easy development, testing, and deployment
-of the software system.
+The SITMUN backend core is a key component of the SITMUN software system, providing a comprehensive REST API for geospatial application management and user authorization. Built with modern Java technologies, it serves as the foundation for the SITMUN platform.
 
 ## Technology Stack
 
-- **Java**: 11
-- **Spring Boot**: 2.7.18
+- **Java**: 17
+- **Spring Boot**: 3.0.0
 - **Build Tool**: Gradle
 - **Database**: H2 (development), PostgreSQL, Oracle
 - **Security**: Spring Security with JWT
 - **Documentation**: OpenAPI/Swagger
 - **Testing**: JUnit 5, Spring Boot Test
+- **Object Mapping**: MapStruct
+- **Query Building**: QueryDSL
+- **Database Migration**: Liquibase
+- **Utilities**: Lombok, Apache Commons, Google Guava
+
+## Architecture Overview
+
+The application follows a layered architecture pattern:
+
+```
+Controllers → Services → Repositories → Entities
+     ↓           ↓           ↓           ↓
+   REST API   Business   Data Access   Domain
+              Logic      Layer         Model
+```
+
+### Key Components
+
+- **Domain Layer**: JPA entities with custom type converters and validators
+- **Repository Layer**: Spring Data JPA with custom queries and REST exposure
+- **Service Layer**: Business logic with constructor injection and functional programming
+- **Controller Layer**: REST endpoints with security context and pagination
+- **Infrastructure**: Security, persistence, and web configurations
 
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
 
-- You have a `Windows/Linux/Mac` machine.
-- You have installed [Java 11](https://adoptopenjdk.net/) or later.
-- You have installed [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your machine.
-- You have a basic understanding of Java, Spring Boot, and Git.
-- You have internet access on your machine to download dependencies.
-- **Minimum 4GB RAM** recommended for development.
+- **Java 17** or later (JDK)
+- **Git** for version control
+- **Gradle** (wrapper included)
+- **Minimum 4GB RAM** recommended for development
+- Basic understanding of Spring Boot and JPA
 
-## Installing SITMUN Backend Core
+## Quick Start
 
-To install the SITMUN Backend Core, follow these steps:
+### Option 1: Local Development (H2 Database)
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/sitmun/sitmun-backend-core.git
-    ```
-
-2. Change to the directory of the repository:
-    ```bash
-    cd sitmun-backend-core
-    ```
-
-3. Build the project:
-    ```bash
-    ./gradlew build
-    ```
-
-4. Run the SITMUN Backend Core:
-    ```bash
-    ./gradlew bootRun
-    ```
-   This command will start the application using the default configuration.
-
-5. Access the SITMUN Backend Core at [http://localhost:8080/api/dashboard/health](http://localhost:8080/api/dashboard/health) and expect:
-   ```json
-   {"status":"UP"}
-   ```
-
-See [SITMUN Application Stack](https://github.com/sitmun/sitmun-application-stack) as an example of how to deploy and run the backend core as part of the SITMUN stack.
-
-## Configuration
-
-### Environment Variables
-
-The application supports different profiles and configurations:
-
-#### Development (Default)
-- Uses H2 in-memory database
-- No additional configuration required
-
-#### Heroku Profile
-- `JDBC_DATABASE_URL=jdbc:postgresql://{host}/{database}`
-- `JDBC_DATABASE_USERNAME={username}`
-- `JDBC_DATABASE_PASSWORD={password}`
-- `SPRING_PROFILES_ACTIVE=heroku,openapi-provided`
-- `spring.datasource.hikari.auto-commit=false`
-
-#### Production
-- Configure database connection
-- Set `SPRING_PROFILES_ACTIVE=prod`
-- Configure JWT secrets and other security settings
-
-### Database Setup
-
-The application supports multiple databases:
-- **H2**: In-memory database for development (default)
-- **PostgreSQL**: Production database
-- **Oracle**: Enterprise database
-
-Database migrations are handled by Liquibase.
-
-## Deployment Options
-
-The **SITMUN backend core** can be deployed using different configurations:
-
-### Local Development
-Run the application locally using:
 ```bash
+git clone https://github.com/sitmun/sitmun-backend-core.git
+cd sitmun-backend-core
 ./gradlew bootRun
 ```
 
-### Heroku Deployment
-The project includes Heroku deployment configuration. To deploy to Heroku:
+### Option 2: Docker Development (H2, PostgreSQL, Oracle - Recommended)
 
-1. Create a Heroku app and configure the database
-2. Set up the required environment variables:
-   - `JDBC_DATABASE_URL=jdbc:postgresql://{host}/{database}`
-   - `JDBC_DATABASE_USERNAME={username}`
-   - `JDBC_DATABASE_PASSWORD={password}`
-   - `SPRING_PROFILES_ACTIVE=heroku,openapi-provided`
-   - `spring.datasource.hikari.auto-commit=false`
+- **H2 (default, development):**
 
-3. Deploy using:
-   ```bash
-   ./gradlew deployHeroku
-   ```
+    ```bash
+    docker-compose -f docker/development/docker-compose.yml up
+    ```
 
-The application can be accessed at https://sitmun-backend-core.herokuapp.com/ and the API documentation at https://sitmun-backend-core.herokuapp.com/swagger-ui/index.html.
+- **PostgreSQL:**
 
-### Local Heroku Testing
-To test the Heroku configuration locally:
+    ```bash
+    docker-compose -f docker/postgres/docker-compose.yml up
+    ```
+
+- **Oracle:**
+
+    ```bash
+    docker-compose -f docker/oracle/docker-compose.yml up
+    ```
+
+
+To stop:
+
 ```bash
-./gradlew stage
-heroku local
+docker-compose -f <compose-file> down
 ```
 
-This requires an `.env` file with the database configuration properties mentioned above.
+### Health Check
+
+```bash
+curl http://localhost:8080/api/dashboard/health
+```
+
+Expected response:
+
+```json
+{"status":"UP"}
+```
+
+## Configuration
+
+### Profiles
+
+- **dev** (default): H2 in-memory
+- **postgres**: PostgreSQL
+- **oracle**: Oracle
+- **test**: H2 with test data
+- **prod**: Production
+
+### Environment Variables (PostgreSQL example)
+
+```
+SPRING_PROFILES_ACTIVE=postgres
+SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/sitmun
+SPRING_DATASOURCE_USERNAME=sitmun
+SPRING_DATASOURCE_PASSWORD=sitmun123
+```
+
+Liquibase runs migrations automatically on startup.
 
 ## API Documentation
 
-- **OpenAPI/Swagger UI**: Available at `/swagger-ui/index.html` when running (enabled by default)
-- **OpenAPI JSON**: Available at `/v3/api-docs` when running
-- **Health Check**: `/api/dashboard/health`
-- **Authentication**: JWT-based authentication
-- **Security**: Spring Security with role-based access control
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs
 
-### Swagger UI Availability
+### Key Endpoints
 
-The Swagger UI is available by default when the application is running. The OpenAPI documentation is automatically generated from the Spring Boot controllers and is accessible without any additional configuration.
+- `POST /api/auth/login` — Authenticate
+- `POST /api/auth/logout` — Logout
+- `GET /api/config/client/application` — User applications
+- `GET /api/dashboard/health` — Health check
 
-For enhanced OpenAPI documentation with custom configuration, you can activate the `openapi` or `openapi-provided` profiles:
+## Security
 
-```bash
-./gradlew bootRun --args='--spring.profiles.active=openapi'
+- JWT authentication
+- Role-based access
+- CORS enabled
+- Bean validation
+
+## Project Structure
+
+```
+src/
+  main/
+    java/org/sitmun/
+      domain/           # Entities, repositories
+      authorization/    # Security/auth logic
+      authentication/   # Auth controllers
+      administration/   # Admin
+      infrastructure/   # Technical config
+      Application.java  # Main class
+    resources/
+      application.yml   # Config
+      static/v3/        # OpenAPI specs
+  test/
+    java/org/sitmun/   # Tests
+  docker/
+    development/       # H2 compose
+    postgres/          # PostgreSQL compose
+    oracle/            # Oracle compose
+    Dockerfile         # App container
 ```
 
-## Stopping SITMUN Backend Core
+## Building & Testing
 
-To stop the application, use `Ctrl+C` in the terminal where it's running.
+```bash
+./gradlew build      # Build
+./gradlew test       # Run tests (H2 default)
+```
 
-## Contributing to SITMUN Backend Core
+To test with PostgreSQL:
 
-To contribute to SITMUN Backend Core, follow these steps:
+```bash
+docker-compose -f docker/postgres/test-docker-compose.yml up
+./gradlew testPostgres 
+```
 
-1. **Fork this repository** on GitHub.
-2. **Clone your forked repository** to your local machine.
-3. **Create a new branch** for your changes.
-4. **Make your changes** and commit them.
-5. **Push your changes** to your forked repository.
-6. **Create the pull request** from your branch on GitHub.
+To test with Oracle:
 
-Alternatively, see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+```bash
+docker-compose -f docker/oracle/test-docker-compose.yml up
+./gradlew testPostgres 
+```
+
+## Deployment
+
+- Use Docker Compose for local/production deployment.
+- Set environment variables for production (see above).
+- For Heroku: configure PostgreSQL and use `./gradlew deployHeroku`.
+
+## Contributing
+
+Contributions welcome. Please open issues or pull requests.
 
 ## License
 
-This project uses the following license: [European Union Public Licence V. 1.2](LICENSE).
+See LICENSE file for details.
+
+## Further Documentation
+
+- API: OpenAPI/Swagger UI (`/swagger-ui/index.html`)
+- Code: See `src/main/java/org/sitmun/`
+- For questions, open an issue on GitHub.

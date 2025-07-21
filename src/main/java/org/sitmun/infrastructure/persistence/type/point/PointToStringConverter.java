@@ -1,9 +1,9 @@
 package org.sitmun.infrastructure.persistence.type.point;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -25,8 +25,8 @@ public class PointToStringConverter implements AttributeConverter<Point, String>
   }
 
   public Double extractDouble(Object obj) throws IllegalArgumentException {
-    if (obj instanceof Number) {
-      return ((Number) obj).doubleValue();
+    if (obj instanceof Number number) {
+      return number.doubleValue();
     }
     throw new IllegalArgumentException("Value " + obj + " is not a Number");
   }

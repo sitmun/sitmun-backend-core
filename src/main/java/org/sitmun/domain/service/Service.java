@@ -4,6 +4,9 @@ package org.sitmun.domain.service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -18,9 +21,6 @@ import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -202,11 +202,9 @@ public class Service {
       return true;
     }
 
-    if (!(obj instanceof Service)) {
+    if (!(obj instanceof Service other)) {
       return false;
     }
-
-    Service other = (Service) obj;
 
     return Objects.equals(id, other.getId());
   }

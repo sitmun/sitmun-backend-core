@@ -89,6 +89,7 @@ public abstract class ProfileMapper {
    * @param service the Service entity to map
    * @return the mapped ServiceDto
    */
+   // TODO: Public parameters should be filtered using a predictable key name.
   ServiceDto map(Service service) {
     return ServiceDto.builder()
       .id("service/" + service.getId())
@@ -96,7 +97,7 @@ public abstract class ProfileMapper {
       .type(service.getType())
       .isProxied(service.getIsProxied())
       .parameters(service.getParameters().stream()
-        .filter(it -> Objects.equals(it.getType(), service.getType())) // TODO Public parameters should be filtered using a predictable key name.
+        .filter(it -> Objects.equals(it.getType(), service.getType()))
         .map(it -> new String[]{it.getName(), it.getValue()}).collect(Collectors.toMap(it -> it[0], it -> it[1])))
       .build();
   }
@@ -132,58 +133,57 @@ public abstract class ProfileMapper {
   final void completeTreeDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
     List<TreeDto> treeDtos = builder.build().getTrees();
     profile.getTreeNodes().forEach((tree, allNodes) -> {
-        Map<String, List<TreeNode>> listNodes = new HashMap<>();
-        allNodes.forEach(it -> {
-          String id = "node/" + it.getId();
-          if (!listNodes.containsKey(id)) {
-            listNodes.put(id, new ArrayList<>());
-          }
-
-          if (it.getParentId() != null) {
-            String parent = "node/" + it.getParentId();
-            if (listNodes.containsKey(parent)) {
-              listNodes.get(parent).add(it);
-            } else {
-              listNodes.put(parent, new ArrayList<>(List.of(it)));
-            }
-          }
-        });
-        listNodes.forEach((key, value) -> value.sort(Comparator.comparing(TreeNode::getOrder)));
-
-        String rootNodeCandidate = null;
-
-        Map<String, NodeDto> nodes = new HashMap<>();
-
-        switch(profile.getContext().getNodeSectionBehaviour()) {
-          case VIRTUAL_ROOT_ALL_NODES:
-          case VIRTUAL_ROOT_NODE_PAGE:
-            rootNodeCandidate = "node/tree/" + tree.getId();
-            NodeDto rootNode = createRootNode(tree, allNodes);
-            if (rootNode.getChildren().size() == 1) {
-              rootNodeCandidate = rootNode.getChildren().get(0);
-            } else {
-              nodes.put(rootNodeCandidate, rootNode);
-            }
-            break;
-          case ANY_NODE_PAGE:
-            rootNodeCandidate = "node/" + profile.getContext().getNodeId();
+      Map<String, List<TreeNode>> listNodes = new HashMap<>();
+      allNodes.forEach(it -> {
+        String id = "node/" + it.getId();
+        if (!listNodes.containsKey(id)) {
+          listNodes.put(id, new ArrayList<>());
         }
 
-        allNodes.forEach(it -> {
-          String id = "node/" + it.getId();
-          NodeDto node = createNode(it, listNodes, id);
-          nodes.put(id, node);
-        });
-
-        final String rootNode = rootNodeCandidate;
-        treeDtos.stream()
-          .filter(it -> it.getId().equals("tree/" + tree.getId()))
-          .findFirst()
-          .ifPresent(treeDto -> {
-            treeDto.setRootNode(rootNode);
-            treeDto.setNodes(nodes);
-          });
+        if (it.getParentId() != null) {
+          String parent = "node/" + it.getParentId();
+          if (listNodes.containsKey(parent)) {
+            listNodes.get(parent).add(it);
+          } else {
+            listNodes.put(parent, new ArrayList<>(List.of(it)));
+          }
+        }
       });
+      listNodes.forEach((key, value) -> value.sort(Comparator.comparing(TreeNode::getOrder)));
+
+      String rootNodeCandidate = null;
+
+      Map<String, NodeDto> nodes = new HashMap<>();
+
+      switch (profile.getContext().getNodeSectionBehaviour()) {
+        case VIRTUAL_ROOT_ALL_NODES, VIRTUAL_ROOT_NODE_PAGE:
+          rootNodeCandidate = "node/tree/" + tree.getId();
+          NodeDto rootNode = createRootNode(tree, allNodes);
+          if (rootNode.getChildren().size() == 1) {
+            rootNodeCandidate = rootNode.getChildren().get(0);
+          } else {
+            nodes.put(rootNodeCandidate, rootNode);
+          }
+          break;
+        case ANY_NODE_PAGE:
+          rootNodeCandidate = "node/" + profile.getContext().getNodeId();
+      }
+
+      allNodes.forEach(it -> {
+        String id = "node/" + it.getId();
+        NodeDto node = createNode(it, listNodes, id);
+        nodes.put(id, node);
+      });
+
+      final String rootNode = rootNodeCandidate;
+      treeDtos.stream()
+        .filter(it -> it.getId().equals("tree/" + tree.getId()))
+        .findFirst()
+        .ifPresent(treeDto -> {
+          treeDto.setRootNode(rootNode);
+          treeDto.setNodes(nodes);
+        });
+    });
     builder.trees(treeDtos);
   }
 

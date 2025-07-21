@@ -2,6 +2,8 @@ package org.sitmun.domain.role;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
@@ -11,8 +13,6 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -134,11 +134,9 @@ public class Role {
       return true;
     }
 
-    if (!(obj instanceof Role)) {
+    if (!(obj instanceof Role other)) {
       return false;
     }
-
-    Role other = (Role) obj;
 
     return Objects.equals(id, other.getId());
   }

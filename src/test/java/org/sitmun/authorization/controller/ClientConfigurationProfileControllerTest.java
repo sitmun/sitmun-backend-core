@@ -24,12 +24,11 @@ class ClientConfigurationProfileControllerTest {
   @Autowired
   private MockMvc mvc;
 
-  @Value("${sitmun.proxy.force:false}")
+  @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
 
-  @Value("${sitmun.proxy.url:}")
+  @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
-
 
   @Test
   @DisplayName("GET: Get application details")

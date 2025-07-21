@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("User Resource Test")
 class UserResourceTest {
 
@@ -72,46 +74,46 @@ class UserResourceTest {
 
   @BeforeEach
   void init() {
-      organizacionAdminRole =
-        Role.builder().name("ADMIN_ORGANIZACION").build();
-      roleRepository.save(organizacionAdminRole);
+    organizacionAdminRole =
+      Role.builder().name("ADMIN_ORGANIZACION").build();
+    roleRepository.save(organizacionAdminRole);
 
-      territorialRole = Role.builder().name("USUARIO_TERRITORIAL").build();
-      roleRepository.save(territorialRole);
+    territorialRole = Role.builder().name("USUARIO_TERRITORIAL").build();
+    roleRepository.save(territorialRole);
 
-      territories = new ArrayList<>();
-      users = new ArrayList<>();
+    territories = new ArrayList<>();
+    users = new ArrayList<>();
     Territory territory1 = Territory.builder()
       .name("Territorio 1")
-      .code("")
+      .code("TERRITORY1")
       .blocked(false)
       .build();
 
     Territory territory2 = Territory.builder()
       .name("Territorio 2")
-      .code("")
+      .code("TERRITORY2")
       .blocked(false)
       .build();
-      territories.add(territory1);
-      territories.add(territory2);
+    territories.add(territory1);
+    territories.add(territory2);
 
-      territoryRepository.saveAll(territories);
+    territoryRepository.saveAll(territories);
 
-      // Territory 1 Admin
-      organizacionAdmin = User.builder()
-        .administrator(USER_ADMINISTRATOR)
-        .blocked(USER_BLOCKED)
-        .firstName(USER_FIRSTNAME)
-        .lastName(USER_LASTNAME)
-        .password(USER_PASSWORD)
-        .username(TERRITORY1_ADMIN_USERNAME)
-        .build();
+    // Territory 1 Admin
+    organizacionAdmin = User.builder()
+      .administrator(USER_ADMINISTRATOR)
+      .blocked(USER_BLOCKED)
+      .firstName(USER_FIRSTNAME)
+      .lastName(USER_LASTNAME)
+      .password(USER_PASSWORD)
+      .username(TERRITORY1_ADMIN_USERNAME)
+      .build();
 
-      userEventHandler.handleUserCreate(organizacionAdmin);
-      organizacionAdmin = userRepository.save(organizacionAdmin);
-      users.add(organizacionAdmin);
+    userEventHandler.handleUserCreate(organizacionAdmin);
+    organizacionAdmin = userRepository.save(organizacionAdmin);
+    users.add(organizacionAdmin);
 
-      // Territory 1 user
+    // Territory 1 user
     User territory1User = User.builder()
       .administrator(false)
       .blocked(USER_BLOCKED)
@@ -121,10 +123,10 @@ class UserResourceTest {
       .username(TERRITORY1_USER_USERNAME)
       .build();
 
-      territory1User = userRepository.save(territory1User);
-      users.add(territory1User);
+    territory1User = userRepository.save(territory1User);
+    users.add(territory1User);
 
-      // Territory 2 user
+    // Territory 2 user
     User territory2User = User.builder()
       .administrator(false)
       .blocked(USER_BLOCKED)
@@ -133,44 +135,44 @@ class UserResourceTest {
       .password(USER_PASSWORD)
       .username(TERRITORY2_USER_USERNAME)
       .build();
-      territory2User = userRepository.save(territory2User);
-      users.add(territory2User);
+    territory2User = userRepository.save(territory2User);
+    users.add(territory2User);
 
 
-      userConfigurations = new ArrayList<>();
+    userConfigurations = new ArrayList<>();
 
-      UserConfiguration userConf = UserConfiguration.builder()
-        .territory(territory1)
-        .role(organizacionAdminRole)
-        .user(organizacionAdmin)
-        .appliesToChildrenTerritories(false)
-        .build();
-      userConfigurations.add(userConf);
+    UserConfiguration userConf = UserConfiguration.builder()
+      .territory(territory1)
+      .role(organizacionAdminRole)
+      .user(organizacionAdmin)
+      .appliesToChildrenTerritories(false)
+      .build();
+    userConfigurations.add(userConf);
 
-      userConf = UserConfiguration.builder()
-        .territory(territory1)
-        .role(territorialRole)
-        .user(territory1User)
-        .appliesToChildrenTerritories(false)
-        .build();
-      userConfigurations.add(userConf);
+    userConf = UserConfiguration.builder()
+      .territory(territory1)
+      .role(territorialRole)
+      .user(territory1User)
+      .appliesToChildrenTerritories(false)
+      .build();
+    userConfigurations.add(userConf);
 
-      userConf = UserConfiguration.builder()
-        .territory(territory2)
-        .role(territorialRole)
-        .user(territory2User)
-        .appliesToChildrenTerritories(false)
-        .build();
-      userConfigurations.add(userConf);
+    userConf = UserConfiguration.builder()
+      .territory(territory2)
+      .role(territorialRole)
+      .user(territory2User)
+      .appliesToChildrenTerritories(false)
+      .build();
+    userConfigurations.add(userConf);
 
-      userConfigurationRepository.saveAll(userConfigurations);
+    userConfigurationRepository.saveAll(userConfigurations);
   }
 
   @AfterEach
   void cleanup() {
-      userConfigurationRepository.deleteAll(userConfigurations);
-      userRepository.deleteAll(users);
-      territoryRepository.deleteAll(territories);
+    userConfigurationRepository.deleteAll(userConfigurations);
+    userRepository.deleteAll(users);
+    territoryRepository.deleteAll(territories);
     roleRepository.delete(territorialRole);
     roleRepository.delete(organizacionAdminRole);
   }
@@ -361,9 +363,9 @@ class UserResourceTest {
 
     String oldPassword = organizacionAdmin.getPassword();
     assertNotNull(oldPassword);
-      Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
-      assertTrue(updatedUser.isPresent());
-      assertNotEquals(oldPassword, updatedUser.get().getPassword());
+    Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
+    assertTrue(updatedUser.isPresent());
+    assertNotEquals(oldPassword, updatedUser.get().getPassword());
   }
 
   @Test
@@ -385,9 +387,9 @@ class UserResourceTest {
 
     String oldPassword = organizacionAdmin.getPassword();
     assertNotNull(oldPassword);
-      Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
-      assertTrue(updatedUser.isPresent());
-      assertEquals(oldPassword, updatedUser.get().getPassword());
+    Optional<User> updatedUser = userRepository.findById(organizacionAdmin.getId());
+    assertTrue(updatedUser.isPresent());
+    assertEquals(oldPassword, updatedUser.get().getPassword());
   }
 
 }

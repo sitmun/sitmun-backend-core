@@ -1,13 +1,14 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.*;
+import org.springframework.beans.ConfigurablePropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Id;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -34,9 +35,7 @@ public class TranslationService {
         .findFirst()
         .map(Field::getName);
 
-      if (idName.isPresent()) {
-        translate(target, wrapper, idName.get(), languageTag);
-      }
+      idName.ifPresent(s -> translate(target, wrapper, s, languageTag));
     }
   }
 

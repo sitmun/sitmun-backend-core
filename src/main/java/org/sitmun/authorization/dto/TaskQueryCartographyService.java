@@ -25,7 +25,7 @@ import java.util.Map;
 @Component
 public class TaskQueryCartographyService implements TaskMapper {
 
-    @Value("${sitmun.proxy.url:}")
+    @Value("${sitmun.proxy-middleware.url:}")
     private String proxyUrl;
 
     /**

@@ -1,9 +1,8 @@
 package org.sitmun.infrastructure.persistence.type.boundingbox;
 
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class BoundingBoxValidator
   implements ConstraintValidator<BoundingBox, Envelope> {

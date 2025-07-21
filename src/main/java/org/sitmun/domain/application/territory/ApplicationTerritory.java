@@ -2,6 +2,8 @@ package org.sitmun.domain.application.territory;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -12,8 +14,6 @@ import org.sitmun.infrastructure.persistence.type.boundingbox.BoundingBox;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -79,11 +79,9 @@ public class ApplicationTerritory {
       return true;
     }
 
-    if (!(obj instanceof ApplicationTerritory)) {
+    if (!(obj instanceof ApplicationTerritory other)) {
       return false;
     }
-
-    ApplicationTerritory other = (ApplicationTerritory) obj;
 
     return Objects.equals(id, other.getId());
   }

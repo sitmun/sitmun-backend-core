@@ -2,6 +2,8 @@ package org.sitmun.domain.user.configuration;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,8 +15,6 @@ import org.sitmun.domain.user.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -100,11 +100,9 @@ public class UserConfiguration {
       return true;
     }
 
-    if (!(obj instanceof UserConfiguration)) {
+    if (!(obj instanceof UserConfiguration other)) {
       return false;
     }
-
-    UserConfiguration other = (UserConfiguration) obj;
 
     return Objects.equals(id, other.getId());
   }

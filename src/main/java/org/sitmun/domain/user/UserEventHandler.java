@@ -1,13 +1,12 @@
 package org.sitmun.domain.user;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
-import javax.validation.constraints.NotNull;
 
 @Component
 @RepositoryEventHandler

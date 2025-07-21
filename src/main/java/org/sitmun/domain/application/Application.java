@@ -2,6 +2,9 @@ package org.sitmun.domain.application;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -22,9 +25,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -113,8 +113,8 @@ public class Application {
   /**
    * The JSP viewer to be loaded in this application when it is internal or a link to the
    * external application.
-   * TODO Rename this property to "Url" and change the type to URL.
    */
+  // TODO: Rename this property to "Url" and change the type to URL.
   @Column(name = "APP_TEMPLATE", length = PersistenceConstants.SHORT_DESCRIPTION)
   private String jspTemplate;
 
@@ -224,11 +224,9 @@ public class Application {
       return true;
     }
 
-    if (!(obj instanceof Application)) {
+    if (!(obj instanceof Application other)) {
       return false;
     }
-
-    Application other = (Application) obj;
 
     return Objects.equals(id, other.getId());
   }

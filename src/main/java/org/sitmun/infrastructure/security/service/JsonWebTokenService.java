@@ -3,11 +3,11 @@ package org.sitmun.infrastructure.security.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
@@ -15,10 +15,10 @@ import java.util.function.Function;
 @Service
 public class JsonWebTokenService {
 
-  @Value("${security.authentication.jwt.secret}")
+  @Value("${sitmun.user.secret}")
   private String secret;
 
-  @Value("${security.authentication.jwt.token-validity-in-miliseconds}")
+  @Value("${sitmun.user.token-validity-in-milliseconds}")
   private int validity;
 
   private Key key;

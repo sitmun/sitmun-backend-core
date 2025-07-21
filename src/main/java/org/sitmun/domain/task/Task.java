@@ -2,7 +2,11 @@ package org.sitmun.domain.task;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Length;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.database.DatabaseConnection;
@@ -17,8 +21,7 @@ import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import java.sql.Types;
 import java.util.*;
 
 /**
@@ -77,8 +80,7 @@ public class Task {
   /**
    * Task properties.
    */
-  @Column(name = "TAS_PARAMS")
-  @Lob
+  @Column(name = "TAS_PARAMS", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Map<String, Object> properties;
@@ -172,11 +174,9 @@ public class Task {
       return true;
     }
 
-    if (!(obj instanceof Task)) {
+    if (!(obj instanceof Task other)) {
       return false;
     }
-
-    Task other = (Task) obj;
 
     return Objects.equals(id, other.getId());
   }

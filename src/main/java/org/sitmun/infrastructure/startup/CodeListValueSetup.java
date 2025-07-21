@@ -19,8 +19,8 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "sitmun.startup.code-lists", name = "check-on-startup", havingValue = "true", matchIfMissing = true)
 public class CodeListValueSetup implements ApplicationRunner {
 
-  private StartupCodelistsProperties properties;
-  private CodeListValueRepository repository;
+  private final StartupCodelistsProperties properties;
+  private final CodeListValueRepository repository;
 
   public CodeListValueSetup(StartupCodelistsProperties properties, CodeListValueRepository repository) {
     this.properties = properties;

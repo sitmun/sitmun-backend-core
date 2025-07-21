@@ -1,0 +1,23 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    restart: unless-stopped
+    networks:
+      - sitmun-network-oracle
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: password
+      APP_USER: sitmun3
+      APP_USER_PASSWORD: sitmun3
+      ORACLE_DATABASE: sitmun3
+    healthcheck:
+      test: ["CMD", "sqlplus", "-L", "sitmun3/sitmun3@//localhost:1521/sitmun3", "-c", "SELECT 1 FROM DUAL;"]
+      interval: 30s
+      timeout: 30s
+      start_period: 60s
+      retries: 3
+
+networks:
+  sitmun-network-oracle:
+    driver: bridge

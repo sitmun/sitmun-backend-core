@@ -1,14 +1,14 @@
 package org.sitmun.domain.cartography.style;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -91,11 +91,9 @@ public class CartographyStyle {
       return true;
     }
 
-    if (!(obj instanceof CartographyStyle)) {
+    if (!(obj instanceof CartographyStyle other)) {
       return false;
     }
-
-    CartographyStyle other = (CartographyStyle) obj;
 
     return Objects.equals(id, other.getId());
   }

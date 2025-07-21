@@ -9,19 +9,21 @@ import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.infrastructure.security.storage.PasswordStorage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -29,19 +31,10 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfigurer {
 
   public static final String PUBLIC_USER_NAME = "public";
-  private static final String[] AUTH_WHITELIST = {
-    "/v3/api-docs*/**",
-    "/v3/api-docs*.*",
-    "/swagger-ui/**",
-    "/swagger-ui.*",
-    "/dist/**",
-    "/workspace.html",
-    "/api/profile",
-    "/api/profile/**",
-  };
+
 
   private final SecurityEntryPoint unauthorizedHandler;
 
@@ -66,15 +59,11 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService);
   }
 
-  @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-  }
-
   @Bean
-  public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
+  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
     AuthenticationManagerBuilder authenticationManagerBuilder = http
       .getSharedObject(AuthenticationManagerBuilder.class);
+    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     for (PasswordStorage ps : passwordStorageList) {
       ps.addPasswordStorage(authenticationManagerBuilder);
     }
@@ -102,8 +91,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public CorsFilter corsFilter() {
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowCredentials(true);
     config.addAllowedOriginPattern("*");
@@ -113,42 +101,56 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     config.addAllowedMethod("POST");
     config.addAllowedMethod("PUT");
     config.addAllowedMethod("DELETE");
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
-    return new CorsFilter(source);
+    return source;
   }
 
-  @Override
+  @Bean
+  public CorsFilter corsFilter() {
+    return new CorsFilter(corsConfigurationSource());
+  }
+
+  @Bean
   @SuppressWarnings("squid:S4502")
-  protected void configure(HttpSecurity http) throws Exception {
-    // Configuration for anonymous access
-    // https://stackoverflow.com/questions/48173057/customize-spring-security-for-trusted-space
-    http.cors().and()
-      .csrf().disable().headers().frameOptions().disable().and()
-      .anonymous().authenticationFilter(anonymousAuthenticationFilter()).and()
-      .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-      .authorizeRequests()
-      .antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
-      .antMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
-      .antMatchers(HttpMethod.POST, "/api/recover-password").permitAll()
-      .antMatchers(HttpMethod.PUT, "/api/recover-password").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/userTokenValid").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/languages").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/configuration-parameters").permitAll()
-      .antMatchers(HttpMethod.GET, "/api/account/public/**").permitAll()
-      .antMatchers("/api/account").hasAuthority(SecurityRole.ROLE_USER.name())
-      .antMatchers(HttpMethod.GET, "/api/account/all").hasAnyAuthority(SecurityRole.ROLE_ADMIN.name())
-      .antMatchers(HttpMethod.GET, "/api/workspace").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.GET, "/api/workspace/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.GET, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.PUT, "/api/config/client/**").hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
-      .antMatchers(HttpMethod.POST, "/api/user-verification/**").hasAuthority(SecurityRole.ROLE_USER.name())
-      .antMatchers(HttpMethod.POST, "/api/config/proxy/**").hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
-      .antMatchers("/api/dashboard/health").permitAll()
-      .antMatchers("/api/**").hasAuthority(SecurityRole.ROLE_ADMIN.name())
-      .anyRequest().authenticated();
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+    .csrf(AbstractHttpConfigurer::disable)
+    .headers(headers -> headers.frameOptions().disable())
+    .anonymous(anonymous -> anonymous.authenticationFilter(anonymousAuthenticationFilter()))
+    .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+    .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    .authorizeHttpRequests(authz -> authz
+      .requestMatchers(new AntPathRequestMatcher("/v3/api-docs*/**")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/v3/api-docs*.*")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/swagger-ui.*")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/profile")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/profile/**")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/authenticate", "POST")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "POST")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "PUT")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/userTokenValid", "GET")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/languages", "GET")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/configuration-parameters", "GET")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/account/public/**", "GET")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/account")).hasAuthority(SecurityRole.ROLE_USER.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/account/all", "GET")).hasAnyAuthority(SecurityRole.ROLE_ADMIN.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/workspace", "GET")).hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/workspace/**", "GET")).hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/config/client/**", "GET")).hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/config/client/**", "PUT")).hasAnyAuthority(SecurityRole.ROLE_USER.name(), SecurityRole.ROLE_PUBLIC.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/user-verification/**", "POST")).hasAuthority(SecurityRole.ROLE_USER.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/config/proxy/**", "POST")).hasAnyAuthority(SecurityRole.ROLE_PROXY.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/dashboard/health")).permitAll()
+      .requestMatchers(new AntPathRequestMatcher("/api/dashboard/info")).hasAuthority(SecurityRole.ROLE_ADMIN.name())
+      .requestMatchers(new AntPathRequestMatcher("/api/**")).hasAuthority(SecurityRole.ROLE_ADMIN.name())
+      .anyRequest().authenticated()
+    );
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(middlewareKeyFilter(), JsonWebTokenFilter.class);
+    
+    return http.build();
   }
 }

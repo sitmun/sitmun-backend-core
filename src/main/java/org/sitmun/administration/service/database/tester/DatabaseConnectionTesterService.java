@@ -1,10 +1,10 @@
 package org.sitmun.administration.service.database.tester;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;

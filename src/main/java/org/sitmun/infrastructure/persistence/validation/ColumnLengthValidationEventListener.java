@@ -9,7 +9,7 @@ import org.springframework.validation.Errors;
  * Event listener that validates and truncates string fields before entity persistence.
  * This component intercepts entity creation and update events to ensure that string fields
  * conform to their database column length constraints.
- *
+ * <p>
  * The listener is automatically triggered before any entity is created or saved,
  * preventing database constraint violations related to string field lengths.
  *

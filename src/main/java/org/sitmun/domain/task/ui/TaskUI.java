@@ -2,13 +2,13 @@ package org.sitmun.domain.task.ui;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.task.type.TaskType;
 
-import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
@@ -77,13 +77,11 @@ public class TaskUI {
       return true;
     }
 
-    if (!(obj instanceof TaskType)) {
+    if (!(obj instanceof TaskType other)) {
       return false;
     }
 
-    TaskType other = (TaskType) obj;
-
-    return Objects.equals(id, other.getId());
+      return Objects.equals(id, other.getId());
   }
 
   @Override

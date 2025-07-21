@@ -1,6 +1,9 @@
 package org.sitmun.domain.user.position;
 
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -12,9 +15,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -121,11 +121,9 @@ public class UserPosition {
       return true;
     }
 
-    if (!(obj instanceof UserPosition)) {
+    if (!(obj instanceof UserPosition other)) {
       return false;
     }
-
-    UserPosition other = (UserPosition) obj;
 
     return Objects.equals(id, other.getId());
   }

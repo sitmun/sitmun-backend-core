@@ -18,8 +18,8 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "sitmun.startup.code-lists", name = "check-on-startup", havingValue = "true", matchIfMissing = true)
 public class DatabaseConnectionDriverCodeListSetup implements ApplicationRunner {
 
-  private StartupCodelistsProperties properties;
-  private CodeListValueRepository repository;
+  private final StartupCodelistsProperties properties;
+  private final CodeListValueRepository repository;
 
   public DatabaseConnectionDriverCodeListSetup(StartupCodelistsProperties properties, CodeListValueRepository repository) {
     this.properties = properties;

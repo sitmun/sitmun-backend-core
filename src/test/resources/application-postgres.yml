@@ -1,0 +1,54 @@
+# =====================================================================================================================
+# PostgreSQL Database Configuration for Tests
+#
+# This profile provides PostgreSQL database configuration for testing.
+# Use with: --spring.profiles.active=test,postgres
+# =====================================================================================================================
+
+spring:
+  # PostgreSQL Database Configuration
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/sitmun3
+    username: sitmun3
+    password: sitmun3
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      poolName: TestPostgresHikari
+      maximum-pool-size: 2
+      minimum-idle: 1
+      leak-detection-threshold: 15000
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 600000
+      # PostgreSQL-specific connection settings for tests
+      connection-init-sql: "SET timezone = 'UTC'"
+      data-source-properties:
+        reWriteBatchedInserts: true
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+
+  # JPA Configuration for PostgreSQL
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        # Disable CLOB creation for PostgreSQL
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        # Disable second-level cache for better performance
+        cache:
+          use_second_level_cache: false
+
+  # Liquibase Configuration for PostgreSQL
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-postgres.yaml
+    enabled: true
+    drop-first: true
+    url: jdbc:postgresql://localhost:5432/sitmun3

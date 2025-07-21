@@ -2,10 +2,17 @@ package org.sitmun.administration.service.dashboard;
 
 import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.Tags;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.Query;
 
+import java.sql.Date;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public interface DashboardMetricsContributor extends Runnable {
   default MultiGauge.Row<Number> getDateNumberRow(Object[] entry) {
@@ -42,4 +49,27 @@ public interface DashboardMetricsContributor extends Runnable {
     }
     return null;
   }
+
+  default void addSinceDateParameter(Query query, int size) {
+    if (size > 0) {
+      boolean hasSinceDate = query.getParameters().stream().map(Parameter::getName).collect(Collectors.toSet()).contains("sinceDate");
+      if (hasSinceDate) {
+        query.setParameter("sinceDate", Date.valueOf(LocalDate.now().minusDays(size)));
+      }
+    }
+  }
+
+  default void runQuery(MultiGauge gauge, EntityManager entityManager, DashboardProperties.MetricDefinition definition) {
+    if (definition.getSize() > 0) {
+      Query query = entityManager.createQuery(definition.getQuery());
+      addSinceDateParameter(query, definition.getSize());
+      List<Object[]> results = query.getResultList();
+      Iterable<MultiGauge.Row<?>> list = results.stream()
+        .map(this::getDateNumberRow)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toUnmodifiableList());
+      gauge.register(list);
+    }
+  }
+
 }

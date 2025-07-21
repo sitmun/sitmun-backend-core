@@ -2,6 +2,8 @@ package org.sitmun.domain.background;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
@@ -12,8 +14,6 @@ import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
@@ -106,11 +106,9 @@ public class Background {
       return true;
     }
 
-    if (!(obj instanceof Background)) {
+    if (!(obj instanceof Background other)) {
       return false;
     }
-
-    Background other = (Background) obj;
 
     return Objects.equals(id, other.getId());
   }

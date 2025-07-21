@@ -12,14 +12,13 @@ import java.util.Map;
 @Component
 public class TaskBasicValidator implements TaskValidator {
 
+  private static final String PROPERTIES = "properties";
+
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public boolean accept(Task task) {
-    if (getProperties(task).containsKey("scope")) {
-      return false;
-    }
-    return true;
+    return !getProperties(task).containsKey("scope");
   }
 
   @Override
@@ -28,62 +27,63 @@ public class TaskBasicValidator implements TaskValidator {
     Errors errors = init(task);
     for(Map<String, Object> parameter : parameters) {
       if (!(parameter.containsKey("name") && parameter.containsKey("type") && parameter.containsKey("value"))) {
-        errors.rejectValue("properties", "parameters.missing", "[name], [type] and [value] properties were expected");
+        errors.rejectValue(PROPERTIES, "parameters.missing", "[name], [type] and [value] properties were expected");
       } else if (parameter.size() != 3) {
-        errors.rejectValue("properties", "parameters.extra", "Extra properties were found");
-      } else if (!(parameter.get("name") instanceof String) || !(parameter.get("type") instanceof String)) {
-        errors.rejectValue("properties", "parameters.invalid", "Invalid parameter types");
-      } else if (!(parameter.get("name") instanceof String)) {
-        errors.rejectValue("properties", "parameters.name", "[name] property must be a string");
-      } else if (!(parameter.get("type") instanceof String)) {
-        errors.rejectValue("properties", "parameters.type", "[type] property must be a string");
+        errors.rejectValue(PROPERTIES, "parameters.extra", "Extra properties were found");
+      } else if (!(parameter.get("name") instanceof String name) || !(parameter.get("type") instanceof String type)) {
+        errors.rejectValue(PROPERTIES, "parameters.invalid", "Invalid parameter types");
       } else {
-        String name = (String) parameter.get("name");
-        String type = (String) parameter.get("type");
         Object value = parameter.get("value");
 
         //noinspection StatementWithEmptyBody
-        if ("string".equals(type)) {
-          // Any value is valid
-          // null is considered equal to the empty string
-        } else if ("number".equals(type)) {
-          if (value instanceof String) {
-            try {
-              objectMapper.readValue(value.toString(), Number.class);
-            } catch (JsonProcessingException e) {
-              errors.rejectValue("properties", "parameters.number", name + " property contains '" + value + "' when number was expected");
+        switch (type) {
+          case "string" -> {
+            // Any value is valid
+            // null is considered equal to the empty string
+          }
+          case "number" -> {
+            if (value instanceof String stringValue) {
+              try {
+                objectMapper.readValue(stringValue, Number.class);
+              } catch (JsonProcessingException e) {
+                errors.rejectValue(PROPERTIES, "parameters.number", name + " property contains '" + value + "' when number was expected");
+              }
             }
           }
-        } else if ("boolean".equals(type)) {
-          if (value instanceof String) {
-            try {
-              objectMapper.readValue(value.toString(), Boolean.class);
-            } catch (JsonProcessingException e) {
-              errors.rejectValue("properties", "parameters.boolean", name + " property contains '" + value + "' when boolean was expected");
+          case "boolean" -> {
+            if (value instanceof String stringValue) {
+              try {
+                objectMapper.readValue(stringValue, Boolean.class);
+              } catch (JsonProcessingException e) {
+                errors.rejectValue(PROPERTIES, "parameters.boolean", name + " property contains '" + value + "' when boolean was expected");
+              }
             }
           }
-        } else if ("array".equals(type)) {
-          if (value instanceof String) {
-            try {
-              objectMapper.readValue(value.toString(), List.class);
-            } catch (JsonProcessingException e) {
-              errors.rejectValue("properties", "parameters.array", name + " property contains '" + value + "' when array was expected");
+          case "array" -> {
+            if (value instanceof String stringValue) {
+              try {
+                objectMapper.readValue(stringValue, List.class);
+              } catch (JsonProcessingException e) {
+                errors.rejectValue(PROPERTIES, "parameters.array", name + " property contains '" + value + "' when array was expected");
+              }
             }
           }
-        } else if ("object".equals(type)) {
-          if (value instanceof String) {
-            try {
-              objectMapper.readValue(value.toString(), Map.class);
-            } catch (JsonProcessingException e) {
-              errors.rejectValue("properties", "parameters.object", name + " property contains '" + value + "' when map was expected");
+          case "object" -> {
+            if (value instanceof String stringValue) {
+              try {
+                objectMapper.readValue(stringValue, Map.class);
+              } catch (JsonProcessingException e) {
+                errors.rejectValue(PROPERTIES, "parameters.object", name + " property contains '" + value + "' when map was expected");
+              }
             }
           }
-        } else if ("null".equals(type)) {
-          if (value != null) {
-            errors.rejectValue("properties", "parameters.null", name + " property contains '" + value + "' when null was expected");
+          case "null" -> {
+            if (value != null) {
+              errors.rejectValue(PROPERTIES, "parameters.null", name + " property contains '" + value + "' when null was expected");
+            }
           }
-        } else {
-          errors.rejectValue("properties", "parameters.any", name + " property contains '" + value + "' when type '" + type + "'");
+          default ->
+            errors.rejectValue(PROPERTIES, "parameters.any", name + " property contains '" + value + "' when type '" + type + "'");
         }
       }
     }

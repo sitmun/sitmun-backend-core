@@ -2,15 +2,22 @@ package org.sitmun.recover.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.domain.user_token.UserTokenDTO;
+import org.sitmun.domain.user_token.UserTokenService;
 import org.sitmun.recover.dto.EmailForgotPassword;
 import org.sitmun.recover.dto.ResetPasswordRequest;
 import org.sitmun.recover.dto.UserLoginRecoverRequest;
-import org.sitmun.recover.service.MailService;
+import org.sitmun.recover.exception.EmailTemplateException;
 import org.sitmun.recover.exception.MailNotImplementedException;
+import org.sitmun.recover.service.MailService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeSaveEvent;
@@ -20,18 +27,11 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import javax.validation.Validator;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.sitmun.domain.user_token.UserTokenService;
-import org.sitmun.domain.user_token.UserTokenDTO;
-import org.springframework.web.server.ResponseStatusException;
-import org.sitmun.recover.exception.EmailTemplateException;
 
 /**
  * Controller to authenticate users.
@@ -40,15 +40,16 @@ import org.sitmun.recover.exception.EmailTemplateException;
 @RestController
 @RequestMapping("/api/recover-password")
 @Tag(name = "PasswordRecover", description = "Recover the password of the user")
+@Profile("mail")
 public class RecoverPasswordController {
 
-  @Value("${front.url}")
+  @Value("${sitmun.recover-password.front.url}")
   private String frontUrl;
 
-  @Value("${spring.mail.from}")
+  @Value("${sitmun.recover-password.mail.from}")
   private String from;
 
-  @Value("${security.authentication.jwt.token-recovery-password-validity-in-miliseconds}")
+  @Value("${sitmun.recover-password.jwt.token-recovery-password-validity-in-milliseconds}")
   private int recoveryValidity;
 
   private final UserTokenService userTokenService;

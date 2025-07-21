@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.*;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class TreeNodeResourceTest {
 
   private static final String NON_PUBLIC_TREENODE_NAME = "Non-Tree Node";
@@ -63,34 +65,33 @@ class TreeNodeResourceTest {
   private Service service;
 
   @BeforeEach
-  @WithMockUser(roles = "ADMIN")
   void init() {
-      nodes = new ArrayList<>();
-    Role publicRole = Role.builder().name("USUARIO_PUBLICO").build();
-      roleRepository.save(publicRole);
+    nodes = new ArrayList<>();
+    Role publicRole = Role.builder().name("USUARIO_PUBLICO_TEST").build();
+    roleRepository.save(publicRole);
 
     availableRoles = new HashSet<>();
-      availableRoles.add(publicRole);
+    availableRoles.add(publicRole);
 
-      trees = new ArrayList<>();
+    trees = new ArrayList<>();
 
     Tree publicTree = new Tree();
-      publicTree.setName(PUBLIC_TREE_NAME);
+    publicTree.setName(PUBLIC_TREE_NAME);
     treeRepository.save(publicTree);
-      trees.add(publicTree);
+    trees.add(publicTree);
 
     publicTree.getAvailableRoles().addAll(availableRoles);
     treeRepository.save(publicTree);
 
-      Tree tree = new Tree();
-      tree.setName(NON_PUBLIC_TREE_NAME);
+    Tree tree = new Tree();
+    tree.setName(NON_PUBLIC_TREE_NAME);
     treeRepository.save(tree);
-      trees.add(tree);
+    trees.add(tree);
 
     service = Service.builder()
       .name("Service")
-      .serviceURL("")
-      .type("")
+      .serviceURL("http://localhost/api/services/1")
+      .type("service-type")
       .blocked(false)
       .build();
     serviceRepository.save(service);
@@ -98,37 +99,36 @@ class TreeNodeResourceTest {
     cartography = Cartography.builder()
       .type("I")
       .name("Carto")
-      .layers(Collections.emptyList())
+      .layers(List.of("Layer 1", "Layer 2"))
       .queryableFeatureAvailable(false)
       .queryableFeatureEnabled(false)
       .service(service)
       .availabilities(Collections.emptySet())
       .blocked(false)
       .build();
-      cartography = cartographyRepository.save(cartography);
+    cartography = cartographyRepository.save(cartography);
 
     style = CartographyStyle.builder()
       .name("Style D")
       .cartography(cartography)
       .defaultStyle(true).build();
-      cartographyStyleRepository.save(style);
+    cartographyStyleRepository.save(style);
 
-      TreeNode treeNode1 = new TreeNode();
-      treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
-      treeNode1.setCartography(cartography);
-      treeNode1.setTree(tree);
-      nodes.add(treeNode1);
+    TreeNode treeNode1 = new TreeNode();
+    treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
+    treeNode1.setCartography(cartography);
+    treeNode1.setTree(tree);
+    nodes.add(treeNode1);
 
-      TreeNode treeNode2 = new TreeNode();
-      treeNode2.setName(PUBLIC_TREENODE_NAME);
-      treeNode2.setTree(publicTree);
+    TreeNode treeNode2 = new TreeNode();
+    treeNode2.setName(PUBLIC_TREENODE_NAME);
+    treeNode2.setTree(publicTree);
 
-      nodes.add(treeNode2);
-      treeNodeRepository.saveAll(nodes);
+    nodes.add(treeNode2);
+    treeNodeRepository.saveAll(nodes);
   }
 
   @AfterEach
-  @WithMockUser(roles = "ADMIN")
   void cleanup() {
     treeNodeRepository.deleteAll(nodes);
     cartographyStyleRepository.delete(style);

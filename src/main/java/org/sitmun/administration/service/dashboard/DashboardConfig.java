@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import jakarta.persistence.EntityManager;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.service.ServiceRepository;
@@ -21,21 +22,39 @@ public class DashboardConfig {
   public static final String METRICS_PREFIX = "sitmun.";
 
   @Bean
-  public DashboardMetricsContributor cartographiesCreatedByDate(MeterRegistry registry, CartographyRepository cartographyRepository, DashboardProperties metricsProperties) {
-    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "cartographies-created-on-date").register(registry);
-    return new CartographiesByCreatedDateSinceDate(gauge, cartographyRepository, metricsProperties.getCartographiesByCreatedDate());
+  public DashboardMetricsContributor cartographiesCreatedByDate(MeterRegistry registry, EntityManager entityManager, DashboardProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge
+      .builder(METRICS_PREFIX + "cartographies-created-on-date")
+      .register(registry);
+    return new GenericDashboardMetricsContributor(
+      gauge,
+      entityManager,
+      metricsProperties.getCartographiesByCreatedDate()
+    );
   }
 
   @Bean
-  public DashboardMetricsContributor usersCreatedByDate(MeterRegistry registry, UserRepository userRepository, DashboardProperties metricsProperties) {
-    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "users-created-on-date").register(registry);
-    return new UsersByCreatedDateSinceDate(gauge, userRepository, metricsProperties.getUsersByCreatedDate());
+  public DashboardMetricsContributor usersCreatedByDate(MeterRegistry registry, EntityManager entityManager, DashboardProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge
+      .builder(METRICS_PREFIX + "users-created-on-date")
+      .register(registry);
+    return new GenericDashboardMetricsContributor(
+      gauge,
+      entityManager,
+      metricsProperties.getUsersByCreatedDate()
+    );
   }
 
   @Bean
-  public DashboardMetricsContributor usersPerApplication(MeterRegistry registry, UserRepository userRepository, DashboardProperties metricsProperties) {
-    MultiGauge gauge = MultiGauge.builder(METRICS_PREFIX + "users-per-application").register(registry);
-    return new UserPerApplicationSinceDate(gauge, userRepository, metricsProperties.getUsersPerApplication());
+  public DashboardMetricsContributor usersPerApplication(MeterRegistry registry, EntityManager entityManager, DashboardProperties metricsProperties) {
+    MultiGauge gauge = MultiGauge
+      .builder(METRICS_PREFIX + "users-per-application")
+      .register(registry);
+    return new GenericDashboardMetricsContributor(
+      gauge,
+      entityManager,
+      metricsProperties.getUsersPerApplication()
+    );
   }
 
   @Bean

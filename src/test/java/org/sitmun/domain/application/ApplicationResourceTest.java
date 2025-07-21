@@ -34,17 +34,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -56,6 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Log
 @DisplayName("Application Repository Data REST test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ApplicationResourceTest {
 
   private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
@@ -116,7 +114,7 @@ class ApplicationResourceTest {
 
       territory = Territory.builder()
         .name("Territorio 1")
-        .code("")
+        .code("some-code")
         .blocked(false)
         .build();
       territoryRepository.save(territory);
@@ -146,8 +144,8 @@ class ApplicationResourceTest {
       //Services
       Service publicService = Service.builder()
         .name(PUBLIC_SERVICE_NAME)
-        .type("")
-        .serviceURL("")
+        .type("some-type")
+        .serviceURL("http://some-service-url.com")
         .blocked(false)
         .build();
 
@@ -159,7 +157,7 @@ class ApplicationResourceTest {
       Cartography publicCartography = Cartography.builder()
         .name(PUBLIC_CARTOGRAPHY_NAME)
         .service(publicService)
-        .layers(Collections.emptyList())
+        .layers(List.of("Layer1", "Layer2"))
         .queryableFeatureAvailable(false)
         .queryableFeatureEnabled(false)
         .blocked(false)
@@ -266,15 +264,15 @@ class ApplicationResourceTest {
       ApplicationParameter applicationParam1 = new ApplicationParameter();
       applicationParam1.setName(NON_PUBLIC_APPLICATION_PARAM_NAME);
       applicationParam1.setApplication(application);
-      applicationParam1.setValue("");
-      applicationParam1.setType("");
+      applicationParam1.setValue("value");
+      applicationParam1.setType("type");
       applicationParameters.add(applicationParam1);
 
       ApplicationParameter applicationParam2 = new ApplicationParameter();
       applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
       applicationParam2.setApplication(publicApplication);
-      applicationParam2.setValue("");
-      applicationParam2.setType("");
+      applicationParam2.setValue("value");
+      applicationParam2.setType("type");
       applicationParameters.add(applicationParam2);
 
       applicationParameterRepository.saveAll(applicationParameters);
