@@ -27,10 +27,7 @@ public class UserTokenController {
     if (userToken == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT);
     }
-    boolean isTokenValid = false;
-    if (new Date().before(userToken.getExpireAt())) {
-      isTokenValid = true;
-    }
+    boolean isTokenValid = new Date().before(userToken.getExpireAt());
     return ResponseEntity.status(HttpStatus.OK).body(isTokenValid);
   }
 }

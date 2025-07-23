@@ -6,7 +6,6 @@ import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION
 import static org.sitmun.domain.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

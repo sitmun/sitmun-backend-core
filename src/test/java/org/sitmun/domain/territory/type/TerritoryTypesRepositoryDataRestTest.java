@@ -1,7 +1,6 @@
 package org.sitmun.domain.territory.type;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.sitmun.test.Fixtures.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

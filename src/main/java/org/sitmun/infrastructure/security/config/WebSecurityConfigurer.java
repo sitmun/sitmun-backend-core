@@ -2,7 +2,6 @@ package org.sitmun.infrastructure.security.config;
 
 import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
-import static org.sitmun.infrastructure.security.core.SecurityRole.createAuthorityList;
 
 import java.util.List;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;

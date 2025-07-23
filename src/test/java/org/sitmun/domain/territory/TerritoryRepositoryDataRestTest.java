@@ -1,7 +1,6 @@
 package org.sitmun.domain.territory;
 
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
-import static org.sitmun.test.Fixtures.*;
 import static org.sitmun.test.TestUtils.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
