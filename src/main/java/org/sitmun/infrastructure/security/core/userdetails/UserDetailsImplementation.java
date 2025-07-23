@@ -40,13 +40,13 @@ public class UserDetailsImplementation implements UserDetails {
   public static UserDetailsImplementation build(User user) {
     List<SecurityRole> roles;
     if (Boolean.TRUE.equals(user.getAdministrator())) {
-      roles = Lists.newArrayList(SecurityRole.ROLE_USER, SecurityRole.ROLE_ADMIN);
+      roles = Lists.newArrayList(SecurityRole.USER, SecurityRole.ADMIN);
     } else {
-      roles = Lists.newArrayList(SecurityRole.ROLE_USER);
+      roles = Lists.newArrayList(SecurityRole.USER);
     }
     List<GrantedAuthority> authorities =
         roles.stream()
-            .map(role -> new SimpleGrantedAuthority(role.name()))
+            .map(role -> new SimpleGrantedAuthority(role.authority()))
             .collect(Collectors.toList());
 
     return new UserDetailsImplementation(

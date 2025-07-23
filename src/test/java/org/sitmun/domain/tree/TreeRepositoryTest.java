@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -58,7 +59,9 @@ class TreeRepositoryTest {
   @Test
   @DisplayName("Find trees by roles and territory")
   void findTreesByRolesAndTerritory() {
-    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
     assertThat(tr).hasSize(1);
   }

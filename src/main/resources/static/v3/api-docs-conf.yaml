@@ -20,6 +20,9 @@ info:
       usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
       Si no se autentica, se asume que la petición se ha realizado por un usuario
       que en el dominio de SITMUN se denomina *usuario público*.
+      
+      **Control de Privacidad de Aplicaciones**: Las aplicaciones pueden configurarse como privadas para restringir 
+      el acceso de usuarios públicos. Solo los usuarios autenticados pueden acceder a aplicaciones privadas.
     - **Configuración y Autorización de Proxy**. La petición debe autenticarse usando una 
       [API key](https://swagger.io/docs/specification/authentication/api-keys/) enviada mediante
       la cabecera denominada `X-SITMUN-Proxy-Key`.

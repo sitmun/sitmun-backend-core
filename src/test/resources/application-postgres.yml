@@ -32,6 +32,8 @@ spring:
 
   # JPA Configuration for PostgreSQL
   jpa:
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

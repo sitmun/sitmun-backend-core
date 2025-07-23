@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,11 +52,11 @@ class ClientConfigurationPositionControllerTest {
 
   @Test
   @DisplayName("PUT: Update territory position with valid data should return success")
+  @WithMockUser(roles = "USER")
   void editTerritoryPositionsWithValidData() throws Exception {
     // TODO: Refactor to use either POST or PUT with id
     mvc.perform(
             put("/api/config/client/territory/position")
-                .with(user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validPositionDTO)))
         .andExpect(status().isOk())
@@ -96,6 +97,7 @@ class ClientConfigurationPositionControllerTest {
 
   @Test
   @DisplayName("PUT: Update territory position with null ID should return bad request")
+  @WithMockUser(roles = "USER")
   void editTerritoryPositionsWithNullId() throws Exception {
     // TODO: Refactor to use POST
     UserPositionDTO positionWithNullId =
@@ -111,7 +113,6 @@ class ClientConfigurationPositionControllerTest {
 
     mvc.perform(
             put("/api/config/client/territory/position")
-                .with(user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(positionWithNullId)))
         .andExpect(status().isOk());
@@ -119,6 +120,7 @@ class ClientConfigurationPositionControllerTest {
 
   @Test
   @DisplayName("PUT: Update territory position with empty name should return success")
+  @WithMockUser(roles = "USER")
   void editTerritoryPositionsWithEmptyName() throws Exception {
     // TODO: Refactor to use PUT with id
     UserPositionDTO positionWithEmptyName =
@@ -134,7 +136,6 @@ class ClientConfigurationPositionControllerTest {
 
     mvc.perform(
             put("/api/config/client/territory/position")
-                .with(user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(positionWithEmptyName)))
         .andExpect(status().isOk())
@@ -143,6 +144,7 @@ class ClientConfigurationPositionControllerTest {
 
   @Test
   @DisplayName("PUT: Update territory position with missing required fields should return success")
+  @WithMockUser(roles = "USER")
   void editTerritoryPositionsWithMissingFields() throws Exception {
     // TODO: Refactor to use PUT with id
     UserPositionDTO minimalPosition =
@@ -150,7 +152,6 @@ class ClientConfigurationPositionControllerTest {
 
     mvc.perform(
             put("/api/config/client/territory/position")
-                .with(user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(minimalPosition)))
         .andExpect(status().isOk())

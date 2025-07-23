@@ -6,7 +6,7 @@ import org.mapstruct.ReportingPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.user.User;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ApplicationMapper {
   List<ApplicationDtoLittle> map(List<Application> applications);
 

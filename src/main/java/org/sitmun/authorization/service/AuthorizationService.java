@@ -1,7 +1,17 @@
 package org.sitmun.authorization.service;
 
+import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
+import static org.sitmun.infrastructure.security.core.SecurityRole.*;
+
 import com.google.common.collect.ImmutableList;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -80,10 +90,17 @@ public class AuthorizationService {
    * <ul>
    *   <li>From the application, we can discover the roles (ROLE).
    *   <li>We match all user configuration where (USER, *, ROLE, *)
+   *   <li>For public users, filter out private applications
    * </ul>
    */
   public Page<Application> findApplicationsByUser(String username, Pageable pageable) {
-    return applicationRepository.findByUser(username, pageable);
+    Page<Application> page;
+    if (isPublic() || isPublicPrincipal(username)) {
+      page = applicationRepository.findByPublicUser(username, pageable);
+    } else {
+      page = applicationRepository.findByUser(username, pageable);
+    }
+    return page;
   }
 
   /**
@@ -95,12 +112,19 @@ public class AuthorizationService {
    *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the
    *       application if {@link Application#getAccessParentTerritory()} is `true`
    *   <li>When a parent territory matches (USER, TERRITORY-PARENT, *, TRUE) we consider included
-   *       the application if {@link Application#getAccessChildrenTerritory()} ()} is `true`
+   *       the application if {@link Application#getAccessChildrenTerritory()} is `true`
    *   <li>And ensure that the territory included is related to the application of the role
    * </ul>
    */
   public Page<Territory> findTerritoriesByUser(String username, Pageable pageable) {
-    return territoryRepository.findByUser(username, pageable);
+    Page<Territory> page;
+
+    if (isPublic() || isPublicPrincipal(username)) {
+      page = territoryRepository.findByPublicUser(username, pageable);
+    } else {
+      page = territoryRepository.findByRestrictedUser(username, pageable);
+    }
+    return page;
   }
 
   /**
@@ -115,7 +139,13 @@ public class AuthorizationService {
    */
   public Page<Territory> findTerritoriesByUserAndApplication(
       String username, Integer appId, Pageable pageable) {
-    return territoryRepository.findByUserAndApplication(username, appId, pageable);
+    Page<Territory> page;
+    if (isPublic() || isPublicPrincipal(username)) {
+      page = territoryRepository.findByPublicUserAndApplication(username, appId, pageable);
+    } else {
+      page = territoryRepository.findByRestrictedUserAndApplication(username, appId, pageable);
+    }
+    return page;
   }
 
   /**
@@ -125,17 +155,35 @@ public class AuthorizationService {
    *   <li>We match all user configurations where (USER, TERRITORY, *, false)
    *   <li>When a user configuration is (USER, TERRITORY, *, TRUE) we consider included the
    *       territory if {@link Application#getAccessParentTerritory()} is `true`
+   *   <li>For public users, filter out private applications
    * </ul>
    */
   public Page<Application> findApplicationsByUserAndTerritory(
       String username, Integer territoryId, Pageable pageable) {
-    return applicationRepository.findByUserAndTerritory(username, territoryId, pageable);
+    Page<Application> page;
+    if (isPublic() || isPublicPrincipal(username)) {
+      page = applicationRepository.findByPublicUserAndTerritory(username, territoryId, pageable);
+    } else {
+      page =
+          applicationRepository.findByRestrictedUserAndTerritory(username, territoryId, pageable);
+    }
+    return page;
   }
 
   /** Refina la lista de aplicaciones restringiendo a una única aplicación. */
-  public Optional<Application> findApplicationByIdAndUserAndTerritory(
+  public Optional<Application> findApplicationByUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId) {
-    return applicationRepository.findByIdAndUserAndTerritory(username, appId, territoryId);
+    Optional<Application> application;
+    if (isPublic() || isPublicPrincipal(username)) {
+      application =
+          applicationRepository.findByPublicUserApplicationAndTerritory(
+              username, appId, territoryId);
+    } else {
+      application =
+          applicationRepository.findByRestrictedUserApplicationAndTerritory(
+              username, appId, territoryId);
+    }
+    return application;
   }
 
   public List<Role> findRolesByApplicationAndUserAndTerritory(
@@ -150,7 +198,7 @@ public class AuthorizationService {
   @NotNull
   private Optional<Profile> buildProfile(ProfileContext context) {
     Optional<Application> application =
-        findApplicationByIdAndUserAndTerritory(
+        findApplicationByUserApplicationAndTerritory(
             context.getUsername(), context.getAppId(), context.getTerritoryId());
     if (application.isEmpty()) {
       return Optional.empty();
@@ -372,5 +420,21 @@ public class AuthorizationService {
   public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
     return t -> seen.add(keyExtractor.apply(t));
+  }
+
+  /**
+   * Check if the user may access the application based on its privacy settings.
+   *
+   * <p>Users that are not the PUBLIC principal can access any application. Users that are the
+   * PUBLIC principal can only access public applications.
+   *
+   * @param appId ID of the application to check
+   * @param username username of the user trying to access the application
+   * @return true if the user may access the application, false otherwise.
+   */
+  public boolean mayAccessUser(Integer appId, String username) {
+    if (!isPublicPrincipal(username)) return true;
+    Optional<Application> application = applicationRepository.findById(appId);
+    return !application.map(Application::getAppPrivate).orElse(false);
   }
 }

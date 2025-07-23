@@ -3,9 +3,12 @@ package org.sitmun.domain.cartography;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
+import static org.sitmun.test.TestUtils.*;
+import static org.sitmun.test.URIConstants.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -24,18 +27,13 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
-import org.sitmun.test.Fixtures;
-import org.sitmun.test.TestUtils;
-import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -114,6 +112,7 @@ class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: minimum set of properties")
+  @WithMockUser(roles = "ADMIN")
   void postCartography() throws Exception {
 
     String content =
@@ -127,11 +126,7 @@ class CartographyRepositoryDataRestTest {
             .toString();
 
     String location =
-        mvc.perform(
-                MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHIES_URI)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(content)
-                    .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+        mvc.perform(post(CARTOGRAPHIES_URI).contentType(APPLICATION_JSON).content(content))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
@@ -139,16 +134,13 @@ class CartographyRepositoryDataRestTest {
 
     assertThat(location, notNullValue());
 
-    mvc.perform(
-            MockMvcRequestBuilders.get(location)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(location))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)))
         .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()));
 
-    String[] paths = URI.create(location).getPath().split("/");
-    Integer id = Integer.parseInt(paths[paths.length - 1]);
+    Integer id = extractId(location);
     cartographyRepository.findById(id).ifPresent(it -> cartographies.add(it));
   }
 
@@ -156,19 +148,18 @@ class CartographyRepositoryDataRestTest {
   @DisplayName("POST: fail as public user")
   void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(
-            MockMvcRequestBuilders.post(URIConstants.CARTOGRAPHIES_URI)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.asJsonString(cartography)))
+            post(CARTOGRAPHIES_URI)
+                .contentType(APPLICATION_JSON)
+                .content(asJsonString(cartography)))
         .andExpect(status().is4xxClientError())
         .andReturn();
   }
 
   @Test
   @DisplayName("GET: has treeNodes property")
+  @WithMockUser(roles = "ADMIN")
   void hasTreeNodeListProperty() throws Exception {
-    mvc.perform(
-            MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHIES_URI + "?size=10")
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(CARTOGRAPHIES_URI + "?size=10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
         .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));
@@ -176,10 +167,9 @@ class CartographyRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: has cartography-groups property")
+  @WithMockUser(roles = "ADMIN")
   void hasAccessToCartographyGroups() throws Exception {
-    mvc.perform(
-            MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PERMISSION_URI, 1)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(CARTOGRAPHY_URI_PERMISSION_URI, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.cartography-groups[*]", hasSize(1)));
   }
@@ -191,6 +181,7 @@ class CartographyRepositoryDataRestTest {
    */
   @Test
   @DisplayName("PUT: applyFilterXXX must not use integers as use booleans")
+  @WithMockUser(roles = "ADMIN")
   void checkIssueSitmunAdminApp41() throws Exception {
     String badRequest =
         """
@@ -222,11 +213,7 @@ class CartographyRepositoryDataRestTest {
               "DIBA:SIT_SEE1MV1_111P_MA"
           ]
       }""";
-    mvc.perform(
-            MockMvcRequestBuilders.put(URIConstants.CARTOGRAPHY_URI, 724)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(badRequest)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(put(CARTOGRAPHY_URI, 724).contentType(APPLICATION_JSON).content(badRequest))
         .andExpect(jsonPath("$.errors[0].field", is("applyFilterToGetFeatureInfo")))
         .andExpect(status().isUnprocessableEntity());
   }
@@ -238,19 +225,14 @@ class CartographyRepositoryDataRestTest {
    */
   @Test
   @DisplayName("GET: filters are available in projections")
+  @WithMockUser(roles = "ADMIN")
   void applyFilterTestDataIsNull() throws Exception {
-    mvc.perform(
-            MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI, 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(CARTOGRAPHY_URI, 1).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
         .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
 
-    mvc.perform(
-            MockMvcRequestBuilders.get(URIConstants.CARTOGRAPHY_URI_PROJECTION, 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(CARTOGRAPHY_URI_PROJECTION, 1).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
         .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));

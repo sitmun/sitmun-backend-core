@@ -1,6 +1,7 @@
 package org.sitmun.authorization.controller;
 
 import static org.sitmun.authorization.service.ProfileContext.NodeSectionBehaviour.*;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.mapstruct.factory.Mappers;
 import org.sitmun.authorization.dto.*;
 import org.sitmun.authorization.service.AuthorizationService;
@@ -18,13 +20,12 @@ import org.sitmun.authorization.service.ProfileContext;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
-import org.sitmun.domain.user.position.UserPosition;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.domain.user.position.UserPositionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -78,11 +79,10 @@ public class ClientConfigurationController {
       @PathVariable Integer appId,
       Pageable pageable) {
     String username = context.getAuthentication().getName();
-    if (pageable.getSort().isUnsorted()) {
-      pageable =
-          PageRequest.of(
-              pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
+    if (!authorizationService.mayAccessUser(appId, username)) {
+      throw new AccessDeniedException("Access denied to application");
     }
+    pageable = ensureSortBy(pageable, "name");
     Page<Territory> page =
         authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
     List<TerritoryDTO> territories =
@@ -98,22 +98,6 @@ public class ClientConfigurationController {
     return ResponseEntity.ok(positionDTOs);
   }
 
-  private UserPositionDTO convertUserPositionToDTO(UserPosition userPosition) {
-    return UserPositionDTO.builder()
-        .id(userPosition.getId())
-        .name(userPosition.getName())
-        .organization(userPosition.getOrganization())
-        .email(userPosition.getEmail())
-        .createdDate(userPosition.getCreatedDate())
-        .lastModifiedDate(userPosition.getLastModifiedDate())
-        .expirationDate(userPosition.getExpirationDate())
-        .type(userPosition.getType())
-        .userId(userPosition.getUser() != null ? userPosition.getUser().getId() : null)
-        .territoryId(
-            userPosition.getTerritory() != null ? userPosition.getTerritory().getId() : null)
-        .build();
-  }
-
   /**
    * Get the list of applications for the current user.
    *
@@ -125,11 +109,7 @@ public class ClientConfigurationController {
   public Page<ApplicationDtoLittle> getApplications(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    if (pageable.getSort().isUnsorted()) {
-      pageable =
-          PageRequest.of(
-              pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("title")));
-    }
+    pageable = ensureSortBy(pageable, "title");
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
     List<ApplicationDtoLittle> applications =
         Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
@@ -150,11 +130,7 @@ public class ClientConfigurationController {
       @PathVariable Integer terrId,
       Pageable pageable) {
     String username = context.getAuthentication().getName();
-    if (pageable.getSort().isUnsorted()) {
-      pageable =
-          PageRequest.of(
-              pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("title")));
-    }
+    pageable = ensureSortBy(pageable, "title");
     Page<Application> page =
         authorizationService.findApplicationsByUserAndTerritory(username, terrId, pageable);
     List<ApplicationDtoLittle> applications =
@@ -173,11 +149,7 @@ public class ClientConfigurationController {
   public Page<TerritoryDTO> getTerritories(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
-    if (pageable.getSort().isUnsorted()) {
-      pageable =
-          PageRequest.of(
-              pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc("name")));
-    }
+    pageable = ensureSortBy(pageable, "name");
     Page<Territory> page = authorizationService.findTerritoriesByUser(username, pageable);
     List<TerritoryDTO> territories =
         Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
@@ -198,6 +170,11 @@ public class ClientConfigurationController {
       @PathVariable("appId") Integer appId,
       @PathVariable("terrId") Integer terrId,
       @RequestParam(value = "filter", defaultValue = "none") String filter) {
+    String username = context.getAuthentication().getName();
+    if (!authorizationService.mayAccessUser(appId, username)) {
+      throw new AccessDeniedException("Access denied to application");
+    }
+
     AtomicReference<ProfileContext.NodeSectionBehaviour> nodeSectionBehaviour =
         new AtomicReference<>(VIRTUAL_ROOT_ALL_NODES);
     AtomicReference<Integer> baseNode = new AtomicReference<>();
@@ -221,7 +198,7 @@ public class ClientConfigurationController {
 
     ProfileContext profileContext =
         ProfileContext.builder()
-            .username(context.getAuthentication().getName())
+            .username(username)
             .appId(appId)
             .territoryId(terrId)
             .nodeId(baseNode.get())
@@ -234,7 +211,7 @@ public class ClientConfigurationController {
         .map(decorateWithFilter(profileContext))
         .map(decorateWithProxy(profileContext))
         .map(profile -> ResponseEntity.ok().body(profile))
-        .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        .orElseGet(() -> ResponseEntity.status(UNAUTHORIZED).build());
   }
 
   private static final Pattern NODE_PATTERN = Pattern.compile("node/(\\d+)");
@@ -264,23 +241,23 @@ public class ClientConfigurationController {
                 tree -> {
                   String rootNode = tree.getRootNode();
                   tree.getNodes()
-                      .forEach(
-                          (nodeId, node) -> {
-                            if (!Objects.equals(nodeId, rootNode)) {
-                              String uriTemplate =
-                                  backendUrl
-                                      + "/api/config/client/profile/{appId}/{terrId}?filter={nodeId}";
-                              String uri =
-                                  UriComponentsBuilder.fromUriString(uriTemplate)
-                                      .build(context.getAppId(), context.getTerritoryId(), nodeId)
-                                      .toString();
-                              node.setUri(uri);
-                            }
-                          });
+                      .forEach((nodeId, node) -> decorateNode(context, nodeId, node, rootNode));
                 });
       }
       return profileDto;
     };
+  }
+
+  private void decorateNode(ProfileContext context, String nodeId, NodeDto node, String rootNode) {
+    if (!Objects.equals(nodeId, rootNode)) {
+      String uriTemplate =
+          backendUrl + "/api/config/client/profile/{appId}/{terrId}?filter={nodeId}";
+      String uri =
+          UriComponentsBuilder.fromUriString(uriTemplate)
+              .build(context.getAppId(), context.getTerritoryId(), nodeId)
+              .toString();
+      node.setUri(uri);
+    }
   }
 
   /** Decorate the profile with proxy information if necessary. */
@@ -313,5 +290,14 @@ public class ClientConfigurationController {
               });
       return profileDto;
     };
+  }
+
+  private static @NotNull Pageable ensureSortBy(Pageable pageable, String title) {
+    if (pageable.getSort().isUnsorted()) {
+      pageable =
+          PageRequest.of(
+              pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.asc(title)));
+    }
+    return pageable;
   }
 }

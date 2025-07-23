@@ -4,21 +4,20 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
 import static org.sitmun.domain.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.sitmun.test.URIConstants.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.test.Fixtures;
-import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -32,20 +31,18 @@ class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Check availability of databaseConnection.driver")
+  @WithMockUser(roles = "ADMIN")
   void checkDatabaseConnectionDriverAvailability() throws Exception {
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER)
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.codelist-values[*].value", hasItem("org.h2.Driver")));
   }
 
   @Test
   @DisplayName("GET: Description in the original language")
+  @WithMockUser(roles = "ADMIN")
   void obtainOriginalVersion() throws Exception {
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.codelist-values[?(@.id == 30)].description")
@@ -59,9 +56,7 @@ class CodeListValueRepositoryDataRestTest {
             jsonPath("$._embedded.codelist-values[?(@.id == 33)].description")
                 .value("Location map"));
 
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER, "userPosition.type")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, "userPosition.type"))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.codelist-values[?(@.id == 88)].description")
@@ -70,10 +65,9 @@ class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Description translated in ES")
+  @WithMockUser(roles = "ADMIN")
   void obtainTranslatedVersionSpa() throws Exception {
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type"))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.codelist-values[?(@.id == 30)].description")
@@ -90,10 +84,9 @@ class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Description translated in CA")
+  @WithMockUser(roles = "ADMIN")
   void obtainTranslatedVersionCat() throws Exception {
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type"))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("Ajuntament"));
@@ -101,19 +94,16 @@ class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("GET: Filter by code list")
+  @WithMockUser(roles = "ADMIN")
   void filterType() throws Exception {
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER, "cartographyPermission.type")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.*.*", hasSize(4)))
         .andExpect(
             jsonPath(
                 "$._embedded.codelist-values[?(@.codeListName == 'cartographyPermission.type')]",
                 hasSize(4)));
-    mvc.perform(
-            get(URIConstants.CODELIST_VALUES_URI_FILTER, "territory.scope")
-                .with(user(Fixtures.admin())))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, "territory.scope"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.codelist-values.*", hasSize(3)))
         .andExpect(
@@ -130,12 +120,12 @@ class CodeListValueRepositoryDataRestTest {
    */
   @Test
   @DisplayName("GET: Check translated descriptions")
+  @WithMockUser(roles = "ADMIN")
   void checkMangledValues() throws Exception {
     mvc.perform(
             get(
-                    URIConstants.CODELIST_VALUES_URI_FILTER + "&lang=ca",
-                    CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE)
-                .with(user(Fixtures.admin())))
+                CODELIST_VALUES_URI_FILTER + "&lang=ca",
+                CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 23)].value").value("EDIT"))
         .andExpect(
@@ -144,32 +134,36 @@ class CodeListValueRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: System codes can't be created")
+  @WithMockUser(roles = "ADMIN")
   void cantCreateSystemCodeListValue() throws Exception {
-    String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":true}";
-    mvc.perform(
-            MockMvcRequestBuilders.post(URIConstants.CODELIST_VALUES_URI)
-                .content(body)
-                .with(user(Fixtures.admin())))
-        .andExpect(status().isBadRequest());
+    String body =
+        """
+      {
+      "value":"A",
+      "codeListName":"B",
+      "system":true
+      }""";
+    mvc.perform(post(CODELIST_VALUES_URI).content(body)).andExpect(status().isBadRequest());
   }
 
   @Test
   @DisplayName("PUT: Normal codes can be updated")
+  @WithMockUser(roles = "ADMIN")
   void cantModifySystemCodeListValue() throws Exception {
-    String body = "{\"value\":\"A\", \"codeListName\":\"B\", \"system\":false}";
-    mvc.perform(
-            MockMvcRequestBuilders.put(URIConstants.CODELIST_VALUE_URI, 31)
-                .content(body)
-                .with(user(Fixtures.admin())))
-        .andExpect(status().isBadRequest());
+    String body =
+        """
+      {
+      "value":"A",
+      "codeListName":"B",
+      "system":false
+      }""";
+    mvc.perform(put(CODELIST_VALUE_URI, 31).content(body)).andExpect(status().isBadRequest());
   }
 
   @Test
   @DisplayName("DELETE: System codes can't be deleted")
+  @WithMockUser(roles = "ADMIN")
   void cantDeleteCodeListValue() throws Exception {
-    mvc.perform(
-            MockMvcRequestBuilders.delete(URIConstants.CODELIST_VALUE_URI, 31)
-                .with(user(Fixtures.admin())))
-        .andExpect(status().isBadRequest());
+    mvc.perform(delete(CODELIST_VALUE_URI, 31)).andExpect(status().isBadRequest());
   }
 }

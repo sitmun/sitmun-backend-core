@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +46,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify password with valid credentials should return true")
+  @WithMockUser(roles = "USER")
   void verifyPasswordWithValidCredentials() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -53,7 +54,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-password")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
@@ -62,6 +62,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify password with invalid credentials should return false")
+  @WithMockUser(roles = "USER")
   void verifyPasswordWithInvalidCredentials() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -69,7 +70,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-password")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest())
@@ -78,6 +78,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify password with empty username should return bad request")
+  @WithMockUser(roles = "USER")
   void verifyPasswordWithEmptyUsername() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("");
@@ -85,7 +86,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-password")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -93,6 +93,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify password with null password should return bad request")
+  @WithMockUser(roles = "USER")
   void verifyPasswordWithNullPassword() throws Exception {
     UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
     request.setUsername("admin");
@@ -100,7 +101,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-password")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -108,6 +108,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify email with existing email should return true")
+  @WithMockUser(roles = "USER")
   void verifyEmailWithExistingEmail() throws Exception {
     // Create a test user first
     User testUser = new User();
@@ -125,7 +126,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-email")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(email))
         .andExpect(status().isOk())
@@ -134,12 +134,12 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify email with non-existing email should return false")
+  @WithMockUser(roles = "USER")
   void verifyEmailWithNonExistingEmail() throws Exception {
     String email = "nonexistent@example.com";
 
     mvc.perform(
             post("/api/user-verification/verify-email")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(email))
         .andExpect(status().isOk())
@@ -148,10 +148,10 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify email with empty email should return false")
+  @WithMockUser(roles = "USER")
   void verifyEmailWithEmptyEmail() throws Exception {
     mvc.perform(
             post("/api/user-verification/verify-email")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(""))
         .andExpect(status().isOk())
@@ -160,10 +160,10 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify email with null email should return false")
+  @WithMockUser(roles = "USER")
   void verifyEmailWithNullEmail() throws Exception {
     mvc.perform(
             post("/api/user-verification/verify-email")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("null"))
         .andExpect(status().isOk())
@@ -172,6 +172,7 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify email should be case insensitive")
+  @WithMockUser(roles = "USER")
   void verifyEmailCaseInsensitive() throws Exception {
     // Create a test user with lowercase email
     User testUser = new User();
@@ -187,7 +188,6 @@ class VerificationControllerTest {
 
     mvc.perform(
             post("/api/user-verification/verify-email")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("USER"))
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(email))
         .andExpect(status().isOk())

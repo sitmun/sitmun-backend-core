@@ -89,4 +89,12 @@ public interface ApplicationProjection {
   /** Creator ID of the app */
   @Value("#{target.creator?.id}")
   Integer getCreatorId();
+
+  /** Application privacy setting. */
+  @Value("#{target.appPrivate}")
+  Boolean getAppPrivate();
+
+  /** Application configuration warnings. */
+  @Value("#{@applicationChecksService.getWarnings(target)}")
+  List<String> getWarnings();
 }

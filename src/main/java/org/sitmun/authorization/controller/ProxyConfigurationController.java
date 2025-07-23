@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.dto.ConfigProxyDto;
 import org.sitmun.authorization.dto.ConfigProxyRequest;
 import org.sitmun.authorization.service.ProxyConfigurationService;
-import org.sitmun.infrastructure.security.config.WebSecurityConfigurer;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +59,7 @@ public class ProxyConfigurationController {
       }
       log.info("Token identifies user {} with expiration time {}", username, expirationTime);
     } else {
-      username = WebSecurityConfigurer.PUBLIC_USER_NAME;
+      username = SecurityConstants.PUBLIC_PRINCIPAL;
       log.info("No token identifies user {} with expiration time {}", username, expirationTime);
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequest, username)) {

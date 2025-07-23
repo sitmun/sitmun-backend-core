@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -63,7 +64,9 @@ class TaskRepositoryTest {
   @Test
   @DisplayName("Find tasks filtered by roles and territory")
   void findTasksByRolesAndTerritory() {
-    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory("public", 1, 1);
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
     assertThat(cp).hasSize(4);
   }

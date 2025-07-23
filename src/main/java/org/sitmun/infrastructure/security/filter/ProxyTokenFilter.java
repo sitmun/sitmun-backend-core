@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,16 +16,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class ProxyTokenFilter extends OncePerRequestFilter {
 
-  public static final String X_SITMUN_PROXY_KEY = "X-SITMUN-Proxy-Key";
+  private final String key;
   private final String principal;
   private final List<GrantedAuthority> authorities;
+  private final String secret;
 
-  @Value("${sitmun.proxy-middleware.secret}")
-  private String middlewareSecret;
-
-  public ProxyTokenFilter(String principal, List<GrantedAuthority> authorities) {
+  public ProxyTokenFilter(
+      String key, String principal, List<GrantedAuthority> authorities, String secret) {
+    this.key = key;
     this.principal = principal;
     this.authorities = authorities;
+    this.secret = secret;
   }
 
   @Override
@@ -36,12 +36,9 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
     try {
-      String key =
-          httpServletRequest.getHeader(X_SITMUN_PROXY_KEY) == null
-              ? ""
-              : httpServletRequest.getHeader(X_SITMUN_PROXY_KEY);
+      String value = httpServletRequest.getHeader(key);
 
-      if (Objects.equals(key, middlewareSecret)) {
+      if (Objects.equals(value, secret)) {
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(principal, null, authorities);
         authentication.setDetails(

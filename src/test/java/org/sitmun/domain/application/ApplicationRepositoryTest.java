@@ -21,6 +21,7 @@ import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.cartography.permission.CartographyPermissionRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -131,13 +132,18 @@ class ApplicationRepositoryTest {
   @Test
   @DisplayName("Find applications filtered by username")
   void findApplicationsByUsername() {
-    assertThat(applicationRepository.findByUser("public", PageRequest.of(0, 10))).hasSize(4);
+    assertThat(
+            applicationRepository.findByUser(
+                SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10)))
+        .hasSize(4);
   }
 
   @Test
   @DisplayName("Find applications filtered by username and territory")
   void findApplicationsByUsernameAndTerritory() {
-    assertThat(applicationRepository.findByUserAndTerritory("public", 1, PageRequest.of(0, 10)))
+    assertThat(
+            applicationRepository.findByRestrictedUserAndTerritory(
+                SecurityConstants.PUBLIC_PRINCIPAL, 1, PageRequest.of(0, 10)))
         .hasSize(4);
   }
 

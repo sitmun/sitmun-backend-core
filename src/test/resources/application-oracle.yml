@@ -30,6 +30,8 @@ spring:
 
   # JPA Configuration for Oracle
   jpa:
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect

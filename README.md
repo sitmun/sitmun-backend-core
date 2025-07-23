@@ -14,7 +14,7 @@ The SITMUN backend core is a key component of the SITMUN software system, provid
 - **Security**: Spring Security with JWT
 - **Documentation**: OpenAPI/Swagger
 - **Testing**: JUnit 5, Spring Boot Test
-- **Object Mapping**: MapStruct
+- **Object Mapping**: MapStruct 1.6.3
 - **Query Building**: QueryDSL
 - **Database Migration**: Liquibase
 - **Utilities**: Lombok, Apache Commons, Google Guava
@@ -116,7 +116,10 @@ SPRING_DATASOURCE_USERNAME=sitmun
 SPRING_DATASOURCE_PASSWORD=sitmun123
 ```
 
-Liquibase runs migrations automatically on startup.
+### Database Migrations
+
+The application uses Liquibase for database schema management. 
+Migrations are applied automatically on application startup.
 
 ## API Documentation
 
@@ -134,8 +137,18 @@ Liquibase runs migrations automatically on startup.
 
 - JWT authentication
 - Role-based access
+- **Application privacy controls** - Applications can be marked as private to restrict public user access
+- **Public user support** - Anonymous/public user access with privacy restrictions
 - CORS enabled
 - Bean validation
+
+### Application Privacy
+
+Applications can be configured as private to restrict access from public users:
+
+- **Private applications**: Only authenticated users can access
+- **Public applications**: Available to both authenticated and public users
+- **Configuration warnings**: System provides warnings for private applications with public user roles
 
 ## Project Structure
 

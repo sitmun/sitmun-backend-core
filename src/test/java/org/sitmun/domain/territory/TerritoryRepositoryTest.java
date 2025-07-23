@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.territory.type.TerritoryType;
 import org.sitmun.domain.territory.type.TerritoryTypeRepository;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -92,14 +93,17 @@ class TerritoryRepositoryTest {
   @DisplayName("Find territories for a user and an application")
   void findTerritoriesByUserAndApplication() {
     Page<Territory> territories =
-        territoryRepository.findByUserAndApplication("public", 1, PageRequest.of(0, 10));
+        territoryRepository.findByRestrictedUserAndApplication(
+            SecurityConstants.PUBLIC_PRINCIPAL, 1, PageRequest.of(0, 10));
     assertThat(territories.getTotalElements()).isEqualTo(3);
   }
 
   @Test
   @DisplayName("Find territories for a user")
   void findTerritoriesOfAnUser() {
-    Page<Territory> territories = territoryRepository.findByUser("public", PageRequest.of(0, 10));
+    Page<Territory> territories =
+        territoryRepository.findByRestrictedUser(
+            SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10));
     assertThat(territories.getTotalElements()).isEqualTo(3);
   }
 

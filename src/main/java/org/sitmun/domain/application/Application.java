@@ -134,6 +134,12 @@ public class Application {
   @LastModifiedDate
   private Date lastUpdate;
 
+  /** Application privacy setting. */
+  @Column(name = "APP_PRIVATE")
+  @Builder.Default
+  @NotNull
+  private Boolean appPrivate = false;
+
   @ManyToOne
   @JoinColumn(name = "APP_CREATORID")
   private User creator;
@@ -185,6 +191,11 @@ public class Application {
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<ApplicationTerritory> territories = new HashSet<>();
+
+  /** Derived warnings for application configuration. */
+  @Transient
+  @JsonView(ClientConfigurationViews.Base.class)
+  private List<String> warnings;
 
   @Override
   public boolean equals(Object obj) {

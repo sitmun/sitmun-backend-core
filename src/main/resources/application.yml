@@ -21,7 +21,7 @@ spring:
     change-log: file:./config/db/changelog/db.changelog-master.yaml
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate:

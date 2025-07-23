@@ -1,6 +1,7 @@
 package org.sitmun.domain.application;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,13 +38,10 @@ import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
-import org.sitmun.test.Fixtures;
-import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -276,31 +274,27 @@ class ApplicationResourceTest {
 
   @Test
   @DisplayName("GET: information about the backgrounds of an application")
+  @WithMockUser(roles = "ADMIN")
   void getInformationAboutBackgrounds() throws Exception {
-    mvc.perform(
-            get(URIConstants.APPLICATION_BACKGROUNDS_URI + '/' + backAppId)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(APPLICATION_BACKGROUNDS_URI + '/' + backAppId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.order").value(1));
   }
 
   @Test
   @DisplayName("GET: information about the layers of an application")
+  @WithMockUser(roles = "ADMIN")
   void getServiceLayersAsPublic() throws Exception {
     // ok is expected
-    mvc.perform(
-            get(URIConstants.SERVICE_LAYERS_URI, 1)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
-        .andExpect(status().isOk());
+    mvc.perform(get(SERVICE_LAYERS_URI, 1)).andExpect(status().isOk());
   }
 
   @Test
   @DisplayName("GET: information as administrator")
+  @WithMockUser(roles = "ADMIN")
   void getApplicationsAsSitmunAdmin() throws Exception {
     // ok is expected
-    mvc.perform(
-            get(URIConstants.APPLICATIONS_URI)
-                .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
+    mvc.perform(get(APPLICATIONS_URI))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.applications", hasSize(8)));
   }

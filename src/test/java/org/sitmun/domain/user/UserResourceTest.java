@@ -2,7 +2,8 @@ package org.sitmun.domain.user;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.sitmun.test.TestUtils.asJsonString;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.sitmun.test.URIConstants.*;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -21,13 +22,10 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
-import org.sitmun.test.Fixtures;
-import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -169,23 +167,22 @@ class UserResourceTest {
 
   @Test
   @DisplayName("POST: Create a new user")
+  @WithMockUser(roles = "ADMIN")
   void createUser() throws Exception {
     String content =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"password\":\"new password\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "password":"new password",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     String uri =
         mockMvc
-            .perform(
-                post(URIConstants.USER_URI)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(content)
-                    .with(user(Fixtures.admin())))
+            .perform(post(USER_URI).contentType(APPLICATION_JSON).content(content))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
@@ -194,34 +191,33 @@ class UserResourceTest {
     Assertions.assertThat(uri).isNotNull();
 
     mockMvc
-        .perform(get(uri).with(user(Fixtures.admin())))
+        .perform(get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.username", CoreMatchers.equalTo("new user")))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
-    mockMvc.perform(delete(uri).with(user(Fixtures.admin()))).andExpect(status().isNoContent());
+    mockMvc.perform(delete(uri)).andExpect(status().isNoContent());
   }
 
   @Test
   @DisplayName("POST: Clear password to an existing user")
+  @WithMockUser(roles = "ADMIN")
   void clearPassword() throws Exception {
     String content =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"password\":\"new password\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "password":"new password",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     String uri =
         mockMvc
-            .perform(
-                post(URIConstants.USER_URI)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(content)
-                    .with(user(Fixtures.admin())))
+            .perform(post(USER_URI).contentType(APPLICATION_JSON).content(content))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
@@ -230,114 +226,117 @@ class UserResourceTest {
     Assertions.assertThat(uri).isNotNull();
 
     mockMvc
-        .perform(get(uri).with(user(Fixtures.admin())))
+        .perform(get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withNullPassword =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"password\": null,"
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "password": null,
+        "administrator": false,
+        "blocked": false
+        }""";
 
     mockMvc
-        .perform(put(uri).content(withNullPassword).with(user(Fixtures.admin())))
+        .perform(put(uri).content(withNullPassword))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withoutField =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     mockMvc
-        .perform(put(uri).content(withoutField).with(user(Fixtures.admin())))
+        .perform(put(uri).content(withoutField))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withEmptyPassword =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"password\": \"\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "password": "",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     mockMvc
-        .perform(put(uri).content(withEmptyPassword).with(user(Fixtures.admin())))
+        .perform(put(uri).content(withEmptyPassword))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(false));
 
     String withNonEmptyPassword =
-        "{"
-            + "\"username\":\"new user\","
-            + "\"firstName\":\"new name\","
-            + "\"lastName\":\"new name\","
-            + "\"password\": \"some value\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"new user",
+        "firstName":"new name",
+        "lastName":"new name",
+        "password": "some value",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     mockMvc
-        .perform(put(uri).content(withNonEmptyPassword).with(user(Fixtures.admin())))
+        .perform(put(uri).content(withNonEmptyPassword))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
-    mockMvc.perform(delete(uri).with(user(Fixtures.admin()))).andExpect(status().isNoContent());
+    mockMvc.perform(delete(uri)).andExpect(status().isNoContent());
   }
 
   @Test
   @DisplayName("POST: Create a duplicated user fails")
+  @WithMockUser(roles = "ADMIN")
   void createDuplicatedUserFails() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).build();
 
     mockMvc
-        .perform(
-            post(URIConstants.USER_URI)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(newUser))
-                .with(user(Fixtures.admin())))
+        .perform(post(USER_URI).contentType(APPLICATION_JSON).content(asJsonString(newUser)))
         .andExpect(status().isConflict());
   }
 
   @Test
   @DisplayName("POST: User update")
+  @WithMockUser(roles = "ADMIN")
   void updateUser() throws Exception {
     String content =
-        "{"
-            + "\"username\":\"user\","
-            + "\"firstName\":\""
-            + USER_CHANGEDFIRSTNAME
-            + "\","
-            + "\"lastName\":\""
-            + USER_CHANGEDLASTNAME
-            + "\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"user",
+        "firstName":"%s",
+        "lastName":"%s",
+        "administrator": false,
+        "blocked": false
+        }
+        """
+            .formatted(USER_CHANGEDFIRSTNAME, USER_CHANGEDLASTNAME);
 
     mockMvc
         .perform(
-            put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content)
-                .with(user(Fixtures.admin())))
+            put(USER_URI + "/" + organizacionAdmin.getId())
+                .contentType(APPLICATION_JSON)
+                .content(content))
         .andExpect(status().isOk());
 
     mockMvc
-        .perform(
-            get(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
-                .with(user(Fixtures.admin())))
+        .perform(get(USER_URI + "/" + organizacionAdmin.getId()))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.firstName", CoreMatchers.equalTo(USER_CHANGEDFIRSTNAME)))
@@ -347,9 +346,10 @@ class UserResourceTest {
 
   @Test
   @DisplayName("GET: Get users as SITMUN administrator")
+  @WithMockUser(roles = "ADMIN")
   void getUsersAsSitmunAdmin() throws Exception {
     mockMvc
-        .perform(get(URIConstants.USER_URI + "?size=10").with(user(Fixtures.admin())))
+        .perform(get(USER_URI + "?size=10"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$._embedded.users", Matchers.hasSize(8)));
@@ -360,20 +360,22 @@ class UserResourceTest {
   @WithMockUser(roles = "ADMIN")
   void updatePassword() throws Exception {
     String content =
-        "{"
-            + "\"username\":\"user\","
-            + "\"firstName\":\"NameChanged\","
-            + "\"lastName\":\"NameChanged\","
-            + "\"password\":\"new-password\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"user",
+        "firstName":"NameChanged",
+        "lastName":"NameChanged",
+        "password":"new-password",
+        "administrator": false,
+        "blocked": false
+        }
+        """;
 
     mockMvc
         .perform(
-            put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content)
-                .with(user(Fixtures.admin())))
+            put(USER_URI + "/" + organizacionAdmin.getId())
+                .contentType(APPLICATION_JSON)
+                .content(content))
         .andExpect(status().isOk());
 
     String oldPassword = organizacionAdmin.getPassword();
@@ -388,19 +390,20 @@ class UserResourceTest {
   @WithMockUser(roles = "ADMIN")
   void keepPassword() throws Exception {
     String content =
-        "{"
-            + "\"username\":\"user\","
-            + "\"firstName\":\"NameChanged\","
-            + "\"lastName\":\"NameChanged\","
-            + "\"administrator\": false,"
-            + "\"blocked\": false}";
+        """
+        {
+        "username":"user",
+        "firstName":"NameChanged",
+        "lastName":"NameChanged",
+        "administrator": false,
+        "blocked": false
+        }""";
 
     mockMvc
         .perform(
-            put(URIConstants.USER_URI + "/" + organizacionAdmin.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content)
-                .with(user(Fixtures.admin())))
+            put(USER_URI + "/" + organizacionAdmin.getId())
+                .contentType(APPLICATION_JSON)
+                .content(content))
         .andExpect(status().isOk());
 
     String oldPassword = organizacionAdmin.getPassword();
