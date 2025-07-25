@@ -137,9 +137,8 @@ class UserPositionRepositoryDataRestTest {
 
     // Create UserConfiguration via REST API
     String userConfigurationJson =
-        String.format(
-            "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\",\"role\":\"http://localhost/api/roles/%d\",\"appliesToChildrenTerritories\":false}",
-            user.getId(), territory.getId(), role.getId());
+        "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\",\"role\":\"http://localhost/api/roles/%d\",\"appliesToChildrenTerritories\":false}"
+            .formatted(user.getId(), territory.getId(), role.getId());
 
     mockMvc
         .perform(
@@ -177,9 +176,8 @@ class UserPositionRepositoryDataRestTest {
 
     // Update UserConfiguration via REST API (simulate update by creating again)
     String userConfigurationJson =
-        String.format(
-            "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\",\"role\":\"http://localhost/api/roles/%d\",\"appliesToChildrenTerritories\":true}",
-            user.getId(), territory.getId(), role.getId());
+        "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\",\"role\":\"http://localhost/api/roles/%d\",\"appliesToChildrenTerritories\":true}"
+            .formatted(user.getId(), territory.getId(), role.getId());
 
     mockMvc
         .perform(

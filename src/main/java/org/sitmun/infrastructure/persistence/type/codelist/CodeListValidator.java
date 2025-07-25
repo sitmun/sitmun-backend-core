@@ -19,7 +19,8 @@ public class CodeListValidator
   }
 
   @Override
-  public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
   }
 

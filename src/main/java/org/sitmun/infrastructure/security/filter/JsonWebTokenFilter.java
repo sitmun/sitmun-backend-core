@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,8 +23,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
 
   public JsonWebTokenFilter(
-      @Autowired UserDetailsService userDetailsService,
-      @Autowired JsonWebTokenService jsonWebTokenService) {
+      UserDetailsService userDetailsService, JsonWebTokenService jsonWebTokenService) {
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
   }

@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.sitmun.administration.service.extractor.capabilities.ExtractedMetadata;
 import org.sitmun.administration.service.extractor.capabilities.ServiceCapabilitiesExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -17,7 +16,6 @@ public class ServiceCapabilitiesExtractorController {
 
   private final List<ServiceCapabilitiesExtractor> extractors;
 
-  @Autowired
   public ServiceCapabilitiesExtractorController(
       @NonNull List<ServiceCapabilitiesExtractor> extractors) {
     this.extractors = extractors;

@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserTokenDTO {
-  private Long id;
+  private Integer id;
 
   /** User mail */
   private String userMail;

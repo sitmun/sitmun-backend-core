@@ -22,7 +22,7 @@ public class ImageDataUri {
    * @return the data URI string in the format "data:image/{format};base64,{data}"
    */
   public String toDataUri() {
-    return String.format("data:image/%s;base64,%s", format, data);
+    return "data:image/%s;base64,%s".formatted(format, data);
   }
 
   /**

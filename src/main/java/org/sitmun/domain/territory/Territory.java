@@ -32,7 +32,23 @@ import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/** Territorial entity. */
+/**
+ * A Territory represents a geographical administrative unit in SITMUN.
+ *
+ * <p>Key features: - Represents administrative boundaries (municipalities, provinces, etc.) -
+ * Supports hierarchical relationships (parent-child territories) - Manages territorial scope for
+ * applications and cartography - Tracks user positions and permissions within territories
+ *
+ * <p>Geographical properties: - Envelope (bounding box) - Center point - Spatial reference system
+ * (SRS) - Extent
+ *
+ * <p>Administrative properties: - Name and code - Type and group type - Contact information -
+ * Address and scope
+ *
+ * <p>Relationships: - Can have parent and child territories - Links to applications through
+ * ApplicationTerritory - Controls cartography and task availability - Manages user positions and
+ * configurations
+ */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(

@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +32,20 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+/**
+ * Security configuration for the SITMUN application.
+ *
+ * <p>This class configures: - JWT and Proxy token authentication filters - CORS settings for
+ * cross-origin requests - Role-based access control for different endpoints - Password encoding and
+ * storage strategies - Stateless session management
+ *
+ * <p>Authentication can be done via: 1. JWT tokens for regular users 2. Proxy tokens for middleware
+ * communication
+ *
+ * <p>Roles supported: - ADMIN: Full access to all endpoints - USER: Access to user-specific
+ * endpoints - PUBLIC: Limited access to public endpoints - PROXY: Special access for middleware
+ * communication
+ */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfigurer {
@@ -118,7 +133,7 @@ public class WebSecurityConfigurer {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
-        .headers(headers -> headers.frameOptions().disable())
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .anonymous(anonymous -> anonymous.authenticationFilter(anonymousAuthenticationFilter()))
         .exceptionHandling(
             exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
@@ -178,7 +193,15 @@ public class WebSecurityConfigurer {
         .permitAll();
   }
 
-  // TODO: Confirm the logic for authorization of user endpoints
+  /**
+   * Configures authorization for user-specific endpoints. These endpoints require USER role
+   * authentication and include: - /api/account: User account management - /api/account/** (GET):
+   * User account information retrieval - /api/user-verification/** (POST): User verification
+   * processes
+   *
+   * @param authz The authorization configuration
+   * @return The updated authorization configuration
+   */
   private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
       configureUser(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
@@ -192,7 +215,14 @@ public class WebSecurityConfigurer {
         .hasRole(USER.name());
   }
 
-  // TODO: Confirm the logic for authorization of user endpoints
+  /**
+   * Configures authorization for endpoints accessible by both USER and PUBLIC roles. These
+   * endpoints include: - /api/config/client/** (GET): Client configuration retrieval -
+   * /api/config/client/** (PUT): Client configuration updates
+   *
+   * @param authz The authorization configuration
+   * @return The updated authorization configuration
+   */
   private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
       configureUserOrPublic(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry

@@ -1,7 +1,10 @@
 package org.sitmun.domain.user.position;
 
 import java.util.Date;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder

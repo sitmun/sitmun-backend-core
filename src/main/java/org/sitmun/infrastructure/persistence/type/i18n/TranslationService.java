@@ -10,6 +10,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j
@@ -24,6 +25,7 @@ public class TranslationService {
     this.translationRepository = translationRepository;
   }
 
+  @Transactional
   public void updateInternationalization(Object target) {
     String languageTag = LocaleContextHolder.getLocale().getLanguage();
     if (!Objects.equals(defaultLanguage, languageTag)) {

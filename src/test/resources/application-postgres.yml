@@ -32,21 +32,17 @@ spring:
 
   # JPA Configuration for PostgreSQL
   jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        # Disable CLOB creation for PostgreSQL
-        jdbc:
-          lob:
-            non_contextual_creation: true
-          batch_size: 20
-        order_inserts: true
-        order_updates: true
-        # Disable second-level cache for better performance
-        cache:
-          use_second_level_cache: false
+    hibernate.ddl-auto: validate
+    properties.hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      # Disable CLOB creation for PostgreSQL
+      jdbc:
+        lob.non_contextual_creation: true
+        batch_size: 20
+      order_inserts: true
+      order_updates: true
+      # Disable second-level cache for better performance
+      cache.use_second_level_cache: false
 
   # Liquibase Configuration for PostgreSQL
   liquibase:
@@ -54,3 +50,5 @@ spring:
     enabled: true
     drop-first: true
     url: jdbc:postgresql://localhost:5432/sitmun3
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}

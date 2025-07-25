@@ -25,7 +25,20 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/** A SITMUN application. */
+/**
+ * A SITMUN application represents a web-based mapping application.
+ *
+ * <p>Key features: - Can be configured as private (restricted access) or public - Supports multiple
+ * territories and roles - Has configurable parameters and backgrounds - Manages cartography
+ * permissions and trees - Tracks creation and modification dates
+ *
+ * <p>Privacy controls: - Private applications are only accessible to authenticated users - Public
+ * applications are available to both authenticated and public users - Role-based access control
+ * through availableRoles
+ *
+ * <p>Territory access: - Can be configured to access parent territories - Can be configured to
+ * access children territories - Supports territory-specific configurations
+ */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_APP")

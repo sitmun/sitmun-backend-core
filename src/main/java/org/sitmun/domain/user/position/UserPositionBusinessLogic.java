@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.configuration.UserConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ public class UserPositionBusinessLogic {
 
   private final UserPositionRepository userPositionRepository;
 
-  @Autowired
   public UserPositionBusinessLogic(UserPositionRepository userPositionRepository) {
     this.userPositionRepository = userPositionRepository;
   }

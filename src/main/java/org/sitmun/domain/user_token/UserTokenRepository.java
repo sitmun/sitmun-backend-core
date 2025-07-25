@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Tag(name = "token_user")
-public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
+public interface UserTokenRepository extends JpaRepository<UserToken, Integer> {
   Optional<UserToken> findByUserMailAndTokenId(String userMail, String tokenId);
 
   Optional<UserToken> findByTokenId(String tokenId);

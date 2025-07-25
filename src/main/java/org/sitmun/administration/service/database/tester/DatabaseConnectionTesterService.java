@@ -37,14 +37,13 @@ public class DatabaseConnectionTesterService {
   }
 
   /** Test if the connection parameters is correct. */
-  public Boolean testConnection(@NotNull DatabaseConnection connection)
-      throws DatabaseSQLException {
+  public Boolean testConnection(@NotNull DatabaseConnection connection) throws Exception {
     Integer id = connection.getId();
     String url = connection.getUrl();
     String user = connection.getUser();
     String password = connection.getPassword();
     Connection con = null;
-    DatabaseSQLException error = null;
+    Exception error = null;
     try {
       con = DriverManager.getConnection(url, user, password);
     } catch (SQLException exception) {
@@ -53,7 +52,7 @@ public class DatabaseConnectionTesterService {
           id,
           url,
           exception);
-      throw new DatabaseSQLException(exception);
+      error = exception;
     } finally {
       if (con != null) {
         try {
@@ -64,7 +63,7 @@ public class DatabaseConnectionTesterService {
               id,
               url,
               exception);
-          error = new DatabaseSQLException(exception);
+          error = exception;
         }
       }
     }

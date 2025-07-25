@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.sitmun.administration.service.extractor.featuretype.ExtractedMetadata;
 import org.sitmun.administration.service.extractor.featuretype.FeatureTypeExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -17,7 +16,6 @@ public class FeatureTypeExtractorController {
 
   private final List<FeatureTypeExtractor> extractors;
 
-  @Autowired
   public FeatureTypeExtractorController(@NonNull List<FeatureTypeExtractor> extractors) {
     this.extractors = extractors;
   }

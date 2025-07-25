@@ -24,7 +24,7 @@ public class UserToken {
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USER_TOKEN_GEN")
   @Column(name = "USER_TOKEN_ID")
-  private Long id;
+  private Integer id;
 
   @Column(name = "USER_MAIL", nullable = false)
   private String userMail;

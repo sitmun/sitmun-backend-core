@@ -18,7 +18,17 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/** User position in a territory. */
+/**
+ * User position in a territory.
+ *
+ * <p>This entity represents a user's role or position within a specific territory. It includes: -
+ * Basic position information (name, organization) - Contact details (email) - Temporal information
+ * (creation, modification, expiration dates) - Type classification - Relationships with User and
+ * Territory entities
+ *
+ * <p>The position is uniquely identified by the combination of user and territory. When either the
+ * user or territory is deleted, the position is automatically removed (cascade delete).
+ */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(

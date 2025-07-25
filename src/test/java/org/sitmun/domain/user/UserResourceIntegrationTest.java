@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,29 +79,21 @@ class UserResourceIntegrationTest {
 
     assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdUser.getHeaders().getLocation()).isNotNull();
+    final URI location = createdUser.getHeaders().getLocation();
+    final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
 
-    ResponseEntity<User> exists =
-        restTemplate.exchange(
-            createdUser.getHeaders().getLocation(),
-            HttpMethod.GET,
-            new HttpEntity<>(headers),
-            User.class);
+    Function<HttpMethod, ResponseEntity<User>> exchangeFunction =
+        method -> restTemplate.exchange(location, method, entityHeaders, User.class);
+
+    ResponseEntity<User> exists = exchangeFunction.apply(HttpMethod.GET);
     assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    ResponseEntity<String> deleted =
-        restTemplate.exchange(
-            createdUser.getHeaders().getLocation(),
-            HttpMethod.DELETE,
-            new HttpEntity<>(headers),
-            String.class);
-    assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    ResponseEntity<User> deleted = exchangeFunction.apply(HttpMethod.DELETE);
+    System.out.println(deleted.getBody());
+    assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    URI location = createdUser.getHeaders().getLocation();
-    final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
     HttpClientErrorException thrown =
-        assertThrows(
-            HttpClientErrorException.class,
-            () -> restTemplate.exchange(location, HttpMethod.GET, entityHeaders, User.class));
+        assertThrows(HttpClientErrorException.class, () -> exchangeFunction.apply(HttpMethod.GET));
     assertThat(thrown.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 

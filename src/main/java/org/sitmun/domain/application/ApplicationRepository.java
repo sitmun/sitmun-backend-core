@@ -18,7 +18,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
 
   @RestResource(exported = false)
   @Query(
-      "select distinct app.id, uc.territory.id from Application app, UserConfiguration uc where uc.role member app.availableRoles")
+      "select distinct app.id, uc.territory.id from Application app, UserConfiguration uc where uc.role member of app.availableRoles")
   List<Object[]> listIdApplicationsPerTerritories();
 
   @RestResource(exported = false)
@@ -26,11 +26,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
   """)
   Page<Application> findByUser(String username, Pageable pageable);
 
@@ -39,11 +39,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       and app.appPrivate = false
   """)
   Page<Application> findByPublicUser(String username, Pageable pageable);
@@ -53,11 +53,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
       """)
   Page<Application> findByRestrictedUserAndTerritory(
       String username, Integer territoryId, Pageable pageable);
@@ -67,11 +67,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
     select distinct app from Application app
     where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
     and app.appPrivate = false
     """)
   Page<Application> findByPublicUserAndTerritory(
@@ -82,11 +82,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
       """)
   Optional<Application> findByRestrictedUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId);
@@ -96,11 +96,11 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
     select distinct app from Application app
     where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
     and app.appPrivate = false
     """)
   Optional<Application> findByPublicUserApplicationAndTerritory(

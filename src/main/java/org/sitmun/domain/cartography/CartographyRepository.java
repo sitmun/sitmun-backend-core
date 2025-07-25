@@ -37,8 +37,8 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
       """
       SELECT DISTINCT car
       FROM CartographyPermission cp, Cartography car, CartographyAvailability cav, Role rol
-      WHERE rol member cp.roles AND rol in ?1
-      AND car member cp.members AND cav member car.availabilities AND cav.territory.id = ?2
+      WHERE rol member of cp.roles AND rol in ?1
+      AND car member of cp.members AND cav member of car.availabilities AND cav.territory.id = ?2
       """)
   List<Cartography> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 }

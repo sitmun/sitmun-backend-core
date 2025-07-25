@@ -8,7 +8,7 @@ The SITMUN backend core is a key component of the SITMUN software system, provid
 ## Technology Stack
 
 - **Java**: 17
-- **Spring Boot**: 3.0.0
+- **Spring Boot**: 3.1.12
 - **Build Tool**: Gradle
 - **Database**: H2 (development), PostgreSQL, Oracle
 - **Security**: Spring Security with JWT
@@ -192,7 +192,7 @@ To test with Oracle:
 
 ```bash
 docker-compose -f docker/oracle/test-docker-compose.yml up
-./gradlew testPostgres 
+./gradlew testOracle
 ```
 
 ## Deployment

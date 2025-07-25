@@ -3,8 +3,8 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
   id 'java'
   
-  id 'org.springframework.boot' version '3.0.0'
-  id 'io.spring.dependency-management' version '1.1.6'
+  id 'org.springframework.boot' version '3.1.12'
+  id 'io.spring.dependency-management' version '1.1.7'
   
   id 'io.freefair.lombok' version '8.4'
   id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
@@ -17,6 +17,8 @@ plugins {
   id 'com.avast.gradle.docker-compose' version '0.17.12'
 
   id 'com.diffplug.spotless' version '7.2.0'
+
+  id 'org.openrewrite.rewrite' version 'latest.release'
 }
 
 group = 'org.sitmun'
@@ -122,6 +124,10 @@ dependencies {
   
   // LDAP testing (embedded LDAP server)
   testImplementation 'com.unboundid:unboundid-ldapsdk'
+
+  // Code evolution
+  rewrite 'org.openrewrite.recipe:rewrite-spring:6.11.1'
+
 }
 
 // ============================================================================
@@ -308,3 +314,11 @@ spotless {
     targetExclude '**/generated-sources/**'
   }
 }
+
+// Code evolution
+
+rewrite {
+  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1")
+  setExportDatatables(true)
+}
+

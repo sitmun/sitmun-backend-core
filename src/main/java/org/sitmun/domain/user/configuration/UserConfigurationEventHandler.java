@@ -3,7 +3,6 @@ package org.sitmun.domain.user.configuration;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.position.UserPositionBusinessLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -21,7 +20,6 @@ public class UserConfigurationEventHandler {
 
   private final UserPositionBusinessLogic userPositionBusinessLogic;
 
-  @Autowired
   public UserConfigurationEventHandler(UserPositionBusinessLogic userPositionBusinessLogic) {
     this.userPositionBusinessLogic = userPositionBusinessLogic;
   }

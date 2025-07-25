@@ -30,11 +30,8 @@ spring:
 
   # JPA Configuration for Oracle
   jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.OracleDialect
+    hibernate.ddl-auto: validate
+    properties.hibernate.dialect: org.hibernate.dialect.OracleDialect
 
   # Liquibase Configuration for Oracle
   liquibase:
@@ -42,4 +39,5 @@ spring:
     enabled: true
     drop-first: true
     url: jdbc:oracle:thin:@//localhost:1521/sitmun3?oracle.net.CONNECT_TIMEOUT=5000
-
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}

@@ -3,7 +3,6 @@ package org.sitmun.domain.task;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -16,7 +15,7 @@ public class TaskEventHandler {
 
   private final List<TaskValidator> taskValidator;
 
-  TaskEventHandler(@Autowired List<TaskValidator> taskValidator) {
+  TaskEventHandler(List<TaskValidator> taskValidator) {
     this.taskValidator = taskValidator;
   }
 

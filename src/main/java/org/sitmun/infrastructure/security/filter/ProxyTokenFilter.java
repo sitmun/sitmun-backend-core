@@ -46,7 +46,7 @@ public class ProxyTokenFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     } catch (Exception e) {
-      String msg = String.format("Cannot set user authentication: %s", e.getMessage());
+      String msg = "Cannot set user authentication: %s".formatted(e.getMessage());
       logger.error(msg, e);
     }
 

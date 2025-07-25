@@ -16,8 +16,9 @@ public interface TreeRepository extends JpaRepository<Tree, Integer> {
   Tree findOneWithEagerRelationships(Integer id);
 
   @Query(
-      "select distinct tree from Tree tree, Application app, Role role where "
-          + "app member tree.availableApplications and app.id = ?1 AND "
-          + "role member tree.availableRoles and role in ?2")
+      """
+      select distinct tree from Tree tree, Application app, Role role where
+      app member of tree.availableApplications and app.id = ?1 AND
+      role member of tree.availableRoles and role in ?2""")
   List<Tree> findByAppAndRoles(Integer appId, List<Role> roles);
 }

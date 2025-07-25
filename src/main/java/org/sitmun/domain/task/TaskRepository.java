@@ -37,7 +37,7 @@ public interface TaskRepository
       """
     SELECT tsk FROM Task tsk WHERE tsk.id in
     (SELECT tsk.id FROM Task tsk, TaskAvailability tav, Role rol WHERE
-    rol member tsk.roles AND rol in ?1
+    rol member of tsk.roles AND rol in ?1
     AND tsk.id = tav.task.id AND tav.territory.id = ?2)
     """)
   List<Task> findByRolesAndTerritory(List<Role> roles, Integer territoryId);

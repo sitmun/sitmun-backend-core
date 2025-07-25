@@ -16,11 +16,11 @@ public interface RoleRepository
       """
       select distinct role from Role role
       where role.id in (select distinct uc.role from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
       or role.id in (select distinct uc.role from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or role.id in (select distinct uc.role from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
       """)
   List<Role> findRolesByApplicationAndUserAndTerritory(
       String username, Integer appId, Integer territoryId);
