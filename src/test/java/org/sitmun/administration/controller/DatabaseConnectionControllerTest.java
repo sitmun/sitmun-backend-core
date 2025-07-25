@@ -28,8 +28,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
     when(repository.findById(0))
         .thenReturn(Optional.of(DatabaseConnection.builder().driver("org.h2.DriverX").build()));
     mvc.perform(get("/api/connections/0/test"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("Internal Server Error"))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
   }
 
@@ -47,11 +46,8 @@ class DatabaseConnectionControllerTest extends BaseTest {
                     .password("password")
                     .build()));
     mvc.perform(get("/api/connections/0/test"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("Internal Server Error"))
-        .andExpect(
-            jsonPath("$.message")
-                .value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test
@@ -102,8 +98,7 @@ class DatabaseConnectionControllerTest extends BaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     "{ \"driver\" : \"org.h2.DriverX\", \"url\" : \"jdbc:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : \"password\" }"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("Internal Server Error"))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("java.lang.ClassNotFoundException: org.h2.DriverX"));
   }
 
@@ -116,11 +111,8 @@ class DatabaseConnectionControllerTest extends BaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     "{ \"driver\" : \"org.h2.Driver\", \"url\" : \"jdb:h2:mem:testdb\", \"user\" : \"sa\", \"password\" : null }"))
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("Internal Server Error"))
-        .andExpect(
-            jsonPath("$.message")
-                .value("java.sql.SQLException: No suitable driver found for jdb:h2:mem:testdb"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("No suitable driver found for jdb:h2:mem:testdb"));
   }
 
   @Test

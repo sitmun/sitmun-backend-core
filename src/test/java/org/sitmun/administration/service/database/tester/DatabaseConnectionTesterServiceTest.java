@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.database.DatabaseConnection;
 
+import java.sql.SQLException;
+
 @DisplayName("Database Connection Tester Service Test")
 class DatabaseConnectionTesterServiceTest {
 
@@ -46,7 +48,7 @@ class DatabaseConnectionTesterServiceTest {
 
   @Test
   @DisplayName("Test connection with valid parameters")
-  void testConnection() {
+  void testConnection() throws Exception {
     DatabaseConnection connection =
         DatabaseConnection.builder()
             .driver("org.h2.Driver")
@@ -69,10 +71,10 @@ class DatabaseConnectionTesterServiceTest {
             .password(null)
             .build();
     sut.testDriver(connection);
-    DatabaseSQLException exception =
-        assertThrows(DatabaseSQLException.class, () -> sut.testConnection(connection));
+    SQLException exception =
+        assertThrows(SQLException.class, () -> sut.testConnection(connection));
     assertEquals(
         "No suitable driver found for jdb:h2:mem:testdb",
-        exception.getCause().getLocalizedMessage());
+        exception.getLocalizedMessage());
   }
 }
