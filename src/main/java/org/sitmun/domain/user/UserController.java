@@ -42,8 +42,6 @@ public class UserController {
     user.setLastName(updatedUser.getLastName());
     user.setIdentificationNumber(updatedUser.getIdentificationNumber());
     user.setIdentificationType(updatedUser.getIdentificationType());
-    user.setAdministrator(updatedUser.getAdministrator());
-    user.setBlocked(updatedUser.getBlocked());
     user.setEmail(updatedUser.getEmail());
     return user;
   }

@@ -212,6 +212,8 @@ public class WebSecurityConfigurer {
         .requestMatchers(new AntPathRequestMatcher("/api/account/**", "GET"))
         .hasRole(USER.name())
         .requestMatchers(new AntPathRequestMatcher("/api/user-verification/**", "POST"))
+        .hasRole(USER.name())
+        .requestMatchers(new AntPathRequestMatcher("/api/user/details", "GET"))
         .hasRole(USER.name());
   }
 
