@@ -141,8 +141,6 @@ class VerificationControllerUnitTest {
   @Test
   @DisplayName("Verify email with empty string should return false")
   void verifyEmailWithEmptyString() {
-    // Given
-    when(userRepository.findByEmail("")).thenReturn(Optional.empty());
     // When
     ResponseEntity<Boolean> response = verificationController.verifyEmail("");
     // Then
@@ -153,8 +151,6 @@ class VerificationControllerUnitTest {
   @Test
   @DisplayName("Verify email with null should return false")
   void verifyEmailWithNull() {
-    // Given
-    when(userRepository.findByEmail(null)).thenReturn(Optional.empty());
     // When
     ResponseEntity<Boolean> response = verificationController.verifyEmail(null);
     // Then

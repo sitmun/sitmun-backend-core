@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +39,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/recover-password")
 @Tag(name = "PasswordRecover", description = "Recover the password of the user")
 @Profile("mail")
+@Validated
 public class RecoverPasswordController {
 
   @Value("${sitmun.recover-password.front.url}")

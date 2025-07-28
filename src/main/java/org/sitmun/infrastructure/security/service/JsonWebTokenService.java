@@ -4,9 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class JsonWebTokenService {
   @Value("${sitmun.user.token-validity-in-milliseconds}")
   private int validity;
 
-  private Key key;
+  private SecretKey key;
 
   public String generateToken(UserDetails userDetails) {
     return generateToken(userDetails.getUsername(), new Date());
@@ -29,9 +29,9 @@ public class JsonWebTokenService {
   public String generateToken(String username, Date date) {
     long currentTimeMillis = date.getTime();
     return Jwts.builder()
-        .setSubject(username)
-        .setIssuedAt(new Date(currentTimeMillis))
-        .setExpiration(new Date(currentTimeMillis + validity))
+        .subject(username)
+        .issuedAt(new Date(currentTimeMillis))
+        .expiration(new Date(currentTimeMillis + validity))
         .signWith(key)
         .compact();
   }
@@ -60,7 +60,7 @@ public class JsonWebTokenService {
   }
 
   private Claims getAllClaimsFromToken(String token) {
-    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
   }
 
   @PostConstruct

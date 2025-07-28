@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
@@ -14,12 +15,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/account")
 @Tag(name = "account", description = "user account management")
+@Validated
 public class UserController {
 
   private final SpringValidatorAdapter springValidator;
@@ -80,7 +83,7 @@ public class UserController {
    * @return ok if the account has been updated
    */
   @PutMapping
-  public ResponseEntity<UserDTO> saveAccount(@RequestBody UserDTO updatedUser) {
+  public ResponseEntity<UserDTO> saveAccount(@Valid @RequestBody UserDTO updatedUser) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Optional<User> storedUser = userRepository.findByUsername(authentication.getName());
     if (storedUser.isPresent()) {
