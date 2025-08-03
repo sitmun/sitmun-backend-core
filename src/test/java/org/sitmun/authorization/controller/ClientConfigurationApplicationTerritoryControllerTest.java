@@ -43,9 +43,9 @@ class ClientConfigurationApplicationTerritoryControllerTest {
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(3)))
-        .andExpect(jsonPath("$.size", is(pageSize)))
-        .andExpect(jsonPath("$.number", is(0)))
-        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.page.size", is(pageSize)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
         .andExpect(jsonPath("$.content[*].name", hasItems("Provincia A", "Municipio B", "Otro C")));
   }
 
@@ -69,9 +69,9 @@ class ClientConfigurationApplicationTerritoryControllerTest {
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(1)))
-        .andExpect(jsonPath("$.size", is(1)))
-        .andExpect(jsonPath("$.number", is(1)))
-        .andExpect(jsonPath("$.totalPages", is(3)))
+        .andExpect(jsonPath("$.page.size", is(1)))
+        .andExpect(jsonPath("$.page.number", is(1)))
+        .andExpect(jsonPath("$.page.totalPages", is(3)))
         .andExpect(jsonPath("$.content[*].name", hasItem("Otro C")));
   }
 
@@ -83,8 +83,8 @@ class ClientConfigurationApplicationTerritoryControllerTest {
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty())
-        .andExpect(jsonPath("$.size", is(1)))
-        .andExpect(jsonPath("$.number", is(5)))
-        .andExpect(jsonPath("$.totalPages", is(3)));
+        .andExpect(jsonPath("$.page.size", is(1)))
+        .andExpect(jsonPath("$.page.number", is(5)))
+        .andExpect(jsonPath("$.page.totalPages", is(3)));
   }
 }

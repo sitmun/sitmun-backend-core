@@ -3,7 +3,9 @@ package org.sitmun.domain.user.position;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -56,33 +58,35 @@ class UserPositionRepositoryDataRestTest {
   private Territory territory;
   private Role role;
   private TerritoryType territoryType;
+  private final List<UserPosition> createdUserPositions = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
-    // Create and persist TerritoryType with unique name
-    String uniqueTypeName = "Test Type " + java.util.UUID.randomUUID();
+    // Create test territory type
     territoryType =
         TerritoryType.builder()
-            .name(uniqueTypeName)
+            .name("Test Territory Type")
             .official(false)
             .topType(false)
             .bottomType(false)
             .build();
     territoryType = territoryTypeRepository.save(territoryType);
 
-    // Create test user with unique username (shortened to fit email constraint)
+    // Create test user with unique username
     String uniqueUsername =
-        "tu" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 20);
-    user = new User();
-    user.setFirstName("Test");
-    user.setLastName("User");
-    user.setAdministrator(false);
-    user.setBlocked(false);
-    user.setPassword("password");
-    user.setUsername(uniqueUsername);
-    user.setEmail(uniqueUsername + "@ex.com"); // total length will be <= 50
+        "testuser" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+    user =
+        User.builder()
+            .username(uniqueUsername)
+            .password("testpassword")
+            .firstName("Test")
+            .lastName("User")
+            .email("test@example.com")
+            .administrator(false)
+            .blocked(false)
+            .build();
     user = userRepository.save(user);
 
     // Create test territory with unique name
@@ -92,12 +96,9 @@ class UserPositionRepositoryDataRestTest {
     territory =
         Territory.builder()
             .name(uniqueTerritoryName)
-            .code("Test code")
-            .blocked(false)
-            .territorialAuthorityEmail("admin@example.com")
-            .createdDate(new Date())
-            .territorialAuthorityName("Test Authority")
+            .code("TEST" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 10))
             .type(territoryType)
+            .blocked(false)
             .build();
     territory = territoryRepository.save(territory);
 
@@ -110,21 +111,27 @@ class UserPositionRepositoryDataRestTest {
 
   @AfterEach
   void tearDown() {
-    // Clean up test data
-    if (user != null) {
-      userRepository.deleteById(user.getId());
+    // Clean up specific UserPosition entities created during the test
+    for (UserPosition userPosition : createdUserPositions) {
+      if (userPosition.getId() != null) {
+        userPositionRepository.deleteById(userPosition.getId());
+      }
+    }
+    createdUserPositions.clear();
+
+    // Then clean up test data in reverse dependency order
+    if (role != null) {
+      roleRepository.deleteById(role.getId());
     }
     if (territory != null) {
       territoryRepository.deleteById(territory.getId());
     }
-    if (role != null) {
-      roleRepository.deleteById(role.getId());
+    if (user != null) {
+      userRepository.deleteById(user.getId());
     }
     if (territoryType != null) {
       territoryTypeRepository.deleteById(territoryType.getId());
     }
-    // Clean up any UserPosition entities created during the test
-    userPositionRepository.deleteAll();
   }
 
   @Test
@@ -154,6 +161,7 @@ class UserPositionRepositoryDataRestTest {
     UserPosition position = createdPosition.get();
     Assertions.assertThat(position.getUser()).isEqualTo(user);
     Assertions.assertThat(position.getTerritory()).isEqualTo(territory);
+    createdUserPositions.add(position);
   }
 
   @Test
@@ -171,6 +179,7 @@ class UserPositionRepositoryDataRestTest {
             .createdDate(new Date())
             .build();
     existingPosition = userPositionRepository.save(existingPosition);
+    createdUserPositions.add(existingPosition);
 
     long initialCount = userPositionRepository.count();
 

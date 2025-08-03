@@ -44,7 +44,7 @@ spring:
       # Disable second-level cache for better performance
       cache.use_second_level_cache: false
 
-  # Liquibase Configuration for PostgreSQL
+  # Liquibase Configuration for Postgres
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-postgres.yaml
     enabled: true

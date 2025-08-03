@@ -11,6 +11,8 @@
 spring:
   application:
     name: SITMUN
+  main:
+    allow-bean-definition-overriding: true
   jackson:
     serialization:
       fail_on_empty_beans: false

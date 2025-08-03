@@ -1,0 +1,102 @@
+[versions]
+# Spring Boot and related
+spring-boot = "3.5.4"
+spring-dependency-management = "1.1.7"
+
+# Plugin versions
+lombok = "8.4"
+springdoc-openapi = "1.9.0"
+liquibase-gradle = "2.2.0"
+sonarqube = "3.3"
+heroku-gradle = "2.0.0"
+docker-compose = "0.17.12"
+spotless = "7.2.0"
+axion-release = "1.18.0"
+
+# Dependency versions
+jjwt = "0.12.6"
+springdoc-openapi-lib = "2.8.9"
+okhttp = "5.1.0"
+guava = "33.4.8-jre"
+json = "20250517"
+mapstruct = "1.6.3"
+commons-lang3 = "3.18.0"
+querydsl = "5.0.0"
+liquibase-slf4j = "5.1.0"
+jetbrains-annotations = "26.0.2"
+liquibase = "4.33.0"
+
+[libraries]
+# Spring Boot starters
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-data-rest = { module = "org.springframework.boot:spring-boot-starter-data-rest" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf" }
+spring-boot-starter-mail = { module = "org.springframework.boot:spring-boot-starter-mail" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor" }
+
+# Security
+spring-security-test = { module = "org.springframework.security:spring-security-test" }
+spring-ldap-core = { module = "org.springframework.ldap:spring-ldap-core" }
+spring-security-ldap = { module = "org.springframework.security:spring-security-ldap" }
+
+# Databases
+h2 = { module = "com.h2database:h2" }
+postgresql = { module = "org.postgresql:postgresql" }
+oracle-jdbc = { module = "com.oracle.database.jdbc:ojdbc11-production" }
+
+# Database migration
+liquibase-core = { module = "org.liquibase:liquibase-core", version.ref = "liquibase" }
+liquibase-slf4j = { module = "com.mattbertolini:liquibase-slf4j", version.ref = "liquibase-slf4j" }
+
+# Query building
+querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
+querydsl-apt = { module = "com.querydsl:querydsl-apt", version.ref = "querydsl" }
+
+# Object mapping
+mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
+
+# Utilities
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+# HTTP client
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor" }
+
+# JSON processing
+json = { module = "org.json:json", version.ref = "json" }
+
+# JWT token handling
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+# OpenAPI/Swagger documentation
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi-lib" }
+
+# Testing
+hamcrest = { module = "org.hamcrest:hamcrest" }
+unboundid-ldapsdk = { module = "com.unboundid:unboundid-ldapsdk" }
+
+# Jakarta APIs
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api" }
+jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
+springdoc-openapi = { id = "org.springdoc.openapi-gradle-plugin", version.ref = "springdoc-openapi" }
+liquibase = { id = "org.liquibase.gradle", version.ref = "liquibase-gradle" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+heroku = { id = "com.heroku.sdk.heroku-gradle", version.ref = "heroku-gradle" }
+docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "docker-compose" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }

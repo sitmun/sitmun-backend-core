@@ -21,7 +21,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
   }
 
   public static <T> JsonViewPage<T> of(Page<T> page) {
-    return new JsonViewPage<>(page.getContent(), page.getPageable(), page.getTotalPages());
+    return new JsonViewPage<>(page.getContent(), page.getPageable(), page.getTotalElements());
   }
 
   @Override
@@ -44,7 +44,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
   public int getSize() {
-    return getContent().size();
+    return super.getSize();
   }
 
   /** Return the number of the slice */

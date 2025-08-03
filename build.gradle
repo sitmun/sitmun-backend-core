@@ -3,22 +3,22 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
   id 'java'
   
-  id 'org.springframework.boot' version '3.2.12'
-  id 'io.spring.dependency-management' version '1.1.7'
+  alias libs.plugins.spring.boot
+  alias libs.plugins.spring.dependency.management
   
-  id 'io.freefair.lombok' version '8.4'
-  id 'org.springdoc.openapi-gradle-plugin' version '1.9.0'
-  id 'org.liquibase.gradle' version '2.2.0'
+  alias libs.plugins.lombok
+  alias libs.plugins.springdoc.openapi
+  alias libs.plugins.liquibase
   
   id 'jacoco'
-  id 'org.sonarqube' version '3.3'
+  alias libs.plugins.sonarqube
   
-  id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
-  id 'com.avast.gradle.docker-compose' version '0.17.12'
+  alias libs.plugins.heroku
+  alias libs.plugins.docker.compose
 
-  id 'com.diffplug.spotless' version '7.2.0'
+  alias libs.plugins.spotless
 
-  id 'org.openrewrite.rewrite' version 'latest.release'
+  alias libs.plugins.axion.release
 }
 
 group = 'org.sitmun'
@@ -42,93 +42,90 @@ dependencyManagement {
 
 dependencies {
   // Data persistence and REST API
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  implementation libs.spring.boot.starter.data.jpa
+  implementation libs.spring.boot.starter.data.rest
   
   // Security and validation
-  implementation 'org.springframework.boot:spring-boot-starter-security'
-  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation libs.spring.boot.starter.security
+  implementation libs.spring.boot.starter.validation
   
   // Monitoring and templating
-  implementation 'org.springframework.boot:spring-boot-starter-actuator'
-  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+  implementation libs.spring.boot.starter.actuator
+  implementation libs.spring.boot.starter.thymeleaf
   
   // Development and testing database
-  implementation "com.h2database:h2"
+  implementation libs.h2
   
   // Production databases
-  implementation 'org.postgresql:postgresql'
-  implementation 'com.oracle.database.jdbc:ojdbc11-production'
+  implementation libs.postgresql
+  implementation libs.oracle.jdbc
 
   // Database migration
-  implementation "org.liquibase:liquibase-core:${liquibase_version}"
-  implementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+  implementation libs.liquibase.core
+  implementation libs.liquibase.slf4j
   
   // Query building
-  implementation "com.querydsl:querydsl-jpa:${querydls_version}:jakarta"
+  implementation variantOf(libs.querydsl.jpa) { classifier('jakarta') }
   
   // Object mapping
-  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
+  implementation libs.mapstruct
 
   // Apache Commons utilities
-  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+  implementation libs.commons.lang3
   
   // Google Guava utilities
-  implementation "com.google.guava:guava:${guava_version}"
+  implementation libs.guava
 
   // OkHttp client with logging
-  implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
-  implementation 'com.squareup.okhttp3:okhttp'
-  implementation 'com.squareup.okhttp3:logging-interceptor'
+  implementation platform(libs.okhttp.bom)
+  implementation libs.okhttp
+  implementation libs.okhttp.logging
 
   // JSON processing
-  implementation "org.json:json:${json_version}"
+  implementation libs.json
   
   // JWT token handling
-  implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
-  implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
-  implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+  implementation libs.jjwt.api
+  implementation libs.jjwt.impl
+  implementation libs.jjwt.jackson
 
   // OpenAPI/Swagger documentation
-  implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc_openapi_version}"
+  implementation libs.springdoc.openapi.starter.webmvc.ui
 
   // LDAP profile
-  implementation 'org.springframework.ldap:spring-ldap-core'
-  implementation 'org.springframework.security:spring-security-ldap'
+  implementation libs.spring.ldap.core
+  implementation libs.spring.security.ldap
 
   // Mail profile
-  implementation 'org.springframework.boot:spring-boot-starter-mail'
+  implementation libs.spring.boot.starter.mail
 
   // Core annotation processing
-  annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
-  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-  annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+  annotationProcessor libs.jakarta.annotation.api
+  annotationProcessor libs.spring.boot.configuration.processor
+  annotationProcessor libs.jakarta.persistence.api
   
   // QueryDSL code generation
-  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jakarta"
+  annotationProcessor variantOf(libs.querydsl.apt) { classifier('jakarta') }
   
   // MapStruct code generation
-  annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+  annotationProcessor libs.mapstruct.processor
 
   // Development-time annotations
-  compileOnly "org.jetbrains:annotations:${jetbrains_annotations_version}"
+  compileOnly libs.jetbrains.annotations
 
   // Spring Boot test support
-  testImplementation('org.springframework.boot:spring-boot-starter-test') {
+  testImplementation(libs.spring.boot.starter.test) {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
   
   // Security testing
-  testImplementation 'org.springframework.security:spring-security-test'
+  testImplementation libs.spring.security.test
   
   // Testing utilities
-  testImplementation 'org.hamcrest:hamcrest'
+  testImplementation libs.hamcrest
   
   // LDAP testing (embedded LDAP server)
-  testImplementation 'com.unboundid:unboundid-ldapsdk'
-
-  // Code evolution
-  rewrite 'org.openrewrite.recipe:rewrite-spring:6.11.1'
+  testImplementation libs.unboundid.ldapsdk
 
 }
 
@@ -317,10 +314,146 @@ spotless {
   }
 }
 
-// Code evolution
+// Axion Release Plugin Configuration
+scmVersion {
+  ignoreUncommittedChanges.set(true)
+  tag {
+    prefix = 'sitmun-backend-core'
+    versionSeparator = '/'
+    initialVersion({config, position -> '1.0.0'})
+  }
+  versionIncrementer('incrementPatch')
+}
 
-rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_2")
-  setExportDatatables(true)
+project.version = scmVersion.version
+
+// Git hooks setup
+tasks.register('setupGitHooks') {
+  group = 'git hooks'
+  description = 'Install Git hooks for commit message validation and pre-commit checks'
+  def hookDir = new File(project.rootDir, '.git/hooks')
+  def commitMsgHook = new File(hookDir, 'commit-msg')
+  def preCommitHook = new File(hookDir, 'pre-commit')
+
+  doLast {
+    hookDir.mkdirs()
+
+    // Pre-commit hook
+    preCommitHook.text = '''#!/bin/sh
+            echo "🔍 Running pre-commit checks..."
+            
+            # Code formatting check
+            echo "  📝 Checking code formatting..."
+            ./gradlew spotlessCheck
+            if [ $? -ne 0 ]; then
+                echo "❌ Code formatting check failed. Run './gradlew spotlessApply' to fix."
+                exit 1
+            fi
+            
+            # Tests
+            echo "  🧪 Running tests..."
+            ./gradlew test
+            if [ $? -ne 0 ]; then
+                echo "❌ Tests failed. Please fix the failing tests."
+                exit 1
+            fi
+            
+            # Code coverage check
+            echo "  📊 Checking code coverage..."
+            ./gradlew jacocoTestReport
+            if [ $? -ne 0 ]; then
+                echo "❌ Code coverage check failed."
+                exit 1
+            fi
+            
+            echo "✅ All pre-commit checks passed!"
+        '''.stripIndent()
+    preCommitHook.setExecutable(true)
+
+    // Commit message hook
+    commitMsgHook.text = '''#!/bin/sh
+            commit_msg=$(cat $1)
+            
+            # Conventional commit pattern for SITMUN Backend Core
+            pattern="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\\([a-z-]+\\))?: .+"
+            
+            if ! echo "$commit_msg" | grep -qE "$pattern"; then
+                echo "❌ Invalid commit message format."
+                echo ""
+                echo "Expected: <type>(<scope>): <description>"
+                echo ""
+                echo "Types:"
+                echo "  feat     - New feature"
+                echo "  fix      - Bug fix"
+                echo "  docs     - Documentation changes"
+                echo "  style    - Code style changes"
+                echo "  refactor - Code refactoring"
+                echo "  test     - Test changes"
+                echo "  chore    - Maintenance tasks"
+                echo "  perf     - Performance improvements"
+                echo "  ci       - CI/CD changes"
+                echo "  build    - Build system changes"
+                echo ""
+                echo "Scopes (optional):"
+                echo "  auth     - Authentication and authorization"
+                echo "  api      - API endpoints and controllers"
+                echo "  domain   - Domain entities and business logic"
+                echo "  security - Security configuration"
+                echo "  config   - Configuration and profiles"
+                echo "  test     - Testing framework"
+                echo "  build    - Build system and dependencies"
+                echo ""
+                echo "Examples:"
+                echo "  feat(auth): add LDAP authentication support"
+                echo "  fix(api): resolve JWT token validation issue"
+                echo "  docs: update README with deployment instructions"
+                echo "  test: add integration tests for user verification"
+                echo "  style: format code with Google Java Format"
+                echo "  refactor(domain): improve user entity design"
+                echo "  chore: update dependencies to latest versions"
+                echo "  perf(api): optimize authentication endpoint"
+                echo "  ci: add GitHub Actions workflow"
+                echo "  build: update Gradle configuration"
+                exit 1
+            fi
+            
+            echo "✅ Commit message format is valid!"
+        '''.stripIndent()
+    commitMsgHook.setExecutable(true)
+
+
+    println "✅ Git hooks installed successfully!"
+    println "📋 Pre-commit hook: Runs tests, formatting, and security checks"
+    println "📝 Commit-msg hook: Validates conventional commit message format"
+    println ""
+    println "💡 Usage examples:"
+    println "  git commit -m \"feat: add tile merging functionality\""
+    println "  git commit -m \"fix: resolve memory leak\""
+    println "  git commit -m \"docs: update README\""
+    println "  git commit -m \"test: add integration tests\""
+  }
+}
+
+// Task to remove Git hooks
+tasks.register('removeGitHooks') {
+  group = 'git hooks'
+  description = 'Remove Git hooks'
+  def hookDir = new File(project.rootDir, '.git/hooks')
+
+  doLast {
+    ['pre-commit', 'commit-msg'].each { hookName ->
+      def hookFile = new File(hookDir, hookName)
+      if (hookFile.exists()) {
+        hookFile.delete()
+        println "🗑️  Removed ${hookName} hook"
+      }
+    }
+    println "✅ Git hooks removed successfully!"
+  }
+}
+
+// Make setupGitHooks available as a dependency for build
+tasks.named('build') {
+  dependsOn 'setupGitHooks'
 }
 

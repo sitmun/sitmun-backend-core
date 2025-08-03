@@ -40,9 +40,9 @@ class ClientConfigurationApplicationControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI).with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(5)))
-        .andExpect(jsonPath("$.size", is(pageSize)))
-        .andExpect(jsonPath("$.number", is(0)))
-        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.page.size", is(pageSize)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
         .andExpect(
             jsonPath(
                 "$.content[*].title",
@@ -62,9 +62,9 @@ class ClientConfigurationApplicationControllerTest {
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(1)))
-        .andExpect(jsonPath("$.size", is(1)))
-        .andExpect(jsonPath("$.number", is(1)))
-        .andExpect(jsonPath("$.totalPages", is(5)))
+        .andExpect(jsonPath("$.page.size", is(1)))
+        .andExpect(jsonPath("$.page.number", is(1)))
+        .andExpect(jsonPath("$.page.totalPages", is(5)))
         .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
   }
 
@@ -76,8 +76,8 @@ class ClientConfigurationApplicationControllerTest {
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty())
-        .andExpect(jsonPath("$.size", is(1)))
-        .andExpect(jsonPath("$.number", is(5)))
-        .andExpect(jsonPath("$.totalPages", is(5)));
+        .andExpect(jsonPath("$.page.size", is(1)))
+        .andExpect(jsonPath("$.page.number", is(5)))
+        .andExpect(jsonPath("$.page.totalPages", is(5)));
   }
 }

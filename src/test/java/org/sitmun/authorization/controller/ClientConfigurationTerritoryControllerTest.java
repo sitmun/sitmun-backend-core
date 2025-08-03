@@ -18,10 +18,10 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -34,7 +34,7 @@ class ClientConfigurationTerritoryControllerTest {
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private TerritoryRepository territoryRepository;
+  @MockitoBean private TerritoryRepository territoryRepository;
 
   @Test
   @DisplayName("GET: Retrieve list of territories for PUBLIC (implicit) role")
@@ -53,9 +53,9 @@ class ClientConfigurationTerritoryControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(2)))
-        .andExpect(jsonPath("$.size", is(2)))
-        .andExpect(jsonPath("$.number", is(0)))
-        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.page.size", is(2)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
         .andExpect(jsonPath("$.content[*].name", hasItems(TERRITORY_A_NAME, TERRITORY_B_NAME)));
   }
 
@@ -76,9 +76,9 @@ class ClientConfigurationTerritoryControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(2)))
-        .andExpect(jsonPath("$.size", is(2)))
-        .andExpect(jsonPath("$.number", is(0)))
-        .andExpect(jsonPath("$.totalPages", is(1)))
+        .andExpect(jsonPath("$.page.size", is(2)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
         .andExpect(jsonPath("$.content[*].name", hasItems(TERRITORY_A_NAME, TERRITORY_B_NAME)));
   }
 }

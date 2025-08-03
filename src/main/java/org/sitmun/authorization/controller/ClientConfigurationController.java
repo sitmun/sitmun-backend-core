@@ -24,6 +24,7 @@ import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.domain.user.position.UserPositionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -74,7 +75,7 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/application/{appId}/territories", produces = APPLICATION_JSON_VALUE)
-  public Page<TerritoryDTO> getApplicationTerritories(
+  public PagedModel<TerritoryDTO> getApplicationTerritories(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer appId,
       Pageable pageable) {
@@ -87,7 +88,8 @@ public class ClientConfigurationController {
         authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
     List<TerritoryDTO> territories =
         Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
-    return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
+    return new PagedModel<>(
+        new PageImpl<>(territories, page.getPageable(), page.getTotalElements()));
   }
 
   /** Update a UserPosition from the user */
@@ -106,14 +108,15 @@ public class ClientConfigurationController {
    * @return a page of applications
    */
   @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
-  public Page<ApplicationDtoLittle> getApplications(
+  public PagedModel<ApplicationDtoLittle> getApplications(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
     pageable = ensureSortBy(pageable, "title");
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
     List<ApplicationDtoLittle> applications =
         Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
-    return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
+    return new PagedModel<>(
+        new PageImpl<>(applications, page.getPageable(), page.getTotalElements()));
   }
 
   /**
@@ -125,7 +128,7 @@ public class ClientConfigurationController {
    * @return a page of applications
    */
   @GetMapping(path = "/territory/{terrId}/applications", produces = APPLICATION_JSON_VALUE)
-  public Page<ApplicationDtoLittle> getTerritoryApplications(
+  public PagedModel<ApplicationDtoLittle> getTerritoryApplications(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer terrId,
       Pageable pageable) {
@@ -135,7 +138,8 @@ public class ClientConfigurationController {
         authorizationService.findApplicationsByUserAndTerritory(username, terrId, pageable);
     List<ApplicationDtoLittle> applications =
         Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
-    return new PageImpl<>(applications, page.getPageable(), page.getTotalElements());
+    return new PagedModel<>(
+        new PageImpl<>(applications, page.getPageable(), page.getTotalElements()));
   }
 
   /**
@@ -146,14 +150,15 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/territory", produces = APPLICATION_JSON_VALUE)
-  public Page<TerritoryDTO> getTerritories(
+  public PagedModel<TerritoryDTO> getTerritories(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
     pageable = ensureSortBy(pageable, "name");
     Page<Territory> page = authorizationService.findTerritoriesByUser(username, pageable);
     List<TerritoryDTO> territories =
         Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
-    return new PageImpl<>(territories, page.getPageable(), page.getTotalElements());
+    return new PagedModel<>(
+        new PageImpl<>(territories, page.getPageable(), page.getTotalElements()));
   }
 
   /**

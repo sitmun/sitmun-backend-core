@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,11 +39,13 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @BeforeEach
   void setUp() {
-    // Ensure H2 driver is available as a valid value in the database
-    boolean h2DriverExists =
-        codeListValueRepository.existsByCodeListNameAndValue(
-            DATABASE_CONNECTION_DRIVER, "org.h2.Driver");
-    assertThat(h2DriverExists).isTrue();
+    Awaitility.await()
+        .atMost(10, TimeUnit.SECONDS)
+        .pollInterval(500, TimeUnit.MILLISECONDS)
+        .until(
+            () ->
+                codeListValueRepository.existsByCodeListNameAndValue(
+                    DATABASE_CONNECTION_DRIVER, "org.h2.Driver"));
   }
 
   @Test
