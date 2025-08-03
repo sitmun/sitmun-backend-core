@@ -1,211 +1,266 @@
 package org.sitmun.authorization.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.sitmun.authorization.dto.ConfigProxyRequest;
-import org.sitmun.infrastructure.security.service.JsonWebTokenService;
-import org.sitmun.test.URIConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Date;
-import java.util.HashMap;
-
-import static org.sitmun.infrastructure.security.filter.ProxyTokenFilter.X_SITMUN_PROXY_KEY;
+import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
+import static org.sitmun.test.URIConstants.*;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * TODO Preconfigured parameters are added to the query if they are not present
- *      Example: for the service with id 43, the following parameters can be found at STM_PAR_SER:
- *     | PSE_TYPE | PSE_NAME    | PSE_VALUE |
- *     |----------|-------------|-----------|
- *     | WMS      | format      | image/png |
- *     | WMS      | version     | 1.3.0     |
- *     | WMS      | service     | WMS       |
- *     | WMS      | transparent | TRUE      |
- *     | WMS      | radius      | 5         |
- *     The PSE_TYPE must be the same as the requested service type (e.g. WMS)
- * TODO Preconfigured parameters are updated in the  query if they are present
- */
+import java.util.Date;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.sitmun.infrastructure.security.service.JsonWebTokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("API Proxy")
 class ProxyConfigurationControllerTest {
 
-  @Autowired
-  JsonWebTokenService jsonWebTokenService;
-  @Autowired
-  private MockMvc mvc;
-  @Value("${security.authentication.middleware.secret}")
+  @Autowired JsonWebTokenService jsonWebTokenService;
+  @Autowired private MockMvc mvc;
+
+  @Value("${sitmun.proxy-middleware.secret}")
   private String secret;
 
   String getUserToken() {
     return jsonWebTokenService.generateToken("admin", new Date());
   }
 
-  /**
-   * Test a proxy configuration service for database connection with public user
-   */
+  /** Test a proxy configuration service for database connection with public user */
   @Test
-  @DisplayName("Get database connection details with public user")
+  @DisplayName("POST: Get database connection details with public user")
+  @WithMockUser(roles = "PROXY")
   void readConnectionPublicUser() throws Exception {
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(23).method("GET").build();
-
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET"
+        }
+      """;
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
-  /**
-   * Test a proxy configuration service for database connection with user token
-   */
+  /** Test a proxy configuration service for database connection with user token */
   @Test
-  @DisplayName("Get database connection details with user with token")
+  @DisplayName("POST: Get database connection details with user with token")
+  @WithMockUser(roles = "PROXY")
   void readConnectionOtherUser() throws Exception {
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(23).method("GET").token(getUserToken()).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET",
+          "token": "%s"
+        }
+      """
+            .formatted(getUserToken());
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
-  /**
-   * Test a proxy configuration service for service with public user
-   */
+  /** Test a proxy configuration service for service with public user */
   @Test
-  @DisplayName("Get WMTS web service details with user with token")
+  @DisplayName("POST: Get WMTS web service details with user with token")
+  @WithMockUser(roles = "PROXY")
   void readServicePublicUser() throws Exception {
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("WMTS").typeId(1)
-      .method("GET").parameters(new HashMap<>()).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "WMTS",
+          "typeId": 1,
+          "method": "GET"
+        }
+      """;
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.uri").value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"))
-      .andExpect(jsonPath("$.payload.parameters.format").value("image/jpeg"))
-      .andExpect(jsonPath("$.payload.parameters.matrixSet").value("UTM25831"));
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payload.uri")
+                .value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"))
+        .andExpect(jsonPath("$.payload.parameters.format").value("image/jpeg"))
+        .andExpect(jsonPath("$.payload.parameters.matrixSet").value("UTM25831"));
   }
 
-  /**
-   * Test a proxy configuration service for database connection without sitmun
-   * proxy key
-   */
+  /** Test a proxy configuration service for database connection without sitmun proxy key */
   @Test
-  @DisplayName("Unauthorized request returns 401")
+  @DisplayName("POST: Unauthorized request returns 401")
+  @WithMockUser(roles = {"USER", "ADMIN", "PUBLIC"})
   void proxyUnauthorized() throws Exception {
 
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(23).method("GET").build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET"
+        }
+      """;
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(json))
-      .andExpect(status().isUnauthorized());
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isForbidden());
   }
 
-  /**
-   * Test a proxy configuration service for database connection with pagination
-   */
+  /** Test a proxy configuration service for database connection with pagination */
   @Test
-  @DisplayName("Get database query with pagination")
+  @DisplayName("POST: Get database query with pagination")
+  @WithMockUser(roles = "PROXY")
   void readConnectionWithPagination() throws Exception {
-    HashMap<String, String> parameters = new HashMap<>();
-    parameters.put("OFFSET", "100");
-    parameters.put("LIMIT", "100");
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(0).type("SQL").typeId(23)
-      .method("GET").parameters(parameters).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 0,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET",
+          "parameters": {
+            "OFFSET": "100",
+            "LIMIT": "100"
+          }
+        }
+      """;
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE LIMIT 100 OFFSET 100"));
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE LIMIT 100 OFFSET 100"));
   }
 
   @Test
-  @DisplayName("Get database query with context filters (USER_ID, TERR_ID, APP_ID and TERR_COD)")
+  @DisplayName(
+      "POST: Get database query with context filters (USER_ID, TERR_ID, APP_ID and TERR_COD)")
+  @WithMockUser(roles = "PROXY")
   void readConnectionWithFixedFilters() throws Exception {
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(28)
-      .method("GET").token(getUserToken()).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 28,
+          "method": "GET",
+          "id_token": "%s"
+        }
+      """
+            .formatted(getUserToken());
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.sql")
-        .value("SELECT * FROM EXAMPLE WHERE USER_ID=1 AND TERR_ID=1 AND APP_ID=1 AND TERR_COD=60001"));
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value(
+                    "SELECT * FROM EXAMPLE WHERE USER_ID=1 AND TERR_ID=1 AND APP_ID=1 AND TERR_COD=60001"));
   }
 
   @Test
-  @DisplayName("Get database query with client filters")
+  @DisplayName("POST: Get database query with client filters")
+  @WithMockUser(roles = "PROXY")
   void readConnectionWithVaryFilters() throws Exception {
-    HashMap<String, String> parameters = new HashMap<>();
-    parameters.put("columnA", "123");
-    parameters.put("columnB", "valueB");
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(23)
-      .method("GET").parameters(parameters).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET",
+          "parameters": {
+            "columnA": "123",
+            "columnB": "valueB"
+          }
+        }
+      """;
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
-
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE WHERE columnA=123 AND columnB='valueB'"));
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(PROXY_MIDDLEWARE_KEY, secret)
+                .content(content))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value("SELECT * FROM EXAMPLE WHERE columnA=123 AND columnB='valueB'"));
   }
 
   @Test
-  @DisplayName("Get database query with context and client filters")
+  @DisplayName("POST: Get database query with context and client filters")
+  @WithMockUser(roles = "PROXY")
   void readConnectionWithFixedAndVaryFilters() throws Exception {
-    HashMap<String, String> parameters = new HashMap<>();
-    parameters.put("columnA", "123");
-    ConfigProxyRequest configProxyRequestBuilder = ConfigProxyRequest.builder()
-      .appId(1).terId(1).type("SQL").typeId(27)
-      .method("GET").parameters(parameters).token(getUserToken()).build();
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 27,
+          "method": "GET",
+          "parameters": {
+            "columnA": "123"
+          },
+          "token": "%s"
+        }
+      """
+            .formatted(getUserToken());
 
-    String json = new ObjectMapper().writeValueAsString(configProxyRequestBuilder);
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(PROXY_MIDDLEWARE_KEY, secret)
+                .content(content))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=123"));
+  }
 
-    mvc.perform(post(URIConstants.CONFIG_PROXY_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .header(X_SITMUN_PROXY_KEY, secret)
-        .content(json))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=123"));
+  @Test
+  @DisplayName("POST: Proxy middleware key identifies proxy")
+  void proxyMiddlewareKeyIdentifiesProxy() throws Exception {
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 27,
+          "method": "GET",
+          "parameters": {
+            "columnA": "123"
+          },
+          "token": "%s"
+        }
+      """
+            .formatted(getUserToken());
+
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(PROXY_MIDDLEWARE_KEY, secret)
+                .content(content))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=123"));
   }
 }

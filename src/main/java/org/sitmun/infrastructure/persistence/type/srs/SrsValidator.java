@@ -1,11 +1,10 @@
 package org.sitmun.infrastructure.persistence.type.srs;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
 
-public class SrsValidator
-  implements ConstraintValidator<Srs, String> {
+public class SrsValidator implements ConstraintValidator<Srs, String> {
 
   private static final Pattern pattern = Pattern.compile("^[A-Z\\-]+:\\d+$");
 

@@ -1,16 +1,17 @@
 package org.sitmun.infrastructure.persistence.type.codelist;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
-public class CodeListValidator implements ConstraintValidator<CodeList, String> {
+public class CodeListValidator
+    implements ConstraintValidator<CodeList, String>, ApplicationContextAware {
 
   private String codeList;
-
-  @Autowired
-  private CodeListValueRepository codeRepository;
+  private ApplicationContext applicationContext;
 
   @Override
   public void initialize(CodeList constraintAnnotation) {
@@ -18,10 +19,18 @@ public class CodeListValidator implements ConstraintValidator<CodeList, String> 
   }
 
   @Override
+  public void setApplicationContext(@NotNull ApplicationContext applicationContext)
+      throws BeansException {
+    this.applicationContext = applicationContext;
+  }
+
+  @Override
   public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
-    if (value != null) {
+    if (value != null && applicationContext != null) {
+      CodeListValueRepository codeRepository =
+          applicationContext.getBean(CodeListValueRepository.class);
       return codeRepository.existsByCodeListNameAndValue(codeList, value);
     }
-      return true;
+    return true;
   }
 }

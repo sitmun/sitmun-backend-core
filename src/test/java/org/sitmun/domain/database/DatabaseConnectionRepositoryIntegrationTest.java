@@ -1,7 +1,11 @@
 package org.sitmun.domain.database;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import java.util.*;
+import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,36 +27,26 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("DatabaseConnection Repository Integration test")
 class DatabaseConnectionRepositoryIntegrationTest {
 
-  @Autowired
-  DatabaseConnectionRepository connectionRepository;
+  @Autowired DatabaseConnectionRepository connectionRepository;
   private RestTemplate restTemplate;
   private ArrayList<DatabaseConnection> connections;
-  @LocalServerPort
-  private int port;
+  @LocalServerPort private int port;
 
   @SuppressWarnings("rawtypes")
   private static List getListOfCartographies(JSONObject cartographies) {
-    return JsonPath.parse(cartographies.toString()).read("$._embedded.cartographies[*]._links.self.href", List.class);
+    return JsonPath.parse(cartographies.toString())
+        .read("$._embedded.cartographies[*]._links.self.href", List.class);
   }
 
   @BeforeEach
   @WithMockUser(roles = "ADMIN")
   void setup() {
     ClientHttpRequestFactory factory =
-      new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
     restTemplate = new RestTemplate(factory);
     List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
     if (CollectionUtils.isEmpty(interceptors)) {
@@ -61,13 +55,19 @@ class DatabaseConnectionRepositoryIntegrationTest {
     interceptors.add(new ClientHttpLoggerRequestInterceptor());
     restTemplate.setInterceptors(interceptors);
 
-      connections = new ArrayList<>();
-      connections.add(connectionRepository
-        .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_1").driver("driver1")
-          .build()));
-      connections.add(connectionRepository
-        .save(DatabaseConnection.builder().name("ConnectionRepositoryTest_2").driver("driver2")
-          .build()));
+    connections = new ArrayList<>();
+    connections.add(
+        connectionRepository.save(
+            DatabaseConnection.builder()
+                .name("ConnectionRepositoryTest_1")
+                .driver("driver1")
+                .build()));
+    connections.add(
+        connectionRepository.save(
+            DatabaseConnection.builder()
+                .name("ConnectionRepositoryTest_2")
+                .driver("driver2")
+                .build()));
   }
 
   @AfterEach
@@ -84,35 +84,36 @@ class DatabaseConnectionRepositoryIntegrationTest {
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
-      restTemplate.exchange("http://localhost:" + port + "/api/connections", HttpMethod.GET, entity, String.class);
+        restTemplate.exchange(
+            "http://localhost:" + port + "/api/connections", HttpMethod.GET, entity, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     DocumentContext context = JsonPath.parse(response.getBody());
 
     assertThat(context.read("$._embedded.connections[*].id", JSONArray.class))
-      .containsAll(
-        connections.stream().map(DatabaseConnection::getId).collect(Collectors.toList()));
+        .containsAll(
+            connections.stream().map(DatabaseConnection::getId).collect(Collectors.toList()));
     assertThat(context.read("$._embedded.connections[*].name", JSONArray.class))
-      .containsAll(
-        connections.stream().map(DatabaseConnection::getName).collect(Collectors.toList()));
+        .containsAll(
+            connections.stream().map(DatabaseConnection::getName).collect(Collectors.toList()));
   }
 
   @Test
   @DisplayName("PUT: Update DatabaseConnection")
   void updateConnection() throws JSONException {
     JSONObject updatedValueJson = getConnection(1);
-    assertThat(updatedValueJson.get("user")).isEqualTo("User1");
+    assertThat(Objects.requireNonNull(updatedValueJson).get("user")).isEqualTo("User1");
 
     String auth = getAuthorization();
 
     updatedValueJson.put("user", "User3");
     updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(1).get("user")).isEqualTo("User3");
+    assertThat(Objects.requireNonNull(getConnection(1)).get("user")).isEqualTo("User3");
 
     updatedValueJson.put("user", "User1");
     updateConnection(1, updatedValueJson, auth);
 
-    assertThat(getConnection(1).get("user")).isEqualTo("User1");
+    assertThat(Objects.requireNonNull(getConnection(1)).get("user")).isEqualTo("User1");
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -120,21 +121,23 @@ class DatabaseConnectionRepositoryIntegrationTest {
   @DisplayName("PUT: Cannot update connection for catographies")
   void putCannotUpdateConnectionCartographies() throws JSONException {
     JSONObject oldValueJson = getConnectionCartographies(1);
-    List oldList = getListOfCartographies(oldValueJson);
+    List oldList = getListOfCartographies(Objects.requireNonNull(oldValueJson));
 
     String auth = getAuthorization();
 
-    List newList = Arrays.asList("http://localhost:" + port + "/api/cartographies/1",
-      "http://localhost:" + port + "/api/cartographies/2",
-      "http://localhost:" + port + "/api/cartographies/3",
-      "http://localhost:" + port + "/api/cartographies/4",
-      "http://localhost:" + port + "/api/cartographies/5",
-      "http://localhost:" + port + "/api/cartographies/6");
+    List newList =
+        Arrays.asList(
+            "http://localhost:" + port + "/api/cartographies/1",
+            "http://localhost:" + port + "/api/cartographies/2",
+            "http://localhost:" + port + "/api/cartographies/3",
+            "http://localhost:" + port + "/api/cartographies/4",
+            "http://localhost:" + port + "/api/cartographies/5",
+            "http://localhost:" + port + "/api/cartographies/6");
 
     updateConnectionCartograhies(1, newList, auth);
 
     oldValueJson = getConnectionCartographies(1);
-    List updatedList = getListOfCartographies(oldValueJson);
+    List updatedList = getListOfCartographies(Objects.requireNonNull(oldValueJson));
 
     assertThat(updatedList).containsExactlyInAnyOrderElementsOf(oldList);
   }
@@ -146,18 +149,18 @@ class DatabaseConnectionRepositoryIntegrationTest {
     String auth = getAuthorization();
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     JSONObject cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(7);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
 
     deleteCartographiesSpatialSelectionConnection(1, auth);
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isFalse();
     cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(6);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(6);
 
-
-    updateCartographiesSpatialSelectionConnection(1, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
+    updateCartographiesSpatialSelectionConnection(
+        1, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
     assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
     cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(cartographies)).hasSize(7);
+    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
   }
 
   private String getAuthorization() {
@@ -165,8 +168,8 @@ class DatabaseConnectionRepositoryIntegrationTest {
     login.setUsername("admin");
     login.setPassword("admin");
     ResponseEntity<AuthenticationResponse> loginResponse =
-      restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
+        restTemplate.postForEntity(
+            "http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
     assertThat(loginResponse.getBody()).isNotNull();
     return loginResponse.getBody().getIdToken();
   }
@@ -177,8 +180,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id;
-    String oldValue =
-      restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    String oldValue = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
     if (oldValue == null) {
       return null;
     }
@@ -191,8 +193,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";
-    String oldValue =
-      restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
+    String oldValue = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class).getBody();
     if (oldValue == null) {
       return null;
     }
@@ -203,10 +204,11 @@ class DatabaseConnectionRepositoryIntegrationTest {
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(auth);
     try {
-      restTemplate.exchange("http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-        HttpMethod.GET,
-        new HttpEntity<>(headers),
-        String.class);
+      restTemplate.exchange(
+          "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
+          HttpMethod.GET,
+          new HttpEntity<>(headers),
+          String.class);
       return true;
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -219,35 +221,44 @@ class DatabaseConnectionRepositoryIntegrationTest {
   private void deleteCartographiesSpatialSelectionConnection(int id, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(auth);
-    restTemplate.exchange("http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-      HttpMethod.DELETE,
-      new HttpEntity<>(headers), Void.class);
+    restTemplate.exchange(
+        "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
+        HttpMethod.DELETE,
+        new HttpEntity<>(headers),
+        Void.class);
   }
 
-  private void updateCartographiesSpatialSelectionConnection(int id, List<String> newValue, String auth) {
+  private void updateCartographiesSpatialSelectionConnection(
+      int id, List<String> newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.parseMediaType("text/uri-list"));
     headers.setBearerAuth(auth);
-    restTemplate.exchange("http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-      HttpMethod.PUT,
-      new HttpEntity<>(String.join("\n", newValue), headers), String.class);
+    restTemplate.exchange(
+        "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
+        HttpMethod.PUT,
+        new HttpEntity<>(String.join("\n", newValue), headers),
+        String.class);
   }
 
   private void updateConnectionCartograhies(int id, List<String> newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.parseMediaType("text/uri-list"));
     headers.setBearerAuth(auth);
-    restTemplate.exchange("http://localhost:" + port + "/api/connections/" + id + "/cartographies",
-      HttpMethod.PUT,
-      new HttpEntity<>(String.join("\n", newValue), headers), String.class);
+    restTemplate.exchange(
+        "http://localhost:" + port + "/api/connections/" + id + "/cartographies",
+        HttpMethod.PUT,
+        new HttpEntity<>(String.join("\n", newValue), headers),
+        String.class);
   }
 
   private void updateConnection(int id, JSONObject newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.setBearerAuth(auth);
-    restTemplate.exchange("http://localhost:" + port + "/api/connections/" + id,
-      HttpMethod.PUT,
-      new HttpEntity<>(newValue.toString(), headers), String.class);
+    restTemplate.exchange(
+        "http://localhost:" + port + "/api/connections/" + id,
+        HttpMethod.PUT,
+        new HttpEntity<>(newValue.toString(), headers),
+        String.class);
   }
 }

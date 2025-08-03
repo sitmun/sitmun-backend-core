@@ -6,9 +6,7 @@ public class ClientConfigurationViews {
     throw new IllegalStateException("Utility class");
   }
 
-  public interface ApplicationTerritory {
-  }
+  public interface ApplicationTerritory {}
 
-  public interface Base {
-  }
+  public interface Base {}
 }

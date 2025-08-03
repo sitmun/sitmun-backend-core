@@ -1,11 +1,10 @@
 package org.sitmun.authorization.dto;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
-
-import java.util.List;
 
 public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T> {
 
@@ -22,7 +21,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
   }
 
   public static <T> JsonViewPage<T> of(Page<T> page) {
-    return new JsonViewPage<>(page.getContent(), page.getPageable(), page.getTotalPages());
+    return new JsonViewPage<>(page.getContent(), page.getPageable(), page.getTotalElements());
   }
 
   @Override
@@ -32,9 +31,7 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getContent();
   }
 
-  /**
-   * Total pages.
-   */
+  /** Total pages. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
@@ -42,19 +39,15 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getTotalPages();
   }
 
-  /**
-   * Returns the size of this page.
-   */
+  /** Returns the size of this page. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
   public int getSize() {
-    return getContent().size();
+    return super.getSize();
   }
 
-  /**
-   * Return the number of the slice
-   */
+  /** Return the number of the slice */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull

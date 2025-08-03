@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: 01_schema.h2.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 01_schema.postgres.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 01_schema.oracle.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 02_codelists.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 03_task_types.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 04_data.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 05_translations.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 06_params.yaml
+      relativeToChangelogFile: true

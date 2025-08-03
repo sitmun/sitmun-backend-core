@@ -1,15 +1,11 @@
 package org.sitmun.domain.background;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.Date;
-
-/**
- * Projections for REST views of a background.
- */
+/** Projections for REST views of a background. */
 @Projection(name = "view", types = Background.class)
 public interface BackgroundProjection {
 

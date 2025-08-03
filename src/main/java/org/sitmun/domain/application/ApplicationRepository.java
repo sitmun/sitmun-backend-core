@@ -1,31 +1,108 @@
 package org.sitmun.domain.application;
 
-
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import java.util.List;
-
-
 @Tag(name = "application")
-@RepositoryRestResource(collectionResourceRel = "applications", path = "applications"/*, excerptProjection = ApplicationProjection.class*/)
-public interface ApplicationRepository extends PagingAndSortingRepository<Application, Integer> {
+@RepositoryRestResource(
+    collectionResourceRel = "applications",
+    path = "applications" /*, excerptProjection = ApplicationProjection.class*/)
+public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
-  /**
-   * The SQL equivalent is:
-   * <pre>
-   * SELECT DISTINCT app.app_id, uc.uco_terid
-   * FROM STM_APP app CROSS JOIN STM_USR_CONF uc
-   * WHERE uc.uco_roleid IN (SELECT app_rol.aro_roleid
-   *                         FROM STM_APP_ROL app_rol
-   *                         WHERE app.app_id=app_rol.aro_appid)
-   * </pre>
-   */
   @RestResource(exported = false)
-  @Query("select distinct app.id, uc.territory.id from Application app, UserConfiguration uc where uc.role member app.availableRoles")
+  @Query(
+      "select distinct app.id, uc.territory.id from Application app, UserConfiguration uc where uc.role member of app.availableRoles")
   List<Object[]> listIdApplicationsPerTerritories();
 
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+  """)
+  Page<Application> findByUser(String username, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where (app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      and app.appPrivate = false
+  """)
+  Page<Application> findByPublicUser(String username, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+      """)
+  Page<Application> findByRestrictedUserAndTerritory(
+      String username, Integer territoryId, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+    select distinct app from Application app
+    where (app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+    or app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+    or app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+    and app.appPrivate = false
+    """)
+  Page<Application> findByPublicUserAndTerritory(
+      String username, Integer territoryId, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+      """)
+  Optional<Application> findByRestrictedUserApplicationAndTerritory(
+      String username, Integer appId, Integer territoryId);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+    select distinct app from Application app
+    where (app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+    or app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+    or app.id in (select distinct app.id from Application app, UserConfiguration uc
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+    and app.appPrivate = false
+    """)
+  Optional<Application> findByPublicUserApplicationAndTerritory(
+      String username, Integer appId, Integer territoryId);
 }

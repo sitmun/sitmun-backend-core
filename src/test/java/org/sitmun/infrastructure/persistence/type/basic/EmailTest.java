@@ -1,5 +1,11 @@
 package org.sitmun.infrastructure.persistence.type.basic;
 
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,12 +14,6 @@ import org.sitmun.test.URIConstants;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Email validation test")
 class EmailTest extends BaseTest {
@@ -28,8 +28,8 @@ class EmailTest extends BaseTest {
   @DisplayName("Pass if email value is valid")
   void passIfEmailValueIsValid() throws Exception {
     postEntityWithEmailValue(VALID_EMAIL)
-      .andExpect(status().is4xxClientError())
-      .andExpect(jsonPath("$.errors.[?(@.property == 'legendType')]", hasSize(0)));
+        .andExpect(status().is4xxClientError())
+        .andExpect(jsonPath("$.errors.[?(@.property == 'legendType')]", hasSize(0)));
   }
 
   @Test
@@ -37,17 +37,18 @@ class EmailTest extends BaseTest {
   @DisplayName("Fail if email value is wrong")
   void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)
-      .andExpect(status().is4xxClientError())
-      .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_EMAIL + "')].invalidValue", hasItem(INVALID_EMAIL)));
+        .andExpect(status().is4xxClientError())
+        .andExpect(
+            jsonPath(
+                "$.errors.[?(@.property == '" + PROPERTY_WITH_EMAIL + "')].invalidValue",
+                hasItem(INVALID_EMAIL)));
   }
 
   private ResultActions postEntityWithEmailValue(String validEmail) throws Exception {
-    JSONObject entity = new JSONObject()
-      .put(PROPERTY_WITH_EMAIL, validEmail);
-    return mvc.perform(post(ENTITY_WITH_EMAIL_URI)
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(entity.toString())
-    );
+    JSONObject entity = new JSONObject().put(PROPERTY_WITH_EMAIL, validEmail);
+    return mvc.perform(
+        post(ENTITY_WITH_EMAIL_URI)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(entity.toString()));
   }
-
 }

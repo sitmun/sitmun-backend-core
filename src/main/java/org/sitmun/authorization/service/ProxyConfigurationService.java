@@ -1,5 +1,10 @@
 package org.sitmun.authorization.service;
 
+import static org.sitmun.authorization.dto.decorators.QueryPaginationDecorator.SQL_LIMIT;
+import static org.sitmun.authorization.dto.decorators.QueryPaginationDecorator.SQL_OFFSET;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.dto.*;
 import org.sitmun.authorization.dto.decorators.QueryFixedFiltersDecorator;
@@ -17,12 +22,6 @@ import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.sitmun.authorization.dto.decorators.QueryPaginationDecorator.SQL_LIMIT;
-import static org.sitmun.authorization.dto.decorators.QueryPaginationDecorator.SQL_OFFSET;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -48,13 +47,17 @@ public class ProxyConfigurationService {
 
   private final QueryPaginationDecorator queryPaginationDecorator;
 
-  @Value("${sitmun.proxy.config-response-validity-in-seconds}")
+  @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds}")
   private int responseValidityTime;
 
-  public ProxyConfigurationService(ServiceRepository serviceRepository,
-                                   TaskRepository taskRepository, UserRepository userRepository,
-                                   TerritoryRepository territoryRepository, QueryFixedFiltersDecorator queryFixedFiltersDecorator,
-                                   QueryVaryFiltersDecorator queryVaryFiltersDecorator, QueryPaginationDecorator queryPaginationDecorator) {
+  public ProxyConfigurationService(
+      ServiceRepository serviceRepository,
+      TaskRepository taskRepository,
+      UserRepository userRepository,
+      TerritoryRepository territoryRepository,
+      QueryFixedFiltersDecorator queryFixedFiltersDecorator,
+      QueryVaryFiltersDecorator queryVaryFiltersDecorator,
+      QueryPaginationDecorator queryPaginationDecorator) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -64,7 +67,8 @@ public class ProxyConfigurationService {
     this.queryPaginationDecorator = queryPaginationDecorator;
   }
 
-  private static OgcWmsPayloadDto getOgcWmsConfiguration(Service service, ConfigProxyRequest configProxyRequest) {
+  private static OgcWmsPayloadDto getOgcWmsConfiguration(
+      Service service, ConfigProxyRequest configProxyRequest) {
 
     if (service == null) {
       return null;
@@ -72,12 +76,13 @@ public class ProxyConfigurationService {
 
     HttpSecurityDto security = null;
     if (Boolean.TRUE.equals(service.getPasswordSet())) {
-      security = HttpSecurityDto.builder()
-        .type("http")
-        .scheme("basic")
-        .username(service.getUser())
-        .password(service.getPassword())
-        .build();
+      security =
+          HttpSecurityDto.builder()
+              .type("http")
+              .scheme("basic")
+              .username(service.getUser())
+              .password(service.getPassword())
+              .build();
     }
 
     Map<String, String> parameters = configProxyRequest.getParameters();
@@ -96,12 +101,12 @@ public class ProxyConfigurationService {
     }
     log.info("Parametros finales {}", parameters.size());
     return OgcWmsPayloadDto.builder()
-      .uri(service.getServiceURL())
-      .method(configProxyRequest.getMethod())
-      .vary(varyParameters)
-      .parameters(parameters)
-      .security(security)
-      .build();
+        .uri(service.getServiceURL())
+        .method(configProxyRequest.getMethod())
+        .vary(varyParameters)
+        .parameters(parameters)
+        .security(security)
+        .build();
   }
 
   private static String getSqlByTask(Task task) {
@@ -117,52 +122,74 @@ public class ProxyConfigurationService {
     return sql;
   }
 
-  public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
-    // TODO Implement user validation
-    return true;
-  }
-
   private static DatasourcePayloadDto getDatasourceConfiguration(Task task) {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
-    return databaseConnection != null ? DatasourcePayloadDto.builder()
-      .uri(databaseConnection.getUrl())
-      .user(databaseConnection.getUser())
-      .password(databaseConnection.getPassword())
-      .driver(databaseConnection.getDriver())
-      .sql(sql)
-      .build() : null;
+    return databaseConnection != null
+        ? DatasourcePayloadDto.builder()
+            .uri(databaseConnection.getUrl())
+            .user(databaseConnection.getUser())
+            .password(databaseConnection.getPassword())
+            .driver(databaseConnection.getDriver())
+            .sql(sql)
+            .build()
+        : null;
   }
 
-  public ConfigProxyDto getConfiguration(ConfigProxyRequest configProxyRequest, long expirationTimeToken) {
-    log.info("Fetching configuration for service type {} with id {}", configProxyRequest.getType(), configProxyRequest.getTypeId());
+  public boolean validateUserAccess(ConfigProxyRequest configProxyRequest, String userName) {
+    // TODO: Implement user validation
+    return true;
+  }
+
+  public ConfigProxyDto getConfiguration(
+      ConfigProxyRequest configProxyRequest, long expirationTimeToken) {
+    log.info(
+        "Fetching configuration for service type {} with id {}",
+        configProxyRequest.getType(),
+        configProxyRequest.getTypeId());
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
     if (CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequest.getType())) {
-      taskRepository.findById(configProxyRequest.getTypeId()).ifPresent(task -> {
-        payload.set(getDatasourceConfiguration(task));
-        configType.set(CONNECTION_TYPE_KEY);
-      });
+      taskRepository
+          .findById(configProxyRequest.getTypeId())
+          .ifPresent(
+              task -> {
+                payload.set(getDatasourceConfiguration(task));
+                configType.set(CONNECTION_TYPE_KEY);
+              });
     } else {
-      log.info("Searching service type {} with id {}", configProxyRequest.getType(), configProxyRequest.getTypeId());
-      serviceRepository.findById(configProxyRequest.getTypeId()).ifPresent(service -> {
-        payload.set(getOgcWmsConfiguration(service, configProxyRequest));
-        configType.set(service.getType());
-      });
+      log.info(
+          "Searching service type {} with id {}",
+          configProxyRequest.getType(),
+          configProxyRequest.getTypeId());
+      serviceRepository
+          .findById(configProxyRequest.getTypeId())
+          .ifPresent(
+              service -> {
+                payload.set(getOgcWmsConfiguration(service, configProxyRequest));
+                configType.set(service.getType());
+              });
     }
     if (payload.get() != null) {
-      long expirationTime = expirationTimeToken > 0 ? expirationTimeToken / 1000
-        : (new Date().getTime() / 1000) + responseValidityTime;
+      long expirationTime =
+          expirationTimeToken > 0
+              ? expirationTimeToken / 1000
+              : (new Date().getTime() / 1000) + responseValidityTime;
       return ConfigProxyDto.builder()
-        .type(configType.get())
-        .exp(expirationTime)
-        .payload(payload.get())
-        .build();
+          .type(configType.get())
+          .exp(expirationTime)
+          .payload(payload.get())
+          .build();
     }
-    throw new BadRequestException("Bad request for service type {} with id {}");
+    throw new BadRequestException(
+        "Bad request for service type "
+            + configProxyRequest.getType()
+            + " with id "
+            + configProxyRequest.getTypeId());
   }
 
-  public void applyDecorators(ConfigProxyDto configProxyDto, ConfigProxyRequest configProxyRequest, String username) {
+  public void applyDecorators(
+      ConfigProxyDto configProxyDto, ConfigProxyRequest configProxyRequest, String username) {
     PayloadDto payload = configProxyDto.getPayload();
 
     addFixedFilters(configProxyRequest, payload, username);
@@ -184,9 +211,12 @@ public class ProxyConfigurationService {
     }
   }
 
-  private void addFixedFilters(ConfigProxyRequest configProxyRequest, PayloadDto payload, String username) {
+  private void addFixedFilters(
+      ConfigProxyRequest configProxyRequest, PayloadDto payload, String username) {
     Map<String, String> fixedFilters = new HashMap<>();
-    userRepository.findByUsername(username).ifPresent(user -> fixedFilters.put("USER_ID", user.getId().toString()));
+    userRepository
+        .findByUsername(username)
+        .ifPresent(user -> fixedFilters.put("USER_ID", user.getId().toString()));
     Territory territory = territoryRepository.findById(configProxyRequest.getTerId()).orElse(null);
     if (territory != null) {
       fixedFilters.put("TERR_ID", String.valueOf(territory.getId()));

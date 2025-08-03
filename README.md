@@ -3,114 +3,827 @@
 
 # SITMUN Backend Core
 
-The SITMUN backend core is a key component of the SITMUN software system.
-It is built using Java 11 and Spring Boot.
-It provides a REST API that allows users to access the backend business logic and interact with the SITMUN database.
-The backend core is designed to provide the foundation for the SITMUN system.
+A Spring Boot microservice that provides comprehensive REST API functionality for geospatial application management, user authorization, and authentication for the SITMUN Map Viewer. This service is part of the [SITMUN](https://sitmun.github.io/) geospatial platform ecosystem.
 
-The SITMUN backend core is structured as a Gradle multimodule project,
-which allows for the separation of the code into multiple smaller modules
-that can be more easily managed and maintained.
-This structure also allows for greater flexibility in terms of deploying and
-testing different parts of the software system independently,
-making it easier to identify and fix issues as they arise.
+## Table of Contents
 
-## Prerequisites
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Local Development](#local-development)
+  - [Docker Deployment](#docker-deployment)
+  - [Troubleshooting](#troubleshooting)
+- [API Reference](#api-reference)
+  - [Endpoints](#endpoints)
+  - [Usage Examples](#usage-examples)
+  - [Request Parameters](#request-parameters)
+- [Configuration](#configuration)
+  - [Environment Variables](#environment-variables)
+  - [Profiles](#profiles)
+  - [Configuration Files](#configuration-files)
+- [Architecture](#architecture)
+  - [Technology Stack](#technology-stack)
+  - [System Architecture](#system-architecture)
+  - [Key Components](#key-components)
+  - [Request Processing Flow](#request-processing-flow)
+  - [Domain Model](#domain-model)
+- [Development](#development)
+  - [Project Structure](#project-structure)
+  - [Build System](#build-system)
+  - [Code Quality](#code-quality)
+  - [Testing](#testing)
+  - [Development Workflow](#development-workflow)
+- [Advanced Features](#advanced-features)
+  - [Security and Authentication](#security-and-authentication)
+  - [Monitoring and Observability](#monitoring-and-observability)
+- [Integration with SITMUN](#integration-with-sitmun)
+  - [Prerequisites](#prerequisites-1)
+  - [Configuration Steps](#configuration-steps)
+  - [Service Types and Configuration](#service-types-and-configuration)
+  - [Troubleshooting Integration](#troubleshooting-integration)
+- [Contributing](#contributing)
+  - [Development Guidelines](#development-guidelines)
+- [Support](#support)
+- [License](#license)
 
-Before you begin, ensure you have met the following requirements:
+## Overview
 
-- You have a `Windows/Linux/Mac` machine.
-- You have installed the latest version of [Docker CE](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/), or [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-  Docker CE is fully open-source, while Docker Desktop is a commercial product.
-- You have installed [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your machine.
-- You have a basic understanding of Docker, Docker Compose, and Git.
-- You have internet access on your machine to pull Docker images and Git repositories.
+The SITMUN Backend Core provides comprehensive backend functionality to:
 
-## Installing SITMUN Backend Core
+- **User Management**: Complete user authentication, authorization, and account management
+- **Application Management**: Geospatial application configuration and deployment
+- **Cartography Services**: WMS, WFS, WMTS service management and configuration
+- **Territory Management**: Multi-level territorial organization and access control
+- **Task Management**: Geospatial task execution and workflow management
+- **Database Integration**: Support for multiple database systems (H2, PostgreSQL, Oracle)
+- **Security Layer**: JWT-based authentication with role-based access control
+- **API Documentation**: Comprehensive OpenAPI/Swagger documentation
 
-To install the SITMUN Proxy Middleware, follow these steps:
+This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/sitmun-map-viewer) and [SITMUN Proxy Middleware](https://github.com/sitmun/sitmun-proxy-middleware) to provide a complete geospatial platform solution.
 
-1. Clone the repository:
+## Quick Start
 
-    ```bash
-    git clone https://github.com/sitmun/sitmun-backend-core.git
-    ```
+### Prerequisites
 
-2. Change to the directory of the repository:
+- **Java 17** or later (JDK)
+- **Docker CE** or Docker Desktop (optional)
+- **Git** for version control
+- **Minimum 4GB RAM** recommended for development
+- Basic understanding of Spring Boot and JPA
 
-    ```bash
-    cd sitmun-backend-core
-    ```
+### Local Development
 
-3. Edit the file named `.env` inside the directory.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/sitmun/sitmun-backend-core.git
+   cd sitmun-backend-core
+   ```
 
-4. Start the SITMUN Backend Core:
+2. **Build the application**
+   ```bash
+   ./gradlew build -x test
+   ```
 
-    ```bash
-    docker compose up
-    ```
+3. **Run the application**
+   ```bash
+   # Run with Java directly (recommended)
+   java -jar build/libs/sitmun-backend-core.jar --spring.profiles.active=dev
+   
+   # Or use Gradle bootRun directly
+   ./gradlew bootRun --args='--spring.profiles.active=dev'
+   ```
 
-   This command will build and start all the services defined in the `docker-compose.yml` file.
+4. **Verify the service is running**
+   ```bash
+   # Check health status
+   curl http://localhost:8080/api/dashboard/health
+   
+   # Test authentication endpoint
+   curl -X POST http://localhost:8080/api/authenticate \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin","password":"admin"}'
+   ```
 
-5. Access the SITMUN Middleware Proxy at [http://localhost:9001/api/dashboard/health](http://localhost:9002/actuator/health) and expect:
+### Docker Deployment
 
-    ```json
-    {"status":"UP"}
-    ```
+1. **Start with Docker Compose (H2 - Development)**
+   ```bash
+   cd docker/development
+   docker-compose up
+   ```
 
-See [SITMUN Application Stack](https://github.com/sitmun/sitmun-application-stack) as an example of how to deploy and run the proxy as parte of the SITMUN stack.
+2. **PostgreSQL Database**
+   ```bash
+   cd docker/postgres
+   docker-compose up
+   ```
 
-## Deployment modules
+3. **Oracle Database**
+   ```bash
+   cd docker/oracle
+   docker-compose up
+   ```
 
-The **SITMUN backend core** can be deployed using two distinct configurations defined in their respective modules, which
-are:
+4. **Verify deployment**
+   ```bash
+   curl http://localhost:8080/api/dashboard/health
+   ```
 
-- `env\heroku`: This configuration includes all necessary configuration files and data required to deploy a
-  development instance of the **SITMUN backend core** on the Heroku platform using GitHub Actions. This deployment uses a **Heroku Data postgres** as database. It can be accessed
-  at <https://sitmun-backend-core.herokuapp.com/>. The API definitions for this deployment can be found
-  at <https://sitmun-backend-core.herokuapp.com/swagger-ui/index.html>.
-- `env\preprod`: This configuration is intended for running a pre production instance of the **SITMUN backend core** . It includes all necessary configuration files and data for testing the system in preproduction.
+### Troubleshooting
 
-It is possible to run the `env\heroku` configuration locally by executing the following commands:
-
+#### Port Already in Use
 ```bash
-./gradlew stage
-heroku local
+# Use different port
+./gradlew bootRun --args='--spring.profiles.active=dev --server.port=8081'
 ```
 
-This task expects an `.env` file with at least the following properties:
-
-- `JDBC_DATABASE_URL=jdbc:postgresql://{host}/{database}`
-- `JDBC_DATABASE_USERNAME={username}`
-- `JDBC_DATABASE_PASSWORD={password}`
-- `SPRING_PROFILES_ACTIVE=heroku,openapi-provided`
-- `spring.datasource.hikari.auto-commit=false`
-
-With `host`, `database`, `username` and `password` replaced with your values.
-
-These properties are essential for the proper functioning of the system as they provide the necessary configuration for connecting to the target database and ensure the appropriate Spring profiles are active.
-Additionally, the `spring.datasource.hikari.auto-commit` property is set to `false` to prevent automatic commits to the database and maintain better control over transactions.
-
-## Uninstalling SITMUN Backend Core
-
-To stop and remove all services, volumes, and networks defined in the `docker-compose.yml` file, use:
-
+#### Memory Issues
 ```bash
-docker compose down -v
+# Increase heap size
+./gradlew bootRun --args='--spring.profiles.active=dev -Xmx4g -Xms2g'
 ```
 
-## Contributing to SITMUN Application Stack
+#### Docker Issues
+```bash
+# Clean up Docker resources
+cd docker/development
+docker-compose down -v
+docker system prune -f
+```
 
-To contribute to SITMUN Application Stack, follow these steps:
+#### Database Connection Issues
+```bash
+# Check database connectivity
+docker exec sitmun-backend ping postgres
+docker exec sitmun-backend ping oracle
 
-1. **Fork this repository** on GitHub.
-2. **Clone your forked repository** to your local machine.
-3. **Create a new branch** for your changes.
-4. **Make your changes** and commit them.
-5. **Push your changes** to your forked repository.
-6. **Create the pull request** from your branch on GitHub.
+# Verify database configuration
+curl http://localhost:8080/api/dashboard/health
+```
 
-Alternatively, see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+## API Reference
+
+### Endpoints
+
+| Endpoint | Method | Description | Access | Controller |
+|----------|--------|-------------|--------|------------|
+| `/api/authenticate` | POST | User authentication | Public | AuthenticationController |
+| `/api/account` | GET | User account management | Authenticated | UserController |
+| `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
+| `/api/account/public/{id}` | GET | Get public user info | Public | UserController |
+| `/api/account/all` | GET | Get all users | Authenticated | UserController |
+| `/api/config/client/application` | GET | Client application configuration | Authenticated | ClientConfigurationController |
+| `/api/config/proxy` | POST | Proxy configuration | Authenticated | ProxyConfigurationController |
+| `/api/dashboard/health` | GET | Health check | Public | Actuator |
+| `/api/user-verification/verify-password` | POST | Verify user password | Public | VerificationController |
+| `/api/user-verification/verify-email` | POST | Verify email availability | Public | VerificationController |
+| `/api/userTokenValid` | GET | Validate user token | Public | UserTokenController |
+| `/api/recover-password` | POST | Send password recovery email | Public | RecoverPasswordController |
+| `/api/recover-password` | PUT | Reset password with token | Public | RecoverPasswordController |
+| `/api/connections/{id}/test` | GET | Test database connection | Admin | DatabaseConnectionController |
+| `/api/connections/test` | POST | Test database connection config | Admin | DatabaseConnectionController |
+| `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
+| `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
+| `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
+
+### Usage Examples
+
+#### Authentication
+```bash
+# Login
+curl -X POST http://localhost:8080/api/authenticate \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
+
+# Response
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+#### Health Check
+```bash
+curl http://localhost:8080/api/dashboard/health
+
+# Response
+{
+  "status": "UP"
+}
+```
+
+#### User Verification
+```bash
+# Verify password
+curl -X POST http://localhost:8080/api/user-verification/verify-password \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
+
+# Verify email
+curl -X POST http://localhost:8080/api/user-verification/verify-email \
+  -H "Content-Type: application/json" \
+  -d '"admin@example.com"'
+```
+
+#### Password Recovery
+```bash
+# Request password recovery
+curl -X POST http://localhost:8080/api/recover-password \
+  -H "Content-Type: application/json" \
+  -d '{"login":"admin@example.com"}'
+
+# Reset password
+curl -X PUT http://localhost:8080/api/recover-password \
+  -H "Content-Type: application/json" \
+  -d '{"token":"recovery-token","newPassword":"newpassword"}'
+```
+
+#### Database Connection Testing
+```bash
+# Test existing connection
+curl -X GET http://localhost:8080/api/connections/1/test
+
+# Test new connection configuration
+curl -X POST http://localhost:8080/api/connections/test \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "test-connection",
+    "driver": "org.postgresql.Driver",
+    "url": "jdbc:postgresql://localhost:5432/testdb",
+    "username": "user",
+    "password": "password"
+  }'
+```
+
+#### Service Capabilities Extraction
+```bash
+# Extract WMS capabilities
+curl -X GET "http://localhost:8080/api/helpers/capabilities?url=http://example.com/wms"
+
+# Extract feature type information
+curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.com/wfs"
+```
+
+### Request Parameters
+
+#### Authentication Request
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+
+#### Proxy Configuration Request
+```json
+{
+  "appId": "integer",
+  "terId": "integer", 
+  "type": "string",
+  "typeId": "integer",
+  "token": "string"
+}
+```
+
+#### Password Recovery Request
+```json
+{
+  "login": "string"
+}
+```
+
+#### Password Reset Request
+```json
+{
+  "token": "string",
+  "newPassword": "string"
+}
+```
+
+#### Database Connection Test Request
+```json
+{
+  "name": "string",
+  "driver": "string",
+  "url": "string",
+  "username": "string",
+  "password": "string"
+}
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `dev` | No |
+| `SPRING_DATASOURCE_URL` | Database connection URL | H2 in-memory | Yes (prod) |
+| `SPRING_DATASOURCE_USERNAME` | Database username | `sa` | Yes (prod) |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | `` | Yes (prod) |
+| `SITMUN_USER_SECRET` | JWT signing secret | Auto-generated | No |
+| `SITMUN_PROXY_MIDDLEWARE_SECRET` | Proxy middleware secret | Auto-generated | No |
+
+### Profiles
+
+- **dev** (default): H2 in-memory database, development logging
+- **test**: H2 with test data, test-specific configuration
+- **postgres**: PostgreSQL database configuration
+- **oracle**: Oracle database configuration
+- **ldap**: LDAP authentication enabled
+- **mail**: Email functionality enabled
+- **prod**: Production configuration with security optimizations
+
+### Configuration Files
+
+#### Application Configuration (`application.yml`)
+```yaml
+spring:
+  application:
+    name: SITMUN
+  liquibase:
+    change-log: file:./config/db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+sitmun:
+  module: SITMUN Core
+  version: 3.0-SNAPSHOT
+  user:
+    secret: ${SITMUN_USER_SECRET:auto-generated}
+    token-validity-in-milliseconds: 36000000
+  proxy-middleware:
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    config-response-validity-in-seconds: 3600
+```
+
+#### Database Configuration Examples
+
+**PostgreSQL:**
+```yaml
+spring:
+  profiles:
+    active: postgres
+  datasource:
+    url: jdbc:postgresql://postgres:5432/sitmun
+    username: sitmun
+    password: sitmun123
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+```
+
+**Oracle:**
+```yaml
+spring:
+  profiles:
+    active: oracle
+  datasource:
+    url: jdbc:oracle:thin:@oracle:1521:XE
+    username: sitmun
+    password: sitmun123
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+```
+
+## Architecture
+
+### Technology Stack
+
+- **Java**: 17 (LTS)
+- **Spring Boot**: 3.5.4
+- **Spring Security**: JWT authentication and authorization
+- **Spring Data JPA**: Data persistence layer
+- **Spring Data REST**: REST API generation
+- **QueryDSL**: Type-safe query building
+- **MapStruct**: Object mapping
+- **Liquibase**: Database migration
+- **H2/PostgreSQL/Oracle**: Database support
+- **OpenAPI/Swagger**: API documentation
+- **JUnit 5**: Testing framework
+- **Gradle**: Build system
+- **Docker**: Containerization
+
+### System Architecture
+
+The application follows a layered architecture pattern:
+
+```
+Controllers → Services → Repositories → Entities
+     ↓           ↓           ↓           ↓
+   REST API   Business   Data Access   Domain
+              Logic      Layer         Model
+```
+
+### Key Components
+
+- **Domain Layer**: JPA entities with custom type converters and validators
+- **Repository Layer**: Spring Data JPA with custom queries and REST exposure
+- **Service Layer**: Business logic with constructor injection and functional programming
+- **Controller Layer**: REST endpoints with security context and pagination
+- **Infrastructure**: Security, persistence, and web configurations
+
+### Request Processing Flow
+
+1. **Request Reception**: REST controller receives HTTP request
+2. **Authentication**: JWT token validation and user authentication
+3. **Authorization**: Role-based access control verification
+4. **Request Validation**: Input validation and sanitization
+5. **Business Logic**: Service layer processing
+6. **Data Access**: Repository layer database operations
+7. **Response Generation**: DTO mapping and response formatting
+8. **Security Headers**: CORS and security headers added
+
+### Domain Model
+
+The application manages several key domain entities:
+
+- **User**: Authentication and user management
+- **Application**: Geospatial application configuration
+- **Territory**: Hierarchical territorial organization
+- **Cartography**: WMS, WFS, WMTS service configuration
+- **Task**: Geospatial task execution
+- **Role**: User roles and permissions
+- **Background**: Application background configuration
+- **Service**: External service integration
+
+## Development
+
+### Project Structure
+
+```
+src/
+├── main/
+│   ├── java/org/sitmun/
+│   │   ├── Application.java              # Main application class
+│   │   ├── authentication/              # Authentication controllers
+│   │   ├── authorization/               # Security and authorization
+│   │   ├── administration/              # Admin functionality
+│   │   │   ├── controller/             # Admin controllers
+│   │   │   └── service/                # Admin services
+│   │   ├── domain/                      # Domain entities and repositories
+│   │   │   ├── application/            # Application management
+│   │   │   ├── cartography/            # Cartography services
+│   │   │   ├── territory/              # Territory management
+│   │   │   ├── task/                   # Task management
+│   │   │   ├── user/                   # User management
+│   │   │   └── ...
+│   │   ├── infrastructure/             # Technical infrastructure
+│   │   │   ├── persistence/           # Database configuration
+│   │   │   ├── security/              # Security configuration
+│   │   │   └── web/                   # Web configuration
+│   │   ├── recover/                   # Password recovery
+│   │   └── verification/              # User verification
+│   └── resources/
+│       ├── application.yml             # Main configuration
+│       ├── static/v3/                 # OpenAPI specifications
+│       └── templates/                 # Email templates
+├── test/                              # Test code
+└── docker/                            # Docker configurations
+    ├── development/                   # H2 development setup
+    ├── postgres/                      # PostgreSQL setup
+    └── oracle/                        # Oracle setup
+```
+
+### Build System
+
+The project uses Gradle with version catalogs for dependency management:
+
+```toml
+# gradle/libs.versions.toml
+[versions]
+spring-boot = "3.5.4"
+project-version = "0.9.0-SNAPSHOT"
+
+[libraries]
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+# ... additional dependencies
+```
+
+### Code Quality
+
+The project enforces high code quality standards:
+
+- **Spotless**: Automated code formatting
+- **SonarQube**: Code quality analysis
+- **JaCoCo**: Code coverage reporting
+- **Conventional Commits**: Structured commit messages
+- **Git Hooks**: Pre-commit validation
+
+### Testing
+
+Comprehensive testing strategy:
+
+```bash
+# Run all tests
+./gradlew test
+
+# Test with PostgreSQL
+./gradlew testPostgres
+
+# Test with Oracle
+./gradlew testOracle
+
+# Run specific test class
+./gradlew test --tests AuthenticationControllerTest
+```
+
+### Development Workflow
+
+1. **Setup**: Clone repository and run with H2 database
+2. **Development**: Use dev profile for local development
+3. **Testing**: Write tests for new functionality
+4. **Quality**: Run quality checks before committing
+5. **Commit**: Use conventional commit format
+6. **Deploy**: Use appropriate profile for deployment
+
+## Advanced Features
+
+### Security and Authentication
+
+The application provides comprehensive security features:
+
+- **JWT Authentication**: Secure token-based authentication
+- **Role-Based Access Control**: Fine-grained permission system
+- **Application Privacy**: Applications can be marked as private
+- **Public User Support**: Anonymous access with restrictions
+- **LDAP Integration**: Enterprise authentication support
+- **Password Security**: Secure password storage and validation
+
+#### JWT Token Configuration
+```yaml
+sitmun:
+  user:
+    secret: ${SITMUN_USER_SECRET:auto-generated}
+    token-validity-in-milliseconds: 36000000
+```
+
+#### LDAP Configuration
+```yaml
+spring:
+  profiles:
+    active: ldap
+  ldap:
+    urls: ldap://ldap.example.com:389
+    base: dc=example,dc=com
+    username: cn=admin,dc=example,dc=com
+    password: admin_password
+```
+
+### Monitoring and Observability
+
+- **Spring Boot Actuator**: Health checks and metrics
+- **Custom Health Indicators**: Application-specific health monitoring
+- **Request Logging**: Comprehensive request/response logging
+- **Error Tracking**: Detailed error logging and monitoring
+- **Performance Metrics**: Request timing and performance monitoring
+
+#### Actuator Endpoints
+
+| Endpoint | Description | Access |
+|----------|-------------|--------|
+| `/api/dashboard/health` | Application health status | Public |
+| `/api/dashboard/info` | Application information | Public |
+| `/api/dashboard/metrics` | Application metrics | Authenticated |
+
+## Integration with SITMUN
+
+This service is designed to provide core backend functionality for the [SITMUN](https://github.com/sitmun/) platform. It integrates with other SITMUN components to provide a complete geospatial solution.
+
+### Prerequisites
+
+Before integrating the Backend Core with SITMUN, ensure you have:
+
+- **Database**: PostgreSQL or Oracle configured
+- **Network connectivity**: Between all SITMUN components
+- **Shared secret keys**: For secure communication
+- **LDAP server**: If using enterprise authentication
+
+### Configuration Steps
+
+#### 1. Security Configuration
+
+Configure JWT and proxy middleware secrets:
+
+```yaml
+sitmun:
+  user:
+    secret: ${SITMUN_USER_SECRET:your-secret-key}
+    token-validity-in-milliseconds: 36000000
+  proxy-middleware:
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:your-proxy-secret}
+    config-response-validity-in-seconds: 3600
+```
+
+#### 2. SITMUN Map Viewer Integration
+
+Configure the SITMUN Map Viewer to use the Backend Core:
+
+```javascript
+// Map Viewer configuration
+const mapViewerConfig = {
+  backend: {
+    baseUrl: 'http://localhost:8080/api',
+    authentication: {
+      endpoint: '/authenticate',
+      tokenStorage: 'localStorage'
+    }
+  },
+  applications: {
+    endpoint: '/config/client/application'
+  }
+};
+```
+
+#### 3. SITMUN Proxy Middleware Integration
+
+Configure the Proxy Middleware to connect to the Backend Core:
+
+```yaml
+# Proxy Middleware configuration
+sitmun:
+  backend:
+    config:
+      url: http://sitmun-backend:8080/api/config/proxy
+      secret: your-shared-secret
+```
+
+#### 4. Network Configuration
+
+Ensure proper network connectivity between components:
+
+```yaml
+# Docker Compose network configuration
+services:
+  sitmun-backend:
+    # ... backend configuration
+    networks:
+      - sitmun-network
+  sitmun-proxy-middleware:
+    # ... proxy configuration
+    networks:
+      - sitmun-network
+    environment:
+      - SITMUN_BACKEND_CONFIG_URL=http://sitmun-backend:8080/api/config/proxy
+      - SITMUN_BACKEND_CONFIG_SECRET=your-shared-secret
+
+networks:
+  sitmun-network:
+    driver: bridge
+```
+
+### Service Types and Configuration
+
+The Backend Core supports different service types that can be configured:
+
+#### WMS Services
+```json
+{
+  "type": "wms",
+  "url": "http://wms-service/wms",
+  "layers": ["layer1", "layer2"],
+  "authentication": {
+    "type": "basic",
+    "username": "wms_user",
+    "password": "wms_password"
+  }
+}
+```
+
+#### WFS Services
+```json
+{
+  "type": "wfs",
+  "url": "http://wfs-service/wfs",
+  "featureTypes": ["feature1", "feature2"],
+  "authentication": {
+    "type": "bearer",
+    "token": "your-jwt-token"
+  }
+}
+```
+
+#### JDBC Services
+```json
+{
+  "type": "jdbc",
+  "url": "jdbc:postgresql://database:5432/spatial_data",
+  "username": "db_user",
+  "password": "db_password",
+  "query": "SELECT * FROM spatial_data WHERE territory_id = ?"
+}
+```
+
+### Troubleshooting Integration
+
+#### Common Issues
+
+1. **Database Connection Failures**
+   ```bash
+   # Check database connectivity
+   docker exec sitmun-backend ping postgres
+   
+   # Verify database configuration
+   curl http://localhost:8080/api/dashboard/health
+   ```
+
+2. **Authentication Failures**
+   ```bash
+   # Check JWT token format
+   curl -H "Authorization: Bearer your-token" http://localhost:8080/api/account
+   
+   # Verify user credentials
+   curl -X POST http://localhost:8080/api/authenticate \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin","password":"admin"}'
+   ```
+
+3. **LDAP Configuration Issues**
+   ```bash
+   # Test LDAP connection
+   curl -X POST http://localhost:8080/api/authenticate \
+     -H "Content-Type: application/json" \
+     -d '{"username":"ldap_user","password":"ldap_password"}'
+   ```
+
+#### Debug Mode
+
+```bash
+# Enable debug logging for integration issues
+export LOGGING_LEVEL_ORG_SITMUN=DEBUG
+export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+
+# Restart the backend
+docker-compose restart sitmun-backend
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes following the conventional commit format
+4. Add tests for new functionality
+5. Ensure all tests pass and code is formatted
+6. Submit a pull request
+
+### Development Guidelines
+
+- Follow the conventional commit format
+- Write tests for new functionality
+- Ensure code coverage remains high
+- Run quality checks before committing
+- Update documentation as needed
+
+#### Conventional Commit Format
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes
+- `refactor`: Code refactoring
+- `test`: Test changes
+- `chore`: Maintenance tasks
+- `perf`: Performance improvements
+- `ci`: CI/CD changes
+- `build`: Build system changes
+
+**Examples:**
+```bash
+git commit -m "feat(auth): add LDAP authentication support"
+git commit -m "fix(api): resolve JWT token validation issue"
+git commit -m "docs: update README with deployment instructions"
+git commit -m "test: add integration tests for user verification"
+git commit -m "style: format code with Google Java Format"
+```
+
+#### Managing Git Hooks
+```bash
+# Install Git hooks (automatic with build)
+./gradlew setupGitHooks
+
+# Remove Git hooks
+./gradlew removeGitHooks
+```
+
+## Support
+
+For questions and support:
+
+- Open an issue on GitHub
+- Check the [SITMUN documentation](https://sitmun.github.io/)
+- Join the SITMUN community discussions
 
 ## License
 

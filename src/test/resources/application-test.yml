@@ -1,0 +1,61 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "test" profile.
+#
+# This configuration provides base test settings and uses profiles to select database type.
+# Database-specific configurations are in separate profile files.
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+# ===================================================================
+# Spring Configuration
+# ===================================================================
+spring:
+
+  # JPA Configuration (common for all databases)
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+
+  # H2 Console (disabled for security in tests)
+  h2:
+    console:
+      enabled: false
+
+# ===================================================================
+# Logging Configuration
+# ===================================================================
+logging:
+  level:
+    # Reduce noise from Spring Security during tests
+    org.springframework.security: WARN
+    # Reduce Hibernate SQL logging in tests
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    # Reduce Liquibase logging
+    liquibase: WARN
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
+
+sitmun:
+  backend:
+    url: http://localhost:8080/api
+  proxy-middleware:
+    force: false
+    url: http://localhost:8080/middleware

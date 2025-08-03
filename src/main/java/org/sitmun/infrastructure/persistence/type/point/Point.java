@@ -1,14 +1,11 @@
 package org.sitmun.infrastructure.persistence.type.point;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.Objects;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 
-import java.util.Objects;
-
-/**
- * Defines a 2D point .
- */
+/** Defines a 2D point . */
 @Builder
 @Getter
 @Setter
@@ -18,23 +15,19 @@ import java.util.Objects;
 @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
 public class Point {
 
-  /**
-   * The x-value.
-   */
+  /** The x-value. */
   private Double x;
 
-  /**
-   * The y-value.
-   */
+  /** The y-value. */
   private Double y;
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
-        return false;
+      return false;
     }
     Point point = (Point) obj;
     return Objects.equals(x, point.x) && Objects.equals(y, point.y);

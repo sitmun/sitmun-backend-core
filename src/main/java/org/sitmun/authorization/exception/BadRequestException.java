@@ -7,5 +7,4 @@ public class BadRequestException extends AuthenticationException {
   public BadRequestException(String msg) {
     super(msg);
   }
-
 }

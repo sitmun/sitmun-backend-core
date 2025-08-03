@@ -1,8 +1,14 @@
 package org.sitmun.domain.user;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import lombok.*;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -13,19 +19,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-/**
- * User.
- */
+/** User. */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_USER", uniqueConstraints = @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = "USE_USER"))
+@Table(
+    name = "STM_USER",
+    uniqueConstraints = @UniqueConstraint(name = "STM_USU_USU_UK", columnNames = "USE_USER"))
 @Builder(toBuilder = true)
 @Getter
 @Setter
@@ -34,106 +33,78 @@ import java.util.Set;
 public class User {
 
   @TableGenerator(
-    name = "STM_USER_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "USE_ID",
-    allocationSize = 1)
+      name = "STM_USER_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "USE_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_USER_GEN")
   @Column(name = "USE_ID")
   private Integer id;
 
-  /**
-   * User login.
-   */
+  /** User login. */
   @Column(name = "USE_USER", length = PersistenceConstants.IDENTIFIER)
   private String username;
 
-  /**
-   * User password hash.
-   */
+  /** User password hash. */
   @Column(name = "USE_PWD", length = 128)
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 
-  @JsonIgnore
-  @Transient
-  private String storedPassword;
+  @JsonIgnore @Transient private String storedPassword;
 
-  /**
-   * User first name.
-   */
-  @Column(name = "USE_NAME", length = 30)
+  /** User first name. */
+  @Column(name = "USE_NAME", length = PersistenceConstants.IDENTIFIER)
   private String firstName;
 
-  /**
-   * User last name.
-   */
-  @Column(name = "USE_SURNAME", length = 40)
+  /** User last name. */
+  @Column(name = "USE_SURNAME", length = PersistenceConstants.IDENTIFIER)
   private String lastName;
 
-  /**
-   * User identification number.
-   */
+  /** User identification number. */
   @Column(name = "USE_IDENT", length = PersistenceConstants.IDENTIFIER)
   private String identificationNumber;
 
-  /**
-   * User identification type.
-   */
+  /** User identification type. */
   @Column(name = "USE_IDENTTYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeListsConstants.USER_IDENTIFICATION_TYPE)
   private String identificationType;
 
-  /**
-   * If <code>true</code>, the user is a system administrator.
-   */
+  /** If <code>true</code>, the user is a system administrator. */
   @Column(name = "USE_ADM")
   @NotNull
   private Boolean administrator;
 
-  /**
-   * If <code>true</code>, the user is blocked and cannot log to the system.
-   */
+  /** If <code>true</code>, the user is blocked and cannot log to the system. */
   @Column(name = "USE_BLOCKED")
   @NotNull
   private Boolean blocked;
 
-  /**
-   * If <code>true</code>, the user acts on behalf of any citizen.
-   */
-  @Column(name = "USE_GENERIC")
-  private Boolean generic;
+  /** User email. */
+  @Column(name = "USE_EMAIL", length = PersistenceConstants.IDENTIFIER)
+  @Email
+  private String email;
 
-
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   @Column(name = "USE_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date createdDate;
 
-  /**
-   * Last modification date.
-   */
+  /** Last modification date. */
   @Column(name = "USE_UPDATED")
   @Temporal(TemporalType.TIMESTAMP)
   @LastModifiedDate
   private Date lastModifiedDate;
 
-  /**
-   * User positions.
-   */
+  /** User positions. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<UserPosition> positions = new HashSet<>();
 
-  /**
-   * User permissions.
-   */
+  /** User permissions. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<UserConfiguration> permissions = new HashSet<>();
@@ -155,14 +126,12 @@ public class User {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof User)) {
-        return false;
+    if (!(obj instanceof User other)) {
+      return false;
     }
-
-    User other = (User) obj;
 
     return Objects.equals(id, other.getId());
   }
@@ -171,5 +140,4 @@ public class User {
   public int hashCode() {
     return getClass().hashCode();
   }
-
 }

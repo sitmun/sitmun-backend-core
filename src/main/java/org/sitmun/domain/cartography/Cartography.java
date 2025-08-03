@@ -1,7 +1,14 @@
 package org.sitmun.domain.cartography;
 
+import static org.sitmun.domain.PersistenceConstants.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.*;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -17,22 +24,12 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.*;
-
-import static org.sitmun.domain.PersistenceConstants.*;
-
-/**
- * Geographic information.
- */
+/** Geographic information. */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "STM_GEOINFO")
@@ -43,119 +40,92 @@ import static org.sitmun.domain.PersistenceConstants.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Cartography {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_GEOINFO_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "GEO_ID",
-    allocationSize = 1)
+      name = "STM_GEOINFO_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "GEO_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GEOINFO_GEN")
   @Column(name = "GEO_ID")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer id;
 
-  /**
-   * Cartography name.
-   */
+  /** Cartography name. */
   @Column(name = "GEO_NAME", length = 100)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
-  /**
-   * Cartography description.
-   */
+  /** Cartography description. */
   @Column(name = "GEO_ABSTRACT", length = LONG_DESCRIPTION)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String description;
 
-  /**
-   * List of layer identifiers.
-   */
+  /** List of layer identifiers. */
   @Column(name = "GEO_LAYERS", length = 800)
   @NotNull
   @Convert(converter = StringListAttributeConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private List<String> layers;
 
-  /**
-   * Minimum scale visibility.
-   */
+  /** Minimum scale visibility. */
   @Column(name = "GEO_MINSCALE")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer minimumScale;
 
-  /**
-   * Maximum visibility.
-   */
+  /** Maximum visibility. */
   @Column(name = "GEO_MAXSCALE")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer maximumScale;
 
-  /**
-   * Cartography order appearance.
-   */
+  /** Cartography order appearance. */
   @Column(name = "GEO_ORDER")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer order;
 
-  /**
-   * 0 opaque, 100 translucid.
-   */
+  /** 0 opaque, 100 translucid. */
   @Column(name = "GEO_TRANSP")
   @Min(0)
   @Max(100)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer transparency;
 
-  /**
-   * If <code>true</code>, a filter is applied to GetMap requests.
-   */
+  /** If <code>true</code>, a filter is applied to GetMap requests. */
   @Column(name = "GEO_FILTER_GM")
   private Boolean applyFilterToGetMap;
 
-  /**
-   * If <code>true</code>, the layers are queryable.
-   */
+  /** If <code>true</code>, the layers are queryable. */
   @Column(name = "GEO_QUERYABL")
   @NotNull
   private Boolean queryableFeatureAvailable;
 
   /**
-   * If <code>true</code>, the queryable feature is enabled.
-   * This only applies if the layers are queryable
+   * If <code>true</code>, the queryable feature is enabled. This only applies if the layers are
+   * queryable
    */
   @Column(name = "GEO_QUERYACT")
   @NotNull
   private Boolean queryableFeatureEnabled;
 
-  /**
-   * List of queryable layers.
-   */
+  /** List of queryable layers. */
   @Column(name = "GEO_QUERYLAY", length = 10 * IDENTIFIER)
   @Convert(converter = StringListAttributeConverter.class)
   private List<String> queryableLayers;
 
-  /**
-   * If <code>true</code>, a filter is applied to GetFeatureInfo requests.
-   */
+  /** If <code>true</code>, a filter is applied to GetFeatureInfo requests. */
   @Column(name = "GEO_FILTER_GFI")
   private Boolean applyFilterToGetFeatureInfo;
 
-  /**
-   * Type.
-   */
+  /** Type. */
   @Column(name = "GEO_TYPE", length = IDENTIFIER)
   private String type;
 
-  /**
-   * Portrayal service.
-   */
+  /** Portrayal service. */
   @ManyToOne
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
@@ -200,23 +170,17 @@ public class Cartography {
   @Deprecated
   private Service spatialSelectionService;
 
-  /**
-   * Legend type.
-   */
+  /** Legend type. */
   @Column(name = "GEO_LEGENDTIP", length = IDENTIFIER)
   @CodeList(CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE)
   private String legendType;
 
-  /**
-   * Legend URL.
-   */
+  /** Legend URL. */
   @Column(name = "GEO_LEGENDURL", length = URL)
   @Http
   private String legendURL;
 
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   @Column(name = "GEO_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
@@ -232,56 +196,46 @@ public class Cartography {
   @Deprecated
   private DatabaseConnection spatialSelectionConnection;
 
-  /**
-   * Direct link to a metadata document in an external application.
-   */
+  /** Direct link to a metadata document in an external application. */
   @Column(name = "GEO_METAURL", length = URL)
   @Http
   private String metadataURL;
 
-  /**
-   * Direct link to a dataset file in a service.
-   */
+  /** Direct link to a dataset file in a service. */
   @Column(name = "GEO_DATAURL", length = URL)
   @Http
   private String datasetURL;
 
-  /**
-   * If <code>true</code>, a thematic map can be created from this layer.
-   */
+  /** If <code>true</code>, a thematic map can be created from this layer. */
   @Column(name = "GEO_THEMATIC")
   private Boolean thematic;
 
-  /**
-   * Geometry type.
-   */
+  /** Geometry type. */
   @Column(name = "GEO_GEOMTYPE", length = IDENTIFIER)
   @CodeList(CodeListsConstants.CARTOGRAPHY_GEOMETRY_TYPE)
   private String geometryType;
 
-  /**
-   * Grouping source.
-   */
+  /** Grouping source. */
   @Column(name = "GEO_SOURCE", length = IDENTIFIER)
   private String source;
 
-  /**
-   * Availailability.
-   */
-  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true,
-    fetch = FetchType.LAZY)
+  /** Availailability. */
+  @OneToMany(
+      mappedBy = "cartography",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
   @Builder.Default
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
-  /**
-   * Styles.
-   */
+  /** Styles. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<CartographyStyle> styles = new HashSet<>();
 
   /**
-   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by a style.
+   * <code>true</code> if the cartography must be treated as a set of cartographies, each defined by
+   * a style.
    */
   @NotNull
   @Column(name = "GEO_STYUSEALL")
@@ -298,27 +252,20 @@ public class Cartography {
   @Deprecated
   private CartographyStyle defaultStyle;
 
-  /**
-   * <code>true</code> if the cartography is blocked and cannot be used.
-   */
+  /** <code>true</code> if the cartography is blocked and cannot be used. */
   @NotNull
   @Column(name = "GEO_BLOCKED")
   private Boolean blocked;
 
-  /**
-   * Filters.
-   */
+  /** Filters. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<CartographyFilter> filters = new HashSet<>();
 
-  /**
-   * Parameters.
-   */
+  /** Parameters. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<CartographyParameter> parameters = new HashSet<>();
-
 
   /**
    * Spatial selection parameters.
@@ -330,40 +277,31 @@ public class Cartography {
   @Deprecated
   private Set<CartographySpatialSelectionParameter> spatialSelectionParameters = new HashSet<>();
 
-
-  /**
-   * Tree nodes.
-   */
+  /** Tree nodes. */
   @OneToMany(mappedBy = "cartography")
   @Builder.Default
   private Set<TreeNode> treeNodes = new HashSet<>();
 
-  /**
-   * The permissions that this cartography has.
-   */
+  /** The permissions that this cartography has. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-    name = "STM_GGI_GI",
-    joinColumns = @JoinColumn(
-      name = "GGG_GIID",
-      foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")),
-    inverseJoinColumns = @JoinColumn(
-      name = "GGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")))
+      name = "STM_GGI_GI",
+      joinColumns =
+          @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")),
+      inverseJoinColumns =
+          @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")))
   @Builder.Default
   private Set<CartographyPermission> permissions = new HashSet<>();
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof Cartography)) {
-        return false;
+    if (!(obj instanceof Cartography other)) {
+      return false;
     }
-
-    Cartography other = (Cartography) obj;
 
     return Objects.equals(id, other.getId());
   }

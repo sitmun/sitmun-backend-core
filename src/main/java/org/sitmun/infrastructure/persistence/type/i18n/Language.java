@@ -1,15 +1,12 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import java.util.Objects;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import java.util.Objects;
-
-/**
- * Available languages.
- */
+/** Available languages. */
 @Entity
 @Table(name = "STM_LANGUAGE", uniqueConstraints = @UniqueConstraint(columnNames = "LAN_SHORTNAME"))
 @Builder
@@ -20,31 +17,25 @@ import java.util.Objects;
 @EntityListeners(I18nListener.class)
 public class Language {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_LANGUAGE_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "LAN_ID",
-    allocationSize = 1)
+      name = "STM_LANGUAGE_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "LAN_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_LANGUAGE_GEN")
   @Column(name = "LAN_ID")
   private Integer id;
 
-  /**
-   * BCP 47 language tag.
-   */
+  /** BCP 47 language tag. */
   @Column(name = "LAN_SHORTNAME", length = PersistenceConstants.BCP47_LANGUAGE_TAG)
   @NotBlank
   private String shortname;
 
-  /**
-   * Language name.
-   */
+  /** Language name. */
   @Column(name = "LAN_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @I18n
@@ -53,14 +44,12 @@ public class Language {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof Language)) {
-        return false;
+    if (!(obj instanceof Language other)) {
+      return false;
     }
-
-    Language other = (Language) obj;
 
     return Objects.equals(id, other.getId());
   }

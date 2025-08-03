@@ -1,0 +1,251 @@
+# =====================================================================================================================
+# Spring Boot configuration
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+# ===================================================================
+# Spring Configuration
+# ===================================================================
+spring:
+  application:
+    name: SITMUN
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+      fail_on_empty_beans: false
+      indent-output: true
+  jmx:
+    enabled: false
+  liquibase:
+    change-log: file:./config/db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        # Disable CLOB creation for better database compatibility
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  data:
+    rest:
+      default-page-size: 100000
+      max-page-size: 100000
+
+# ===================================================================
+# Logging Configuration
+# ===================================================================
+logging:
+  level:
+    ROOT: INFO
+
+# ===================================================================
+# Management and Monitoring
+# ===================================================================
+management:
+  metrics:
+    enable:
+      all: false
+      sitmun: true
+  endpoints:
+    web:
+      base-path: /api/dashboard
+      exposure:
+        include: health,info
+  health:
+    ldap:
+      enabled: false
+    mail:
+      enabled: false
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
+
+sitmun:
+  module: SITMUN Core
+  version: 3.0-SNAPSHOT
+  language: en
+  user:
+    secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+    token-validity-in-milliseconds: 36000000
+  proxy-middleware:
+    secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+    config-response-validity-in-seconds: 3600
+    force: false
+    url: http://localhost:8080/middleware
+  ui:
+    image:
+      supportedFormats:
+        - png
+        - jpg
+        - jpeg
+      defaultWidth: 125
+      defaultHeight: 125
+      sizes:
+        - type: menu
+          width: 50
+          height: 50
+        - type: list
+          width: 350
+          height: 350
+  dashboard:
+    fetchMetrics: 60000
+    initialDelay: 60000
+    cartographies-by-created-date:  # count cartographies by created data
+      size: 30 # last days; add c.createdDate >= :sinceDate in production
+      query: |
+        select year(c.createdDate) as y, month(c.createdDate) as m, day(c.createdDate) as d, count(c) 
+        from Cartography as c
+        group by year(c.createdDate), month(c.createdDate), day(c.createdDate)
+        order by y, m, d desc
+    users-by-created-date: # count users by created date
+      size: 30 # last days; u.createdDate >= :sinceDate in production
+      query: |
+        select year(u.createdDate) as y, month(u.createdDate) as m, count(u)
+        from User u
+        group by year(u.createdDate), month(u.createdDate)
+        order by y, m desc
+    users-per-application:  # count users per application since created date
+      size: 30 # last days; add uc.createdDate >= :sinceDate in production
+      query: |
+        select app.name, count(distinct uc.user)
+        from UserConfiguration uc, Role r, Application app
+        where uc.role = r and r member of app.availableRoles
+        group by app.name
+  startup:
+    code-lists:
+      check-on-startup: true
+      database-connection-drivers:
+        - driver-class: org.h2.Driver
+          description: H2 JDBC Driver
+        - driver-class: org.postgresql.Driver
+          description: PostgreSQL JDBC Driver
+        - driver-class: oracle.jdbc.OracleDriver
+          description: Oracle JDBC driver
+      code-list-values:
+        - code-list-name: application.type
+          value: T
+          description: Tourist application
+        - code-list-name: application.type
+          value: ED
+          description: Edition application
+        - code-list-name: tree.type
+          value: touristic
+          description: Tourist application
+        - code-list-name: tree.type
+          value: edition
+          description: Edition tree
+        - code-list-name: treenode.folder.type
+          value: cartography
+          description: Cartography
+        - code-list-name: treenode.leaf.type
+          value: cartography
+          description: Cartography
+        - code-list-name: treenode.folder.type
+          value: menu
+          description: Menu
+        - code-list-name: treenode.folder.type
+          value: list
+          description: List
+        - code-list-name: treenode.leaf.type
+          value: task
+          description: Task
+        - code-list-name: treenode.folder.type
+          value: fav
+          description: Favorites
+        - code-list-name: treenode.folder.type
+          value: map
+          description: Map
+        - code-list-name: treenode.viewmode
+          value: dl
+          description: Detailed list
+        - code-list-name: treenode.viewmode
+          value: ne
+          description: Near elements
+        - code-list-name: treenode.viewmode
+          value: sch
+          description: Schedule
+        - code-list-name: treenode.viewmode
+          value: evtcat
+          description: Events categories
+        - code-list-name: treenode.viewmode
+          value: evt
+          description: Events
+        - code-list-name: treenode.viewmode
+          value: evtloc
+          description: Events locations
+        - code-list-name: treenode.viewmode
+          value: ms
+          description: Map search
+        - code-list-name: treenode.folder.type
+          value: nm
+          description: Near me
+        - code-list-name: taskEntity.jsonParamType
+          value: string
+          description: string
+        - code-list-name: taskEntity.jsonParamType
+          value: number
+          description: number
+        - code-list-name: taskEntity.jsonParamType
+          value: boolean
+          description: boolean
+        - code-list-name: taskEntity.jsonParamType
+          value: object
+          description: object
+        - code-list-name: taskEntity.jsonParamType
+          value: array
+          description: array
+        - code-list-name: taskEntity.jsonParamType
+          value: "null"
+          description: "null"
+        - code-list-name: taskEntity.queryType
+          value: A
+          description: tasksEntity.autocomplete
+        - code-list-name: taskEntity.queryType
+          value: I
+          description: tasksEntity.input
+        - code-list-name: taskEntity.queryType
+          value: C
+          description: tasksEntity.combo
+        - code-list-name: queryTask.scope
+          value: sql-query
+          description: "SQL Query"
+        - code-list-name: queryTask.scope
+          value: web-api-query
+          description: "Web API Query"
+        - code-list-name: queryTask.scope
+          value: cartography-query
+          description: "Cartography Query"
+        - code-list-name: queryTask.parameterType
+          value: template
+          description: "Template parameter"
+        - code-list-name: queryTask.parameterType
+          value: query
+          description: "Query parameter"
+        - code-list-name: editTask.scope
+          value: feat-edit
+          description: "Features service edition (WFS)"
+        - code-list-name: editTask.scope
+          value: db-edit
+          description: "Database edition"
+        - code-list-name: editTask.fieldType
+          value: text
+          description: "Text"
+        - code-list-name: editTask.fieldType
+          value: date
+          description: "Date"
+        - code-list-name: editTask.fieldType
+          value: image
+          description: "Image"
+        - code-list-name: editTask.fieldType
+          value: number
+          description: "Number"
+        - code-list-name: editTask.fieldType
+          value: listbox
+          description: "ListBox"

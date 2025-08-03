@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -cp "sitmun.jar:env/heroku/resources/config" org.springframework.boot.loader.JarLauncher
+web: java -Dspring.profiles.active=heroku -Dserver.port=$PORT $JAVA_OPTS -cp sitmun.jar org.springframework.boot.loader.JarLauncher

@@ -4,6 +4,9 @@ import org.springframework.core.env.Profiles;
 
 public class Constants {
 
-  static final Profiles heroku = Profiles.of("heroku");
+  private Constants() {
+    // Prevent instantiation
+  }
 
+  static final Profiles heroku = Profiles.of("heroku");
 }

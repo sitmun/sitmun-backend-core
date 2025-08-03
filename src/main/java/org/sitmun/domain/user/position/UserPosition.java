@@ -1,6 +1,12 @@
 package org.sitmun.domain.user.position;
 
+import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -12,20 +18,22 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Objects;
-
-import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
-
 /**
  * User position in a territory.
+ *
+ * <p>This entity represents a user's role or position within a specific territory. It includes: -
+ * Basic position information (name, organization) - Contact details (email) - Temporal information
+ * (creation, modification, expiration dates) - Type classification - Relationships with User and
+ * Territory entities
+ *
+ * <p>The position is uniquely identified by the combination of user and territory. When either the
+ * user or territory is deleted, the position is automatically removed (cascade delete).
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_POST", uniqueConstraints = @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"}))
+@Table(
+    name = "STM_POST",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"POS_USERID", "POS_TERID"}))
 @Builder
 @Getter
 @Setter
@@ -33,82 +41,62 @@ import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserPosition {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_POST_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "POS_ID",
-    allocationSize = 1)
+      name = "STM_POST_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "POS_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_POST_GEN")
   @Column(name = "POS_ID")
   private Integer id;
 
-  /**
-   * Position description.
-   */
+  /** Position description. */
   @Column(name = "POS_POST", length = 250)
   private String name;
 
-  /**
-   * Organization.
-   */
+  /** Organization. */
   @Column(name = "POS_ORG", length = 250)
   private String organization;
 
-  /**
-   * Email.
-   */
+  /** Email. */
   @Column(name = "POS_EMAIL", length = 250)
   @Email
   private String email;
 
-  /**
-   * Creation date.
-   */
+  /** Creation date. */
   @Column(name = "POS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date createdDate;
 
-  /**
-   * Last modification date.
-   */
+  /** Last modification date. */
   @Column(name = "POS_UPDATED")
   @Temporal(TemporalType.TIMESTAMP)
   @LastModifiedDate
   private Date lastModifiedDate;
 
-  /**
-   * Expiration date.
-   */
+  /** Expiration date. */
   @Column(name = "POS_EXPIRATION")
   @Temporal(TemporalType.TIMESTAMP)
   private Date expirationDate;
 
-  /**
-   * Type of user (only used in some cases).
-   */
+  /** Type of user (only used in some cases). */
   @Column(name = "POS_TYPE", length = IDENTIFIER)
   @CodeList(CodeListsConstants.USER_POSITION_TYPE)
   private String type;
 
-  /**
-   * User.
-   */
+  /** User. */
   @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "POS_USERID", foreignKey = @ForeignKey(name = "STM_POS_FK_USE"))
   @NotNull
   private User user;
 
-  /**
-   * Territory.
-   */
+  /** Territory. */
   @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "POS_TERID", foreignKey = @ForeignKey(name = "STM_POS_FK_TER"))
@@ -118,14 +106,12 @@ public class UserPosition {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof UserPosition)) {
-        return false;
+    if (!(obj instanceof UserPosition other)) {
+      return false;
     }
-
-    UserPosition other = (UserPosition) obj;
 
     return Objects.equals(id, other.getId());
   }

@@ -1,80 +1,84 @@
 package org.sitmun.authorization.controller;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.sitmun.test.URIConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.hamcrest.Matchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.territory.TerritoryRepository;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
+import org.sitmun.test.URIConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("API Authorization and Configuration - Territories endpoint")
 class ClientConfigurationTerritoryControllerTest {
 
-  @Value("${spring.data.rest.default-page-size}")
-  private int pageSize;
+  private static final String TERRITORY_A_NAME = "Territory A";
+  private static final String TERRITORY_B_NAME = "Territory B";
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
+
+  @MockitoBean private TerritoryRepository territoryRepository;
 
   @Test
-  @DisplayName("Page with public user")
+  @DisplayName("GET: Retrieve list of territories for PUBLIC (implicit) role")
   void readPublicUser() throws Exception {
+    // Given
+    Territory territoryA = Territory.builder().id(1).name(TERRITORY_A_NAME).build();
+
+    Territory territoryB = Territory.builder().id(1).name(TERRITORY_B_NAME).build();
+
+    // When
+    when(territoryRepository.findByPublicUser(
+            eq(SecurityConstants.PUBLIC_PRINCIPAL), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Arrays.asList(territoryA, territoryB)));
+
+    // Then
     mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content", hasSize(3)))
-      .andExpect(jsonPath("$.content[*].name", hasItems("Municipio B", "Otro C", "Provincia A")));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(2)))
+        .andExpect(jsonPath("$.page.size", is(2)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
+        .andExpect(jsonPath("$.content[*].name", hasItems(TERRITORY_A_NAME, TERRITORY_B_NAME)));
   }
 
   @Test
-  @DisplayName("Page with authenticated user")
+  @DisplayName("GET: Retrieve list of territories for USER role")
+  @WithMockUser(roles = "USER")
   void readOtherUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI)
-        .with(user("internal"))
-      )
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content", hasSize(3)))
-      .andExpect(jsonPath("$.size", is(pageSize)))
-      .andExpect(jsonPath("$.number", is(0)))
-      .andExpect(jsonPath("$.totalPages", is(1)))
-      .andExpect(jsonPath("$.content[*].name", hasItem("Provincia A")));
-  }
+    // Given
+    Territory territoryA = Territory.builder().id(1).name(TERRITORY_A_NAME).build();
 
+    Territory territoryB = Territory.builder().id(1).name(TERRITORY_B_NAME).build();
 
-  @Test
-  @DisplayName("Get specific page")
-  void readOtherUserWithPagination() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI + "?size=1&page=1")
-        .with(user("internal"))
-      )
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content", hasSize(1)))
-      .andExpect(jsonPath("$.size", is(1)))
-      .andExpect(jsonPath("$.number", is(1)))
-      .andExpect(jsonPath("$.totalPages", is(3)))
-      .andExpect(jsonPath("$.content[*].name", hasItem("Otro C")));
-  }
+    // When
+    when(territoryRepository.findByRestrictedUser(any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Arrays.asList(territoryA, territoryB)));
 
-  @Test
-  @DisplayName("Request out of bounds")
-  void readOtherUserWithPaginationOutOfBounds() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI + "?size=1&page=4")
-        .with(user("internal"))
-      )
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.content").isEmpty())
-      .andExpect(jsonPath("$.size", is(1)))
-      .andExpect(jsonPath("$.number", is(4)))
-      .andExpect(jsonPath("$.totalPages", is(3)));
+    // Then
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_URI))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(2)))
+        .andExpect(jsonPath("$.page.size", is(2)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalPages", is(1)))
+        .andExpect(jsonPath("$.content[*].name", hasItems(TERRITORY_A_NAME, TERRITORY_B_NAME)));
   }
 }

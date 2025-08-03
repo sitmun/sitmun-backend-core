@@ -1,5 +1,7 @@
 package org.sitmun.infrastructure.security.core;
 
+import java.util.Collection;
+import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -10,9 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 @Profile("ldap")
 @Slf4j
 @RequiredArgsConstructor
@@ -22,8 +21,8 @@ public class LdapUserAuthoritiesPopulator implements LdapAuthoritiesPopulator {
   private final UserDetailsService userDetailsService;
 
   @Override
-  public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations dirContextOperations,
-                                                                      String username) {
+  public Collection<? extends GrantedAuthority> getGrantedAuthorities(
+      DirContextOperations dirContextOperations, String username) {
     Collection<? extends GrantedAuthority> authorities = new HashSet<>();
     try {
       authorities = userDetailsService.loadUserByUsername(username).getAuthorities();

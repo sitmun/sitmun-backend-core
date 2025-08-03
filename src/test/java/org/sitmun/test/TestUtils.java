@@ -2,6 +2,7 @@ package org.sitmun.test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
 import org.assertj.core.api.Assertions;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
@@ -13,11 +14,11 @@ public class TestUtils {
   private static final String ADMIN_USERNAME = "admin";
   private static final String ADMIN_PASSWORD = "admin";
   private static final ObjectMapper mapper;
+
   static {
     mapper = new ObjectMapper();
     mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
   }
-
 
   public static String asJsonString(Object obj) {
     try {
@@ -32,9 +33,14 @@ public class TestUtils {
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
     ResponseEntity<AuthenticationResponse> loginResponse =
-      restTemplate
-        .postForEntity("http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
+        restTemplate.postForEntity(
+            "http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
     Assertions.assertThat(loginResponse.getBody()).isNotNull();
     return "Bearer " + loginResponse.getBody().getIdToken();
+  }
+
+  public static Integer extractId(String url) {
+    String[] paths = URI.create(url).getPath().split("/");
+    return Integer.parseInt(paths[paths.length - 1]);
   }
 }

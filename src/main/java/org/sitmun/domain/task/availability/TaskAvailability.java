@@ -1,6 +1,9 @@
 package org.sitmun.domain.task.availability;
 
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -9,17 +12,15 @@ import org.sitmun.domain.territory.Territory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Objects;
-
-/**
- * Availability of Tasks in a Territory.
- */
+/** Availability of Tasks in a Territory. */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "STM_AVAIL_TSK", uniqueConstraints = @UniqueConstraint(name = "STM_DTA_UK", columnNames = {"ATS_TERID", "ATS_TASKID"}))
+@Table(
+    name = "STM_AVAIL_TSK",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "STM_DTA_UK",
+            columnNames = {"ATS_TERID", "ATS_TASKID"}))
 @Builder
 @Getter
 @Setter
@@ -27,41 +28,33 @@ import java.util.Objects;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TaskAvailability {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_AVAIL_TSK_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "ATS_ID",
-    allocationSize = 1)
+      name = "STM_AVAIL_TSK_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "ATS_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_AVAIL_TSK_GEN")
   @Column(name = "ATS_ID")
   private Integer id;
 
-  /**
-   * Created date.
-   */
+  /** Created date. */
   @Column(name = "ATS_CREATED")
   @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date createdDate;
 
-  /**
-   * Territory allowed to access to the task.
-   */
+  /** Territory allowed to access to the task. */
   @ManyToOne
   @JoinColumn(name = "ATS_TERID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TER"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   @NotNull
   private Territory territory;
 
-  /**
-   * Task allowed to the territory.
-   */
+  /** Task allowed to the territory. */
   @ManyToOne
   @JoinColumn(name = "ATS_TASKID", foreignKey = @ForeignKey(name = "STM_ATS_FK_TAS"))
   @OnDelete(action = OnDeleteAction.CASCADE)
@@ -71,14 +64,12 @@ public class TaskAvailability {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof TaskAvailability)) {
-        return false;
+    if (!(obj instanceof TaskAvailability other)) {
+      return false;
     }
-
-    TaskAvailability other = (TaskAvailability) obj;
 
     return Objects.equals(id, other.getId());
   }

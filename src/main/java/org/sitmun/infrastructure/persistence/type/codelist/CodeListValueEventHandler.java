@@ -1,14 +1,13 @@
 package org.sitmun.infrastructure.persistence.type.codelist;
 
+import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 @Component
 @RepositoryEventHandler
@@ -31,10 +30,12 @@ public class CodeListValueEventHandler {
     }
     if (Boolean.TRUE.equals(codeListValue.getStoredSystem())) {
       if (!Objects.equals(codeListValue.getStoredCodeListName(), codeListValue.getCodeListName())) {
-        throw new ImmutableSystemCodeListValueException("Code list name cannot be changed in system property");
+        throw new ImmutableSystemCodeListValueException(
+            "Code list name cannot be changed in system property");
       }
       if (!Objects.equals(codeListValue.getStoredValue(), codeListValue.getValue())) {
-        throw new ImmutableSystemCodeListValueException("Value cannot be changed in system property");
+        throw new ImmutableSystemCodeListValueException(
+            "Value cannot be changed in system property");
       }
     }
     codeListValue.setSystem(codeListValue.getStoredSystem());
@@ -47,5 +48,4 @@ public class CodeListValueEventHandler {
       throw new ImmutableSystemCodeListValueException("System field cannot be deleted");
     }
   }
-
 }

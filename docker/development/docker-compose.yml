@@ -1,0 +1,23 @@
+services:
+  sitmun-backend:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+    container_name: sitmun-backend
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/dashboard/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - sitmun-network-development
+    restart: unless-stopped
+    volumes:
+      - ../../config:/app/config:ro
+
+networks:
+  sitmun-network-development:
+    driver: bridge

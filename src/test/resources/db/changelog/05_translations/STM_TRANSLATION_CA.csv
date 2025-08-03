@@ -1,0 +1,34 @@
+TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
+301001,1,Language.name,3,Anglès
+301002,2,Language.name,3,Espanyol
+301003,3,Language.name,3,Català
+301004,4,Language.name,3,Aranès
+301005,5,Language.name,3,Francès
+302012,12,CodeListValue.description,3,Personalitzat
+302013,13,CodeListValue.description,3,Predefinit
+302014,14,CodeListValue.description,3,Alfanumèric
+302015,15,CodeListValue.description,3,Data
+302016,16,CodeListValue.description,3,Número
+302017,17,CodeListValue.description,3,Data
+302018,18,CodeListValue.description,3,Imatge
+302019,19,CodeListValue.description,3,Número
+302020,20,CodeListValue.description,3,Percentatge
+302021,21,CodeListValue.description,3,Text
+302022,22,CodeListValue.description,3,URL
+302088,88,CodeListValue.description,3,Ajuntament
+302089,89,CodeListValue.description,3,Ajuntament referent SITMUN
+302090,90,CodeListValue.description,3,Diputació de Barcelona
+302091,91,CodeListValue.description,3,Demo
+302092,92,CodeListValue.description,3,Empresa
+302093,93,CodeListValue.description,3,Ens local (no ajuntament)
+302094,94,CodeListValue.description,3,Ens local (no ajuntament) referent SITMUN
+302095,95,CodeListValue.description,3,Externs
+302096,96,CodeListValue.description,3,Generalitat de Catalunya
+302097,97,CodeListValue.description,3,Projecte
+302098,98,CodeListValue.description,3,Test
+302099,99,CodeListValue.description,3,Data
+3020100,100,CodeListValue.description,3,Imatge
+3020101,101,CodeListValue.description,3,Número
+3020102,102,CodeListValue.description,3,Percentatge
+3020103,103,CodeListValue.description,3,Text
+3020104,104,CodeListValue.description,3,URL

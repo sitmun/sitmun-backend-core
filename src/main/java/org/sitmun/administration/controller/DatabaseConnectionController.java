@@ -1,12 +1,16 @@
 package org.sitmun.administration.controller;
 
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+import org.sitmun.administration.controller.dto.DatabaseConnectionDto;
 import org.sitmun.administration.service.database.tester.DatabaseConnectionDriverNotFoundException;
 import org.sitmun.administration.service.database.tester.DatabaseConnectionTesterService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.database.DatabaseConnectionRepository;
 import org.sitmun.infrastructure.web.dto.DomainExceptionResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
-
 @BasePathAwareController
 public class DatabaseConnectionController {
 
@@ -27,8 +26,8 @@ public class DatabaseConnectionController {
 
   private final DatabaseConnectionTesterService service;
 
-  @Autowired
-  public DatabaseConnectionController(DatabaseConnectionRepository repository, DatabaseConnectionTesterService service) {
+  public DatabaseConnectionController(
+      DatabaseConnectionRepository repository, DatabaseConnectionTesterService service) {
     this.repository = repository;
     this.service = service;
   }
@@ -41,18 +40,14 @@ public class DatabaseConnectionController {
    */
   @GetMapping("/connections/{id}/test")
   @ResponseBody
-  public
-  ResponseEntity<String> testConnection(@PathVariable("id") Integer id) {
+  public ResponseEntity<DatabaseConnectionDto> testConnection(@PathVariable("id") Integer id) {
     Optional<DatabaseConnection> connectionOp = repository.findById(id);
     if (connectionOp.isPresent()) {
       DatabaseConnection connection = connectionOp.get();
-      service.testDriver(connection);
-      service.testConnection(connection);
-      return ResponseEntity.ok().build();
+      return testConnection(connection);
     }
-      return ResponseEntity.notFound().build();
+    return ResponseEntity.notFound().build();
   }
-
 
   /**
    * Test if a potential {@link DatabaseConnection} is valid.
@@ -61,11 +56,20 @@ public class DatabaseConnectionController {
    */
   @PostMapping("/connections/test")
   @ResponseBody
-  public
-  ResponseEntity<String> testConnection(@NotNull @RequestBody DatabaseConnection connection) {
-    service.testDriver(connection);
-    service.testConnection(connection);
-    return ResponseEntity.ok().build();
+  public ResponseEntity<DatabaseConnectionDto> testConnection(
+      @NotNull @RequestBody DatabaseConnection connection) {
+    try {
+      service.testDriver(connection);
+      service.testConnection(connection);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(
+              DatabaseConnectionDto.builder()
+                  .isValid(false)
+                  .message(e.getLocalizedMessage())
+                  .build());
+    }
+    return ResponseEntity.ok(DatabaseConnectionDto.builder().isValid(true).build());
   }
 
   /**
@@ -75,14 +79,16 @@ public class DatabaseConnectionController {
    * @return a 500 error
    */
   @ExceptionHandler(DatabaseConnectionDriverNotFoundException.class)
-  public ResponseEntity<DomainExceptionResponse> databaseConnectionDriverNotFound(DatabaseConnectionDriverNotFoundException exception, @NonNull WebRequest request) {
-    DomainExceptionResponse response = DomainExceptionResponse.builder()
-      .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-      .message(exception.getLocalizedMessage())
-      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
-      .path(((ServletWebRequest) request).getRequest().getRequestURI())
-      .build();
+  public ResponseEntity<DomainExceptionResponse> databaseConnectionDriverNotFound(
+      DatabaseConnectionDriverNotFoundException exception, @NonNull WebRequest request) {
+    DomainExceptionResponse response =
+        DomainExceptionResponse.builder()
+            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .message(exception.getLocalizedMessage())
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+            .path(((ServletWebRequest) request).getRequest().getRequestURI())
+            .build();
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
@@ -93,14 +99,16 @@ public class DatabaseConnectionController {
    * @return a 500 error
    */
   @ExceptionHandler(DatabaseSQLException.class)
-  public ResponseEntity<DomainExceptionResponse> databaseSQLException(DatabaseSQLException exception, @NonNull WebRequest request) {
-    DomainExceptionResponse response = DomainExceptionResponse.builder()
-      .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-      .message(exception.getLocalizedMessage())
-      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-      .timestamp(LocalDateTime.now(ZoneOffset.UTC))
-      .path(((ServletWebRequest) request).getRequest().getRequestURI())
-      .build();
+  public ResponseEntity<DomainExceptionResponse> databaseSQLException(
+      DatabaseSQLException exception, @NonNull WebRequest request) {
+    DomainExceptionResponse response =
+        DomainExceptionResponse.builder()
+            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .message(exception.getLocalizedMessage())
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .timestamp(LocalDateTime.now(ZoneOffset.UTC))
+            .path(((ServletWebRequest) request).getRequest().getRequestURI())
+            .build();
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 }

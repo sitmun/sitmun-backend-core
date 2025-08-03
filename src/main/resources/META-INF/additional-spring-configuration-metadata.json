@@ -1,36 +1,6 @@
 {
   "properties": [
     {
-      "name": "sitmun.dashboard.fetchMetrics",
-      "type": "java.lang.String",
-      "description": "Fetch rate for metrics (msecs)."
-    },
-    {
-      "name": "sitmun.dashboard.initialDelay",
-      "type": "java.lang.String",
-      "description": "Initial delay for fetching metrics (msecs)."
-    },
-    {
-      "name": "security.authentication.middleware.secret",
-      "type": "java.lang.String",
-      "description": "JWT middleware secret."
-    },
-    {
-      "name": "security.authentication.jwt.secret",
-      "type": "java.lang.String",
-      "description": "JWT secret."
-    },
-    {
-      "name": "security.authentication.jwt.token-validity-in-miliseconds",
-      "type": "java.lang.Long",
-      "description": "JWT token validity (msecs)."
-    },
-    {
-      "name": "sitmun.tasks.rebuild-properties-on-startup",
-      "type": "java.lang.String",
-      "description": "Rebuild properties from legacy tables on Startup."
-    },
-    {
       "name": "sitmun.module",
       "type": "java.lang.String",
       "description": "SITMUN module name."
@@ -39,6 +9,188 @@
       "name": "sitmun.version",
       "type": "java.lang.String",
       "description": "SITMUN version."
+    },
+    {
+      "name": "sitmun.language",
+      "type": "java.lang.String",
+      "description": "Default language for the application."
+    },
+    {
+      "name": "sitmun.user.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for user authentication."
+    },
+    {
+      "name": "sitmun.user.token-validity-in-milliseconds",
+      "type": "java.lang.Long",
+      "description": "Token validity duration in milliseconds."
+    },
+    {
+      "name": "sitmun.proxy-middleware.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for proxy middleware authentication."
+    },
+    {
+      "name": "sitmun.proxy-middleware.config-response-validity-in-seconds",
+      "type": "java.lang.Integer",
+      "description": "Configuration response validity duration in seconds."
+    },
+    {
+      "name": "sitmun.proxy-middleware.force",
+      "type": "java.lang.Boolean",
+      "description": "Force proxy middleware usage.",
+      "defaultValue": false
+    },
+    {
+      "name": "sitmun.proxy-middleware.url",
+      "type": "java.lang.String",
+      "description": "Proxy middleware URL."
+    },
+    {
+      "name": "sitmun.proxy.url",
+      "type": "java.lang.String",
+      "description": "Proxy URL."
+    },
+    {
+      "name": "sitmun.backend.url",
+      "type": "java.lang.String",
+      "description": "Backend URL."
+    },
+    {
+      "name": "sitmun.client.unsafe-allowed-hosts",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of hosts allowed for unsafe connections.",
+      "defaultValue": ["*"]
+    },
+    {
+      "name": "sitmun.authentication.ldap.url",
+      "type": "java.lang.String",
+      "description": "LDAP server URL."
+    },
+    {
+      "name": "sitmun.authentication.ldap.base-dn",
+      "type": "java.lang.String",
+      "description": "LDAP base DN."
+    },
+    {
+      "name": "sitmun.authentication.ldap.user-dn-pattern",
+      "type": "java.lang.String",
+      "description": "LDAP user DN pattern."
+    },
+    {
+      "name": "sitmun.authentication.ldap.password",
+      "type": "java.lang.String",
+      "description": "LDAP password."
+    },
+    {
+      "name": "sitmun.recover-password.front.url",
+      "type": "java.lang.String",
+      "description": "Frontend URL for password recovery."
+    },
+    {
+      "name": "sitmun.recover-password.mail.from",
+      "type": "java.lang.String",
+      "description": "Email sender address for password recovery."
+    },
+    {
+      "name": "sitmun.recover-password.jwt.token-recovery-password-validity-in-milliseconds",
+      "type": "java.lang.Long",
+      "description": "JWT token validity for password recovery in milliseconds."
+    },
+    {
+      "name": "sitmun.ui.image.supported-formats",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Supported image formats for UI."
+    },
+    {
+      "name": "sitmun.ui.image.default-width",
+      "type": "java.lang.Integer",
+      "description": "Default image width."
+    },
+    {
+      "name": "sitmun.ui.image.default-height",
+      "type": "java.lang.Integer",
+      "description": "Default image height."
+    },
+    {
+      "name": "sitmun.ui.image.sizes",
+      "type": "java.util.List<org.sitmun.infrastructure.persistence.type.image.ImageProperty>",
+      "description": "Image size configurations."
+    },
+    {
+      "name": "sitmun.dashboard.fetch-metrics",
+      "type": "java.lang.String",
+      "description": "Dashboard metrics fetch interval.",
+      "defaultValue": "60000"
+    },
+    {
+      "name": "sitmun.dashboard.initial-delay",
+      "type": "java.lang.String",
+      "description": "Dashboard initial delay.",
+      "defaultValue": "1000"
+    },
+    {
+      "name": "sitmun.dashboard.cartographies-by-created-date.size",
+      "type": "java.lang.Integer",
+      "description": "Number of days to count cartographies by created date.",
+      "defaultValue": 30
+    },
+    {
+      "name": "sitmun.dashboard.cartographies-by-created-date.query",
+      "type": "java.lang.String",
+      "description": "Query to count cartographies by created date."
+    },
+    {
+      "name": "sitmun.dashboard.users-by-created-date.size",
+      "type": "java.lang.Integer",
+      "description": "Number of days to count users by created date.",
+      "defaultValue": 30
+    },
+    {
+      "name": "sitmun.dashboard.users-by-created-date.query",
+      "type": "java.lang.String",
+      "description": "Query to count users by created date."
+    },
+    {
+      "name": "sitmun.dashboard.users-per-application.size",
+      "type": "java.lang.Integer",
+      "description": "Number of days to count users per application.",
+      "defaultValue": 30
+    },
+    {
+      "name": "sitmun.dashboard.users-per-application.query",
+      "type": "java.lang.String",
+      "description": "Query to count users per application."
+    },
+    {
+      "name": "sitmun.startup.code-lists.check-on-startup",
+      "type": "java.lang.Boolean",
+      "description": "Check code lists on startup.",
+      "defaultValue": true
+    },
+  ],
+  "hints": [
+    {
+      "name": "sitmun.startup.code-lists.database-connection-drivers",
+      "providers": [
+        {
+          "name": "any",
+          "parameters": {
+            "target": "org.sitmun.infrastructure.startup.StartupCodelistsProperties$DatabaseConnectionDriverDefinition"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sitmun.startup.code-lists.code-list-values",
+      "providers": [
+        {
+          "name": "any",
+          "parameters": {
+            "target": "org.sitmun.infrastructure.startup.StartupCodelistsProperties$CodeListValueDefinition"
+          }
+        }
+      ]
     }
   ]
-}
+} 

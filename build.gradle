@@ -2,28 +2,32 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
   id 'java'
-  id 'com.heroku.sdk.heroku-gradle' version '2.0.0'
+  
+  alias libs.plugins.spring.boot
+  alias libs.plugins.spring.dependency.management
+  
+  alias libs.plugins.lombok
+  alias libs.plugins.springdoc.openapi
+  alias libs.plugins.liquibase
+  
   id 'jacoco'
-  id 'org.sonarqube' version '3.3'
+  alias libs.plugins.sonarqube
+  
+  alias libs.plugins.heroku
+  alias libs.plugins.docker.compose
 
-  id 'org.springframework.boot' version '2.7.18'
-  id 'io.spring.dependency-management' version '1.1.6'
+  alias libs.plugins.spotless
 
-  id 'org.ajoberstar.git-publish' version '3.0.1'
-
-  id 'com.github.johnrengelman.processes' version '0.5.0'
-  id 'org.springdoc.openapi-gradle-plugin' version '1.5.0'
-
-  id 'io.freefair.lombok' version '6.4.3.1'
-
-  id 'org.liquibase.gradle' version '2.2.0'
+  alias libs.plugins.axion.release
 }
 
 group = 'org.sitmun'
 
-def targetJavaVersion = JavaVersion.VERSION_11
-sourceCompatibility = "${targetJavaVersion}"
-targetCompatibility = "${targetJavaVersion}"
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
 
 repositories {
   mavenLocal()
@@ -37,66 +41,105 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-  implementation 'org.springframework.boot:spring-boot-starter-validation'
-  implementation 'org.springframework.boot:spring-boot-starter-security'
-  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  // Data persistence and REST API
+  implementation libs.spring.boot.starter.data.jpa
+  implementation libs.spring.boot.starter.data.rest
+  
+  // Security and validation
+  implementation libs.spring.boot.starter.security
+  implementation libs.spring.boot.starter.validation
+  
+  // Monitoring and templating
+  implementation libs.spring.boot.starter.actuator
+  implementation libs.spring.boot.starter.thymeleaf
+  
+  // Development and testing database
+  implementation libs.h2
+  
+  // Production databases
+  implementation libs.postgresql
+  implementation libs.oracle.jdbc
 
-  implementation 'org.springframework.ldap:spring-ldap-core'
-  implementation 'org.springframework.security:spring-security-ldap'
-  testImplementation 'com.unboundid:unboundid-ldapsdk'
+  // Database migration
+  implementation libs.liquibase.core
+  implementation libs.liquibase.slf4j
+  
+  // Query building
+  implementation variantOf(libs.querydsl.jpa) { classifier('jakarta') }
+  
+  // Object mapping
+  implementation libs.mapstruct
 
-  implementation 'org.postgresql:postgresql'
-  implementation 'com.oracle.database.jdbc:ojdbc8'
+  // Apache Commons utilities
+  implementation libs.commons.lang3
+  
+  // Google Guava utilities
+  implementation libs.guava
 
-  testImplementation 'org.hamcrest:hamcrest'
+  // OkHttp client with logging
+  implementation platform(libs.okhttp.bom)
+  implementation libs.okhttp
+  implementation libs.okhttp.logging
 
-  implementation "com.google.guava:guava:${guava_version}"
+  // JSON processing
+  implementation libs.json
+  
+  // JWT token handling
+  implementation libs.jjwt.api
+  implementation libs.jjwt.impl
+  implementation libs.jjwt.jackson
 
-  implementation "com.querydsl:querydsl-jpa:${querydls_version}"
+  // OpenAPI/Swagger documentation
+  implementation libs.springdoc.openapi.starter.webmvc.ui
 
-  implementation platform("com.squareup.okhttp3:okhttp-bom:${okhttp_version}")
-  implementation 'com.squareup.okhttp3:okhttp'
-  implementation 'com.squareup.okhttp3:logging-interceptor'
+  // LDAP profile
+  implementation libs.spring.ldap.core
+  implementation libs.spring.security.ldap
 
-  implementation "org.json:json:${json_version}"
-  implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
-  implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
-  implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+  // Mail profile
+  implementation libs.spring.boot.starter.mail
 
-  implementation "org.springdoc:springdoc-openapi-common:${springdoc_openapi_version}"
-  implementation "org.springdoc:springdoc-openapi-ui:${springdoc_openapi_version}"
+  // Core annotation processing
+  annotationProcessor libs.jakarta.annotation.api
+  annotationProcessor libs.spring.boot.configuration.processor
+  annotationProcessor libs.jakarta.persistence.api
+  
+  // QueryDSL code generation
+  annotationProcessor variantOf(libs.querydsl.apt) { classifier('jakarta') }
+  
+  // MapStruct code generation
+  annotationProcessor libs.mapstruct.processor
 
-  implementation "org.mapstruct:mapstruct:${mapstruct_version}"
+  // Development-time annotations
+  compileOnly libs.jetbrains.annotations
 
-  implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
-
-  implementation 'org.liquibase:liquibase-core'
-  implementation 'com.mattbertolini:liquibase-slf4j:2.0.0'
-
-  annotationProcessor 'javax.annotation:javax.annotation-api'
-  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-  annotationProcessor "com.querydsl:querydsl-apt:${querydls_version}:jpa"
-  annotationProcessor 'javax.persistence:javax.persistence-api'
-  annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
-
-  testImplementation('org.springframework.boot:spring-boot-starter-test') {
+  // Spring Boot test support
+  testImplementation(libs.spring.boot.starter.test) {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
-  testImplementation 'org.springframework.security:spring-security-test'
-  testImplementation 'com.h2database:h2'
+  
+  // Security testing
+  testImplementation libs.spring.security.test
+  
+  // Testing utilities
+  testImplementation libs.hamcrest
+  
+  // LDAP testing (embedded LDAP server)
+  testImplementation libs.unboundid.ldapsdk
+
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Stage task:
-// - build app module
-// - do not run tests
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ============================================================================
+// HEROKU DEPLOYMENT CONFIGURATION
+// ============================================================================
 
+// Stage task for Heroku deployment
 tasks.register('stage') {
+  group = 'Heroku'
+  description = 'Prepare application for Heroku deployment'
   dependsOn ':processResources', ':bootJar'
-  it.doLast {
+  
+  doLast {
     copy {
       from "build/libs/sitmun-backend-core-${version}.jar"
       into "."
@@ -105,97 +148,312 @@ tasks.register('stage') {
   }
 }
 
-gradle.taskGraph.whenReady { taskGraph ->
-  if (taskGraph.hasTask(stage)) {
-    subprojects {
-      test.enabled = false
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Heroku deployment:
-// - contributes the task deployHeroku
-// - expects the stage task has been successfully executed
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Heroku configuration
 heroku {
-  def procFile = ["web": "java -Dserver.port=\$PORT \$JAVA_OPTS -cp \"sitmun.jar:env/heroku/resources/config\" org.springframework.boot.loader.JarLauncher"]
   appName = "sitmun-backend-core"
   includes = ["sitmun.jar"]
   includeBuildDir = false
+  
+  def procFile = [
+    "web": "java -Dspring.profiles.active=heroku -Dserver.port=\$PORT \$JAVA_OPTS -cp sitmun.jar org.springframework.boot.loader.JarLauncher"
+  ]
   processTypes(procFile)
 }
 
+// Deploy to Heroku
 tasks.named("deployHeroku") {
-  it.dependsOn 'stage'
-  it.doLast {
+  group = 'Heroku'
+  description = 'Deploy the application to Heroku'
+  dependsOn 'stage'
+  
+  doLast {
     delete "sitmun.jar"
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// QA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-subprojects {
-  apply plugin: 'org.sonarqube'
-
-  tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-    maxHeapSize = '1G'
-  }
-}
-
-apply from: "$project.rootDir/sonar.gradle"
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Run as local
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Local Heroku testing
 tasks.register('herokuDevLocal', JavaExec) {
+  group = 'Heroku'
+  description = 'Run the Heroku deployment locally'
   dependsOn 'stage'
-  group = "Run"
-  description = "Run as local the Heroku deployment"
   classpath = files("build/libs/sitmun-backend-core-${version}.jar")
 }
 
+// ============================================================================
+// TESTING AND QUALITY ASSURANCE CONFIGURATION
+// ============================================================================
+// 
+// Database Testing with Docker Compose Plugin
+// ------------------------------------------
+// The project uses the Gradle Docker Compose plugin for PostgreSQL testing.
+// This provides automatic container lifecycle management with health checks.
+// 
+// Available tasks:
+// - testPostgres: Run tests with PostgreSQL (automatically starts/stops container)
+// - startPostgresTest: Start PostgreSQL container manually
+// - stopPostgresTest: Stop PostgreSQL container manually  
+// - cleanPostgresTest: Clean up containers and volumes
+// 
+// Configuration: docker/test-postgres-compose.yml
+// ============================================================================
+
+// Test configuration
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
+  maxHeapSize = '2G'
+  minHeapSize = '512m'
+
+  // Reduce forking to improve performance - only fork when necessary
+  forkEvery = 0
+  
+  // Memory settings for test JVM
+  jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200', '-XX:+UseStringDeduplication'
+  
+  // Set system properties for test JVM
+  systemProperty 'spring.profiles.active', 'test,h2'
+  systemProperty 'java.awt.headless', 'true'
+  
+  // Test logging
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
 }
 
-compileJava.inputs.files(processResources)
+// H2 Database Tests (default)
+tasks.register('testH2', Test) {
+  group = 'verification'
+  description = 'Run tests with H2 in-memory database'
+  
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+}
 
+// PostgreSQL Database Tests
+tasks.register('testPostgres', Test) {
+  group = 'verification'
+  description = 'Run tests with PostgreSQL database using Docker Compose'
+  systemProperty 'spring.profiles.active', 'postgres'
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  doFirst {
+    sleep(5000) // Wait for Postgres container to be ready
+  }
+}
+
+tasks.register('testOracle', Test) {
+  group = 'verification'
+  description = 'Run tests with OracleSQL database using Docker Compose'
+  systemProperty 'spring.profiles.active', 'oracle'
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  doFirst {
+    sleep(10000) // Wait for Oracle container to be ready
+  }
+}
+
+// Docker Compose configuration for PostgreSQL testing
+dockerCompose {
+  projectName = 'sitmun-backend-core'
+  postgres {
+    useComposeFiles = ['docker/postgres/test-docker-compose.yml']
+    isRequiredBy(project.tasks.testPostgres)
+  }
+  oracle {
+    useComposeFiles = ['docker/oracle/test-docker-compose.yml']
+    isRequiredBy(project.tasks.testOracle)
+  }
+}
+
+// All Database Tests
+tasks.register('testAll', Test) {
+  group = 'verification'
+  description = 'Run tests with both H2 and PostgreSQL databases'
+  
+  dependsOn testH2, testPostgres
+  
+  // This task will run both test suites
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+}
+
+// Code coverage reporting
 jacocoTestReport {
   reports {
     xml.required.set(true)
+    html.required.set(true)
   }
 }
 
 test.finalizedBy jacocoTestReport
 
-tasks.register("codeCoverageReport", JacocoReport) {
-  jacocoClasspath = project.configurations.jacocoAnt
-  subprojects { subproject ->
-    subproject.plugins.withType(JacocoPlugin).configureEach {
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).configureEach { testTask ->
-        if (testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
-          sourceSets subproject.sourceSets.main
-          executionData(testTask)
-        } else {
-          logger.warn('Jacoco extension is disabled for test task \'{}\' in project \'{}\'. this test task will be excluded from jacoco report.', testTask.getName(), subproject.getName())
-        }
-      }
-      subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
-        rootProject.tasks.codeCoverageReport.dependsOn(it)
-      }
-    }
-  }
-
-}
+// SonarQube integration
+apply from: "$project.rootDir/sonar.gradle"
 
 rootProject.tasks.sonarqube {
-  dependsOn(tasks.codeCoverageReport)
+  dependsOn(tasks.jacocoTestReport)
+}
+
+// Spotless code formatting
+
+spotless {
+  java {
+    removeUnusedImports()
+    googleJavaFormat('1.28.0')
+    // importOrder 'java', 'javax', 'org', 'com'
+    target '**/*.java'
+    targetExclude '**/generated-sources/**'
+  }
+}
+
+// Axion Release Plugin Configuration
+scmVersion {
+  ignoreUncommittedChanges.set(true)
+  tag {
+    prefix = 'sitmun-backend-core'
+    versionSeparator = '/'
+    initialVersion({config, position -> '1.0.0'})
+  }
+  versionIncrementer('incrementPatch')
+}
+
+project.version = scmVersion.version
+
+// Git hooks setup
+tasks.register('setupGitHooks') {
+  group = 'git hooks'
+  description = 'Install Git hooks for commit message validation and pre-commit checks'
+  def hookDir = new File(project.rootDir, '.git/hooks')
+  def commitMsgHook = new File(hookDir, 'commit-msg')
+  def preCommitHook = new File(hookDir, 'pre-commit')
+
+  doLast {
+    hookDir.mkdirs()
+
+    // Pre-commit hook
+    preCommitHook.text = '''#!/bin/sh
+            echo "🔍 Running pre-commit checks..."
+            
+            # Code formatting check
+            echo "  📝 Checking code formatting..."
+            ./gradlew spotlessCheck
+            if [ $? -ne 0 ]; then
+                echo "❌ Code formatting check failed. Run './gradlew spotlessApply' to fix."
+                exit 1
+            fi
+            
+            # Tests
+            echo "  🧪 Running tests..."
+            ./gradlew test
+            if [ $? -ne 0 ]; then
+                echo "❌ Tests failed. Please fix the failing tests."
+                exit 1
+            fi
+            
+            # Code coverage check
+            echo "  📊 Checking code coverage..."
+            ./gradlew jacocoTestReport
+            if [ $? -ne 0 ]; then
+                echo "❌ Code coverage check failed."
+                exit 1
+            fi
+            
+            echo "✅ All pre-commit checks passed!"
+        '''.stripIndent()
+    preCommitHook.setExecutable(true)
+
+    // Commit message hook
+    commitMsgHook.text = '''#!/bin/sh
+            commit_msg=$(cat $1)
+            
+            # Conventional commit pattern for SITMUN Backend Core
+            pattern="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\\([a-z-]+\\))?: .+"
+            
+            if ! echo "$commit_msg" | grep -qE "$pattern"; then
+                echo "❌ Invalid commit message format."
+                echo ""
+                echo "Expected: <type>(<scope>): <description>"
+                echo ""
+                echo "Types:"
+                echo "  feat     - New feature"
+                echo "  fix      - Bug fix"
+                echo "  docs     - Documentation changes"
+                echo "  style    - Code style changes"
+                echo "  refactor - Code refactoring"
+                echo "  test     - Test changes"
+                echo "  chore    - Maintenance tasks"
+                echo "  perf     - Performance improvements"
+                echo "  ci       - CI/CD changes"
+                echo "  build    - Build system changes"
+                echo ""
+                echo "Scopes (optional):"
+                echo "  auth     - Authentication and authorization"
+                echo "  api      - API endpoints and controllers"
+                echo "  domain   - Domain entities and business logic"
+                echo "  security - Security configuration"
+                echo "  config   - Configuration and profiles"
+                echo "  test     - Testing framework"
+                echo "  build    - Build system and dependencies"
+                echo ""
+                echo "Examples:"
+                echo "  feat(auth): add LDAP authentication support"
+                echo "  fix(api): resolve JWT token validation issue"
+                echo "  docs: update README with deployment instructions"
+                echo "  test: add integration tests for user verification"
+                echo "  style: format code with Google Java Format"
+                echo "  refactor(domain): improve user entity design"
+                echo "  chore: update dependencies to latest versions"
+                echo "  perf(api): optimize authentication endpoint"
+                echo "  ci: add GitHub Actions workflow"
+                echo "  build: update Gradle configuration"
+                exit 1
+            fi
+            
+            echo "✅ Commit message format is valid!"
+        '''.stripIndent()
+    commitMsgHook.setExecutable(true)
+
+
+    println "✅ Git hooks installed successfully!"
+    println "📋 Pre-commit hook: Runs tests, formatting, and security checks"
+    println "📝 Commit-msg hook: Validates conventional commit message format"
+    println ""
+    println "💡 Usage examples:"
+    println "  git commit -m \"feat: add tile merging functionality\""
+    println "  git commit -m \"fix: resolve memory leak\""
+    println "  git commit -m \"docs: update README\""
+    println "  git commit -m \"test: add integration tests\""
+  }
+}
+
+// Task to remove Git hooks
+tasks.register('removeGitHooks') {
+  group = 'git hooks'
+  description = 'Remove Git hooks'
+  def hookDir = new File(project.rootDir, '.git/hooks')
+
+  doLast {
+    ['pre-commit', 'commit-msg'].each { hookName ->
+      def hookFile = new File(hookDir, hookName)
+      if (hookFile.exists()) {
+        hookFile.delete()
+        println "🗑️  Removed ${hookName} hook"
+      }
+    }
+    println "✅ Git hooks removed successfully!"
+  }
+}
+
+// Make setupGitHooks available as a dependency for build
+tasks.named('build') {
+  dependsOn 'setupGitHooks'
 }
 

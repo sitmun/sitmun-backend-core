@@ -6,8 +6,7 @@ public class AuthenticationResponse {
 
   private String idToken;
 
-  public AuthenticationResponse() {
-  }
+  public AuthenticationResponse() {}
 
   public AuthenticationResponse(String idToken) {
     this.idToken = idToken;

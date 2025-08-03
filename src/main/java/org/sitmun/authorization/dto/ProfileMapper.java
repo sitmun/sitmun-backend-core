@@ -1,13 +1,11 @@
 package org.sitmun.authorization.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
+import java.util.*;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.*;
 import org.sitmun.authorization.service.Profile;
-import org.sitmun.domain.application.background.ApplicationBackground;
+import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
@@ -15,239 +13,284 @@ import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
+import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
-import java.util.stream.Collectors;
+@Slf4j
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class ProfileMapper {
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface ProfileMapper {
-  ProfileDto map(Profile profile);
+  @Autowired private List<TaskMapper> taskMappers;
 
-  default CartographyDto map(Cartography cartography) {
-    return CartographyDto.builder()
-      .id("layer/" + cartography.getId())
-      .title(cartography.getName())
-      .layers(cartography.getLayers())
-      .service("service/" + cartography.getService().getId())
-      .build();
+  public abstract ProfileDto map(
+      Profile profile, @Context Application application, @Context Territory territory);
+
+  String map(User user) {
+    if (user == null) {
+      return null;
+    }
+    return user.getUsername();
   }
 
-  default CartographyPermissionDto map(CartographyPermission cartographyPermission) {
-    return CartographyPermissionDto.builder()
-      .id("group/" + cartographyPermission.getId())
-      .title(cartographyPermission.getName())
-      .layers(cartographyPermission.getMembers().stream().map(it -> "layer/" + it.getId()).collect(java.util.stream.Collectors.toList()))
-      .build();
-  }
-
-  default ServiceDto map(Service service) {
-    return ServiceDto.builder()
-      .id("service/" + service.getId())
-      .url(service.getServiceURL())
-      .type(service.getType())
-      .isProxied(service.getIsProxied())
-      .parameters(service.getParameters().stream()
-        .filter(it -> Objects.equals(it.getType(), service.getType()))
-        .map(it -> new String[]{it.getName(), it.getValue()}).collect(java.util.stream.Collectors.toMap(it -> it[0], it -> it[1])))
-      .build();
-  }
-
-  default BackgroundDto map(Background background) {
+  /**
+   * Maps a Background entity to a BackgroundDto.
+   *
+   * @param background the Background entity to map
+   * @return the mapped BackgroundDto
+   */
+  BackgroundDto map(Background background) {
     return BackgroundDto.builder()
-      .id("group/" + background.getCartographyGroup().getId())
-      .title(background.getName())
-      .thumbnail(background.getImage())
-      .build();
+        .id("group/" + background.getCartographyGroup().getId())
+        .title(background.getName())
+        .thumbnail(background.getImage())
+        .build();
   }
 
-  default TaskDto map(Task task) {
-    String control = null;
-    if (task.getUi() != null) {
-      control = task.getUi().getName();
-    }
-
-    Map<String, Object> parameters = new HashMap<>();
-    Map<String, Object> properties = task.getProperties();
-    if (properties != null) {
-      parameters = new HashMap<>();
-      //noinspection unchecked
-      List<Map<String, String>> listOfParameters = (List<Map<String, String>>) properties.getOrDefault("parameters", Collections.emptyList());
-      for (Map<String, String> param : listOfParameters) {
-        if (param.containsKey("name") && param.containsKey("type") && param.containsKey("value")) {
-          String name = param.get("name");
-          String type = param.get("type");
-          String value = param.get("value");
-          switch (type) {
-            case "string":
-              if (value == null) {
-                value = "";
-              }
-              parameters.put(name, value);
-              break;
-            case "number":
-              parameters.put(name, Double.parseDouble(value));
-              break;
-            case "array":
-              try {
-                parameters.put(name, new ObjectMapper().readValue(value, List.class));
-              } catch (JsonProcessingException e) {
-                e.printStackTrace();
-              }
-              break;
-            case "object":
-              try {
-                parameters.put(name, new ObjectMapper().readValue(value, Map.class));
-              } catch (JsonProcessingException e) {
-                e.printStackTrace();
-              }
-              break;
-            case "boolean":
-              parameters.put(name, Boolean.parseBoolean(value));
-              break;
-            case "null":
-              parameters.put(name, null);
-              break;
-            default:
-              break;
-          }
-        }
-      }
-    }
-    return TaskDto.builder()
-      .id("task/" + task.getId())
-      .uiControl(control)
-      .parameters(parameters)
-      .build();
+  /**
+   * Maps a Cartography entity to a CartographyDto.
+   *
+   * @param cartography the Cartography entity to map
+   * @return the mapped CartographyDto
+   */
+  CartographyDto map(Cartography cartography) {
+    return CartographyDto.builder()
+        .id("layer/" + cartography.getId())
+        .title(cartography.getName())
+        .layers(cartography.getLayers())
+        .service("service/" + cartography.getService().getId())
+        .build();
   }
 
+  /**
+   * Maps a CartographyPermission entity to a CartographyPermissionDto.
+   *
+   * @param cartographyPermission the CartographyPermission entity to map
+   * @return the mapped CartographyPermissionDto
+   */
+  CartographyPermissionDto map(CartographyPermission cartographyPermission) {
+    return CartographyPermissionDto.builder()
+        .id("group/" + cartographyPermission.getId())
+        .title(cartographyPermission.getName())
+        .layers(
+            cartographyPermission.getMembers().stream()
+                .map(it -> "layer/" + it.getId())
+                .collect(Collectors.toList()))
+        .build();
+  }
 
-  default TreeDto map(Tree tree) {
-    Set<TreeNode> allNodes = tree.getAllNodes();
+  /**
+   * Maps a Service entity to a ServiceDto.
+   *
+   * @param service the Service entity to map
+   * @return the mapped ServiceDto
+   */
+  // TODO: Public parameters should be filtered using a predictable key name.
+  ServiceDto map(Service service) {
+    return ServiceDto.builder()
+        .id("service/" + service.getId())
+        .url(service.getServiceURL())
+        .type(service.getType())
+        .isProxied(service.getIsProxied())
+        .parameters(
+            service.getParameters().stream()
+                .filter(it -> Objects.equals(it.getType(), service.getType()))
+                .map(it -> new String[] {it.getName(), it.getValue()})
+                .collect(Collectors.toMap(it -> it[0], it -> it[1])))
+        .build();
+  }
 
-    Map<String, List<TreeNode>> listNodes = new HashMap<>();
-    allNodes.forEach(it -> {
-      String id = "node/" + it.getId();
-      if (!listNodes.containsKey(id)) {
-        listNodes.put(id, new ArrayList<>());
-      }
+  /**
+   * Maps a Task entity to a TaskDto.
+   *
+   * @param task the Task entity to map
+   * @return the mapped TaskDto
+   */
+  TaskDto map(Task task, @Context Application application, @Context Territory territory) {
+    Optional<TaskDto> taskDto =
+        taskMappers.stream()
+            .filter(taskMapper -> taskMapper.accept(task))
+            .findFirst()
+            .map(taskMapper -> taskMapper.map(task, application, territory));
+    if (taskDto.isPresent()) {
+      return taskDto.get();
+    } else {
+      log.warn("No task mapper found for task id: {}", task.getId());
+      return TaskDto.builder().id("task/" + task.getId()).build();
+    }
+  }
 
-      if (it.getParentId() != null) {
-        String parent = "node/" + it.getParentId();
-        if (listNodes.containsKey(parent)) {
-          listNodes.get(parent).add(it);
-        } else {
-          listNodes.put(parent, new ArrayList<>(List.of(it)));
-        }
-      }
-    });
-
-    listNodes.forEach((key, value) -> value.sort(Comparator.comparing(TreeNode::getOrder)));
-
-    Map<String, NodeDto> nodes = new HashMap<>();
-
-    final String rootNode = "node/tree/" + tree.getId();
-
-    List<String> rootChildren = allNodes.stream()
-      .filter(it -> it.getParent() == null)
-      .map(it -> "node/" + it.getId())
-      .collect(Collectors.toList());
-
-    NodeDto rootNodeDto = NodeDto.builder()
-      .title(tree.getName())
-      .loadData(false)
-      .children(rootChildren)
-      .build();
-
-    nodes.put(rootNode, rootNodeDto);
-
-    allNodes.forEach(it -> {
-      String id = "node/" + it.getId();
-      NodeDto.NodeDtoBuilder nodeDtoBuilder = NodeDto.builder()
-        .title(it.getName())
-        .isRadio(it.getRadio())
-        .loadData(it.getLoadData())
-        .order(it.getOrder());
-      if (it.getCartographyId() != null) {
-        nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
-      } else {
-        List<String> nodeChildren = listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
-        nodeDtoBuilder = nodeDtoBuilder.children(nodeChildren);
-      }
-      nodes.put(id, nodeDtoBuilder.build());
-    });
-
+  TreeDto map(Tree tree) {
     return TreeDto.builder()
-      .id("tree/" + tree.getId())
-      .title(tree.getName())
-      .image(tree.getImage())
-      .rootNode(rootNode)
-      .nodes(nodes)
-      .build();
+        .id("tree/" + tree.getId())
+        .title(tree.getName())
+        .type(tree.getType())
+        .image(tree.getImage())
+        .build();
   }
 
-  default Map<String,String> map(List<ConfigurationParameter> global) {
-    return global.stream().collect(Collectors.toMap(ConfigurationParameter::getName, ConfigurationParameter::getValue));
+  final void completeTreeDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
+    List<TreeDto> treeDtos = builder.build().getTrees();
+    profile
+        .getTreeNodes()
+        .forEach(
+            (tree, allNodes) -> {
+              Map<String, List<TreeNode>> listNodes = new HashMap<>();
+              allNodes.forEach(
+                  it -> {
+                    String id = "node/" + it.getId();
+                    if (!listNodes.containsKey(id)) {
+                      listNodes.put(id, new ArrayList<>());
+                    }
+
+                    if (it.getParentId() != null) {
+                      String parent = "node/" + it.getParentId();
+                      if (listNodes.containsKey(parent)) {
+                        listNodes.get(parent).add(it);
+                      } else {
+                        listNodes.put(parent, new ArrayList<>(List.of(it)));
+                      }
+                    }
+                  });
+              listNodes.forEach(
+                  (key, value) -> value.sort(Comparator.comparing(TreeNode::getOrder)));
+
+              String rootNodeCandidate = null;
+
+              Map<String, NodeDto> nodes = new HashMap<>();
+
+              switch (profile.getContext().getNodeSectionBehaviour()) {
+                case VIRTUAL_ROOT_ALL_NODES, VIRTUAL_ROOT_NODE_PAGE:
+                  rootNodeCandidate = "node/tree/" + tree.getId();
+                  NodeDto rootNode = createRootNode(tree, allNodes);
+                  if (rootNode.getChildren().size() == 1) {
+                    rootNodeCandidate = rootNode.getChildren().get(0);
+                  } else {
+                    nodes.put(rootNodeCandidate, rootNode);
+                  }
+                  break;
+                case ANY_NODE_PAGE:
+                  rootNodeCandidate = "node/" + profile.getContext().getNodeId();
+              }
+
+              allNodes.forEach(
+                  it -> {
+                    String id = "node/" + it.getId();
+                    NodeDto node = createNode(it, listNodes, id);
+                    nodes.put(id, node);
+                  });
+
+              final String rootNode = rootNodeCandidate;
+              treeDtos.stream()
+                  .filter(it -> it.getId().equals("tree/" + tree.getId()))
+                  .findFirst()
+                  .ifPresent(
+                      treeDto -> {
+                        treeDto.setRootNode(rootNode);
+                        treeDto.setNodes(nodes);
+                      });
+            });
+    builder.trees(treeDtos);
   }
 
-  @AfterMapping
-  default void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
-    List<BackgroundDto> backgrounds = profile.getApplication().getBackgrounds().stream()
-      .peek(it -> {
-        // TODO Provide a default value to order
-        if (it.getOrder() == null) {
-          it.setOrder(0);
-        }
-      })
-      .sorted(Comparator.comparingInt(ApplicationBackground::getOrder))
-      .map(ApplicationBackground::getBackground)
-      .filter(Background::getActive)
-      .map(this::map)
-      .collect(Collectors.toList());
-    builder.backgrounds(backgrounds);
-
-    completeApplicationDto(profile, builder);
-
-    Set<Tree> trees = profile.getApplication().getTrees();
-
-    if (trees != null) {
-      builder.trees(trees.stream().map(this::map).collect(Collectors.toList()));
+  private NodeDto createNode(TreeNode it, Map<String, List<TreeNode>> listNodes, String id) {
+    NodeDto.NodeDtoBuilder nodeDtoBuilder =
+        NodeDto.builder()
+            .title(it.getName())
+            .description(it.getDescription())
+            .isRadio(it.getRadio())
+            .loadData(it.getLoadData())
+            .type(it.getType())
+            .image(it.getImage())
+            .order(it.getOrder())
+            .mapping(it.getMapping());
+    if (it.getCartographyId() != null) {
+      nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
     }
+    if (it.getTaskId() != null) {
+      nodeDtoBuilder = nodeDtoBuilder.action("task/" + it.getTaskId());
+      nodeDtoBuilder = nodeDtoBuilder.viewMode(it.getViewMode());
+    }
+    List<String> nodeChildren =
+        listNodes.get(id).stream().map(node -> "node/" + node.getId()).collect(Collectors.toList());
+    if (!nodeChildren.isEmpty()) {
+      nodeDtoBuilder = nodeDtoBuilder.children(nodeChildren);
+    }
+
+    return nodeDtoBuilder.build();
   }
 
-  private static void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
-    ApplicationDto applicationDto = builder.build().getApplication();
-    Integer selectedTerritory = profile.getTerritory().getId();
+  private NodeDto createRootNode(Tree tree, List<TreeNode> allNodes) {
+    return NodeDto.builder()
+        .title(tree.getName())
+        .loadData(false)
+        .children(
+            allNodes.stream()
+                .filter(it1 -> it1.getParent() == null)
+                .map(it1 -> "node/" + it1.getId())
+                .collect(Collectors.toList()))
+        .build();
+  }
 
-    Envelope defaultEnvelope = profile.getTerritory().getExtent();
-    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
-
-    profile.getApplication().getTerritories().stream()
-      .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
-      .findFirst()
-      .map(ApplicationTerritory::getInitialExtent)
-      .ifPresent(applicationDto::setInitialExtentFromEnvelope);
-
+  final void copyDefaultZoomLevelFromTerritory(ApplicationDto applicationDto, Profile profile) {
     Integer defaultZoomLevel = profile.getTerritory().getDefaultZoomLevel();
     applicationDto.setDefaultZoomLevel(defaultZoomLevel);
+  }
 
+  final void copyInitialExtentFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    Integer selectedTerritory = profile.getTerritory().getId();
+    Envelope defaultEnvelope = profile.getTerritory().getExtent();
+    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
+    profile.getApplication().getTerritories().stream()
+        .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
+        .findFirst()
+        .map(ApplicationTerritory::getInitialExtent)
+        .ifPresent(applicationDto::setInitialExtentFromEnvelope);
+  }
+
+  final void copyPointFromTerritory(ApplicationDto applicationDto, Profile profile) {
     Point point = profile.getTerritory().getCenter();
     if (point != null) {
       PointOfInterestDto poi = PointOfInterestDto.builder().x(point.getX()).y(point.getY()).build();
       applicationDto.setPointOfInterest(poi);
     }
+  }
 
+  final void copySrsFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    if (profile.getTerritory().getSrs() != null) {
+      applicationDto.setSrs(profile.getTerritory().getSrs());
+    }
+  }
+
+  final void completeApplicationDto(Profile profile, ProfileDto.ProfileDtoBuilder builder) {
+    ApplicationDto applicationDto = builder.build().getApplication();
+    copyInitialExtentFromTerritory(applicationDto, profile);
+    copyDefaultZoomLevelFromTerritory(applicationDto, profile);
+    copyPointFromTerritory(applicationDto, profile);
+    copySrsFromTerritory(applicationDto, profile);
     builder.application(applicationDto);
   }
 
-  default String mapCartographyPermissionToString(CartographyPermission value) {
+  Map<String, String> map(List<ConfigurationParameter> global) {
+    return global.stream()
+        .collect(
+            Collectors.toMap(ConfigurationParameter::getName, ConfigurationParameter::getValue));
+  }
+
+  @AfterMapping
+  void completeProfile(Profile profile, @MappingTarget ProfileDto.ProfileDtoBuilder builder) {
+    completeApplicationDto(profile, builder);
+    completeTreeDto(profile, builder);
+  }
+
+  String mapCartographyPermissionToString(CartographyPermission value) {
     if (value == null) {
       return null;
     }
     return "group/" + value.getId();
   }
-
 }

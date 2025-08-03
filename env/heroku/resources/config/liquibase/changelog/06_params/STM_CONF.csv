@@ -1,6 +1,0 @@
-CNF_ID,CNF_NAME,CNF_VALUE
-1,language.default,en
-2,srs.default.identifier,EPSG:25831
-3,srs.default.x,x
-4,srs.default.y,y
-5,srs.default.proj4,"+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"

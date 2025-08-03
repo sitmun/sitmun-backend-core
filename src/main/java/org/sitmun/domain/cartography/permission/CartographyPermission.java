@@ -1,8 +1,12 @@
 package org.sitmun.domain.cartography.permission;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import lombok.*;
 import org.sitmun.authorization.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -13,15 +17,7 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.role.Role;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-/**
- * Geographic Information Permissions.
- */
+/** Geographic Information Permissions. */
 @Entity
 @Table(name = "STM_GRP_GI")
 @Builder(toBuilder = true)
@@ -35,69 +31,53 @@ public class CartographyPermission {
 
   public static final String TYPE_BACKGROUND_MAP = "F";
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_GRP_GI_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "GGI_ID",
-    allocationSize = 1)
+      name = "STM_GRP_GI_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "GGI_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_GI_GEN")
   @Column(name = "GGI_ID")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Integer id;
 
-  /**
-   * Permissions name.
-   */
+  /** Permissions name. */
   @Column(name = "GGI_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
-  /**
-   * Permissions type.
-   */
+  /** Permissions type. */
   @Column(name = "GGI_TYPE", length = PersistenceConstants.IDENTIFIER)
   @CodeList(CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE)
   private String type;
 
-  @JsonIgnore
-  @Transient
-  private String storedType;
+  @JsonIgnore @Transient private String storedType;
 
-  /**
-   * The geographic information that the roles can access.
-   */
+  /** The geographic information that the roles can access. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-    name = "STM_GGI_GI",
-    joinColumns = @JoinColumn(
-      name = "GGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
-    inverseJoinColumns = @JoinColumn(
-      name = "GGG_GIID",
-      foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
+      name = "STM_GGI_GI",
+      joinColumns =
+          @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
+      inverseJoinColumns =
+          @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<Cartography> members = new HashSet<>();
 
-  /**
-   * The roles allowed to access the members.
-   */
+  /** The roles allowed to access the members. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-    name = "STM_ROL_GGI",
-    joinColumns = @JoinColumn(
-      name = "RGG_GGIID",
-      foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
-    inverseJoinColumns = @JoinColumn(
-      name = "RGG_ROLEID",
-      foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
+      name = "STM_ROL_GGI",
+      joinColumns =
+          @JoinColumn(name = "RGG_GGIID", foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
+      inverseJoinColumns =
+          @JoinColumn(name = "RGG_ROLEID", foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 
@@ -117,14 +97,12 @@ public class CartographyPermission {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof CartographyPermission)) {
-        return false;
+    if (!(obj instanceof CartographyPermission other)) {
+      return false;
     }
-
-    CartographyPermission other = (CartographyPermission) obj;
 
     return Objects.equals(id, other.getId());
   }

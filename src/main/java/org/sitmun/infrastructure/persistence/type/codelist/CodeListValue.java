@@ -1,21 +1,20 @@
 package org.sitmun.infrastructure.persistence.type.codelist;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.*;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
-
-/**
- * Code list value.
- */
+/** Code list value. */
 @Entity
-@Table(name = "STM_CODELIST", uniqueConstraints = @UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"}))
+@Table(
+    name = "STM_CODELIST",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"COD_LIST", "COD_VALUE"}))
 @Builder
 @Getter
 @Setter
@@ -24,64 +23,45 @@ import java.util.Objects;
 @EntityListeners(I18nListener.class)
 public class CodeListValue {
 
-  /**
-   * Unique identifier.
-   */
+  /** Unique identifier. */
   @TableGenerator(
-    name = "STM_CODELIST_GEN",
-    table = "STM_SEQUENCE",
-    pkColumnName = "SEQ_NAME",
-    valueColumnName = "SEQ_COUNT",
-    pkColumnValue = "COD_ID",
-    allocationSize = 1)
+      name = "STM_CODELIST_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "COD_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_CODELIST_GEN")
   @Column(name = "COD_ID")
   private Integer id;
 
-  /**
-   * Code list name.
-   */
+  /** Code list name. */
   @Column(name = "COD_LIST", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String codeListName;
 
-  @JsonIgnore
-  @Transient
-  private String storedCodeListName;
+  @JsonIgnore @Transient private String storedCodeListName;
 
-  /**
-   * Value.
-   */
+  /** Value. */
   @Column(name = "COD_VALUE", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   private String value;
 
-  @JsonIgnore
-  @Transient
-  private String storedValue;
+  @JsonIgnore @Transient private String storedValue;
 
-  /**
-   * Value.
-   */
+  /** Value. */
   @Column(name = "COD_SYSTEM")
   private Boolean system;
 
-  @JsonIgnore
-  @Transient
-  private Boolean storedSystem;
+  @JsonIgnore @Transient private Boolean storedSystem;
 
-  /**
-   * Value description.
-   */
+  /** Value description. */
   @Column(name = "COD_DESCRIPTION", length = PersistenceConstants.SHORT_DESCRIPTION)
   @I18n
   private String description;
 
-
-  /**
-   * The code should be used as a default value.
-   */
+  /** The code should be used as a default value. */
   @Column(name = "COD_DEFAULT")
   @NotNull
   private Boolean defaultCode;
@@ -96,14 +76,12 @@ public class CodeListValue {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
-        return true;
+      return true;
     }
 
-    if (!(obj instanceof CodeListValue)) {
-        return false;
+    if (!(obj instanceof CodeListValue other)) {
+      return false;
     }
-
-    CodeListValue other = (CodeListValue) obj;
 
     return Objects.equals(id, other.getId());
   }

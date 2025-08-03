@@ -42,9 +42,14 @@ library/src/main/resources/config/application-oracle.yml
 library/src/main/resources/config/application-postgres.yml
 *.xlsx
 
+# Generated sources - ignore the files but keep the directory structure
+src/main/generated/**/*.java
+src/main/generated/**/*.class
+
 # Exclude intermediate files
 sitmun.jar
 *.idx
 
 # Exclude Heroku files
 .env
+env

@@ -1,0 +1,2 @@
+CON_ID,CON_NAME,CON_DRIVER,CON_USER,CON_PWD,CON_CONNECTION
+1,Connection 1,org.h2.Driver,User1,Password1,jdbc:database:@host:schema2

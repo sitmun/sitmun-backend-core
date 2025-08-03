@@ -1,19 +1,16 @@
 package org.sitmun.domain.cartography.style;
 
-import lombok.*;
-import org.sitmun.infrastructure.persistence.type.basic.Http;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import static org.sitmun.domain.PersistenceConstants.IDENTIFIER;
 import static org.sitmun.domain.PersistenceConstants.URL;
 
-/**
- * Legend provider.
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.sitmun.infrastructure.persistence.type.basic.Http;
+
+/** Legend provider. */
 @Embeddable
 @Builder
 @Getter
@@ -22,27 +19,19 @@ import static org.sitmun.domain.PersistenceConstants.URL;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LegendURL {
 
-  /**
-   * Legend width.
-   */
+  /** Legend width. */
   @Min(1)
   private Integer width;
 
-  /**
-   * Legend height.
-   */
+  /** Legend height. */
   @Min(1)
   private Integer height;
 
-  /**
-   * Legend format.
-   */
+  /** Legend format. */
   @Column(length = IDENTIFIER)
   private String format;
 
-  /**
-   * Legend URL.
-   */
+  /** Legend URL. */
   @Column(length = URL)
   @NotNull
   @Http

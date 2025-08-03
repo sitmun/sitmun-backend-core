@@ -15,10 +15,12 @@ public class BeforeSaveCartographyPermissionValidator implements Validator {
   @Override
   public void validate(@NonNull Object target, @NonNull Errors errors) {
     CartographyPermission cartographyPermission = (CartographyPermission) target;
-    if (!cartographyPermission.getApplications().isEmpty() && !cartographyPermission.getType().equals(CartographyPermission.TYPE_SITUATION_MAP)) {
+    if (!cartographyPermission.getApplications().isEmpty()
+        && !cartographyPermission.getType().equals(CartographyPermission.TYPE_SITUATION_MAP)) {
       errors.rejectValue("type", "type.invalid", "In use in an application, can't be modified");
     }
-    if (!cartographyPermission.getBackgrounds().isEmpty() && !cartographyPermission.getType().equals(CartographyPermission.TYPE_BACKGROUND_MAP)) {
+    if (!cartographyPermission.getBackgrounds().isEmpty()
+        && !cartographyPermission.getType().equals(CartographyPermission.TYPE_BACKGROUND_MAP)) {
       errors.rejectValue("type", "type.invalid", "In use in a background, can't be modified");
     }
   }

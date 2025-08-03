@@ -23922,8 +23922,6 @@ components:
           type: boolean
         blocked:
           type: boolean
-        generic:
-          type: boolean
         createdDate:
           type: string
           format: date-time
@@ -25006,8 +25004,6 @@ components:
         administrator:
           type: boolean
         blocked:
-          type: boolean
-        generic:
           type: boolean
         createdDate:
           type: string

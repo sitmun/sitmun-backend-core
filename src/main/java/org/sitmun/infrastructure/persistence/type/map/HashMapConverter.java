@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Converter
 public class HashMapConverter implements AttributeConverter<Map<String, Object>, String> {
@@ -42,7 +41,10 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
     if (dbData.isBlank()) {
       return null;
     }
-    JavaType type = objectMapper.getTypeFactory().constructParametricType(Map.class, String.class, Object.class);
+    JavaType type =
+        objectMapper
+            .getTypeFactory()
+            .constructParametricType(Map.class, String.class, Object.class);
     try {
       return objectMapper.readValue(dbData, type);
     } catch (final IOException e) {

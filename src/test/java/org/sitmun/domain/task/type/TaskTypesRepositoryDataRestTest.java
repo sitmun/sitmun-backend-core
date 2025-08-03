@@ -1,34 +1,34 @@
 package org.sitmun.domain.task.type;
 
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
-import org.sitmun.test.Fixtures;
-import org.sitmun.test.URIConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
+import static org.sitmun.test.URIConstants.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("Task Types Repository Data REST Test")
 class TaskTypesRepositoryDataRestTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
   @Test
+  @DisplayName("GET: Retrieve task types with defined specifications")
+  @WithMockUser(roles = "ADMIN")
   void definedSpecifications() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get(URIConstants.TASK_TYPES_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin()))
-      ).andExpect(status().isOk())
-      .andExpect(jsonPath("$._embedded.task-types[?(@.specification != null)]", Matchers.hasSize(9)));
+    mvc.perform(get(TASK_TYPES_URI).contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.task-types[?(@.specification != null)]", Matchers.hasSize(9)));
   }
 }

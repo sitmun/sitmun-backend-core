@@ -1,10 +1,9 @@
 package org.sitmun.authorization.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -12,5 +11,4 @@ import java.util.List;
 public class PayloadDto {
 
   private List<String> vary;
-
 }

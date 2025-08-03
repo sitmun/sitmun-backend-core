@@ -1,9 +1,8 @@
 package org.sitmun.administration.service.dashboard;
 
+import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class ScheduledTasks {
@@ -14,10 +13,10 @@ public class ScheduledTasks {
     this.contributors = contributors;
   }
 
-  @Scheduled(fixedRateString = "${sitmun.dashboard.fetchMetrics:60000}",
-    initialDelayString = "${sitmun.dashboard.initialDelay:1000}")
+  @Scheduled(
+      fixedRateString = "${sitmun.dashboard.fetchMetrics:60000}",
+      initialDelayString = "${sitmun.dashboard.initialDelay:1000}")
   public void updateMetrics() {
     contributors.forEach(DashboardMetricsContributor::run);
   }
-
 }

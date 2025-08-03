@@ -1,5 +1,12 @@
 package org.sitmun.domain.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashSet;
 import org.assertj.core.api.Assumptions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +21,9 @@ import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.cartography.permission.CartographyPermissionRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -22,64 +31,53 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
+import org.springframework.data.domain.PageRequest;
 
 @DataJpaTest
-@DisplayName("Application Repository JPA test")
+@DisplayName("Application Repository JPA Test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ApplicationRepositoryTest {
 
-  @Autowired
-  private ApplicationRepository applicationRepository;
-  @Autowired
-  private CartographyPermissionRepository cartographyPermissionRepository;
-  @Autowired
-  private BackgroundRepository backgroundRepository;
+  @Autowired private ApplicationRepository applicationRepository;
+  @Autowired private CartographyPermissionRepository cartographyPermissionRepository;
+  @Autowired private BackgroundRepository backgroundRepository;
   private Application application;
 
   @BeforeEach
-  public void init() {
+  void init() {
 
-    application = Application.builder()
-      .name("Test")
-      .createdDate(Date.from(Instant.now()))
-      .trees(null)
-      .treeAutoRefresh(true)
-      .scales(null)
-      .situationMap(null)
-      .parameters(null)
-      .srs(null)
-      .parameters(new HashSet<>())
-      .theme(null)
-      .type(null)
-      .title("Test")
-      .availableRoles(new HashSet<>())
-      .backgrounds(new HashSet<>())
-      .build();
+    application =
+        Application.builder()
+            .name("Test")
+            .createdDate(Date.from(Instant.now()))
+            .trees(null)
+            .treeAutoRefresh(true)
+            .scales(null)
+            .situationMap(null)
+            .parameters(null)
+            .srs(null)
+            .parameters(new HashSet<>())
+            .theme(null)
+            .type(null)
+            .title("Test")
+            .availableRoles(new HashSet<>())
+            .backgrounds(new HashSet<>())
+            .build();
 
-    Role rol = Role.builder()
-      .name("Rol 1")
-      .build();
+    Role rol = Role.builder().name("Rol 1").build();
     application.getAvailableRoles().add(rol);
 
-      CartographyPermission backgroundMap = CartographyPermission.builder()
-              .name("Background map")
-              .build();
-      cartographyPermissionRepository.save(backgroundMap);
+    CartographyPermission backgroundMap =
+        CartographyPermission.builder().name("Background map").build();
+    cartographyPermissionRepository.save(backgroundMap);
 
     Background background = new Background();
     background.setActive(true);
     background.setDescription(null);
     background.setName("fondo");
     background.setCartographyGroup(backgroundMap);
-    background.setCreatedDate(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    background.setCreatedDate(
+        Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
     backgroundRepository.save(background);
 
     ApplicationBackground applicationBackground = new ApplicationBackground();
@@ -97,20 +95,19 @@ class ApplicationRepositoryTest {
   }
 
   @Test
-  @DisplayName("Create an application")
-  void saveApplication() {
+  @DisplayName("Create a new application with all related entities")
+  void createApplicationWithAllEntities() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
   }
 
   @Test
-  @DisplayName("Find an application by id")
-  void findOneApplicationById() {
+  @DisplayName("Find an application by its ID with all related entities")
+  void findApplicationByIdWithAllEntities() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     assertThat(application.getId()).isNotZero();
-
 
     application = applicationRepository.findById(application.getId()).orElseGet(Assertions::fail);
     SoftAssertions softly = new SoftAssertions();
@@ -121,8 +118,8 @@ class ApplicationRepositoryTest {
   }
 
   @Test
-  @DisplayName("Delete an application by id")
-  void deleteApplicationById() {
+  @DisplayName("Remove an application by its ID")
+  void removeApplicationById() {
     assertThat(application.getId()).isNull();
     applicationRepository.save(application);
     Assumptions.assumeThat(application.getId()).isNotZero();
@@ -132,12 +129,30 @@ class ApplicationRepositoryTest {
     assertThat(applicationRepository.findById(id)).isEmpty();
   }
 
+  @Test
+  @DisplayName("Find applications filtered by username")
+  void findApplicationsByUsername() {
+    assertThat(
+            applicationRepository.findByUser(
+                SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10)))
+        .hasSize(4);
+  }
+
+  @Test
+  @DisplayName("Find applications filtered by username and territory")
+  void findApplicationsByUsernameAndTerritory() {
+    assertThat(
+            applicationRepository.findByRestrictedUserAndTerritory(
+                SecurityConstants.PUBLIC_PRINCIPAL, 1, PageRequest.of(0, 10)))
+        .hasSize(4);
+  }
+
   @TestConfiguration
   @Import(LiquibaseConfig.class)
   static class Configuration {
     @Bean
     @Primary
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
       return new SyncTaskExecutor();
     }
   }
