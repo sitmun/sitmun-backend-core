@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.hamcrest.Matchers;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -159,14 +161,6 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.uiId").value(2))
         .andExpect(jsonPath("$.typeId").value(1))
         .andExpect(jsonPath("$.typeName").value("básica"));
-
-    // TODO: Add test data
-    //
-    //  mvc.perform(get(URIConstants.TASK_PROJECTION_VIEW, 3301)
-    //    )
-    //   .andExpect(status().isOk())
-    //   .andExpect(jsonPath("$.cartographyName").value("CRE5M - Illes"))
-    //   .andExpect(jsonPath("$.cartographyId").value(87));
   }
 
   @Test
@@ -231,5 +225,22 @@ class ProjectionsTest {
     mvc.perform(get(BACKGROUND_URI_CARTOGRAPHY_GROUP_PROJECTION, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.type").value("F"));
+  }
+
+  @Test
+  @DisplayName("GET: Retrieve user projection with warnings information")
+  @WithMockUser(roles = "ADMIN")
+  void userProjectionView() throws Exception {
+    mvc.perform(get("/api/users/1?projection=view"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.username").exists())
+        .andExpect(jsonPath("$.firstName").exists())
+        .andExpect(jsonPath("$.lastName").value(Matchers.nullValue()))
+        .andExpect(jsonPath("$.email").value(Matchers.nullValue()))
+        .andExpect(jsonPath("$.administrator").exists())
+        .andExpect(jsonPath("$.blocked").exists())
+        .andExpect(jsonPath("$.passwordSet").exists())
+        .andExpect(jsonPath("$.warnings").exists());
   }
 }
