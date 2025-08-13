@@ -16,6 +16,7 @@ public class OgcWmsPayloadDto extends PayloadDto {
   private String method;
   private Map<String, String> parameters;
   private HttpSecurityDto security;
+  private String body;
 
   @Builder
   public OgcWmsPayloadDto(
@@ -23,11 +24,13 @@ public class OgcWmsPayloadDto extends PayloadDto {
       String uri,
       String method,
       Map<String, String> parameters,
-      HttpSecurityDto security) {
+      HttpSecurityDto security,
+      String body) {
     super(vary);
     this.uri = uri;
     this.method = method;
     this.parameters = parameters;
     this.security = security;
+    this.body = body;
   }
 }

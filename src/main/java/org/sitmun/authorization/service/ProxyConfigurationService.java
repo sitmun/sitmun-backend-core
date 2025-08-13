@@ -105,6 +105,7 @@ public class ProxyConfigurationService {
         .method(configProxyRequest.getMethod())
         .vary(varyParameters)
         .parameters(parameters)
+        .body(configProxyRequest.getRequestBody())
         .security(security)
         .build();
   }

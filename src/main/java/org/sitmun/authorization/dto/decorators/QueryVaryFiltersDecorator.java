@@ -14,7 +14,7 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
 
   private static String getFilterValue(String value) {
     if (!filterPattern.matcher(value).matches()) {
-      return '\'' + value + '\'';
+      return "'" + value + "'";
     }
     return value;
   }
@@ -32,7 +32,7 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
         String[] keySetIt = target.keySet().toArray(new String[0]);
         for (String key : keySetIt) {
           if (sql.contains("${" + key + "}")) {
-            String value = getFilterValue(target.get(key));
+            String value = target.get(key);
             sql = sql.replace("${" + key + "}", value);
             target.remove(key);
           }

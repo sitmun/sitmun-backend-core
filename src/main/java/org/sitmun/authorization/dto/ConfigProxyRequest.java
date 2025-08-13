@@ -30,7 +30,7 @@ public class ConfigProxyRequest {
   private Map<String, String> parameters;
 
   @JsonProperty("requestBody")
-  private Map<String, String> requestBody;
+  private String requestBody;
 
   @JsonProperty("id_token")
   private String token;
