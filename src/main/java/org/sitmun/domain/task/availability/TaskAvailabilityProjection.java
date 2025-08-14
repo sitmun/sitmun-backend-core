@@ -34,6 +34,12 @@ public interface TaskAvailabilityProjection {
   @Value("#{target.task?.id}")
   Integer getTaskId();
 
+  @Value("#{target.task?.name}")
+  String getTaskName();
+
+  @Value("#{target.task?.type?.name}")
+  String getTaskTypeName();
+
   /** Name of the group of the task allowed to the territory. */
   @Value("#{target.task?.group?.name}")
   String getTaskGroupName();
