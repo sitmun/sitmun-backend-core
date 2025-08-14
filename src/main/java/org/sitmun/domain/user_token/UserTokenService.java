@@ -17,18 +17,18 @@ public class UserTokenService {
   }
 
   public UserToken saveUserToken(UserTokenDTO userTokenDTO) {
-    UserToken userToken =
-        UserToken.builder()
-            .userMail(userTokenDTO.getUserMail())
-            .tokenId(userTokenDTO.getTokenId())
-            .expireAt(userTokenDTO.getExpireAt())
-            .build();
+    UserToken userToken = this.toUser(userTokenDTO);
 
     return this.userTokenRepository.save(userToken);
   }
 
-  public UserTokenDTO getUserTokenByToken(String token) {
-    Optional<UserToken> userTokenOptional = this.userTokenRepository.findByTokenId(token);
+  public UserTokenDTO getUserTokenByUserId(int userId) {
+    Optional<UserToken> userTokenOptional = this.userTokenRepository.findByUserID(userId);
+    return userTokenOptional.map(this::toUserDTO).orElse(null);
+  }
+
+  public UserTokenDTO getUserTokenByCodeOTP(String codeOTP) {
+    Optional<UserToken> userTokenOptional = this.userTokenRepository.findByCodeOTP(codeOTP);
     return userTokenOptional.map(this::toUserDTO).orElse(null);
   }
 
@@ -36,13 +36,23 @@ public class UserTokenService {
     this.userTokenRepository.deleteById(userTokenDTO.getId());
   }
 
-  public UserTokenDTO updateUserToken(String userMail, String token, boolean newIsActive) {
+  public void deleteUserTokenByUserId(int userId) {
+    this.userTokenRepository.deleteByUserID(userId);
+  }
+
+  public UserTokenDTO updateUserToken(UserTokenDTO userTokenDTO) {
     Optional<UserToken> userTokenOptional =
-        this.userTokenRepository.findByUserMailAndTokenId(userMail, token);
+        this.userTokenRepository.findByUserID(userTokenDTO.getUserID());
+
     if (userTokenOptional.isEmpty()) {
       return null;
     }
     UserToken userToken = userTokenOptional.get();
+
+    userToken.setCodeOTP(userTokenDTO.getCodeOTP());
+    userToken.setExpireAt(userTokenDTO.getExpireAt());
+    userToken.setAttemptCounter(userTokenDTO.getAttemptCounter());
+    userToken.setActive(userTokenDTO.isActive());
 
     this.userTokenRepository.save(userToken);
 
@@ -56,9 +66,25 @@ public class UserTokenService {
 
     return UserTokenDTO.builder()
         .id(userToken.getId())
-        .userMail(userToken.getUserMail())
-        .tokenId(userToken.getTokenId())
+        .userID(userToken.getUserID())
+        .codeOTP(userToken.getCodeOTP())
         .expireAt(userToken.getExpireAt())
+        .attemptCounter(userToken.getAttemptCounter())
+        .active(userToken.isActive())
+        .build();
+  }
+
+  private UserToken toUser(UserTokenDTO userTokenDTO) {
+    if (userTokenDTO == null) {
+      return null;
+    }
+
+    return UserToken.builder()
+        .codeOTP(userTokenDTO.getCodeOTP())
+        .userID(userTokenDTO.getUserID())
+        .expireAt(userTokenDTO.getExpireAt())
+        .attemptCounter(userTokenDTO.getAttemptCounter())
+        .active(userTokenDTO.isActive())
         .build();
   }
 }

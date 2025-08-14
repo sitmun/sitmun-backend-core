@@ -69,7 +69,7 @@ management:
 
 sitmun:
   module: SITMUN Core
-  version: ${project.version}
+  version: "3"
   language: en
   user:
     secret: 9ef80c644166846897f6a87d3cf6ab204d144229
@@ -249,3 +249,13 @@ sitmun:
         - code-list-name: editTask.fieldType
           value: listbox
           description: "ListBox"
+  recover-password:
+    front:
+      url: "http://localhost:9080"
+      path: "/auth/forgot-password/"
+    mail:
+      from: "sitmun-test@localhost"
+    jwt:
+      token-recovery-password-validity-in-milliseconds: 3600000
+    code-otp:
+      max-attempt: 3

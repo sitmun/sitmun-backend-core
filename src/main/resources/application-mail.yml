@@ -22,8 +22,8 @@ spring:
       mail.smtp.connectiontimeout: 5000
       mail.smtp.timeout: 5000
       mail.smtp.writetimeout: 5000
-      mail.smtp.starttls.enable: true
-      mail.smtp.starttls.required: true
+      mail.smtp.starttls.enable: false
+      mail.smtp.starttls.required: false
     # SITMUN-specific mail templates
     forgot-password:
       subject: "Password Recovery - SITMUN"
@@ -44,12 +44,7 @@ management:
 
 sitmun:
   recover-password:
-    front:
-      url: "http://localhost:9080"
-      path: "/auth/forgot-password/"
     mail:
       from: "sitmun-test@localhost"
     jwt:
       token-recovery-password-validity-in-milliseconds: 3600000
-    code-otp:
-      max-attempt: 3

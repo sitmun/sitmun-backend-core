@@ -109,6 +109,9 @@ public class User {
   @Builder.Default
   private Set<UserConfiguration> permissions = new HashSet<>();
 
+  @Column(name = "USE_LAST_PASSWORD_CHANGE")
+  private Date lastPasswordChange;
+
   @PostLoad
   public void postLoad() {
     storedPassword = password;

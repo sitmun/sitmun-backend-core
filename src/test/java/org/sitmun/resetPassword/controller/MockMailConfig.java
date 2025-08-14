@@ -1,4 +1,4 @@
-package org.sitmun.recover.controller;
+package org.sitmun.resetPassword.controller;
 
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;

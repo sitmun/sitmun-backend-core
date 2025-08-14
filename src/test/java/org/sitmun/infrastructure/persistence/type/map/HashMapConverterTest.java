@@ -37,13 +37,14 @@ class HashMapConverterTest {
     Map<String, Object> convertedBack = converter.convertToEntityAttribute(jsonString);
 
     // Then
-    assertThat(convertedBack).containsEntry("stringValue", "test string")
-      .containsEntry("intValue", 42)
-      .containsEntry("longValue", 1234567890000L)
-      .containsEntry("doubleValue", 3.14159)
-      .containsEntry("floatValue", 2.718)
-      .containsEntry("booleanValue", true)
-      .containsEntry("nullValue", null);
+    assertThat(convertedBack)
+        .containsEntry("stringValue", "test string")
+        .containsEntry("intValue", 42)
+        .containsEntry("longValue", 1234567890000L)
+        .containsEntry("doubleValue", 3.14159)
+        .containsEntry("floatValue", 2.718)
+        .containsEntry("booleanValue", true)
+        .containsEntry("nullValue", null);
   }
 
   @Test
@@ -52,11 +53,11 @@ class HashMapConverterTest {
     // Given
     Map<String, Object> nestedMap = new HashMap<>();
     nestedMap.put("level1Key", "level1Value");
-    
+
     Map<String, Object> level2Map = new HashMap<>();
     level2Map.put("level2Key", "level2Value");
     nestedMap.put("level2", level2Map);
-    
+
     Map<String, Object> level3Map = new HashMap<>();
     level3Map.put("level3Key", "level3Value");
     level2Map.put("level3", level3Map);
@@ -67,11 +68,11 @@ class HashMapConverterTest {
 
     // Then
     assertThat(convertedBack).containsEntry("level1Key", "level1Value").containsKey("level2");
-    
+
     @SuppressWarnings("unchecked")
     Map<String, Object> retrievedLevel2 = (Map<String, Object>) convertedBack.get("level2");
     assertThat(retrievedLevel2).containsEntry("level2Key", "level2Value").containsKey("level3");
-    
+
     @SuppressWarnings("unchecked")
     Map<String, Object> retrievedLevel3 = (Map<String, Object>) retrievedLevel2.get("level3");
     assertThat(retrievedLevel3).containsEntry("level3Key", "level3Value");
@@ -114,7 +115,7 @@ class HashMapConverterTest {
   void shouldPreserveArrayValuesCorrectly() {
     // Given
     Map<String, Object> testMap = new HashMap<>();
-    testMap.put("arrayValue", new Object[]{1, "two", 3.0, true, null});
+    testMap.put("arrayValue", new Object[] {1, "two", 3.0, true, null});
 
     // When
     String jsonString = converter.convertToDatabaseColumn(testMap);
@@ -123,7 +124,7 @@ class HashMapConverterTest {
     // Then
     assertThat(convertedBack).containsKey("arrayValue");
     assertThat(convertedBack.get("arrayValue")).isInstanceOf(ArrayList.class);
-    
+
     @SuppressWarnings("unchecked")
     Object[] retrievedArray = ((ArrayList<Object>) convertedBack.get("arrayValue")).toArray();
     assertThat(retrievedArray).hasSize(5);
@@ -139,14 +140,19 @@ class HashMapConverterTest {
   void shouldHandleSpecialCharactersInStrings() {
     // Given
     Map<String, Object> testMap = new HashMap<>();
-    testMap.put("specialChars", "test with \"quotes\", 'apostrophes', \n newlines, \t tabs, and unicode: ñáéíóú");
+    testMap.put(
+        "specialChars",
+        "test with \"quotes\", 'apostrophes', \n newlines, \t tabs, and unicode: ñáéíóú");
 
     // When
     String jsonString = converter.convertToDatabaseColumn(testMap);
     Map<String, Object> convertedBack = converter.convertToEntityAttribute(jsonString);
 
     // Then
-    assertThat(convertedBack).containsEntry("specialChars", "test with \"quotes\", 'apostrophes', \n newlines, \t tabs, and unicode: ñáéíóú");
+    assertThat(convertedBack)
+        .containsEntry(
+            "specialChars",
+            "test with \"quotes\", 'apostrophes', \n newlines, \t tabs, and unicode: ñáéíóú");
   }
 
   @Test
@@ -155,7 +161,7 @@ class HashMapConverterTest {
     // Given
     Map<String, Object> largeMap = new HashMap<>();
     Map<String, Object> currentLevel = largeMap;
-    
+
     // Create a deeply nested structure
     for (int i = 0; i < 10; i++) {
       Map<String, Object> nextLevel = new HashMap<>();
@@ -171,7 +177,7 @@ class HashMapConverterTest {
     // Then
     assertThat(convertedBack).isNotNull();
     assertThat(jsonString).isNotNull().isNotEmpty();
-    
+
     // Verify the structure is preserved
     Map<String, Object> currentRetrieved = convertedBack;
     for (int i = 0; i < 10; i++) {
@@ -183,4 +189,3 @@ class HashMapConverterTest {
     }
   }
 }
-

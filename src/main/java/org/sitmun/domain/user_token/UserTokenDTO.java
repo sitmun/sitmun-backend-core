@@ -11,12 +11,14 @@ import lombok.*;
 public class UserTokenDTO {
   private Integer id;
 
-  /** User mail */
-  private String userMail;
+  private Integer userID;
 
-  /** Token for reset password */
-  private String tokenId;
+  private String codeOTP;
 
   /** Token expiration date */
   private Date expireAt;
+
+  private int attemptCounter;
+
+  private boolean active;
 }

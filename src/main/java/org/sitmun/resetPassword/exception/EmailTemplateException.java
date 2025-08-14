@@ -1,4 +1,4 @@
-package org.sitmun.recover.exception;
+package org.sitmun.resetPassword.exception;
 
 /** Exception thrown when there's an error rendering email templates. */
 public class EmailTemplateException extends RuntimeException {

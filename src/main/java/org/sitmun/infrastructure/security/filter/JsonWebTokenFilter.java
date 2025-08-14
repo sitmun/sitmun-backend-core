@@ -6,7 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
@@ -21,11 +25,15 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
 
   private final JsonWebTokenService jsonWebTokenService;
   private final UserDetailsService userDetailsService;
+  private final UserRepository userRepository;
 
   public JsonWebTokenFilter(
-      UserDetailsService userDetailsService, JsonWebTokenService jsonWebTokenService) {
+      UserDetailsService userDetailsService,
+      JsonWebTokenService jsonWebTokenService,
+      UserRepository userRepository) {
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -46,7 +54,13 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       if (StringUtils.isNotEmpty(username)
           && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (jsonWebTokenService.validateToken(jwtToken, userDetails)) {
+
+        Optional<User> user = this.userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+          return;
+        }
+        Date lastPasswordChange = user.get().getLastPasswordChange();
+        if (jsonWebTokenService.validateToken(jwtToken, userDetails, lastPasswordChange)) {
           UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
               new UsernamePasswordAuthenticationToken(
                   userDetails, null, userDetails.getAuthorities());

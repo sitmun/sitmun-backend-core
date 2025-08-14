@@ -1,9 +1,9 @@
-package org.sitmun.recover.service;
+package org.sitmun.resetPassword.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.recover.dto.EmailForgotPassword;
-import org.sitmun.recover.dto.EmailObject;
-import org.sitmun.recover.exception.MailNotImplementedException;
+import org.sitmun.resetPassword.dto.EmailForgotPassword;
+import org.sitmun.resetPassword.dto.EmailObject;
+import org.sitmun.resetPassword.exception.MailNotImplementedException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 

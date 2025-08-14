@@ -1,4 +1,4 @@
-package org.sitmun.recover.dto;
+package org.sitmun.resetPassword.dto;
 
 import lombok.Getter;
 import lombok.Setter;

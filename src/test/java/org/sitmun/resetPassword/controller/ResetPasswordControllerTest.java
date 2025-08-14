@@ -1,4 +1,4 @@
-package org.sitmun.recover.controller;
+package org.sitmun.resetPassword.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,7 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user_token.UserToken;
 import org.sitmun.domain.user_token.UserTokenRepository;
-import org.sitmun.recover.dto.ResetPasswordRequest;
-import org.sitmun.recover.dto.UserLoginRecoverRequest;
+import org.sitmun.resetPassword.dto.ResetPasswordRequest;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AdditiveActiveProfiles("mail")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class RecoverPasswordControllerTest {
-
+class ResetPasswordControllerTest {
   @Autowired private MockMvc mvc;
 
   @Autowired private UserRepository userRepository;
@@ -49,9 +46,12 @@ class RecoverPasswordControllerTest {
 
   @Autowired private PasswordEncoder passwordEncoder;
 
+  private String apiUrl = "/api/password-reset/";
   private User testUser;
   private String validToken;
   private String expiredToken;
+  private String counterLimitToken;
+  private String notActiveToken;
 
   @BeforeEach
   void setUp() {
@@ -78,26 +78,53 @@ class RecoverPasswordControllerTest {
     testUser = userRepository.save(testUser);
 
     // Create valid token
-    validToken = UUID.randomUUID().toString();
+    validToken = Integer.toString((int) (Math.random() * 100_000_000));
     UserToken validUserToken =
         UserToken.builder()
-            .userMail(testUser.getEmail())
-            .tokenId(validToken)
-            .expireAt(new Date(System.currentTimeMillis() + 300000)) // 5 minutes from now
+            .codeOTP(validToken)
+            .userID(testUser.getId())
+            .expireAt(new Date(System.currentTimeMillis() + 300000))
+            .attemptCounter(3)
+            .active(true)
             .build();
     userTokenRepository.save(validUserToken);
 
     // Create expired token
-    expiredToken = UUID.randomUUID().toString();
+    expiredToken = Integer.toString((int) (Math.random() * 100_000_000));
     UserToken expiredUserToken =
         UserToken.builder()
-            .userMail(testUser.getEmail())
-            .tokenId(expiredToken)
+            .codeOTP(expiredToken)
+            .userID(testUser.getId())
             .expireAt(new Date(System.currentTimeMillis() - 300000)) // 5 minutes ago
+            .active(true)
+            .attemptCounter(3)
             .build();
     userTokenRepository.save(expiredUserToken);
+
+    counterLimitToken = Integer.toString((int) (Math.random() * 100_000_000));
+    UserToken counterLimitExcedUserToken =
+        UserToken.builder()
+            .codeOTP(counterLimitToken)
+            .userID(testUser.getId())
+            .expireAt(new Date(System.currentTimeMillis())) // 5 minutes ago
+            .active(true)
+            .attemptCounter(0)
+            .build();
+    userTokenRepository.save(counterLimitExcedUserToken);
+
+    notActiveToken = Integer.toString((int) (Math.random() * 100_000_000));
+    UserToken notActiveUserToken =
+        UserToken.builder()
+            .codeOTP(notActiveToken)
+            .userID(testUser.getId())
+            .expireAt(new Date(System.currentTimeMillis())) // 5 minutes ago
+            .active(false)
+            .attemptCounter(3)
+            .build();
+    userTokenRepository.save(notActiveUserToken);
   }
 
+  /* REQUEST -> Send email */
   @Test
   @DisplayName("POST: Send recovery email with valid email")
   @Transactional
@@ -107,15 +134,7 @@ class RecoverPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with valid username")
-  @Transactional
-  @Rollback
-  void sendRecoveryEmailWithValidUsername() throws Exception {
-    checkService("testuser", 3);
-  }
-
-  @Test
-  @DisplayName("POST: Send recovery email with invalid login")
+  @DisplayName("POST: Send recovery email with invalid email")
   @Transactional
   @Rollback
   void sendRecoveryEmailWithInvalidLogin() throws Exception {
@@ -123,11 +142,12 @@ class RecoverPasswordControllerTest {
   }
 
   void checkService(String login, int tokens) throws Exception {
-    UserLoginRecoverRequest request = new UserLoginRecoverRequest();
-    request.setLogin(login);
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail(login);
 
     mvc.perform(
-            post("/api/recover-password")
+            post(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
@@ -137,46 +157,73 @@ class RecoverPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with empty login")
+  @DisplayName("POST: Send recovery email with empty mail")
   @Transactional
   @Rollback
   void sendRecoveryEmailWithEmptyLogin() throws Exception {
-    UserLoginRecoverRequest request = new UserLoginRecoverRequest();
-    request.setLogin("");
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail("");
 
     mvc.perform(
-            post("/api/recover-password")
+            post(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with null login")
+  @DisplayName("POST: Send recovery email with null mail")
   @Transactional
   @Rollback
   void sendRecoveryEmailWithNullLogin() throws Exception {
-    UserLoginRecoverRequest request = new UserLoginRecoverRequest();
-    request.setLogin(null);
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail(null);
 
     mvc.perform(
-            post("/api/recover-password")
+            post(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
   }
 
+  @Test
+  @DisplayName("POST: Await error 429 after 5 request")
+  @Transactional
+  @Rollback
+  void sendRequestTooManyTime() throws Exception {
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail(testUser.getEmail());
+    int maxRequest = 5;
+    for (int i = 0; i < maxRequest; i++) {
+      mvc.perform(
+              post(apiUrl + "request")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(TestUtils.asJsonString(request)))
+          .andExpect(status().isOk());
+    }
+    mvc.perform(
+            post(apiUrl + "request")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isTooManyRequests());
+  }
+
+  /* CONFIRM -> Change password */
   @Test
   @DisplayName("PUT: Reset password with valid token")
   @Transactional
   @Rollback
   void resetPasswordWithValidToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(validToken);
-    request.setPassword("newpassword123");
+    request.setCodeOTP(validToken);
+    request.setNewPassword("newpassword123");
+    request.setEmail(testUser.getEmail());
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "confirm")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
@@ -186,10 +233,6 @@ class RecoverPasswordControllerTest {
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
     assertThat(updatedUser).isPresent();
     assertThat(passwordEncoder.matches("newpassword123", updatedUser.get().getPassword())).isTrue();
-
-    // Verify token was deleted
-    Optional<UserToken> deletedToken = userTokenRepository.findByTokenId(validToken);
-    assertThat(deletedToken).isEmpty();
   }
 
   @Test
@@ -198,15 +241,64 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithExpiredToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(expiredToken);
-    request.setPassword("newpassword123");
+    request.setCodeOTP(expiredToken);
+    request.setNewPassword("newpassword123");
+    request.setEmail(testUser.getEmail());
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "confirm")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Server error"));
+        .andExpect(status().isGone())
+        .andExpect(content().string("Gone"));
+
+    // Verify password was not updated
+    Optional<User> updatedUser = userRepository.findById(testUser.getId());
+    assertThat(updatedUser).isPresent();
+    // Don't check password encoding in tests as it may not be properly encoded
+    assertThat(updatedUser.get().getPassword()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("PUT: Reset password with token attempt counter exced limit")
+  @Transactional
+  @Rollback
+  void resetPasswordWithTokenCounterExceedLimit() throws Exception {
+    ResetPasswordRequest request = new ResetPasswordRequest();
+    request.setCodeOTP(counterLimitToken);
+    request.setNewPassword("newpassword123");
+    request.setEmail(testUser.getEmail());
+
+    mvc.perform(
+            put(apiUrl + "confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isGone())
+        .andExpect(content().string("Gone"));
+
+    // Verify password was not updated
+    Optional<User> updatedUser = userRepository.findById(testUser.getId());
+    assertThat(updatedUser).isPresent();
+    // Don't check password encoding in tests as it may not be properly encoded
+    assertThat(updatedUser.get().getPassword()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("PUT: Reset password with token not active")
+  @Transactional
+  @Rollback
+  void resetPasswordWithTokenNotActive() throws Exception {
+    ResetPasswordRequest request = new ResetPasswordRequest();
+    request.setCodeOTP(notActiveToken);
+    request.setNewPassword("newpassword123");
+    request.setEmail(testUser.getEmail());
+
+    mvc.perform(
+            put(apiUrl + "confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isGone())
+        .andExpect(content().string("Gone"));
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -221,15 +313,16 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithInvalidToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken("invalid-token");
-    request.setPassword("newpassword123");
+    request.setCodeOTP("12345678");
+    request.setNewPassword("newpassword123");
+    request.setEmail(testUser.getEmail());
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "confirm")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Server error"));
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string("Bad Request"));
 
     // Verify password was not updated
     Optional<User> updatedUser = userRepository.findById(testUser.getId());
@@ -244,11 +337,11 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithEmptyPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(validToken);
-    request.setPassword("");
+    request.setCodeOTP(validToken);
+    request.setNewPassword("");
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -266,11 +359,11 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithNullPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(validToken);
-    request.setPassword(null);
+    request.setCodeOTP(validToken);
+    request.setNewPassword(null);
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -282,11 +375,11 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithNullToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(null);
-    request.setPassword("newpassword123");
+    request.setEmail(null);
+    request.setNewPassword("newpassword123");
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -298,11 +391,11 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithVeryShortPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(validToken);
-    request.setPassword("a");
+    request.setCodeOTP(validToken);
+    request.setNewPassword("a");
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
@@ -320,11 +413,11 @@ class RecoverPasswordControllerTest {
   @Rollback
   void resetPasswordWithVeryLongPassword() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
-    request.setToken(validToken);
-    request.setPassword("a".repeat(51)); // Exceeds max length of 50
+    request.setCodeOTP(validToken);
+    request.setNewPassword("a".repeat(51)); // Exceeds max length of 50
 
     mvc.perform(
-            put("/api/recover-password")
+            put(apiUrl + "request")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -334,5 +427,63 @@ class RecoverPasswordControllerTest {
     assertThat(updatedUser).isPresent();
     // Don't check password encoding in tests as it may not be properly encoded
     assertThat(updatedUser.get().getPassword()).isNotNull();
+  }
+
+  /* resend -> resent email */
+  @Test
+  @Transactional
+  @Rollback
+  @DisplayName("POST: Resend OTP generates new code and resets attempts")
+  void resendOTP() throws Exception {
+    Optional<UserToken> oldTokenOpt = userTokenRepository.findByUserID(testUser.getId());
+    String oldCodeOTP = oldTokenOpt.map(UserToken::getCodeOTP).orElse(null);
+    int oldAttempts = oldTokenOpt.map(UserToken::getAttemptCounter).orElse(-1);
+
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail(testUser.getEmail());
+
+    mvc.perform(
+            post(apiUrl + "resend")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Mail sent"));
+
+    Optional<UserToken> newTokenOpt = userTokenRepository.findByUserID(testUser.getId());
+    assertThat(newTokenOpt).isPresent();
+
+    UserToken newToken = newTokenOpt.get();
+
+    assertThat(newToken.getCodeOTP()).isNotEqualTo(oldCodeOTP);
+
+    assertThat(newToken.getAttemptCounter()).isEqualTo(3); // TODO: récupérer depuis yml vrai valuer
+
+    assertThat(newToken.isActive()).isTrue();
+  }
+
+  @Test
+  @DisplayName("POST: Await error 429 after 3 request")
+  @Transactional
+  @Rollback
+  void sendResendTooManyTime() throws Exception {
+    org.sitmun.resetPassword.dto.RequestNewPassword request =
+        new org.sitmun.resetPassword.dto.RequestNewPassword();
+    request.setEmail(testUser.getEmail());
+
+    int max_request = 3;
+
+    for (int i = 0; i < max_request; i++) {
+      mvc.perform(
+              post(apiUrl + "resend")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(TestUtils.asJsonString(request)))
+          .andExpect(status().isOk());
+    }
+    mvc.perform(
+            post(apiUrl + "resend")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isTooManyRequests());
   }
 }

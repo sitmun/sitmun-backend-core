@@ -1,4 +1,4 @@
-package org.sitmun.recover.dto;
+package org.sitmun.resetPassword.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -9,17 +9,16 @@ import lombok.Setter;
 /** DTO object for storing a user's credentials. */
 @Setter
 @Getter
-public class UserLoginRecoverRequest {
-
+public class RequestNewPassword {
   @Schema(
       description = "User identifier. It cannot be empty",
       example = "some_user or some_user@mail.com")
   @NotNull
   @Size(min = 1, max = 50)
-  private String login;
+  private String email;
 
   @Override
   public String toString() {
-    return "LoginDTO{login='" + login + '}';
+    return "LoginDTO{login='" + email + '}';
   }
 }

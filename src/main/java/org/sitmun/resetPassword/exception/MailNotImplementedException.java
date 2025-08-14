@@ -1,4 +1,4 @@
-package org.sitmun.recover.exception;
+package org.sitmun.resetPassword.exception;
 
 /**
  * Exception thrown when mail service is not available. This exception is thrown when mail features

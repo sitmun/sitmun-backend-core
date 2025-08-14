@@ -1,4 +1,4 @@
-package org.sitmun.recover.dto;
+package org.sitmun.resetPassword.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +13,9 @@ public class ResetPasswordRequest {
   @Schema(description = "User password. It cannot be empty", example = "password")
   @NotNull
   @Size(min = 1, max = 50)
-  private String password;
+  private String newPassword;
 
-  @NotNull private String token;
+  @NotNull private String email;
+
+  @NotNull private String codeOTP;
 }

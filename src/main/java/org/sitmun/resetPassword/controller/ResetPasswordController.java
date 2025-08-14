@@ -1,23 +1,24 @@
-package org.sitmun.recover.controller;
+package org.sitmun.resetPassword.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user_token.UserTokenDTO;
 import org.sitmun.domain.user_token.UserTokenService;
-import org.sitmun.recover.dto.EmailForgotPassword;
-import org.sitmun.recover.dto.ResetPasswordRequest;
-import org.sitmun.recover.dto.UserLoginRecoverRequest;
-import org.sitmun.recover.exception.EmailTemplateException;
-import org.sitmun.recover.exception.MailNotImplementedException;
-import org.sitmun.recover.service.MailService;
+import org.sitmun.resetPassword.dto.EmailForgotPassword;
+import org.sitmun.resetPassword.dto.RequestNewPassword;
+import org.sitmun.resetPassword.dto.ResetPasswordRequest;
+import org.sitmun.resetPassword.exception.EmailTemplateException;
+import org.sitmun.resetPassword.exception.MailNotImplementedException;
+import org.sitmun.resetPassword.service.CodeOTPService;
+import org.sitmun.resetPassword.service.MailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
@@ -36,14 +37,13 @@ import org.springframework.web.server.ResponseStatusException;
 /** Controller to authenticate users. */
 @Slf4j
 @RestController
-@RequestMapping("/api/recover-password")
-@Tag(name = "PasswordRecover", description = "Recover the password of the user")
+@RequestMapping("/api/password-reset")
+@Tag(name = "ResetPassword", description = "Reset the password of the user")
 @Profile("mail")
 @Validated
-public class RecoverPasswordController {
-
-  @Value("${sitmun.recover-password.front.url}")
-  private String frontUrl;
+public class ResetPasswordController {
+  @Value("${sitmun.recover-password.code-otp.max-attempt}")
+  private int maxAttempt;
 
   @Value("${sitmun.recover-password.mail.from}")
   private String from;
@@ -57,23 +57,27 @@ public class RecoverPasswordController {
   private final MailService mailService;
   private final UserRepository userRepository;
   private final ApplicationEventPublisher publisher;
+  private final CodeOTPService codeOTPService;
 
-  public RecoverPasswordController(
+  public ResetPasswordController(
       MailService mailService,
       UserRepository userRepository,
       Validator validator,
       ApplicationEventPublisher publisher,
+      CodeOTPService codeOtpService,
       UserTokenService userTokenService) {
     this.mailService = mailService;
     this.userRepository = userRepository;
     this.publisher = publisher;
     this.springValidator = new SpringValidatorAdapter(validator);
     this.userTokenService = userTokenService;
+    this.codeOTPService = codeOtpService;
   }
 
-  @PostMapping
+  @PostMapping("/request")
   @SecurityRequirements
-  public ResponseEntity<String> sendEmailUser(@Valid @RequestBody UserLoginRecoverRequest body) {
+  public ResponseEntity<String> RequestNewPassword(
+      @Valid @RequestBody RequestNewPassword requestNewPassword) {
     if (!mailService.isAvailable()) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
           .body(
@@ -81,29 +85,32 @@ public class RecoverPasswordController {
     }
 
     try {
-      String login = body.getLogin();
-      boolean isLoginExist =
-          this.userRepository.findByEmail(login).isPresent(); // Is user mail exist
-      if (!isLoginExist) { // Otherwise, get user where login is nickname then get mail
-        var optionalUser = this.userRepository.findByUsername(login);
-        isLoginExist = optionalUser.isPresent();
-
-        if (isLoginExist) {
-          User user = optionalUser.get();
-          login = user.getEmail();
-        }
+      String email = requestNewPassword.getEmail();
+      Optional<User> optionalUser = this.userRepository.findByEmail(email); // Does user mail exist
+      User user = null;
+      if (optionalUser.isPresent()) {
+        user = optionalUser.get();
       }
 
-      String token;
-      if (isLoginExist && login != null && !login.trim().isEmpty()) {
-        token = this.generateRandomToken();
+      if (user != null && !user.getBlocked() && email != null && !email.trim().isEmpty()) {
+        if (this.userTokenService.getUserTokenByUserId(user.getId()) != null) {
+          userTokenService.deleteUserTokenByUserId(user.getId());
+        }
+
+        String codeOTP = this.codeOTPService.CreateCodeOTP();
+        String hashedCodeOTP = this.codeOTPService.HashCodeOTP(codeOTP);
         long currentTimeMillis = new Date().getTime();
         UserTokenDTO userTokenDTO =
-            new UserTokenDTO(null, login, token, new Date(currentTimeMillis + recoveryValidity));
+            new UserTokenDTO(
+                null,
+                user.getId(),
+                hashedCodeOTP,
+                new Date(currentTimeMillis + recoveryValidity),
+                0,
+                true);
         userTokenService.saveUserToken(userTokenDTO);
-        String resetUrl = frontUrl + "/auth/forgot-password/" + token;
-        EmailForgotPassword email = mailService.buildForgotPasswordEmail(resetUrl);
-        mailService.sendEmail(from, login, email);
+        EmailForgotPassword emailContent = mailService.buildForgotPasswordEmail(codeOTP);
+        mailService.sendEmail(from, email, emailContent);
       }
       return ResponseEntity.status(HttpStatus.OK).body("Mail sent");
     } catch (MailNotImplementedException e) {
@@ -122,35 +129,54 @@ public class RecoverPasswordController {
     }
   }
 
-  @PutMapping()
+  @PostMapping("/confirm")
   @SecurityRequirements
-  public ResponseEntity<String> resetPassword(
+  public ResponseEntity<String> ResetPassword(
       @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
     try {
-      // Get login from UserToken
-      UserTokenDTO userToken =
-          userTokenService.getUserTokenByToken(resetPasswordRequest.getToken());
-      if (userToken == null) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-
-      // Get user
-      String login = userToken.getUserMail();
-      Optional<User> storedUser = this.userRepository.findByEmail(login);
-
-      // Login not existing
+      // check if user exist
+      Optional<User> storedUser = this.userRepository.findByEmail(resetPasswordRequest.getEmail());
       if (storedUser.isEmpty()) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
       }
       User user = storedUser.get();
 
-      // Token already used or expired
-      if (new Date().after(userToken.getExpireAt())) {
+      // Check if user userToken exist
+      UserTokenDTO userToken = userTokenService.getUserTokenByUserId(user.getId());
+      if (userToken == null) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
+      if (!userToken.isActive()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      }
+
+      // Token already used or expired or attempts exceeded
+      if (userToken.getAttemptCounter() >= this.maxAttempt
+          || new Date().after(userToken.getExpireAt())) {
+        userToken.setActive(false);
+        this.userTokenService.updateUserToken(userToken);
+        return ResponseEntity.status(HttpStatus.GONE).build();
+      }
+
+      // Check if email valid
+      if (!resetPasswordRequest.getEmail().equalsIgnoreCase(user.getEmail())) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      // Check the code OTP
+      if (!this.codeOTPService.ValidateCodeOTP(
+          resetPasswordRequest.getCodeOTP(), userToken.getCodeOTP())) {
+        userToken.setAttemptCounter(userToken.getAttemptCounter() + 1);
+        this.userTokenService.updateUserToken(userToken);
+        int attemptsRemaining = maxAttempt - userToken.getAttemptCounter();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Integer.toString(attemptsRemaining));
+      }
+
       // Update password
-      String newPassword = resetPasswordRequest.getPassword();
+      String newPassword = resetPasswordRequest.getNewPassword();
       user.setPassword(newPassword);
 
       // Verify password
@@ -160,12 +186,12 @@ public class RecoverPasswordController {
         throw new RepositoryConstraintViolationException(bindingResult);
       }
 
+      userToken.setActive(false);
+      this.userTokenService.updateUserToken(userToken);
+      user.setLastPasswordChange(new Date());
       this.publisher.publishEvent(new BeforeSaveEvent(user));
       user = this.userRepository.save(user);
       this.publisher.publishEvent(new AfterSaveEvent(user));
-
-      // Delete userToken
-      userTokenService.deleteUserToken(userToken);
 
       return ResponseEntity.status(HttpStatus.OK).body("Password reset successfully");
     } catch (Exception e) {
@@ -173,8 +199,10 @@ public class RecoverPasswordController {
     }
   }
 
-  /** We generate a random string */
-  private String generateRandomToken() {
-    return UUID.randomUUID().toString();
+  @PostMapping("/resend")
+  @SecurityRequirements
+  public ResponseEntity<String> ResendCodeOTP(
+      HttpServletRequest request, @Valid @RequestBody RequestNewPassword requestNewPassword) {
+    return this.RequestNewPassword(requestNewPassword);
   }
 }

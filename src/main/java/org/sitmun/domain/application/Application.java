@@ -1,5 +1,7 @@
 package org.sitmun.domain.application;
 
+import static java.util.Map.*;
+
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -26,8 +28,6 @@ import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import static java.util.Map.*;
 
 /**
  * A SITMUN application represents a web-based mapping application.
@@ -216,23 +216,23 @@ public class Application {
 
   /**
    * Header params for maps sections.
+   *
    * @param obj
    */
   @Column(name = "APP_HEADERPARAMS", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Builder.Default
-  private Map<String, Object> headerParams = of(
-    "headerLeftSection", of(
-        "logoSitmun", visible()
-    ),
-    "headerRightSection", of(
-        "switchApplication", visible(),
-        "homeMenu", visible(),
-        "switchLanguage", visible(),
-        "profileButton", visible(),
-        "logoutButton", visible()
-    ));
+  private Map<String, Object> headerParams =
+      of(
+          "headerLeftSection", of("logoSitmun", visible()),
+          "headerRightSection",
+              of(
+                  "switchApplication", visible(),
+                  "homeMenu", visible(),
+                  "switchLanguage", visible(),
+                  "profileButton", visible(),
+                  "logoutButton", visible()));
 
   @Override
   public boolean equals(Object obj) {
@@ -252,8 +252,7 @@ public class Application {
     return getClass().hashCode();
   }
 
-
-  static Map<String, Object> visible()  {
+  static Map<String, Object> visible() {
     return Collections.singletonMap("visible", true);
   }
 }

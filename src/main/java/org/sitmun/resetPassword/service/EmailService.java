@@ -1,10 +1,10 @@
-package org.sitmun.recover.service;
+package org.sitmun.resetPassword.service;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.recover.dto.EmailForgotPassword;
-import org.sitmun.recover.dto.EmailObject;
-import org.sitmun.recover.exception.EmailTemplateException;
+import org.sitmun.resetPassword.dto.EmailForgotPassword;
+import org.sitmun.resetPassword.dto.EmailObject;
+import org.sitmun.resetPassword.exception.EmailTemplateException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,8 +49,8 @@ public class EmailService implements MailService {
     return true;
   }
 
-  public EmailForgotPassword buildForgotPasswordEmail(String resetUrl) {
-    String body = renderForgotPasswordBody(Map.of("resetUrl", resetUrl));
+  public EmailForgotPassword buildForgotPasswordEmail(String codeOTP) {
+    String body = renderForgotPasswordBody(Map.of("codeOTP", codeOTP));
     return new EmailForgotPassword(forgotPasswordSubject, body);
   }
 

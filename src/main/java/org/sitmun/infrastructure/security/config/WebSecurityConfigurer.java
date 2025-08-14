@@ -4,6 +4,8 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 
 import java.util.List;
+
+import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
@@ -56,6 +58,8 @@ public class WebSecurityConfigurer {
 
   private final JsonWebTokenService jsonWebTokenService;
 
+  private final UserRepository userRepository;
+
   private final List<PasswordStorage> passwordStorageList;
 
   @Value("${sitmun.proxy-middleware.secret}")
@@ -65,16 +69,18 @@ public class WebSecurityConfigurer {
       UserDetailsServiceImplementation userDetailsService,
       SecurityEntryPoint unauthorizedHandler,
       JsonWebTokenService jsonWebTokenService,
-      List<PasswordStorage> passwordStorageList) {
+      List<PasswordStorage> passwordStorageList,
+      UserRepository userRepository) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
+    this.userRepository = userRepository;
   }
 
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
-    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService);
+    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService, userRepository);
   }
 
   @Bean
@@ -179,11 +185,7 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(new AntPathRequestMatcher("/api/authenticate", "POST"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "POST"))
-        .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "PUT"))
-        .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/userTokenValid", "GET"))
+        .requestMatchers(new AntPathRequestMatcher("/api/password-reset/**", "POST"))
         .permitAll()
         .requestMatchers(new AntPathRequestMatcher("/api/languages", "GET"))
         .permitAll()

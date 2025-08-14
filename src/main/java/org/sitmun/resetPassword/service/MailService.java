@@ -1,7 +1,7 @@
-package org.sitmun.recover.service;
+package org.sitmun.resetPassword.service;
 
-import org.sitmun.recover.dto.EmailForgotPassword;
-import org.sitmun.recover.dto.EmailObject;
+import org.sitmun.resetPassword.dto.EmailForgotPassword;
+import org.sitmun.resetPassword.dto.EmailObject;
 
 /**
  * Mail service interface for sending emails. Implementations can be either real mail service or
@@ -25,5 +25,5 @@ public interface MailService {
    */
   boolean isAvailable();
 
-  EmailForgotPassword buildForgotPasswordEmail(String resetUrl);
+  EmailForgotPassword buildForgotPasswordEmail(String codeOTP);
 }
