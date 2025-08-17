@@ -2,6 +2,7 @@ package org.sitmun.domain.user.position;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
@@ -50,4 +51,6 @@ public interface UserPositionRepository extends JpaRepository<UserPosition, Inte
   @RestResource(exported = false)
   @Query("SELECT up FROM UserPosition up WHERE up.user = ?1 AND up.territory = ?2")
   Optional<UserPosition> findByUserAndTerritory(User user, Territory territory);
+
+  List<UserPosition> findByUser(User user);
 }

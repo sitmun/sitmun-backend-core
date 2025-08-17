@@ -40,6 +40,10 @@ public interface UserPositionProjection {
   String getTerritoryName();
 
   /** User id. */
+  @Value("#{target.territory?.id}")
+  Integer getTerritoryId();
+
+  /** User id. */
   @Value("#{target.user?.id}")
   Integer getUserId();
 }

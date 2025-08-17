@@ -437,9 +437,6 @@ CREATE TABLE STM_POST
   PRIMARY KEY (POS_ID)
 );
 
-ALTER TABLE STM_POST
-  ADD CONSTRAINT STM_POS_USER_TER_UK UNIQUE (POS_USERID, POS_TERID);
-
 -- ===================================================================
 -- Relationship Role Geographic Information
 -- ===================================================================

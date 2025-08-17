@@ -751,6 +751,7 @@ The Backend Core supports different service types that can be configured:
    ```
 
 #### Debug Mode
+
 ```bash
 # Enable debug logging for integration issues
 export LOGGING_LEVEL_ORG_SITMUN=DEBUG

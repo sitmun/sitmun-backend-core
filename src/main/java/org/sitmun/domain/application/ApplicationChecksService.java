@@ -34,11 +34,15 @@ public class ApplicationChecksService {
 
     List<String> warnings = new ArrayList<>();
 
+    checkPrivateApplicationWithPublicUser(app, warnings);
+
+    return warnings;
+  }
+
+  private void checkPrivateApplicationWithPublicUser(Application app, List<String> warnings) {
     if (Boolean.TRUE.equals(app.getAppPrivate()) && hasPublicUserRole(app)) {
       warnings.add("entity.application.warning.private-application-with-public-user");
     }
-
-    return warnings;
   }
 
   /**

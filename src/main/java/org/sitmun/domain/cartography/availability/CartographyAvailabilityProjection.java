@@ -49,4 +49,7 @@ public interface CartographyAvailabilityProjection {
   /** Layers of the cartography allowed to access. */
   @Value("#{target.cartography?.layers}")
   List<String> getCartographyLayers();
+
+  @Value("#{target.cartography?.service?.name}")
+  String getCartographyServiceName();
 }

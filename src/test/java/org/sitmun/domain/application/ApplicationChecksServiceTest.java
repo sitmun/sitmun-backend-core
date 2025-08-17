@@ -14,14 +14,15 @@ import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 @DisplayName("Application Checks Service Tests")
 class ApplicationChecksServiceTest {
 
-  @MockBean private UserConfigurationRepository userConfigurationRepository;
+  @MockitoBean
+  private UserConfigurationRepository userConfigurationRepository;
 
   @Autowired private ApplicationChecksService applicationChecksService;
 
@@ -93,5 +94,29 @@ class ApplicationChecksServiceTest {
 
     // Then
     assertThat(warnings).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Should return no warnings when user is not admin")
+  @WithMockUser(roles = "USER")
+  void shouldReturnNullWhenUserIsNotAdmin() {
+    // Given
+    Application app =
+        Application.builder()
+            .id(1)
+            .name("Private App")
+            .appPrivate(true)
+            .availableRoles(createRoles(1, 2))
+            .build();
+
+    when(userConfigurationRepository.existsByUserUsernameAndRoleIn(
+            eq(SecurityConstants.PUBLIC_PRINCIPAL), any(Set.class)))
+        .thenReturn(true);
+
+    // When
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    // Then
+    assertThat(warnings).isNull();
   }
 }
