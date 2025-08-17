@@ -306,6 +306,7 @@ public class AuthorizationService {
 
     profile.setTrees(
         profile.getTrees().stream()
+            .filter(tree -> profile.getTreeNodes().get(tree) != null)
             .filter(tree -> !profile.getTreeNodes().get(tree).isEmpty())
             .collect(Collectors.toList()));
 
