@@ -318,8 +318,8 @@ spotless {
 scmVersion {
   ignoreUncommittedChanges.set(true)
   tag {
-    prefix = 'sitmun-backend-core'
-    versionSeparator = '/'
+    prefix.set('sitmun-backend-core')
+    versionSeparator.set('/')
     initialVersion({config, position -> '1.0.0'})
   }
   versionIncrementer('incrementPatch')
