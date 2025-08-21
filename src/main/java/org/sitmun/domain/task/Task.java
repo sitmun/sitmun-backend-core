@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.*;
 import lombok.*;
 import org.hibernate.Length;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.role.Role;

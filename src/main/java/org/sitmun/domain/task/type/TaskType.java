@@ -12,7 +12,7 @@ import lombok.*;
 import org.hibernate.Length;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.*;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 
 /** Type of territorial entities. */

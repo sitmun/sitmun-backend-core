@@ -7,7 +7,7 @@ import java.util.Objects;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.background.Background;
 
