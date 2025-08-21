@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.territory.Territory;
@@ -48,7 +47,8 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When user is admin, getWarnings returns a warning if any position has missing details")
+  @DisplayName(
+      "When user is admin, getWarnings returns a warning if any position has missing details")
   void getWarningsWhenPositionDetailsAreMissingAddsWarning() {
     // Arrange
 
@@ -67,7 +67,6 @@ class UserChecksServiceTest {
     when(position.getOrganization()).thenReturn("Org");
     when(position.getEmail()).thenReturn("email@example.com");
 
-
     when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
     when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
 
@@ -83,7 +82,8 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When user is admin, getWarnings returns a warning if the user has no positions for a territory in an user configuration")
+  @DisplayName(
+      "When user is admin, getWarnings returns a warning if the user has no positions for a territory in an user configuration")
   void getWarningsWhenRoleWithoutPositionAddsWarning() {
     // Arrange
     User user = mock(User.class);
@@ -108,7 +108,8 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When user is admin, getWarnings returns a warning if the user has no user configuration")
+  @DisplayName(
+      "When user is admin, getWarnings returns a warning if the user has no user configuration")
   void getWarningsWhenNoUserConfigurationPresentAddsWarning() {
     // Arrange
     User user = mock(User.class);
@@ -171,29 +172,25 @@ class UserChecksServiceTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank organization, warning is added")
   void getWarningsWhenPositionHasBlankOrganizationAddsWarning() {
-    getWarningsWhenPositionHasIssues(
-      "Name", "Type", "    ", "email@example.com");
+    getWarningsWhenPositionHasIssues("Name", "Type", "    ", "email@example.com");
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank email, warning is added")
   void getWarningsWhenPositionHasBlankEmailAddsWarning() {
-    getWarningsWhenPositionHasIssues(
-      "Name", "Type", "Org", null);
+    getWarningsWhenPositionHasIssues("Name", "Type", "Org", null);
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank type, warning is added")
   void getWarningsWhenPositionHasBlankTypeAddsWarning() {
-    getWarningsWhenPositionHasIssues(
-      "Name", "", "Org", "email@example.com");
+    getWarningsWhenPositionHasIssues("Name", "", "Org", "email@example.com");
   }
 
   private void getWarningsWhenPositionHasIssues(
-    String name, String type, String organization, String email
-  ) {
+      String name, String type, String organization, String email) {
     // Arrange
     User user = mock(User.class);
     when(user.getUsername()).thenReturn("testUser");
@@ -250,7 +247,8 @@ class UserChecksServiceTest {
     when(position.getOrganization()).thenReturn("Org");
     when(position.getEmail()).thenReturn("email@example.com");
 
-    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig1, userConfig2));
+    when(userConfigurationRepository.findByUser(user))
+        .thenReturn(List.of(userConfig1, userConfig2));
     when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
 
     // Act

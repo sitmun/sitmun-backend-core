@@ -1,5 +1,6 @@
 package org.sitmun.authorization.dto.decorators;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -29,22 +30,23 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
     if (payload instanceof DatasourcePayloadDto datasourcePayloadDto) {
       String sql = datasourcePayloadDto.getSql();
       if (sql != null && !sql.isEmpty() && target != null && !target.isEmpty()) {
-        String[] keySetIt = target.keySet().toArray(new String[0]);
+        Map<String, String> properties = new HashMap<>(target);
+        String[] keySetIt = properties.keySet().toArray(new String[0]);
         for (String key : keySetIt) {
           if (sql.contains("${" + key + "}")) {
-            String value = getFilterValue(target.get(key));
+            String value = getFilterValue(properties.get(key));
             sql = sql.replace("${" + key + "}", value);
-            target.remove(key);
+            properties.remove(key);
           }
         }
-        if (!target.isEmpty()) {
+        if (!properties.isEmpty()) {
           if (!sql.contains("WHERE") && !sql.contains("where")) {
             sql = sql + " WHERE ";
           } else {
             sql = sql + " AND ";
           }
           StringJoiner joiner = new StringJoiner(" AND ");
-          target.forEach((key, value) -> joiner.add(key + '=' + getFilterValue(value)));
+          properties.forEach((key, value) -> joiner.add(key + '=' + getFilterValue(value)));
           sql = sql.concat(joiner.toString());
         }
         datasourcePayloadDto.setSql(sql);

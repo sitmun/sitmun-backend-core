@@ -21,8 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DisplayName("Application Checks Service Tests")
 class ApplicationChecksServiceTest {
 
-  @MockitoBean
-  private UserConfigurationRepository userConfigurationRepository;
+  @MockitoBean private UserConfigurationRepository userConfigurationRepository;
 
   @Autowired private ApplicationChecksService applicationChecksService;
 
