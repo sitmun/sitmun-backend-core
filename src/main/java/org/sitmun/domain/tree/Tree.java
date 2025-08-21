@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 import org.hibernate.Length;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.Application;

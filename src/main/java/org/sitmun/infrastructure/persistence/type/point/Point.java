@@ -3,7 +3,7 @@ package org.sitmun.infrastructure.persistence.type.point;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 import lombok.*;
-import org.sitmun.authorization.dto.ClientConfigurationViews;
+import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 
 /** Defines a 2D point . */
 @Builder
