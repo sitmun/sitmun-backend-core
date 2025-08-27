@@ -25,6 +25,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
   @Override
   public String convertToDatabaseColumn(Map<String, Object> attribute) {
+    if (attribute == null) {
+      return null;
+    }
     try {
       return objectMapper.writeValueAsString(attribute);
     } catch (final JsonProcessingException e) {

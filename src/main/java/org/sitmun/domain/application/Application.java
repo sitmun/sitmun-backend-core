@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.*;
+import org.hibernate.Length;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -25,6 +26,8 @@ import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import static java.util.Map.*;
 
 /**
  * A SITMUN application represents a web-based mapping application.
@@ -215,10 +218,21 @@ public class Application {
    * Header params for maps sections.
    * @param obj
    */
-  @Column(name = "APP_HEADERPARAMS")
+  @Column(name = "APP_HEADERPARAMS", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
-  private Map<String, Object> headerParams;
+  @Builder.Default
+  private Map<String, Object> headerParams = of(
+    "headerLeftSection", of(
+        "logoSitmun", visible()
+    ),
+    "headerRightSection", of(
+        "switchApplication", visible(),
+        "homeMenu", visible(),
+        "switchLanguage", visible(),
+        "profileButton", visible(),
+        "logoutButton", visible()
+    ));
 
   @Override
   public boolean equals(Object obj) {
@@ -236,5 +250,10 @@ public class Application {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+
+  static Map<String, Object> visible()  {
+    return Collections.singletonMap("visible", true);
   }
 }
