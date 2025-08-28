@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-08-28
+
+### Added
+- Default header parameters configuration for SITMUN applications
+- Comprehensive test coverage for authorization components
+- Test coverage for application default values functionality
+
+### Changed
+- Reorganized authorization package structure into client and proxy subpackages
+- Enhanced SQL generation robustness in QueryVaryFiltersDecorator
+
+### Fixed
+- QueryVaryFiltersDecorator: prevent mutation of input target map
+- HashMapConverter: add null safety to prevent NPE
+- Filter out null tree nodes in profile's tree list
+- Update application version to use project.version variable
+
 ## [1.1.0] - 2025-08-03
 
 ### Added
@@ -65,5 +82,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 - Various bug fixes and improvements from development phase
 
-[unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.0...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.1...HEAD
+[1.1.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.0...sitmun-backend-core/v1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.0.0...sitmun-backend-core/1.1.0
+[1.0.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.0.0...sitmun-backend-core/1.0.0
