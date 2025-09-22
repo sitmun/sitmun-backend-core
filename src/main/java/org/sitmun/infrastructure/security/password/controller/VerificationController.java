@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,9 +42,14 @@ public class VerificationController {
       @Valid @RequestBody UserPasswordAuthenticationRequest body) {
     ResponseEntity<Boolean> response;
     try {
+      // Get current username from authentication
+      Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+      String currentUsername = currentAuth.getName();
+
+      // Check if the password is correct
       Authentication authentication =
           authenticationManager.authenticate(
-              new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
+              new UsernamePasswordAuthenticationToken(currentUsername, body.getPassword()));
       response = new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
     } catch (BadCredentialsException e) {
       log.warn("Invalid credentials for user {}: {}", body.getUsername(), e.getMessage());
