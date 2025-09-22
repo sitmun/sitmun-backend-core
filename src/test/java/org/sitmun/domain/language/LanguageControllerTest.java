@@ -1,12 +1,5 @@
 package org.sitmun.domain.language;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
@@ -14,8 +7,16 @@ import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LanguageController.class)
 @DisplayName("LanguageController REST test")
@@ -24,7 +25,8 @@ class LanguageControllerTest {
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private LanguageRepository languageRepository;
+  @MockitoBean
+  private LanguageRepository languageRepository;
 
   @Test
   @DisplayName("GET: Retrieve all languages - OK")
