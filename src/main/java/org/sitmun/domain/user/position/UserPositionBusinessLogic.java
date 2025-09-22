@@ -38,9 +38,9 @@ public class UserPositionBusinessLogic {
     }
 
     // Check if UserPosition already exists for this user-territory tuple
-    var existingPosition = userPositionRepository.findByUserAndTerritory(user, territory);
+    var existingPositions = userPositionRepository.findByUserAndTerritory(user, territory);
 
-    if (existingPosition.isEmpty()) {
+    if (existingPositions.isEmpty()) {
       // Create new UserPosition
       UserPosition newPosition = UserPosition.builder().user(user).territory(territory).build();
 

@@ -1,0 +1,50 @@
+# =====================================================================================================================
+# Spring Boot configuration for the "mail" profile.
+#
+# This configuration overrides the base application.yml file with mail-specific settings.
+# Used for tests that require email functionality (password recovery, notifications, etc.).
+#
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# =====================================================================================================================
+
+# ===================================================================
+# Spring Mail Configuration
+# ===================================================================
+spring:
+  mail:
+    host: localhost
+    port: 1025
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+      mail.smtp.starttls.enable: false
+      mail.smtp.starttls.required: false
+    # SITMUN-specific mail templates
+    forgot-password:
+      subject: "Password Recovery - SITMUN"
+      body-template: "mail/forgot-password"
+
+# ===================================================================
+# Management and Monitoring
+# ===================================================================
+# Enable mail health checks when mail profile is active
+management:
+  health:
+    mail:
+      enabled: true
+
+# ===================================================================
+# SITMUN specific properties
+# ===================================================================
+
+sitmun:
+  recover-password:
+    mail:
+      from: "sitmun-test@localhost"
+    jwt:
+      token-recovery-password-validity-in-milliseconds: 3600000

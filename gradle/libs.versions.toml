@@ -12,6 +12,7 @@ heroku-gradle = "2.0.0"
 docker-compose = "0.17.12"
 spotless = "7.2.0"
 axion-release = "1.18.0"
+bucket4j = "8.10.1"
 
 # Dependency versions
 jjwt = "0.12.6"
@@ -88,6 +89,9 @@ unboundid-ldapsdk = { module = "com.unboundid:unboundid-ldapsdk" }
 # Jakarta APIs
 jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api" }
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api" }
+
+# Rate limiting
+bucket4j-core = { module = "com.bucket4j:bucket4j-core", version.ref = "bucket4j" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

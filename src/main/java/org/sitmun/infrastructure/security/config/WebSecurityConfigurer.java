@@ -4,6 +4,7 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 
 import java.util.List;
+import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
@@ -13,6 +14,7 @@ import org.sitmun.infrastructure.security.storage.PasswordStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,7 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -56,6 +58,8 @@ public class WebSecurityConfigurer {
 
   private final JsonWebTokenService jsonWebTokenService;
 
+  private final UserRepository userRepository;
+
   private final List<PasswordStorage> passwordStorageList;
 
   @Value("${sitmun.proxy-middleware.secret}")
@@ -65,16 +69,18 @@ public class WebSecurityConfigurer {
       UserDetailsServiceImplementation userDetailsService,
       SecurityEntryPoint unauthorizedHandler,
       JsonWebTokenService jsonWebTokenService,
-      List<PasswordStorage> passwordStorageList) {
+      List<PasswordStorage> passwordStorageList,
+      UserRepository userRepository) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
+    this.userRepository = userRepository;
   }
 
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
-    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService);
+    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService, userRepository);
   }
 
   @Bean
@@ -161,44 +167,46 @@ public class WebSecurityConfigurer {
   private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
       configurePermitAll(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
-              authz) {
+              authz
+          ) {
+    var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(new AntPathRequestMatcher("/v3/api-docs"))
+        .requestMatchers(builder.matcher( HttpMethod.GET,"/v3/api-docs"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/v3/api-docs.yaml"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/v3/api-docs.yaml"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/v3/api-docs/**"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/swagger-ui/**"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/profile"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/profile"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/profile/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/profile/**"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/dashboard/health"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/dashboard/health"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/authenticate", "POST"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "POST"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/password-reset/**"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/recover-password", "PUT"))
+        .requestMatchers(builder.matcher(HttpMethod.PUT, "/api/password-reset/**"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/userTokenValid", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/languages"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/languages", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/configuration-parameters"))
         .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/configuration-parameters", "GET"))
-        .permitAll()
-        .requestMatchers(new AntPathRequestMatcher("/api/account/public/**", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/account/public/**"))
         .permitAll();
   }
 
   /**
    * Configures authorization for user-specific endpoints. These endpoints require USER role
-   * authentication and include: - /api/account: User account management - /api/account/** (GET):
-   * User account information retrieval - /api/user-verification/** (POST): User verification
-   * processes
-   *
+   * authentication and include:
+   * <ul>
+   * <li>/api/account: (GET, POST) User account management</li>
+   * <li>/api/account/** (GET): User account information retrieval</li>
+   * <li>/api/user-verification/** (POST): User verification processes</li>
+   * </ul>
    * @param authz The authorization configuration
    * @return The updated authorization configuration
    */
@@ -206,14 +214,17 @@ public class WebSecurityConfigurer {
       configureUser(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
               authz) {
+    var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(new AntPathRequestMatcher("/api/account"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/account"))
         .hasRole(USER.name())
-        .requestMatchers(new AntPathRequestMatcher("/api/account/**", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.POST,"/api/account"))
         .hasRole(USER.name())
-        .requestMatchers(new AntPathRequestMatcher("/api/user-verification/**", "POST"))
+        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/account/**"))
         .hasRole(USER.name())
-        .requestMatchers(new AntPathRequestMatcher("/api/user/details", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/user-verification/**"))
+        .hasRole(USER.name())
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
         .hasRole(USER.name());
   }
 
@@ -229,10 +240,11 @@ public class WebSecurityConfigurer {
       configureUserOrPublic(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
               authz) {
+    var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(new AntPathRequestMatcher("/api/config/client/**", "GET"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name())
-        .requestMatchers(new AntPathRequestMatcher("/api/config/client/**", "PUT"))
+        .requestMatchers(builder.matcher(HttpMethod.POST,"/api/config/client/territory/position"))
         .hasAnyRole(USER.name(), PUBLIC.name());
   }
 
@@ -240,8 +252,9 @@ public class WebSecurityConfigurer {
       configureProxy(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
               authz) {
+    var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(new AntPathRequestMatcher("/api/config/proxy/**", "POST"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/proxy/**"))
         .hasRole(PROXY.name());
   }
 
@@ -249,6 +262,7 @@ public class WebSecurityConfigurer {
       configureAdmin(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
               authz) {
-    return authz.requestMatchers(new AntPathRequestMatcher("/api/**")).hasRole(ADMIN.name());
+    var builder = PathPatternRequestMatcher.withDefaults();
+    return authz.requestMatchers(builder.matcher("/api/**")).hasRole(ADMIN.name());
   }
 }

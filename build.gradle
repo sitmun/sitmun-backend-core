@@ -99,6 +99,9 @@ dependencies {
   // Mail profile
   implementation libs.spring.boot.starter.mail
 
+  // Rate limiting
+  implementation libs.bucket4j.core
+
   // Core annotation processing
   annotationProcessor libs.jakarta.annotation.api
   annotationProcessor libs.spring.boot.configuration.processor

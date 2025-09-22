@@ -3,8 +3,11 @@ package org.sitmun.authentication.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,23 +30,27 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AuthenticationController {
 
-  final AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
-  final UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
 
-  final PasswordEncoder encoder;
+  private final UserRepository userRepository;
 
-  final JsonWebTokenService jsonWebTokenService;
+  private final PasswordEncoder encoder;
+
+  private final JsonWebTokenService jsonWebTokenService;
 
   public AuthenticationController(
       AuthenticationManager authenticationManager,
       UserDetailsService userDetailsService,
       PasswordEncoder encoder,
-      JsonWebTokenService jsonWebTokenService) {
+      JsonWebTokenService jsonWebTokenService,
+      UserRepository userRepository) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.encoder = encoder;
     this.jsonWebTokenService = jsonWebTokenService;
+    this.userRepository = userRepository;
   }
 
   /**
@@ -61,7 +68,14 @@ public class AuthenticationController {
             new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
     if (authentication.isAuthenticated()) {
       UserDetails userDetails = userDetailsService.loadUserByUsername(body.getUsername());
-      String token = jsonWebTokenService.generateToken(userDetails);
+      Optional<User> user = this.userRepository.findByUsername(body.getUsername());
+      if (user.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+
+      String token =
+          jsonWebTokenService.generateToken(userDetails, user.get().getLastPasswordChange());
+
       return ResponseEntity.ok().body(new AuthenticationResponse(token));
     }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

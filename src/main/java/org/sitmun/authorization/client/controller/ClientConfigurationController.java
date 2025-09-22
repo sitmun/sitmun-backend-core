@@ -93,7 +93,7 @@ public class ClientConfigurationController {
   }
 
   /** Update a UserPosition from the user */
-  @PutMapping(path = "/territory/position", produces = APPLICATION_JSON_VALUE)
+  @PostMapping(path = "/territory/position", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<UserPositionDTO> editTerritoryPositions(
       @RequestBody UserPositionDTO positionDTOs) {
     userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);

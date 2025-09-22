@@ -2,11 +2,10 @@ package org.sitmun.authorization.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Map;
-
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 
 @Getter

@@ -2,13 +2,11 @@ package org.sitmun.domain.application;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
-import java.util.Map;
 
-/**
- * Projections for REST views of an application.
- */
+/** Projections for REST views of an application. */
 @Projection(name = "view", types = Application.class)
 public interface ApplicationProjection {
 
@@ -101,9 +99,7 @@ public interface ApplicationProjection {
   @Value("#{@applicationChecksService.getWarnings(target)}")
   List<String> getWarnings();
 
-  /**
-   * Map header configuration
-   */
+  /** Map header configuration */
   @Value("#{target.headerParams}")
   Map<String, Object> getHeaderParams();
 }
