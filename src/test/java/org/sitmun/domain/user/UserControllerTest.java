@@ -1,15 +1,5 @@
 package org.sitmun.domain.user;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +13,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -97,7 +98,7 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("PUT: Update account but keep the password")
+  @DisplayName("POST: Update account but keep the password")
   void updateAccountButKeepThePassword() throws Exception {
     String content =
         "{"
@@ -108,7 +109,7 @@ class UserControllerTest {
             + "\"blocked\": false}";
 
     mvc.perform(
-            put(URIConstants.ACCOUNT_URI)
+        post(URIConstants.ACCOUNT_URI)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
@@ -131,7 +132,7 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("PUT: Update account and clear the password")
+  @DisplayName("POST: Update account and clear the password")
   void updateAccountButClearThePassword() throws Exception {
     String content =
         "{"
@@ -143,7 +144,7 @@ class UserControllerTest {
             + "\"blocked\": false}";
 
     mvc.perform(
-            put(URIConstants.ACCOUNT_URI)
+        post(URIConstants.ACCOUNT_URI)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))

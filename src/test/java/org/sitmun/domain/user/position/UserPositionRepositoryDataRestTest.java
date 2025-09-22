@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +137,7 @@ class UserPositionRepositoryDataRestTest {
   @DisplayName("POST: Create user position when user configuration is created via REST")
   void shouldCreateUserPositionWhenUserConfigurationIsCreatedViaRest() throws Exception {
     // Ensure no UserPosition exists initially
-    Optional<UserPosition> existingPosition =
+    List<UserPosition> existingPosition =
         userPositionRepository.findByUserAndTerritory(user, territory);
     Assertions.assertThat(existingPosition).isEmpty();
 
@@ -155,15 +154,18 @@ class UserPositionRepositoryDataRestTest {
         .andExpect(status().isCreated());
 
     // Verify UserPosition was created by the business logic
-    Optional<UserPosition> createdPosition =
+    List<UserPosition> createdPosition =
         userPositionRepository.findByUserAndTerritory(user, territory);
-    Assertions.assertThat(createdPosition).isPresent();
-    UserPosition position = createdPosition.get();
+    Assertions.assertThat(createdPosition).isNotEmpty();
+    UserPosition position = createdPosition.get(0);
     Assertions.assertThat(position.getUser()).isEqualTo(user);
     Assertions.assertThat(position.getTerritory()).isEqualTo(territory);
     createdUserPositions.add(position);
   }
 
+  /**
+   * TODO: In runtime, it is possible to create multiple positions via REST
+   */
   @Test
   @DisplayName("POST: Prevent duplicate user position when user configuration is updated via REST")
   void shouldNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest()
@@ -200,9 +202,9 @@ class UserPositionRepositoryDataRestTest {
     Assertions.assertThat(finalCount).isEqualTo(initialCount);
 
     // Verify the existing position is still there
-    Optional<UserPosition> foundPosition =
+    List<UserPosition> foundPosition =
         userPositionRepository.findByUserAndTerritory(user, territory);
-    Assertions.assertThat(foundPosition).isPresent();
-    Assertions.assertThat(foundPosition.get().getId()).isEqualTo(existingPosition.getId());
+    Assertions.assertThat(foundPosition).isNotEmpty();
+    Assertions.assertThat(foundPosition.get(0).getId()).isEqualTo(existingPosition.getId());
   }
 }

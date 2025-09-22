@@ -82,7 +82,7 @@ public class UserController {
    * @param updatedUser account to be updated
    * @return ok if the account has been updated
    */
-  @PutMapping
+  @PostMapping
   public ResponseEntity<UserDTO> saveAccount(@Valid @RequestBody UserDTO updatedUser) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Optional<User> storedUser = userRepository.findByUsername(authentication.getName());

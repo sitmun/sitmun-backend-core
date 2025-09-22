@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- User position management system with automatic creation from user configurations
+- Enhanced password reset functionality with OTP (One-Time Password) codes
+- JWT token validation with password change tracking for improved security
+- Test mail service for password reset testing scenarios
+- User position update endpoint in client configuration controller
+
+### Changed
+- Modified STM_TOKEN_USER table constraints to allow single token per user
+- Enhanced password reset flow with attempt counter and expiration handling
+- Improved JWT token service with last password change validation
+- Updated user position repository with batch update capabilities
+
+### Fixed
+- Password reset token management to prevent multiple active tokens per user
+- JWT token invalidation when password is changed
+- User position creation logic to prevent duplicates
+
 ## [1.1.1] - 2025-08-28
 
 ### Added

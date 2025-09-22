@@ -1,7 +1,7 @@
 package org.sitmun.domain.user.position;
 
 import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +72,7 @@ class UserPositionBusinessLogicTest {
     user.setAdministrator(false);
     user.setBlocked(false);
     user.setPassword("password");
-    user.setUsername("testuser");
+    user.setUsername("testuser-position-" + System.currentTimeMillis());
     user.setEmail("test@example.com");
     user = userRepository.save(user);
 
@@ -115,19 +115,18 @@ class UserPositionBusinessLogicTest {
   @Test
   @DisplayName("Create user position when user configuration is provided")
   void createUserPositionWithUserConfiguration() {
-    userPositionRepository
-        .findByUserAndTerritory(user, territory)
-        .ifPresent(userPositionRepository::delete);
+    userPositionRepository.deleteAll(userPositionRepository
+      .findByUserAndTerritory(user, territory));
     Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory)).isEmpty();
 
     // Call the business logic method directly
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
 
     // Verify UserPosition was created
-    Optional<UserPosition> createdPosition =
+    List<UserPosition> createdPosition =
         userPositionRepository.findByUserAndTerritory(user, territory);
-    Assertions.assertThat(createdPosition).isPresent();
-    UserPosition position = createdPosition.get();
+    Assertions.assertThat(createdPosition).isNotEmpty();
+    UserPosition position = createdPosition.get(0);
     Assertions.assertThat(position.getUser()).isEqualTo(user);
     Assertions.assertThat(position.getTerritory()).isEqualTo(territory);
     // Clean up
