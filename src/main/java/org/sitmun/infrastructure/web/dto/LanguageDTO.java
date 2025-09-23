@@ -1,4 +1,4 @@
-package org.sitmun.domain.language;
+package org.sitmun.infrastructure.web.dto;
 
 import lombok.*;
 

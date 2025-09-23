@@ -1,8 +1,9 @@
-package org.sitmun.domain.language;
+package org.sitmun.infrastructure.web.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
+import org.sitmun.infrastructure.web.dto.LanguageDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/languages")
+@RequestMapping("/api/config/languages")
 @Tag(name = "language", description = "list of languages")
 @Validated
 public class LanguageController {

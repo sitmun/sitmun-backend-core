@@ -242,6 +242,8 @@ public class WebSecurityConfigurer {
               authz) {
     var builder = PathPatternRequestMatcher.withDefaults();
     return authz
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/languages"))
+        .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.POST,"/api/config/client/territory/position"))

@@ -1,61 +1,57 @@
 package org.sitmun.security.password.verification.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.password.controller.VerificationController;
+import org.sitmun.infrastructure.security.password.dto.PasswordVerificationRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 @DisplayName("Verification Controller Unit tests")
 class VerificationControllerUnitTest {
 
-  @Mock private AuthenticationManager authenticationManager;
+  @MockitoBean
+  private UserRepository userRepository;
 
-  @Mock private UserRepository userRepository;
+  @MockitoBean private PasswordEncoder passwordEncoder;
 
-  @Mock private Authentication authentication;
+  @Autowired private VerificationController verificationController;
 
-  @InjectMocks private VerificationController verificationController;
-
-  private UserPasswordAuthenticationRequest validRequest;
-  private UserPasswordAuthenticationRequest invalidRequest;
+  private PasswordVerificationRequest validRequest;
+  private PasswordVerificationRequest invalidRequest;
 
   @BeforeEach
   void setUp() {
-    validRequest = new UserPasswordAuthenticationRequest();
-    validRequest.setUsername("testuser");
+    validRequest = new PasswordVerificationRequest();
     validRequest.setPassword("password");
 
-    invalidRequest = new UserPasswordAuthenticationRequest();
-    invalidRequest.setUsername("testuser");
+    invalidRequest = new PasswordVerificationRequest();
     invalidRequest.setPassword("wrongpassword");
   }
 
   @Test
   @DisplayName("Verify password with valid credentials should return true")
+  @WithMockUser(username = "testuser")
   void verifyPasswordWithValidCredentials() {
     // Given
-    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-        .thenReturn(authentication);
-    when(authentication.isAuthenticated()).thenReturn(true);
+    User user = new User();
+    user.setUsername("testuser");
+    user.setPassword("encodedPassword");
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+    when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
 
     // When
     ResponseEntity<Boolean> response = verificationController.verifyPassword(validRequest);
@@ -67,32 +63,35 @@ class VerificationControllerUnitTest {
 
   @Test
   @DisplayName("Verify password with invalid credentials should return false")
+  @WithMockUser(username = "testuser")
   void verifyPasswordWithInvalidCredentials() {
     // Given
-    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-        .thenThrow(new BadCredentialsException("Bad credentials"));
+    User user = new User();
+    user.setUsername("testuser");
+    user.setPassword("encodedPassword");
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+    when(passwordEncoder.matches("wrongpassword", "encodedPassword")).thenReturn(false);
 
     // When
     ResponseEntity<Boolean> response = verificationController.verifyPassword(invalidRequest);
 
     // Then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isFalse();
   }
 
   @Test
-  @DisplayName("Verify password with unauthenticated user should return false")
-  void verifyPasswordWithUnauthenticatedUser() {
+  @DisplayName("Verify password with non-existent user should return false")
+  @WithMockUser(username = "nonexistentuser")
+  void verifyPasswordWithNonExistentUser() {
     // Given
-    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-        .thenReturn(authentication);
-    when(authentication.isAuthenticated()).thenReturn(false);
+    when(userRepository.findByUsername("nonexistentuser")).thenReturn(Optional.empty());
 
     // When
     ResponseEntity<Boolean> response = verificationController.verifyPassword(validRequest);
 
     // Then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isFalse();
   }
 

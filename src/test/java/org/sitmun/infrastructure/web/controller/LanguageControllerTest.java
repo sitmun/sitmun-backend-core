@@ -1,4 +1,4 @@
-package org.sitmun.domain.language;
+package org.sitmun.infrastructure.web.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class LanguageControllerTest {
 
     when(languageRepository.findAll()).thenReturn(Arrays.asList(lang1, lang2));
 
-    mvc.perform(get("/api/languages"))
+    mvc.perform(get("/api/config/languages"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$[0].id").value(1))
       .andExpect(jsonPath("$[0].name").value("English"))
@@ -58,7 +58,7 @@ class LanguageControllerTest {
   void retrieveNoLanguages() throws Exception {
     when(languageRepository.findAll()).thenReturn(Collections.emptyList());
 
-    mvc.perform(get("/api/languages"))
+    mvc.perform(get("/api/config/languages"))
       .andExpect(status().isNotFound());
   }
 }

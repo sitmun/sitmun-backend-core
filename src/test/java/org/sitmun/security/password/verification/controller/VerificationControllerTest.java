@@ -9,9 +9,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.security.password.dto.PasswordVerificationRequest;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -52,57 +52,42 @@ class VerificationControllerTest {
 
   @Test
   @DisplayName("POST: Verify password with valid credentials should return true")
-  @WithMockUser(roles = "USER")
+  @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithValidCredentials() throws Exception {
-    UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
-    request.setUsername("admin");
-    request.setPassword("admin");
+    checkPassword("admin", true);
+  }
+
+  @Test
+  @DisplayName("POST: Verify password with invalid credentials should return false")
+  @WithMockUser(username = "admin", roles = "USER")
+  void verifyPasswordWithInvalidCredentials() throws Exception {
+    checkPassword("wrongpassword", false);
+  }
+
+  @Test
+  @DisplayName("POST: Verify password with empty password should return false")
+  @WithMockUser(username = "admin", roles = "USER")
+  void verifyPasswordWithEmptyPassword() throws Exception {
+    checkPassword("", false);
+  }
+
+  void checkPassword(String password, boolean expectedResult) throws Exception {
+    PasswordVerificationRequest request = new PasswordVerificationRequest();
+    request.setPassword(password);
 
     mvc.perform(
             post("/api/user-verification/verify-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").value(true));
-  }
-
-  @Test
-  @DisplayName("POST: Verify password with invalid credentials should return false")
-  @WithMockUser(roles = "USER")
-  void verifyPasswordWithInvalidCredentials() throws Exception {
-    UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
-    request.setUsername("admin");
-    request.setPassword("wrongpassword");
-
-    mvc.perform(
-            post("/api/user-verification/verify-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$").value(false));
-  }
-
-  @Test
-  @DisplayName("POST: Verify password with empty username should return bad request")
-  @WithMockUser(roles = "USER")
-  void verifyPasswordWithEmptyUsername() throws Exception {
-    UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
-    request.setUsername("");
-    request.setPassword("admin");
-
-    mvc.perform(
-            post("/api/user-verification/verify-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isBadRequest());
+        .andExpect(jsonPath("$").value(expectedResult));
   }
 
   @Test
   @DisplayName("POST: Verify password with null password should return bad request")
-  @WithMockUser(roles = "USER")
+  @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithNullPassword() throws Exception {
-    UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
-    request.setUsername("admin");
+    PasswordVerificationRequest request = new PasswordVerificationRequest();
     request.setPassword(null);
 
     mvc.perform(
@@ -203,8 +188,7 @@ class VerificationControllerTest {
   @Test
   @DisplayName("POST: Unauthenticated requests should be rejected")
   void unauthenticatedRequestsShouldBeRejected() throws Exception {
-    UserPasswordAuthenticationRequest request = new UserPasswordAuthenticationRequest();
-    request.setUsername("admin");
+    PasswordVerificationRequest request = new PasswordVerificationRequest();
     request.setPassword("admin");
 
     mvc.perform(
