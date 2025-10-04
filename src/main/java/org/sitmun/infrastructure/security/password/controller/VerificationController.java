@@ -5,14 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.security.password.dto.PasswordVerificationRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,36 +27,34 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User verification")
 @Validated
 public class VerificationController {
-  private final AuthenticationManager authenticationManager;
   private final UserRepository userRepository;
+  private final AuthenticationManager authenticationManager;
 
   VerificationController(
       AuthenticationManager authenticationManager, UserRepository userRepository) {
-    this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
+    this.authenticationManager = authenticationManager;
   }
 
-  /** Verify if the user password is valid */
+  /** Verify if the current user's password is valid */
   @PostMapping("/verify-password")
   @SecurityRequirements
   public ResponseEntity<Boolean> verifyPassword(
-      @Valid @RequestBody UserPasswordAuthenticationRequest body) {
-    ResponseEntity<Boolean> response;
+      @Valid @RequestBody PasswordVerificationRequest request) {
+    // Get current username from authentication
+    Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+    String currentUsername = currentAuth.getName();
     try {
-      // Get current username from authentication
-      Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-      String currentUsername = currentAuth.getName();
 
       // Check if the password is correct
       Authentication authentication =
         this.authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(currentUsername, body.getPassword()));
-      response = new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
+          new UsernamePasswordAuthenticationToken(currentUsername, request.getPassword()));
+      return new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
     } catch (BadCredentialsException e) {
-      log.warn("Invalid credentials for user {}: {}", body.getUsername(), e.getMessage());
-      response = new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      log.warn("Invalid credentials for user {}: {}", currentUsername, e.getMessage());
+      return new ResponseEntity<>(false, HttpStatus.OK);
     }
-    return response;
   }
 
   /** Verify is this email is already used */

@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
+import java.util.Date;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
@@ -33,9 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Date;
-import java.util.Optional;
 
 /** Controller to authenticate users. */
 @Slf4j
@@ -103,13 +102,14 @@ public class ResetPasswordController {
         String codeOTP = this.codeOTPService.createCodeOTP();
         String hashedCodeOTP = this.codeOTPService.hashCodeOTP(codeOTP);
         long currentTimeMillis = new Date().getTime();
-        UserTokenDTO userTokenDTO = UserTokenDTO.builder()
-          .userID(user.getId())
-          .codeOTP(hashedCodeOTP)
-          .expireAt(new Date(currentTimeMillis + recoveryValidity))
-          .attemptCounter(0)
-          .active(true)
-          .build();
+        UserTokenDTO userTokenDTO =
+            UserTokenDTO.builder()
+                .userID(user.getId())
+                .codeOTP(hashedCodeOTP)
+                .expireAt(new Date(currentTimeMillis + recoveryValidity))
+                .attemptCounter(0)
+                .active(true)
+                .build();
         userTokenService.saveUserToken(userTokenDTO);
         EmailForgotPassword emailContent = mailService.buildForgotPasswordEmail(codeOTP);
         mailService.sendEmail(from, email, emailContent);
@@ -118,7 +118,8 @@ public class ResetPasswordController {
     } catch (MailNotImplementedException e) {
       log.error("Mail service not available", e);
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body("Mail service is not available. Please enable the 'mail' profile to use password recovery.");
+          .body(
+              "Mail service is not available. Please enable the 'mail' profile to use password recovery.");
     } catch (EmailTemplateException e) {
       log.error("Email template rendering failed", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -130,9 +131,10 @@ public class ResetPasswordController {
   @SecurityRequirements
   public ResponseEntity<String> resetPassword(
       @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-    User user = this.userRepository.findByEmail(resetPasswordRequest.getEmail()).orElseThrow(
-      () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
-    );
+    User user =
+        this.userRepository
+            .findByEmail(resetPasswordRequest.getEmail())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     UserTokenDTO userToken = userTokenService.getUserTokenByUserId(user.getId());
     if (userToken == null) {
@@ -144,7 +146,7 @@ public class ResetPasswordController {
     }
 
     if (userToken.getAttemptCounter() >= this.maxAttempt
-      || new Date().after(userToken.getExpireAt())) {
+        || new Date().after(userToken.getExpireAt())) {
       userToken.setActive(false);
       this.userTokenService.updateUserToken(userToken);
       return ResponseEntity.status(HttpStatus.GONE).build();
@@ -154,13 +156,14 @@ public class ResetPasswordController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email does not match");
     }
 
-    if (!this.codeOTPService.validateCodeOTP(resetPasswordRequest.getCodeOTP(), userToken.getCodeOTP())) {
+    if (!this.codeOTPService.validateCodeOTP(
+        resetPasswordRequest.getCodeOTP(), userToken.getCodeOTP())) {
       userToken.setAttemptCounter(userToken.getAttemptCounter() + 1);
       this.userTokenService.updateUserToken(userToken);
       int attemptsRemaining = maxAttempt - userToken.getAttemptCounter();
 
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(Integer.toString(attemptsRemaining));
+          .body(Integer.toString(attemptsRemaining));
     }
 
     String newPassword = resetPasswordRequest.getNewPassword();
@@ -184,7 +187,8 @@ public class ResetPasswordController {
 
   @PostMapping("/resend")
   @SecurityRequirements
-  public ResponseEntity<String> resendCodeOTP(@Valid @RequestBody RequestNewPassword requestNewPassword) {
+  public ResponseEntity<String> resendCodeOTP(
+      @Valid @RequestBody RequestNewPassword requestNewPassword) {
     return this.requestNewPassword(requestNewPassword);
   }
 }

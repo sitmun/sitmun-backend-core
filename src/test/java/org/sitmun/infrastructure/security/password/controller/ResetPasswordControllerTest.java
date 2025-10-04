@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,7 +82,8 @@ class ResetPasswordControllerTest {
     // Let the UserEventHandler encode the password
     testUser = userRepository.save(testUser);
 
-    // Generate token values for different test scenarios (tokens will be created per test as needed)
+    // Generate token values for different test scenarios (tokens will be created per test as
+    // needed)
     Random random = new Random();
     validToken = Integer.toString(random.nextInt(100_000_000));
 
@@ -110,8 +110,7 @@ class ResetPasswordControllerTest {
   }
 
   void checkService(String login, boolean shouldCreateToken) throws Exception {
-    RequestNewPassword request =
-        new RequestNewPassword();
+    RequestNewPassword request = new RequestNewPassword();
     request.setEmail(login);
 
     long initialTokenCount = userTokenRepository.count();
@@ -124,7 +123,7 @@ class ResetPasswordControllerTest {
         .andExpect(content().string("Mail sent"));
 
     long finalTokenCount = userTokenRepository.count();
-    
+
     if (shouldCreateToken) {
       assertThat(finalTokenCount).isEqualTo(initialTokenCount + 1);
     } else {
@@ -152,8 +151,7 @@ class ResetPasswordControllerTest {
   @Transactional
   @Rollback
   void sendRecoveryEmailWithNullLogin() throws Exception {
-    RequestNewPassword request =
-        new RequestNewPassword();
+    RequestNewPassword request = new RequestNewPassword();
     request.setEmail(null);
 
     mvc.perform(
@@ -169,12 +167,11 @@ class ResetPasswordControllerTest {
   void sendRequestTooManyTime() throws Exception {
     // Clean up any existing tokens for this test
     userTokenRepository.deleteAll();
-    
-    RequestNewPassword request =
-        new RequestNewPassword();
+
+    RequestNewPassword request = new RequestNewPassword();
     request.setEmail(testUser.getEmail());
     int maxRequest = 5;
-    
+
     for (int i = 0; i < maxRequest; i++) {
       mvc.perform(
               post(API_URL + "request")
@@ -182,7 +179,7 @@ class ResetPasswordControllerTest {
                   .content(TestUtils.asJsonString(request)))
           .andExpect(status().isOk());
     }
-    
+
     mvc.perform(
             post(API_URL + "request")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +203,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken); // Send plain token, controller will hash and compare
     request.setNewPassword("newpassword123");
@@ -349,7 +346,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP("12345678"); // Invalid OTP
     request.setNewPassword("newpassword123");
@@ -384,7 +381,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
     request.setNewPassword("");
@@ -418,7 +415,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
     request.setNewPassword(null);
@@ -463,7 +460,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
     request.setNewPassword("a");
@@ -496,7 +493,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
-    
+
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
     request.setNewPassword("a".repeat(51)); // Exceeds max length of 50
@@ -524,8 +521,7 @@ class ResetPasswordControllerTest {
     Optional<UserToken> oldTokenOpt = userTokenRepository.findByUserID(testUser.getId());
     String oldCodeOTP = oldTokenOpt.map(UserToken::getCodeOTP).orElse(null);
 
-    RequestNewPassword request =
-        new RequestNewPassword();
+    RequestNewPassword request = new RequestNewPassword();
     request.setEmail(testUser.getEmail());
 
     mvc.perform(
@@ -553,9 +549,8 @@ class ResetPasswordControllerTest {
   void sendResendTooManyTime() throws Exception {
     // Clean up any existing tokens for this test
     userTokenRepository.deleteAll();
-    
-    RequestNewPassword request =
-        new RequestNewPassword();
+
+    RequestNewPassword request = new RequestNewPassword();
     request.setEmail(testUser.getEmail());
 
     int maxRequest = 3;
@@ -567,7 +562,7 @@ class ResetPasswordControllerTest {
                   .content(TestUtils.asJsonString(request)))
           .andExpect(status().isOk());
     }
-    
+
     mvc.perform(
             post(API_URL + "resend")
                 .contentType(MediaType.APPLICATION_JSON)

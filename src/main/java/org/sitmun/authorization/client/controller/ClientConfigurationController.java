@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -75,6 +76,7 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/application/{appId}/territories", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
   public PagedModel<TerritoryDTO> getApplicationTerritories(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer appId,
@@ -94,6 +96,7 @@ public class ClientConfigurationController {
 
   /** Update a UserPosition from the user */
   @PostMapping(path = "/territory/position", produces = APPLICATION_JSON_VALUE)
+  @Transactional
   public ResponseEntity<UserPositionDTO> editTerritoryPositions(
       @RequestBody UserPositionDTO positionDTOs) {
     userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);
@@ -108,6 +111,7 @@ public class ClientConfigurationController {
    * @return a page of applications
    */
   @GetMapping(path = "/application", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
   public PagedModel<ApplicationDtoLittle> getApplications(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
@@ -128,6 +132,7 @@ public class ClientConfigurationController {
    * @return a page of applications
    */
   @GetMapping(path = "/territory/{terrId}/applications", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
   public PagedModel<ApplicationDtoLittle> getTerritoryApplications(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer terrId,
@@ -150,6 +155,7 @@ public class ClientConfigurationController {
    * @return a page of territories
    */
   @GetMapping(path = "/territory", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
   public PagedModel<TerritoryDTO> getTerritories(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
@@ -170,6 +176,7 @@ public class ClientConfigurationController {
    * @return the profile
    */
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
   public ResponseEntity<ProfileDto> getProfile(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable("appId") Integer appId,
