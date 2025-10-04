@@ -55,7 +55,7 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
       if (val != null) {
         // Safe replacement – avoid interpreting backslashes/$ in the value
         m.appendReplacement(sb, Matcher.quoteReplacement(val));
-        matchesKeys.add(key);// may be multiple matches for the same key
+        matchesKeys.add(key); // may be multiple matches for the same key
       }
     }
     // Remove all matched keys

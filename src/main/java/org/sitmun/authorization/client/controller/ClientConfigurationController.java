@@ -309,14 +309,15 @@ public class ClientConfigurationController {
   }
 
   private void decorateApplicationWithMbtiles(List<ApplicationDtoLittle> applications) {
-    applications.forEach(app -> {
-      if (app.getConfig() == null) {
-        app.setConfig(new java.util.HashMap<>());
-        app.getConfig().put("mbtilesUrl", mbtilesUrl);
-      } else if (!app.getConfig().containsKey("mbtilesUrl")) {
-        app.getConfig().put("mbtilesUrl", mbtilesUrl);
-      }
-    });
+    applications.forEach(
+        app -> {
+          if (app.getConfig() == null) {
+            app.setConfig(new java.util.HashMap<>());
+            app.getConfig().put("mbtilesUrl", mbtilesUrl);
+          } else if (!app.getConfig().containsKey("mbtilesUrl")) {
+            app.getConfig().put("mbtilesUrl", mbtilesUrl);
+          }
+        });
   }
 
   private static @NotNull Pageable ensureSortBy(Pageable pageable, String title) {
