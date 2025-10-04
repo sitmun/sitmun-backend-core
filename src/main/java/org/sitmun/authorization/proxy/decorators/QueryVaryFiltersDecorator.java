@@ -1,7 +1,9 @@
 package org.sitmun.authorization.proxy.decorators;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
@@ -44,6 +46,7 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
     } else {
       remaining = new LinkedHashMap<>(target); // preserve iteration order
     }
+    Set<String> matchesKeys = new HashSet<>();
     Matcher m = PLACEHOLDER.matcher(sql);
     StringBuilder sb = new StringBuilder(sql.length());
     while (m.find()) {
@@ -52,9 +55,11 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
       if (val != null) {
         // Safe replacement – avoid interpreting backslashes/$ in the value
         m.appendReplacement(sb, Matcher.quoteReplacement(val));
-        remaining.remove(key);
+        matchesKeys.add(key); // may be multiple matches for the same key
       }
     }
+    // Remove all matched keys
+    matchesKeys.forEach(remaining::remove);
     m.appendTail(sb);
     sql = sb.toString();
 
