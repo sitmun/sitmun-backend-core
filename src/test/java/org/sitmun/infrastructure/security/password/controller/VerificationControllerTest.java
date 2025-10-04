@@ -1,4 +1,4 @@
-package org.sitmun.security.password.verification.controller;
+package org.sitmun.infrastructure.security.password.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

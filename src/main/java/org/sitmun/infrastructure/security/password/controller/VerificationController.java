@@ -9,9 +9,10 @@ import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.password.dto.PasswordVerificationRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,11 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class VerificationController {
   private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
 
-  VerificationController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  VerificationController(AuthenticationManager authenticationManager, UserRepository userRepository) {
     this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.authenticationManager = authenticationManager;
   }
 
   /** Verify if the current user's password is valid */
@@ -40,21 +41,18 @@ public class VerificationController {
     // Get current username from authentication
     Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
     String currentUsername = currentAuth.getName();
-    
-    // Find the user in the repository
-    return userRepository.findByUsername(currentUsername)
-        .map(user -> {
-          // Verify the password using PasswordEncoder
-          boolean isValid = passwordEncoder.matches(request.getPassword(), user.getPassword());
-          if (!isValid) {
-            log.warn("Invalid password for user: {}", currentUsername);
-          }
-          return new ResponseEntity<>(isValid, HttpStatus.OK);
-        })
-        .orElseGet(() -> {
-          log.warn("User not found: {}", currentUsername);
-          return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-        });
+
+    try {
+      Authentication authentication =
+        authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(
+            currentUsername, request.getPassword()));
+
+      return new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
+    } catch (Exception e) {
+      log.warn("Invalid credentials for user {}: {}", currentUsername, e.getMessage());
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
   }
 
   /** Verify is this email is already used */
