@@ -19,4 +19,5 @@ public class ApplicationDtoLittle {
   private Date lastUpdate;
   private String creator;
   private Map<String, Object> headerParams;
+  private Map<String, String> config;
 }

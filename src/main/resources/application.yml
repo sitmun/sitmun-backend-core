@@ -79,6 +79,8 @@ sitmun:
     config-response-validity-in-seconds: 3600
     force: false
     url: http://localhost:8080/middleware
+  mbtiles:
+    url: https://localhost:8080/mbtiles
   ui:
     image:
       supportedFormats:
@@ -183,6 +185,9 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: ms
           description: Map search
+        - code-list-name: treenode.viewmode
+          value: rt
+          description: Routes list
         - code-list-name: treenode.folder.type
           value: nm
           description: Near me

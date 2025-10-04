@@ -52,6 +52,9 @@ public class ClientConfigurationController {
   @Value("${sitmun.backend.url:}")
   private String backendUrl;
 
+  @Value("${sitmun.mbtiles.url:}")
+  private String mbtilesUrl;
+
   /**
    * Constructor for ClientConfigurationController.
    *
@@ -119,6 +122,7 @@ public class ClientConfigurationController {
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
     List<ApplicationDtoLittle> applications =
         Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
+    decorateApplicationWithMbtiles(applications);
     return new PagedModel<>(
         new PageImpl<>(applications, page.getPageable(), page.getTotalElements()));
   }
@@ -302,6 +306,17 @@ public class ClientConfigurationController {
               });
       return profileDto;
     };
+  }
+
+  private void decorateApplicationWithMbtiles(List<ApplicationDtoLittle> applications) {
+    applications.forEach(app -> {
+      if (app.getConfig() == null) {
+        app.setConfig(new java.util.HashMap<>());
+        app.getConfig().put("mbtilesUrl", mbtilesUrl);
+      } else if (!app.getConfig().containsKey("mbtilesUrl")) {
+        app.getConfig().put("mbtilesUrl", mbtilesUrl);
+      }
+    });
   }
 
   private static @NotNull Pageable ensureSortBy(Pageable pageable, String title) {
