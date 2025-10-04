@@ -163,9 +163,7 @@ class UserPositionRepositoryDataRestTest {
     createdUserPositions.add(position);
   }
 
-  /**
-   * TODO: In runtime, it is possible to create multiple positions via REST
-   */
+  /** TODO: In runtime, it is possible to create multiple positions via REST */
   @Test
   @DisplayName("POST: Prevent duplicate user position when user configuration is updated via REST")
   void shouldNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest()

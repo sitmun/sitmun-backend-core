@@ -27,7 +27,7 @@ public class I18nListener implements ApplicationContextAware {
   private boolean isClientConfigRequest() {
     try {
       ServletRequestAttributes attributes =
-        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+          (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
       if (attributes != null) {
         String requestPath = attributes.getRequest().getRequestURI();
         return requestPath != null && requestPath.startsWith("/api/config/client");

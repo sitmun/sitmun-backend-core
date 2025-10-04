@@ -167,23 +167,22 @@ public class WebSecurityConfigurer {
   private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
       configurePermitAll(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
-              authz
-          ) {
+              authz) {
     var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(builder.matcher( HttpMethod.GET,"/v3/api-docs"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/v3/api-docs"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/v3/api-docs.yaml"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/v3/api-docs.yaml"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/v3/api-docs/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/v3/api-docs/**"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/swagger-ui/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/swagger-ui/**"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/profile"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/profile"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/profile/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/profile/**"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/dashboard/health"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/dashboard/health"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()
@@ -191,7 +190,7 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.PUT, "/api/password-reset/**"))
         .permitAll()
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/languages"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/languages"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/configuration-parameters"))
         .permitAll()
@@ -202,11 +201,13 @@ public class WebSecurityConfigurer {
   /**
    * Configures authorization for user-specific endpoints. These endpoints require USER role
    * authentication and include:
+   *
    * <ul>
-   * <li>/api/account: (GET, POST) User account management</li>
-   * <li>/api/account/** (GET): User account information retrieval</li>
-   * <li>/api/user-verification/** (POST): User verification processes</li>
+   *   <li>/api/account: (GET, POST) User account management
+   *   <li>/api/account/** (GET): User account information retrieval
+   *   <li>/api/user-verification/** (POST): User verification processes
    * </ul>
+   *
    * @param authz The authorization configuration
    * @return The updated authorization configuration
    */
@@ -216,11 +217,11 @@ public class WebSecurityConfigurer {
               authz) {
     var builder = PathPatternRequestMatcher.withDefaults();
     return authz
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/account"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/account"))
         .hasRole(USER.name())
-        .requestMatchers(builder.matcher(HttpMethod.POST,"/api/account"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/account"))
         .hasRole(USER.name())
-        .requestMatchers(builder.matcher(HttpMethod.GET,"/api/account/**"))
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/account/**"))
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/user-verification/**"))
         .hasRole(USER.name())
@@ -246,7 +247,7 @@ public class WebSecurityConfigurer {
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name())
-        .requestMatchers(builder.matcher(HttpMethod.POST,"/api/config/client/territory/position"))
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
         .hasAnyRole(USER.name(), PUBLIC.name());
   }
 

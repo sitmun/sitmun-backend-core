@@ -4,15 +4,14 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for testing log content in Spring Boot tests.
- * Provides methods to capture and verify log messages.
+ * Utility class for testing log content in Spring Boot tests. Provides methods to capture and
+ * verify log messages.
  */
 public class LogTestUtils {
 
@@ -30,17 +29,13 @@ public class LogTestUtils {
     this.listAppender.start();
   }
 
-  /**
-   * Starts capturing log events for the logger.
-   */
+  /** Starts capturing log events for the logger. */
   public void startCapturing() {
     logger.addAppender(listAppender);
     logger.setLevel(Level.DEBUG);
   }
 
-  /**
-   * Stops capturing log events and removes the appender.
-   */
+  /** Stops capturing log events and removes the appender. */
   public void stopCapturing() {
     logger.detachAppender(listAppender);
   }
@@ -58,5 +53,4 @@ public class LogTestUtils {
         .filter(message -> pattern.matcher(message).find())
         .collect(Collectors.toList());
   }
-
 }

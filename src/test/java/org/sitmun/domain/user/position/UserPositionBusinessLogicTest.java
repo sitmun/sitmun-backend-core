@@ -115,8 +115,8 @@ class UserPositionBusinessLogicTest {
   @Test
   @DisplayName("Create user position when user configuration is provided")
   void createUserPositionWithUserConfiguration() {
-    userPositionRepository.deleteAll(userPositionRepository
-      .findByUserAndTerritory(user, territory));
+    userPositionRepository.deleteAll(
+        userPositionRepository.findByUserAndTerritory(user, territory));
     Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory)).isEmpty();
 
     // Call the business logic method directly

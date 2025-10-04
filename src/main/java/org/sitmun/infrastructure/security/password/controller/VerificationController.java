@@ -28,7 +28,8 @@ public class VerificationController {
   private final UserRepository userRepository;
   private final AuthenticationManager authenticationManager;
 
-  VerificationController(AuthenticationManager authenticationManager, UserRepository userRepository) {
+  VerificationController(
+      AuthenticationManager authenticationManager, UserRepository userRepository) {
     this.userRepository = userRepository;
     this.authenticationManager = authenticationManager;
   }
@@ -44,9 +45,8 @@ public class VerificationController {
 
     try {
       Authentication authentication =
-        authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(
-            currentUsername, request.getPassword()));
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(currentUsername, request.getPassword()));
 
       return new ResponseEntity<>(authentication.isAuthenticated(), HttpStatus.OK);
     } catch (Exception e) {

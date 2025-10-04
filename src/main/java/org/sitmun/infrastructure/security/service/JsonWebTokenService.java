@@ -8,7 +8,6 @@ import jakarta.annotation.PostConstruct;
 import java.util.Date;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
-
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -69,7 +68,8 @@ public class JsonWebTokenService {
   }
 
   public boolean validateToken(String token, UserDetails userDetails, Date lastPasswordChange) {
-    if (token == null || token.isEmpty()) throw new IllegalArgumentException("Token cannot be null or empty");
+    if (token == null || token.isEmpty())
+      throw new IllegalArgumentException("Token cannot be null or empty");
     if (userDetails == null) return false;
 
     String username = getUsernameFromToken(token);
