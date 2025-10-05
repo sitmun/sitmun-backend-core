@@ -16,6 +16,12 @@
       "description": "Default language for the application."
     },
     {
+      "name": "sitmun.mbtiles.url",
+      "type": "java.lang.String",
+      "description": "URL for mbtiles service used to decorate applications with tile configuration.",
+      "defaultValue": ""
+    },
+    {
       "name": "sitmun.user.secret",
       "type": "java.lang.String",
       "description": "Secret key for user authentication."
