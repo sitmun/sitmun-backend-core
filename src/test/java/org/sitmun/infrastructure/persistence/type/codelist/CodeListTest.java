@@ -13,16 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Codelist validator test")
 @Import(CodeListValidator.class)
 class CodeListTest extends BaseTest {
 
-  @MockBean private CodeListValueRepository codeListValueRepository;
+  @MockitoBean private CodeListValueRepository codeListValueRepository;
 
   @Test
   @WithMockUser(roles = "ADMIN")

@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,7 +95,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Send recovery email with valid email")
   @Transactional
-  @Rollback
   void sendRecoveryEmailWithValidEmail() throws Exception {
     checkService("test@example.com", true);
   }
@@ -104,7 +102,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Send recovery email with invalid email")
   @Transactional
-  @Rollback
   void sendRecoveryEmailWithInvalidLogin() throws Exception {
     checkService("nonexistent@example.com", false);
   }
@@ -134,7 +131,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Send recovery email with empty mail")
   @Transactional
-  @Rollback
   void sendRecoveryEmailWithEmptyLogin() throws Exception {
     RequestNewPassword request = new RequestNewPassword();
     request.setEmail("");
@@ -149,7 +145,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Send recovery email with null mail")
   @Transactional
-  @Rollback
   void sendRecoveryEmailWithNullLogin() throws Exception {
     RequestNewPassword request = new RequestNewPassword();
     request.setEmail(null);
@@ -190,7 +185,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with valid token")
   @Transactional
-  @Rollback
   void resetPasswordWithValidToken() throws Exception {
     // Create a valid token for this test - we need to hash the token like the controller does
     String hashedToken = codeOTPService.hashCodeOTP(validToken);
@@ -225,7 +219,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with expired token")
   @Transactional
-  @Rollback
   void resetPasswordWithExpiredToken() throws Exception {
     // Create expired token for this test
     userTokenRepository.deleteAll();
@@ -260,7 +253,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with token attempt counter exceeded limit")
   @Transactional
-  @Rollback
   void resetPasswordWithTokenCounterExceedLimit() throws Exception {
     // Create counter limit exceeded token for this test
     userTokenRepository.deleteAll();
@@ -295,7 +287,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with token not active")
   @Transactional
-  @Rollback
   void resetPasswordWithTokenNotActive() throws Exception {
     // Create inactive token for this test
     userTokenRepository.deleteAll();
@@ -334,7 +325,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with invalid token - tests 400 Bad Request response")
   @Transactional
-  @Rollback
   void resetPasswordWithInvalidToken() throws Exception {
     // Create a valid token for this test
     UserToken validUserToken =
@@ -369,7 +359,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with empty password")
   @Transactional
-  @Rollback
   void resetPasswordWithEmptyPassword() throws Exception {
     // Create a valid token for this test
     UserToken validUserToken =
@@ -403,7 +392,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with null password")
   @Transactional
-  @Rollback
   void resetPasswordWithNullPassword() throws Exception {
     // Create a valid token for this test
     UserToken validUserToken =
@@ -431,7 +419,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with null token")
   @Transactional
-  @Rollback
   void resetPasswordWithNullToken() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(null);
@@ -448,7 +435,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with very short password")
   @Transactional
-  @Rollback
   void resetPasswordWithVeryShortPassword() throws Exception {
     // Create a valid token for this test
     UserToken validUserToken =
@@ -481,7 +467,6 @@ class ResetPasswordControllerTest {
   @Test
   @DisplayName("POST: Reset password with very long password")
   @Transactional
-  @Rollback
   void resetPasswordWithVeryLongPassword() throws Exception {
     // Create a valid token for this test
     UserToken validUserToken =
@@ -514,7 +499,6 @@ class ResetPasswordControllerTest {
 
   @Test
   @Transactional
-  @Rollback
   @DisplayName("POST: Resend OTP generates new code and resets attempts")
   void resendOTP() throws Exception {
     // Get the existing token from setup

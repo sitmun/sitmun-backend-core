@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.database.DatabaseConnectionRepository;
 import org.sitmun.test.BaseTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Database connection controller test")
 class DatabaseConnectionControllerTest extends BaseTest {
 
-  @MockBean private DatabaseConnectionRepository repository;
+  @MockitoBean private DatabaseConnectionRepository repository;
 
   @Test
   @WithMockUser(roles = "ADMIN")

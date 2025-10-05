@@ -17,15 +17,15 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeListValidator;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueRepository;
 import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("SpatialReferenceSystem validation test")
 @Import(CodeListValidator.class)
 class SpatialReferenceSystemTest extends BaseTest {
 
-  @MockBean private CodeListValueRepository repository;
+  @MockitoBean private CodeListValueRepository repository;
 
   @BeforeEach
   void mocks() {

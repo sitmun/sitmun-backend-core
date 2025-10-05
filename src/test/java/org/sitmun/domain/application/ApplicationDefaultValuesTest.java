@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
@@ -23,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @Import(AdministrationRestConfigurer.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ApplicationDefaultValuesTest {
 
   @Autowired private ApplicationRepository applicationRepository;
@@ -52,7 +50,7 @@ class ApplicationDefaultValuesTest {
       try {
         applicationRepository.deleteById(savedApplication.getId());
       } catch (Exception e) {
-        // Ignore deletion errors as the database might be reset by @DirtiesContext
+        // Ignore deletion errors as the database might be reset by @Transactional
       }
     }
   }
