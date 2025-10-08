@@ -187,10 +187,10 @@ sitmun:
           description: Map search
         - code-list-name: treenode.viewmode
           value: rt
+          description: Routes list
         - code-list-name: treenode.viewmode
           value: gallery
           description: Gallery
-          description: Routes list
         - code-list-name: treenode.folder.type
           value: nm
           description: Near me
