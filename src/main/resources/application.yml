@@ -187,6 +187,9 @@ sitmun:
           description: Map search
         - code-list-name: treenode.viewmode
           value: rt
+        - code-list-name: treenode.viewmode
+          value: gallery
+          description: Gallery
           description: Routes list
         - code-list-name: treenode.folder.type
           value: nm
