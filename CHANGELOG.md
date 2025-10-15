@@ -7,22 +7,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
-- User position management system with automatic creation from user configurations
-- Enhanced password reset functionality with OTP (One-Time Password) codes
-- JWT token validation with password change tracking for improved security
-- Test mail service for password reset testing scenarios
-- User position update endpoint in client configuration controller
+- **Language Controller** - Added new LanguageController to manage language-related endpoints ([24f5351](https://github.com/sitmun/sitmun-backend-core/commit/24f5351ef3537687c791eded2ea2ba0ed4823008))
+- **MBTiles Service Configuration** - Added MBTiles service URL configuration support for enhanced mapping capabilities ([5d9b27d](https://github.com/sitmun/sitmun-backend-core/commit/5d9b27d427d7b2d9de557e29b4b608d780fc19dc))
+- **Tree Node View Mode** - Added new viewmode option for tree nodes in codelist configuration ([1a84404](https://github.com/sitmun/sitmun-backend-core/commit/1a8440424f92711923ec92c46f985578477846ed))
+- **Enhanced User Management** - Implemented comprehensive user management and security system with position tracking and OTP password reset functionality ([2d14e43](https://github.com/sitmun/sitmun-backend-core/commit/2d14e438f172f50f5be97c717d352ba3d1f40dd8))
+- **Test Coverage** - Added comprehensive tests for MBTiles and security-related changes ([d5fbb6e](https://github.com/sitmun/sitmun-backend-core/commit/d5fbb6ebd611051f5728d48b9c0370f674cdefc5))
 
 ### Changed
-- Modified STM_TOKEN_USER table constraints to allow single token per user
-- Enhanced password reset flow with attempt counter and expiration handling
-- Improved JWT token service with last password change validation
-- Updated user position repository with batch update capabilities
+- **Password Verification** - Improved password verification implementation with enhanced security measures ([fccf964](https://github.com/sitmun/sitmun-backend-core/commit/fccf964a85d56ca970ecf31a049d1115a8959fd6))
+- **Language Endpoints** - Restructured language endpoints and improved password verification system ([965a86f](https://github.com/sitmun/sitmun-backend-core/commit/965a86f46b43b864fd5b40bd7d181e81b80172e9))
+- **Spring Boot Tests** - Modernized Spring Boot test annotations and removed deprecated testing patterns ([046a7f4](https://github.com/sitmun/sitmun-backend-core/commit/046a7f4b8348df468a07b227dedbd5eac8cd7812))
+- **Code Quality** - Applied comprehensive code formatting and cleanup across the codebase ([22b241b](https://github.com/sitmun/sitmun-backend-core/commit/22b241be8f023df26f4cb4dde773deb315758a90))
 
 ### Fixed
-- Password reset token management to prevent multiple active tokens per user
-- JWT token invalidation when password is changed
-- User position creation logic to prevent duplicates
+- **Client Configuration i18n** - Prevented unnecessary internationalization updates on client configuration requests to improve performance ([f5d73d5](https://github.com/sitmun/sitmun-backend-core/commit/f5d73d5f7c89d7aaad42257d7599d9cd99f6cc4c))
+- **Profile Security Updates** - Fixed profile update security issues with enhanced validation ([e393f61](https://github.com/sitmun/sitmun-backend-core/commit/e393f61459f68fc9dba410b8ce5d82f1c01caee0))
+- **Password Reset Token Operations** - Fixed token password reset operation to ensure proper security handling ([5ef7488](https://github.com/sitmun/sitmun-backend-core/commit/5ef74887586a4fb38e954de415b66e27e2122018))
+- **Profile Security** - Updated profile update mechanism for enhanced security measures ([6307d88](https://github.com/sitmun/sitmun-backend-core/commit/6307d887c2a203d29bb9eea1283779c7ae489b4d))
+- **Tree Node View Mode Description** - Updated description for tree node viewmode in application configuration ([574f8b9](https://github.com/sitmun/sitmun-backend-core/commit/574f8b9e2fd67c0a66f60ea3d7df5b052920a308))
+- **Code Formatting** - Improved code formatting and removed duplicate imports ([51f887a](https://github.com/sitmun/sitmun-backend-core/commit/51f887a117a2d5cc87520e907c08ea2d3d92c85c))
 
 ## [1.1.1] - 2025-08-28
 
