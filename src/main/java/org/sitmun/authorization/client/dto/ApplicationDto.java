@@ -13,6 +13,7 @@ import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 @Builder
 public class ApplicationDto {
   private int id;
+  private String name;
   private String title;
   private String type;
   private String theme;
