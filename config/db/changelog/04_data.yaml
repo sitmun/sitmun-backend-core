@@ -25,8 +25,6 @@ databaseChangeLog:
               - column:
                   name: TET_BOTTOM
                   type: BOOLEAN
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TET_ID', 8);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_USER.csv
@@ -61,8 +59,6 @@ databaseChangeLog:
               - column:
                   name: USE_LAST_PASSWORD_CHANGE
                   type: DATETIME
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('USE_ID', 12);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_CONNECT.csv
@@ -88,8 +84,6 @@ databaseChangeLog:
               - column:
                   name: CON_CONNECTION
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('CON_ID', 52);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_ROLE.csv
@@ -106,8 +100,6 @@ databaseChangeLog:
               - column:
                   name: ROL_NOTE
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ROL_ID', 2);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_GTER_TYP.csv
@@ -121,8 +113,6 @@ databaseChangeLog:
               - column:
                   name: GTT_NAME
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTT_ID', 4);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_TERRITORY.csv
@@ -182,8 +172,6 @@ databaseChangeLog:
               - column:
                   name: TER_PROJECT
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TER_ID', 3);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_GRP_TER.csv
@@ -222,8 +210,6 @@ databaseChangeLog:
               - column:
                   name: UCO_CREATED
                   type: DATETIME
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('UCO_ID', 12);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_GRP_GI.csv
@@ -240,8 +226,6 @@ databaseChangeLog:
               - column:
                   name: GGI_TYPE
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GGI_ID', 3);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_TREE.csv
@@ -255,8 +239,6 @@ databaseChangeLog:
               - column:
                   name: TRE_NAME
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TRE_ID', 4);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_TREE_ROL.csv
@@ -303,8 +285,6 @@ databaseChangeLog:
               - column:
                   name: SER_BLOCKED
                   type: BOOLEAN
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SER_ID', 152);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_GEOINFO.csv
@@ -382,8 +362,6 @@ databaseChangeLog:
               - column:
                   name: GEO_FILTER_SS
                   type: BOOLEAN
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GEO_ID', 1255);
         #        - loadData:
         #            encoding: UTF-8
         #            file: 04_data/STM_PAR_GI.csv
@@ -516,8 +494,6 @@ databaseChangeLog:
               - column:
                   name: APP_LOGO
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('APP_ID', 6);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_APP_TREE.csv
@@ -566,8 +542,6 @@ databaseChangeLog:
               - column:
                   name: PAP_APPID
                   type: NUMERIC
-        - sql:
-              sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PAP_ID', 22);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_BACKGRD.csv
@@ -596,8 +570,6 @@ databaseChangeLog:
               - column:
                   name: BAC_IMAGE
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('BAC_ID', 1);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_APP_BCKG.csv
@@ -617,8 +589,6 @@ databaseChangeLog:
               - column:
                   name: ABC_ORDER
                   type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ABC_ID', 8);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_APP_TER.csv
@@ -638,8 +608,6 @@ databaseChangeLog:
               - column:
                   name: ATE_INIEXT
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATE_ID', 2);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_AVAIL_GI.csv
@@ -659,8 +627,6 @@ databaseChangeLog:
               - column:
                   name: AGI_CREATED
                   type: DATETIME
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('AGI_ID', 98010);
         - sql:
             sql: ALTER TABLE STM_TREE_NOD DROP CONSTRAINT STM_TNO_FK_TNO;
         - loadData:
@@ -700,8 +666,6 @@ databaseChangeLog:
                   type: BOOLEAN
         - sql:
             sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TNO_ID', 8463);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_GRP_TSK.csv
@@ -716,8 +680,6 @@ databaseChangeLog:
               - column:
                   name: GTS_NAME
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('GTS_ID', 1);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_TSK_UI.csv
@@ -738,8 +700,6 @@ databaseChangeLog:
               - column:
                   name: TUI_ORDER
                   type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TUI_ID', 36);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_TASK.csv
@@ -778,8 +738,6 @@ databaseChangeLog:
               - column:
                   name: TAS_PARAMS
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 36);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_ROL_TSK.csv
@@ -826,8 +784,6 @@ databaseChangeLog:
               - column:
                   name: POS_TERID
                   type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('POS_ID', 1485);
         # - loadData:
         #            encoding: UTF-8
         #            file: 04_data/STM_COMMENT.csv
@@ -884,8 +840,6 @@ databaseChangeLog:
               - column:
                   name: ATS_TASKID
                   type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 4);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_PAR_SER.csv
@@ -908,8 +862,6 @@ databaseChangeLog:
               - column:
                   name: PSE_VALUE
                   type: STRING
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('PSE_ID', 533);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_STY_GI.csv
@@ -927,5 +879,3 @@ databaseChangeLog:
               - column:
                   name: SGI_GIID
                   type: NUMERIC
-        - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('SGI_ID', 3);
