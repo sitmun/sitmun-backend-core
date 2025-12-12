@@ -1,5 +1,6 @@
 package org.sitmun.authorization.client.dto;
 
+import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,4 +15,5 @@ public class ServiceDto {
   private String type;
   private Boolean isProxied;
   private Map<String, String> parameters;
+  private List<String> crs;
 }

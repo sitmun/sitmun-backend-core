@@ -101,6 +101,7 @@ public abstract class ProfileMapper {
                 .filter(it -> Objects.equals(it.getType(), service.getType()))
                 .map(it -> new String[] {it.getName(), it.getValue()})
                 .collect(Collectors.toMap(it -> it[0], it -> it[1])))
+        .crs(service.getSupportedSRS())
         .build();
   }
 
