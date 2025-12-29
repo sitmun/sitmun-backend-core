@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
+import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.image.ImageTransformer;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
@@ -49,16 +51,18 @@ public class TreeEventHandler {
     if (apps.size() == 1 && DomainConstants.Applications.isTouristicApplication(apps.get(0))) {
       return; // Valid case with one touristic application
     }
-    throw new RequirementException(
-        "Touristic tree only can be linked with 0..1 tourist application");
+    throw new BusinessRuleException(
+        ProblemTypes.TOURISTIC_TREE_CONSTRAINT,
+        "Touristic tree can only be linked with 0 or 1 tourist application");
   }
 
   private void validateNoTouristicTree(List<Application> apps) {
     boolean valid = apps.stream().allMatch(this::validAppTrees);
 
     if (!valid) {
-      throw new RequirementException(
-          "A non touristic tree can only be linked to a non tourist application or touristic application with only one touristic tree");
+      throw new BusinessRuleException(
+          ProblemTypes.NON_TOURISTIC_TREE_CONSTRAINT,
+          "A non-touristic tree can only be linked to a non-tourist application or touristic application with only one touristic tree");
     }
   }
 

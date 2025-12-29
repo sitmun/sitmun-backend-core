@@ -1,8 +1,7 @@
 package org.sitmun.administration.controller;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+
 import java.util.Optional;
 import org.sitmun.administration.controller.dto.DatabaseConnectionDto;
 import org.sitmun.administration.service.database.tester.DatabaseConnectionDriverNotFoundException;
@@ -10,7 +9,6 @@ import org.sitmun.administration.service.database.tester.DatabaseConnectionTeste
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.database.DatabaseConnectionRepository;
-import org.sitmun.infrastructure.web.dto.DomainExceptionResponse;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +38,7 @@ public class DatabaseConnectionController {
    */
   @GetMapping("/connections/{id}/test")
   @ResponseBody
-  public ResponseEntity<DatabaseConnectionDto> testConnection(@PathVariable("id") Integer id) {
+  public ResponseEntity<DatabaseConnectionDto> testConnection(@PathVariable Integer id) {
     Optional<DatabaseConnection> connectionOp = repository.findById(id);
     if (connectionOp.isPresent()) {
       DatabaseConnection connection = connectionOp.get();
@@ -76,39 +74,44 @@ public class DatabaseConnectionController {
    * Handles a {@link DatabaseConnection} driver missing exception.
    *
    * @param exception the exception.
-   * @return a 500 error
+   * @return a 500 error with RFC 9457 Problem Detail
    */
   @ExceptionHandler(DatabaseConnectionDriverNotFoundException.class)
-  public ResponseEntity<DomainExceptionResponse> databaseConnectionDriverNotFound(
-      DatabaseConnectionDriverNotFoundException exception, @NonNull WebRequest request) {
-    DomainExceptionResponse response =
-        DomainExceptionResponse.builder()
-            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-            .message(exception.getLocalizedMessage())
+  public ResponseEntity<org.sitmun.infrastructure.web.dto.ProblemDetail>
+      databaseConnectionDriverNotFound(
+          DatabaseConnectionDriverNotFoundException exception, @NonNull WebRequest request) {
+    org.sitmun.infrastructure.web.dto.ProblemDetail problem =
+        org.sitmun.infrastructure.web.dto.ProblemDetail.builder()
+            .type(org.sitmun.infrastructure.web.dto.ProblemTypes.DATABASE_CONNECTION_ERROR)
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .timestamp(LocalDateTime.now(ZoneOffset.UTC))
-            .path(((ServletWebRequest) request).getRequest().getRequestURI())
+            .title("Database Connection Error")
+            .detail(exception.getLocalizedMessage())
+            .instance(((ServletWebRequest) request).getRequest().getRequestURI())
             .build();
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
   }
 
   /**
    * Handles a {@link DatabaseConnection} SQL exception.
    *
    * @param exception the exception.
-   * @return a 500 error
+   * @return a 500 error with RFC 9457 Problem Detail
    */
   @ExceptionHandler(DatabaseSQLException.class)
-  public ResponseEntity<DomainExceptionResponse> databaseSQLException(
+  public ResponseEntity<org.sitmun.infrastructure.web.dto.ProblemDetail> databaseSQLException(
       DatabaseSQLException exception, @NonNull WebRequest request) {
-    DomainExceptionResponse response =
-        DomainExceptionResponse.builder()
-            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-            .message(exception.getLocalizedMessage())
+    org.sitmun.infrastructure.web.dto.ProblemDetail problem =
+        org.sitmun.infrastructure.web.dto.ProblemDetail.builder()
+            .type(org.sitmun.infrastructure.web.dto.ProblemTypes.DATABASE_ERROR)
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .timestamp(LocalDateTime.now(ZoneOffset.UTC))
-            .path(((ServletWebRequest) request).getRequest().getRequestURI())
+            .title("Database Error")
+            .detail(exception.getLocalizedMessage())
+            .instance(((ServletWebRequest) request).getRequest().getRequestURI())
             .build();
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
   }
 }

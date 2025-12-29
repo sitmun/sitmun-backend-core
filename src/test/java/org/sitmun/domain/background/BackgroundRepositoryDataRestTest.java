@@ -58,7 +58,7 @@ class BackgroundRepositoryDataRestTest {
         }""";
     mvc.perform(post(BACKGROUNDS_URI).content(content))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
   }
 
   @Test
@@ -69,7 +69,7 @@ class BackgroundRepositoryDataRestTest {
     mvc.perform(
             put(BACKGROUND_URI_CARTOGRAPHY_GROUP, 1).content(content).contentType("text/uri-list"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
   }
 
   @AfterEach

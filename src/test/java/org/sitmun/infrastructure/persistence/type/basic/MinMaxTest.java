@@ -32,7 +32,7 @@ class MinMaxTest extends BaseTest {
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
-                "$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')].invalidValue",
+                "$.errors[?(@.field=='" + PROPERTY_WITH_MIN_MAX + "')].rejectedValue",
                 hasItem(INVALID_BELOW_MIN)));
   }
 
@@ -44,7 +44,7 @@ class MinMaxTest extends BaseTest {
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
-                "$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')].invalidValue",
+                "$.errors[?(@.field=='" + PROPERTY_WITH_MIN_MAX + "')].rejectedValue",
                 hasItem(INVALID_UPPER_MAX)));
   }
 

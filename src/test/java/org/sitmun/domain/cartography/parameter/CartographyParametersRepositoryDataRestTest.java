@@ -74,7 +74,7 @@ class CartographyParametersRepositoryDataRestTest {
 
     mvc.perform(post("/api/cartography-parameters?lang=EN").content(content))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("cartography"))
+        .andExpect(jsonPath("$.errors[0].field").value("cartography"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be null"));
   }
 }

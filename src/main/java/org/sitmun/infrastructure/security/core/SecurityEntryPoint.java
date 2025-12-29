@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.sitmun.infrastructure.web.dto.ProblemDetail;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -13,10 +13,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+/**
+ * Authentication entry point that returns RFC 9457 Problem Detail responses for authentication
+ * failures.
+ *
+ * <p>This is invoked when a user tries to access a protected resource without proper
+ * authentication.
+ */
 @Component
 public class SecurityEntryPoint implements AuthenticationEntryPoint {
 
   private static final Logger logger = LoggerFactory.getLogger(SecurityEntryPoint.class);
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   @Override
   public void commence(
@@ -26,16 +34,18 @@ public class SecurityEntryPoint implements AuthenticationEntryPoint {
       throws IOException {
     logger.error("Unauthorized error: {}", authException.getMessage());
 
-    httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    httpServletResponse.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-    final Map<String, Object> body = new HashMap<>();
-    body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-    body.put("error", "Unauthorized");
-    body.put("message", authException.getMessage());
-    body.put("path", httpServletRequest.getServletPath());
+    ProblemDetail problem =
+        ProblemDetail.builder()
+            .type(ProblemTypes.UNAUTHORIZED)
+            .status(HttpServletResponse.SC_UNAUTHORIZED)
+            .title("Unauthorized")
+            .detail(authException.getMessage())
+            .instance(httpServletRequest.getRequestURI())
+            .build();
 
-    final ObjectMapper mapper = new ObjectMapper();
-    mapper.writeValue(httpServletResponse.getOutputStream(), body);
+    mapper.writeValue(httpServletResponse.getOutputStream(), problem);
   }
 }

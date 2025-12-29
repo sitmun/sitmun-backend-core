@@ -56,8 +56,8 @@ class SpatialReferenceSystemTest extends BaseTest {
                 .contentType(APPLICATION_JSON)
                 .content(serviceFixture("other")))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("other"));
+        .andExpect(jsonPath("$.errors[0].field").value("supportedSRS"))
+        .andExpect(jsonPath("$.errors[0].rejectedValue[0]").value("other"));
   }
 
   @Test
@@ -80,9 +80,9 @@ class SpatialReferenceSystemTest extends BaseTest {
                 .contentType(APPLICATION_JSON)
                 .content(serviceFixture("EPSG:1", "other")))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("supportedSRS"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[0]").value("EPSG:1"))
-        .andExpect(jsonPath("$.errors[0].invalidValue[1]").value("other"));
+        .andExpect(jsonPath("$.errors[0].field").value("supportedSRS"))
+        .andExpect(jsonPath("$.errors[0].rejectedValue[0]").value("EPSG:1"))
+        .andExpect(jsonPath("$.errors[0].rejectedValue[1]").value("other"));
   }
 
   String serviceFixture(String... projection) throws JSONException {

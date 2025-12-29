@@ -51,7 +51,7 @@ class HttpURLTest extends BaseTest {
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
-                "$.errors.[?(@.property == '" + PROPERTY_WITH_URL + "')].invalidValue",
+                "$.errors.[?(@.field == '" + PROPERTY_WITH_URL + "')].rejectedValue",
                 hasItem(INVALID_URL)));
   }
 

@@ -163,7 +163,7 @@ class TreeNodeResourceTest {
     mvc.perform(post(TREE_NODES_URI).content(json.toString()))
         .andExpect(status().isBadRequest())
         .andExpect(
-            jsonPath("$.message").value("Tree node style requires a tree node with cartography"));
+            jsonPath("$.detail").value("Tree node style requires a tree node with cartography"));
   }
 
   @Test

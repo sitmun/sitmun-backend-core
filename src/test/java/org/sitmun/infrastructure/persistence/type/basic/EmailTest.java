@@ -40,7 +40,7 @@ class EmailTest extends BaseTest {
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
-                "$.errors.[?(@.property == '" + PROPERTY_WITH_EMAIL + "')].invalidValue",
+                "$.errors.[?(@.field == '" + PROPERTY_WITH_EMAIL + "')].rejectedValue",
                 hasItem(INVALID_EMAIL)));
   }
 

@@ -88,7 +88,7 @@ class ClientConfigurationApplicationRestrictedTest {
 
   @Test
   @DisplayName("Should return 401 when public user tries to access private application")
-  void shouldReturn403WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
+  void shouldReturn401WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).name("Private App").appPrivate(true).build();

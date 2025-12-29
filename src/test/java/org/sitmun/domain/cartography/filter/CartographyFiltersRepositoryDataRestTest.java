@@ -66,7 +66,7 @@ class CartographyFiltersRepositoryDataRestTest {
 
     mvc.perform(post(CARTOGRAPHY_FILTERS_URI + "?lang=EN").content(content))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("cartography"))
+        .andExpect(jsonPath("$.errors[0].field").value("cartography"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be null"));
   }
 }

@@ -71,7 +71,7 @@ class CartographyStylesRepositoryDataRestTest {
 
     mvc.perform(post(URIConstants.CARTOGRAPHY_STYLES_URI).content(content))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].property").value("defaultStyle"))
+        .andExpect(jsonPath("$.errors[0].field").value("defaultStyle"))
         .andExpect(
             jsonPath("$.errors[0].message")
                 .value("Already a default style exists for the cartography."));

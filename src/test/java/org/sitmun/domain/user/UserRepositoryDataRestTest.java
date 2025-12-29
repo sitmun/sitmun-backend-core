@@ -67,7 +67,7 @@ class UserRepositoryDataRestTest {
                     }"""))
         .andExpect(status().isBadRequest())
         .andExpect(
-            jsonPath("$.errors[?(@.property=='email')].message")
+            jsonPath("$.errors[?(@.field=='email')].message")
                 .value("must be a well-formed email address"));
   }
 

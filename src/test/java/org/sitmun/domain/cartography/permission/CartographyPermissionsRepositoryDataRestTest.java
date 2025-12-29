@@ -114,7 +114,7 @@ class CartographyPermissionsRepositoryDataRestTest {
       }""";
     mvc.perform(put(CARTOGRAPHY_PERMISSION_URI, 3).content(changedContent))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
   }
 
   @Test
@@ -130,7 +130,7 @@ class CartographyPermissionsRepositoryDataRestTest {
       """;
     mvc.perform(put(CARTOGRAPHY_PERMISSION_URI, 2).content(changedContent))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].invalidValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
   }
 
   @Test

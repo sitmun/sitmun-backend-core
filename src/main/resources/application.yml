@@ -141,6 +141,9 @@ sitmun:
           value: touristic
           description: Tourist application
         - code-list-name: tree.type
+          value: cartography
+          description: Cartography tree
+        - code-list-name: tree.type
           value: edition
           description: Edition tree
         - code-list-name: treenode.folder.type

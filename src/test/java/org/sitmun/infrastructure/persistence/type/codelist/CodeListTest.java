@@ -1,7 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.codelist;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -61,6 +60,6 @@ class CodeListTest extends BaseTest {
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
-                "$.errors.[?(@.property == 'legendType')].invalidValue", hasItem("WRONG VALUE")));
+                "$.errors.[?(@.field == 'legendType')].rejectedValue", hasItem("WRONG VALUE")));
   }
 }

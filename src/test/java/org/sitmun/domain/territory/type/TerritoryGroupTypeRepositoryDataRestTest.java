@@ -38,7 +38,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
                 .contentType(APPLICATION_JSON)
                 .content(asJsonString(TerritoryGroupType.builder().build())))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property").value("name"))
+        .andExpect(jsonPath("$.errors[0].field").value("name"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
 
@@ -51,7 +51,7 @@ class TerritoryGroupTypeRepositoryDataRestTest {
                 .contentType(APPLICATION_JSON)
                 .content(asJsonString(TerritoryGroupType.builder().name("   ").build())))
         .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors[0].property").value("name"))
+        .andExpect(jsonPath("$.errors[0].field").value("name"))
         .andExpect(jsonPath("$.errors[0].message").value("must not be blank"));
   }
 
