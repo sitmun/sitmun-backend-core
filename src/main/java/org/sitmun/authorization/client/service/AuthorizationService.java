@@ -42,6 +42,8 @@ import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -191,6 +193,7 @@ public class AuthorizationService {
     return roleRepository.findRolesByApplicationAndUserAndTerritory(username, appId, territoryId);
   }
 
+  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
   public Optional<Profile> createProfile(ProfileContext context) {
     return buildProfile(context).map(this::pruneProfile);
   }
@@ -224,16 +227,28 @@ public class AuthorizationService {
 
     List<CartographyPermission> cartographyPermissions =
         cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    cartographyPermissions = cartographyPermissions.stream()
+        .filter(cp -> cp.getMembers() != null && cp.getRoles() != null)
+        .collect(Collectors.toList());
     cartographyPermissions.forEach(translationService::updateInternationalization);
 
     List<Cartography> layers =
         cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    layers = layers.stream()
+        .filter(l -> l.getService() != null)
+        .collect(Collectors.toList());
     layers.forEach(translationService::updateInternationalization);
 
     List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
+    tasks = tasks.stream()
+        .filter(t -> t.getRoles() != null)
+        .collect(Collectors.toList());
     tasks.forEach(translationService::updateInternationalization);
 
     List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
+    trees = trees.stream()
+        .filter(t -> t.getAvailableRoles() != null && t.getAvailableApplications() != null)
+        .collect(Collectors.toList());
     trees.forEach(translationService::updateInternationalization);
 
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);

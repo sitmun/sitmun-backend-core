@@ -81,16 +81,25 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       BusinessRuleException exception, HttpServletRequest request) {
     logger.info("Business rule violation: " + exception.getMessage(), exception);
 
+    HttpStatus status =
+        ProblemTypes.DATA_INTEGRITY_VIOLATION.equals(exception.getProblemType())
+            ? HttpStatus.UNPROCESSABLE_ENTITY
+            : HttpStatus.BAD_REQUEST;
+
     ProblemDetail problem =
         ProblemDetail.builder()
             .type(exception.getProblemType())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .status(status.value())
+            .title(status.getReasonPhrase())
             .detail(exception.getMessage())
             .instance(request.getRequestURI())
             .build();
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    if (ProblemTypes.DATA_INTEGRITY_VIOLATION.equals(exception.getProblemType())) {
+      problem.addProperty("referencingEntityTranslationKey", "entity.tree-node.plural");
+    }
+
+    return ResponseEntity.status(status)
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
@@ -244,7 +253,13 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       isDuplicateKey = isDuplicateKey(exception);
       constraintInfo = extractConstraintInfo(exception);
     } catch (LazyInitializationException e) {
-      logger.debug("Lazy initialization during constraint extraction, using defaults");
+      // Log WARN with stack trace to identify where lazy access occurs during constraint extraction
+      logger.warn(
+          "Lazy initialization exception during constraint extraction. method="
+              + request.getMethod()
+              + " uri="
+              + request.getRequestURI(),
+          e);
     } catch (Exception e) {
       logger.debug("Could not extract constraint info, using defaults");
     }
@@ -300,18 +315,27 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(LazyInitializationException.class)
   public ResponseEntity<ProblemDetail> handleLazyInitializationException(
       LazyInitializationException exception, HttpServletRequest request) {
-    // Do NOT access exception.getMessage() or any other properties - they may trigger lazy loading
-    logger.warn("Lazy initialization exception occurred (likely during constraint violation handling)");
+    // This is an internal server error. It can happen if some code tries to access a lazy
+    // association after the Hibernate session has closed (often during error handling/serialization).
+    //
+    // Log the stack trace so we can identify the real access point (the generic warning alone
+    // is not actionable).
+    logger.warn(
+        "Lazy initialization exception occurred. method="
+            + request.getMethod()
+            + " uri="
+            + request.getRequestURI(),
+        exception);
 
     ProblemDetail problem = ProblemDetail.builder()
-        .type(ProblemTypes.DATA_INTEGRITY_VIOLATION)
-        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
-        .title("Data Integrity Violation")
-        .detail("Cannot delete this resource because it is being used by other resources")
+        .type(ProblemTypes.INTERNAL_SERVER_ERROR)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .title("Internal Server Error")
+        .detail("An internal error occurred while processing the request.")
         .instance(request.getRequestURI())
         .build();
 
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
@@ -439,29 +463,9 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       }
     }
     
-    // Fallback: string matching on exception message
-    String message = null;
-    try {
-      message = exception.getMessage();
-    } catch (Exception e) {
-      // Ignore - message might trigger lazy loading
-    }
-    if (message != null) {
-      String lowerMessage = message.toLowerCase();
-      // Explicitly check for foreign key patterns first
-      if (lowerMessage.contains("foreign key") || lowerMessage.contains("fk_") 
-          || lowerMessage.contains("references")) {
-        return false;
-      }
-      // Then check for unique constraint patterns
-      if (lowerMessage.contains("unique constraint")
-          || lowerMessage.contains("duplicate key")
-          || lowerMessage.contains("duplicate entry")
-          || lowerMessage.contains("uniqueconstraint")) {
-        return true;
-      }
-    }
-    
+    // No fallback to exception.getMessage() - it can trigger LazyInitializationException
+    // if the exception contains lazy-loaded entity references. We rely on SQL state
+    // codes and constraint name patterns which are safe to access.
     return false;
   }
 

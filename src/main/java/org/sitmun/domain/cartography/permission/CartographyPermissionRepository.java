@@ -3,6 +3,7 @@ package org.sitmun.domain.cartography.permission;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.sitmun.domain.role.Role;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -16,12 +17,15 @@ public interface CartographyPermissionRepository
         QuerydslPredicateExecutor<CartographyPermission> {
 
   @RestResource(exported = false)
+  @EntityGraph(attributePaths = {"members", "roles"})
   @Query(
       """
       SELECT DISTINCT cp
-      FROM CartographyPermission cp, Cartography car, CartographyAvailability cav, Role rol
-      WHERE rol member of cp.roles AND rol in ?1
-      AND car member of cp.members AND cav member of car.availabilities AND cav.territory.id = ?2
+      FROM CartographyPermission cp
+      JOIN cp.roles rol
+      JOIN cp.members car
+      JOIN car.availabilities cav
+      WHERE rol in ?1 AND cav.territory.id = ?2
       """)
   List<CartographyPermission> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Set;
 import org.sitmun.domain.role.Role;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -33,12 +34,14 @@ public interface TaskRepository
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
+  @EntityGraph(attributePaths = {"roles"})
   @Query(
       """
-    SELECT tsk FROM Task tsk WHERE tsk.id in
-    (SELECT tsk.id FROM Task tsk, TaskAvailability tav, Role rol WHERE
-    rol member of tsk.roles AND rol in ?1
-    AND tsk.id = tav.task.id AND tav.territory.id = ?2)
+    SELECT DISTINCT tsk 
+    FROM Task tsk
+    JOIN tsk.roles rol
+    JOIN tsk.availabilities tav
+    WHERE rol in ?1 AND tav.territory.id = ?2
     """)
   List<Task> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 

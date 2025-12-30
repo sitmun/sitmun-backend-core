@@ -3,6 +3,7 @@ package org.sitmun.domain.tree.node;
 import com.google.common.base.Strings;
 import jakarta.validation.constraints.NotNull;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.cartography.style.CartographyStyleRepository;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.image.ImageTransformer;
@@ -17,10 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RepositoryEventHandler
 public class TreeNodeEventHandler {
 
-  final ImageTransformer imageTransformer;
+  private final ImageTransformer imageTransformer;
+  private final CartographyStyleRepository cartographyStyleRepository;
 
-  TreeNodeEventHandler(ImageTransformer imageTransformer) {
+  TreeNodeEventHandler(ImageTransformer imageTransformer,
+                       CartographyStyleRepository cartographyStyleRepository) {
     this.imageTransformer = imageTransformer;
+    this.cartographyStyleRepository = cartographyStyleRepository;
   }
 
   @HandleBeforeSave
@@ -35,7 +39,12 @@ public class TreeNodeEventHandler {
     if (!Strings.isNullOrEmpty(style)) {
       if (cartography != null) {
         String trimmedStyle = style.trim();
-        if (cartography.getStyles().stream().anyMatch(it -> trimmedStyle.equals(it.getName()))) {
+        
+        // Use repository query instead of accessing lazy collection
+        boolean styleExists = cartographyStyleRepository
+            .existsByCartographyIdAndName(cartography.getId(), trimmedStyle);
+        
+        if (styleExists) {
           treeNode.setStyle(trimmedStyle);
         } else {
           throw new BusinessRuleException(

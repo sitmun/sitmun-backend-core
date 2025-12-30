@@ -2,7 +2,9 @@ package org.sitmun.domain.cartography;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Optional;
 import org.sitmun.domain.role.Role;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +18,20 @@ import org.springframework.lang.NonNull;
     itemResourceRel = "cartography",
     path = "cartographies")
 public interface CartographyRepository extends JpaRepository<Cartography, Integer> {
+
+  @Override
+  @EntityGraph(
+      attributePaths = {
+        "service",
+        "permissions",
+        "availabilities",
+        "styles",
+        "filters",
+        "parameters",
+        "spatialSelectionParameters",
+        "treeNodes"
+      })
+  Optional<Cartography> findById(Integer id);
 
   @Query(
       "select cartography from Cartography cartography left join fetch cartography.service where cartography.id =:id")
@@ -33,12 +49,15 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
   Iterable<Cartography> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
+  @EntityGraph(attributePaths = {"service"})
   @Query(
       """
       SELECT DISTINCT car
-      FROM CartographyPermission cp, Cartography car, CartographyAvailability cav, Role rol
-      WHERE rol member of cp.roles AND rol in ?1
-      AND car member of cp.members AND cav member of car.availabilities AND cav.territory.id = ?2
+      FROM CartographyPermission cp
+      JOIN cp.members car
+      JOIN cp.roles rol
+      JOIN car.availabilities cav
+      WHERE rol in ?1 AND cav.territory.id = ?2
       """)
   List<Cartography> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 }

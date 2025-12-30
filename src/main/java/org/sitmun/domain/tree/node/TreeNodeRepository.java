@@ -16,4 +16,12 @@ public interface TreeNodeRepository extends JpaRepository<TreeNode, Integer> {
 
   @Query("select node from TreeNode node where " + "node.tree in ?1")
   List<TreeNode> findByTrees(List<Tree> trees);
+
+  @Query("SELECT CASE WHEN COUNT(tn) > 0 THEN true ELSE false END " +
+         "FROM TreeNode tn WHERE tn.cartography.id = ?1 AND tn.style = ?2")
+  boolean existsByCartographyIdAndStyle(Integer cartographyId, String style);
+
+  @Query("SELECT CASE WHEN COUNT(tn) > 0 THEN true ELSE false END " +
+         "FROM TreeNode tn WHERE tn.cartography.id = ?1")
+  boolean existsByCartographyId(Integer cartographyId);
 }

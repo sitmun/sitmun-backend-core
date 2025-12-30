@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
@@ -36,9 +35,11 @@ public class CartographyStyleEventHandler {
   @Transactional(rollbackFor = RequirementException.class)
   public void handleCartographyStyleDelete(@NotNull CartographyStyle cartographyStyle) {
     String name = cartographyStyle.getName();
-    Cartography cartography = cartographyStyle.getCartography();
-    boolean inUse =
-        cartography.getTreeNodes().stream().anyMatch(it -> Objects.equals(name, it.getName()));
+    Integer cartographyId = cartographyStyle.getCartography().getId();
+    
+    // Use repository query instead of accessing lazy collection
+    boolean inUse = treeNodeRepository.existsByCartographyIdAndStyle(cartographyId, name);
+    
     if (inUse) {
       throw new RequirementException("Cartography Style in use in a the tree node");
     }
