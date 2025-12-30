@@ -6,8 +6,13 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
 import jakarta.persistence.TransactionRequiredException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.LazyInitializationException;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.codelist.ImmutableSystemCodeListValueException;
@@ -217,49 +222,399 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link DataIntegrityViolationException} - database constraint violations. */
+  /**
+   * Handles {@link DataIntegrityViolationException} - database constraint violations.
+   *
+   * <p>Returns 409 Conflict for unique constraint violations (duplicate key), or 422 Unprocessable
+   * Entity for foreign key violations and other integrity issues.
+   *
+   * <p>All exception property access is wrapped in try-catch blocks to guard against
+   * {@link LazyInitializationException} which can occur when Spring Data REST's internal
+   * processing has closed the Hibernate session.
+   */
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
       DataIntegrityViolationException exception, HttpServletRequest request) {
-    logger.warn("Data integrity violation: " + exception.getMessage(), exception);
 
-    // Check if it's a duplicate key/unique constraint violation (409 Conflict)
-    // vs other integrity violations like foreign keys (422 Unprocessable Entity)
-    boolean isDuplicateKey = isIsDuplicateKey(exception);
+    // All processing is wrapped to catch any LazyInitializationException
+    boolean isDuplicateKey = false;
+    ConstraintInfo constraintInfo = null;
+    
+    try {
+      isDuplicateKey = isDuplicateKey(exception);
+      constraintInfo = extractConstraintInfo(exception);
+    } catch (LazyInitializationException e) {
+      logger.debug("Lazy initialization during constraint extraction, using defaults");
+    } catch (Exception e) {
+      logger.debug("Could not extract constraint info, using defaults");
+    }
 
     HttpStatus status = isDuplicateKey ? HttpStatus.CONFLICT : HttpStatus.UNPROCESSABLE_ENTITY;
-    String detail = isDuplicateKey 
-        ? "A resource with this value already exists." 
-        : "The operation violates database constraints (foreign key, etc.).";
+    
+    // Context-aware error messages based on HTTP method
+    String detail;
+    if (isDuplicateKey) {
+      detail = "A resource with this value already exists.";
+    } else {
+      String method = request.getMethod();
+      if ("DELETE".equals(method)) {
+        detail = "Cannot delete this resource because it is being used by other resources";
+      } else if ("POST".equals(method)) {
+        detail = "Cannot create this resource. A referenced resource does not exist or constraints are violated";
+      } else if ("PUT".equals(method) || "PATCH".equals(method)) {
+        detail = "Cannot update this resource. A referenced resource does not exist or constraints are violated";
+      } else {
+        detail = "This operation violates database constraints";
+      }
+    }
 
-    ProblemDetail problem =
-        ProblemDetail.builder()
-            .type(ProblemTypes.DATA_INTEGRITY_VIOLATION)
-            .status(status.value())
-            .title(isDuplicateKey ? "Resource Already Exists" : "Data Integrity Violation")
-            .detail(detail)
-            .instance(request.getRequestURI())
-            .build();
+    ProblemDetail problem = ProblemDetail.builder()
+        .type(ProblemTypes.DATA_INTEGRITY_VIOLATION)
+        .status(status.value())
+        .title(isDuplicateKey ? "Resource Already Exists" : "Data Integrity Violation")
+        .detail(detail)
+        .instance(request.getRequestURI())
+        .build();
+
+    // Add entity translation key for foreign key violations
+    if (!isDuplicateKey && constraintInfo != null && constraintInfo.referencingEntityTranslationKey() != null) {
+      problem.addProperty("referencingEntityTranslationKey", constraintInfo.referencingEntityTranslationKey());
+    }
 
     return ResponseEntity.status(status)
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
 
-  private static boolean isIsDuplicateKey(DataIntegrityViolationException exception) {
-    String message = exception.getMessage();
-    boolean isDuplicateKey = false;
+  /**
+   * Handles {@link LazyInitializationException} - Hibernate lazy loading failures.
+   * 
+   * <p>This exception typically occurs when trying to access lazy-loaded properties after
+   * the Hibernate session has closed. This can happen during exception handling when
+   * the logging framework or exception processing tries to access exception properties
+   * that contain lazy-loaded collections.
+   * 
+   * <p>This handler treats it as a data integrity violation and returns a generic error
+   * response without attempting to access any potentially lazy-loaded properties.
+   */
+  @ExceptionHandler(LazyInitializationException.class)
+  public ResponseEntity<ProblemDetail> handleLazyInitializationException(
+      LazyInitializationException exception, HttpServletRequest request) {
+    // Do NOT access exception.getMessage() or any other properties - they may trigger lazy loading
+    logger.warn("Lazy initialization exception occurred (likely during constraint violation handling)");
+
+    ProblemDetail problem = ProblemDetail.builder()
+        .type(ProblemTypes.DATA_INTEGRITY_VIOLATION)
+        .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        .title("Data Integrity Violation")
+        .detail("Cannot delete this resource because it is being used by other resources")
+        .instance(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
+  }
+
+  /**
+   * Data extracted from a DataIntegrityViolationException for constraint analysis.
+   *
+   * @param constraintViolation the Hibernate ConstraintViolationException, or null if not available
+   * @param sqlException the underlying SQLException, or null if not available
+   * @param sqlState the SQL state code (e.g., "23503"), or null if not available
+   * @param constraintName the constraint name (e.g., "STM_TAS_FK_SER"), or null if not available
+   */
+  private record ConstraintViolationData(
+      ConstraintViolationException constraintViolation,
+      SQLException sqlException,
+      String sqlState,
+      String constraintName
+  ) {}
+
+  /**
+   * Extracts constraint violation details from a DataIntegrityViolationException.
+   * 
+   * <p>This helper method centralizes the extraction of constraint information from the exception chain,
+   * reducing code duplication between {@link #isDuplicateKey} and {@link #extractConstraintInfo}.
+   *
+   * @param exception the exception to analyze
+   * @return extracted constraint data, with null fields if information is unavailable
+   */
+  private static ConstraintViolationData extractConstraintViolationData(
+      DataIntegrityViolationException exception) {
+    if (exception == null) {
+      return new ConstraintViolationData(null, null, null, null);
+    }
+    
+    try {
+      // Safely get cause - may trigger lazy loading
+      Throwable cause = null;
+      try {
+        cause = exception.getCause();
+      } catch (Exception e) {
+        // getCause() may trigger lazy loading - return empty data
+        return new ConstraintViolationData(null, null, null, null);
+      }
+      
+      if (cause == null || !(cause instanceof ConstraintViolationException constraintViolation)) {
+        return new ConstraintViolationData(null, null, null, null);
+      }
+      
+      SQLException sqlException = null;
+      String sqlState = null;
+      String constraintName = null;
+      
+      try {
+        sqlException = constraintViolation.getSQLException();
+        sqlState = sqlException != null ? sqlException.getSQLState() : null;
+      } catch (Exception e) {
+        // Ignore - sqlException or sqlState may be unavailable or trigger lazy loading
+        // Cannot log here as this is a static method
+      }
+      
+      try {
+        constraintName = constraintViolation.getConstraintName();
+      } catch (Exception e) {
+        // Ignore - constraint name may be unavailable or trigger lazy loading
+        // Cannot log here as this is a static method
+      }
+      
+      return new ConstraintViolationData(
+          constraintViolation, 
+          sqlException, 
+          sqlState, 
+          constraintName
+      );
+    } catch (Exception e) {
+      // If any exception occurs during extraction (including LazyInitializationException),
+      // return empty data to prevent cascading failures
+      // Cannot log here as this is a static method
+      return new ConstraintViolationData(null, null, null, null);
+    }
+  }
+
+  /**
+   * Checks if a DataIntegrityViolationException is due to a duplicate key/unique constraint violation.
+   * 
+   * <p>Examines the exception structure to distinguish between:
+   * <ul>
+   * <li>Duplicate key violations (409 Conflict) - unique constraint violations</li>
+   * <li>Foreign key violations (422 Unprocessable Entity) - foreign key constraint violations</li>
+   * </ul>
+   *
+   * <p>Uses SQL state codes for reliable detection (PostgreSQL: 23505 for unique, 23503 for FK;
+   * Oracle: 23001 for unique), with constraint name pattern matching as fallback.
+   *
+   * @param exception the DataIntegrityViolationException to examine
+   * @return true if it's a duplicate key violation, false otherwise
+   */
+  private static boolean isDuplicateKey(DataIntegrityViolationException exception) {
+    ConstraintViolationData data = extractConstraintViolationData(exception);
+    
+    // Check SQL state code first (most reliable)
+    if (data.sqlState() != null) {
+      // 23505 = unique constraint violation (PostgreSQL)
+      // 23001 = restrict violation (Oracle unique constraint)
+      if ("23505".equals(data.sqlState()) || "23001".equals(data.sqlState())) {
+        return true;
+      }
+      // 23503 = foreign key constraint violation (PostgreSQL) - explicitly exclude
+      if ("23503".equals(data.sqlState())) {
+        return false;
+      }
+    }
+    
+    // Check constraint name patterns
+    if (data.constraintName() != null) {
+      String upperConstraintName = data.constraintName().toUpperCase();
+      // Foreign key constraints typically contain _FK_ or FK_
+      if (upperConstraintName.contains("_FK_") || upperConstraintName.contains("FK_") 
+          || upperConstraintName.contains("FOREIGN")) {
+        return false;
+      }
+      // Unique constraints typically contain _UK, UK_, UNIQUE
+      if (upperConstraintName.contains("_UK") || upperConstraintName.contains("UK_") 
+          || upperConstraintName.contains("UNIQUE")) {
+        return true;
+      }
+    }
+    
+    // Fallback: string matching on exception message
+    String message = null;
+    try {
+      message = exception.getMessage();
+    } catch (Exception e) {
+      // Ignore - message might trigger lazy loading
+    }
     if (message != null) {
       String lowerMessage = message.toLowerCase();
-      isDuplicateKey = lowerMessage.contains("unique constraint")
+      // Explicitly check for foreign key patterns first
+      if (lowerMessage.contains("foreign key") || lowerMessage.contains("fk_") 
+          || lowerMessage.contains("references")) {
+        return false;
+      }
+      // Then check for unique constraint patterns
+      if (lowerMessage.contains("unique constraint")
           || lowerMessage.contains("duplicate key")
           || lowerMessage.contains("duplicate entry")
-          || lowerMessage.contains("uniqueconstraint")
-          || (exception.getCause() != null
-              && exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException
-              && message.contains("constraint"));
+          || lowerMessage.contains("uniqueconstraint")) {
+        return true;
+      }
     }
-    return isDuplicateKey;
+    
+    return false;
+  }
+
+  /**
+   * Information about a database constraint violation.
+   *
+   * @param constraintName the name of the constraint
+   * @param referencingEntityTranslationKey translation key for the entity that references this resource (e.g., "entity.task.plural")
+   * @param isForeignKey whether this is a foreign key constraint
+   */
+  private record ConstraintInfo(
+      String constraintName,
+      String referencingEntityTranslationKey,
+      boolean isForeignKey) {}
+
+  /**
+   * Extracts constraint information from a DataIntegrityViolationException.
+   * 
+   * <p>Maps constraint names to entity translation keys for user-friendly error messages.
+   * Uses SQL state codes for reliable foreign key detection, with constraint name pattern
+   * matching as fallback.
+   *
+   * @param exception the DataIntegrityViolationException to examine
+   * @return ConstraintInfo with constraint details, or null if information cannot be extracted
+   */
+  private static ConstraintInfo extractConstraintInfo(DataIntegrityViolationException exception) {
+    ConstraintViolationData data = extractConstraintViolationData(exception);
+    
+    if (data.constraintViolation() == null || data.constraintName() == null) {
+      return null;
+    }
+    
+    // Check SQL state code first for foreign key detection (most reliable)
+    boolean isForeignKey = false;
+    if (data.sqlState() != null) {
+      // 23503 = foreign key constraint violation (PostgreSQL)
+      isForeignKey = "23503".equals(data.sqlState());
+    }
+    
+    // Fallback to constraint name pattern matching
+    if (!isForeignKey && data.constraintName() != null) {
+      String upperConstraintName = data.constraintName().toUpperCase();
+      isForeignKey = upperConstraintName.contains("_FK_") 
+          || upperConstraintName.contains("FK_") 
+          || upperConstraintName.contains("FOREIGN");
+    }
+    
+    if (!isForeignKey) {
+      return new ConstraintInfo(data.constraintName(), null, false);
+    }
+    
+    // Map constraint names to entity translation keys
+    String entityTranslationKey = mapConstraintToEntityTranslationKey(data.constraintName());
+    
+    return new ConstraintInfo(data.constraintName(), entityTranslationKey, true);
+  }
+
+  /**
+   * Maps constraint names to entity translation keys.
+   * 
+   * <p>Uses pattern matching to identify which entity type is referencing the resource
+   * based on the constraint name. Patterns are checked in order of specificity (most
+   * specific first) to avoid false matches.
+   *
+   * <p>Pattern matching priority:
+   * <ol>
+   * <li>Priority 1: Most specific patterns (multi-part with FK, e.g., "TNO_FK_TAS")</li>
+   * <li>Priority 2: Specific FK patterns (e.g., "TAS_FK_SER")</li>
+   * <li>Priority 3: General entity prefixes (e.g., "TAS_")</li>
+   * <li>Priority 4: Least specific patterns</li>
+   * </ol>
+   *
+   * @param constraintName the database constraint name (e.g., "STM_TAS_FK_SER")
+   * @return the entity translation key (e.g., "entity.task.plural"), or null if not found
+   */
+  private static String mapConstraintToEntityTranslationKey(String constraintName) {
+    if (constraintName == null) {
+      return null;
+    }
+    
+    String upperConstraintName = constraintName.toUpperCase();
+    
+    // LinkedHashMap preserves insertion order for guaranteed specificity
+    // Note: Translation keys should match existing frontend keys (entity.{entity}.plural)
+    Map<String, String> constraintPatterns = new LinkedHashMap<>();
+    
+    // Priority 1: Most specific patterns (multi-part with FK)
+    // Format: {REFERENCING_ENTITY}_FK_{REFERENCED_ENTITY}
+    // When deleting the referenced entity, the error should mention the referencing entity
+    constraintPatterns.put("TNO_FK_TAS", "entity.tree-node.plural"); // Tree nodes referencing Task
+    constraintPatterns.put("TNO_FK_GEO", "entity.tree-node.plural"); // Tree nodes referencing Cartography
+    constraintPatterns.put("TNO_FK_TRE", "entity.tree-node.plural"); // Tree nodes referencing Tree
+    constraintPatterns.put("TNO_FK_TNO", "entity.tree-node.plural"); // Tree nodes referencing Tree Node (parent)
+    
+    // Priority 2: Specific FK patterns
+    // Format: {REFERENCING_ENTITY}_FK_{REFERENCED_ENTITY}
+    constraintPatterns.put("TAS_FK_GEO", "entity.task.plural"); // Tasks referencing Cartography
+    constraintPatterns.put("TAS_FK_SER", "entity.task.plural"); // Tasks referencing Service
+    constraintPatterns.put("TAS_FK_CON", "entity.task.plural"); // Tasks referencing Connection
+    constraintPatterns.put("GEO_FK_SER", "entity.cartography.plural"); // Cartographies referencing Service
+    constraintPatterns.put("GEO_FK_CON", "entity.cartography.plural"); // Cartographies referencing Connection
+    constraintPatterns.put("ABC_FK_APP", "entity.background.plural"); // Application backgrounds referencing Application
+    constraintPatterns.put("ABC_FK_FON", "entity.background.plural"); // Application backgrounds referencing Background
+    constraintPatterns.put("ARO_FK_APP", "entity.role.plural"); // Application roles referencing Application
+    constraintPatterns.put("ARO_FK_ROL", "entity.role.plural"); // Application roles referencing Role
+    constraintPatterns.put("ATR_FK_APP", "entity.tree.plural"); // Application trees referencing Application
+    constraintPatterns.put("ATR_FK_TRE", "entity.tree.plural"); // Application trees referencing Tree
+    constraintPatterns.put("RGG_FK_GGI", "entity.role.plural"); // Role cartography groups referencing Cartography Group
+    constraintPatterns.put("RGG_FK_ROL", "entity.role.plural"); // Role cartography groups referencing Role
+    constraintPatterns.put("RTS_FK_ROL", "entity.role.plural"); // Role tasks referencing Role
+    constraintPatterns.put("RTS_FK_TAS", "entity.role.plural"); // Role tasks referencing Task
+    constraintPatterns.put("TRO_FK_ROL", "entity.role.plural"); // Tree roles referencing Role
+    constraintPatterns.put("TRO_FK_TRE", "entity.role.plural"); // Tree roles referencing Tree
+    constraintPatterns.put("UCO_FK_USU", "entity.user.plural"); // User configurations referencing User
+    constraintPatterns.put("UCO_FK_TER", "entity.user.plural"); // User configurations referencing Territory
+    constraintPatterns.put("UCO_FK_ROL", "entity.user.plural"); // User configurations referencing Role
+    constraintPatterns.put("POS_FK_USE", "entity.user.plural"); // User positions referencing User
+    constraintPatterns.put("POS_FK_TER", "entity.user.plural"); // User positions referencing Territory
+    constraintPatterns.put("COM_FK_APP", "entity.user.plural"); // Comments referencing Application
+    constraintPatterns.put("COM_FK_USE", "entity.user.plural"); // Comments referencing User
+    constraintPatterns.put("AGI_FK_GEO", "entity.territory.plural"); // Cartography availabilities referencing Cartography
+    constraintPatterns.put("AGI_FK_TER", "entity.territory.plural"); // Cartography availabilities referencing Territory
+    constraintPatterns.put("ATS_FK_TAS", "entity.territory.plural"); // Task availabilities referencing Task
+    constraintPatterns.put("ATS_FK_TER", "entity.territory.plural"); // Task availabilities referencing Territory
+    // Note: SGI_FK_GEO, PGI_FK_GEO, PSG_FK_GEO, GGG_FK_GEO have CASCADE DELETE, so they won't block deletion
+    // But we include them in case CASCADE is not working or for other scenarios
+    constraintPatterns.put("SGI_FK_GEO", "entity.cartography.plural"); // Styles referencing Cartography (deprecated defaultStyle)
+    // PGI, PSG, GGG have CASCADE, so they typically won't block, but include for completeness
+    constraintPatterns.put("FGI_FK_GEO", "entity.cartography.plural"); // Filters referencing Cartography (CASCADE)
+    constraintPatterns.put("GGG_FK_GGI", "entity.cartography-group.plural"); // Cartography permissions referencing Cartography Group
+    
+    // Priority 3: General entity prefixes (less specific)
+    constraintPatterns.put("TNO_", "entity.tree-node.plural");
+    constraintPatterns.put("TAS_", "entity.task.plural");
+    constraintPatterns.put("GEO_", "entity.cartography.plural");
+    constraintPatterns.put("APP_", "entity.application.plural");
+    constraintPatterns.put("ROL_", "entity.role.plural");
+    constraintPatterns.put("TER_", "entity.territory.plural");
+    constraintPatterns.put("USU_", "entity.user.plural");
+    constraintPatterns.put("SER_", "entity.service.plural");
+    constraintPatterns.put("CONN", "entity.connection.plural");
+    
+    // Priority 4: Least specific
+    constraintPatterns.put("BAC_", "entity.background.plural");
+    
+    // LinkedHashMap iteration preserves insertion order
+    for (Map.Entry<String, String> entry : constraintPatterns.entrySet()) {
+      if (upperConstraintName.contains(entry.getKey())) {
+        return entry.getValue();
+      }
+    }
+    
+    return null; // No mapping found - fallback to generic message
   }
 
   /** Handles Hibernate {@link jakarta.validation.ConstraintViolationException}. */
@@ -678,7 +1033,17 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ProblemDetail> handleAnyException(
       Exception exception, HttpServletRequest request) {
-    logger.error("Unhandled exception", exception);
+    // Safely extract exception info to avoid LazyInitializationException when logging
+    String exceptionInfo = exception.getClass().getName();
+    try {
+      String msg = exception.getMessage();
+      if (msg != null) {
+        exceptionInfo += ": " + msg;
+      }
+    } catch (Exception ignored) {
+      // Message may be unavailable (e.g., lazy-loaded properties)
+    }
+    logger.error("Unhandled exception: " + exceptionInfo);
 
     ProblemDetail problem =
         ProblemDetail.builder()
