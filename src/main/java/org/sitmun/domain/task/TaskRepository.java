@@ -37,11 +37,15 @@ public interface TaskRepository
   @EntityGraph(attributePaths = {"roles"})
   @Query(
       """
-    SELECT DISTINCT tsk 
+    SELECT tsk 
     FROM Task tsk
-    JOIN tsk.roles rol
-    JOIN tsk.availabilities tav
-    WHERE rol in ?1 AND tav.territory.id = ?2
+    WHERE tsk.id IN (
+      SELECT DISTINCT tsk2.id
+      FROM Task tsk2
+      JOIN tsk2.roles rol
+      JOIN tsk2.availabilities tav
+      WHERE rol in ?1 AND tav.territory.id = ?2
+    )
     """)
   List<Task> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
 

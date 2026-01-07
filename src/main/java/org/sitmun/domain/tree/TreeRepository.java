@@ -19,11 +19,15 @@ public interface TreeRepository extends JpaRepository<Tree, Integer> {
   @EntityGraph(attributePaths = {"availableRoles", "availableApplications"})
   @Query(
       """
-      SELECT DISTINCT tree 
+      SELECT tree 
       FROM Tree tree
-      JOIN tree.availableApplications app
-      JOIN tree.availableRoles role
-      WHERE app.id = ?1 AND role in ?2
+      WHERE tree.id IN (
+        SELECT DISTINCT tree2.id
+        FROM Tree tree2
+        JOIN tree2.availableApplications app
+        JOIN tree2.availableRoles role
+        WHERE app.id = ?1 AND role in ?2
+      )
       """)
   List<Tree> findByAppAndRoles(Integer appId, List<Role> roles);
 }
