@@ -15,14 +15,20 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY gradle.properties .
 COPY sonar.gradle .
-COPY src src
 
 # Make gradlew executable
 RUN chmod +x ./gradlew
-RUN ./gradlew dependencies --no-daemon
+
+# Download dependencies (cached until build files change)
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew dependencies --no-daemon
+
+# Copy source code (doesn't invalidate dependency layer)
+COPY src src
 
 # Build the application
-RUN ./gradlew bootJar --no-daemon
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew bootJar --no-daemon
 
 # Create a new stage for the runtime
 FROM amazoncorretto:${JDK_VERSION}.${JDK_TAG}-alpine${ALPINE_TAG}
