@@ -40,7 +40,19 @@ dependencyManagement {
   }
 }
 
+def packaging = (project.findProperty('packaging') ?: 'jar')
+
+if (packaging == 'war') {
+  apply plugin: 'war'
+}
+
 dependencies {
+
+  // If packaging as WAR, use provided Tomcat runtime
+  if (packaging == 'war') {
+    providedRuntime libs.spring.boot.starter.tomcat
+  }
+
   // Data persistence and REST API
   implementation libs.spring.boot.starter.data.jpa
   implementation libs.spring.boot.starter.data.rest
