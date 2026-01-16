@@ -27,6 +27,7 @@ bin/
 /update_db.sql
 /dist/
 .vscode/
+.cursor/
 /out-tsc/
 /authorization-service-ad.txt
 /todo.txt
