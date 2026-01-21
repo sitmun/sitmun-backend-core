@@ -1,46 +1,34 @@
 TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONNID,TAS_GIID,TAS_PARAMS
-1,Map Attribution (API SITNA),NULL,1,1,1,NULL,NULL,NULL,NULL
-2,Basemap Selector (API SITNA),NULL,1,1,2,NULL,NULL,NULL,NULL
-3,Map Click (API SITNA),NULL,1,1,3,NULL,NULL,NULL,NULL
-4,Coordinates Display (API SITNA),NULL,1,1,4,NULL,NULL,NULL,NULL
-5,Data Loader (API SITNA),NULL,1,1,5,NULL,NULL,NULL,"{""wmsSuggestions"": [{""group"": ""Nacional"",""items"": [{""name"": ""Mapa Base (IGN)"", ""url"": ""www.ign.es/wms-inspire/ign-base""},{""name"": ""Unidades Administrativas (IGN)"", ""url"": ""www.ign.es/wms-inspire/unidades-administrativas""},{""name"": ""Cartografía Topográfica (IGN)"", ""url"": ""www.ign.es/wms-inspire/mapa-raster""},{""name"": ""Ortofotos PNOA Máxima Actualidad (IGN)"", ""url"": ""www.ign.es/wms-inspire/pnoa-ma""}]}]}"
-6,Download Data (API SITNA),NULL,1,1,6,NULL,NULL,NULL,NULL
-7,"Draw, Measure and Modify (SILME extension)",NULL,1,1,7,NULL,NULL,NULL,NULL
-8,Feature Information (SILME extension),NULL,1,1,8,NULL,NULL,NULL,NULL
-9,Full Screen Mode (API SITNA),NULL,1,1,9,NULL,NULL,NULL,NULL
-10,Geolocation and GPS Tracking (API SITNA),NULL,1,1,10,NULL,NULL,NULL,NULL
-11,Layer Catalog (SILME extension),NULL,1,1,11,NULL,NULL,NULL,NULL
-12,Map Legend (API SITNA),NULL,1,1,12,NULL,NULL,NULL,NULL
-13,Loading Indicator (API SITNA),NULL,1,1,13,NULL,NULL,NULL,NULL
-14,Measure Distance and Area (API SITNA),NULL,1,1,14,NULL,NULL,NULL,NULL
-15,Multi Feature Information (API SITNA),NULL,1,1,15,NULL,NULL,NULL,NULL
-16,Navigation Bar (API SITNA),NULL,1,1,16,NULL,NULL,NULL,NULL
-17,Offline Map Maker (API SITNA),NULL,1,1,17,NULL,NULL,NULL,NULL
-18,Overview Map (API SITNA),NULL,1,1,18,NULL,NULL,NULL,NULL
-19,Popup Window (SILME patch),NULL,1,1,19,NULL,NULL,NULL,NULL
-20,Print Map (API SITNA),NULL,1,1,20,NULL,NULL,NULL,"{""parameters"":[{""name"":""div"",""type"":""string"",""value"":""print""},{""name"":""logo"",""type"":""string"",""value"":""https://ide.cime.es/stm3/admin/assets/img/logos/logo_sitmun.svg""},{""name"":""legend"",""type"":""object"",""value"":""{\""visible\"":true}""}]}"
-21,Scale Display (API SITNA),NULL,1,1,21,NULL,NULL,NULL,NULL
-22,Scale Bar (API SITNA),NULL,1,1,22,NULL,NULL,NULL,NULL
-23,Scale Selector (API SITNA),NULL,1,1,23,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE""}"
-24,Search (SILME extension),NULL,1,1,24,NULL,NULL,NULL,"{""placename"":{""url"":""https://ide.cime.es/geoserver2/base_referencia/wfs"",""featurePrefix"":""base_referencia"",""geometryName"":""the_geom"",""featureType"":""re007top_nomenclator_aux"",""dataIdProperty"":[""gid""],""queryProperties"":{""firstQueryWord"":[""nom"",""dstipus"",""dsmun"",""cerca""]},""suggestionListHead"":{""label"":""search.list.placename"",""color"":""strokeColor""},""outputProperties"":[""nom"",""dstipus"",""dsmun"",""gid""],""outputFormat"":""JSON"",""outputFormatLabel"":""{0} ({1}) - {2}"",""searchWeight"":7,""styles"":[{""point"":{""radius"":0,""label"":""nom"",""fontColor"":""#CB0000"",""fontSize"":14,""labelOutlineColor"":""#FFFFFF"",""labelOutlineWidth"":4}}]}}"
-25,Share Map (API SITNA),NULL,1,1,25,NULL,NULL,NULL,NULL
-26,Street View (SILME extension),NULL,1,1,26,NULL,NULL,NULL,NULL
-27,3D View (API SITNA),NULL,1,1,27,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE TERR_COD=${TERR_COD}""}"
-28,Table of Contents (API SITNA),NULL,1,1,28,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE USER_ID=${USER_ID} AND TERR_ID=${TERR_ID} AND APP_ID=${APP_ID} AND TERR_COD=${TERR_COD}""}"
-29,WFS Feature Editor (API SITNA),NULL,1,1,29,NULL,NULL,NULL,NULL
-30,WFS Layer Query (API SITNA),NULL,1,1,30,NULL,NULL,NULL,NULL
-31,Work Layer Manager (SILME extension),NULL,1,1,31,NULL,NULL,NULL,NULL
-#,,,,,,,,,
-# Modal UI,,,,,,,,,
-# - Welcome Pane (32),,,,,,,,,
-# - Help Panel (33),,,,,,,,,
-#,,,,,,,,,
-32,Welcome Panel (API SITNA),NULL,1,1,32,NULL,NULL,NULL,NULL
-33,Help Panel (API SITNA),NULL,1,1,33,NULL,NULL,NULL,NULL
-#,,,,,,,,,
-# Basemap Selector (SILME extension)
-#,,,,,,,,,
-34,Basemap Selector (SILME extension),NULL,1,1,34,NULL,NULL,NULL,NULL
+1,Map Attribution,NULL,1,1,1,NULL,NULL,NULL,NULL
+2,Basemap Selector,NULL,1,1,2,NULL,NULL,NULL,NULL
+3,Map Click,NULL,1,1,3,NULL,NULL,NULL,NULL
+4,Coordinates Display,NULL,1,1,4,NULL,NULL,NULL,NULL
+5,Data Loader,NULL,1,1,5,NULL,NULL,NULL,"{""wmsSuggestions"": [{""group"": ""Nacional"",""items"": [{""name"": ""Mapa Base (IGN)"", ""url"": ""www.ign.es/wms-inspire/ign-base""},{""name"": ""Unidades Administrativas (IGN)"", ""url"": ""www.ign.es/wms-inspire/unidades-administrativas""},{""name"": ""Cartografía Topográfica (IGN)"", ""url"": ""www.ign.es/wms-inspire/mapa-raster""},{""name"": ""Ortofotos PNOA Máxima Actualidad (IGN)"", ""url"": ""www.ign.es/wms-inspire/pnoa-ma""}]}]}"
+6,Download Data,NULL,1,1,6,NULL,NULL,NULL,NULL
+7,"Draw, Measure and Modify",NULL,1,1,7,NULL,NULL,NULL,NULL
+8,Feature Information,NULL,1,1,8,NULL,NULL,NULL,NULL
+9,Full Screen Mode,NULL,1,1,9,NULL,NULL,NULL,NULL
+10,Geolocation and GPS Tracking,NULL,1,1,10,NULL,NULL,NULL,NULL
+11,Layer Catalog,NULL,1,1,11,NULL,NULL,NULL,NULL
+12,Map Legend,NULL,1,1,12,NULL,NULL,NULL,NULL
+13,Loading Indicator,NULL,1,1,13,NULL,NULL,NULL,NULL
+14,Measure Distance and Area,NULL,1,1,14,NULL,NULL,NULL,NULL
+15,Multi Feature Information,NULL,1,1,15,NULL,NULL,NULL,NULL
+16,Navigation Bar,NULL,1,1,16,NULL,NULL,NULL,NULL
+17,Offline Map Maker (disabled by default in viewer),NULL,1,1,17,NULL,NULL,NULL,NULL
+18,Overview Map,NULL,1,1,18,NULL,NULL,NULL,NULL
+19,Popup Window,NULL,1,1,19,NULL,NULL,NULL,NULL
+20,Print Map,NULL,1,1,20,NULL,NULL,NULL,"{""parameters"":[{""name"":""div"",""type"":""string"",""value"":""print""},{""name"":""logo"",""type"":""string"",""value"":""https://ide.cime.es/stm3/admin/assets/img/logos/logo_sitmun.svg""},{""name"":""legend"",""type"":""object"",""value"":""{\""visible\"":true}""}]}"
+21,Scale Display,NULL,1,1,21,NULL,NULL,NULL,NULL
+22,Scale Bar,NULL,1,1,22,NULL,NULL,NULL,NULL
+23,Scale Selector,NULL,1,1,23,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE""}"
+24,Search,NULL,1,1,24,NULL,NULL,NULL,"{""placename"":{""url"":""https://ide.cime.es/geoserver2/base_referencia/wfs"",""featurePrefix"":""base_referencia"",""geometryName"":""the_geom"",""featureType"":""re007top_nomenclator_aux"",""dataIdProperty"":[""gid""],""queryProperties"":{""firstQueryWord"":[""nom"",""dstipus"",""dsmun"",""cerca""]},""suggestionListHead"":{""label"":""search.list.placename"",""color"":""strokeColor""},""outputProperties"":[""nom"",""dstipus"",""dsmun"",""gid""],""outputFormat"":""JSON"",""outputFormatLabel"":""{0} ({1}) - {2}"",""searchWeight"":7,""styles"":[{""point"":{""radius"":0,""label"":""nom"",""fontColor"":""#CB0000"",""fontSize"":14,""labelOutlineColor"":""#FFFFFF"",""labelOutlineWidth"":4}}]}}"
+25,Share Map,NULL,1,1,25,NULL,NULL,NULL,NULL
+26,Street View,NULL,1,1,26,NULL,NULL,NULL,NULL
+27,3D View,NULL,1,1,27,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE TERR_COD=${TERR_COD}""}"
+29,WFS Feature Editor (disabled by default in viewer),NULL,1,1,29,NULL,NULL,NULL,NULL
+30,WFS Layer Query,NULL,1,1,30,NULL,NULL,NULL,NULL
+31,Work Layer Manager,NULL,1,1,31,NULL,NULL,NULL,NULL
 #,,,,,,,,,
 # Query tasks
 #,,,,,,,,,
