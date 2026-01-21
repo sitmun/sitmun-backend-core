@@ -273,7 +273,16 @@ public abstract class ProfileMapper {
     copyDefaultZoomLevelFromTerritory(applicationDto, profile);
     copyPointFromTerritory(applicationDto, profile);
     copySrsFromTerritory(applicationDto, profile);
+    copySituationMap(applicationDto, profile);
     builder.application(applicationDto);
+  }
+
+  /** Maps situation-map from Application to ApplicationDto. */
+  final void copySituationMap(ApplicationDto applicationDto, Profile profile) {
+    CartographyPermission situationMap = profile.getApplication().getSituationMap();
+    if (situationMap != null) {
+      applicationDto.setSituationMap(mapCartographyPermissionToString(situationMap));
+    }
   }
 
   Map<String, String> map(List<ConfigurationParameter> global) {

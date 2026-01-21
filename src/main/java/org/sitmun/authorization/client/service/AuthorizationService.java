@@ -263,6 +263,36 @@ public class AuthorizationService {
     List<org.sitmun.domain.service.Service> services = new ArrayList<>();
     layers.forEach(layer -> services.add(layer.getService()));
     tasks.forEach(task -> services.add(task.getService()));
+
+    // Add situation-map group, layers, and services if application has one
+    CartographyPermission situationMap = application.get().getSituationMap();
+    if (situationMap != null) {
+      translationService.updateInternationalization(situationMap);
+      // Add situation-map group if not already present
+      if (!cartographyPermissions.contains(situationMap)) {
+        cartographyPermissions.add(situationMap);
+      }
+      // Add situation-map layers (members) if not already present
+      if (situationMap.getMembers() != null) {
+        Set<Integer> existingLayerIds =
+            layers.stream().map(Cartography::getId).collect(Collectors.toSet());
+        List<Cartography> situationMapLayers =
+            situationMap.getMembers().stream()
+                .filter(
+                    member ->
+                        !existingLayerIds.contains(member.getId())
+                            && member.getService() != null)
+                .collect(Collectors.toList());
+        situationMapLayers.forEach(translationService::updateInternationalization);
+        layers.addAll(situationMapLayers);
+        // Add services from situation-map layers
+        situationMapLayers.stream()
+            .map(Cartography::getService)
+            .filter(Objects::nonNull)
+            .forEach(services::add);
+      }
+    }
+
     List<org.sitmun.domain.service.Service> filteredServices =
         services.stream()
             .filter(Objects::nonNull)
@@ -329,6 +359,15 @@ public class AuthorizationService {
     // - Do not belong to a node
     // - Do not belong to a task
     // - Do not belong to a background
+    // - Do not belong to the situation-map
+
+    CartographyPermission situationMap = profile.getApplication().getSituationMap();
+    Set<Integer> situationMapLayerIds =
+        situationMap != null && situationMap.getMembers() != null
+            ? situationMap.getMembers().stream()
+                .map(Cartography::getId)
+                .collect(Collectors.toSet())
+            : Collections.emptySet();
 
     profile
         .getLayers()
@@ -359,17 +398,23 @@ public class AuthorizationService {
                                   .stream())
                       .anyMatch(member -> Objects.equals(member.getId(), layer.getId()));
 
+              boolean belongsToSituationMap =
+                  situationMapLayerIds.contains(layer.getId());
+
               log.info(
-                  "Layer {} belongs to node: {}, task: {}, background: {} => remove: {}",
+                  "Layer {} belongs to node: {}, task: {}, background: {}, situation-map: {} => remove: {}",
                   layer.getId(),
                   belongsToNode,
                   belongsToTask,
                   belongsToBackground,
-                  !belongsToNode && !belongsToTask && !belongsToBackground);
-              return !belongsToNode && !belongsToTask && !belongsToBackground;
+                  belongsToSituationMap,
+                  !belongsToNode && !belongsToTask && !belongsToBackground && !belongsToSituationMap);
+              return !belongsToNode && !belongsToTask && !belongsToBackground && !belongsToSituationMap;
             });
 
-    // Prune groups that are not related to backgrounds
+    // Prune groups that are not related to backgrounds or situation-map
+    Integer situationMapId =
+        situationMap != null ? situationMap.getId() : null;
     profile
         .getGroups()
         .removeIf(
@@ -381,18 +426,23 @@ public class AuthorizationService {
                               Optional.ofNullable(background.getCartographyGroup()).stream())
                       .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
 
+              boolean isSituationMap =
+                  Objects.equals(permission.getId(), situationMapId);
+
               log.info(
-                  "Group {} belongs to background: {} => remove: {}",
+                  "Group {} belongs to background: {}, is situation-map: {} => remove: {}",
                   permission.getId(),
                   belongsToBackground,
-                  !belongsToBackground);
-              return !belongsToBackground;
+                  isSituationMap,
+                  !belongsToBackground && !isSituationMap);
+              return !belongsToBackground && !isSituationMap;
             });
 
     // Prune services that either:
     // - Do not belong to a task
     // - Do not belong to a node
     // - Do not belong to a layer
+    // Note: Services from situation-map layers are already included in layers list
     profile
         .getServices()
         .removeIf(
