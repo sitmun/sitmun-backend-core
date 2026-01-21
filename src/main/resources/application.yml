@@ -68,8 +68,8 @@ management:
 # ===================================================================
 
 sitmun:
-  module: SITMUN Core
-  version: "3"
+  module: SITMUN 3 Backend Core
+  version: "1.2.0-rc.1"
   language: en
   user:
     secret: 9ef80c644166846897f6a87d3cf6ab204d144229

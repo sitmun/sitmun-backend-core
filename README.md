@@ -1,9 +1,9 @@
-[![CI](https://github.com/sitmun/sitmun-backend-core/actions/workflows/ci.yml/badge.svg)](https://github.com/sitmun/sitmun-backend-core/actions/workflows/ci.yml)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.sitmun%3Asitmun-backend-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=org.sitmun%3Asitmun-backend-core)
+[![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-1.2.0--rc.1-blue.svg)
 
 # SITMUN Backend Core
 
-A Spring Boot microservice that provides comprehensive REST API functionality for geospatial application management, user authorization, and authentication for the SITMUN Map Viewer. This service is part of the [SITMUN](https://sitmun.github.io/) geospatial platform ecosystem.
+Spring Boot service providing REST APIs for geospatial application management, authentication, and configuration in the [SITMUN](https://sitmun.github.io/) platform.
 
 ## Table of Contents
 
@@ -48,18 +48,16 @@ A Spring Boot microservice that provides comprehensive REST API functionality fo
 
 ## Overview
 
-The SITMUN Backend Core provides comprehensive backend functionality to:
+SITMUN Backend Core provides:
 
-- **User Management**: Complete user authentication, authorization, and account management
-- **Application Management**: Geospatial application configuration and deployment
-- **Cartography Services**: WMS, WFS, WMTS service management and configuration
-- **Territory Management**: Multi-level territorial organization and access control
-- **Task Management**: Geospatial task execution and workflow management
-- **Database Integration**: Support for multiple database systems (H2, PostgreSQL, Oracle)
-- **Security Layer**: JWT-based authentication with role-based access control
-- **API Documentation**: Comprehensive OpenAPI/Swagger documentation
+- User authentication, authorization, and account management
+- Application and territory configuration
+- Cartography services (WMS, WFS, WMTS)
+- Task management and execution
+- Database support (H2, PostgreSQL, Oracle)
+- JWT-based security and OpenAPI documentation
 
-This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/sitmun-map-viewer) and [SITMUN Proxy Middleware](https://github.com/sitmun/sitmun-proxy-middleware) to provide a complete geospatial platform solution.
+Integrates with the [SITMUN Map Viewer](https://github.com/sitmun/sitmun-map-viewer) and [SITMUN Proxy Middleware](https://github.com/sitmun/sitmun-proxy-middleware).
 
 ## Quick Start
 
@@ -74,17 +72,20 @@ This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/s
 ### Local Development
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/sitmun/sitmun-backend-core.git
    cd sitmun-backend-core
    ```
 
 2. **Build the application**
+
    ```bash
    ./gradlew build -x test
    ```
 
 3. **Run the application**
+
    ```bash
    # Run with Java directly (recommended)
    java -jar build/libs/sitmun-backend-core.jar --spring.profiles.active=dev
@@ -94,6 +95,7 @@ This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/s
    ```
 
 4. **Verify the service is running**
+
    ```bash
    # Check health status
    curl http://localhost:8080/api/dashboard/health
@@ -107,24 +109,28 @@ This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/s
 ### Docker Deployment
 
 1. **Start with Docker Compose (H2 - Development)**
+
    ```bash
    cd docker/development
    docker-compose up
    ```
 
 2. **PostgreSQL Database**
+
    ```bash
    cd docker/postgres
    docker-compose up
    ```
 
 3. **Oracle Database**
+
    ```bash
    cd docker/oracle
    docker-compose up
    ```
 
 4. **Verify deployment**
+
    ```bash
    curl http://localhost:8080/api/dashboard/health
    ```
@@ -132,18 +138,21 @@ This service integrates with the [SITMUN Map Viewer](https://github.com/sitmun/s
 ### Troubleshooting
 
 #### Port Already in Use
+
 ```bash
 # Use different port
 ./gradlew bootRun --args='--spring.profiles.active=dev --server.port=8081'
 ```
 
 #### Memory Issues
+
 ```bash
 # Increase heap size
 ./gradlew bootRun --args='--spring.profiles.active=dev -Xmx4g -Xms2g'
 ```
 
 #### Docker Issues
+
 ```bash
 # Clean up Docker resources
 cd docker/development
@@ -152,6 +161,7 @@ docker system prune -f
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Check database connectivity
 docker exec sitmun-backend ping postgres
@@ -189,6 +199,7 @@ curl http://localhost:8080/api/dashboard/health
 ### Usage Examples
 
 #### Authentication
+
 ```bash
 # Login
 curl -X POST http://localhost:8080/api/authenticate \
@@ -202,6 +213,7 @@ curl -X POST http://localhost:8080/api/authenticate \
 ```
 
 #### Health Check
+
 ```bash
 curl http://localhost:8080/api/dashboard/health
 
@@ -212,6 +224,7 @@ curl http://localhost:8080/api/dashboard/health
 ```
 
 #### User Verification
+
 ```bash
 # Verify password
 curl -X POST http://localhost:8080/api/user-verification/verify-password \
@@ -225,6 +238,7 @@ curl -X POST http://localhost:8080/api/user-verification/verify-email \
 ```
 
 #### Password Recovery
+
 ```bash
 # Request password recovery
 curl -X POST http://localhost:8080/api/recover-password \
@@ -238,6 +252,7 @@ curl -X PUT http://localhost:8080/api/recover-password \
 ```
 
 #### Database Connection Testing
+
 ```bash
 # Test existing connection
 curl -X GET http://localhost:8080/api/connections/1/test
@@ -255,6 +270,7 @@ curl -X POST http://localhost:8080/api/connections/test \
 ```
 
 #### Service Capabilities Extraction
+
 ```bash
 # Extract WMS capabilities
 curl -X GET "http://localhost:8080/api/helpers/capabilities?url=http://example.com/wms"
@@ -266,6 +282,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ### Request Parameters
 
 #### Authentication Request
+
 ```json
 {
   "username": "string",
@@ -274,6 +291,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ```
 
 #### Proxy Configuration Request
+
 ```json
 {
   "appId": "integer",
@@ -285,6 +303,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ```
 
 #### Password Recovery Request
+
 ```json
 {
   "login": "string"
@@ -292,6 +311,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ```
 
 #### Password Reset Request
+
 ```json
 {
   "token": "string",
@@ -300,6 +320,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ```
 
 #### Database Connection Test Request
+
 ```json
 {
   "name": "string",
@@ -336,6 +357,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ### Configuration Files
 
 #### Application Configuration (`application.yml`)
+
 ```yaml
 spring:
   application:
@@ -360,6 +382,7 @@ sitmun:
 #### Database Configuration Examples
 
 **PostgreSQL:**
+
 ```yaml
 spring:
   profiles:
@@ -375,6 +398,7 @@ spring:
 ```
 
 **Oracle:**
+
 ```yaml
 spring:
   profiles:
@@ -555,6 +579,7 @@ The application provides comprehensive security features:
 - **Password Security**: Secure password storage and validation
 
 #### JWT Token Configuration
+
 ```yaml
 sitmun:
   user:
@@ -563,6 +588,7 @@ sitmun:
 ```
 
 #### LDAP Configuration
+
 ```yaml
 spring:
   profiles:
@@ -681,6 +707,7 @@ networks:
 The Backend Core supports different service types that can be configured:
 
 #### WMS Services
+
 ```json
 {
   "type": "wms",
@@ -695,6 +722,7 @@ The Backend Core supports different service types that can be configured:
 ```
 
 #### WFS Services
+
 ```json
 {
   "type": "wfs",
@@ -708,6 +736,7 @@ The Backend Core supports different service types that can be configured:
 ```
 
 #### JDBC Services
+
 ```json
 {
   "type": "jdbc",
@@ -723,6 +752,7 @@ The Backend Core supports different service types that can be configured:
 #### Common Issues
 
 1. **Database Connection Failures**
+
    ```bash
    # Check database connectivity
    docker exec sitmun-backend ping postgres
@@ -732,6 +762,7 @@ The Backend Core supports different service types that can be configured:
    ```
 
 2. **Authentication Failures**
+
    ```bash
    # Check JWT token format
    curl -H "Authorization: Bearer your-token" http://localhost:8080/api/account
@@ -743,6 +774,7 @@ The Backend Core supports different service types that can be configured:
    ```
 
 3. **LDAP Configuration Issues**
+
    ```bash
    # Test LDAP connection
    curl -X POST http://localhost:8080/api/authenticate \
@@ -779,6 +811,7 @@ docker-compose restart sitmun-backend
 - Update documentation as needed
 
 #### Conventional Commit Format
+
 ```
 type(scope): description
 
@@ -788,6 +821,7 @@ type(scope): description
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -800,6 +834,7 @@ type(scope): description
 - `build`: Build system changes
 
 **Examples:**
+
 ```bash
 git commit -m "feat(auth): add LDAP authentication support"
 git commit -m "fix(api): resolve JWT token validation issue"
@@ -809,6 +844,7 @@ git commit -m "style: format code with Google Java Format"
 ```
 
 #### Managing Git Hooks
+
 ```bash
 # Install Git hooks (automatic with build)
 ./gradlew setupGitHooks
