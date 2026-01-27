@@ -13,6 +13,7 @@ Spring Boot service providing REST APIs for geospatial application management, a
   - [Local Development](#local-development)
   - [Docker Deployment](#docker-deployment)
   - [Troubleshooting](#troubleshooting)
+  - [Packaging Options](#packaging-options)
 - [API Reference](#api-reference)
   - [Endpoints](#endpoints)
   - [Usage Examples](#usage-examples)
@@ -170,6 +171,103 @@ docker exec sitmun-backend ping oracle
 # Verify database configuration
 curl http://localhost:8080/api/dashboard/health
 ```
+
+### Packaging Options
+
+The application supports two packaging formats:
+
+#### JAR (Default)
+
+Standalone executable JAR with embedded Tomcat server.
+
+```bash
+# Build JAR (default)
+./gradlew build
+
+# Or explicitly
+./gradlew build -Ppackaging=jar
+
+# Run JAR
+java -jar build/libs/sitmun-backend-core.jar --spring.profiles.active=dev
+```
+
+**Use JAR when:**
+
+- Deploying with Docker (only JAR is supported)
+- Deploying to Heroku (only JAR is supported)
+- Running as a standalone microservice
+- Using Spring Boot's embedded server
+
+#### WAR
+
+Web Application Archive for deployment to external servlet containers.
+
+```bash
+# Build WAR
+./gradlew build -Ppackaging=war
+
+# Output: build/libs/sitmun-backend-core.war
+```
+
+**Use WAR when:**
+
+- Deploying to existing Tomcat, WildFly, or WebSphere servers
+- Required by organizational infrastructure policies
+- Need to run multiple applications on the same servlet container
+
+**Deployment Example (Tomcat):**
+
+```bash
+# Copy WAR to Tomcat
+cp build/libs/sitmun-backend-core.war /path/to/tomcat/webapps/
+
+# Tomcat will auto-deploy at:
+# http://localhost:8080/sitmun-backend-core/
+
+# Or rename to ROOT.war for root context:
+cp build/libs/sitmun-backend-core.war /path/to/tomcat/webapps/ROOT.war
+# http://localhost:8080/
+```
+
+**Configuring Active Profile for WAR:**
+
+Unlike JAR files, WAR files cannot use command-line arguments. Configure the active profile using one of these methods:
+
+**Method 1: Environment Variable (Recommended)**
+
+Set the environment variable in your servlet container:
+
+```bash
+# For Tomcat, add to setenv.sh (or setenv.bat on Windows)
+export SPRING_PROFILES_ACTIVE=prod
+
+# For systemd service
+[Service]
+Environment="SPRING_PROFILES_ACTIVE=prod"
+```
+
+**Method 2: System Property**
+
+Add to your servlet container's startup script:
+
+```bash
+# For Tomcat, add to catalina.sh
+export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=prod"
+```
+
+**Method 3: JNDI (Enterprise Deployments)**
+
+For application servers like WildFly or WebSphere, configure via JNDI or server configuration.
+
+**Method 4: application.properties in WAR**
+
+You can also include a `WEB-INF/classes/application.properties` file in the WAR with:
+
+```properties
+spring.profiles.active=prod
+```
+
+**Note:** The `ServletInitializer` class enables WAR deployment by configuring the application for external servlet containers.
 
 ## API Reference
 

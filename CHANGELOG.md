@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Parametrizable build output: Support for JAR or WAR packaging via `-Ppackaging` property ([6736c21](https://github.com/sitmun/sitmun-backend-core/commit/6736c21))
+- ServletInitializer for WAR deployment to external servlet containers (Tomcat, WildFly, WebSphere)
 - Entity graphs for cartography and task repositories ([a952e8e](https://github.com/sitmun/sitmun-backend-core/commit/a952e8e))
 - Tree type validation endpoint ([66b3ac0](https://github.com/sitmun/sitmun-backend-core/commit/66b3ac0))
 - CRS support in service profile mapping ([0abf7ca](https://github.com/sitmun/sitmun-backend-core/commit/0abf7ca))
@@ -43,6 +45,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Removed
 
 - Stale test removal ([f37adeb](https://github.com/sitmun/sitmun-backend-core/commit/f37adeb))
+
+### Notes
+
+- Docker and Heroku deployments only support JAR format (default)
+- WAR builds intended for deployment to external application servers (Tomcat, WildFly, WebSphere)
 
 ## [1.1.1] - 2025-08-28
 
