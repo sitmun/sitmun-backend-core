@@ -27,6 +27,8 @@ RUN --mount=type=cache,target=/root/.gradle \
 COPY src src
 
 # Build the application
+# Docker builds use JAR packaging only (default)
+# For WAR builds, use: ./gradlew build -Ppackaging=war locally and deploy to servlet container
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew bootJar --no-daemon
 

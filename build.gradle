@@ -40,7 +40,19 @@ dependencyManagement {
   }
 }
 
+def packaging = (project.findProperty('packaging') ?: 'jar')
+
+if (packaging == 'war') {
+  apply plugin: 'war'
+}
+
 dependencies {
+
+  // If packaging as WAR, use provided Tomcat runtime
+  if (packaging == 'war') {
+    providedRuntime libs.spring.boot.starter.tomcat
+  }
+
   // Data persistence and REST API
   implementation libs.spring.boot.starter.data.jpa
   implementation libs.spring.boot.starter.data.rest
@@ -140,6 +152,14 @@ dependencies {
 tasks.register('stage') {
   group = 'Heroku'
   description = 'Prepare application for Heroku deployment'
+  
+  doFirst {
+    // Heroku requires JAR packaging
+    if (packaging == 'war') {
+      throw new GradleException("Heroku deployment requires JAR packaging. Remove -Ppackaging=war or use default JAR build.")
+    }
+  }
+  
   dependsOn ':processResources', ':bootJar'
   
   doLast {
@@ -166,7 +186,7 @@ heroku {
 // Deploy to Heroku
 tasks.named("deployHeroku") {
   group = 'Heroku'
-  description = 'Deploy the application to Heroku'
+  description = 'Deploy the application to Heroku (JAR packaging only)'
   dependsOn 'stage'
   
   doLast {
