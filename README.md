@@ -51,7 +51,8 @@ Spring Boot service providing REST APIs for geospatial application management, a
 
 SITMUN Backend Core provides:
 
-- User authentication, authorization, and account management
+- Multiple authentication methods (Database, LDAP, OIDC/OAuth2)
+- User authorization and account management
 - Application and territory configuration
 - Cartography services (WMS, WFS, WMTS)
 - Task management and execution
@@ -441,6 +442,11 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 | `SPRING_DATASOURCE_PASSWORD` | Database password | `` | Yes (prod) |
 | `SITMUN_USER_SECRET` | JWT signing secret | Auto-generated | No |
 | `SITMUN_PROXY_MIDDLEWARE_SECRET` | Proxy middleware secret | Auto-generated | No |
+| `SITMUN_AUTHENTICATION_OIDC_ENABLED` | Enable OIDC authentication | `false` | No |
+| `SITMUN_FRONTEND_REDIRECT_URL` | Frontend callback URL for OIDC | `http://localhost:4200/auth/callback` | No |
+| `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | - | If OIDC enabled |
+
+**Note:** OIDC providers are configured dynamically under `sitmun.authentication.oidc.providers.{providerId}`. See [OIDC Configuration](#oidcoauth2-configuration) for details.
 
 ### Profiles
 
@@ -449,6 +455,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 - **postgres**: PostgreSQL database configuration
 - **oracle**: Oracle database configuration
 - **ldap**: LDAP authentication enabled
+- **oidc**: OpenID Connect authentication enabled (requires OAuth2 client configuration)
 - **mail**: Email functionality enabled
 - **prod**: Production configuration with security optimizations
 
@@ -674,6 +681,7 @@ The application provides comprehensive security features:
 - **Application Privacy**: Applications can be marked as private
 - **Public User Support**: Anonymous access with restrictions
 - **LDAP Integration**: Enterprise authentication support
+- **OIDC/OAuth2 Integration**: External identity provider support (Apereo CAS, Azure AD, etc.)
 - **Password Security**: Secure password storage and validation
 
 #### JWT Token Configuration
@@ -697,6 +705,78 @@ spring:
     username: cn=admin,dc=example,dc=com
     password: admin_password
 ```
+
+#### OIDC/OAuth2 Configuration
+
+Enable OIDC authentication with external identity providers:
+
+```yaml
+spring:
+  profiles:
+    active: oidc
+
+sitmun:
+  authentication:
+    oidc:
+      enabled: true
+      frontend-redirect-url: "https://frontend.example.com/callback"
+      http-only-cookie: false
+      providers:
+        cas:
+          provider-name: "cas"
+          display-name: "Corporate Identity Provider"
+          image-path: "https://cdn.example.com/images/idp-logo.png"
+          # IdP endpoints - your identity provider URLs
+          issuer-uri: "https://idp.example.com/oidc"
+          authorization-uri: "https://idp.example.com/oidc/authorize"
+          token-uri: "https://idp.example.com/oidc/token"
+          user-info-uri: "https://idp.example.com/oidc/userinfo"
+          jwk-set-uri: "https://idp.example.com/oidc/jwks"
+          # OAuth2 client credentials (registered at IdP)
+          client-id: "your-client-id"
+          client-secret: "your-client-secret"
+          # Backend callback URL - where IdP redirects after authentication
+          redirect-uri: "https://backend.example.com/login/oauth2/code/cas"
+          scope: "openid,profile,email"
+```
+
+**Environment Variables:**
+
+| Property | Environment Variable |
+|----------|---------------------|
+| `sitmun.authentication.oidc.enabled` | `SITMUN_AUTHENTICATION_OIDC_ENABLED` |
+| `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` |
+| `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` |
+| `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` |
+| `sitmun.authentication.oidc.providers.{id}.display-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_DISPLAYNAME` |
+| `sitmun.authentication.oidc.providers.{id}.image-path` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_IMAGEPATH` |
+| `sitmun.authentication.oidc.providers.{id}.issuer-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_ISSUERURI` |
+| `sitmun.authentication.oidc.providers.{id}.authorization-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_AUTHORIZATIONURI` |
+| `sitmun.authentication.oidc.providers.{id}.token-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_TOKENURI` |
+| `sitmun.authentication.oidc.providers.{id}.user-info-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERINFOURI` |
+| `sitmun.authentication.oidc.providers.{id}.jwk-set-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_JWKSETURI` |
+| `sitmun.authentication.oidc.providers.{id}.client-id` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTID` |
+| `sitmun.authentication.oidc.providers.{id}.client-secret` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTSECRET` |
+| `sitmun.authentication.oidc.providers.{id}.redirect-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_REDIRECTURI` |
+| `sitmun.authentication.oidc.providers.{id}.scope` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_SCOPE` |
+
+**OIDC Features:**
+
+- Multiple provider support (CAS, Azure AD, Google, GitHub, etc.)
+- Dynamic provider discovery via `/api/auth/enabled-methods`
+- User must exist in local database (no auto-provisioning)
+- Configurable cookie security settings
+- Automatic redirect to frontend after authentication
+
+**OIDC Flow:**
+
+1. Frontend calls `/api/auth/enabled-methods` to discover available providers
+2. User clicks on OIDC provider (e.g., "Login with CAS")
+3. Frontend redirects to `/oauth2/authorization/{providerId}`
+4. User authenticates at external provider
+5. Provider redirects back to `/login/oauth2/code/{providerId}`
+6. Backend validates user, generates JWT, sets cookie and redirects to frontend
+7. Frontend extracts token from `oidc_token` cookie
 
 ### Monitoring and Observability
 

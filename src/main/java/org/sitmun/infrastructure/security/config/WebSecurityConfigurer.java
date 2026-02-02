@@ -4,6 +4,9 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 
 import java.util.List;
+
+import org.sitmun.authentication.handler.OidcAuthenticationFailureHandler;
+import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
@@ -14,6 +17,8 @@ import org.sitmun.infrastructure.security.storage.PasswordStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -134,7 +139,30 @@ public class WebSecurityConfigurer {
     return new CorsFilter(corsConfigurationSource());
   }
 
+  @Profile("oidc")
   @Bean
+  @Order(1)
+  public SecurityFilterChain oidcSecurityFilterChain(
+      HttpSecurity http,
+      OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler,
+      OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler) throws Exception {
+    http
+      .securityMatcher("/oauth2/**", "/login/oauth2/**")
+      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+      .csrf(AbstractHttpConfigurer::disable)
+      .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+      .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+      .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+      .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
+      .oauth2Login(oauth2 -> {
+        oauth2.successHandler(oidcAuthenticationSuccessHandler);
+        oauth2.failureHandler(oidcAuthenticationFailureHandler);
+      });
+    return http.build();
+  }
+
+  @Bean
+  @Order(2)
   @SuppressWarnings("squid:S4502")
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -195,6 +223,8 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/configuration-parameters"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/account/public/**"))
+        .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/auth/enabled-methods"))
         .permitAll();
   }
 

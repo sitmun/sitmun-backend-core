@@ -12,6 +12,11 @@ info:
     La **API de Autenticación** expone vía una API Web mecanismos para interactuar con el sistema de seguridad
     de SITMUN. Esta API se ha creado para que la **aplicación de administración** y los **visores de mapas** obtengan,
     tras pasar las credenciales de usuario, el JSON Web Token necesario para operar con el resto de las API.
+    
+    **Métodos de autenticación soportados:**
+    - **Usuario/Contraseña**: Autenticación directa con credenciales almacenadas en base de datos
+    - **LDAP**: Autenticación contra un servidor LDAP externo
+    - **OIDC (OpenID Connect)**: Autenticación delegada a proveedores externos (Apereo CAS, Azure AD, GitHub, etc.)
 
     ---
 
@@ -34,6 +39,68 @@ tags:
   - name: Autenticación
 
 paths:
+
+  /api/auth/enabled-methods:
+    get:
+      tags:
+        - Autenticación
+      summary: Obtiene información acerca de los métodos de autenticación disponibles.
+      description: |-
+        Este endpoint permite al frontend descubrir qué métodos de autenticación están activos en el backend.
+        
+        Devuelve una lista de proveedores de autenticación disponibles:
+        - **database**: Autenticación con usuario y contraseña (siempre disponible)
+        - **ldap**: Autenticación LDAP (si está habilitado el perfil 'ldap')
+        - **oidc**: Autenticación OpenID Connect con proveedores externos (si está habilitado el perfil 'oidc')
+        
+        Para OIDC, también devuelve la lista de proveedores configurados (Apereo CAS, Azure AD, GitHub, etc.)
+        con la información necesaria para el frontend.
+      operationId: getEnabledAuthMethods
+      responses:
+        '200':
+          description: Lista de métodos de autenticación disponibles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnabledMethodsResponse'
+              examples:
+                only-database:
+                  summary: Solo autenticación con base de datos (configuración por defecto)
+                  value:
+                    - id: "database"
+                      providers: null
+                database-and-ldap:
+                  summary: Base de datos + LDAP (sin OIDC)
+                  value:
+                    - id: "database"
+                      providers: null
+                    - id: "ldap"
+                      providers: null
+                with-oidc:
+                  summary: Base de datos + OIDC con 0-N proveedores (2 en el caso de ejemplo)
+                  value:
+                    - id: "database"
+                      providers: null
+                    - id: "oidc"
+                      providers:
+                        - providerName: "cas"
+                          displayName: "Apereo CAS"
+                          imagePath: "https://some.image.server/images/cas.png"
+                        - providerName: "entraid"
+                          displayName: "Entra ID"
+                          imagePath: "https://some.image.server/images/entraid.png"
+                all-methods:
+                  summary: Todos los métodos habilitados (base de datos + LDAP + OIDC)
+                  value:
+                    - id: "database"
+                      providers: null
+                    - id: "ldap"
+                      providers: null
+                    - id: "oidc"
+                      providers:
+                        - providerName: "cas"
+                          displayName: "Apereo CAS"
+                          imagePath: "https://some.image.server/images/cas.png"
 
   /api/authenticate:
     post:
@@ -65,10 +132,198 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /oauth2/authorization/{providerId}:
+    get:
+      tags:
+        - Autenticación
+      summary: Inicia el flujo de autenticación OIDC con un proveedor específico.
+      description: |-
+        **Endpoint gestionado automáticamente por Spring Security OAuth2.**
+        
+        Este endpoint redirige al usuario al proveedor de identidad OIDC configurado (Apereo CAS, Azure AD, GitHub, etc.)
+        para iniciar el flujo de autenticación OAuth2/OpenID Connect.
+        
+        **Flujo de autenticación OIDC:**
+        1. El frontend redirige al usuario a este endpoint
+        2. El backend redirige al proveedor OIDC (ej: login de Apereo CAS)
+        3. El usuario se autentica en el proveedor
+        4. El proveedor redirige de vuelta a `/login/oauth2/code/{providerId}`
+        5. Spring Security procesa el código de autorización
+        6. Se invoca `OidcAuthenticationSuccessHandler` que genera el JWT (validando el usuario en base de datos, no lo crea)
+        7. El backend establece una cookie `oidc_token` y redirige al frontend
+        8. El frontend extrae el JWT de la cookie y lo usa para futuras llamadas a la API
+
+      operationId: initiateOidcLogin
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          description: |-
+            Identificador del proveedor OIDC configurado en `application.yml` y/o `variables de entorno`.
+            
+            Ejemplos: `cas`, `entraid`, `azure`, `okta`
+          schema:
+            type: string
+            example: cas
+      responses:
+        '302':
+          description: |-
+            Redirección al proveedor de identidad OIDC para autenticación.
+          headers:
+            Location:
+              description: URL del proveedor de identidad OIDC
+              schema:
+                type: string
+                example: https://some.apereo.com/cas/oidc/authorize
+
+  /login/oauth2/code/{providerId}:
+    get:
+      tags:
+        - Autenticación
+      summary: Callback de autorización OIDC (gestionado automáticamente por Spring Security).
+      description: |-
+        **Endpoint gestionado automáticamente por Spring Security OAuth2.**
+        
+        Este endpoint recibe el código de autorización del proveedor OIDC, y lo intercambia por un JWT.
+        
+        **Proceso interno (éxito):**
+        1. Spring Security intercepta la petición
+        2. Valida el código de autorización con el proveedor OIDC
+        3. Obtiene los tokens (access_token, id_token)
+        4. Extrae la información del usuario (OidcUser)
+        5. Invoca `OidcAuthenticationSuccessHandler`
+        6. Se genera un JWT local y se establece en una cookie
+        7. Redirige al frontend a la URL configurada en `sitmun.authentication.oidc.frontend-redirect-url`
+        
+        **Proceso interno (error):**
+        1. Spring Security detecta el error
+        2. Invoca `OidcAuthenticationFailureHandler`
+        3. Registra el error en los logs
+        4. Redirige al frontend a la URL configurada
+
+      operationId: handleOidcCallback
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          description: Identificador del proveedor OIDC
+          schema:
+            type: string
+            example: cas
+        - name: code
+          in: query
+          required: true
+          description: Código de autorización proporcionado por el proveedor OIDC
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          description: Parámetro de seguridad para prevenir ataques CSRF
+          schema:
+            type: string
+      responses:
+        '302':
+          description: |-
+            El backend establece una cookie `oidc_token` con el JWT (en caso de éxito) y redirige a la URL
+            configurada en `sitmun.authentication.oidc.frontend-redirect-url`.
+            
+            **Detección de errores en el frontend:**
+            Si no existe la cookie `oidc_token` después de la redirección, significa que hubo un error.
+            Los detalles del error se encuentran en los logs del servidor.
+          headers:
+            Location:
+              description: URL del frontend para manejar el callback
+              schema:
+                type: string
+                example: http://localhost:4200/callback
+            Set-Cookie:
+              description: Cookie con el JWT token (solo en caso de éxito)
+              schema:
+                type: string
+                example: oidc_token=<token_value>; Path=/; Max-Age=3600
+        '401':
+          description: Error de autenticación (código inválido, usuario no encontrado en BD, etc.)
+
+
 
 components:
 
   schemas:
+
+    EnabledMethodsResponse:
+      type: array
+      description: Lista de métodos de autenticación disponibles
+      items:
+        $ref: '#/components/schemas/AuthProvider'
+
+    AuthProvider:
+      type: object
+      description: |-
+        Representa un método de autenticación disponible en el sistema.
+        
+        Los proveedores pueden ser de tres tipos:
+        - **database**: Autenticación tradicional con usuario/contraseña
+        - **ldap**: Autenticación contra directorio LDAP
+        - **oidc**: Autenticación delegada a proveedores externos (OpenID Connect)
+        
+        Solo el tipo `oidc` incluye la lista de proveedores externos configurados.
+      properties:
+        id:
+          type: string
+          description: |-
+            Tipo de método de autenticación disponible.
+          enum:
+            - database
+            - ldap
+            - oidc
+          example: oidc
+        providers:
+          type: array
+          description: |-
+            Lista de proveedores OIDC disponibles (solo presente si id es 'oidc').
+            
+            Cada proveedor representa una configuración específica de OpenID Connect. Null para database y ldap.
+          items:
+            $ref: '#/components/schemas/OidcProvider'
+          nullable: true
+      required:
+        - id
+      example:
+        id: "oidc"
+        providers:
+          - providerName: "cas"
+            displayName: "Apereo CAS"
+            imagePath: "https://some.image.server/images/cas.png"
+          - providerName: "entraid"
+            displayName: "Microsoft Entra ID"
+            imagePath: "https://some.image.server/images/entraid.png"
+
+    OidcProvider:
+      type: object
+      description: Información sobre un proveedor OIDC específico configurado
+      properties:
+        providerName:
+          type: string
+          description: |-
+            Identificador único del proveedor OIDC.
+            
+            Este ID se utiliza en la URL de autorización:
+            `/oauth2/authorization/{providerName}`
+          example: cas
+        displayName:
+          type: string
+          description: Nombre legible del proveedor para mostrar en la UI
+          example: Apereo CAS
+        imagePath:
+          type: string
+          description: |-
+            URL de la imagen/logo del proveedor para mostrar en la UI del frontend.
+          example: https://some.image.server/images/cas.png
+      required:
+        - providerName
+        - displayName
+        - imagePath
 
     JSONWebToken:
       description: "JSON Web Token"
