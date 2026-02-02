@@ -71,7 +71,6 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
       response.addCookie(jwtCookie);
     } catch (Exception e) {
       log.error("OIDC authentication processing failed", e);
-      log.error("Error type: {}", e.getClass().getName());
       log.error("Error message: {}", e.getMessage());
     } finally {
       getRedirectStrategy().sendRedirect(request, response, frontendRedirectUrl);
