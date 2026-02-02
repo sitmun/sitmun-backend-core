@@ -33,7 +33,7 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
   private final UserDetailsService userDetailsService;
   private final JsonWebTokenService jsonWebTokenService;
 
-  @Value("${sitmun.authentication.oidc.frontend-redirect-url:http://localhost:4200/auth/callback}")
+  @Value("${sitmun.authentication.oidc.frontend-redirect-url:http://localhost:9000/auth/callback}")
   private String frontendRedirectUrl;
 
   @Value("${sitmun.authentication.oidc.http-only-cookie:false}")
