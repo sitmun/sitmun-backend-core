@@ -12,6 +12,7 @@ import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
 import org.sitmun.infrastructure.security.filter.ProxyTokenFilter;
+import org.sitmun.infrastructure.security.filter.SitmunClientFilter;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.infrastructure.security.storage.PasswordStorage;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 
 /**
  * Security configuration for the SITMUN application.
@@ -145,7 +147,8 @@ public class WebSecurityConfigurer {
   public SecurityFilterChain oidcSecurityFilterChain(
       HttpSecurity http,
       OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler,
-      OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler) throws Exception {
+      OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler,
+      SitmunClientFilter sitmunClientFilter) throws Exception {
     http
       .securityMatcher("/oauth2/**", "/login/oauth2/**")
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -154,6 +157,7 @@ public class WebSecurityConfigurer {
       .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
       .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
       .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
+      .addFilterBefore(sitmunClientFilter, OAuth2AuthorizationRequestRedirectFilter.class)
       .oauth2Login(oauth2 -> {
         oauth2.successHandler(oidcAuthenticationSuccessHandler);
         oauth2.failureHandler(oidcAuthenticationFailureHandler);

@@ -143,6 +143,10 @@ paths:
         Este endpoint redirige al usuario al proveedor de identidad OIDC configurado (Apereo CAS, Azure AD, GitHub, etc.)
         para iniciar el flujo de autenticación OAuth2/OpenID Connect.
         
+        **Parámetro optional `client_type`:**
+        - Se almacena en la sesión HTTP a través de `SitmunClientFilter`
+        - `OidcRedirectService` lo recupera para seleccionar la redirección apropiada
+
         **Flujo de autenticación OIDC:**
         1. El frontend redirige al usuario a este endpoint
         2. El backend redirige al proveedor OIDC (ej: login de Apereo CAS)
@@ -150,7 +154,7 @@ paths:
         4. El proveedor redirige de vuelta a `/login/oauth2/code/{providerId}`
         5. Spring Security procesa el código de autorización
         6. Se invoca `OidcAuthenticationSuccessHandler` que genera el JWT (validando el usuario en base de datos, no lo crea)
-        7. El backend establece una cookie `oidc_token` y redirige al frontend
+        7. El backend establece una cookie `oidc_token` y redirige al frontend según `client_type`
         8. El frontend extrae el JWT de la cookie y lo usa para futuras llamadas a la API
 
       operationId: initiateOidcLogin
@@ -165,6 +169,23 @@ paths:
           schema:
             type: string
             example: cas
+        - name: client_type
+          in: query
+          required: false
+          description: |-
+            Cliente que solicita la autenticación.
+            
+            Determina a qué URL del frontend se redirigirá al usuario después de autenticarse:
+            - `admin`: `sitmun.authentication.oidc.frontend-redirect-url-admin`
+            - `viewer`: `sitmun.authentication.oidc.frontend-redirect-url-viewer`
+            - Por defecto `sitmun.authentication.oidc.frontend-redirect-url`
+
+          schema:
+            type: string
+            enum:
+              - admin
+              - viewer
+            example: admin
       responses:
         '302':
           description: |-
@@ -193,7 +214,7 @@ paths:
         4. Extrae la información del usuario (OidcUser)
         5. Invoca `OidcAuthenticationSuccessHandler`
         6. Se genera un JWT local y se establece en una cookie
-        7. Redirige al frontend a la URL configurada en `sitmun.authentication.oidc.frontend-redirect-url`
+        7. Redirige al frontend a la URL configurada en variables de entorno y según `client_type`
         
         **Proceso interno (error):**
         1. Spring Security detecta el error
@@ -226,7 +247,7 @@ paths:
         '302':
           description: |-
             El backend establece una cookie `oidc_token` con el JWT (en caso de éxito) y redirige a la URL
-            configurada en `sitmun.authentication.oidc.frontend-redirect-url`.
+            configurada en `sitmun.authentication.oidc.frontend-redirect-url-(admin/viewer)` según el parámetro `client_type`.
             
             **Detección de errores en el frontend:**
             Si no existe la cookie `oidc_token` después de la redirección, significa que hubo un error.
@@ -236,7 +257,7 @@ paths:
               description: URL del frontend para manejar el callback
               schema:
                 type: string
-                example: http://localhost:4200/callback
+                example: http://localhost:9000/viewer/callback
             Set-Cookie:
               description: Cookie con el JWT token (solo en caso de éxito)
               schema:

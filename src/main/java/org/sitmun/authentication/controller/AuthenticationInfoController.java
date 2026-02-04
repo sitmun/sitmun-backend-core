@@ -61,7 +61,7 @@ public class AuthenticationInfoController {
         .build());
     }
 
-    if (activeProfiles.contains("oidc") && isOidcAvailable()) {
+    if (activeProfiles.contains("oidc")) {
       final List<OidcProviderDTO> oidcProviders = oidcProperties.getProviders()
         .values()
         .stream()
@@ -75,9 +75,5 @@ public class AuthenticationInfoController {
     }
 
     return ResponseEntity.ok(providers);
-  }
-
-  private boolean isOidcAvailable() {
-    return oidcProperties != null && oidcProperties.isEnabled() && oidcProviderMapper != null;
   }
 }

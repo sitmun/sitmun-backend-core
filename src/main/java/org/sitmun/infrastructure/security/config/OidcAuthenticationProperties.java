@@ -21,9 +21,6 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "sitmun.authentication.oidc")
 public class OidcAuthenticationProperties {
 
-  private boolean enabled = false;
-  private String frontendRedirectUrl;
-
   private Map<String, ProviderConfig> providers = new HashMap<>();
 
   @Data

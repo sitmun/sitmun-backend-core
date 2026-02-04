@@ -82,7 +82,6 @@ sitmun:
   authentication:
     oidc:
       enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
-      frontend-redirect-url: ${SITMUN_FRONTEND_REDIRECT_URL:http://localhost:9000/viewer/callback}
       providers: { }
   mbtiles:
     url: https://localhost:8080/mbtiles

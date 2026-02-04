@@ -434,17 +434,18 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `dev` | No |
-| `SPRING_DATASOURCE_URL` | Database connection URL | H2 in-memory | Yes (prod) |
-| `SPRING_DATASOURCE_USERNAME` | Database username | `sa` | Yes (prod) |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `` | Yes (prod) |
-| `SITMUN_USER_SECRET` | JWT signing secret | Auto-generated | No |
-| `SITMUN_PROXY_MIDDLEWARE_SECRET` | Proxy middleware secret | Auto-generated | No |
-| `SITMUN_AUTHENTICATION_OIDC_ENABLED` | Enable OIDC authentication | `false` | No |
-| `SITMUN_FRONTEND_REDIRECT_URL` | Frontend callback URL for OIDC | `http://localhost:4200/auth/callback` | No |
-| `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | - | If OIDC enabled |
+| Variable                                 | Description | Default                          | Required |
+|------------------------------------------|-------------|----------------------------------|----------|
+| `SPRING_PROFILES_ACTIVE`                 | Active Spring profile | `dev`                            | No |
+| `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                     | Yes (prod) |
+| `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                             | Yes (prod) |
+| `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                               | Yes (prod) |
+| `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                   | No |
+| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                   | No |
+| `SITMUN_FRONTEND_REDIRECTURL`            | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback` | If OIDC enabled |
+| `SITMUN_FRONTEND_REDIRECTURLVIEWER`      | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback` | If OIDC enabled |
+| `SITMUN_FRONTEND_REDIRECTURLADMIN`       | Frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | -                                | If OIDC enabled |
 
 **Note:** OIDC providers are configured dynamically under `sitmun.authentication.oidc.providers.{providerId}`. See [OIDC Configuration](#oidcoauth2-configuration) for details.
 
@@ -718,8 +719,10 @@ spring:
 sitmun:
   authentication:
     oidc:
-      enabled: true
+      # Redirect URLs for frontend callbacks, will depend on `client_type` parameter
       frontend-redirect-url: "https://frontend.example.com/callback"
+      frontend-redirect-url-admin: "https://frontend.example.com/admin/#/callback"
+      frontend-redirect-url-viewer: "https://frontend.example.com/viewer/callback"
       http-only-cookie: false
       providers:
         cas:
@@ -744,8 +747,9 @@ sitmun:
 
 | Property | Environment Variable |
 |----------|---------------------|
-| `sitmun.authentication.oidc.enabled` | `SITMUN_AUTHENTICATION_OIDC_ENABLED` |
 | `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` |
+| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADIN` |
+| `sitmun.authentication.oidc.frontend-redirect-url-viewer` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` |
 | `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` |
 | `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` |
 | `sitmun.authentication.oidc.providers.{id}.display-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_DISPLAYNAME` |
@@ -759,6 +763,7 @@ sitmun:
 | `sitmun.authentication.oidc.providers.{id}.client-secret` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTSECRET` |
 | `sitmun.authentication.oidc.providers.{id}.redirect-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_REDIRECTURI` |
 | `sitmun.authentication.oidc.providers.{id}.scope` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_SCOPE` |
+| `sitmun.authentication.oidc.providers.{id}.user-name-attribute-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERNAMEATTRIBUTENAME` |
 
 **OIDC Features:**
 
