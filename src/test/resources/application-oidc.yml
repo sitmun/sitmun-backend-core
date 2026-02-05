@@ -17,7 +17,7 @@ sitmun:
           jwk-set-uri: "https://mock.example.com/oidc/jwks"
           client-id: "mock-id"
           client-secret: "mock-secret"
-          redirect-uri: "https://test.example.com/login/oauth2/code/mock"
+          redirect-uri: "http://localhost/login/oauth2/code/mock"
           scope:
             - openid
             - profile
