@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-02-06
+
+### Added
+
+- Multi-provider OIDC authentication support alongside existing database/LDAP authentication options ([ec87515](https://github.com/sitmun/sitmun-backend-core/commit/ec87515b))
+- Multi-client frontend redirect URLs based on query parameter appended to OIDC auth requests ([e7dff74](https://github.com/sitmun/sitmun-backend-core/commit/e7dff74e))
+- Integration tests for redirect service and complete OIDC authentication flow ([6185f61](https://github.com/sitmun/sitmun-backend-core/commit/6185f610), [eed01bb](https://github.com/sitmun/sitmun-backend-core/commit/eed01bbe))
+- Unit tests for OIDC authentication ([f63c848](https://github.com/sitmun/sitmun-backend-core/commit/f63c8481))
+
+### Changed
+
+- Centralized redirect logic and removed redundant attributes ([e7dff74](https://github.com/sitmun/sitmun-backend-core/commit/e7dff74e))
+
+### Fixed
+
+- Consistency mismatch between success and failure handlers ([00adec6](https://github.com/sitmun/sitmun-backend-core/commit/00adec63), [f3bfdeb](https://github.com/sitmun/sitmun-backend-core/commit/f3bfdedb))
+
 ## [1.2.0] - 2026-01-27
 
 ### Added
