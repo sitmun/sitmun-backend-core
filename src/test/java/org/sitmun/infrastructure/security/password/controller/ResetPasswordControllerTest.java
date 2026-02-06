@@ -16,6 +16,7 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.token.UserToken;
 import org.sitmun.domain.user.token.UserTokenRepository;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.password.dto.RequestNewPassword;
 import org.sitmun.infrastructure.security.password.dto.ResetPasswordRequest;
 import org.sitmun.infrastructure.security.password.service.CodeOTPService;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Import(MockMailConfig.class)
 @DisplayName("Password Recovery Controller Tests")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@AdditiveActiveProfiles("mail")
+@AdditiveActiveProfiles(Profiles.MAIL)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ResetPasswordControllerTest {
   @Autowired private MockMvc mvc;

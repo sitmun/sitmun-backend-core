@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,7 @@ import org.springframework.util.StringUtils;
  * authentication) - Module-specific customization through properties
  */
 @Configuration
-@Profile("openapi")
+@Profile(Profiles.OPENAPI)
 public class OpenApiConfigurer {
 
   private final String moduleName;

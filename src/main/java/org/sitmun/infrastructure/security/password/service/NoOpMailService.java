@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.security.password.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.password.dto.EmailForgotPassword;
 import org.sitmun.infrastructure.security.password.dto.EmailObject;
 import org.sitmun.infrastructure.security.password.exception.MailNotImplementedException;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
  * MailNotImplementedException for all mail operations.
  */
 @Service
-@Profile("!mail")
+@Profile("!" + Profiles.MAIL)
 @Slf4j
 public class NoOpMailService implements MailService {
 

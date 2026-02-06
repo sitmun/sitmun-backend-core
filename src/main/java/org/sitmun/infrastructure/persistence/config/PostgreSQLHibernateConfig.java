@@ -2,6 +2,7 @@ package org.sitmun.infrastructure.persistence.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Profile;
  * activated when using the 'postgres' profile.
  */
 @Configuration
-@Profile("postgres")
+@Profile(Profiles.POSTGRES)
 @Slf4j
 public class PostgreSQLHibernateConfig {
 

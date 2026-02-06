@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.security.config;
 
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
  * health checks are enabled.
  */
 @Configuration
-@Profile("mail")
+@Profile(Profiles.MAIL)
 public class MailHealthIndicatorConfig {
 
   /**

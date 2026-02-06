@@ -723,6 +723,9 @@ sitmun:
       frontend-redirect-url: "https://frontend.example.com/callback"
       frontend-redirect-url-admin: "https://frontend.example.com/admin/#/callback"
       frontend-redirect-url-viewer: "https://frontend.example.com/viewer/callback"
+      # HttpOnly flag for the oidc_token JWT cookie.
+      # false (default): cookie readable by frontend JavaScript (required by current clients).
+      # true: cookie hidden from JavaScript (more secure, requires planned frontend changes).
       http-only-cookie: false
       providers:
         cas:
@@ -745,25 +748,25 @@ sitmun:
 
 **Environment Variables:**
 
-| Property | Environment Variable |
-|----------|---------------------|
-| `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` |
-| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADIN` |
-| `sitmun.authentication.oidc.frontend-redirect-url-viewer` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` |
-| `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` |
-| `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` |
-| `sitmun.authentication.oidc.providers.{id}.display-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_DISPLAYNAME` |
-| `sitmun.authentication.oidc.providers.{id}.image-path` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_IMAGEPATH` |
-| `sitmun.authentication.oidc.providers.{id}.issuer-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_ISSUERURI` |
-| `sitmun.authentication.oidc.providers.{id}.authorization-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_AUTHORIZATIONURI` |
-| `sitmun.authentication.oidc.providers.{id}.token-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_TOKENURI` |
-| `sitmun.authentication.oidc.providers.{id}.user-info-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERINFOURI` |
-| `sitmun.authentication.oidc.providers.{id}.jwk-set-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_JWKSETURI` |
-| `sitmun.authentication.oidc.providers.{id}.client-id` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTID` |
-| `sitmun.authentication.oidc.providers.{id}.client-secret` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTSECRET` |
-| `sitmun.authentication.oidc.providers.{id}.redirect-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_REDIRECTURI` |
-| `sitmun.authentication.oidc.providers.{id}.scope` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_SCOPE` |
-| `sitmun.authentication.oidc.providers.{id}.user-name-attribute-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERNAMEATTRIBUTENAME` |
+| Property | Environment Variable | Description |
+|----------|---------------------|-------------|
+| `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` | Default frontend callback URL |
+| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADIN` | Admin frontend callback URL |
+| `sitmun.authentication.oidc.frontend-redirect-url-viewer` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` | Viewer frontend callback URL |
+| `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` | HttpOnly flag for the `oidc_token` cookie. Default `false`. |
+| `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` | Provider identifier |
+| `sitmun.authentication.oidc.providers.{id}.display-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_DISPLAYNAME` | Display name shown to users |
+| `sitmun.authentication.oidc.providers.{id}.image-path` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_IMAGEPATH` | Provider logo URL |
+| `sitmun.authentication.oidc.providers.{id}.issuer-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_ISSUERURI` | IdP issuer URI |
+| `sitmun.authentication.oidc.providers.{id}.authorization-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_AUTHORIZATIONURI` | IdP authorization endpoint |
+| `sitmun.authentication.oidc.providers.{id}.token-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_TOKENURI` | IdP token endpoint |
+| `sitmun.authentication.oidc.providers.{id}.user-info-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERINFOURI` | IdP user info endpoint |
+| `sitmun.authentication.oidc.providers.{id}.jwk-set-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_JWKSETURI` | IdP JWK set endpoint |
+| `sitmun.authentication.oidc.providers.{id}.client-id` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTID` | OAuth2 client ID |
+| `sitmun.authentication.oidc.providers.{id}.client-secret` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_CLIENTSECRET` | OAuth2 client secret |
+| `sitmun.authentication.oidc.providers.{id}.redirect-uri` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_REDIRECTURI` | Backend callback URL |
+| `sitmun.authentication.oidc.providers.{id}.scope` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_SCOPE` | OAuth2 scopes. Default `openid,profile,email`. |
+| `sitmun.authentication.oidc.providers.{id}.user-name-attribute-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_USERNAMEATTRIBUTENAME` | UserInfo claim used as principal name. Default `sub` (OIDC subject). |
 
 **OIDC Features:**
 
@@ -782,6 +785,10 @@ sitmun:
 5. Provider redirects back to `/login/oauth2/code/{providerId}`
 6. Backend validates user, generates JWT, sets cookie and redirects to frontend
 7. Frontend extracts token from `oidc_token` cookie
+
+**Current limitation and future improvement (`http-only-cookie`):**
+
+The current viewer frontend reads the `oidc_token` cookie with JavaScript. When `HttpOnly` is `true` the browser hides the cookie from JavaScript, so `CookieService.get()` returns an empty string and the OIDC callback silently fails. For this reason, the default is `false`.
 
 ### Monitoring and Observability
 

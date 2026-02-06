@@ -2,6 +2,7 @@ package org.sitmun.infrastructure.security.password.service;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.password.dto.EmailForgotPassword;
 import org.sitmun.infrastructure.security.password.dto.EmailObject;
 import org.sitmun.infrastructure.security.password.exception.EmailTemplateException;
@@ -14,7 +15,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Service
-@Profile("mail")
+@Profile(Profiles.MAIL)
 @Slf4j
 public class EmailService implements MailService {
 
