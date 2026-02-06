@@ -44,6 +44,7 @@ spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-st
 spring-security-test = { module = "org.springframework.security:spring-security-test" }
 spring-ldap-core = { module = "org.springframework.ldap:spring-ldap-core" }
 spring-security-ldap = { module = "org.springframework.security:spring-security-ldap" }
+spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-oauth2-client" }
 
 # Databases
 h2 = { module = "com.h2database:h2" }

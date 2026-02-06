@@ -79,6 +79,10 @@ sitmun:
     config-response-validity-in-seconds: 3600
     force: false
     url: http://localhost:8080/middleware
+  authentication:
+    oidc:
+      enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
+      providers: { }
   mbtiles:
     url: https://localhost:8080/mbtiles
   ui:

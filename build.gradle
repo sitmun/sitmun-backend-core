@@ -101,6 +101,9 @@ dependencies {
   implementation libs.jjwt.impl
   implementation libs.jjwt.jackson
 
+  // OIDC support
+  implementation libs.spring.boot.starter.oauth2.client
+
   // OpenAPI/Swagger documentation
   implementation libs.springdoc.openapi.starter.webmvc.ui
 

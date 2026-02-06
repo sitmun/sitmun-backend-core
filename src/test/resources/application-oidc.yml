@@ -1,0 +1,24 @@
+sitmun:
+  authentication:
+    oidc:
+      frontend-redirect-url-admin: "http://localhost:4200/#/callback"
+      frontend-redirect-url-viewer: "http://localhost:4201/callback"
+      frontend-redirect-url: "http://localhost:4200/default"
+      http-only-cookie: false
+      providers:
+        mock:
+          provider-name: "mock"
+          display-name: "Mock OIDC Provider"
+          image-path: "https://www.example.com/assets/img/mock.png"
+          issuer-uri: "https://mock.example.com/oidc"
+          authorization-uri: "https://mock.example.com/oidc/authorize"
+          token-uri: "https://mock.example.com/oidc/token"
+          user-info-uri: "https://mock.example.com/oidc/userinfo"
+          jwk-set-uri: "https://mock.example.com/oidc/jwks"
+          client-id: "mock-id"
+          client-secret: "mock-secret"
+          redirect-uri: "http://localhost/login/oauth2/code/mock"
+          scope:
+            - openid
+            - profile
+            - email
