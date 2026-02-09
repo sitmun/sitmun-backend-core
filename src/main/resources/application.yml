@@ -20,7 +20,8 @@ spring:
   jmx:
     enabled: false
   liquibase:
-    change-log: file:./config/db/changelog/db.changelog-master.yaml
+    #change-log: classpath:/db/changelog/db.changelog-master.yaml
+    change-log: classpath:/config/liquibase/master.xml
   jpa:
     hibernate:
       ddl-auto: none
