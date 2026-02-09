@@ -28,4 +28,17 @@ public class TaskDto {
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private Map<String, Object> fields;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String cartographyId;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String scope;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String command;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonProperty("name")
+  private String name;
 }
