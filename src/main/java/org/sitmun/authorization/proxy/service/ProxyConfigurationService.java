@@ -5,6 +5,8 @@ import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.decorators.QueryFixedFiltersDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
@@ -32,9 +34,12 @@ import org.springframework.util.StringUtils;
 @org.springframework.stereotype.Service
 public class ProxyConfigurationService {
 
-  private static final String SQL_COMMAND_KEY = "command";
+  public static final String COMMAND_KEY = "command";
+  private static final String SQL_COMMAND_KEY = COMMAND_KEY;
 
   private static final String CONNECTION_TYPE_KEY = "SQL";
+
+  private static final String API_TYPE_KEY = "API";
 
   private static final String VARY_KEY = "VARY";
 
@@ -141,6 +146,27 @@ public class ProxyConfigurationService {
         : null;
   }
 
+  private static WmsPayloadDto getHttpApiConfiguration(Task task) {
+    final Map<String, Object> taskProps = task.getProperties();
+    final String url = (String) taskProps.get(COMMAND_KEY);
+
+    @SuppressWarnings("unchecked")
+    final Map<String, String> parameters =
+      ((List<Map<String, String>>) taskProps.getOrDefault("parameters", Map.of()))
+      .stream()
+      .map(p -> Map.entry(p.get("label"), p.get("value")))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    final String body = (String) taskProps.getOrDefault("body", null);
+
+    return WmsPayloadDto.builder()
+        .uri(url)
+        .method("GET")
+        .parameters(parameters)
+        .body(body)
+        .build();
+  }
+
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
     // TODO: Implement user validation
     return true;
@@ -161,6 +187,14 @@ public class ProxyConfigurationService {
               task -> {
                 payload.set(getDatasourceConfiguration(task));
                 configType.set(CONNECTION_TYPE_KEY);
+              });
+    } else if (API_TYPE_KEY.equalsIgnoreCase(configProxyRequestDto.getType())) {
+      taskRepository
+          .findById(configProxyRequestDto.getTypeId())
+          .ifPresent(
+              task -> {
+                payload.set(getHttpApiConfiguration(task));
+                configType.set(API_TYPE_KEY);
               });
     } else {
       log.info(
