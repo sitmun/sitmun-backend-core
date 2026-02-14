@@ -10,6 +10,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueReposito
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,10 @@ public class CodeListValueSetup implements ApplicationRunner {
               }
               existingConfiguration.get(item.getCodeListName()).put(item.getValue(), item);
             });
+    log.info(
+        "Found {} existing code list entries",
+        existingConfiguration.values().stream().mapToInt(Map::size).sum());
+
     List<CodeListValue> newValues = new ArrayList<>();
     properties
         .getCodeListValues()
@@ -60,10 +65,45 @@ public class CodeListValueSetup implements ApplicationRunner {
                 codeListValue.setDefaultCode(item.isDefault());
                 codeListValue.setSystem(true);
                 newValues.add(codeListValue);
-                log.info("Added code list value {}:{}", item.getCodeListName(), item.getValue());
+                log.info("Will add code list value {}:{}", item.getCodeListName(), item.getValue());
+              } else {
+                log.debug(
+                    "Skipping existing code list value {}:{}",
+                    item.getCodeListName(),
+                    item.getValue());
               }
             });
-    repository.saveAll(newValues);
-    log.info("Finished CodeListValueSetup: added {}", newValues.size());
+
+    if (!newValues.isEmpty()) {
+      log.info("Saving {} new code list values", newValues.size());
+      try {
+        repository.saveAll(newValues);
+        log.info("Finished CodeListValueSetup: successfully added {} new values", newValues.size());
+      } catch (DataIntegrityViolationException e) {
+        log.warn("Some code list values already exist in database, attempting individual insert");
+        int successCount = 0;
+        for (CodeListValue value : newValues) {
+          try {
+            repository.save(value);
+            successCount++;
+            log.debug(
+                "Successfully saved code list value {}:{}",
+                value.getCodeListName(),
+                value.getValue());
+          } catch (DataIntegrityViolationException ex) {
+            log.debug(
+                "Skipped duplicate code list value {}:{}",
+                value.getCodeListName(),
+                value.getValue());
+          }
+        }
+        log.info(
+            "Finished CodeListValueSetup: added {} out of {} values",
+            successCount,
+            newValues.size());
+      }
+    } else {
+      log.info("Finished CodeListValueSetup: no new values to add");
+    }
   }
 }

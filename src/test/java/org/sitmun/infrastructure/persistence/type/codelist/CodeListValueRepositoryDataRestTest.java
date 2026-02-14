@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
 import static org.sitmun.domain.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.test.URIConstants.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,21 +43,21 @@ class CodeListValueRepositoryDataRestTest {
     mvc.perform(get(CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 30)].description")
-                .value("Cartography group"))
-        .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 31)].description")
+            jsonPath("$._embedded.codelist-values[?(@.id == 24)].description")
                 .value("Background map"))
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Report"))
+            jsonPath("$._embedded.codelist-values[?(@.id == 25)].description")
+                .value("Cartography group"))
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 33)].description")
-                .value("Location map"));
+            jsonPath("$._embedded.codelist-values[?(@.id == 26)].description")
+                .value("Location map"))
+        .andExpect(
+            jsonPath("$._embedded.codelist-values[?(@.id == 27)].description").value("Report"));
 
     mvc.perform(get(CODELIST_VALUES_URI_FILTER, "userPosition.type"))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 88)].description")
+            jsonPath("$._embedded.codelist-values[?(@.id == 63)].description")
                 .value("City Council"));
   }
 
@@ -64,29 +65,22 @@ class CodeListValueRepositoryDataRestTest {
   @DisplayName("GET: Description translated in ES")
   @WithMockUser(roles = "ADMIN")
   void obtainTranslatedVersionSpa() throws Exception {
-    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyPermission.type"))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=es", "cartographyFilter.type"))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 30)].description")
-                .value("Grupo de cartografía"))
-        .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 31)].description")
-                .value("Mapa de fondo"))
-        .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 32)].description").value("Informe"))
-        .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 33)].description")
-                .value("Mapa de situación"));
+            jsonPath("$._embedded.codelist-values[?(@.id == 12)].description")
+                .value("Personalizado"));
   }
 
   @Test
   @DisplayName("GET: Description translated in CA")
   @WithMockUser(roles = "ADMIN")
   void obtainTranslatedVersionCat() throws Exception {
-    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=ca", "userPosition.type"))
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=ca", "cartographyFilter.type"))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 88)].description").value("Ajuntament"));
+            jsonPath("$._embedded.codelist-values[?(@.id == 12)].description")
+                .value("Personalitzat"));
   }
 
   @Test
@@ -109,7 +103,7 @@ class CodeListValueRepositoryDataRestTest {
   }
 
   /**
-   * Check carefully code translations.
+   * Check code list value and description are returned (no mangling).
    *
    * @see <a
    *     href="https://github.com/sitmun/sitmun-backend-core/issues/122#issuecomment-888841191">Issue
@@ -124,9 +118,9 @@ class CodeListValueRepositoryDataRestTest {
                 CODELIST_VALUES_URI_FILTER + "&lang=ca",
                 CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 23)].value").value("EDIT"))
+        .andExpect(jsonPath("$._embedded.codelist-values[?(@.id == 34)].value").value("EDIT"))
         .andExpect(
-            jsonPath("$._embedded.codelist-values[?(@.id == 23)].description").value("EDIT"));
+            jsonPath("$._embedded.codelist-values[?(@.id == 34)].description").value("EDIT"));
   }
 
   @Test
@@ -144,7 +138,45 @@ class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("PUT: Normal codes can be updated")
+  @DisplayName("PUT: System code descriptions can be updated")
+  @WithMockUser(roles = "ADMIN")
+  void systemCodeDescriptionCanBeUpdated() throws Exception {
+    String updatedDescription = "Background map (updated)";
+    String body =
+        """
+      {
+      "value":"F",
+      "codeListName":"cartographyPermission.type",
+      "system":true,
+      "defaultCode":false,
+      "description":"%s"
+      }"""
+            .formatted(updatedDescription);
+    mvc.perform(put(CODELIST_VALUE_URI, 24).contentType(APPLICATION_JSON).content(body))
+        .andExpect(status().is2xxSuccessful());
+
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER, "cartographyPermission.type"))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.codelist-values[?(@.id == 24)].description")
+                .value(updatedDescription));
+
+    // Restore original description so seed data is unchanged
+    String restoreBody =
+        """
+      {
+      "value":"F",
+      "codeListName":"cartographyPermission.type",
+      "system":true,
+      "defaultCode":false,
+      "description":"Background map"
+      }""";
+    mvc.perform(put(CODELIST_VALUE_URI, 24).contentType(APPLICATION_JSON).content(restoreBody))
+        .andExpect(status().is2xxSuccessful());
+  }
+
+  @Test
+  @DisplayName("PUT: System codes can't be modified (value/codeListName)")
   @WithMockUser(roles = "ADMIN")
   void cantModifySystemCodeListValue() throws Exception {
     String body =
@@ -154,13 +186,13 @@ class CodeListValueRepositoryDataRestTest {
       "codeListName":"B",
       "system":false
       }""";
-    mvc.perform(put(CODELIST_VALUE_URI, 31).content(body)).andExpect(status().isBadRequest());
+    mvc.perform(put(CODELIST_VALUE_URI, 24).content(body)).andExpect(status().isBadRequest());
   }
 
   @Test
   @DisplayName("DELETE: System codes can't be deleted")
   @WithMockUser(roles = "ADMIN")
   void cantDeleteCodeListValue() throws Exception {
-    mvc.perform(delete(CODELIST_VALUE_URI, 31)).andExpect(status().isBadRequest());
+    mvc.perform(delete(CODELIST_VALUE_URI, 24)).andExpect(status().isBadRequest());
   }
 }

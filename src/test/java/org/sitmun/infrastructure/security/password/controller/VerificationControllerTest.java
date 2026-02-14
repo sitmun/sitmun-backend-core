@@ -99,24 +99,23 @@ class VerificationControllerTest {
   @DisplayName("POST: Verify email with existing email should return true")
   @WithMockUser(roles = "USER")
   void verifyEmailWithExistingEmail() throws Exception {
-    // Create a test user first with unique username
+    // Unique email/username (≤50 chars) to avoid NonUniqueResultException when other tests leave users with same email
+    String uid = java.util.UUID.randomUUID().toString().substring(0, 8);
+    String uniqueEmail = "vrfy-ex-" + uid + "@example.com";
     User testUser = new User();
-    testUser.setUsername("testuser-existing");
-    testUser.setEmail("test@example.com");
+    testUser.setUsername("vrfy-ex-" + uid);
+    testUser.setEmail(uniqueEmail);
     testUser.setPassword("password");
     testUser.setAdministrator(false);
     testUser.setBlocked(false);
     userRepository.save(testUser);
 
-    // Verify the user was saved
-    assertThat(userRepository.findByEmail("test@example.com")).isPresent();
-
-    String email = "test@example.com";
+    assertThat(userRepository.findByEmail(uniqueEmail)).isPresent();
 
     mvc.perform(
             post("/api/user-verification/verify-email")
                 .contentType(MediaType.TEXT_PLAIN)
-                .content(email))
+                .content(uniqueEmail))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").value(true));
   }
@@ -163,22 +162,21 @@ class VerificationControllerTest {
   @DisplayName("POST: Verify email should be case insensitive")
   @WithMockUser(roles = "USER")
   void verifyEmailCaseInsensitive() throws Exception {
-    // Create a test user with lowercase email and unique username
+    // Unique email/username (≤50 chars) to avoid conflict with other tests
+    String uid = java.util.UUID.randomUUID().toString().substring(0, 8);
+    String emailLower = "vrfy-case-" + uid + "@example.com";
     User testUser = new User();
-    testUser.setUsername("testuser-case");
-    testUser.setEmail("testcase@example.com");
+    testUser.setUsername("vrfy-case-" + uid);
+    testUser.setEmail(emailLower);
     testUser.setPassword("password");
     testUser.setAdministrator(false);
     testUser.setBlocked(false);
     userRepository.save(testUser);
 
-    // Try with uppercase email
-    String email = "TESTCASE@EXAMPLE.COM";
-
     mvc.perform(
             post("/api/user-verification/verify-email")
                 .contentType(MediaType.TEXT_PLAIN)
-                .content(email))
+                .content(emailLower.toUpperCase()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").value(true));
   }

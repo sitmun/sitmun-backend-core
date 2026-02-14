@@ -1,8 +1,6 @@
 openapi: 3.0.3
 
 servers:
-  - url: https://sitmun-backend-core.herokuapp.com
-    description: Servidor de desarrollo
   - url: http://localhost:8080
     description: Servidor local de desarrollo
 
@@ -30,7 +28,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
-  version: 1.2.0
+  version: 1.2.2
   contact:
     name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/

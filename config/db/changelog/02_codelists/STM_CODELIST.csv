@@ -7,8 +7,8 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 6,cartography.geometryType,LINE,FALSE,FALSE,Line
 7,cartography.geometryType,POINT,FALSE,FALSE,Point
 8,cartography.geometryType,POLYGON,FALSE,FALSE,Polygon
-9,cartography.legendType,CAPABILITIES,FALSE,FALSE,GetCapabilities
-10,cartography.legendType,LEGENDGRAPHIC,FALSE,FALSE,Get Legend Graphic
+9,cartography.legendType,LEGENDGRAPHIC,FALSE,FALSE,Get Legend Graphic
+10,cartography.legendType,CAPABILITIES,FALSE,FALSE,GetCapabilities
 11,cartography.legendType,LINK,FALSE,FALSE,Static link
 12,cartographyFilter.type,C,FALSE,FALSE,Custom
 13,cartographyFilter.type,D,FALSE,FALSE,Defined
@@ -21,86 +21,54 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 20,cartographyParameter.format,P,FALSE,FALSE,Percentage
 21,cartographyParameter.format,T,FALSE,FALSE,Text
 22,cartographyParameter.format,U,FALSE,FALSE,URL
-23,cartographySpatialSelectionParameter.type,EDIT,FALSE,TRUE,EDIT
-27,cartographyParameter.type,INFO,FALSE,TRUE,INFO
-29,cartographySpatialSelectionParameter.type,SELECT,FALSE,FALSE,SELECT
-30,cartographyPermission.type,C,TRUE,FALSE,Cartography group
-31,cartographyPermission.type,F,TRUE,FALSE,Background map
-32,cartographyPermission.type,I,TRUE,FALSE,Report
-33,cartographyPermission.type,M,TRUE,FALSE,Location map
-34,downloadTask.scope,A,FALSE,FALSE,Application
-35,downloadTask.scope,C,FALSE,FALSE,Layer
-36,downloadTask.scope,U,FALSE,FALSE,Isolated
-37,queryTask.scope,INFORME,FALSE,FALSE,INFORME
-38,queryTask.scope,SQL,FALSE,FALSE,SQL
-39,queryTask.scope,TAREA,FALSE,FALSE,TAREA
-40,queryTask.scope,URL,FALSE,FALSE,URL
-41,queryTask.scope,WS,FALSE,FALSE,WS
-42,service.type,AIMS,FALSE,FALSE,AIMS
-43,service.type,FME,FALSE,FALSE,FME
-44,service.type,TC,FALSE,FALSE,TC
-45,service.type,WFS,FALSE,FALSE,WFS
-46,service.type,WMS,FALSE,FALSE,WMS
-47,serviceParameter.type,INFO,FALSE,FALSE,GetFeatureInfo
-48,serviceParameter.type,OLPARAM,FALSE,FALSE,OpenLayers
-49,serviceParameter.type,WMS,FALSE,FALSE,GetMap
-50,taskParameter.format,B,FALSE,FALSE,Database (trigger)
-51,taskParameter.format,C,FALSE,FALSE,Email
-52,taskParameter.format,F,FALSE,FALSE,Date
-53,taskParameter.format,I,FALSE,FALSE,Image
-54,taskParameter.format,L,FALSE,FALSE,List (from a query)
-55,taskParameter.format,N,FALSE,FALSE,Number
-56,taskParameter.format,R,FALSE,FALSE,Relation attribute between tables
-57,taskParameter.format,S,FALSE,FALSE,Select for assigning a value
-58,taskParameter.format,T,FALSE,FALSE,Text
-59,taskParameter.format,U,FALSE,FALSE,URL
-60,taskParameter.type,CAMPO,FALSE,FALSE,CAMPO
-61,taskParameter.type,CAPA,FALSE,FALSE,CAPA
-62,taskParameter.type,DATAINPUT,FALSE,FALSE,DATAINPUT
-63,taskParameter.type,EDIT,FALSE,FALSE,EDIT
-64,taskParameter.type,FILTRO,FALSE,FALSE,FILTRO
-65,taskParameter.type,FME,FALSE,FALSE,FME
-66,taskParameter.type,GEOM,FALSE,FALSE,GEOM
-67,taskParameter.type,LABEL,FALSE,FALSE,LABEL
-68,taskParameter.type,RELM,FALSE,FALSE,RELM
-69,taskParameter.type,RELS,FALSE,FALSE,RELS
-70,taskParameter.type,SQL,FALSE,FALSE,SQL
-71,taskParameter.type,TIPO,FALSE,FALSE,TIPO
-72,taskParameter.type,VALOR,FALSE,FALSE,VALOR
-73,taskParameter.type,VISTA,FALSE,FALSE,VISTA
-74,territory.scope,M,FALSE,FALSE,Municipality
-75,territory.scope,R,FALSE,FALSE,Regional
-76,territory.scope,T,FALSE,FALSE,Total
-77,thematicMap.destination,UPLOADED,FALSE,FALSE,Uploaded JSON file
-78,thematicMap.destination,WS,FALSE,FALSE,Web Service
-79,thematicMap.destination,WS_HERMES,FALSE,FALSE,Hermes Web Service
-80,thematicMap.type,RE,FALSE,FALSE,Equal record count
-81,thematicMap.type,RL,FALSE,FALSE,Equal interval size
-82,thematicMap.type,VU,FALSE,FALSE,Unique values
-83,thematicMap.valueType,DOU,FALSE,FALSE,Double
-84,thematicMap.valueType,STR,FALSE,FALSE,String
-85,user.identificationType,DNI,FALSE,FALSE,DNI
-86,user.identificationType,NIE,FALSE,FALSE,NIE
-87,user.identificationType,PAS,FALSE,FALSE,Passport
-88,userPosition.type,AJ,FALSE,FALSE,City Council
-89,userPosition.type,AR,FALSE,FALSE,City Council SITMUN point of contact
-90,userPosition.type,DB,FALSE,FALSE,Diputació de Barcelona
-91,userPosition.type,DM,FALSE,FALSE,Demo
-92,userPosition.type,EM,FALSE,FALSE,Company
-93,userPosition.type,EN,FALSE,FALSE,Territorial Entity  (no City Council)
-94,userPosition.type,ER,FALSE,FALSE,Territorial Entity  (no City Council) point of contact
-95,userPosition.type,EX,FALSE,FALSE,External
-96,userPosition.type,GN,FALSE,FALSE,Generalitat de Catalunya
-97,userPosition.type,PR,FALSE,FALSE,Project
-98,userPosition.type,TS,FALSE,FALSE,Test
-99,cartographySpatialSelectionParameter.format,F,FALSE,FALSE,Date
-100,cartographySpatialSelectionParameter.format,I,FALSE,FALSE,Image
-101,cartographySpatialSelectionParameter.format,N,FALSE,FALSE,Number
-102,cartographySpatialSelectionParameter.format,P,FALSE,FALSE,Percentage
-103,cartographySpatialSelectionParameter.format,T,FALSE,FALSE,Text
-104,cartographySpatialSelectionParameter.format,U,FALSE,FALSE,URL
-105,service.authenticationMode,None,TRUE,TRUE,None
-106,service.authenticationMode,HTTP Basic authentication,TRUE,FALSE,HTTP Basic authentication
-107,service.type,WMTS,FALSE,FALSE,WMTS
-108,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
-109,tree.type,cartography,FALSE,TRUE,Cartography
+23,cartographyParameter.type,INFO,FALSE,TRUE,INFO
+24,cartographyPermission.type,F,TRUE,FALSE,Background map
+25,cartographyPermission.type,C,TRUE,FALSE,Cartography group
+26,cartographyPermission.type,M,TRUE,FALSE,Location map
+27,cartographyPermission.type,I,TRUE,FALSE,Report
+28,cartographySpatialSelectionParameter.format,F,FALSE,FALSE,Date
+29,cartographySpatialSelectionParameter.format,I,FALSE,FALSE,Image
+30,cartographySpatialSelectionParameter.format,N,FALSE,FALSE,Number
+31,cartographySpatialSelectionParameter.format,P,FALSE,FALSE,Percentage
+32,cartographySpatialSelectionParameter.format,T,FALSE,FALSE,Text
+33,cartographySpatialSelectionParameter.format,U,FALSE,FALSE,URL
+34,cartographySpatialSelectionParameter.type,EDIT,FALSE,TRUE,EDIT
+35,cartographySpatialSelectionParameter.type,SELECT,FALSE,FALSE,SELECT
+36,downloadTask.scope,A,FALSE,FALSE,Application
+37,downloadTask.scope,U,FALSE,FALSE,Isolated
+38,downloadTask.scope,C,FALSE,FALSE,Layer
+39,queryTask.scope,INFORME,FALSE,FALSE,INFORME
+40,queryTask.scope,SQL,FALSE,FALSE,SQL
+41,queryTask.scope,TAREA,FALSE,FALSE,TAREA
+42,queryTask.scope,URL,FALSE,FALSE,URL
+43,queryTask.scope,WS,FALSE,FALSE,WS
+44,service.authenticationMode,HTTP Basic authentication,TRUE,FALSE,HTTP Basic authentication
+45,service.authenticationMode,None,TRUE,TRUE,None
+46,service.type,AIMS,FALSE,FALSE,AIMS
+47,service.type,FME,FALSE,FALSE,FME
+48,service.type,TC,FALSE,FALSE,TC
+49,service.type,WFS,FALSE,FALSE,WFS
+50,service.type,WMS,FALSE,FALSE,WMS
+51,service.type,WMTS,FALSE,FALSE,WMTS
+52,serviceParameter.type,INFO,FALSE,FALSE,GetFeatureInfo
+53,serviceParameter.type,WMS,FALSE,FALSE,GetMap
+54,serviceParameter.type,OLPARAM,FALSE,FALSE,OpenLayers
+55,serviceParameter.type,WMTS,FALSE,FALSE,WMTS
+56,territory.scope,M,FALSE,FALSE,Municipality
+57,territory.scope,R,FALSE,FALSE,Regional
+58,territory.scope,T,FALSE,FALSE,Total
+59,tree.type,cartography,FALSE,TRUE,Cartography
+60,user.identificationType,DNI,FALSE,FALSE,DNI
+61,user.identificationType,NIE,FALSE,FALSE,NIE
+62,user.identificationType,PAS,FALSE,FALSE,Passport
+63,userPosition.type,AJ,FALSE,FALSE,City Council
+64,userPosition.type,AR,FALSE,FALSE,City Council SITMUN point of contact
+65,userPosition.type,EM,FALSE,FALSE,Company
+66,userPosition.type,DM,FALSE,FALSE,Demo
+67,userPosition.type,DB,FALSE,FALSE,Diputació de Barcelona
+68,userPosition.type,EX,FALSE,FALSE,External
+69,userPosition.type,GN,FALSE,FALSE,Generalitat de Catalunya
+70,userPosition.type,PR,FALSE,FALSE,Project
+71,userPosition.type,EN,FALSE,FALSE,Territorial Entity  (no City Council)
+72,userPosition.type,ER,FALSE,FALSE,Territorial Entity  (no City Council) point of contact
+73,userPosition.type,TS,FALSE,FALSE,Test

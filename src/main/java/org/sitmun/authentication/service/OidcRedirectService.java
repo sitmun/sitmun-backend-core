@@ -11,11 +11,16 @@ import org.springframework.stereotype.Service;
 public class OidcRedirectService {
   public static final String CLIENT_TYPE = "OAUTH2_CLIENT_TYPE";
 
-  @Value("${sitmun.authentication.oidc.frontend-redirect-url:http://localhost:9000/viewer/callback}")
+  @Value(
+      "${sitmun.authentication.oidc.frontend-redirect-url:http://localhost:9000/viewer/callback}")
   private String defaultUrl;
-  @Value("${sitmun.authentication.oidc.frontend-redirect-url-admin:http://localhost:9000/admin/#/callback}")
+
+  @Value(
+      "${sitmun.authentication.oidc.frontend-redirect-url-admin:http://localhost:9000/admin/#/callback}")
   private String adminUrl;
-  @Value("${sitmun.authentication.oidc.frontend-redirect-url-viewer:http://localhost:9000/viewer/callback}")
+
+  @Value(
+      "${sitmun.authentication.oidc.frontend-redirect-url-viewer:http://localhost:9000/viewer/callback}")
   private String viewerUrl;
 
   public String selectRedirectUrl(HttpServletRequest request) {

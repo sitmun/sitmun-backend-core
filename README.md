@@ -195,7 +195,6 @@ java -jar build/libs/sitmun-backend-core.jar --spring.profiles.active=dev
 **Use JAR when:**
 
 - Deploying with Docker (only JAR is supported)
-- Deploying to Heroku (only JAR is supported)
 - Running as a standalone microservice
 - Using Spring Boot's embedded server
 

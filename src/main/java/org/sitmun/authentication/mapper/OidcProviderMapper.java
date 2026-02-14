@@ -8,5 +8,4 @@ import org.sitmun.infrastructure.security.config.OidcAuthenticationProperties;
 public interface OidcProviderMapper {
 
   OidcProviderDTO toRepresentationDTO(OidcAuthenticationProperties.ProviderConfig properties);
-
 }

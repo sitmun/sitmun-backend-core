@@ -4,7 +4,6 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 
 import java.util.List;
-
 import org.sitmun.authentication.handler.OidcAuthenticationFailureHandler;
 import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
 import org.sitmun.domain.user.UserRepository;
@@ -31,6 +30,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,7 +39,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 
 /**
  * Security configuration for the SITMUN application.
@@ -148,20 +147,24 @@ public class WebSecurityConfigurer {
       HttpSecurity http,
       OidcAuthenticationSuccessHandler oidcAuthenticationSuccessHandler,
       OidcAuthenticationFailureHandler oidcAuthenticationFailureHandler,
-      SitmunClientFilter sitmunClientFilter) throws Exception {
-    http
-      .securityMatcher("/oauth2/**", "/login/oauth2/**")
-      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-      .csrf(AbstractHttpConfigurer::disable)
-      .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-      .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
-      .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-      .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-      .addFilterBefore(sitmunClientFilter, OAuth2AuthorizationRequestRedirectFilter.class)
-      .oauth2Login(oauth2 -> {
-        oauth2.successHandler(oidcAuthenticationSuccessHandler);
-        oauth2.failureHandler(oidcAuthenticationFailureHandler);
-      });
+      SitmunClientFilter sitmunClientFilter)
+      throws Exception {
+    http.securityMatcher("/oauth2/**", "/login/oauth2/**")
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+        .exceptionHandling(
+            exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+        .sessionManagement(
+            sessionManagement ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
+        .addFilterBefore(sitmunClientFilter, OAuth2AuthorizationRequestRedirectFilter.class)
+        .oauth2Login(
+            oauth2 -> {
+              oauth2.successHandler(oidcAuthenticationSuccessHandler);
+              oauth2.failureHandler(oidcAuthenticationFailureHandler);
+            });
     return http.build();
   }
 

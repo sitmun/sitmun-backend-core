@@ -117,10 +117,8 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate touristic tree type with no applications - returns 204")
   @WithMockUser(roles = "ADMIN")
   void validateTouristicTypeWithNoApplications() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("touristic")
-        .applicationIds(Set.of())
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder().type("touristic").applicationIds(Set.of()).build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -133,10 +131,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate touristic tree type with 1 touristic app - returns 204")
   @WithMockUser(roles = "ADMIN")
   void validateTouristicTypeWithOneTouristicApp() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("touristic")
-        .applicationIds(Set.of(6))  // App 6 is touristic
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("touristic")
+            .applicationIds(Set.of(6)) // App 6 is touristic
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -149,10 +148,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate touristic tree type with 2+ apps - returns 422")
   @WithMockUser(roles = "ADMIN")
   void validateTouristicTypeWithMultipleApps() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("touristic")
-        .applicationIds(Set.of(1, 2))  // Multiple apps violate touristic constraint
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("touristic")
+            .applicationIds(Set.of(1, 2)) // Multiple apps violate touristic constraint
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -169,10 +169,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate touristic tree type with non-touristic app - returns 422")
   @WithMockUser(roles = "ADMIN")
   void validateTouristicTypeWithNonTouristicApp() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("touristic")
-        .applicationIds(Set.of(1))  // App 1 is non-touristic
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("touristic")
+            .applicationIds(Set.of(1)) // App 1 is non-touristic
+            .build();
 
     mvc.perform(
             post("/api/trees/4/validate-type-change")
@@ -188,10 +189,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate non-touristic tree type with non-touristic apps - returns 204")
   @WithMockUser(roles = "ADMIN")
   void validateNonTouristicTypeWithNonTouristicApps() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("cartography")
-        .applicationIds(Set.of(1, 2, 3))  // Multiple non-touristic apps OK
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("cartography")
+            .applicationIds(Set.of(1, 2, 3)) // Multiple non-touristic apps OK
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -208,11 +210,12 @@ class TreeControllerTest extends BaseTest {
     // App 6 is touristic but has no trees linked
     // Non-touristic trees can only be linked to touristic apps with exactly one touristic tree
     // Since App 6 has no trees, validation should fail
-    
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("cartography")
-        .applicationIds(Set.of(6))  // App 6 is touristic with 0 trees
-        .build();
+
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("cartography")
+            .applicationIds(Set.of(6)) // App 6 is touristic with 0 trees
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -228,11 +231,12 @@ class TreeControllerTest extends BaseTest {
   void validateNonTouristicTypeWithMultiTreeTouristicApp() throws Exception {
     // This test would need setup where App 6 is linked to multiple touristic trees
     // For now, test the rejection of a touristic app that's incompatible
-    
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("cartography")
-        .applicationIds(Set.of(6))  // App 6 touristic
-        .build();
+
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("cartography")
+            .applicationIds(Set.of(6)) // App 6 touristic
+            .build();
 
     // The actual validation depends on how many touristic trees App 6 has
     // This is a placeholder - adjust based on actual TreeEventHandler logic
@@ -261,10 +265,8 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate with empty type - returns 400")
   @WithMockUser(roles = "ADMIN")
   void validateWithEmptyType() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("")
-        .applicationIds(Set.of(1))
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder().type("").applicationIds(Set.of(1)).build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -290,10 +292,8 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate with non-existent tree ID - returns 404")
   @WithMockUser(roles = "ADMIN")
   void validateWithNonExistentTreeId() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("cartography")
-        .applicationIds(Set.of(1))
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder().type("cartography").applicationIds(Set.of(1)).build();
 
     mvc.perform(
             post("/api/trees/99999/validate-type-change")
@@ -307,10 +307,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validate with non-existent application ID - returns 404")
   @WithMockUser(roles = "ADMIN")
   void validateWithNonExistentApplicationId() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("cartography")
-        .applicationIds(Set.of(99999))
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("cartography")
+            .applicationIds(Set.of(99999))
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")
@@ -324,10 +325,11 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("POST: Validation errors return proper RFC 9457 format")
   @WithMockUser(roles = "ADMIN")
   void validateRfc9457Format() throws Exception {
-    TreeTypeValidationRequest request = TreeTypeValidationRequest.builder()
-        .type("touristic")
-        .applicationIds(Set.of(1, 2))  // Force error
-        .build();
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder()
+            .type("touristic")
+            .applicationIds(Set.of(1, 2)) // Force error
+            .build();
 
     mvc.perform(
             post("/api/trees/1/validate-type-change")

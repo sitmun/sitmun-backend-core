@@ -8,7 +8,6 @@ lombok = "8.4"
 springdoc-openapi = "1.9.0"
 liquibase-gradle = "2.2.0"
 sonarqube = "3.3"
-heroku-gradle = "2.0.0"
 docker-compose = "0.17.12"
 spotless = "7.2.0"
 axion-release = "1.18.0"
@@ -23,9 +22,7 @@ json = "20250517"
 mapstruct = "1.6.3"
 commons-lang3 = "3.18.0"
 querydsl = "5.0.0"
-liquibase-slf4j = "5.1.0"
 jetbrains-annotations = "26.0.2"
-liquibase = "4.33.0"
 
 [libraries]
 # Spring Boot starters
@@ -52,8 +49,7 @@ postgresql = { module = "org.postgresql:postgresql" }
 oracle-jdbc = { module = "com.oracle.database.jdbc:ojdbc11-production" }
 
 # Database migration
-liquibase-core = { module = "org.liquibase:liquibase-core", version.ref = "liquibase" }
-liquibase-slf4j = { module = "com.mattbertolini:liquibase-slf4j", version.ref = "liquibase-slf4j" }
+liquibase-core = { module = "org.liquibase:liquibase-core" }
 
 # Query building
 querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
@@ -102,7 +98,6 @@ lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 springdoc-openapi = { id = "org.springdoc.openapi-gradle-plugin", version.ref = "springdoc-openapi" }
 liquibase = { id = "org.liquibase.gradle", version.ref = "liquibase-gradle" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
-heroku = { id = "com.heroku.sdk.heroku-gradle", version.ref = "heroku-gradle" }
 docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "docker-compose" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }

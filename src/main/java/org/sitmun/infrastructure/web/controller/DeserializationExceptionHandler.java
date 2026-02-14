@@ -72,8 +72,7 @@ public class DeserializationExceptionHandler {
             .type(ProblemTypes.DESERIALIZATION_ERROR)
             .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
             .title("Deserialization Error")
-            .detail(
-                "Request body could not be parsed. Please check the format and field types.")
+            .detail("Request body could not be parsed. Please check the format and field types.")
             .instance(requestPath)
             .errors(errors.isEmpty() ? null : errors)
             .build();
@@ -83,4 +82,3 @@ public class DeserializationExceptionHandler {
         .body(problem);
   }
 }
-

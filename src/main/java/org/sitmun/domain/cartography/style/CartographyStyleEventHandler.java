@@ -36,10 +36,10 @@ public class CartographyStyleEventHandler {
   public void handleCartographyStyleDelete(@NotNull CartographyStyle cartographyStyle) {
     String name = cartographyStyle.getName();
     Integer cartographyId = cartographyStyle.getCartography().getId();
-    
+
     // Use repository query instead of accessing lazy collection
     boolean inUse = treeNodeRepository.existsByCartographyIdAndStyle(cartographyId, name);
-    
+
     if (inUse) {
       throw new RequirementException("Cartography Style in use in a the tree node");
     }

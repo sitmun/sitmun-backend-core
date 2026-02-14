@@ -3,6 +3,7 @@ package org.sitmun.authentication.handler;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authentication.service.OidcRedirectService;
@@ -21,11 +22,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-
 /**
- * Handler for successful OIDC authentication.
- * Obtains user from database and generates JWT token.
+ * Handler for successful OIDC authentication. Obtains user from database and generates JWT token.
  */
 @Slf4j
 @Profile("oidc")
@@ -42,7 +40,9 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
   private Boolean oidcCookieHttpOnly;
 
   @Override
-  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+  public void onAuthenticationSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException {
     final String frontendRedirectUrl = redirectService.selectRedirectUrl(request);
 
     try {
@@ -55,9 +55,13 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 
       log.info("OIDC authentication for user: {}", username);
 
-      final User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found in database"));
+      final User user =
+          userRepository
+              .findByUsername(username)
+              .orElseThrow(() -> new RuntimeException("User not found in database"));
       final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-      final String jwtToken = jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
+      final String jwtToken =
+          jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
       final Cookie jwtCookie = new Cookie("oidc_token", jwtToken);
       jwtCookie.setHttpOnly(oidcCookieHttpOnly);
@@ -76,11 +80,13 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 
   private OidcUser getOidcUser(Authentication authentication) {
     if (!(authentication instanceof OAuth2AuthenticationToken oauth2Token)) {
-      throw new OAuth2AuthenticationException("Invalid authentication type: " + authentication.getClass().getName());
+      throw new OAuth2AuthenticationException(
+          "Invalid authentication type: " + authentication.getClass().getName());
     }
 
     if (!(oauth2Token.getPrincipal() instanceof OidcUser)) {
-      throw new OAuth2AuthenticationException("Invalid principal type: " + oauth2Token.getPrincipal().getClass().getName());
+      throw new OAuth2AuthenticationException(
+          "Invalid principal type: " + oauth2Token.getPrincipal().getClass().getName());
     }
 
     return (OidcUser) oauth2Token.getPrincipal();
