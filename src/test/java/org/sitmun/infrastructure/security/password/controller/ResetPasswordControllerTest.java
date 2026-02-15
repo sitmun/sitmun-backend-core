@@ -20,6 +20,7 @@ import org.sitmun.domain.user.token.UserTokenRepository;
 import org.sitmun.infrastructure.security.password.dto.RequestNewPassword;
 import org.sitmun.infrastructure.security.password.dto.ResetPasswordRequest;
 import org.sitmun.infrastructure.security.password.service.CodeOTPService;
+import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -32,11 +33,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest(properties = {
-    "spring.profiles.active=test,h2,mail"
-})
+@SpringBootTest
+@AdditiveActiveProfiles("mail")
 @AutoConfigureMockMvc
-@Import({MockMailConfig.class, TestRateLimitingConfig.class})
+@Import({MockMailConfig.class, TestRateLimitingConfig.class, TestMailService.class})
 @DisplayName("Password Recovery Controller Tests")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -57,6 +57,8 @@ class ResetPasswordControllerTest {
   private String expiredToken;
   private String counterLimitToken;
   private String notActiveToken;
+  /** Unique email per test run to avoid IncorrectResultSizeDataAccessException when DB is shared across contexts. */
+  private String testUserEmail;
 
   @BeforeEach
   void setUp() {
@@ -68,11 +70,14 @@ class ResetPasswordControllerTest {
     userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
     userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
+    // Unique email per test run so findByEmail returns a single result when DB is shared (e.g. parallel contexts)
+    testUserEmail = "test-" + System.nanoTime() + "@example.com";
+
     // Create test user
     testUser =
         User.builder()
             .username("testuser")
-            .email("test@example.com")
+            .email(testUserEmail)
             .firstName("Test")
             .lastName("User")
             .password("oldpassword")
@@ -105,7 +110,7 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Send recovery email with valid email")
   @Transactional
   void sendRecoveryEmailWithValidEmail() throws Exception {
-    checkService("test@example.com", true);
+    checkService(testUser.getEmail(), true);
   }
 
   @Test
