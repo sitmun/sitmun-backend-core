@@ -16,6 +16,7 @@ import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Service. */
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, I18nListener.class})
 @Table(name = "STM_SERVICE")
 @Builder
 @Getter

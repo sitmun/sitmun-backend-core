@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -10,7 +11,6 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j
@@ -20,14 +20,20 @@ public class TranslationService {
   private String defaultLanguage;
 
   private final TranslationRepository translationRepository;
+  private final EntityManager entityManager;
 
-  TranslationService(TranslationRepository translationRepository) {
+  TranslationService(TranslationRepository translationRepository, EntityManager entityManager) {
     this.translationRepository = translationRepository;
+    this.entityManager = entityManager;
   }
 
-  @Transactional
   public void updateInternationalization(Object target) {
     String languageTag = LocaleContextHolder.getLocale().getLanguage();
+    log.debug(
+        "TranslationService.updateInternationalization targetClass={} languageTag={} defaultLanguage={}",
+        target != null ? target.getClass().getName() : "null",
+        languageTag,
+        defaultLanguage);
     if (!Objects.equals(defaultLanguage, languageTag)) {
       ConfigurablePropertyAccessor wrapper = PropertyAccessorFactory.forDirectFieldAccess(target);
 
@@ -37,7 +43,19 @@ public class TranslationService {
               .findFirst()
               .map(Field::getName);
 
-      idName.ifPresent(s -> translate(target, wrapper, s, languageTag));
+      if (idName.isPresent()) {
+        translate(target, wrapper, idName.get(), languageTag);
+      } else {
+        log.debug(
+            "TranslationService.skip targetClass={} reason=no-@Id-field",
+            target != null ? target.getClass().getName() : "null");
+      }
+      
+      // Mark entity as read-only to prevent Hibernate from generating UPDATE statements
+      // while still allowing lazy loading and serialization
+      if (entityManager.contains(target)) {
+        entityManager.unwrap(org.hibernate.Session.class).setReadOnly(target, true);
+      }
     }
   }
 
@@ -45,9 +63,47 @@ public class TranslationService {
       Object target, ConfigurablePropertyAccessor wrapper, String idName, String languageTag) {
     Integer entityId = (Integer) wrapper.getPropertyValue(idName);
     String entity = target.getClass().getSimpleName();
+    log.debug(
+        "TranslationService.translate targetClass={} entity={} entityId={} idField={} languageTag={}",
+        target.getClass().getName(),
+        entity,
+        entityId,
+        idName,
+        languageTag);
+
+    TranslationCache cache = TranslationCache.fromRequest();
+    if (cache != null && cache.isPopulated()) {
+      log.debug(
+          "TranslationService.translate cache-hit entity={} entityId={}",
+          entity,
+          entityId);
+      Map<String, String> byProperty = cache.lookup(entityId, entity);
+      List<String> updates = new ArrayList<>();
+      for (Map.Entry<String, String> e : byProperty.entrySet()) {
+        if (!Strings.isEmpty(e.getValue())) {
+          Object oldValue = wrapper.getPropertyValue(e.getKey());
+          wrapper.setPropertyValue(e.getKey(), e.getValue());
+          updates.add(String.format("%s: '%s' -> '%s'", e.getKey(), oldValue, e.getValue()));
+        }
+      }
+      if (!updates.isEmpty()) {
+        log.info(
+            "Translations applied to {}:{} [{}]",
+            entity,
+            entityId,
+            String.join(", ", updates));
+      }
+      return;
+    }
+
+    log.debug(
+        "TranslationService.translate cache-miss entity={} entityId={} -> fallback repository query",
+        entity,
+        entityId);
+
     List<Translation> translations =
         translationRepository.findTranslation(entityId, entity, languageTag);
-    List<String> translatedProperties = new ArrayList<>();
+    List<String> updates = new ArrayList<>();
     for (Translation translation : translations) {
       if (translation.getColumn() == null) {
         log.warn(
@@ -59,16 +115,17 @@ public class TranslationService {
       }
       String property = translation.getColumn().replace(entity + ".", "");
       if (!Strings.isEmpty(translation.getTranslation())) {
-        translatedProperties.add(property);
+        Object oldValue = wrapper.getPropertyValue(property);
         wrapper.setPropertyValue(property, translation.getTranslation());
+        updates.add(String.format("%s: '%s' -> '%s'", property, oldValue, translation.getTranslation()));
       }
     }
-    if (!translatedProperties.isEmpty()) {
+    if (!updates.isEmpty()) {
       log.info(
-          "Translations for {}:{} for properties {}",
+          "Translations applied to {}:{} [{}]",
           entity,
           entityId,
-          String.join(", ", translatedProperties.toArray(new String[0])));
+          String.join(", ", updates));
     }
   }
 }

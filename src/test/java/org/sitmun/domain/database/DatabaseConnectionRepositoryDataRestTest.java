@@ -39,8 +39,11 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @BeforeEach
   void setUp() {
+    // Increased timeout to 30 seconds to accommodate slower database initialization
+    // in Oracle/PostgreSQL compared to H2, especially after context reloads
+    // triggered by @DirtiesContext annotation
     Awaitility.await()
-        .atMost(10, TimeUnit.SECONDS)
+        .atMost(30, TimeUnit.SECONDS)
         .pollInterval(500, TimeUnit.MILLISECONDS)
         .until(
             () ->

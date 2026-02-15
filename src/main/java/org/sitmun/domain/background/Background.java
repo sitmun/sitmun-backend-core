@@ -14,12 +14,13 @@ import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Background. */
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, I18nListener.class})
 @Table(name = "STM_BACKGRD")
 @Builder
 @Getter

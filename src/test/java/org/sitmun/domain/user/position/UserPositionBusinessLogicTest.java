@@ -16,7 +16,7 @@ import org.sitmun.domain.territory.type.TerritoryTypeRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
-import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -28,8 +28,13 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 
+/**
+ * Tests for UserPositionBusinessLogic. Positions for a user are updated (created) when
+ * UserConfiguration is saved (via UserConfigurationEventHandler), not when a user is retrieved with
+ * a projection; projections are read-only.
+ */
 @DataJpaTest
-@Import({UserPositionBusinessLogic.class, LiquibaseConfig.class})
+@Import({UserPositionBusinessLogic.class, I18nTestConfiguration.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("User Position Business Logic JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -56,9 +61,10 @@ class UserPositionBusinessLogicTest {
   @BeforeEach
   void setUp() {
     // Create and persist TerritoryType with all required fields
+    // Use timestamp to ensure unique name across test runs
     TerritoryType type =
         TerritoryType.builder()
-            .name("Test Type")
+            .name("Test Type " + System.currentTimeMillis())
             .official(false)
             .topType(false)
             .bottomType(false)
@@ -77,10 +83,11 @@ class UserPositionBusinessLogicTest {
     user = userRepository.save(user);
 
     // Create test territory with managed TerritoryType and all required fields (no code)
+    // Use timestamp to ensure unique name across test runs
     territory =
         Territory.builder()
-            .name("Test Territory")
-            .code("Test code")
+            .name("Test Territory " + System.currentTimeMillis())
+            .code("Test code " + System.currentTimeMillis())
             .blocked(false)
             .territorialAuthorityEmail("admin@example.com")
             .createdDate(new Date())
@@ -89,8 +96,11 @@ class UserPositionBusinessLogicTest {
             .build();
     territory = territoryRepository.save(territory);
 
-    // Create test role
-    role = Role.builder().name("Test Role").description("Test role description").build();
+    // Create test role with unique name
+    role = Role.builder()
+        .name("Test Role " + System.currentTimeMillis())
+        .description("Test role description")
+        .build();
     role = roleRepository.save(role);
 
     // Create test user configuration
@@ -129,6 +139,9 @@ class UserPositionBusinessLogicTest {
     UserPosition position = createdPosition.get(0);
     Assertions.assertThat(position.getUser()).isEqualTo(user);
     Assertions.assertThat(position.getTerritory()).isEqualTo(territory);
+    // Verify positions for user include the new one (updated list)
+    List<UserPosition> positionsForUser = userPositionRepository.findByUser(user);
+    Assertions.assertThat(positionsForUser).anyMatch(p -> p.getTerritory().equals(territory));
     // Clean up
     userPositionRepository.delete(position);
   }
@@ -148,12 +161,13 @@ class UserPositionBusinessLogicTest {
             .build();
     existingPosition = userPositionRepository.save(existingPosition);
 
-    // Call the business logic method directly
+    // Call the business logic method directly (should not create a second position)
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
 
-    // Verify no duplicate was created
-    long positionCount = userPositionRepository.findAll().spliterator().getExactSizeIfKnown();
-    Assertions.assertThat(positionCount).isEqualTo(initialUserPositionCount + 1);
+    // Verify no duplicate was created: still exactly one position for (user, territory)
+    List<UserPosition> positions = userPositionRepository.findByUserAndTerritory(user, territory);
+    Assertions.assertThat(positions).hasSize(1);
+    Assertions.assertThat(userPositionRepository.count()).isEqualTo(initialUserPositionCount + 1);
     // Clean up
     userPositionRepository.delete(existingPosition);
   }

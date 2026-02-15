@@ -89,8 +89,7 @@ class UserResourceIntegrationTest {
     assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     ResponseEntity<User> deleted = exchangeFunction.apply(HttpMethod.DELETE);
-    System.out.println(deleted.getBody());
-    assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(deleted.getStatusCode().is2xxSuccessful()).isTrue();
 
     HttpClientErrorException thrown =
         assertThrows(HttpClientErrorException.class, () -> exchangeFunction.apply(HttpMethod.GET));

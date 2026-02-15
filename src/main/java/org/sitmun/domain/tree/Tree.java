@@ -17,9 +17,11 @@ import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
 /** Tree. */
 @Entity
+@EntityListeners(I18nListener.class)
 @Table(name = "STM_TREE")
 @Builder(toBuilder = true)
 @Getter

@@ -4,18 +4,12 @@ import java.util.Locale;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-/**
- * Locale configuration for Spring MVC.
- * Defines locale resolution and change detection for internationalization support.
- */
+/** Infrastructure locale beans shared by MVC and i18n services. */
 @Configuration
-public class LocaleConfigurer implements WebMvcConfigurer {
+public class LocaleInfrastructureConfig {
 
   @Bean
   public LocaleResolver localeResolver() {
@@ -29,15 +23,5 @@ public class LocaleConfigurer implements WebMvcConfigurer {
     LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
     lci.setParamName("lang");
     return lci;
-  }
-
-  @Bean
-  public MappedInterceptor localeInterceptor(LocaleChangeInterceptor localeChangeInterceptor) {
-    return new MappedInterceptor(new String[] {"/**"}, localeChangeInterceptor);
-  }
-
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(localeChangeInterceptor()).addPathPatterns("/**");
   }
 }

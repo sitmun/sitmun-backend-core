@@ -26,14 +26,10 @@ spring:
       ddl-auto: none
     show-sql: false
     properties:
-      hibernate:
-        connection:
-          provider_disables_autocommit: true
-        # Dialect is auto-detected from JDBC URL
-        # Disable CLOB creation for better database compatibility
-        jdbc:
-          lob:
-            non_contextual_creation: true
+      # Disable auto-commit to allow lazy collection loading
+      hibernate.connection.provider_disables_autocommit: true
+      # Disable CLOB creation for better database compatibility
+      jdbc.lob.non_contextual_creation: true
   data:
     rest:
       default-page-size: 100000
@@ -45,6 +41,7 @@ spring:
 logging:
   level:
     ROOT: INFO
+    org.springframework.beans.factory.support.DefaultListableBeanFactory: WARN
 
 # ===================================================================
 # Management and Monitoring

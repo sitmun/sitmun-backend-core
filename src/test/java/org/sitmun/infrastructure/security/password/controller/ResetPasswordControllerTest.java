@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,6 +91,14 @@ class ResetPasswordControllerTest {
     expiredToken = Integer.toString(random.nextInt(100_000_000));
     counterLimitToken = Integer.toString(random.nextInt(100_000_000));
     notActiveToken = Integer.toString(random.nextInt(100_000_000));
+  }
+
+  @AfterEach
+  void tearDown() {
+    userTokenRepository.deleteAll();
+    userRepository.findByUsername("testuser").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
   }
 
   @Test

@@ -18,22 +18,35 @@ public class I18nListener implements ApplicationContextAware {
 
   @PostLoad
   public void updateInternationalization(Object target) {
-    if (isClientConfigRequest()) {
-      return;
+    if (!shouldApplyTranslation()) {
+      return;  // SKIP i18n when lang parameter is not present
     }
     applicationContext.getBean(TranslationService.class).updateInternationalization(target);
   }
 
-  private boolean isClientConfigRequest() {
+  private boolean shouldApplyTranslation() {
     try {
       ServletRequestAttributes attributes =
           (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
       if (attributes != null) {
         String requestPath = attributes.getRequest().getRequestURI();
-        return requestPath != null && requestPath.startsWith("/api/config/client");
+        String langParam = attributes.getRequest().getParameter("lang");
+
+        // Apply translation when:
+        // 1. Explicit lang parameter is present
+        // e.g /api/code-list-values?lang=es&codeListName=territory.scope
+        if (langParam != null && !langParam.isEmpty()) {
+          return true;
+        }
+
+        // 2. Client configuration endpoints
+        // e.g backend/api/config/client
+        if (requestPath != null && requestPath.contains("/api/config/client")) {
+          return true;
+        }
       }
     } catch (Exception e) {
-      log.debug("Could not determine request path, proceeding with internationalization", e);
+      log.debug("Could not determine request parameters, skipping internationalization", e);
     }
     return false;
   }

@@ -661,6 +661,16 @@ Comprehensive testing strategy:
 ./gradlew test --tests AuthenticationControllerTest
 ```
 
+**Oracle Test Notes:**
+
+- Oracle tests use Docker Compose and wait for database healthchecks (60-160 seconds startup time is normal)
+- Tests automatically start when the database is ready (no fixed delays)
+- If Oracle startup fails and containers are retained for troubleshooting, clean them with:
+
+  ```bash
+  ./gradlew oracleComposeDownForced
+  ```
+
 ### Development Workflow
 
 1. **Setup**: Clone repository and run with H2 database

@@ -26,6 +26,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.sitmun.infrastructure.persistence.type.point.PointToStringConverter;
 import org.sitmun.infrastructure.persistence.type.srs.Srs;
@@ -50,7 +51,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * configurations
  */
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, I18nListener.class})
 @Table(
     name = "STM_TERRITORY",
     uniqueConstraints = @UniqueConstraint(name = "STM_TER_NOM_UK", columnNames = "TER_NAME"))

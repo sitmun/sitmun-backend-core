@@ -42,11 +42,15 @@ services:
       APP_USER_PASSWORD: sitmun3
       ORACLE_DATABASE: sitmun3
     healthcheck:
-      test: ["CMD", "sqlplus", "-L", "sitmun3/sitmun3@//localhost:1521/sitmun3", "-c", "SELECT 1 FROM DUAL;"]
-      interval: 30s
-      timeout: 30s
+      test: |
+        bash -c '
+        lsnrctl status | grep -q "Service \"sitmun3\"" &&
+        echo "SELECT 1 FROM DUAL;" | sqlplus -s sitmun3/sitmun3@//localhost:1521/sitmun3 | grep -q "1"
+        '
+      interval: 5s
+      timeout: 5s
       start_period: 60s
-      retries: 3
+      retries: 20
 
 networks:
   sitmun-network-oracle:

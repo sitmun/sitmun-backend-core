@@ -206,9 +206,6 @@ tasks.register('testPostgres', Test) {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
   }
-  doFirst {
-    sleep(5000) // Wait for Postgres container to be ready
-  }
 }
 
 tasks.register('testOracle', Test) {
@@ -220,7 +217,9 @@ tasks.register('testOracle', Test) {
     exceptionFormat = 'full'
   }
   doFirst {
-    sleep(10000) // Wait for Oracle container to be ready
+    // Short stabilization delay after healthcheck passes
+    // Oracle may reject connections immediately after healthcheck succeeds
+    sleep(3000)
   }
 }
 
@@ -234,6 +233,9 @@ dockerCompose {
   oracle {
     useComposeFiles = ['docker/oracle/test-docker-compose.yml']
     isRequiredBy(project.tasks.testOracle)
+    // Oracle needs up to 160s (60s start_period + 20 retries x 5s)
+    waitForHealthyStateTimeout = java.time.Duration.ofMinutes(5)
+    retainContainersOnStartupFailure = true
   }
 }
 

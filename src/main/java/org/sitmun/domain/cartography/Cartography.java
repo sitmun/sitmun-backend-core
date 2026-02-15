@@ -25,13 +25,14 @@ import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.list.StringListAttributeConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Geographic information. */
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, I18nListener.class})
 @Table(name = "STM_GEOINFO")
 @Builder
 @Getter
@@ -126,7 +127,7 @@ public class Cartography {
   private String type;
 
   /** Portrayal service. */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @NotNull
   @JoinColumn(name = "GEO_SERID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SER"))
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
@@ -165,7 +166,7 @@ public class Cartography {
    *
    * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_SERSELID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SERSEL"))
   @Deprecated
   private Service spatialSelectionService;
@@ -191,7 +192,7 @@ public class Cartography {
    *
    * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_CONNID", foreignKey = @ForeignKey(name = "STM_GEO_FK_CON"))
   @Deprecated
   private DatabaseConnection spatialSelectionConnection;
@@ -247,7 +248,7 @@ public class Cartography {
    *
    * @deprecated
    */
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "GEO_STYID", foreignKey = @ForeignKey(name = "STM_GEO_FK_SGI"))
   @Deprecated
   private CartographyStyle defaultStyle;

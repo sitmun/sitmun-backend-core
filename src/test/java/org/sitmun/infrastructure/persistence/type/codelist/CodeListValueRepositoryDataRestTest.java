@@ -2,6 +2,7 @@ package org.sitmun.infrastructure.persistence.type.codelist;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT;
 import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
 import static org.sitmun.domain.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.test.URIConstants.*;
@@ -81,6 +82,25 @@ class CodeListValueRepositoryDataRestTest {
         .andExpect(
             jsonPath("$._embedded.codelist-values[?(@.id == 12)].description")
                 .value("Personalitzat"));
+  }
+
+  /**
+   * Regression: GET with lang and projection=view must not trigger ResultSet closed (PostgreSQL).
+   * Request-scoped translation cache is preloaded in interceptor so @PostLoad does not run nested
+   * queries.
+   */
+  @Test
+  @DisplayName("GET: cartographyParameter.format with lang=ca and projection=view returns 200")
+  @WithMockUser(roles = "ADMIN")
+  void codelistValuesWithLangAndProjectionView() throws Exception {
+    mvc.perform(
+            get(CODELIST_VALUES_URI_FILTER + "&lang=ca&projection=view", CARTOGRAPHY_PARAMETER_FORMAT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.codelist-values").isArray())
+        .andExpect(
+            jsonPath(
+                "$._embedded.codelist-values[?(@.codeListName == 'cartographyParameter.format')]")
+                .isArray());
   }
 
   @Test

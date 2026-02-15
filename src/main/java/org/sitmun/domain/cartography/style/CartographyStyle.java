@@ -64,7 +64,7 @@ public class CartographyStyle {
   private Boolean defaultStyle;
 
   /** Cartography that owns the style. */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "SGI_GIID", foreignKey = @ForeignKey(name = "STM_SGI_FK_GEO"))
   @NotNull

@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import org.sitmun.domain.role.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,10 @@ import org.springframework.lang.NonNull;
     itemResourceRel = "cartography",
     path = "cartographies")
 public interface CartographyRepository extends JpaRepository<Cartography, Integer> {
+
+  @Override
+  @EntityGraph(attributePaths = {"service", "spatialSelectionService", "spatialSelectionConnection", "styles"})
+  Page<Cartography> findAll(Pageable pageable);
 
   @Override
   @EntityGraph(
