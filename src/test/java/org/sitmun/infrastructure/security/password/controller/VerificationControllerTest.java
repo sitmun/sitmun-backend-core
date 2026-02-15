@@ -99,7 +99,8 @@ class VerificationControllerTest {
   @DisplayName("POST: Verify email with existing email should return true")
   @WithMockUser(roles = "USER")
   void verifyEmailWithExistingEmail() throws Exception {
-    // Unique email/username (≤50 chars) to avoid NonUniqueResultException when other tests leave users with same email
+    // Unique email/username (≤50 chars) to avoid NonUniqueResultException when other tests leave
+    // users with same email
     String uid = java.util.UUID.randomUUID().toString().substring(0, 8);
     String uniqueEmail = "vrfy-ex-" + uid + "@example.com";
     User testUser = new User();

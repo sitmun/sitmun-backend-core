@@ -164,10 +164,10 @@ sitmun:
         - code-list-name: treenode.leaf.type
           value: task
           description: Task
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: fav
           description: Favorites
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: map
           description: Map
         - code-list-name: treenode.viewmode
@@ -197,7 +197,7 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: gallery
           description: Gallery
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: nm
           description: Near me
         - code-list-name: taskEntity.jsonParamType

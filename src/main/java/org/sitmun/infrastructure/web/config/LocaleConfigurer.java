@@ -11,8 +11,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 /**
- * Locale configuration for Spring MVC.
- * Defines locale resolution and change detection for internationalization support.
+ * Locale configuration for Spring MVC. Defines locale resolution and change detection for
+ * internationalization support.
  */
 @Configuration
 public class LocaleConfigurer implements WebMvcConfigurer {

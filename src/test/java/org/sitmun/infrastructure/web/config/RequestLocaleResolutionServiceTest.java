@@ -44,41 +44,38 @@ class RequestLocaleResolutionServiceTest {
 
   private RequestLocaleResolutionService service;
   private static final String DEFAULT_LANGUAGE = "en";
-  
+
   private List<Language> supportedLanguages;
 
   @BeforeEach
   void setUp() {
-    service = new RequestLocaleResolutionService(
-        localeResolver, 
-        localeChangeInterceptor,
-        languageRepository,
-        configurationParameterRepository);
-    
+    service =
+        new RequestLocaleResolutionService(
+            localeResolver,
+            localeChangeInterceptor,
+            languageRepository,
+            configurationParameterRepository);
+
     ReflectionTestUtils.setField(service, "sitmunLanguage", "en");
-    
+
     // Setup supported languages in database
-    supportedLanguages = Arrays.asList(
-        createLanguage("en", "English"),
-        createLanguage("es", "Spanish"),
-        createLanguage("ca", "Catalan"),
-        createLanguage("fr", "French"),
-        createLanguage("oc-aranes", "Occitan Aranese")
-    );
-    
+    supportedLanguages =
+        Arrays.asList(
+            createLanguage("en", "English"),
+            createLanguage("es", "Spanish"),
+            createLanguage("ca", "Catalan"),
+            createLanguage("fr", "French"),
+            createLanguage("oc-aranes", "Occitan Aranese"));
+
     lenient().when(languageRepository.findAll()).thenReturn(supportedLanguages);
     lenient().when(configurationParameterRepository.findAll()).thenReturn(Collections.emptyList());
     lenient().when(localeChangeInterceptor.getParamName()).thenReturn("lang");
     lenient().when(localeChangeInterceptor.getHttpMethods()).thenReturn(null);
     lenient().when(localeChangeInterceptor.isIgnoreInvalidLocale()).thenReturn(true);
   }
-  
+
   private Language createLanguage(String shortname, String name) {
-    return Language.builder()
-        .id(shortname.hashCode())
-        .shortname(shortname)
-        .name(name)
-        .build();
+    return Language.builder().id(shortname.hashCode()).shortname(shortname).name(name).build();
   }
 
   @Nested
@@ -118,7 +115,7 @@ class RequestLocaleResolutionServiceTest {
 
       assertThat(result).isEqualTo("fr");
     }
-    
+
     @Test
     @DisplayName("falls back to database default when lang param not in supported languages")
     void unsupportedLangFallsBackToDefault() {
@@ -143,7 +140,8 @@ class RequestLocaleResolutionServiceTest {
     void usesFirstAcceptLanguage() {
       when(request.getParameter("lang")).thenReturn(null);
       when(request.getLocales())
-          .thenReturn(Collections.enumeration(Collections.singletonList(Locale.forLanguageTag("es"))));
+          .thenReturn(
+              Collections.enumeration(Collections.singletonList(Locale.forLanguageTag("es"))));
 
       String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
 
@@ -156,8 +154,7 @@ class RequestLocaleResolutionServiceTest {
     void acceptLanguageRegionalToBase() {
       when(request.getParameter("lang")).thenReturn(null);
       when(request.getLocales())
-          .thenReturn(
-              Collections.enumeration(Collections.singletonList(Locale.FRANCE)));
+          .thenReturn(Collections.enumeration(Collections.singletonList(Locale.FRANCE)));
 
       String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
 
@@ -206,19 +203,18 @@ class RequestLocaleResolutionServiceTest {
 
       assertThat(result).isEqualTo("ca");
     }
-    
+
     @Test
-    @DisplayName("falls back to database default.language parameter when resolver returns unsupported")
+    @DisplayName(
+        "falls back to database default.language parameter when resolver returns unsupported")
     void fallbackToDatabaseDefaultParameter() {
       when(request.getParameter("lang")).thenReturn(null);
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.forLanguageTag("de"));
-      
-      ConfigurationParameter defaultLangParam = ConfigurationParameter.builder()
-          .name("default.language")
-          .value("es")
-          .build();
-      
+
+      ConfigurationParameter defaultLangParam =
+          ConfigurationParameter.builder().name("default.language").value("es").build();
+
       // Reset and setup mocks for this test
       reset(configurationParameterRepository);
       reset(languageRepository);
@@ -237,7 +233,7 @@ class RequestLocaleResolutionServiceTest {
         LocaleContextHolder.setLocale(previousLocale);
       }
     }
-    
+
     @Test
     @DisplayName("falls back to sitmun.language when all else fails")
     void fallbackToSitmunLanguageProperty() {

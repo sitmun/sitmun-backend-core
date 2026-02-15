@@ -94,12 +94,14 @@ class CodeListValueRepositoryDataRestTest {
   @WithMockUser(roles = "ADMIN")
   void codelistValuesWithLangAndProjectionView() throws Exception {
     mvc.perform(
-            get(CODELIST_VALUES_URI_FILTER + "&lang=ca&projection=view", CARTOGRAPHY_PARAMETER_FORMAT))
+            get(
+                CODELIST_VALUES_URI_FILTER + "&lang=ca&projection=view",
+                CARTOGRAPHY_PARAMETER_FORMAT))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.codelist-values").isArray())
         .andExpect(
             jsonPath(
-                "$._embedded.codelist-values[?(@.codeListName == 'cartographyParameter.format')]")
+                    "$._embedded.codelist-values[?(@.codeListName == 'cartographyParameter.format')]")
                 .isArray());
   }
 

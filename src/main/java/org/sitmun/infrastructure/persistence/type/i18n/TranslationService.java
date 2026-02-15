@@ -50,7 +50,7 @@ public class TranslationService {
             "TranslationService.skip targetClass={} reason=no-@Id-field",
             target != null ? target.getClass().getName() : "null");
       }
-      
+
       // Mark entity as read-only to prevent Hibernate from generating UPDATE statements
       // while still allowing lazy loading and serialization
       if (entityManager.contains(target)) {
@@ -73,10 +73,7 @@ public class TranslationService {
 
     TranslationCache cache = TranslationCache.fromRequest();
     if (cache != null && cache.isPopulated()) {
-      log.debug(
-          "TranslationService.translate cache-hit entity={} entityId={}",
-          entity,
-          entityId);
+      log.debug("TranslationService.translate cache-hit entity={} entityId={}", entity, entityId);
       Map<String, String> byProperty = cache.lookup(entityId, entity);
       List<String> updates = new ArrayList<>();
       for (Map.Entry<String, String> e : byProperty.entrySet()) {
@@ -88,10 +85,7 @@ public class TranslationService {
       }
       if (!updates.isEmpty()) {
         log.info(
-            "Translations applied to {}:{} [{}]",
-            entity,
-            entityId,
-            String.join(", ", updates));
+            "Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
       }
       return;
     }
@@ -117,15 +111,12 @@ public class TranslationService {
       if (!Strings.isEmpty(translation.getTranslation())) {
         Object oldValue = wrapper.getPropertyValue(property);
         wrapper.setPropertyValue(property, translation.getTranslation());
-        updates.add(String.format("%s: '%s' -> '%s'", property, oldValue, translation.getTranslation()));
+        updates.add(
+            String.format("%s: '%s' -> '%s'", property, oldValue, translation.getTranslation()));
       }
     }
     if (!updates.isEmpty()) {
-      log.info(
-          "Translations applied to {}:{} [{}]",
-          entity,
-          entityId,
-          String.join(", ", updates));
+      log.info("Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
     }
   }
 }

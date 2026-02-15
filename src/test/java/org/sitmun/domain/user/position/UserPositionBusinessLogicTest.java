@@ -97,10 +97,11 @@ class UserPositionBusinessLogicTest {
     territory = territoryRepository.save(territory);
 
     // Create test role with unique name
-    role = Role.builder()
-        .name("Test Role " + System.currentTimeMillis())
-        .description("Test role description")
-        .build();
+    role =
+        Role.builder()
+            .name("Test Role " + System.currentTimeMillis())
+            .description("Test role description")
+            .build();
     role = roleRepository.save(role);
 
     // Create test user configuration

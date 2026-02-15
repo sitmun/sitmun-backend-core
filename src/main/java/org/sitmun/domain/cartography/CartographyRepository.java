@@ -22,7 +22,13 @@ import org.springframework.lang.NonNull;
 public interface CartographyRepository extends JpaRepository<Cartography, Integer> {
 
   @Override
-  @EntityGraph(attributePaths = {"service", "spatialSelectionService", "spatialSelectionConnection", "styles"})
+  @EntityGraph(
+      attributePaths = {
+        "service",
+        "spatialSelectionService",
+        "spatialSelectionConnection",
+        "styles"
+      })
   Page<Cartography> findAll(Pageable pageable);
 
   @Override

@@ -33,11 +33,14 @@ public final class TranslationCache {
       }
     }
     initialized = true;
-    log.debug("TranslationCache populated: {} rows received, {} entries indexed", rowCount, byKey.size());
+    log.debug(
+        "TranslationCache populated: {} rows received, {} entries indexed", rowCount, byKey.size());
     if (byKey.isEmpty() && rowCount > 0) {
-      log.debug("TranslationCache: all {} rows skipped (null element/column/translation)", rowCount);
+      log.debug(
+          "TranslationCache: all {} rows skipped (null element/column/translation)", rowCount);
     } else if (rowCount == 0) {
-      log.debug("TranslationCache: preload returned 0 rows for locale (cache empty but initialized)");
+      log.debug(
+          "TranslationCache: preload returned 0 rows for locale (cache empty but initialized)");
     }
   }
 
@@ -63,11 +66,18 @@ public final class TranslationCache {
         out.put(property, e.getValue());
       }
     }
-    log.debug("TranslationCache.lookup entityId={} entityPrefix={} -> {} properties", entityId, entityPrefix, out.size());
+    log.debug(
+        "TranslationCache.lookup entityId={} entityPrefix={} -> {} properties",
+        entityId,
+        entityPrefix,
+        out.size());
     return out;
   }
 
-  /** True if populate() was called this request (even when 0 rows). Avoids fallback to per-entity query. */
+  /**
+   * True if populate() was called this request (even when 0 rows). Avoids fallback to per-entity
+   * query.
+   */
   public boolean isPopulated() {
     return initialized;
   }
@@ -88,14 +98,20 @@ public final class TranslationCache {
       // Try RequestAttributes first
       Object value = attrs.getAttribute(REQUEST_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
       if (value instanceof TranslationCache cache) {
-        log.debug("TranslationCache.fromRequest: cache found via RequestContextHolder initialized={} size={}", cache.initialized, cache.byKey.size());
+        log.debug(
+            "TranslationCache.fromRequest: cache found via RequestContextHolder initialized={} size={}",
+            cache.initialized,
+            cache.byKey.size());
         return cache;
       }
-      
+
       // Fallback: check directly on ServletRequest (for Filter context)
       value = sra.getRequest().getAttribute(REQUEST_ATTRIBUTE);
       if (value instanceof TranslationCache cache) {
-        log.debug("TranslationCache.fromRequest: cache found via ServletRequest initialized={} size={}", cache.initialized, cache.byKey.size());
+        log.debug(
+            "TranslationCache.fromRequest: cache found via ServletRequest initialized={} size={}",
+            cache.initialized,
+            cache.byKey.size());
         return cache;
       }
     }
@@ -108,20 +124,28 @@ public final class TranslationCache {
     RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
     if (attrs != null) {
       attrs.setAttribute(REQUEST_ATTRIBUTE, cache, RequestAttributes.SCOPE_REQUEST);
-      log.debug("TranslationCache.setRequestAttribute: cache set via RequestContextHolder initialized={} size={}", cache.initialized, cache.byKey.size());
+      log.debug(
+          "TranslationCache.setRequestAttribute: cache set via RequestContextHolder initialized={} size={}",
+          cache.initialized,
+          cache.byKey.size());
     } else {
-      log.debug("TranslationCache.setRequestAttribute: no request attributes via RequestContextHolder");
+      log.debug(
+          "TranslationCache.setRequestAttribute: no request attributes via RequestContextHolder");
     }
   }
-  
+
   /** Store cache on ServletRequest (for Filter context). */
-  public static void setRequestAttribute(TranslationCache cache, jakarta.servlet.ServletRequest request) {
+  public static void setRequestAttribute(
+      TranslationCache cache, jakarta.servlet.ServletRequest request) {
     if (request == null) {
       log.debug("TranslationCache.setRequestAttribute: null ServletRequest");
       return;
     }
     request.setAttribute(REQUEST_ATTRIBUTE, cache);
-    log.debug("TranslationCache.setRequestAttribute: cache set on ServletRequest initialized={} size={}", cache.initialized, cache.byKey.size());
+    log.debug(
+        "TranslationCache.setRequestAttribute: cache set on ServletRequest initialized={} size={}",
+        cache.initialized,
+        cache.byKey.size());
   }
 
   /** Remove cache from current request. */
@@ -132,7 +156,7 @@ public final class TranslationCache {
       log.debug("TranslationCache.removeRequestAttribute: cache removed via RequestContextHolder");
     }
   }
-  
+
   /** Remove cache from ServletRequest (for Filter context). */
   public static void removeRequestAttribute(jakarta.servlet.ServletRequest request) {
     if (request == null) {

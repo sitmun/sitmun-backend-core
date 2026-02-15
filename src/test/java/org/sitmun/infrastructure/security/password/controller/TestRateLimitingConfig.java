@@ -12,15 +12,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 /**
- * Test configuration that disables rate limiting for password reset endpoints.
- * This prevents rate limit counters from accumulating across tests.
+ * Test configuration that disables rate limiting for password reset endpoints. This prevents rate
+ * limit counters from accumulating across tests.
  */
 @TestConfiguration
 public class TestRateLimitingConfig {
-  
-  /**
-   * No-op filter that does nothing - effectively disables rate limiting for tests.
-   */
+
+  /** No-op filter that does nothing - effectively disables rate limiting for tests. */
   private static class NoOpFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -28,10 +26,8 @@ public class TestRateLimitingConfig {
       chain.doFilter(request, response);
     }
   }
-  
-  /**
-   * Disables rate limiting for password reset resend endpoint in tests.
-   */
+
+  /** Disables rate limiting for password reset resend endpoint in tests. */
   @Bean
   @Primary
   public FilterRegistrationBean<Filter> passwordResetResendLimiting() {
@@ -42,9 +38,7 @@ public class TestRateLimitingConfig {
     return registrationBean;
   }
 
-  /**
-   * Disables rate limiting for password reset request endpoint in tests.
-   */
+  /** Disables rate limiting for password reset request endpoint in tests. */
   @Bean
   @Primary
   public FilterRegistrationBean<Filter> passwordResetRequestLimiting() {

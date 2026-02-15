@@ -19,7 +19,7 @@ public class I18nListener implements ApplicationContextAware {
   @PostLoad
   public void updateInternationalization(Object target) {
     if (!shouldApplyTranslation()) {
-      return;  // SKIP i18n when lang parameter is not present
+      return; // SKIP i18n when lang parameter is not present
     }
     applicationContext.getBean(TranslationService.class).updateInternationalization(target);
   }

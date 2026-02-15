@@ -20,9 +20,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 /**
- * Resolves request locale using supported languages from database.
- * Supports explicit {@code lang} param, Accept-Language header, then resolver/context/default.
- * Matches against Language.shortname with pattern: shortname[-.*]?
+ * Resolves request locale using supported languages from database. Supports explicit {@code lang}
+ * param, Accept-Language header, then resolver/context/default. Matches against Language.shortname
+ * with pattern: shortname[-.*]?
  */
 @Component
 @Slf4j
@@ -51,8 +51,8 @@ public class RequestLocaleResolutionService {
   }
 
   /**
-   * Applies LocaleChangeInterceptor semantics and resolves the request language.
-   * Source order: lang-param → accept-language → resolver → context-holder → default.
+   * Applies LocaleChangeInterceptor semantics and resolves the request language. Source order:
+   * lang-param → accept-language → resolver → context-holder → default.
    *
    * @param request current HTTP request
    * @param response current HTTP response
@@ -75,7 +75,8 @@ public class RequestLocaleResolutionService {
         langParam);
 
     // 1) Explicit lang param: Spring 6 LocaleChangeInterceptor semantics
-    if (langParam != null && !langParam.isBlank()
+    if (langParam != null
+        && !langParam.isBlank()
         && checkHttpMethod(request.getMethod(), localeChangeInterceptor.getHttpMethods())) {
       try {
         Locale parsed = StringUtils.parseLocale(langParam);
@@ -144,7 +145,8 @@ public class RequestLocaleResolutionService {
     // 5) Database default.language parameter
     String dbDefaultLanguage = getDefaultLanguageFromDatabase();
     if (dbDefaultLanguage != null) {
-      log.debug("RequestLocaleResolutionService source=database-parameter matched={}", dbDefaultLanguage);
+      log.debug(
+          "RequestLocaleResolutionService source=database-parameter matched={}", dbDefaultLanguage);
       return dbDefaultLanguage;
     }
 
@@ -154,12 +156,9 @@ public class RequestLocaleResolutionService {
   }
 
   /**
-   * Matches a locale tag against supported languages in database.
-   * Pattern: Language.shortname[-.*]?
-   * Examples:
-   * - "en-US" matches "en"
-   * - "oc-aranes" matches "oc-aranes" (exact match)
-   * - "ca" matches "ca"
+   * Matches a locale tag against supported languages in database. Pattern: Language.shortname[-.*]?
+   * Examples: - "en-US" matches "en" - "oc-aranes" matches "oc-aranes" (exact match) - "ca" matches
+   * "ca"
    *
    * @param localeTag the locale tag to match (e.g., "en-US", "ca", "oc-aranes")
    * @return matched Language.shortname or null if no match
@@ -170,47 +169,60 @@ public class RequestLocaleResolutionService {
     }
 
     List<Language> supportedLanguages = languageRepository.findAll();
-    
+
     // First try exact match
     for (Language lang : supportedLanguages) {
       if (localeTag.equals(lang.getShortname())) {
-        log.debug("RequestLocaleResolutionService.match exact localeTag={} -> {}", localeTag, lang.getShortname());
+        log.debug(
+            "RequestLocaleResolutionService.match exact localeTag={} -> {}",
+            localeTag,
+            lang.getShortname());
         return lang.getShortname();
       }
     }
 
     // Then try prefix match (e.g., "en-US" matches "en")
-    String baseTag = localeTag.contains("-") ? localeTag.substring(0, localeTag.indexOf('-')) : localeTag;
+    String baseTag =
+        localeTag.contains("-") ? localeTag.substring(0, localeTag.indexOf('-')) : localeTag;
     for (Language lang : supportedLanguages) {
       if (baseTag.equals(lang.getShortname())) {
-        log.debug("RequestLocaleResolutionService.match prefix localeTag={} baseTag={} -> {}", 
-            localeTag, baseTag, lang.getShortname());
+        log.debug(
+            "RequestLocaleResolutionService.match prefix localeTag={} baseTag={} -> {}",
+            localeTag,
+            baseTag,
+            lang.getShortname());
         return lang.getShortname();
       }
     }
 
-    log.debug("RequestLocaleResolutionService.match no-match localeTag={} supportedCount={}", 
-        localeTag, supportedLanguages.size());
+    log.debug(
+        "RequestLocaleResolutionService.match no-match localeTag={} supportedCount={}",
+        localeTag,
+        supportedLanguages.size());
     return null;
   }
 
   /**
-   * Gets default language from ConfigurationParameter table.
-   * Looks for parameter with name "default.language".
+   * Gets default language from ConfigurationParameter table. Looks for parameter with name
+   * "default.language".
    *
    * @return the default language shortname or null if not found
    */
   private String getDefaultLanguageFromDatabase() {
     try {
-      Optional<ConfigurationParameter> param = configurationParameterRepository.findAll().stream()
-          .filter(p -> DEFAULT_LANGUAGE_PARAM.equals(p.getName()))
-          .findFirst();
-      
+      Optional<ConfigurationParameter> param =
+          configurationParameterRepository.findAll().stream()
+              .filter(p -> DEFAULT_LANGUAGE_PARAM.equals(p.getName()))
+              .findFirst();
+
       if (param.isPresent() && param.get().getValue() != null) {
         String value = param.get().getValue();
         String matched = matchSupportedLanguage(value);
         if (matched != null) {
-          log.debug("RequestLocaleResolutionService.defaultFromDb found param value={} matched={}", value, matched);
+          log.debug(
+              "RequestLocaleResolutionService.defaultFromDb found param value={} matched={}",
+              value,
+              matched);
           return matched;
         }
       }
