@@ -159,10 +159,11 @@ class CartographyRepositoryDataRestTest {
   @DisplayName("GET: has treeNodes property")
   @WithMockUser(roles = "ADMIN")
   void hasTreeNodeListProperty() throws Exception {
-    mvc.perform(get(CARTOGRAPHIES_URI + "?size=10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.cartographies[*]", hasSize(10)))
-        .andExpect(jsonPath("$._embedded.cartographies[*]._links.treeNodes", hasSize(10)));
+    for (Cartography cartography : cartographies) {
+      mvc.perform(get(CARTOGRAPHY_URI, cartography.getId()))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._links.treeNodes").exists());
+    }
   }
 
   @Test

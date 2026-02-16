@@ -1,9 +1,7 @@
 package org.sitmun.authentication.dto;
 
+import java.util.List;
 import lombok.Builder;
 
-import java.util.List;
-
 @Builder
-public record AuthProviderDTO(String id, List<OidcProviderDTO> providers) {
-}
+public record AuthProviderDTO(String id, List<OidcProviderDTO> providers) {}

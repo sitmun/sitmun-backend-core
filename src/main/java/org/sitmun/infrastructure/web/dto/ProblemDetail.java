@@ -13,14 +13,16 @@ import lombok.Setter;
  * <p>This class represents a standard error response format as defined in RFC 9457. It provides a
  * machine-readable format for specifying errors in HTTP API responses.
  *
- * <p>Standard fields: 
+ * <p>Standard fields:
+ *
  * <ul>
- * <li>type: A URI reference that identifies the problem type</li>
- * <li>status: The HTTP status code</li>
- * <li>title: A short, human-readable summary of the problem type</li>
- * <li>detail: A human-readable explanation specific to this occurrence</li>
- * <li>instance: A URI reference that identifies the specific occurrence of the problem</li>
+ *   <li>type: A URI reference that identifies the problem type
+ *   <li>status: The HTTP status code
+ *   <li>title: A short, human-readable summary of the problem type
+ *   <li>detail: A human-readable explanation specific to this occurrence
+ *   <li>instance: A URI reference that identifies the specific occurrence of the problem
  * </ul>
+ *
  * <p>Extension members can be added via the properties map.
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457</a>
@@ -33,7 +35,8 @@ public class ProblemDetail {
 
   /**
    * A URI reference (RFC3986) that identifies the problem type. When dereferenced, it SHOULD
-   * provide human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html5-20141028]).
+   * provide human-readable documentation for the problem type (e.g., using HTML
+   * [W3C.REC-html5-20141028]).
    *
    * <p>When this member is not present, its value is assumed to be "about:blank".
    */
@@ -55,8 +58,8 @@ public class ProblemDetail {
   private String detail;
 
   /**
-   * A URI reference that identifies the specific occurrence of the problem. It may or may not
-   * yield further information if dereferenced.
+   * A URI reference that identifies the specific occurrence of the problem. It may or may not yield
+   * further information if dereferenced.
    */
   private String instance;
 
@@ -78,4 +81,3 @@ public class ProblemDetail {
     return this;
   }
 }
-

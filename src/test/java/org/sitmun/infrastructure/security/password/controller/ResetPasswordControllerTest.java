@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,11 +34,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@Import(MockMailConfig.class)
-@DisplayName("Password Recovery Controller Tests")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AdditiveActiveProfiles("mail")
+@AutoConfigureMockMvc
+@Import({MockMailConfig.class, TestRateLimitingConfig.class, TestMailService.class})
+@DisplayName("Password Recovery Controller Tests")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ResetPasswordControllerTest {
   @Autowired private MockMvc mvc;
@@ -56,6 +57,8 @@ class ResetPasswordControllerTest {
   private String expiredToken;
   private String counterLimitToken;
   private String notActiveToken;
+  /** Unique email per test run to avoid IncorrectResultSizeDataAccessException when DB is shared across contexts. */
+  private String testUserEmail;
 
   @BeforeEach
   void setUp() {
@@ -67,11 +70,14 @@ class ResetPasswordControllerTest {
     userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
     userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
+    // Unique email per test run so findByEmail returns a single result when DB is shared (e.g. parallel contexts)
+    testUserEmail = "test-" + System.nanoTime() + "@example.com";
+
     // Create test user
     testUser =
         User.builder()
             .username("testuser")
-            .email("test@example.com")
+            .email(testUserEmail)
             .firstName("Test")
             .lastName("User")
             .password("oldpassword")
@@ -92,11 +98,19 @@ class ResetPasswordControllerTest {
     notActiveToken = Integer.toString(random.nextInt(100_000_000));
   }
 
+  @AfterEach
+  void tearDown() {
+    userTokenRepository.deleteAll();
+    userRepository.findByUsername("testuser").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
+    userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
+  }
+
   @Test
   @DisplayName("POST: Send recovery email with valid email")
   @Transactional
   void sendRecoveryEmailWithValidEmail() throws Exception {
-    checkService("test@example.com", true);
+    checkService(testUser.getEmail(), true);
   }
 
   @Test

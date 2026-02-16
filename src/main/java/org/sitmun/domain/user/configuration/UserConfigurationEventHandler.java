@@ -2,6 +2,7 @@ package org.sitmun.domain.user.configuration;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.domain.user.UserChecksService;
 import org.sitmun.domain.user.position.UserPositionBusinessLogic;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
@@ -19,9 +20,12 @@ import org.springframework.stereotype.Component;
 public class UserConfigurationEventHandler {
 
   private final UserPositionBusinessLogic userPositionBusinessLogic;
+  private final UserChecksService userChecksService;
 
-  public UserConfigurationEventHandler(UserPositionBusinessLogic userPositionBusinessLogic) {
+  public UserConfigurationEventHandler(
+      UserPositionBusinessLogic userPositionBusinessLogic, UserChecksService userChecksService) {
     this.userPositionBusinessLogic = userPositionBusinessLogic;
+    this.userChecksService = userChecksService;
   }
 
   /**
@@ -33,6 +37,7 @@ public class UserConfigurationEventHandler {
   @HandleAfterCreate
   public void handleUserConfigurationCreate(@NotNull UserConfiguration userConfiguration) {
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
+    userChecksService.enforcePositionsForUser(userConfiguration.getUser());
   }
 
   /**
@@ -44,5 +49,6 @@ public class UserConfigurationEventHandler {
   @HandleAfterSave
   public void handleUserConfigurationUpdate(@NotNull UserConfiguration userConfiguration) {
     userPositionBusinessLogic.createUserPositionIfNotExists(userConfiguration);
+    userChecksService.enforcePositionsForUser(userConfiguration.getUser());
   }
 }

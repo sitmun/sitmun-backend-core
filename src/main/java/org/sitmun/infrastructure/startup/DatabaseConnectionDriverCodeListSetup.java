@@ -9,6 +9,7 @@ import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueReposito
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,9 @@ public class DatabaseConnectionDriverCodeListSetup implements ApplicationRunner 
     List<CodeListValue> newValues = new ArrayList<>();
     repository
         .findAllByCodeListName(CodeListsConstants.DATABASE_CONNECTION_DRIVER)
-        .forEach(item -> existingConfiguration.add(item.getStoredValue()));
+        .forEach(item -> existingConfiguration.add(item.getValue()));
+    log.info("Found {} existing database connection drivers", existingConfiguration.size());
+
     properties
         .getDatabaseConnectionDrivers()
         .forEach(
@@ -51,10 +54,40 @@ public class DatabaseConnectionDriverCodeListSetup implements ApplicationRunner 
                 codeListValue.setDefaultCode(false);
                 codeListValue.setSystem(true);
                 newValues.add(codeListValue);
-                log.info("Added database connection driver: {}", driver.getDriverClass());
+                log.info("Will add database connection driver: {}", driver.getDriverClass());
+              } else {
+                log.debug(
+                    "Skipping existing database connection driver: {}", driver.getDriverClass());
               }
             });
-    repository.saveAll(newValues);
-    log.info("Finished DatabaseConnectionDriverCodeListSetup: added {}", newValues.size());
+
+    if (!newValues.isEmpty()) {
+      log.info("Saving {} new database connection drivers", newValues.size());
+      try {
+        repository.saveAll(newValues);
+        log.info(
+            "Finished DatabaseConnectionDriverCodeListSetup: successfully added {} new drivers",
+            newValues.size());
+      } catch (DataIntegrityViolationException e) {
+        log.warn(
+            "Some database connection drivers already exist in database, attempting individual insert");
+        int successCount = 0;
+        for (CodeListValue value : newValues) {
+          try {
+            repository.save(value);
+            successCount++;
+            log.debug("Successfully saved database connection driver: {}", value.getValue());
+          } catch (DataIntegrityViolationException ex) {
+            log.debug("Skipped duplicate database connection driver: {}", value.getValue());
+          }
+        }
+        log.info(
+            "Finished DatabaseConnectionDriverCodeListSetup: added {} out of {} drivers",
+            successCount,
+            newValues.size());
+      }
+    } else {
+      log.info("Finished DatabaseConnectionDriverCodeListSetup: no new drivers to add");
+    }
   }
 }

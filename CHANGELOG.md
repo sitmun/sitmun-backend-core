@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-02-16
+
+### Added
+
+- Request-scoped translation cache and database-driven locale resolution for i18n lookups.
+- Health endpoint reports healthy only after startup completes.
+
+### Changed
+
+- Refactored Liquibase configuration and removed legacy Heroku-related setup.
+- Lowered translation application logs from info to debug level to reduce noise in normal operation.
+- Updated README structure and formatting for consistency.
+
+### Fixed
+
+- Corrected tree node codelist naming (`code-list-name`) handling.
+- Stabilized test execution for parallel runs and database-specific scenarios (PostgreSQL/Oracle/WebMvcTest).
+
+## [1.2.1] - 2026-02-06
+
+### Added
+
+- Multi-provider OIDC authentication support alongside existing database/LDAP authentication options ([ec87515](https://github.com/sitmun/sitmun-backend-core/commit/ec87515b))
+- Multi-client frontend redirect URLs based on query parameter appended to OIDC auth requests ([e7dff74](https://github.com/sitmun/sitmun-backend-core/commit/e7dff74e))
+- Integration tests for redirect service and complete OIDC authentication flow ([6185f61](https://github.com/sitmun/sitmun-backend-core/commit/6185f610), [eed01bb](https://github.com/sitmun/sitmun-backend-core/commit/eed01bbe))
+- Unit tests for OIDC authentication ([f63c848](https://github.com/sitmun/sitmun-backend-core/commit/f63c8481))
+
+### Changed
+
+- Centralized redirect logic and removed redundant attributes ([e7dff74](https://github.com/sitmun/sitmun-backend-core/commit/e7dff74e))
+
+### Fixed
+
+- Consistency mismatch between success and failure handlers ([00adec6](https://github.com/sitmun/sitmun-backend-core/commit/00adec63), [f3bfdeb](https://github.com/sitmun/sitmun-backend-core/commit/f3bfdedb))
+
 ## [1.2.0] - 2026-01-27
 
 ### Added
@@ -137,7 +172,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.0...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.2...HEAD
+[1.2.2]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.1...sitmun-backend-core/1.2.2
 [1.2.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.1.1...sitmun-backend-core/1.2.0
 [1.1.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.0...sitmun-backend-core/v1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.0.0...sitmun-backend-core/1.1.0

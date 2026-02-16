@@ -20,7 +20,8 @@ public interface CartographyStyleRepository extends JpaRepository<CartographySty
   Integer countDefaultStylesButThis(
       @Param("cartography") Cartography cartography, @Param("style") CartographyStyle style);
 
-  @Query("SELECT CASE WHEN COUNT(cs) > 0 THEN true ELSE false END " +
-         "FROM CartographyStyle cs WHERE cs.cartography.id = ?1 AND cs.name = ?2")
+  @Query(
+      "SELECT CASE WHEN COUNT(cs) > 0 THEN true ELSE false END "
+          + "FROM CartographyStyle cs WHERE cs.cartography.id = ?1 AND cs.name = ?2")
   boolean existsByCartographyIdAndName(Integer cartographyId, String name);
 }

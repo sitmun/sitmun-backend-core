@@ -231,20 +231,23 @@ class TreeNodeRepositoryDataRestTest {
   @DisplayName("POST: New nodes with image with extension can be posted")
   @WithMockUser(roles = "ADMIN")
   void newTreeNodesWithImageWithExtensionUriCanBePosted() throws Exception {
+    // Unique name to avoid shared-DB issues when suite runs in parallel or multiple contexts
+    String uniqueName = "test-img-" + System.nanoTime();
+    // %% in URL so .formatted() does not interpret %20 as format specifiers
     String content =
         """
         {
-        "name":"test",
+        "name":"%s",
         "tree":"http://localhost/api/trees/1",
-        "image":"https://raw.githubusercontent.com/sitmun/community/master/logotip%20SITMUN%20JPG/horitzontal/01.principal-horit-normal.jpg"
-        }""";
+        "image":"https://raw.githubusercontent.com/sitmun/community/master/logotip%%20SITMUN%%20JPG/horitzontal/01.principal-horit-normal.jpg"
+        }""".formatted(uniqueName);
 
     MvcResult result =
         mvc.perform(post(TREE_NODES_URI).content(content))
             .andExpect(status().isCreated())
             .andExpect(
                 jsonPath("$.image").value(startsWith("data:image/jpeg;base64,/9j/4AAQSkZJRg")))
-            .andExpect(jsonPath("$.name").value("test"))
+            .andExpect(jsonPath("$.name").value(uniqueName))
             .andReturn();
 
     String response = result.getResponse().getContentAsString();

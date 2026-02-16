@@ -36,7 +36,6 @@ node_modules
 swagger.json
 library/src/main/docker/backend
 create.sql
-docs/heroku.md
 docs/tasks.md
 library/src/main/resources/config/application-local.yml
 library/src/main/resources/config/application-oracle.yml
@@ -50,7 +49,3 @@ src/main/generated/**/*.class
 # Exclude intermediate files
 sitmun.jar
 *.idx
-
-# Exclude Heroku files
-.env
-env

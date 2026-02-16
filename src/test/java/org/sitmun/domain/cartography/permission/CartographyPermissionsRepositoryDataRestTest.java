@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,25 @@ import org.springframework.test.web.servlet.MockMvc;
 class CartographyPermissionsRepositoryDataRestTest {
 
   @Autowired private MockMvc mvc;
+  @Autowired private CartographyPermissionRepository cartographyPermissionRepository;
+
+  @AfterEach
+  void resetSeedPermissionTypes() {
+    cartographyPermissionRepository
+        .findById(2)
+        .ifPresent(
+            permission -> {
+              permission.setType(TYPE_BACKGROUND_MAP);
+              cartographyPermissionRepository.save(permission);
+            });
+    cartographyPermissionRepository
+        .findById(3)
+        .ifPresent(
+            permission -> {
+              permission.setType(TYPE_SITUATION_MAP);
+              cartographyPermissionRepository.save(permission);
+            });
+  }
 
   @Test
   @DisplayName("GET: Retrieve CartographyPermissions by type")

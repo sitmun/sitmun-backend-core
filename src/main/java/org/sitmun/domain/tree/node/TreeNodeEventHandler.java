@@ -21,8 +21,8 @@ public class TreeNodeEventHandler {
   private final ImageTransformer imageTransformer;
   private final CartographyStyleRepository cartographyStyleRepository;
 
-  TreeNodeEventHandler(ImageTransformer imageTransformer,
-                       CartographyStyleRepository cartographyStyleRepository) {
+  TreeNodeEventHandler(
+      ImageTransformer imageTransformer, CartographyStyleRepository cartographyStyleRepository) {
     this.imageTransformer = imageTransformer;
     this.cartographyStyleRepository = cartographyStyleRepository;
   }
@@ -39,11 +39,12 @@ public class TreeNodeEventHandler {
     if (!Strings.isNullOrEmpty(style)) {
       if (cartography != null) {
         String trimmedStyle = style.trim();
-        
+
         // Use repository query instead of accessing lazy collection
-        boolean styleExists = cartographyStyleRepository
-            .existsByCartographyIdAndName(cartography.getId(), trimmedStyle);
-        
+        boolean styleExists =
+            cartographyStyleRepository.existsByCartographyIdAndName(
+                cartography.getId(), trimmedStyle);
+
         if (styleExists) {
           treeNode.setStyle(trimmedStyle);
         } else {

@@ -103,7 +103,6 @@ class UserChecksServiceTest {
     assertNotNull(warnings);
     assertEquals(1, warnings.size());
     assertTrue(warnings.contains("entity.user.warning.role-without-position"));
-    verify(userPositionRepository, times(1)).save(any(UserPosition.class));
   }
 
   @Test

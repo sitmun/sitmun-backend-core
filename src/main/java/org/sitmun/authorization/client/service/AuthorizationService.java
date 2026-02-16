@@ -227,28 +227,26 @@ public class AuthorizationService {
 
     List<CartographyPermission> cartographyPermissions =
         cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    cartographyPermissions = cartographyPermissions.stream()
-        .filter(cp -> cp.getMembers() != null && cp.getRoles() != null)
-        .collect(Collectors.toList());
+    cartographyPermissions =
+        cartographyPermissions.stream()
+            .filter(cp -> cp.getMembers() != null && cp.getRoles() != null)
+            .collect(Collectors.toList());
     cartographyPermissions.forEach(translationService::updateInternationalization);
 
     List<Cartography> layers =
         cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    layers = layers.stream()
-        .filter(l -> l.getService() != null)
-        .collect(Collectors.toList());
+    layers = layers.stream().filter(l -> l.getService() != null).collect(Collectors.toList());
     layers.forEach(translationService::updateInternationalization);
 
     List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    tasks = tasks.stream()
-        .filter(t -> t.getRoles() != null)
-        .collect(Collectors.toList());
+    tasks = tasks.stream().filter(t -> t.getRoles() != null).collect(Collectors.toList());
     tasks.forEach(translationService::updateInternationalization);
 
     List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
-    trees = trees.stream()
-        .filter(t -> t.getAvailableRoles() != null && t.getAvailableApplications() != null)
-        .collect(Collectors.toList());
+    trees =
+        trees.stream()
+            .filter(t -> t.getAvailableRoles() != null && t.getAvailableApplications() != null)
+            .collect(Collectors.toList());
     trees.forEach(translationService::updateInternationalization);
 
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);
@@ -280,8 +278,7 @@ public class AuthorizationService {
             situationMap.getMembers().stream()
                 .filter(
                     member ->
-                        !existingLayerIds.contains(member.getId())
-                            && member.getService() != null)
+                        !existingLayerIds.contains(member.getId()) && member.getService() != null)
                 .collect(Collectors.toList());
         situationMapLayers.forEach(translationService::updateInternationalization);
         layers.addAll(situationMapLayers);
@@ -364,9 +361,7 @@ public class AuthorizationService {
     CartographyPermission situationMap = profile.getApplication().getSituationMap();
     Set<Integer> situationMapLayerIds =
         situationMap != null && situationMap.getMembers() != null
-            ? situationMap.getMembers().stream()
-                .map(Cartography::getId)
-                .collect(Collectors.toSet())
+            ? situationMap.getMembers().stream().map(Cartography::getId).collect(Collectors.toSet())
             : Collections.emptySet();
 
     profile
@@ -398,8 +393,7 @@ public class AuthorizationService {
                                   .stream())
                       .anyMatch(member -> Objects.equals(member.getId(), layer.getId()));
 
-              boolean belongsToSituationMap =
-                  situationMapLayerIds.contains(layer.getId());
+              boolean belongsToSituationMap = situationMapLayerIds.contains(layer.getId());
 
               log.info(
                   "Layer {} belongs to node: {}, task: {}, background: {}, situation-map: {} => remove: {}",
@@ -408,13 +402,18 @@ public class AuthorizationService {
                   belongsToTask,
                   belongsToBackground,
                   belongsToSituationMap,
-                  !belongsToNode && !belongsToTask && !belongsToBackground && !belongsToSituationMap);
-              return !belongsToNode && !belongsToTask && !belongsToBackground && !belongsToSituationMap;
+                  !belongsToNode
+                      && !belongsToTask
+                      && !belongsToBackground
+                      && !belongsToSituationMap);
+              return !belongsToNode
+                  && !belongsToTask
+                  && !belongsToBackground
+                  && !belongsToSituationMap;
             });
 
     // Prune groups that are not related to backgrounds or situation-map
-    Integer situationMapId =
-        situationMap != null ? situationMap.getId() : null;
+    Integer situationMapId = situationMap != null ? situationMap.getId() : null;
     profile
         .getGroups()
         .removeIf(
@@ -426,8 +425,7 @@ public class AuthorizationService {
                               Optional.ofNullable(background.getCartographyGroup()).stream())
                       .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
 
-              boolean isSituationMap =
-                  Objects.equals(permission.getId(), situationMapId);
+              boolean isSituationMap = Objects.equals(permission.getId(), situationMapId);
 
               log.info(
                   "Group {} belongs to background: {}, is situation-map: {} => remove: {}",

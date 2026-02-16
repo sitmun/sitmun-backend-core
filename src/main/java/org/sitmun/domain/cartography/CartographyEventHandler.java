@@ -24,7 +24,7 @@ public class CartographyEventHandler {
   public void handleCartographyDelete(@NotNull Cartography cartography) {
     // Check if any tree nodes reference this cartography
     boolean hasTreeNodes = treeNodeRepository.existsByCartographyId(cartography.getId());
-    
+
     if (hasTreeNodes) {
       throw new BusinessRuleException(
           ProblemTypes.DATA_INTEGRITY_VIOLATION,
@@ -32,4 +32,3 @@ public class CartographyEventHandler {
     }
   }
 }
-

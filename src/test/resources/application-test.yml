@@ -54,6 +54,7 @@ logging:
 # ===================================================================
 
 sitmun:
+  language: en
   backend:
     url: http://localhost:8080/api
   proxy-middleware:

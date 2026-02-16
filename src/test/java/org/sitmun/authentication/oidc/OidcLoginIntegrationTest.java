@@ -1,5 +1,11 @@
 package org.sitmun.authentication.oidc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
@@ -17,34 +23,26 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
-@AdditiveActiveProfiles(value = "oidc")
+@AdditiveActiveProfiles("oidc")
 @DisplayName("OIDC integration tests")
 class OidcLoginIntegrationTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private OidcRedirectService redirectService;
+  @Autowired private OidcRedirectService redirectService;
 
-  private static MockHttpServletRequest buildMockHttpServletRequestWithClientType(final String clientType) {
+  private static MockHttpServletRequest buildMockHttpServletRequestWithClientType(
+      final String clientType) {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     request.setParameter("client_type", clientType);
     return request;
   }
 
   private static void passRequestThroughFilter(
-    final MockHttpServletRequest request,
-    final MockHttpServletResponse response
-  ) throws Exception {
+      final MockHttpServletRequest request, final MockHttpServletResponse response)
+      throws Exception {
     final SitmunClientFilter filter = new SitmunClientFilter();
     final FilterChain chain = mock(FilterChain.class);
     filter.doFilter(request, response, chain);
@@ -54,17 +52,21 @@ class OidcLoginIntegrationTest {
   @DisplayName("OAuth2 authorization endpoint redirects to provider authorization URL")
   void testOauthEndpointRedirectsToProviderAuthorization() throws Exception {
     mockMvc
-      .perform(MockMvcRequestBuilders.get("/oauth2/authorization/mock"))
-      .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-      .andExpect(redirectedUrlPattern("https://mock.example.com/oidc/authorize?response_type=code&client_id=mock-id&scope=openid%20profile%20email&state=*&redirect_uri=http://localhost/login/oauth2/code/mock&nonce=*"));
+        .perform(MockMvcRequestBuilders.get("/oauth2/authorization/mock"))
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+        .andExpect(
+            redirectedUrlPattern(
+                "https://mock.example.com/oidc/authorize?response_type=code&client_id=mock-id&scope=openid%20profile%20email&state=*&redirect_uri=http://localhost/login/oauth2/code/mock&nonce=*"));
   }
 
   @Test
   @DisplayName("OAuth2 authorization endpoint response includes required info")
   void testAuthorizationEndpointResponseIncludesRequiredInfo() throws Exception {
-    final MvcResult result = mockMvc.perform(get("/oauth2/authorization/mock"))
-      .andExpect(status().is3xxRedirection())
-      .andReturn();
+    final MvcResult result =
+        mockMvc
+            .perform(get("/oauth2/authorization/mock"))
+            .andExpect(status().is3xxRedirection())
+            .andReturn();
 
     final String redirectUrl = result.getResponse().getHeader("Location");
     assertThat(redirectUrl).contains("state=");
@@ -76,15 +78,15 @@ class OidcLoginIntegrationTest {
   @Test
   @DisplayName("Client type parameter is stored in session")
   void testClientTypeParameterStoredInSession() throws Exception {
-    final MvcResult result = mockMvc.perform(get("/oauth2/authorization/mock")
-        .param("client_type", "admin"))
-      .andExpect(status().is3xxRedirection())
-      .andReturn();
+    final MvcResult result =
+        mockMvc
+            .perform(get("/oauth2/authorization/mock").param("client_type", "admin"))
+            .andExpect(status().is3xxRedirection())
+            .andReturn();
 
     final HttpSession session = result.getRequest().getSession(false);
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute(OidcRedirectService.CLIENT_TYPE))
-      .isEqualTo("admin");
+    assertThat(session.getAttribute(OidcRedirectService.CLIENT_TYPE)).isEqualTo("admin");
   }
 
   @Test

@@ -15,6 +15,8 @@ import org.sitmun.authorization.client.dto.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.user.position.UserPositionRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
+import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -39,6 +41,10 @@ class ClientConfigurationControllerTest {
   @MockitoBean private UserPositionRepository userPositionRepository;
 
   @MockitoBean private ProfileMapper profileMapper;
+
+  @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 
   @Test
   @DisplayName("GET: Applications should be decorated with mbtiles URL")

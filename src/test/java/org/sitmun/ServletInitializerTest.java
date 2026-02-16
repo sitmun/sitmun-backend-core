@@ -33,7 +33,8 @@ class ServletInitializerTest {
 
     // Then
     assertThat(servletInitializer)
-        .isInstanceOf(org.springframework.boot.web.servlet.support.SpringBootServletInitializer.class);
+        .isInstanceOf(
+            org.springframework.boot.web.servlet.support.SpringBootServletInitializer.class);
   }
 
   @Test

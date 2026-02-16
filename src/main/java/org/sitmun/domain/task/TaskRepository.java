@@ -37,7 +37,7 @@ public interface TaskRepository
   @EntityGraph(attributePaths = {"roles"})
   @Query(
       """
-    SELECT tsk 
+    SELECT tsk
     FROM Task tsk
     WHERE tsk.id IN (
       SELECT DISTINCT tsk2.id
