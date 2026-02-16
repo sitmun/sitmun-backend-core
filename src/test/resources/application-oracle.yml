@@ -26,12 +26,15 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
+      auto-commit: false
 
   # JPA Configuration for Oracle
   jpa:
     hibernate.ddl-auto: validate
-    properties.hibernate.dialect: org.hibernate.dialect.OracleDialect
-    properties.hibernate.type.preferred_boolean_jdbc_type: SMALLINT
+    properties.hibernate:
+      dialect: org.hibernate.dialect.OracleDialect
+      type.preferred_boolean_jdbc_type: SMALLINT
+      connection.provider_disables_autocommit: true
 
   # Liquibase Configuration for Oracle
   liquibase:

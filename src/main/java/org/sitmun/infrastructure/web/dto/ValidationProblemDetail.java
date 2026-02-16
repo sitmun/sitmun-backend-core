@@ -68,4 +68,3 @@ public class ValidationProblemDetail extends ProblemDetail {
     private String message;
   }
 }
-

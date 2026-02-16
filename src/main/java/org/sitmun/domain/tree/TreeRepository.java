@@ -19,7 +19,7 @@ public interface TreeRepository extends JpaRepository<Tree, Integer> {
   @EntityGraph(attributePaths = {"availableRoles", "availableApplications"})
   @Query(
       """
-      SELECT tree 
+      SELECT tree
       FROM Tree tree
       WHERE tree.id IN (
         SELECT DISTINCT tree2.id

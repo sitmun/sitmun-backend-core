@@ -13,7 +13,6 @@ plugins {
   id 'jacoco'
   alias libs.plugins.sonarqube
   
-  alias libs.plugins.heroku
   alias libs.plugins.docker.compose
 
   alias libs.plugins.spotless
@@ -74,7 +73,6 @@ dependencies {
 
   // Database migration
   implementation libs.liquibase.core
-  implementation libs.liquibase.slf4j
   
   // Query building
   implementation variantOf(libs.querydsl.jpa) { classifier('jakarta') }
@@ -148,64 +146,6 @@ dependencies {
 }
 
 // ============================================================================
-// HEROKU DEPLOYMENT CONFIGURATION
-// ============================================================================
-
-// Stage task for Heroku deployment
-tasks.register('stage') {
-  group = 'Heroku'
-  description = 'Prepare application for Heroku deployment'
-  
-  doFirst {
-    // Heroku requires JAR packaging
-    if (packaging == 'war') {
-      throw new GradleException("Heroku deployment requires JAR packaging. Remove -Ppackaging=war or use default JAR build.")
-    }
-  }
-  
-  dependsOn ':processResources', ':bootJar'
-  
-  doLast {
-    copy {
-      from "build/libs/sitmun-backend-core-${version}.jar"
-      into "."
-      rename "sitmun-backend-core-${version}.jar", "sitmun.jar"
-    }
-  }
-}
-
-// Heroku configuration
-heroku {
-  appName = "sitmun-backend-core"
-  includes = ["sitmun.jar"]
-  includeBuildDir = false
-  
-  def procFile = [
-    "web": "java -Dspring.profiles.active=heroku -Dserver.port=\$PORT \$JAVA_OPTS -cp sitmun.jar org.springframework.boot.loader.JarLauncher"
-  ]
-  processTypes(procFile)
-}
-
-// Deploy to Heroku
-tasks.named("deployHeroku") {
-  group = 'Heroku'
-  description = 'Deploy the application to Heroku (JAR packaging only)'
-  dependsOn 'stage'
-  
-  doLast {
-    delete "sitmun.jar"
-  }
-}
-
-// Local Heroku testing
-tasks.register('herokuDevLocal', JavaExec) {
-  group = 'Heroku'
-  description = 'Run the Heroku deployment locally'
-  dependsOn 'stage'
-  classpath = files("build/libs/sitmun-backend-core-${version}.jar")
-}
-
-// ============================================================================
 // TESTING AND QUALITY ASSURANCE CONFIGURATION
 // ============================================================================
 // 
@@ -266,9 +206,6 @@ tasks.register('testPostgres', Test) {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
   }
-  doFirst {
-    sleep(5000) // Wait for Postgres container to be ready
-  }
 }
 
 tasks.register('testOracle', Test) {
@@ -280,7 +217,9 @@ tasks.register('testOracle', Test) {
     exceptionFormat = 'full'
   }
   doFirst {
-    sleep(10000) // Wait for Oracle container to be ready
+    // Short stabilization delay after healthcheck passes
+    // Oracle may reject connections immediately after healthcheck succeeds
+    sleep(3000)
   }
 }
 
@@ -294,6 +233,9 @@ dockerCompose {
   oracle {
     useComposeFiles = ['docker/oracle/test-docker-compose.yml']
     isRequiredBy(project.tasks.testOracle)
+    // Oracle needs up to 160s (60s start_period + 20 retries x 5s)
+    waitForHealthyStateTimeout = java.time.Duration.ofMinutes(5)
+    retainContainersOnStartupFailure = true
   }
 }
 
@@ -351,7 +293,7 @@ scmVersion {
   versionIncrementer('incrementPatch')
 }
 
-project.version = scmVersion.version
+project.version = '1.2.2'
 
 // Git hooks setup
 tasks.register('setupGitHooks') {

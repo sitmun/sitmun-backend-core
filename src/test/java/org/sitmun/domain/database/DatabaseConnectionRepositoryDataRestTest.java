@@ -39,8 +39,10 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @BeforeEach
   void setUp() {
+    // Timeout 90s: Postgres/Oracle context startup + ApplicationRunner can exceed 30s
+    // when @DirtiesContext(AFTER_EACH_TEST_METHOD) triggers repeated restarts
     Awaitility.await()
-        .atMost(10, TimeUnit.SECONDS)
+        .atMost(90, TimeUnit.SECONDS)
         .pollInterval(500, TimeUnit.MILLISECONDS)
         .until(
             () ->

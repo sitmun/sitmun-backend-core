@@ -10,7 +10,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    environment: heroku
 
     env:
       SPRING_PROFILES_ACTIVE: dev
@@ -38,14 +37,5 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Deploy to Heroku
-        env:
-          HEROKU_EMAIL: ${{secrets.HEROKU_EMAIL}}
-          HEROKU_TOKEN: ${{secrets.HEROKU_TOKEN}}
-        run: |
-          cat <<EOF >~/.netrc
-          machine api.heroku.com
-            login $HEROKU_EMAIL
-            password $HEROKU_TOKEN
-          EOF
-          ./gradlew deployHeroku
+      - name: Build and Test
+        run: ./gradlew build test

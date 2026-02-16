@@ -4,8 +4,8 @@ package org.sitmun.infrastructure.persistence.exception;
  * Exception thrown when a business rule is violated.
  *
  * <p>This exception extends {@link RequirementException} and adds a problem type field to allow
- * specific identification of which business rule was violated. This enables proper RFC 9457
- * Problem Detail responses with specific type URIs.
+ * specific identification of which business rule was violated. This enables proper RFC 9457 Problem
+ * Detail responses with specific type URIs.
  *
  * <p>Example usage:
  *
@@ -50,4 +50,3 @@ public class BusinessRuleException extends RequirementException {
     return problemType;
   }
 }
-

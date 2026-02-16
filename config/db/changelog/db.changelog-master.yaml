@@ -26,3 +26,6 @@ databaseChangeLog:
   - include:
       file: 07_sequences.sql
       relativeToChangelogFile: true
+  - include:
+      file: 08_more_info_data.yaml
+      relativeToChangelogFile: true

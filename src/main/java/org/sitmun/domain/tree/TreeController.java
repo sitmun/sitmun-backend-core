@@ -41,9 +41,10 @@ public class TreeController {
    * Validates a tree type change against candidate applications.
    *
    * <p>This endpoint is necessary because Spring Data REST requires two separate PUT operations:
+   *
    * <ol>
-   * <li>PUT /api/trees/{id} - updates tree properties (including type)</li>
-   * <li>PUT /api/trees/{id}/availableApplications - updates linked applications</li>
+   *   <li>PUT /api/trees/{id} - updates tree properties (including type)
+   *   <li>PUT /api/trees/{id}/availableApplications - updates linked applications
    * </ol>
    *
    * <p>Without proactive validation, the first PUT could succeed (type change) and the second PUT
@@ -96,10 +97,10 @@ public class TreeController {
     // Verify all requested applications were found
     if (apps.size() != appIds.size()) {
       Set<Integer> foundIds = apps.stream().map(Application::getId).collect(Collectors.toSet());
-      Set<Integer> missingIds = appIds.stream().filter(id -> !foundIds.contains(id)).collect(Collectors.toSet());
+      Set<Integer> missingIds =
+          appIds.stream().filter(id -> !foundIds.contains(id)).collect(Collectors.toSet());
       throw new BusinessRuleException(
-          ProblemTypes.NOT_FOUND,
-          "Application(s) with ID(s) " + missingIds + " not found");
+          ProblemTypes.NOT_FOUND, "Application(s) with ID(s) " + missingIds + " not found");
     }
 
     return apps;
@@ -126,11 +127,12 @@ public class TreeController {
    * Validates that a touristic tree can be linked to the candidate applications.
    *
    * <p>Business rules:
+   *
    * <ul>
-   * <li>Touristic tree can be linked to 0 applications (valid)</li>
-   * <li>Touristic tree can be linked to 1 touristic application (valid)</li>
-   * <li>Touristic tree cannot be linked to multiple applications (invalid)</li>
-   * <li>Touristic tree cannot be linked to non-touristic applications (invalid)</li>
+   *   <li>Touristic tree can be linked to 0 applications (valid)
+   *   <li>Touristic tree can be linked to 1 touristic application (valid)
+   *   <li>Touristic tree cannot be linked to multiple applications (invalid)
+   *   <li>Touristic tree cannot be linked to non-touristic applications (invalid)
    * </ul>
    *
    * @param apps the candidate applications
@@ -152,10 +154,11 @@ public class TreeController {
    * Validates that a non-touristic tree can be linked to the candidate applications.
    *
    * <p>Business rules:
+   *
    * <ul>
-   * <li>Non-touristic tree can be linked to any number of non-touristic applications (valid)</li>
-   * <li>Non-touristic tree can be linked to a touristic application only if that application
-   * has exactly one touristic tree linked (excluding the current tree being validated)</li>
+   *   <li>Non-touristic tree can be linked to any number of non-touristic applications (valid)
+   *   <li>Non-touristic tree can be linked to a touristic application only if that application has
+   *       exactly one touristic tree linked (excluding the current tree being validated)
    * </ul>
    *
    * @param apps the candidate applications
@@ -212,7 +215,7 @@ public class TreeController {
   @ExceptionHandler(BusinessRuleException.class)
   public ResponseEntity<ProblemDetail> handleBusinessRuleException(
       BusinessRuleException exception, HttpServletRequest request) {
-    
+
     // Determine HTTP status based on problem type
     HttpStatus status;
     String title;
@@ -223,7 +226,7 @@ public class TreeController {
       status = HttpStatus.UNPROCESSABLE_ENTITY;
       title = "Tree Type Change Validation Failed";
     }
-    
+
     ProblemDetail problem =
         ProblemDetail.builder()
             .type(exception.getProblemType())
@@ -238,4 +241,3 @@ public class TreeController {
         .body(problem);
   }
 }
-

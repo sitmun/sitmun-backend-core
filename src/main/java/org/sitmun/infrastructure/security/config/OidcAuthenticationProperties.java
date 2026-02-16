@@ -1,5 +1,8 @@
 package org.sitmun.infrastructure.security.config;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,13 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Configuration properties for OIDC authentication.
- */
+/** Configuration properties for OIDC authentication. */
 @Getter
 @Setter
 @Profile("oidc")

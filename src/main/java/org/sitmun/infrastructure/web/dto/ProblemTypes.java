@@ -5,19 +5,21 @@ package org.sitmun.infrastructure.web.dto;
  *
  * <p>Each constant represents a specific problem type that can occur in the API. The type URI
  * serves as a stable identifier that clients can use for:
+ *
  * <ul>
- * <li>Determining the type of error that occurred</li>
- * <li>Looking up localized error messages</li>
- * <li>Implementing specific error handling logic</li>
+ *   <li>Determining the type of error that occurred
+ *   <li>Looking up localized error messages
+ *   <li>Implementing specific error handling logic
  * </ul>
  *
  * <p>These URIs follow the pattern: https://sitmun.org/problems/{problem-type-slug}
  *
  * <p>Clients (frontend applications) should extract the last segment of the URI and use it as an
  * i18n translation key. For example:
+ *
  * <ul>
- * <li> https://sitmun.org/problems/unauthorized → "error.unauthorized"</li>
- * <li> https://sitmun.org/problems/validation-error → "error.validation-error"</li>
+ *   <li>https://sitmun.org/problems/unauthorized → "error.unauthorized"
+ *   <li>https://sitmun.org/problems/validation-error → "error.validation-error"
  * </ul>
  */
 public final class ProblemTypes {
@@ -85,15 +87,14 @@ public final class ProblemTypes {
   /**
    * Tree type change validation failed. HTTP 422.
    *
-   * <p>Used when validating a tree type change against candidate applications before
-   * committing the change. This validation is necessary because Spring Data REST requires
-   * two separate PUT operations (one for tree properties, one for applications), and we
-   * need to validate the final state before any changes are made.
+   * <p>Used when validating a tree type change against candidate applications before committing the
+   * change. This validation is necessary because Spring Data REST requires two separate PUT
+   * operations (one for tree properties, one for applications), and we need to validate the final
+   * state before any changes are made.
    *
    * @see org.sitmun.domain.tree.TreeController#validateTreeTypeChange
    */
-  public static final String TREE_TYPE_CHANGE_CONSTRAINT =
-      BASE_URI + "tree-type-change-constraint";
+  public static final String TREE_TYPE_CHANGE_CONSTRAINT = BASE_URI + "tree-type-change-constraint";
 
   /**
    * Tree node style not found in the cartography's styles. HTTP 400.
@@ -203,4 +204,3 @@ public final class ProblemTypes {
     // Prevent instantiation
   }
 }
-

@@ -27,12 +27,10 @@ spring:
       ddl-auto: none
     show-sql: false
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        # Disable CLOB creation for better database compatibility
-        jdbc:
-          lob:
-            non_contextual_creation: true
+      # Disable auto-commit to allow lazy collection loading
+      hibernate.connection.provider_disables_autocommit: true
+      # Disable CLOB creation for better database compatibility
+      jdbc.lob.non_contextual_creation: true
   data:
     rest:
       default-page-size: 100000
@@ -44,6 +42,7 @@ spring:
 logging:
   level:
     ROOT: INFO
+    org.springframework.beans.factory.support.DefaultListableBeanFactory: WARN
 
 # ===================================================================
 # Management and Monitoring
@@ -70,7 +69,7 @@ management:
 
 sitmun:
   module: SITMUN 3 Backend Core
-  version: "1.2.0"
+  version: "1.2.2"
   language: en
   user:
     secret: 9ef80c644166846897f6a87d3cf6ab204d144229
@@ -166,10 +165,10 @@ sitmun:
         - code-list-name: treenode.leaf.type
           value: task
           description: Task
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: fav
           description: Favorites
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: map
           description: Map
         - code-list-name: treenode.viewmode
@@ -199,7 +198,7 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: gallery
           description: Gallery
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.leaf.type
           value: nm
           description: Near me
         - code-list-name: taskEntity.jsonParamType
@@ -220,15 +219,6 @@ sitmun:
         - code-list-name: taskEntity.jsonParamType
           value: "null"
           description: "null"
-        - code-list-name: taskEntity.queryType
-          value: A
-          description: tasksEntity.autocomplete
-        - code-list-name: taskEntity.queryType
-          value: I
-          description: tasksEntity.input
-        - code-list-name: taskEntity.queryType
-          value: C
-          description: tasksEntity.combo
         - code-list-name: queryTask.scope
           value: sql-query
           description: "SQL Query"

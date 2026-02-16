@@ -8,16 +8,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
-import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 
 @SpringBootTest
 @Import(TranslationService.class)
@@ -41,20 +35,13 @@ class CodeListsTest {
             CodeListsConstants.CARTOGRAPHY_PARAMETER_TYPE,
             CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE,
             // CodeListsConstants.DATABASE_CONNECTION_DRIVER,
-            // DOWNLOAD_TASK_FORMAT,
             CodeListsConstants.DOWNLOAD_TASK_SCOPE,
             CodeListsConstants.QUERY_TASK_SCOPE,
             // SERVICE_NATIVE_PROTOCOL,
             CodeListsConstants.SERVICE_PARAMETER_TYPE,
             CodeListsConstants.SERVICE_TYPE,
             CodeListsConstants.SERVICE_AUTHENTICATION_MODE,
-            CodeListsConstants.TASK_PARAMETER_FORMAT,
-            CodeListsConstants.TASK_PARAMETER_TYPE,
             CodeListsConstants.TERRITORY_SCOPE,
-            CodeListsConstants.THEMATIC_MAP_DESTINATION,
-            CodeListsConstants.THEMATIC_MAP_TYPE,
-            CodeListsConstants.THEMATIC_MAP_VALUE_TYPE,
-            // THEMATIC_MAP_RANGE_STYLE,
             CodeListsConstants.USER_IDENTIFICATION_TYPE,
             CodeListsConstants.USER_POSITION_TYPE,
             CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
@@ -65,7 +52,6 @@ class CodeListsTest {
             "databaseConnection.driver",
             "queryTask.parameterType",
             "taskEntity.jsonParamType",
-            "taskEntity.queryType",
             "treenode.folder.type",
             "treenode.leaf.type",
             "treenode.viewmode",
@@ -158,12 +144,6 @@ class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Verify downloadTask.format code list values")
-  void checkDownloadTaskFormat() {
-    assertThat(select(CodeListsConstants.DOWNLOAD_TASK_FORMAT)).isEmpty();
-  }
-
-  @Test
   @DisplayName("Verify downloadTask.scope code list values")
   void checkDownloadTaskScope() {
     assertThat(select(CodeListsConstants.DOWNLOAD_TASK_SCOPE))
@@ -213,65 +193,10 @@ class CodeListsTest {
   }
 
   @Test
-  @DisplayName("Verify taskParameter.type code list values")
-  void checkTaskParameterType() {
-    assertThat(select(CodeListsConstants.TASK_PARAMETER_TYPE))
-        .containsExactlyInAnyOrder(
-            "CAMPO",
-            "CAPA",
-            "EDIT",
-            "FILTRO",
-            "FME",
-            "GEOM",
-            "LABEL",
-            "RELM",
-            "RELS",
-            "SQL",
-            "TIPO",
-            "VISTA",
-            "DATAINPUT",
-            "VALOR");
-  }
-
-  @Test
-  @DisplayName("Verify taskParameter.format code list values")
-  void checkTaskParameterFormat() {
-    assertThat(select(CodeListsConstants.TASK_PARAMETER_FORMAT))
-        .containsExactlyInAnyOrder("T", "F", "N", "L", "U", "I", "C", "R", "S", "B");
-  }
-
-  @Test
   @DisplayName("Verify territory.scope code list values")
   @Deprecated
   void checkTerritoryScope() {
     assertThat(select(CodeListsConstants.TERRITORY_SCOPE)).containsExactlyInAnyOrder("M", "R", "T");
-  }
-
-  @Test
-  @DisplayName("Verify thematicMap.type code list values")
-  void checkThematicMapType() {
-    assertThat(select(CodeListsConstants.THEMATIC_MAP_TYPE))
-        .containsExactlyInAnyOrder("VU", "RE", "RL");
-  }
-
-  @Test
-  @DisplayName("Verify thematicMap.destination code list values")
-  void checkThematicMapDestination() {
-    assertThat(select(CodeListsConstants.THEMATIC_MAP_DESTINATION))
-        .containsExactlyInAnyOrder("WS", "WS_HERMES", "UPLOADED");
-  }
-
-  @Test
-  @DisplayName("Verify thematicMap.valueType code list values")
-  void checkThematicMapValueType() {
-    assertThat(select(CodeListsConstants.THEMATIC_MAP_VALUE_TYPE))
-        .containsExactlyInAnyOrder("STR", "DOU");
-  }
-
-  @Test
-  @DisplayName("Verify thematicMapRange.style code list values")
-  void checkThematicMapRangeStyle() {
-    assertThat(select(CodeListsConstants.THEMATIC_MAP_RANGE_STYLE)).isEmpty();
   }
 
   @Test
@@ -287,15 +212,5 @@ class CodeListsTest {
     assertThat(select(CodeListsConstants.USER_POSITION_TYPE))
         .containsExactlyInAnyOrder(
             "AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
-  }
-
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
   }
 }

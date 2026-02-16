@@ -9,16 +9,9 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
-import org.sitmun.infrastructure.persistence.config.LiquibaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 
 @DataJpaTest
 @DisplayName("User Position Repository JPA Test")
@@ -80,15 +73,5 @@ class UserPositionRepositoryTest {
     Assertions.assertThat(userPosition.getId()).isNotZero();
 
     Assertions.assertThat(userPositionRepository.findById(userPosition.getId())).isNotNull();
-  }
-
-  @TestConfiguration
-  @Import(LiquibaseConfig.class)
-  static class Configuration {
-    @Bean
-    @Primary
-    TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
   }
 }

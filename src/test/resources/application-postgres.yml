@@ -29,12 +29,15 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
+      auto-commit: false
 
   # JPA Configuration for PostgreSQL
   jpa:
     hibernate.ddl-auto: validate
     properties.hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
+      connection:
+        provider_disables_autocommit: true
       # Disable CLOB creation for PostgreSQL
       jdbc:
         lob.non_contextual_creation: true
