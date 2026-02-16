@@ -1,7 +1,7 @@
-[![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.1-blue.svg)
-
 # SITMUN Backend Core
+
+[![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
 
 Spring Boot service providing REST APIs for geospatial application management, authentication, and configuration in the [SITMUN](https://sitmun.github.io/) platform.
 
@@ -233,7 +233,7 @@ cp build/libs/sitmun-backend-core.war /path/to/tomcat/webapps/ROOT.war
 
 Unlike JAR files, WAR files cannot use command-line arguments. Configure the active profile using one of these methods:
 
-**Method 1: Environment Variable (Recommended)**
+**Method 1: Environment Variable (Recommended):**
 
 Set the environment variable in your servlet container:
 
@@ -246,7 +246,7 @@ export SPRING_PROFILES_ACTIVE=prod
 Environment="SPRING_PROFILES_ACTIVE=prod"
 ```
 
-**Method 2: System Property**
+**Method 2: System Property:**
 
 Add to your servlet container's startup script:
 
@@ -255,11 +255,11 @@ Add to your servlet container's startup script:
 export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=prod"
 ```
 
-**Method 3: JNDI (Enterprise Deployments)**
+**Method 3: JNDI (Enterprise Deployments):**
 
 For application servers like WildFly or WebSphere, configure via JNDI or server configuration.
 
-**Method 4: application.properties in WAR**
+**Method 4: application.properties in WAR:**
 
 You can also include a `WEB-INF/classes/application.properties` file in the WAR with:
 
@@ -274,7 +274,7 @@ spring.profiles.active=prod
 ### Endpoints
 
 | Endpoint | Method | Description | Access | Controller |
-|----------|--------|-------------|--------|------------|
+| ---------- | --------- | ------------- | ---------- | ------------ |
 | `/api/authenticate` | POST | User authentication | Public | AuthenticationController |
 | `/api/account` | GET | User account management | Authenticated | UserController |
 | `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
@@ -434,7 +434,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 ### Environment Variables
 
 | Variable                                 | Description | Default                          | Required |
-|------------------------------------------|-------------|----------------------------------|----------|
+| ---------------------------------------- | ------------- | ---------------------------------- | ---------- |
 | `SPRING_PROFILES_ACTIVE`                 | Active Spring profile | `dev`                            | No |
 | `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                     | Yes (prod) |
 | `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                             | Yes (prod) |
