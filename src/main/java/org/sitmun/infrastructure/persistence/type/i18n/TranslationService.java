@@ -84,7 +84,7 @@ public class TranslationService {
         }
       }
       if (!updates.isEmpty()) {
-        log.info(
+        log.debug(
             "Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
       }
       return;
@@ -116,7 +116,7 @@ public class TranslationService {
       }
     }
     if (!updates.isEmpty()) {
-      log.info("Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
+      log.debug("Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
     }
   }
 }
