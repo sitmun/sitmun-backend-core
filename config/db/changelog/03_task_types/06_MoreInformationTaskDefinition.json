@@ -47,7 +47,7 @@
         "selector": {
           "data": "codelist-values",
           "queryParams": {
-            "codeListName": "moreInfo.scope",
+            "codeListName": "moreInfo.type",
             "projection": "view"
           },
           "name": "description",
