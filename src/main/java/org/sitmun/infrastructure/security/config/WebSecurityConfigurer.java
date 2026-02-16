@@ -217,7 +217,10 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/profile/**"))
         .permitAll()
+        // Health must remain unauthenticated for load balancers and Docker healthchecks
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/dashboard/health"))
+        .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/dashboard/health/**"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()

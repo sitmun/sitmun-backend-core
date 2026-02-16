@@ -25,11 +25,15 @@ public class CodeListValueSetup implements ApplicationRunner {
 
   private final StartupCodelistsProperties properties;
   private final CodeListValueRepository repository;
+  private final StartupReady startupReady;
 
   public CodeListValueSetup(
-      StartupCodelistsProperties properties, CodeListValueRepository repository) {
+      StartupCodelistsProperties properties,
+      CodeListValueRepository repository,
+      StartupReady startupReady) {
     this.properties = properties;
     this.repository = repository;
+    this.startupReady = startupReady;
   }
 
   @Override
@@ -79,6 +83,7 @@ public class CodeListValueSetup implements ApplicationRunner {
       try {
         repository.saveAll(newValues);
         log.info("Finished CodeListValueSetup: successfully added {} new values", newValues.size());
+        startupReady.setReady(true);
       } catch (DataIntegrityViolationException e) {
         log.warn("Some code list values already exist in database, attempting individual insert");
         int successCount = 0;
@@ -101,9 +106,11 @@ public class CodeListValueSetup implements ApplicationRunner {
             "Finished CodeListValueSetup: added {} out of {} values",
             successCount,
             newValues.size());
+        startupReady.setReady(true);
       }
     } else {
       log.info("Finished CodeListValueSetup: no new values to add");
+      startupReady.setReady(true);
     }
   }
 }
