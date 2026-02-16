@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Request-scoped translation cache and database-driven locale resolution for i18n lookups.
+- Health endpoint reports healthy only after startup completes.
+
+### Changed
+
+- Refactored Liquibase configuration and removed legacy Heroku-related setup.
+- Lowered translation application logs from info to debug level to reduce noise in normal operation.
+- Updated README structure and formatting for consistency.
+
+### Fixed
+
+- Corrected tree node codelist naming (`code-list-name`) handling.
+- Stabilized test execution for parallel runs and database-specific scenarios (PostgreSQL/Oracle/WebMvcTest).
+
 ## [1.2.1] - 2026-02-06
 
 ### Added
@@ -154,7 +170,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.0...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.1...HEAD
 [1.2.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.1.1...sitmun-backend-core/1.2.0
 [1.1.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.0...sitmun-backend-core/v1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.0.0...sitmun-backend-core/1.1.0
