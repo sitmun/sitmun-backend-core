@@ -96,6 +96,8 @@ databaseChangeLog:
       id: 10
       author: sitmun
       changes:
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'TUI_ID';
         - insert:
             tableName: STM_TSK_UI
             columns:
