@@ -71,7 +71,7 @@
             "hidden": true
           },
           {
-            "scope": "WS",
+            "scope": "API",
             "hidden": true
           },
           {
@@ -103,7 +103,7 @@
             "control": "textArea"
           },
           {
-            "scope": "WS",
+            "scope": "API",
             "control": "input"
           },
           {

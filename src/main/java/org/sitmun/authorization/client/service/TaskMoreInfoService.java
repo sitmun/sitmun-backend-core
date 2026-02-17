@@ -10,7 +10,9 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Service for handling moreInfo tasks in SITMUN. Maps moreInfo tasks to DTOs and manages their parameters.
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class TaskMoreInfoService implements TaskMapper {
+
+  @Value("${sitmun.proxy-middleware.url:}")
+  private String proxyUrl;
 
   /**
    * Determines if a task is a moreInfo task.
@@ -55,10 +60,11 @@ public class TaskMoreInfoService implements TaskMapper {
     }
     String name = task.getName();
     String cartographyId = task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
-    String scope = properties.get("scope").toString();
+    final Object scopeObj = properties.get("scope");
+    final String scope = scopeObj != null ? scopeObj.toString() : null;
     String command = properties != null && properties.get("command") != null ? properties.get("command").toString() : null;
 
-    return TaskDto.builder()
+    final TaskDto.TaskDtoBuilder taskBuilder = TaskDto.builder()
       .id("task/" + task.getId())
       .name(name)
       .uiControl(uiControl)
@@ -66,8 +72,14 @@ public class TaskMoreInfoService implements TaskMapper {
       .parameters(parameters)
       .cartographyId(cartographyId)
       .scope(scope)
-      .command(command)
-      .build();
+      .command(command);
+
+    if (StringUtils.hasText(scope) && task.getId() != null) {
+      String id = String.valueOf(task.getId());
+      taskBuilder.url(proxyUrl + "/proxy/" + application.getId() + "/" + territory.getId() + "/" + scope + "/" + id);
+    }
+
+    return taskBuilder.build();
   }
 
   /**
