@@ -31,11 +31,8 @@ public class TaskMoreInfoService implements TaskMapper {
    * @return true if the task is a moreInfo task
    */
   public boolean accept(Task task) {
-    String name = task.getUi() != null ? task.getUi().getName() : null;
-    String type = task.getUi() != null ? task.getUi().getType() : null;
-    log.info("TaskMoreInfoService: accept called for task id {} with ui name '{}' and type '{}'", task.getId(), name, type);
-    return (name != null && name.toLowerCase().contains("moreinfo")) ||
-      (type != null && type.equalsIgnoreCase("moreInfo"));
+    String taskType = task.getType() != null ? task.getType().getTitle() : null;
+    return (taskType != null && taskType.equalsIgnoreCase("moreInfo"));
   }
 
   /**
