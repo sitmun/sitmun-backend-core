@@ -47,13 +47,10 @@ class CodeListsTest {
             CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
             CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE,
             CodeListsConstants.TREE_TYPE,
-            // CodeListsConstants.TREE_NODE_LEAF_TYPE,
-            // CodeListsConstants.TREE_NODE_FOLDER_TYPE
+            CodeListsConstants.TREE_NODE_TYPE,
             "databaseConnection.driver",
             "queryTask.parameterType",
             "taskEntity.jsonParamType",
-            "treenode.folder.type",
-            "treenode.leaf.type",
             "treenode.viewmode",
             "editTask.fieldType",
             "editTask.scope");
@@ -212,5 +209,13 @@ class CodeListsTest {
     assertThat(select(CodeListsConstants.USER_POSITION_TYPE))
         .containsExactlyInAnyOrder(
             "AJ", "AR", "DB", "DM", "EM", "EN", "ER", "EX", "GN", "PR", "TS");
+  }
+
+  @Test
+  @DisplayName("Verify treenode.node.type code list values")
+  void checkTreeNodeNodeType() {
+    assertThat(select(CodeListsConstants.TREE_NODE_TYPE))
+        .containsExactlyInAnyOrder(
+            "cartography", "folder", "list", "menu", "task", "fav", "map", "nm");
   }
 }
