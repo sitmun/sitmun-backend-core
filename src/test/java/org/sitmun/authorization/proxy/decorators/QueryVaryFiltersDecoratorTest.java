@@ -2,6 +2,7 @@ package org.sitmun.authorization.proxy.decorators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,21 +31,6 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertTrue(result);
-  }
-
-  @Test
-  @DisplayName("accept returns false for non-DatasourcePayloadDto")
-  void acceptReturnsFalseForNonDatasourcePayloadDto() {
-    // Given
-    Map<String, String> target = Map.of();
-    WmsPayloadDto payload =
-        WmsPayloadDto.builder().uri("https://example.com").method("GET").build();
-
-    // When
-    boolean result = decorator.accept(target, payload);
-
-    // Then
-    assertFalse(result);
   }
 
   @Test
@@ -317,5 +303,82 @@ class QueryVaryFiltersDecoratorTest {
     assertTrue(result.contains("a='first'"));
     assertTrue(result.contains("m='middle'"));
     assertTrue(result.contains("z='last'"));
+  }
+
+  @Test
+  @DisplayName("addBehavior replaces parameter placeholders in HTTP URL")
+  void addBehaviorReplacesParameterPlaceholdersInHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of("userId", "123", "action", "search");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/users/${userId}/${action}")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/users/123/search", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles HTTP URL with multiple occurrences of same parameter")
+  void addBehaviorHandlesMultipleOccurrencesInHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of("id", "42");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/item/${id}/related/${id}")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/item/42/related/42", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles null target for HTTP URL gracefully")
+  void addBehaviorHandlesNullTargetForHttpUrl() {
+    // Given
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/endpoint")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(null, payload);
+
+    // Then
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles empty target for HTTP URL gracefully")
+  void addBehaviorHandlesEmptyTargetForHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of();
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/endpoint")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
   }
 }

@@ -125,17 +125,6 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
     m.appendTail(sb);
     uri = sb.toString();
 
-    // 2) Append leftover properties as WHERE ... AND ...
-    if (!remaining.isEmpty()) {
-      StringBuilder out = new StringBuilder(uri.trim());
-
-      for (Map.Entry<String, String> e : remaining.entrySet()) {
-        // NOTE: keys (column names) are assumed trusted/validated upstream
-        out.append("&").append(e.getKey()).append('=').append(quoteIfNeeded(e.getValue()));
-      }
-      uri = out.toString();
-    }
-
     wms.setUri(uri);
   }
 }

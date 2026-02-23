@@ -16,10 +16,13 @@ import org.sitmun.authorization.proxy.decorators.QueryVaryFiltersDecorator;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
+import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
+import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
@@ -290,5 +293,211 @@ class ProxyConfigurationServiceTest {
 
     // Then
     assertTrue(result);
+  }
+
+  @Test
+  @DisplayName("getConfiguration returns JdbcPayloadDto for SQL task type")
+  void getConfigurationReturnsJdbcPayloadForSqlTaskType() {
+    // Given
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put("command", "SELECT * FROM users WHERE id = ${userId}");
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
+    when(mockConnection.getUser()).thenReturn("dbuser");
+    when(mockConnection.getPassword()).thenReturn("dbpass");
+    when(mockConnection.getDriver()).thenReturn("oracle.jdbc.driver.OracleDriver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("SQL")
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When
+    ConfigProxyDto result = service.getConfiguration(request, 0L);
+
+    // Then
+    assertNotNull(result);
+    assertEquals("SQL", result.getType());
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("jdbc:oracle:thin:@localhost:1521:orcl", payload.getUri());
+    assertEquals("dbuser", payload.getUser());
+    assertEquals("dbpass", payload.getPassword());
+    assertEquals("oracle.jdbc.driver.OracleDriver", payload.getDriver());
+    assertEquals("SELECT * FROM users WHERE id = ${userId}", payload.getSql());
+  }
+
+  @Test
+  @DisplayName("getConfiguration returns JdbcPayloadDto null when task connection is null")
+  void getConfigurationReturnsNullJdbcPayloadWhenConnectionIsNull() {
+    // Given
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put("command", "SELECT * FROM users");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(null);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("SQL")
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When & Then
+    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+  }
+
+  @Test
+  @DisplayName("getConfiguration throws BadRequestException when SQL command is missing")
+  void getConfigurationThrowsExceptionWhenSqlCommandIsMissing() {
+    // Given
+    Map<String, Object> taskProperties = new HashMap<>();
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("SQL")
+            .typeId(1)
+            .method("GET")
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When & Then
+    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+  }
+
+  @Test
+  @DisplayName("getConfiguration returns WmsPayloadDto for API task type")
+  void getConfigurationReturnsWmsPayloadForApiTaskType() {
+    // Given
+    Map<String, Object> param1 = new HashMap<>();
+    param1.put("label", "apiKey");
+    param1.put("value", "secret123");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put("command", "https://api.example.com/endpoint");
+    taskProperties.put("parameters", Collections.singletonList(param1));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("API")
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When
+    ConfigProxyDto result = service.getConfiguration(request, 0L);
+
+    // Then
+    assertNotNull(result);
+    assertEquals("API", result.getType());
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
+    assertEquals("GET", payload.getMethod());
+    assertEquals("secret123", payload.getParameters().get("apiKey"));
+  }
+
+  @Test
+  @DisplayName("getConfiguration handles API task with empty parameters")
+  void getConfigurationHandlesApiTaskWithEmptyParameters() {
+    // Given
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put("command", "https://api.example.com/endpoint");
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("API")
+            .typeId(1)
+            .method("GET")
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When
+    ConfigProxyDto result = service.getConfiguration(request, 0L);
+
+    // Then
+    assertNotNull(result);
+    assertEquals("API", result.getType());
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
+    assertTrue(payload.getParameters().isEmpty());
+  }
+
+  @Test
+  @DisplayName("getConfiguration handles API task with body")
+  void getConfigurationHandlesApiTaskWithBody() {
+    // Given
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put("command", "https://api.example.com/endpoint");
+    taskProperties.put("body", "{\"key\": \"value\"}");
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("API")
+            .typeId(1)
+            .method("POST")
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    // When
+    ConfigProxyDto result = service.getConfiguration(request, 0L);
+
+    // Then
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("{\"key\": \"value\"}", payload.getBody());
   }
 }

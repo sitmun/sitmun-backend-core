@@ -57,7 +57,7 @@ public class TaskMoreInfoService implements TaskMapper {
     }
     String name = task.getName();
     String cartographyId = task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
-    final Object scopeObj = properties.get("scope");
+    final Object scopeObj = properties != null ? properties.get("scope") : null;
     final String scope = scopeObj != null ? scopeObj.toString() : null;
     String command = properties != null && properties.get("command") != null ? properties.get("command").toString() : null;
 
