@@ -61,13 +61,13 @@ public class ProxyConfigurationService {
   private int responseValidityTime;
 
   public ProxyConfigurationService(
-      ServiceRepository serviceRepository,
-      TaskRepository taskRepository,
-      UserRepository userRepository,
-      TerritoryRepository territoryRepository,
-      QueryFixedFiltersDecorator queryFixedFiltersDecorator,
-      QueryVaryFiltersDecorator queryVaryFiltersDecorator,
-      QueryPaginationDecorator queryPaginationDecorator) {
+    ServiceRepository serviceRepository,
+    TaskRepository taskRepository,
+    UserRepository userRepository,
+    TerritoryRepository territoryRepository,
+    QueryFixedFiltersDecorator queryFixedFiltersDecorator,
+    QueryVaryFiltersDecorator queryVaryFiltersDecorator,
+    QueryPaginationDecorator queryPaginationDecorator) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -78,7 +78,7 @@ public class ProxyConfigurationService {
   }
 
   private static WmsPayloadDto getOgcWmsConfiguration(
-      Service service, ConfigProxyRequestDto configProxyRequestDto) {
+    Service service, ConfigProxyRequestDto configProxyRequestDto) {
 
     if (service == null) {
       return null;
@@ -87,12 +87,12 @@ public class ProxyConfigurationService {
     HttpSecurityDto security = null;
     if (Boolean.TRUE.equals(service.getPasswordSet())) {
       security =
-          HttpSecurityDto.builder()
-              .type("http")
-              .scheme("basic")
-              .username(service.getUser())
-              .password(service.getPassword())
-              .build();
+        HttpSecurityDto.builder()
+          .type("http")
+          .scheme("basic")
+          .username(service.getUser())
+          .password(service.getPassword())
+          .build();
     }
 
     Map<String, String> parameters = configProxyRequestDto.getParameters();
@@ -110,13 +110,13 @@ public class ProxyConfigurationService {
       }
     }
     return WmsPayloadDto.builder()
-        .uri(service.getServiceURL())
-        .method(configProxyRequestDto.getMethod())
-        .vary(varyParameters)
-        .parameters(parameters)
-        .body(configProxyRequestDto.getRequestBody())
-        .security(security)
-        .build();
+      .uri(service.getServiceURL())
+      .method(configProxyRequestDto.getMethod())
+      .vary(varyParameters)
+      .parameters(parameters)
+      .body(configProxyRequestDto.getRequestBody())
+      .security(security)
+      .build();
   }
 
   private static String getSqlByTask(Task task) {
@@ -136,35 +136,53 @@ public class ProxyConfigurationService {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
     return databaseConnection != null
-        ? JdbcPayloadDto.builder()
-            .uri(databaseConnection.getUrl())
-            .user(databaseConnection.getUser())
-            .password(databaseConnection.getPassword())
-            .driver(databaseConnection.getDriver())
-            .sql(sql)
-            .build()
-        : null;
+      ? JdbcPayloadDto.builder()
+      .uri(databaseConnection.getUrl())
+      .user(databaseConnection.getUser())
+      .password(databaseConnection.getPassword())
+      .driver(databaseConnection.getDriver())
+      .sql(sql)
+      .build()
+      : null;
   }
 
   private static WmsPayloadDto getHttpApiConfiguration(Task task) {
     final Map<String, Object> taskProps = task.getProperties();
     final String url = (String) taskProps.get(COMMAND_KEY);
 
-    @SuppressWarnings("unchecked")
-    final Map<String, String> parameters =
+    @SuppressWarnings("unchecked") final Map<String, String> parameters =
       ((List<Map<String, String>>) taskProps.getOrDefault("parameters", Map.of()))
-      .stream()
-      .map(p -> Map.entry(p.get("label"), p.get("value")))
+        .stream()
+        .map(p -> Map.entry(p.get("label"), p.get("value")))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     final String body = (String) taskProps.getOrDefault("body", null);
 
+    String authenticationMode = (String) taskProps.getOrDefault("authenticationMode", null);
+    String user = (String) taskProps.getOrDefault("user", null);
+    String password = (String) taskProps.getOrDefault("password", null);
+
+    HttpSecurityDto.HttpSecurityDtoBuilder securityBuilder = HttpSecurityDto.builder()
+      .type(authenticationMode)
+      .scheme("Basic")
+      .username(user)
+      .password(password);
+
+    Object headersObject = taskProps.get("headers");
+    if (headersObject instanceof Map<?, ?> headers) {
+      securityBuilder.headers(headers.entrySet().stream()
+        .filter(e -> e.getKey() instanceof String && e.getValue() instanceof String)
+        .collect(Collectors.toMap(e -> (String) e.getKey(), e -> (String) e.getValue())));
+    }
+
+
     return WmsPayloadDto.builder()
-        .uri(url)
-        .method("GET")
-        .parameters(parameters)
-        .body(body)
-        .build();
+      .uri(url)
+      .method("GET")
+      .parameters(parameters)
+      .body(body)
+      .security(securityBuilder.build())
+      .build();
   }
 
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
@@ -173,62 +191,62 @@ public class ProxyConfigurationService {
   }
 
   public ConfigProxyDto getConfiguration(
-      ConfigProxyRequestDto configProxyRequestDto, long expirationTimeToken) {
+    ConfigProxyRequestDto configProxyRequestDto, long expirationTimeToken) {
     log.info(
-        "Fetching configuration for service type {} with id {}",
-        configProxyRequestDto.getType(),
-        configProxyRequestDto.getTypeId());
+      "Fetching configuration for service type {} with id {}",
+      configProxyRequestDto.getType(),
+      configProxyRequestDto.getTypeId());
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
     if (CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
-          .findById(configProxyRequestDto.getTypeId())
-          .ifPresent(
-              task -> {
-                payload.set(getDatasourceConfiguration(task));
-                configType.set(CONNECTION_TYPE_KEY);
-              });
+        .findById(configProxyRequestDto.getTypeId())
+        .ifPresent(
+          task -> {
+            payload.set(getDatasourceConfiguration(task));
+            configType.set(CONNECTION_TYPE_KEY);
+          });
     } else if (API_TYPE_KEY.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
-          .findById(configProxyRequestDto.getTypeId())
-          .ifPresent(
-              task -> {
-                payload.set(getHttpApiConfiguration(task));
-                configType.set(API_TYPE_KEY);
-              });
+        .findById(configProxyRequestDto.getTypeId())
+        .ifPresent(
+          task -> {
+            payload.set(getHttpApiConfiguration(task));
+            configType.set(API_TYPE_KEY);
+          });
     } else {
       log.info(
-          "Searching service type {} with id {}",
-          configProxyRequestDto.getType(),
-          configProxyRequestDto.getTypeId());
+        "Searching service type {} with id {}",
+        configProxyRequestDto.getType(),
+        configProxyRequestDto.getTypeId());
       serviceRepository
-          .findById(configProxyRequestDto.getTypeId())
-          .ifPresent(
-              service -> {
-                payload.set(getOgcWmsConfiguration(service, configProxyRequestDto));
-                configType.set(service.getType());
-              });
+        .findById(configProxyRequestDto.getTypeId())
+        .ifPresent(
+          service -> {
+            payload.set(getOgcWmsConfiguration(service, configProxyRequestDto));
+            configType.set(service.getType());
+          });
     }
     if (payload.get() != null) {
       long expirationTime =
-          expirationTimeToken > 0
-              ? expirationTimeToken / 1000
-              : (new Date().getTime() / 1000) + responseValidityTime;
+        expirationTimeToken > 0
+          ? expirationTimeToken / 1000
+          : (new Date().getTime() / 1000) + responseValidityTime;
       return ConfigProxyDto.builder()
-          .type(configType.get())
-          .exp(expirationTime)
-          .payload(payload.get())
-          .build();
+        .type(configType.get())
+        .exp(expirationTime)
+        .payload(payload.get())
+        .build();
     }
     throw new BadRequestException(
-        "Bad request for service type "
-            + configProxyRequestDto.getType()
-            + " with id "
-            + configProxyRequestDto.getTypeId());
+      "Bad request for service type "
+        + configProxyRequestDto.getType()
+        + " with id "
+        + configProxyRequestDto.getTypeId());
   }
 
   public void applyDecorators(
-      ConfigProxyDto configProxyDto, ConfigProxyRequestDto configProxyRequestDto, String username) {
+    ConfigProxyDto configProxyDto, ConfigProxyRequestDto configProxyRequestDto, String username) {
     PayloadDto payload = configProxyDto.getPayload();
 
     addFixedFilters(configProxyRequestDto, payload, username);
@@ -251,13 +269,13 @@ public class ProxyConfigurationService {
   }
 
   private void addFixedFilters(
-      ConfigProxyRequestDto configProxyRequestDto, PayloadDto payload, String username) {
+    ConfigProxyRequestDto configProxyRequestDto, PayloadDto payload, String username) {
     Map<String, String> fixedFilters = new HashMap<>();
     userRepository
-        .findByUsername(username)
-        .ifPresent(user -> fixedFilters.put("USER_ID", user.getId().toString()));
+      .findByUsername(username)
+      .ifPresent(user -> fixedFilters.put("USER_ID", user.getId().toString()));
     Territory territory =
-        territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
+      territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
     if (territory != null) {
       fixedFilters.put("TERR_ID", String.valueOf(territory.getId()));
       fixedFilters.put("TERR_COD", territory.getCode());
