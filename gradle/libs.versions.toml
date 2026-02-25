@@ -23,6 +23,7 @@ mapstruct = "1.6.3"
 commons-lang3 = "3.18.0"
 querydsl = "5.0.0"
 jetbrains-annotations = "26.0.2"
+handy-uri-templates = "2.1.8"
 
 [libraries]
 # Spring Boot starters
@@ -63,6 +64,7 @@ mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.re
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+handyUriTemplates = { module = "com.damnhandy:handy-uri-templates", version.ref = "handy-uri-templates" }
 
 # HTTP client
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }

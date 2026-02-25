@@ -23,6 +23,11 @@ public final class CodeListsConstants {
   public static final String SERVICE_TYPE = "service.type";
   public static final String TERRITORY_SCOPE = "territory.scope";
   public static final String QUERY_TASK_SCOPE = "queryTask.scope";
+  public static final String QUERY_TASK_PARAMETER_TYPE = "queryTask.parameterType";
+  public static final String TASK_ENTITY_JSON_PARAM_TYPE = "taskEntity.jsonParamType";
+  public static final String EDIT_TASK_FIELD_TYPE = "editTask.fieldType";
+  public static final String EDIT_TASK_SCOPE = "editTask.scope";
+  public static final String MORE_INFO_TYPE = "moreInfo.type";
   public static final String USER_POSITION_TYPE = "userPosition.type";
   public static final String USER_IDENTIFICATION_TYPE = "user.identificationType";
   public static final String TREE_TYPE = "tree.type";

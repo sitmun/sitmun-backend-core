@@ -1,9 +1,9 @@
 package org.sitmun.authorization.proxy.dto;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Map;
 
 @Getter
 @Setter

@@ -23,12 +23,12 @@ public class TaskUI {
 
   /** Unique identifier. */
   @TableGenerator(
-     name = "STM_TSK_UI_GEN",
-     table = "STM_SEQUENCE",
-     pkColumnName = "SEQ_NAME",
-     valueColumnName = "SEQ_COUNT",
-     pkColumnValue = "TUI_ID",
-     allocationSize = 1)
+      name = "STM_TSK_UI_GEN",
+      table = "STM_SEQUENCE",
+      pkColumnName = "SEQ_NAME",
+      valueColumnName = "SEQ_COUNT",
+      pkColumnValue = "TUI_ID",
+      allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_TSK_UI_GEN")
   @Column(name = "TUI_ID")

@@ -115,6 +115,9 @@ dependencies {
   // Rate limiting
   implementation libs.bucket4j.core
 
+  // URI Templates
+  implementation libs.handyUriTemplates
+
   // Core annotation processing
   annotationProcessor libs.jakarta.annotation.api
   annotationProcessor libs.spring.boot.configuration.processor

@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Service for handling moreInfo tasks in SITMUN. Maps moreInfo tasks to DTOs and manages their parameters.
+ * Service for handling moreInfo tasks in SITMUN. Maps moreInfo tasks to DTOs and manages their
+ * parameters.
  */
 @Slf4j
 @Component
@@ -56,24 +57,38 @@ public class TaskMoreInfoService implements TaskMapper {
       parameters = convertToJsonObject(properties);
     }
     String name = task.getName();
-    String cartographyId = task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
+    String cartographyId =
+        task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
     final Object scopeObj = properties != null ? properties.get("scope") : null;
     final String scope = scopeObj != null ? scopeObj.toString() : null;
-    String command = properties != null && properties.get("command") != null ? properties.get("command").toString() : null;
+    String command =
+        properties != null && properties.get("command") != null
+            ? properties.get("command").toString()
+            : null;
 
-    final TaskDto.TaskDtoBuilder taskBuilder = TaskDto.builder()
-      .id("task/" + task.getId())
-      .name(name)
-      .uiControl(uiControl)
-      .type(type)
-      .parameters(parameters)
-      .cartographyId(cartographyId)
-      .scope(scope)
-      .command(command);
+    final TaskDto.TaskDtoBuilder taskBuilder =
+        TaskDto.builder()
+            .id("task/" + task.getId())
+            .name(name)
+            .uiControl(uiControl)
+            .type(type)
+            .parameters(parameters)
+            .cartographyId(cartographyId)
+            .scope(scope)
+            .command(command);
 
     if (StringUtils.hasText(scope) && task.getId() != null) {
       String id = String.valueOf(task.getId());
-      taskBuilder.url(proxyUrl + "/proxy/" + application.getId() + "/" + territory.getId() + "/" + scope + "/" + id);
+      taskBuilder.url(
+          proxyUrl
+              + "/proxy/"
+              + application.getId()
+              + "/"
+              + territory.getId()
+              + "/"
+              + scope
+              + "/"
+              + id);
     }
 
     return taskBuilder.build();
@@ -90,8 +105,9 @@ public class TaskMoreInfoService implements TaskMapper {
     Map<String, Object> parameters = new HashMap<>();
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> listOfParameters =
-      (List<Map<String, Object>>) properties.getOrDefault(
-        DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
+        (List<Map<String, Object>>)
+            properties.getOrDefault(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
     for (Map<String, Object> param : listOfParameters) {
       if (param.containsKey("label")) {
         String label = String.valueOf(param.get("label"));

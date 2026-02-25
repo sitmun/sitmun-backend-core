@@ -64,7 +64,6 @@
           "name": "name",
           "value": "id"
         },
-        "condition": "scope",
         "hidden": [
           {
             "scope": "SQL",

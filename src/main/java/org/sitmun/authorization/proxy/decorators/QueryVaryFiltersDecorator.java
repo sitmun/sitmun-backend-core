@@ -1,34 +1,20 @@
 package org.sitmun.authorization.proxy.decorators;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import org.sitmun.infrastructure.util.SqlTemplateExpander;
+import org.sitmun.infrastructure.util.UriTemplateExpander;
 import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>> {
 
-  // ${name} placeholders like in the original code
-  private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(\\w+)}");
-  // Simple numeric detector for unquoted literals
-  private static final Pattern NUMERIC = Pattern.compile("^-?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$");
   // Case-insensitive WHERE detector
   private static final Pattern HAS_WHERE = Pattern.compile("\\bwhere\\b", Pattern.CASE_INSENSITIVE);
-
-  private static String quoteIfNeeded(String raw) {
-    if (raw == null) return "NULL";
-    String v = raw.trim();
-    if (NUMERIC.matcher(v).matches()) return v;
-    // Escape single quotes for SQL string literal
-    return "'" + v.replace("'", "''") + "'";
-  }
 
   @Override
   public boolean accept(Map<String, String> target, PayloadDto payload) {
@@ -47,30 +33,21 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
   private void applyJdbcParameterization(Map<String, String> target, JdbcPayloadDto jdbc) {
     String sql = jdbc.getSql();
     if (sql == null || sql.isBlank()) return;
+    if (target == null) return;
 
     // 1) Replace ${key} placeholders from target (all occurrences), track leftovers.
-    Map<String, String> remaining;
-    if (target == null || target.isEmpty()) {
-      remaining = new LinkedHashMap<>();
-    } else {
-      remaining = new LinkedHashMap<>(target); // preserve iteration order
-    }
-    Set<String> matchesKeys = new HashSet<>();
-    Matcher m = PLACEHOLDER.matcher(sql);
-    StringBuilder sb = new StringBuilder(sql.length());
-    while (m.find()) {
-      String key = m.group(1);
-      String val = remaining.get(key);
-      if (val != null) {
-        // Safe replacement – avoid interpreting backslashes/$ in the value
-        m.appendReplacement(sb, Matcher.quoteReplacement(val));
-        matchesKeys.add(key); // may be multiple matches for the same key
-      }
-    }
-    // Remove all matched keys
-    matchesKeys.forEach(remaining::remove);
-    m.appendTail(sb);
-    sql = sb.toString();
+    Map<String, String> remaining =
+        target.isEmpty()
+            ? new LinkedHashMap<>()
+            : new LinkedHashMap<>(target); // preserve iteration order
+
+    // Use SqlTemplateExpander to expand variables and track which were used
+    SqlTemplateExpander.ExpandedResult result =
+        SqlTemplateExpander.expandWithUsedVariables(sql, target);
+    sql = result.getSql();
+
+    // Remove used variables from remaining
+    result.getUsedVariables().forEach(remaining::remove);
 
     // 2) Append leftover properties as WHERE ... AND ...
     if (!remaining.isEmpty()) {
@@ -81,7 +58,10 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
       }
       for (Map.Entry<String, String> e : remaining.entrySet()) {
         // NOTE: keys (column names) are assumed trusted/validated upstream
-        out.append(" AND ").append(e.getKey()).append('=').append(quoteIfNeeded(e.getValue()));
+        out.append(" AND ")
+            .append(e.getKey())
+            .append('=')
+            .append(SqlTemplateExpander.quoteForSql(e.getValue()));
       }
       sql = out.toString();
     }
@@ -96,34 +76,15 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
 
     String uri = wms.getUri();
 
-    final Set<String> matchesKeys = new HashSet<>();
-    final Matcher m = PLACEHOLDER.matcher(uri);
-    final StringBuilder sb = new StringBuilder(uri.length());
+    // Use UriTemplateExpander to expand {variable} in URIs
+    UriTemplateExpander.ExpandedResult result =
+        UriTemplateExpander.expandWithUsedVariables(uri, target);
+    uri = result.getUri();
 
-    Map<String, String> remaining;
-    if (target.isEmpty()) {
-      remaining = new LinkedHashMap<>();
-    } else {
-      remaining = new LinkedHashMap<>(target); // preserve iteration order
+    // Remove expanded variables from WMS parameters
+    if (wms.getParameters() != null) {
+      result.getUsedVariables().forEach(key -> wms.getParameters().remove(key));
     }
-
-    while (m.find()) {
-      String key = m.group(1);
-      String val = remaining.get(key);
-      if (val != null) {
-        // Safe replacement – avoid interpreting backslashes/$ in the value
-        m.appendReplacement(sb, Matcher.quoteReplacement(val));
-        matchesKeys.add(key); // may be multiple matches for the same key
-
-        // Remove matched and replaced keys from parameters to avoid sending them as query params
-        wms.getParameters().remove("${" + key + "}");
-      }
-    }
-
-    // Remove all matched keys
-    matchesKeys.forEach(remaining::remove);
-    m.appendTail(sb);
-    uri = sb.toString();
 
     wms.setUri(uri);
   }

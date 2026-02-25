@@ -313,7 +313,7 @@ class QueryVaryFiltersDecoratorTest {
 
     WmsPayloadDto payload =
         WmsPayloadDto.builder()
-            .uri("https://api.example.com/users/${userId}/${action}")
+            .uri("https://api.example.com/users/{userId}/{action}")
             .method("GET")
             .parameters(new HashMap<>())
             .build();
@@ -333,7 +333,7 @@ class QueryVaryFiltersDecoratorTest {
 
     WmsPayloadDto payload =
         WmsPayloadDto.builder()
-            .uri("https://api.example.com/item/${id}/related/${id}")
+            .uri("https://api.example.com/item/{id}/related/{id}")
             .method("GET")
             .parameters(new HashMap<>())
             .build();
@@ -380,5 +380,36 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("https://api.example.com/endpoint", payload.getUri());
+  }
+
+  // Defect test for parameter cleanup
+  @Test
+  @DisplayName(
+      "addBehavior removes plain key from parameters after inlining in URL (expected to fail before fix)")
+  void addBehaviorRemovesPlainKeyFromParametersAfterInlining() {
+    // Given
+    Map<String, String> target = new HashMap<>();
+    target.put("userId", "123");
+    target.put("action", "search");
+
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put("userId", "123");
+    parameters.put("action", "search");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/users/{userId}/{action}")
+            .method("GET")
+            .parameters(parameters)
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/users/123/search", payload.getUri());
+    // After inlining, the plain keys should be removed from parameters
+    assertFalse(payload.getParameters().containsKey("userId"));
+    assertFalse(payload.getParameters().containsKey("action"));
   }
 }

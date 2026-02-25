@@ -240,7 +240,8 @@ class TreeNodeRepositoryDataRestTest {
         "name":"%s",
         "tree":"http://localhost/api/trees/1",
         "image":"https://raw.githubusercontent.com/sitmun/community/master/logotip%%20SITMUN%%20JPG/horitzontal/01.principal-horit-normal.jpg"
-        }""".formatted(uniqueName);
+        }"""
+            .formatted(uniqueName);
 
     MvcResult result =
         mvc.perform(post(TREE_NODES_URI).content(content))

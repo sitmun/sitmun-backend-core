@@ -99,6 +99,9 @@ public final class DomainConstants {
     /** Database edition scope identifier */
     public static final String SCOPE_DATA_BASE_EDIT = "db-edit";
 
+    /** SQL task proxy type identifier */
+    public static final String PROXY_TYPE_SQL = "SQL";
+
     /** String type identifier */
     public static final String TYPE_STRING = "string";
 
@@ -227,8 +230,43 @@ public final class DomainConstants {
       // Prevent instantiation
     }
 
+    /** WMS service type identifier */
+    public static final String TYPE_WMS = "WMS";
+
+    /** WMTS service type identifier */
+    public static final String TYPE_WMTS = "WMTS";
+
     /** WFS service type identifier */
     public static final String TYPE_WFS = "WFS";
+
+    /** API service type identifier */
+    public static final String TYPE_API = "API";
+
+    /**
+     * Checks if a service is of type WMS.
+     *
+     * @param service Service to check
+     * @return true if service is WMS type, false otherwise
+     */
+    public static boolean isWmsService(Service service) {
+      if (service == null) {
+        return false;
+      }
+      return TYPE_WMS.equals(service.getType());
+    }
+
+    /**
+     * Checks if a service is of type WMTS.
+     *
+     * @param service Service to check
+     * @return true if service is WMTS type, false otherwise
+     */
+    public static boolean isWmtsService(Service service) {
+      if (service == null) {
+        return false;
+      }
+      return TYPE_WMTS.equals(service.getType());
+    }
 
     /**
      * Checks if a service is of type WFS.
@@ -241,6 +279,19 @@ public final class DomainConstants {
         return false;
       }
       return TYPE_WFS.equals(service.getType());
+    }
+
+    /**
+     * Checks if a service is of type API.
+     *
+     * @param service Service to check
+     * @return true if service is API type, false otherwise
+     */
+    public static boolean isApiService(Service service) {
+      if (service == null) {
+        return false;
+      }
+      return TYPE_API.equals(service.getType());
     }
   }
 }

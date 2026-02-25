@@ -8,8 +8,8 @@ import java.util.Set;
 import org.springframework.test.context.ActiveProfilesResolver;
 
 /**
- * Non-mutating active profiles resolver that merges externally provided profiles with
- * test-specific additive profiles.
+ * Non-mutating active profiles resolver that merges externally provided profiles with test-specific
+ * additive profiles.
  *
  * <p>This resolver reads base profiles from system property {@code spring.profiles.active} (set by
  * Gradle tasks for DB selection: test,h2 or postgres or oracle), falling back to environment

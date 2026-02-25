@@ -64,7 +64,7 @@ class TaskRepositoryTest {
         roleRepository.findRolesByApplicationAndUserAndTerritory(
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
-    assertThat(cp).hasSize(4);
+    assertThat(cp).hasSize(7);
   }
 
   @TestConfiguration

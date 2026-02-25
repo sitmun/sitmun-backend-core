@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,6 +23,7 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.domain.user.position.UserPositionRepository;
+import org.sitmun.infrastructure.util.UriTemplateExpander;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedModel;
@@ -31,7 +33,6 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /** REST controller for managing client configurations. */
 @RestController
@@ -268,10 +269,12 @@ public class ClientConfigurationController {
     if (!Objects.equals(nodeId, rootNode)) {
       String uriTemplate =
           backendUrl + "/api/config/client/profile/{appId}/{terrId}?filter={nodeId}";
-      String uri =
-          UriComponentsBuilder.fromUriString(uriTemplate)
-              .build(context.getAppId(), context.getTerritoryId(), nodeId)
-              .toString();
+      Map<String, String> params =
+          Map.of(
+              "appId", context.getAppId().toString(),
+              "terrId", context.getTerritoryId().toString(),
+              "nodeId", nodeId);
+      String uri = UriTemplateExpander.expand(uriTemplate, params);
       node.setUri(uri);
     }
   }
@@ -293,14 +296,13 @@ public class ClientConfigurationController {
                       service.getType(),
                       service.getId().substring(8),
                       uriTemplate);
-                  String uri =
-                      UriComponentsBuilder.fromUriString(uriTemplate)
-                          .build(
-                              context.getAppId(),
-                              context.getTerritoryId(),
-                              service.getType(),
-                              service.getId().substring(8))
-                          .toString();
+                  Map<String, String> params =
+                      Map.of(
+                          "appId", context.getAppId().toString(),
+                          "terId", context.getTerritoryId().toString(),
+                          "type", service.getType(),
+                          "typeId", service.getId().substring(8));
+                  String uri = UriTemplateExpander.expand(uriTemplate, params);
                   service.setUrl(uri);
                 }
               });

@@ -57,7 +57,11 @@ class ResetPasswordControllerTest {
   private String expiredToken;
   private String counterLimitToken;
   private String notActiveToken;
-  /** Unique email per test run to avoid IncorrectResultSizeDataAccessException when DB is shared across contexts. */
+
+  /**
+   * Unique email per test run to avoid IncorrectResultSizeDataAccessException when DB is shared
+   * across contexts.
+   */
   private String testUserEmail;
 
   @BeforeEach
@@ -70,7 +74,8 @@ class ResetPasswordControllerTest {
     userRepository.findByUsername("testuser2").ifPresent(userRepository::delete);
     userRepository.findByUsername("testuser3").ifPresent(userRepository::delete);
 
-    // Unique email per test run so findByEmail returns a single result when DB is shared (e.g. parallel contexts)
+    // Unique email per test run so findByEmail returns a single result when DB is shared (e.g.
+    // parallel contexts)
     testUserEmail = "test-" + System.nanoTime() + "@example.com";
 
     // Create test user

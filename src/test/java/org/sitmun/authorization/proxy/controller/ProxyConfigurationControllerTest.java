@@ -131,7 +131,7 @@ class ProxyConfigurationControllerTest {
         """
         {
           "appId": 1,
-          "terId": 0,
+          "terId": 1,
           "type": "SQL",
           "typeId": 23,
           "method": "GET",
