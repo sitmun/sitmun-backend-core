@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-02-26
+
+### Added
+
+- More Information task type support with backend services, validators, and template expanders.
+- System variable resolution for More Information execution.
+
+### Changed
+
+- Consolidated legacy tree-node type codelists (`treenode.folder.type`, `treenode.leaf.type`) into `treenode.node.type` and updated translations.
+- Updated Liquibase scripts and backend test coverage for More Information task data/model changes.
+- Parameterized SQL vary-filter handling for prepared statement scenarios.
+
+### Fixed
+
+- Sequence update ordering in More Information Liquibase changesets.
+- JSON and properties issues in More Information Liquibase configuration.
+- More Information task service regressions during integration.
+
+### Removed
+
+- Legacy QueryVaryFiltersDecorator test assumption that no longer matched WMS payload behavior.
+
 ## [1.2.2] - 2026-02-16
 
 ### Added
@@ -172,8 +195,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.2...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.3...HEAD
+[1.2.3]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.2...sitmun-backend-core/1.2.3
 [1.2.2]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.1...sitmun-backend-core/1.2.2
+[1.2.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.0...sitmun-backend-core/1.2.1
 [1.2.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.1.1...sitmun-backend-core/1.2.0
 [1.1.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/v1.1.0...sitmun-backend-core/v1.1.1
 [1.1.0]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.0.0...sitmun-backend-core/1.1.0

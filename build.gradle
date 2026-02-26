@@ -296,7 +296,7 @@ scmVersion {
   versionIncrementer('incrementPatch')
 }
 
-project.version = '1.2.2'
+project.version = '1.2.3'
 
 // Git hooks setup
 tasks.register('setupGitHooks') {

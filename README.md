@@ -1,7 +1,7 @@
 # SITMUN Backend Core
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)
 
 Spring Boot service providing REST APIs for geospatial application management, authentication, and configuration in the [SITMUN](https://sitmun.github.io/) platform.
 
