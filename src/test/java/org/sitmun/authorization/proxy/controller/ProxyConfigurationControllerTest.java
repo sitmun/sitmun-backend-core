@@ -26,9 +26,6 @@ class ProxyConfigurationControllerTest {
   @Autowired JsonWebTokenService jsonWebTokenService;
   @Autowired private MockMvc mvc;
 
-  @Value("${sitmun.proxy-middleware.secret}")
-  private String secret;
-
   String getUserToken() {
     return jsonWebTokenService.generateToken("admin", new Date());
   }
@@ -192,15 +189,13 @@ class ProxyConfigurationControllerTest {
         }
       """;
 
-    mvc.perform(
-            post(CONFIG_PROXY_URI)
-                .contentType(APPLICATION_JSON)
-                .header(PROXY_MIDDLEWARE_KEY, secret)
-                .content(content))
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")
-                .value("SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=123 AND columnB='valueB'"));
+                .value("SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=?"))
+        .andExpect(jsonPath("$.payload.parameters[0]").value("123"))
+        .andExpect(jsonPath("$.payload.parameters[1]").value("valueB"));
   }
 
   @Test
@@ -223,14 +218,11 @@ class ProxyConfigurationControllerTest {
       """
             .formatted(getUserToken());
 
-    mvc.perform(
-            post(CONFIG_PROXY_URI)
-                .contentType(APPLICATION_JSON)
-                .header(PROXY_MIDDLEWARE_KEY, secret)
-                .content(content))
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")
-                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=123"));
+                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=?"))
+        .andExpect(jsonPath("$.payload.parameters[0]").value("123"));
   }
 }

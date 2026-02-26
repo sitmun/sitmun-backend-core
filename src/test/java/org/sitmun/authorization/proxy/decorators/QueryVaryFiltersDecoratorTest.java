@@ -48,7 +48,10 @@ class QueryVaryFiltersDecoratorTest {
     decorator.addBehavior(target, payload);
 
     // Then
-    assertEquals("SELECT * FROM users WHERE id = 123 AND status = 'active'", payload.getSql());
+    assertEquals("SELECT * FROM users WHERE id = ? AND status = ?", payload.getSql());
+    assertEquals(2, payload.getParameters().size());
+    assertTrue(payload.getParameters().contains("123"));
+    assertTrue(payload.getParameters().contains("active"));
     assertEquals(2, target.size()); // Parameters should remain unchanged since target is immutable
   }
 
@@ -66,9 +69,12 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
     assertTrue(result.contains(" AND "));
+    assertEquals(2, payload.getParameters().size());
+    assertTrue(payload.getParameters().contains("electronics"));
+    assertTrue(payload.getParameters().contains("100.50"));
     assertEquals(2, target.size()); // Parameters should remain unchanged since target is immutable
   }
 
@@ -87,8 +93,9 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE available = true AND"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
+    assertEquals(2, payload.getParameters().size());
   }
 
   @Test
@@ -106,12 +113,14 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products where available = true AND"));
-    assertTrue(result.contains("category='electronics'"));
+    assertTrue(result.contains("category=?"));
+    assertEquals(1, payload.getParameters().size());
+    assertEquals("electronics", payload.getParameters().get(0));
   }
 
   @Test
-  @DisplayName("addBehavior formats numeric values without quotes")
-  void addBehaviorFormatsNumericValuesWithoutQuotes() {
+  @DisplayName("addBehavior uses parameters for numeric values")
+  void addBehaviorUsesParametersForNumericValues() {
     // Given
     Map<String, String> target =
         Map.of("id", "123", "price", "99.99", "quantity", "-5", "rating", "4.5e2");
@@ -124,15 +133,16 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE"));
-    assertTrue(result.contains("id=123"));
-    assertTrue(result.contains("price=99.99"));
-    assertTrue(result.contains("quantity=-5"));
-    assertTrue(result.contains("rating=4.5e2"));
+    assertTrue(result.contains("id=?"));
+    assertTrue(result.contains("price=?"));
+    assertTrue(result.contains("quantity=?"));
+    assertTrue(result.contains("rating=?"));
+    assertEquals(4, payload.getParameters().size());
   }
 
   @Test
-  @DisplayName("addBehavior formats string values with quotes")
-  void addBehaviorFormatsStringValuesWithQuotes() {
+  @DisplayName("addBehavior uses parameters for string values")
+  void addBehaviorUsesParametersForStringValues() {
     // Given
     Map<String, String> target =
         Map.of("name", "John Doe", "email", "john@example.com", "status", "active");
@@ -145,9 +155,10 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM users WHERE"));
-    assertTrue(result.contains("name='John Doe'"));
-    assertTrue(result.contains("email='john@example.com'"));
-    assertTrue(result.contains("status='active'"));
+    assertTrue(result.contains("name=?"));
+    assertTrue(result.contains("email=?"));
+    assertTrue(result.contains("status=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -165,9 +176,10 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     String result = payload.getSql();
-    assertTrue(result.startsWith("SELECT * FROM products WHERE user_id = 123 AND"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.startsWith("SELECT * FROM products WHERE user_id = ? AND"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -183,6 +195,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertNull(payload.getSql());
+    assertTrue(payload.getParameters().isEmpty());
     assertEquals(1, target.size()); // Parameters should remain unchanged
   }
 
@@ -199,6 +212,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("", payload.getSql());
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -212,6 +226,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("SELECT * FROM products", payload.getSql()); // SQL should remain unchanged
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -226,6 +241,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("SELECT * FROM products", payload.getSql()); // SQL should remain unchanged
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -259,11 +275,12 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM measurements WHERE"));
-    assertTrue(result.contains("intValue=42"));
-    assertTrue(result.contains("floatValue=3.14159"));
-    assertTrue(result.contains("negativeValue=-123.456"));
-    assertTrue(result.contains("scientificValue=1.23e-4"));
-    assertTrue(result.contains("scientificValue2=6.022E23"));
+    assertTrue(result.contains("intValue=?"));
+    assertTrue(result.contains("floatValue=?"));
+    assertTrue(result.contains("negativeValue=?"));
+    assertTrue(result.contains("scientificValue=?"));
+    assertTrue(result.contains("scientificValue2=?"));
+    assertEquals(5, payload.getParameters().size());
   }
 
   @Test
@@ -281,9 +298,10 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM customers WHERE"));
-    assertTrue(result.contains("phone='123-456-7890'"));
-    assertTrue(result.contains("zipCode=12345"));
-    assertTrue(result.contains("partNumber='ABC123'"));
+    assertTrue(result.contains("phone=?"));
+    assertTrue(result.contains("zipCode=?"));
+    assertTrue(result.contains("partNumber=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -300,9 +318,29 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM items WHERE"));
-    assertTrue(result.contains("a='first'"));
-    assertTrue(result.contains("m='middle'"));
-    assertTrue(result.contains("z='last'"));
+    assertTrue(result.contains("a=?"));
+    assertTrue(result.contains("m=?"));
+    assertTrue(result.contains("z=?"));
+    assertEquals(3, payload.getParameters().size());
+  }
+
+  @Test
+  @DisplayName("addBehavior preserves parameter order for linked maps")
+  void addBehaviorPreservesParameterOrderForLinkedMaps() {
+    // Given
+    Map<String, String> target = new java.util.LinkedHashMap<>();
+    target.put("first", "1");
+    target.put("second", "2");
+    target.put("third", "3");
+    JdbcPayloadDto payload = JdbcPayloadDto.builder().sql("SELECT * FROM t").build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals(
+        "SELECT * FROM t WHERE 1=1 AND first=? AND second=? AND third=?", payload.getSql());
+    assertEquals(java.util.List.of("1", "2", "3"), payload.getParameters());
   }
 
   @Test

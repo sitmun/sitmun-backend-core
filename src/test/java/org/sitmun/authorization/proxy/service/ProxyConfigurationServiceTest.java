@@ -344,6 +344,8 @@ class ProxyConfigurationServiceTest {
     assertEquals("dbpass", payload.getPassword());
     assertEquals("oracle.jdbc.driver.OracleDriver", payload.getDriver());
     assertEquals("SELECT * FROM users WHERE id = ${userId}", payload.getSql());
+    assertNotNull(payload.getParameters());
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
