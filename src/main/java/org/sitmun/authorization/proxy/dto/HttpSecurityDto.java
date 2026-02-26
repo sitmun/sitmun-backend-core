@@ -1,5 +1,6 @@
 package org.sitmun.authorization.proxy.dto;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +17,6 @@ public class HttpSecurityDto {
   private String username;
 
   private String password;
+
+  private Map<String, String> headers;
 }

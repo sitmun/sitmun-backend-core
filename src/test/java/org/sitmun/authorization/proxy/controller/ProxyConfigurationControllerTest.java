@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -25,9 +24,6 @@ class ProxyConfigurationControllerTest {
 
   @Autowired JsonWebTokenService jsonWebTokenService;
   @Autowired private MockMvc mvc;
-
-  @Value("${sitmun.proxy-middleware.secret}")
-  private String secret;
 
   String getUserToken() {
     return jsonWebTokenService.generateToken("admin", new Date());
@@ -131,7 +127,7 @@ class ProxyConfigurationControllerTest {
         """
         {
           "appId": 1,
-          "terId": 0,
+          "terId": 1,
           "type": "SQL",
           "typeId": 23,
           "method": "GET",
@@ -192,15 +188,13 @@ class ProxyConfigurationControllerTest {
         }
       """;
 
-    mvc.perform(
-            post(CONFIG_PROXY_URI)
-                .contentType(APPLICATION_JSON)
-                .header(PROXY_MIDDLEWARE_KEY, secret)
-                .content(content))
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")
-                .value("SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=123 AND columnB='valueB'"));
+                .value("SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=?"))
+        .andExpect(jsonPath("$.payload.parameters[0]").value("123"))
+        .andExpect(jsonPath("$.payload.parameters[1]").value("valueB"));
   }
 
   @Test
@@ -223,14 +217,11 @@ class ProxyConfigurationControllerTest {
       """
             .formatted(getUserToken());
 
-    mvc.perform(
-            post(CONFIG_PROXY_URI)
-                .contentType(APPLICATION_JSON)
-                .header(PROXY_MIDDLEWARE_KEY, secret)
-                .content(content))
+    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")
-                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=123"));
+                .value("SELECT * FROM EXAMPLE WHERE TERR_COD=60001 AND columnA=?"))
+        .andExpect(jsonPath("$.payload.parameters[0]").value("123"));
   }
 }

@@ -2,6 +2,7 @@ package org.sitmun.authorization.proxy.decorators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,21 +34,6 @@ class QueryVaryFiltersDecoratorTest {
   }
 
   @Test
-  @DisplayName("accept returns false for non-DatasourcePayloadDto")
-  void acceptReturnsFalseForNonDatasourcePayloadDto() {
-    // Given
-    Map<String, String> target = Map.of();
-    WmsPayloadDto payload =
-        WmsPayloadDto.builder().uri("https://example.com").method("GET").build();
-
-    // When
-    boolean result = decorator.accept(target, payload);
-
-    // Then
-    assertFalse(result);
-  }
-
-  @Test
   @DisplayName("addBehavior replaces parameter placeholders in SQL")
   void addBehaviorReplacesParameterPlaceholders() {
     // Given
@@ -62,7 +48,10 @@ class QueryVaryFiltersDecoratorTest {
     decorator.addBehavior(target, payload);
 
     // Then
-    assertEquals("SELECT * FROM users WHERE id = 123 AND status = 'active'", payload.getSql());
+    assertEquals("SELECT * FROM users WHERE id = ? AND status = ?", payload.getSql());
+    assertEquals(2, payload.getParameters().size());
+    assertTrue(payload.getParameters().contains("123"));
+    assertTrue(payload.getParameters().contains("active"));
     assertEquals(2, target.size()); // Parameters should remain unchanged since target is immutable
   }
 
@@ -80,9 +69,12 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
     assertTrue(result.contains(" AND "));
+    assertEquals(2, payload.getParameters().size());
+    assertTrue(payload.getParameters().contains("electronics"));
+    assertTrue(payload.getParameters().contains("100.50"));
     assertEquals(2, target.size()); // Parameters should remain unchanged since target is immutable
   }
 
@@ -101,8 +93,9 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE available = true AND"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
+    assertEquals(2, payload.getParameters().size());
   }
 
   @Test
@@ -120,12 +113,14 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products where available = true AND"));
-    assertTrue(result.contains("category='electronics'"));
+    assertTrue(result.contains("category=?"));
+    assertEquals(1, payload.getParameters().size());
+    assertEquals("electronics", payload.getParameters().get(0));
   }
 
   @Test
-  @DisplayName("addBehavior formats numeric values without quotes")
-  void addBehaviorFormatsNumericValuesWithoutQuotes() {
+  @DisplayName("addBehavior uses parameters for numeric values")
+  void addBehaviorUsesParametersForNumericValues() {
     // Given
     Map<String, String> target =
         Map.of("id", "123", "price", "99.99", "quantity", "-5", "rating", "4.5e2");
@@ -138,15 +133,16 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM products WHERE"));
-    assertTrue(result.contains("id=123"));
-    assertTrue(result.contains("price=99.99"));
-    assertTrue(result.contains("quantity=-5"));
-    assertTrue(result.contains("rating=4.5e2"));
+    assertTrue(result.contains("id=?"));
+    assertTrue(result.contains("price=?"));
+    assertTrue(result.contains("quantity=?"));
+    assertTrue(result.contains("rating=?"));
+    assertEquals(4, payload.getParameters().size());
   }
 
   @Test
-  @DisplayName("addBehavior formats string values with quotes")
-  void addBehaviorFormatsStringValuesWithQuotes() {
+  @DisplayName("addBehavior uses parameters for string values")
+  void addBehaviorUsesParametersForStringValues() {
     // Given
     Map<String, String> target =
         Map.of("name", "John Doe", "email", "john@example.com", "status", "active");
@@ -159,9 +155,10 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM users WHERE"));
-    assertTrue(result.contains("name='John Doe'"));
-    assertTrue(result.contains("email='john@example.com'"));
-    assertTrue(result.contains("status='active'"));
+    assertTrue(result.contains("name=?"));
+    assertTrue(result.contains("email=?"));
+    assertTrue(result.contains("status=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -179,9 +176,10 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     String result = payload.getSql();
-    assertTrue(result.startsWith("SELECT * FROM products WHERE user_id = 123 AND"));
-    assertTrue(result.contains("category='electronics'"));
-    assertTrue(result.contains("price=100.50"));
+    assertTrue(result.startsWith("SELECT * FROM products WHERE user_id = ? AND"));
+    assertTrue(result.contains("category=?"));
+    assertTrue(result.contains("price=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -197,6 +195,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertNull(payload.getSql());
+    assertTrue(payload.getParameters().isEmpty());
     assertEquals(1, target.size()); // Parameters should remain unchanged
   }
 
@@ -213,6 +212,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("", payload.getSql());
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -226,6 +226,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("SELECT * FROM products", payload.getSql()); // SQL should remain unchanged
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -240,6 +241,7 @@ class QueryVaryFiltersDecoratorTest {
 
     // Then
     assertEquals("SELECT * FROM products", payload.getSql()); // SQL should remain unchanged
+    assertTrue(payload.getParameters().isEmpty());
   }
 
   @Test
@@ -273,11 +275,12 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM measurements WHERE"));
-    assertTrue(result.contains("intValue=42"));
-    assertTrue(result.contains("floatValue=3.14159"));
-    assertTrue(result.contains("negativeValue=-123.456"));
-    assertTrue(result.contains("scientificValue=1.23e-4"));
-    assertTrue(result.contains("scientificValue2=6.022E23"));
+    assertTrue(result.contains("intValue=?"));
+    assertTrue(result.contains("floatValue=?"));
+    assertTrue(result.contains("negativeValue=?"));
+    assertTrue(result.contains("scientificValue=?"));
+    assertTrue(result.contains("scientificValue2=?"));
+    assertEquals(5, payload.getParameters().size());
   }
 
   @Test
@@ -295,9 +298,10 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM customers WHERE"));
-    assertTrue(result.contains("phone='123-456-7890'"));
-    assertTrue(result.contains("zipCode=12345"));
-    assertTrue(result.contains("partNumber='ABC123'"));
+    assertTrue(result.contains("phone=?"));
+    assertTrue(result.contains("zipCode=?"));
+    assertTrue(result.contains("partNumber=?"));
+    assertEquals(3, payload.getParameters().size());
   }
 
   @Test
@@ -314,8 +318,136 @@ class QueryVaryFiltersDecoratorTest {
     // Then
     String result = payload.getSql();
     assertTrue(result.startsWith("SELECT * FROM items WHERE"));
-    assertTrue(result.contains("a='first'"));
-    assertTrue(result.contains("m='middle'"));
-    assertTrue(result.contains("z='last'"));
+    assertTrue(result.contains("a=?"));
+    assertTrue(result.contains("m=?"));
+    assertTrue(result.contains("z=?"));
+    assertEquals(3, payload.getParameters().size());
+  }
+
+  @Test
+  @DisplayName("addBehavior preserves parameter order for linked maps")
+  void addBehaviorPreservesParameterOrderForLinkedMaps() {
+    // Given
+    Map<String, String> target = new java.util.LinkedHashMap<>();
+    target.put("first", "1");
+    target.put("second", "2");
+    target.put("third", "3");
+    JdbcPayloadDto payload = JdbcPayloadDto.builder().sql("SELECT * FROM t").build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals(
+        "SELECT * FROM t WHERE 1=1 AND first=? AND second=? AND third=?", payload.getSql());
+    assertEquals(java.util.List.of("1", "2", "3"), payload.getParameters());
+  }
+
+  @Test
+  @DisplayName("addBehavior replaces parameter placeholders in HTTP URL")
+  void addBehaviorReplacesParameterPlaceholdersInHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of("userId", "123", "action", "search");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/users/{userId}/{action}")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/users/123/search", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles HTTP URL with multiple occurrences of same parameter")
+  void addBehaviorHandlesMultipleOccurrencesInHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of("id", "42");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/item/{id}/related/{id}")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/item/42/related/42", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles null target for HTTP URL gracefully")
+  void addBehaviorHandlesNullTargetForHttpUrl() {
+    // Given
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/endpoint")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(null, payload);
+
+    // Then
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
+  }
+
+  @Test
+  @DisplayName("addBehavior handles empty target for HTTP URL gracefully")
+  void addBehaviorHandlesEmptyTargetForHttpUrl() {
+    // Given
+    Map<String, String> target = Map.of();
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/endpoint")
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/endpoint", payload.getUri());
+  }
+
+  // Defect test for parameter cleanup
+  @Test
+  @DisplayName(
+      "addBehavior removes plain key from parameters after inlining in URL (expected to fail before fix)")
+  void addBehaviorRemovesPlainKeyFromParametersAfterInlining() {
+    // Given
+    Map<String, String> target = new HashMap<>();
+    target.put("userId", "123");
+    target.put("action", "search");
+
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put("userId", "123");
+    parameters.put("action", "search");
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.com/users/{userId}/{action}")
+            .method("GET")
+            .parameters(parameters)
+            .build();
+
+    // When
+    decorator.addBehavior(target, payload);
+
+    // Then
+    assertEquals("https://api.example.com/users/123/search", payload.getUri());
+    // After inlining, the plain keys should be removed from parameters
+    assertFalse(payload.getParameters().containsKey("userId"));
+    assertFalse(payload.getParameters().containsKey("action"));
   }
 }

@@ -1,6 +1,7 @@
 package org.sitmun.authorization.proxy.protocols.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,15 +18,23 @@ public class JdbcPayloadDto extends PayloadDto {
   private String password;
   private String driver;
   private String sql;
+  private List<String> parameters;
 
   @Builder
   public JdbcPayloadDto(
-      List<String> vary, String uri, String user, String password, String driver, String sql) {
+      List<String> vary,
+      String uri,
+      String user,
+      String password,
+      String driver,
+      String sql,
+      List<String> parameters) {
     super(vary);
     this.uri = uri;
     this.user = user;
     this.password = password;
     this.driver = driver;
     this.sql = sql;
+    this.parameters = parameters != null ? parameters : new ArrayList<>();
   }
 }

@@ -72,3 +72,4 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 71,userPosition.type,EN,FALSE,FALSE,Territorial Entity  (no City Council)
 72,userPosition.type,ER,FALSE,FALSE,Territorial Entity  (no City Council) point of contact
 73,userPosition.type,TS,FALSE,FALSE,Test
+74,service.nativeProtocol,NONE,FALSE,FALSE,No protocol

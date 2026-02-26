@@ -60,3 +60,13 @@ sitmun:
   proxy-middleware:
     force: false
     url: http://localhost:8080/middleware
+  variables:
+    # System variables for testing
+    system:
+      USER_ID: "#{#user.id}"
+      USER_NAME: "#{#user.username}"
+      TERR_ID: "#{#territory.id}"
+      TERR_COD: "#{#territory.code}"
+      TERR_NAME: "#{#territory.name}"
+      APP_ID: "#{#application.id}"
+      APP_NAME: "#{#application.name}"

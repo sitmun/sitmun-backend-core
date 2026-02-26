@@ -13,6 +13,7 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.util.ParameterValidator;
 import org.springframework.stereotype.Component;
 
 /**
@@ -55,6 +56,7 @@ public class TaskBasicService implements TaskMapper {
     Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
+      ParameterValidator.validateNoProvidedVariables(properties, "Basic");
       parameters = convertToJsonObject(properties);
     }
     return TaskDto.builder()

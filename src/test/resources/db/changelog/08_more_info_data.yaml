@@ -1,0 +1,122 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8
+      author: sitmun
+      changes:
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 03_task_types/06_MoreInformationTaskDefinition.json
+            where: TTY_ID=6
+
+  - changeSet:
+      id: 9
+      author: sitmun
+      changes:
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'COD_ID';
+        - insert:
+            tableName: STM_CODELIST
+            columns:
+              - column:
+                  name: COD_ID
+                  valueComputed: (SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'COD_ID')
+              - column:
+                  name: COD_LIST
+                  value: "moreInfo.type"
+              - column:
+                  name: COD_VALUE
+                  value: "SQL"
+              - column:
+                  name: COD_SYSTEM
+                  valueBoolean: false
+              - column:
+                  name: COD_DEFAULT
+                  valueBoolean: false
+              - column:
+                  name: COD_DESCRIPTION
+                  value: "SQL"
+
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'COD_ID';
+
+        - insert:
+            tableName: STM_CODELIST
+            columns:
+              - column:
+                  name: COD_ID
+                  valueComputed: (SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'COD_ID')
+              - column:
+                  name: COD_LIST
+                  value: "moreInfo.type"
+              - column:
+                  name: COD_VALUE
+                  value: "API"
+              - column:
+                  name: COD_SYSTEM
+                  valueBoolean: false
+              - column:
+                  name: COD_DEFAULT
+                  valueBoolean: false
+              - column:
+                  name: COD_DESCRIPTION
+                  value: "API"
+
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'COD_ID';
+
+        - insert:
+            tableName: STM_CODELIST
+            columns:
+              - column:
+                  name: COD_ID
+                  valueComputed: (SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'COD_ID')
+              - column:
+                  name: COD_LIST
+                  value: "moreInfo.type"
+              - column:
+                  name: COD_VALUE
+                  value: "URL"
+              - column:
+                  name: COD_SYSTEM
+                  valueBoolean: false
+              - column:
+                  name: COD_DEFAULT
+                  valueBoolean: false
+              - column:
+                  name: COD_DESCRIPTION
+                  value: "URL"
+
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 10
+      author: sitmun
+      changes:
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'TUI_ID';
+        - insert:
+            tableName: STM_TSK_UI
+            columns:
+              - column:
+                  name: TUI_ID
+                  valueComputed: COALESCE((SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'TUI_ID'), 40)
+              - column:
+                  name: TUI_NAME
+                  value: "sitna.moreInfo"
+              - column:
+                  name: TUI_TOOLTIP
+                  value: "More Info"
+              - column:
+                  name: TUI_TYPE
+                  value: null
+              - column:
+                  name: TUI_ORDER
+                  valueComputed: COALESCE((SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'TUI_ID'), 40)
+
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'TUI_ID';
+

@@ -4,7 +4,7 @@
     "elements": {
       "type": {
         "hidden": true,
-        "value": 5,
+        "value": 6,
         "required": true
       },
       "name": {
@@ -22,48 +22,6 @@
         },
         "required": true
       },
-      "scope": {
-        "label": "tasksEntity.accesType",
-        "control": "selector",
-        "selector": {
-          "data": "codelist-values",
-          "queryParams": {
-            "codeListName": "queryTask.scope",
-            "projection": "view"
-          },
-          "name": "description",
-          "value": "value"
-        },
-        "required": true
-      },
-      "connection": {
-        "condition": "scope",
-        "label": "tasksEntity.connection",
-        "control": "selector",
-        "selector": {
-          "data": "connection",
-          "name": "name",
-          "value": "id"
-        },
-        "hidden": [
-          {
-            "scope": "WS",
-            "hidden": true
-          },
-          {
-            "scope": "URL",
-            "hidden": true
-          },
-          {
-            "scope": "INFORME",
-            "hidden": true
-          },
-          {
-            "scope": "IFRAME",
-            "hidden": true
-          }
-        ]
-      },
       "cartography": {
         "label": "tasksEntity.cartography",
         "control": "selectorPopup",
@@ -80,17 +38,29 @@
               "editable": "true"
             }
           }
-        }
+        },
+        "required": true
       },
-      "task": {
-        "label": "tasksEntity.informe",
+      "scope": {
+        "label": "tasksEntity.accesType",
         "control": "selector",
         "selector": {
-          "data": "tasks",
+          "data": "codelist-values",
           "queryParams": {
-            "type.id": "7",
+            "codeListName": "moreInfo.type",
             "projection": "view"
           },
+          "name": "description",
+          "value": "value"
+        },
+        "required": true
+      },
+      "connection": {
+        "condition": "scope",
+        "label": "tasksEntity.connection",
+        "control": "selector",
+        "selector": {
+          "data": "connection",
           "name": "name",
           "value": "id"
         },
@@ -101,7 +71,7 @@
             "hidden": true
           },
           {
-            "scope": "WS",
+            "scope": "API",
             "hidden": true
           },
           {
@@ -122,14 +92,18 @@
           }
         ],
         "condition": "scope",
-        "label": "tasksEntity.sql",
+        "label": [
+          { "scope": "SQL", "text": "tasksEntity.sql" },
+          { "scope": "API", "text": "tasksEntity.apiUrl" },
+          { "scope": "URL", "text": "tasksEntity.url" }
+        ],
         "control": [
           {
             "scope": "SQL",
             "control": "textArea"
           },
           {
-            "scope": "WS",
+            "scope": "API",
             "control": "input"
           },
           {
@@ -197,18 +171,9 @@
             "enum": {
               "list": "tasksEntity.type",
               "elements": [
-                {
-                  "label": "tasksEntity.autocomplete",
-                  "value": "A"
-                },
-                {
-                  "label": "tasksEntity.input",
-                  "value": "I"
-                },
-                {
-                  "label": "tasksEntity.combo",
-                  "value": "C"
-                }
+                { "label": "tasksEntity.autocomplete", "value": "A" },
+                { "label": "tasksEntity.input", "value": "I" },
+                { "label": "tasksEntity.combo", "value": "C" }
               ]
             }
           },
@@ -217,18 +182,9 @@
             "label": "tasksEntity.value",
             "control": "textArea",
             "required": [
-              {
-                "type": "A",
-                "required": true
-              },
-              {
-                "type": "C",
-                "required": true
-              },
-              {
-                "type": "I",
-                "required": false
-              }
+              { "type": "A", "required": true },
+              { "type": "C", "required": true },
+              { "type": "I", "required": false }
             ]
           },
           "order": {
@@ -245,25 +201,13 @@
         "control": "selectorPopup",
         "data": "roles",
         "columns": {
-          "id": {
-            "label": "tasksEntity.id",
-            "editable": "false"
-          },
-          "name": {
-            "label": "tasksEntity.name",
-            "editable": "false"
-          }
+          "id": { "label": "tasksEntity.id", "editable": "false" },
+          "name": { "label": "tasksEntity.name", "editable": "false" }
         }
       },
       "columns": {
-        "id": {
-          "label": "tasksEntity.id",
-          "editable": "false"
-        },
-        "name": {
-          "label": "tasksEntity.name",
-          "editable": "false"
-        }
+        "id": { "label": "tasksEntity.id", "editable": "false" },
+        "name": { "label": "tasksEntity.name", "editable": "false" }
       }
     },
     {
@@ -273,25 +217,13 @@
         "control": "selectorPopup",
         "data": "availabilities",
         "columns": {
-          "id": {
-            "label": "tasksEntity.id",
-            "editable": "false"
-          },
-          "name": {
-            "label": "tasksEntity.name",
-            "editable": "true"
-          }
+          "id": { "label": "tasksEntity.id", "editable": "false" },
+          "name": { "label": "tasksEntity.name", "editable": "true" }
         }
       },
       "columns": {
-        "id": {
-          "label": "tasksEntity.id",
-          "editable": "false"
-        },
-        "territoryName": {
-          "label": "tasksEntity.name",
-          "editable": "true"
-        }
+        "id": { "label": "tasksEntity.id", "editable": "false" },
+        "territoryName": { "label": "tasksEntity.name", "editable": "true" }
       }
     }
   ]

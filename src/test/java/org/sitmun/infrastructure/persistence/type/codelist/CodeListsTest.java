@@ -34,29 +34,27 @@ class CodeListsTest {
             CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT,
             CodeListsConstants.CARTOGRAPHY_PARAMETER_TYPE,
             CodeListsConstants.CARTOGRAPHY_PERMISSION_TYPE,
-            // CodeListsConstants.DATABASE_CONNECTION_DRIVER,
-            CodeListsConstants.DOWNLOAD_TASK_SCOPE,
-            CodeListsConstants.QUERY_TASK_SCOPE,
-            // SERVICE_NATIVE_PROTOCOL,
-            CodeListsConstants.SERVICE_PARAMETER_TYPE,
-            CodeListsConstants.SERVICE_TYPE,
-            CodeListsConstants.SERVICE_AUTHENTICATION_MODE,
-            CodeListsConstants.TERRITORY_SCOPE,
-            CodeListsConstants.USER_IDENTIFICATION_TYPE,
-            CodeListsConstants.USER_POSITION_TYPE,
             CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
             CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE,
+            CodeListsConstants.DATABASE_CONNECTION_DRIVER,
+            CodeListsConstants.DOWNLOAD_TASK_SCOPE,
+            CodeListsConstants.EDIT_TASK_FIELD_TYPE,
+            CodeListsConstants.EDIT_TASK_SCOPE,
+            CodeListsConstants.MORE_INFO_TYPE,
+            CodeListsConstants.QUERY_TASK_PARAMETER_TYPE,
+            CodeListsConstants.QUERY_TASK_SCOPE,
+            CodeListsConstants.SERVICE_AUTHENTICATION_MODE,
+            CodeListsConstants.SERVICE_NATIVE_PROTOCOL,
+            CodeListsConstants.SERVICE_PARAMETER_TYPE,
+            CodeListsConstants.SERVICE_TYPE,
+            CodeListsConstants.TASK_ENTITY_JSON_PARAM_TYPE,
+            CodeListsConstants.TERRITORY_SCOPE,
+            CodeListsConstants.TREE_NODE_FOLDER_TYPE,
+            CodeListsConstants.TREE_NODE_LEAF_TYPE,
+            CodeListsConstants.TREE_NODE_VIEWMODE,
             CodeListsConstants.TREE_TYPE,
-            // CodeListsConstants.TREE_NODE_LEAF_TYPE,
-            // CodeListsConstants.TREE_NODE_FOLDER_TYPE
-            "databaseConnection.driver",
-            "queryTask.parameterType",
-            "taskEntity.jsonParamType",
-            "treenode.folder.type",
-            "treenode.leaf.type",
-            "treenode.viewmode",
-            "editTask.fieldType",
-            "editTask.scope");
+            CodeListsConstants.USER_IDENTIFICATION_TYPE,
+            CodeListsConstants.USER_POSITION_TYPE);
   }
 
   private Iterable<String> select(String list) {
@@ -168,7 +166,8 @@ class CodeListsTest {
   @Test
   @DisplayName("Verify service.nativeProtocol code list values")
   void checkServiceNativeProtocol() {
-    assertThat(select(CodeListsConstants.SERVICE_NATIVE_PROTOCOL)).isEmpty();
+    assertThat(select(CodeListsConstants.SERVICE_NATIVE_PROTOCOL))
+        .containsExactlyInAnyOrder("NONE");
   }
 
   @Test

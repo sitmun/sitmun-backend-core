@@ -12,6 +12,8 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.util.ParameterValidator;
+import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +49,10 @@ public class TaskQueryCartographyService implements TaskMapper {
    * @return A TaskDto containing the mapped task information
    */
   public TaskDto map(Task task, Application application, Territory territory) {
-    Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
+    ParameterValidator.validateProvidedFlag(properties);
+
+    Map<String, Object> parameters = new HashMap<>();
     if (properties != null) {
       parameters = convertToJsonObject(properties);
     }
@@ -56,28 +60,19 @@ public class TaskQueryCartographyService implements TaskMapper {
     Cartography cartography = task.getCartography();
     Service service = cartography.getService();
 
-    String url =
-        proxyUrl
-            + "/proxy/"
-            + application.getId()
-            + "/"
-            + territory.getId()
-            + "/"
-            + service.getType()
-            + "/"
-            + service.getId();
+    String url = ProxyUrlBuilder.forCartographyService(proxyUrl, application, territory, service);
     parameters.put(
         AuthorizationConstants.TaskDto.PARAMETER_SERVICE,
-        getParametersObject(AuthorizationConstants.TaskDto.QUERY, true, service.getType()));
+        getParametersObject(DomainConstants.Tasks.PARAM_TYPE_QUERY, true, service.getType()));
     String layers = cartography.getLayers().stream().reduce((a, b) -> a + "," + b).orElse("");
     if (DomainConstants.Services.isWfsService(service)) {
       parameters.put(
           AuthorizationConstants.TaskDto.PARAMETER_WFS_TYPENAME,
-          getParametersObject(AuthorizationConstants.TaskDto.QUERY, true, layers));
+          getParametersObject(DomainConstants.Tasks.PARAM_TYPE_QUERY, true, layers));
     } else {
       parameters.put(
           AuthorizationConstants.TaskDto.PARAMETER_LAYERS,
-          getParametersObject(AuthorizationConstants.TaskDto.QUERY, true, layers));
+          getParametersObject(DomainConstants.Tasks.PARAM_TYPE_QUERY, true, layers));
     }
     return TaskDto.builder()
         .id("task/" + task.getId())
@@ -103,10 +98,19 @@ public class TaskQueryCartographyService implements TaskMapper {
                 DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
 
     for (Map<String, Object> param : listOfParameters) {
-      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME)
+      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
+      boolean isProvided =
+          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
+
+      if (isProvided) {
+        continue;
+      }
+
+      String name = TaskParameterUtil.getParameterVariable(param);
+
+      if (name != null
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
-        String name = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_NAME));
         String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
         String value =
             param.containsKey(DomainConstants.Tasks.PARAMETERS_VALUE)

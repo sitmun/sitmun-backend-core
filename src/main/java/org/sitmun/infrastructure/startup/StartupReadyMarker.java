@@ -7,8 +7,8 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 /**
- * Marks startup ready when CodeListValueSetup is disabled. When check-on-startup is true,
- * only CodeListValueSetup sets ready (after it finishes); this bean is not created.
+ * Marks startup ready when CodeListValueSetup is disabled. When check-on-startup is true, only
+ * CodeListValueSetup sets ready (after it finishes); this bean is not created.
  */
 @Component
 @ConditionalOnProperty(

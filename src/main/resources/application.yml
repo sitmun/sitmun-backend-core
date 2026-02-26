@@ -78,6 +78,8 @@ sitmun:
     config-response-validity-in-seconds: 3600
     force: false
     url: http://localhost:8080/middleware
+    # When enabled, validates user permissions and enforces role-based access control
+    validate-user-access: true
   authentication:
     oidc:
       enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
@@ -254,6 +256,15 @@ sitmun:
         - code-list-name: editTask.fieldType
           value: listbox
           description: "ListBox"
+        - code-list-name: moreInfo.type
+          value: SQL
+          description: "SQL"
+        - code-list-name: moreInfo.type
+          value: API
+          description: "API"
+        - code-list-name: moreInfo.type
+          value: URL
+          description: "URL"
   recover-password:
     front:
       url: "http://localhost:9080"
@@ -264,3 +275,15 @@ sitmun:
       token-recovery-password-validity-in-milliseconds: 3600000
     code-otp:
       max-attempt: 3
+  variables:
+    # System variables resolved by backend using SpEL expressions
+    # These are backend-only variables evaluated from User, Territory, Application context
+    # Syntax in task properties: #{VARIABLE_NAME}
+    system:
+      USER_ID: "#{#user.id}"
+      USER_NAME: "#{#user.username}"
+      TERR_ID: "#{#territory.id}"
+      TERR_COD: "#{#territory.code}"
+      TERR_NAME: "#{#territory.name}"
+      APP_ID: "#{#application.id}"
+      APP_NAME: "#{#application.name}"

@@ -11,6 +11,9 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.util.ParameterValidator;
+import org.sitmun.infrastructure.util.TaskParameterUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +23,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class TaskQueryWebService implements TaskMapper {
+
+  @Value("${sitmun.proxy-middleware.url:}")
+  private String proxyUrl;
 
   /**
    * Checks if the task is a web API query task.
@@ -40,15 +46,24 @@ public class TaskQueryWebService implements TaskMapper {
    * @return Mapped TaskDto with parameters and URL
    */
   public TaskDto map(Task task, Application application, Territory territory) {
+    Map<String, Object> properties = task.getProperties();
+    ParameterValidator.validateProvidedFlag(properties);
+
     String url = null;
     Map<String, Object> parameters = new HashMap<>();
-    Map<String, Object> properties = task.getProperties();
+
     if (properties != null) {
-      parameters = convertToJsonObject(properties);
-      if (properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) != null) {
+      boolean hasProvidedVars = ParameterValidator.hasProvidedVariables(properties);
+
+      if (hasProvidedVars) {
+        url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
+      } else if (properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) != null) {
         url = properties.get(DomainConstants.Tasks.PROPERTY_COMMAND).toString();
       }
+
+      parameters = convertToJsonObject(properties);
     }
+
     return TaskDto.builder()
         .id("task/" + task.getId())
         .type(AuthorizationConstants.TaskDto.SIMPLE)
@@ -74,10 +89,19 @@ public class TaskQueryWebService implements TaskMapper {
                 DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
 
     for (Map<String, Object> param : listOfParameters) {
-      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME)
+      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
+      boolean isProvided =
+          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
+
+      if (isProvided) {
+        continue;
+      }
+
+      String name = TaskParameterUtil.getParameterVariable(param);
+
+      if (name != null
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
-        String name = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_NAME));
         String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
         Boolean required =
             Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));

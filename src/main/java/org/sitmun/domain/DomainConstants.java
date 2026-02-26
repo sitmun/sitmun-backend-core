@@ -1,246 +1,224 @@
 package org.sitmun.domain;
 
+import java.util.Map;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.tree.Tree;
 
-/** Constants and utility methods for domain entities. */
-public final class DomainConstants {
+/** Domain constants for SITMUN entities and properties. */
+public class DomainConstants {
+
   private DomainConstants() {
-    // Prevent instantiation
+    // Utility class
   }
 
-  public static final class Applications {
-    private Applications() {
-      // Prevent instantiation
-    }
-
-    /** Application type identifier for Touristic */
-    public static final String TYPE_TOURISTIC = "T";
-
-    /**
-     * Checks if an application is of type Touristic.
-     *
-     * @return true if type is Touristic, false otherwise
-     */
-    public static boolean isTouristicApplication(Application application) {
-      return application != null && TYPE_TOURISTIC.equals(application.getType());
-    }
-  }
-
-  public static final class Trees {
-    private Trees() {
-      // Prevent instantiation
-    }
-
-    /** Application type identifier for Touristic */
-    public static final String TYPE_TOURISTIC = "touristic";
-
-    /**
-     * Checks if a tree is of type Touristic.
-     *
-     * @param type Type to check
-     * @return true if type is Touristic, false otherwise
-     */
-    public static boolean isTouristicTree(Tree type) {
-      return type != null && TYPE_TOURISTIC.equals(type.getType());
-    }
-  }
-
-  /** Constants and utility methods for Task-related operations. */
-  public static final class Tasks {
-    private Tasks() {
-      // Prevent instantiation
-    }
-
-    /** Basic task type identifier */
-    public static final String BASIC = "Basic";
-
-    /** Query task type identifier */
-    public static final String QUERY = "Query";
-
-    /** Edit task type identifier */
-    public static final String EDIT = "Edit";
-
-    /** Task property key for scope */
+  /** Task-related constants. */
+  public static class Tasks {
+    // Property keys
+    public static final String PROPERTY_PARAMETERS = "parameters";
+    public static final String PROPERTY_COMMAND = "command";
+    public static final String PROPERTY_MAPPING = "mapping";
+    public static final String PROPERTY_FIELDS = "fields";
     public static final String PROPERTY_SCOPE = "scope";
 
-    /** Task property key for command */
-    public static final String PROPERTY_COMMAND = "command";
-
-    /** Task property key for parameters */
-    public static final String PROPERTY_PARAMETERS = "parameters";
-
-    /** Parameter name key */
+    // Parameter properties
     public static final String PARAMETERS_NAME = "name";
-
-    /** Parameter type key */
-    public static final String PARAMETERS_TYPE = "type";
-
-    /** Parameter value key */
+    public static final String PARAMETERS_VARIABLE = "variable";
+    public static final String PARAMETERS_FIELD = "field";
     public static final String PARAMETERS_VALUE = "value";
-
-    /** Parameter required flag key */
+    public static final String PARAMETERS_LABEL = "label";
+    public static final String PARAMETERS_TYPE = "type";
     public static final String PARAMETERS_REQUIRED = "required";
+    public static final String PARAMETERS_DESCRIPTION = "description";
 
-    /** Cartography query scope identifier */
-    public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
+    /**
+     * Flag indicating a parameter is provided by the backend and should not be exposed to clients.
+     * Backend-only secrets (e.g., API tokens, database credentials).
+     */
+    public static final String PARAMETERS_PROVIDED = "provided";
 
-    /** SQL query scope identifier */
+    // Field properties
+    public static final String FIELDS_NAME = "name";
+    public static final String FIELDS_TYPE = "type";
+    public static final String FIELDS_LABEL = "label";
+    public static final String FIELDS_EDITABLE = "editable";
+    public static final String FIELDS_REQUIRED = "required";
+    public static final String FIELDS_SELECTABLE = "selectable";
+    public static final String FIELDS_LIST_VALUES = "listValues";
+    public static final String FIELDS_QUERY = "query";
+
+    // Field type values
+    public static final String FIELD_TYPE_TEXT = "text";
+    public static final String FIELD_TYPE_DATE = "date";
+    public static final String FIELD_TYPE_NUMBER = "number";
+    public static final String FIELD_TYPE_IMAGE = "image";
+    public static final String FIELD_TYPE_LISTBOX = "listbox";
+
+    // Scope types (more-info tasks)
+    public static final String SCOPE_URL = "URL";
+    public static final String SCOPE_API = "API";
+    public static final String SCOPE_SQL = "SQL";
+    public static final String SCOPE_IFRAME = "IFRAME";
+    public static final String SCOPE_INFORME = "INFORME";
+
+    // Scope types (query tasks)
     public static final String SCOPE_SQL_QUERY = "sql-query";
-
-    /** Web API query scope identifier */
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
 
-    /** Feature service edition scope identifier */
-    public static final String SCOPE_FEATURES_SERVICE_EDIT = "feat-edit";
+    // HTTP API task properties
+    public static final String PROPERTY_BODY = "body";
+    public static final String PROPERTY_AUTHENTICATION_MODE = "authenticationMode";
+    public static final String PROPERTY_USER = "user";
+    public static final String PROPERTY_PASSWORD = "password";
+    public static final String PROPERTY_HEADERS = "headers";
 
-    /** Database edition scope identifier */
-    public static final String SCOPE_DATA_BASE_EDIT = "db-edit";
-
-    /** String type identifier */
+    // Parameter types
     public static final String TYPE_STRING = "string";
-
-    /** Number type identifier */
     public static final String TYPE_NUMBER = "number";
-
-    /** Array type identifier */
-    public static final String TYPE_ARRAY = "array";
-
-    /** Object type identifier */
-    public static final String TYPE_OBJECT = "object";
-
-    /** Boolean type identifier */
     public static final String TYPE_BOOLEAN = "boolean";
-
-    /** Null type identifier */
+    public static final String TYPE_ARRAY = "array";
+    public static final String TYPE_OBJECT = "object";
     public static final String TYPE_NULL = "null";
 
-    /**
-     * Checks if a task is of type Basic.
-     *
-     * @param task Task to check
-     * @return true if task is Basic type, false otherwise
-     */
+    // Parameter value types (for task parameters)
+    public static final String PARAM_TYPE_QUERY = "query";
+    public static final String PARAM_TYPE_TEMPLATE = "template";
+    public static final String PARAM_TYPE_BODY = "body";
+
+    // Task type IDs (from STM_TSK_TYP)
+    public static final int TASK_TYPE_ID_EDIT = 0;
+    public static final int TASK_TYPE_ID_BASIC = 1;
+    public static final int TASK_TYPE_ID_QUERY = 5;
+    public static final int TASK_TYPE_ID_MORE_INFO = 6;
+
+    // Proxy types
+    public static final String PROXY_TYPE_SQL = "sql";
+    public static final String PROXY_TYPE_HTTP = "http";
+
+    private static Integer taskTypeId(Task task) {
+      return task.getType() != null ? task.getType().getId() : null;
+    }
+
     public static boolean isBasicTask(Task task) {
-      if (task == null || task.getType() == null) {
-        return false;
-      }
-      return BASIC.equals(task.getType().getTitle());
+      return Integer.valueOf(TASK_TYPE_ID_BASIC).equals(taskTypeId(task));
     }
 
-    /**
-     * Checks if a task is of type Query.
-     *
-     * @param task Task to check
-     * @return true if task is Query type, false otherwise
-     */
-    public static boolean isQueryTask(Task task) {
-      if (task == null || task.getType() == null) {
-        return false;
-      }
-      return QUERY.equals(task.getType().getTitle());
+    public static boolean isMoreInfoTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
     }
 
-    /**
-     * Checks if a task is of type Edition.
-     *
-     * @param task Task to check
-     * @return true if task is Edition type, false otherwise
-     */
-    public static boolean isEditionTask(Task task) {
-      if (task == null || task.getType() == null) {
-        return false;
-      }
-      return EDIT.equals(task.getType().getTitle());
-    }
-
-    /**
-     * Checks if a task is a Cartography Query task.
-     *
-     * @param task Task to check
-     * @return true if task is a Cartography Query task, false otherwise
-     */
-    public static boolean isCartographyQueryTask(Task task) {
-      if (isQueryTask(task)) {
-        if (task.getProperties() == null) {
-          return false;
-        }
-        return SCOPE_CARTOGRAPHY_QUERY.equals(task.getProperties().get(PROPERTY_SCOPE));
-      }
-      return false;
-    }
-
-    /**
-     * Checks if a task is a SQL Query task.
-     *
-     * @param task Task to check
-     * @return true if task is a SQL Query task, false otherwise
-     */
     public static boolean isSqlQueryTask(Task task) {
-      if (isQueryTask(task)) {
-        if (task.getProperties() == null) {
-          return false;
-        }
-        return SCOPE_SQL_QUERY.equals(task.getProperties().get(PROPERTY_SCOPE));
-      }
-      return false;
+      return Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))
+          && task.getConnection() != null;
     }
 
-    /**
-     * Checks if a task is a Web API Query task.
-     *
-     * @param task Task to check
-     * @return true if task is a Web API Query task, false otherwise
-     */
     public static boolean isWebApiQuery(Task task) {
-      if (isQueryTask(task)) {
-        if (task.getProperties() == null) {
-          return false;
-        }
-        return SCOPE_WEB_API_QUERY.equals(task.getProperties().get(PROPERTY_SCOPE));
+      if (!Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))) {
+        return false;
+      }
+      if (task.getConnection() != null || task.getCartography() != null) {
+        return false;
+      }
+      if (task.getService() != null) {
+        return true;
+      }
+      Map<String, Object> properties = task.getProperties();
+      if (properties != null) {
+        Object scope = properties.get(PROPERTY_SCOPE);
+        return SCOPE_WEB_API_QUERY.equalsIgnoreCase(String.valueOf(scope));
       }
       return false;
     }
 
-    /**
-     * Checks if a task is a Cartography Edition task.
-     *
-     * @param task Task to check
-     * @return true if task is a Cartography Edition task, false otherwise
-     */
+    public static boolean isCartographyQueryTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))
+          && task.getCartography() != null;
+    }
+
     public static boolean isCartographyEditionTask(Task task) {
-      if (isEditionTask(task)) {
-        if (task.getProperties() == null) {
-          return false;
-        }
-        return SCOPE_FEATURES_SERVICE_EDIT.equals(task.getProperties().get(PROPERTY_SCOPE));
-      }
-      return false;
+      return Integer.valueOf(TASK_TYPE_ID_EDIT).equals(taskTypeId(task))
+          && task.getCartography() != null;
+    }
+
+    private Tasks() {
+      // Utility class
     }
   }
 
-  /** Constants and utility methods for Service-related operations. */
-  public static final class Services {
-    private Services() {
-      // Prevent instantiation
+  /** Service-related constants. */
+  public static class Services {
+    public static final String TYPE_WMS = "WMS";
+    public static final String TYPE_WMTS = "WMTS";
+    public static final String TYPE_WFS = "WFS";
+    public static final String TYPE_API = "API";
+
+    public static boolean isWfsService(Service service) {
+      return service != null && TYPE_WFS.equalsIgnoreCase(service.getType());
     }
 
-    /** WFS service type identifier */
+    private Services() {
+      // Utility class
+    }
+  }
+
+  /** Application-related constants. */
+  public static class Applications {
+    /** Code used in DB (STM_APP.APP_TYPE) for touristic applications. */
+    public static final String TYPE_TOURISTIC_CODE = "T";
+
+    public static boolean isTouristicApplication(Application app) {
+      if (app == null || app.getType() == null) return false;
+      String t = app.getType();
+      return TYPE_TOURISTIC_CODE.equalsIgnoreCase(t) || "Touristic".equalsIgnoreCase(t);
+    }
+
+    private Applications() {
+      // Utility class
+    }
+  }
+
+  /** Tree-related constants. */
+  public static class Trees {
+    /** Matches TRE_TYPE in DB and API request type for touristic trees. */
+    public static final String TYPE_TOURISTIC = "touristic";
+
+    public static boolean isTouristicTree(Tree tree) {
+      return tree != null && TYPE_TOURISTIC.equalsIgnoreCase(tree.getType());
+    }
+
+    private Trees() {
+      // Utility class
+    }
+  }
+
+  /** System variable registry constants. */
+  public static class SystemVariables {
+    public static final String PREFIX = "#{";
+    public static final String SUFFIX = "}";
+
+    private SystemVariables() {
+      // Utility class
+    }
+  }
+
+  /** Proxy-related constants. */
+  public static class Proxy {
+    // Vary key modes
+    public static final String VARY_KEY_MODE_MONITOR = "MONITOR";
+    public static final String VARY_KEY_MODE_ENFORCE = "ENFORCE";
+
+    // Resource/connection type keys
+    public static final String TYPE_SQL = "SQL";
+    public static final String TYPE_API = "API";
+    public static final String TYPE_WMS = "WMS";
     public static final String TYPE_WFS = "WFS";
 
-    /**
-     * Checks if a service is of type WFS.
-     *
-     * @param service Service to check
-     * @return true if service is WFS type, false otherwise
-     */
-    public static boolean isWfsService(Service service) {
-      if (service == null) {
-        return false;
-      }
-      return TYPE_WFS.equals(service.getType());
+    // Parameter type for vary parameters
+    public static final String PARAM_TYPE_VARY = "VARY";
+
+    private Proxy() {
+      // Utility class
     }
   }
 }

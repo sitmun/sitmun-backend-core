@@ -882,7 +882,7 @@ databaseChangeLog:
                   name: ATS_TASKID
                   type: NUMERIC
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 4);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATS_ID', 7);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_PAR_SER.csv
