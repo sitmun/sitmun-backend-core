@@ -18,6 +18,8 @@ import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
+import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
@@ -27,21 +29,14 @@ import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.util.TaskParameterUtil;
+import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 @Slf4j
 @org.springframework.stereotype.Service
 public class ProxyConfigurationService {
-
-  public static final String COMMAND_KEY = "command";
-  private static final String SQL_COMMAND_KEY = COMMAND_KEY;
-
-  private static final String CONNECTION_TYPE_KEY = "SQL";
-
-  private static final String API_TYPE_KEY = "API";
-
-  private static final String VARY_KEY = "VARY";
 
   private final ServiceRepository serviceRepository;
 
@@ -51,6 +46,8 @@ public class ProxyConfigurationService {
 
   private final TerritoryRepository territoryRepository;
 
+  private final ApplicationRepository applicationRepository;
+
   private final QueryFixedFiltersDecorator queryFixedFiltersDecorator;
 
   private final QueryVaryFiltersDecorator queryVaryFiltersDecorator;
@@ -59,10 +56,12 @@ public class ProxyConfigurationService {
 
   private final List<ResourceAccessValidator> accessValidators;
 
-  @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds}")
+  private final SystemVariableResolver systemVariableResolver;
+
+  @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
-  @Value("${sitmun.proxy-middleware.validate-user-access:false}")
+  @Value("${sitmun.proxy-middleware.validate-user-access:true}")
   private boolean validateUserAccessEnabled;
 
   public ProxyConfigurationService(
@@ -70,18 +69,22 @@ public class ProxyConfigurationService {
       TaskRepository taskRepository,
       UserRepository userRepository,
       TerritoryRepository territoryRepository,
+      ApplicationRepository applicationRepository,
       QueryFixedFiltersDecorator queryFixedFiltersDecorator,
       QueryVaryFiltersDecorator queryVaryFiltersDecorator,
       QueryPaginationDecorator queryPaginationDecorator,
-      List<ResourceAccessValidator> accessValidators) {
+      List<ResourceAccessValidator> accessValidators,
+      SystemVariableResolver systemVariableResolver) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.territoryRepository = territoryRepository;
+    this.applicationRepository = applicationRepository;
     this.queryFixedFiltersDecorator = queryFixedFiltersDecorator;
     this.queryVaryFiltersDecorator = queryVaryFiltersDecorator;
     this.queryPaginationDecorator = queryPaginationDecorator;
     this.accessValidators = accessValidators;
+    this.systemVariableResolver = systemVariableResolver;
   }
 
   private static WmsPayloadDto getOgcWmsConfiguration(
@@ -110,7 +113,7 @@ public class ProxyConfigurationService {
     log.info("Parametros servicio {}", servParams.size());
     List<String> varyParameters = new ArrayList<>();
     for (ServiceParameter parameter : servParams) {
-      if (VARY_KEY.equalsIgnoreCase(parameter.getType())) {
+      if (DomainConstants.Proxy.PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
         parameters.put(parameter.getName(), parameter.getValue());
@@ -129,8 +132,8 @@ public class ProxyConfigurationService {
   private static String getSqlByTask(Task task) {
     String sql = "";
     Map<String, Object> taskParams = task.getProperties();
-    if (taskParams != null && taskParams.containsKey(SQL_COMMAND_KEY)) {
-      sql = (String) taskParams.get(SQL_COMMAND_KEY);
+    if (taskParams != null && taskParams.containsKey(DomainConstants.Tasks.PROPERTY_COMMAND)) {
+      sql = (String) taskParams.get(DomainConstants.Tasks.PROPERTY_COMMAND);
     }
 
     if (!StringUtils.hasText(sql)) {
@@ -139,9 +142,17 @@ public class ProxyConfigurationService {
     return sql;
   }
 
-  private static JdbcPayloadDto getDatasourceConfiguration(Task task) {
+  private JdbcPayloadDto getDatasourceConfiguration(
+      Task task,
+      org.sitmun.domain.user.User user,
+      Territory territory,
+      org.sitmun.domain.application.Application application) {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
+
+    // Resolve system variables (#{}) before sending to proxy
+    sql = systemVariableResolver.resolve(sql, user, territory, application);
+
     return databaseConnection != null
         ? JdbcPayloadDto.builder()
             .uri(databaseConnection.getUrl())
@@ -153,7 +164,11 @@ public class ProxyConfigurationService {
         : null;
   }
 
-  private static WmsPayloadDto getHttpApiConfiguration(Task task) {
+  private WmsPayloadDto getHttpApiConfiguration(
+      Task task,
+      org.sitmun.domain.user.User user,
+      Territory territory,
+      org.sitmun.domain.application.Application application) {
     final Map<String, Object> taskProps = task.getProperties();
 
     //  Check for null properties
@@ -161,42 +176,63 @@ public class ProxyConfigurationService {
       return null;
     }
 
-    final String url = (String) taskProps.get(COMMAND_KEY);
+    String url = (String) taskProps.get(DomainConstants.Tasks.PROPERTY_COMMAND);
 
     // Check for null or blank URL
     if (url == null || !StringUtils.hasText(url)) {
       return null;
     }
 
-    // Handle non-String parameter values and duplicate labels
+    // Resolve system variables (#{}) in URL before sending to proxy
+    url = systemVariableResolver.resolve(url, user, territory, application);
+
+    // Handle non-String parameter values - key by variable name (with backward compatibility)
     @SuppressWarnings("unchecked")
     final Map<String, String> parameters =
-        ((List<Map<String, String>>) taskProps.getOrDefault("parameters", Collections.emptyList()))
+        ((List<Map<String, Object>>)
+                taskProps.getOrDefault(
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList()))
             .stream()
-                .map(p -> Map.entry(String.valueOf(p.get("label")), String.valueOf(p.get("value"))))
+                .map(
+                    p -> {
+                      // Use backward-compatible variable reading (tries 'variable' then 'name')
+                      String key = TaskParameterUtil.getParameterVariable(p);
+                      // Fallback to label if neither variable nor name exists (legacy support)
+                      if (key == null) {
+                        key = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_LABEL));
+                      }
+                      String value = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_VALUE));
+                      return Map.entry(key, value);
+                    })
+                .filter(
+                    e ->
+                        e.getKey() != null
+                            && !"null".equals(e.getKey())) // Skip entries without a valid key
                 .collect(
                     Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (a, b) -> b)); // last-wins for duplicates
 
-    final String body = (String) taskProps.getOrDefault("body", null);
+    final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
 
-    String authenticationMode = (String) taskProps.getOrDefault("authenticationMode", null);
-    String user = (String) taskProps.getOrDefault("user", null);
-    String password = (String) taskProps.getOrDefault("password", null);
+    String authenticationMode =
+        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE, null);
+    String apiUser = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_USER, null);
+    String apiPassword =
+        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
 
     // Only build security DTO if authentication is configured
     HttpSecurityDto security = null;
-    if (authenticationMode != null || user != null || password != null) {
+    if (authenticationMode != null || apiUser != null || apiPassword != null) {
       HttpSecurityDto.HttpSecurityDtoBuilder securityBuilder =
           HttpSecurityDto.builder()
               .type(authenticationMode)
               .scheme("Basic")
-              .username(user)
-              .password(password);
+              .username(apiUser)
+              .password(apiPassword);
 
-      Object headersObject = taskProps.get("headers");
+      Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
       if (headersObject instanceof Map<?, ?> headers) {
         securityBuilder.headers(
             headers.entrySet().stream()
@@ -257,28 +293,36 @@ public class ProxyConfigurationService {
   }
 
   public ConfigProxyDto getConfiguration(
-      ConfigProxyRequestDto configProxyRequestDto, long expirationTimeToken) {
+      ConfigProxyRequestDto configProxyRequestDto, long expirationTimeToken, String username) {
     log.info(
         "Fetching configuration for service type {} with id {}",
         configProxyRequestDto.getType(),
         configProxyRequestDto.getTypeId());
+
+    // Fetch context entities for system variable resolution
+    final org.sitmun.domain.user.User user = userRepository.findByUsername(username).orElse(null);
+    final Territory territory =
+        territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
+    final org.sitmun.domain.application.Application application =
+        applicationRepository.findById(configProxyRequestDto.getAppId()).orElse(null);
+
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
-    if (CONNECTION_TYPE_KEY.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    if (DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getDatasourceConfiguration(task));
-                configType.set(CONNECTION_TYPE_KEY);
+                payload.set(getDatasourceConfiguration(task, user, territory, application));
+                configType.set(DomainConstants.Proxy.TYPE_SQL);
               });
-    } else if (API_TYPE_KEY.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    } else if (DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getHttpApiConfiguration(task));
-                configType.set(API_TYPE_KEY);
+                payload.set(getHttpApiConfiguration(task, user, territory, application));
+                configType.set(DomainConstants.Proxy.TYPE_API);
               });
     } else {
       log.info(
@@ -315,7 +359,9 @@ public class ProxyConfigurationService {
       ConfigProxyDto configProxyDto, ConfigProxyRequestDto configProxyRequestDto, String username) {
     PayloadDto payload = configProxyDto.getPayload();
 
-    addFixedFilters(configProxyRequestDto, payload, username);
+    // System variables (#{}) are now resolved in getDatasourceConfiguration/getHttpApiConfiguration
+    // No need for addFixedFilters() anymore
+
     Map<String, String> parameters = configProxyRequestDto.getParameters();
 
     if (parameters != null && !parameters.isEmpty()) {
@@ -332,23 +378,6 @@ public class ProxyConfigurationService {
       addVaryFilters(parameters, payload);
       addPagination(limit, offset, payload);
     }
-  }
-
-  private void addFixedFilters(
-      ConfigProxyRequestDto configProxyRequestDto, PayloadDto payload, String username) {
-    Map<String, String> fixedFilters = new HashMap<>();
-    userRepository
-        .findByUsername(username)
-        .ifPresent(user -> fixedFilters.put("USER_ID", user.getId().toString()));
-    Territory territory =
-        territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
-    if (territory != null) {
-      fixedFilters.put("TERR_ID", String.valueOf(territory.getId()));
-      fixedFilters.put("TERR_COD", territory.getCode());
-    }
-    fixedFilters.put("APP_ID", String.valueOf(configProxyRequestDto.getAppId()));
-
-    queryFixedFiltersDecorator.apply(fixedFilters, payload);
   }
 
   private void addVaryFilters(Map<String, String> parameters, PayloadDto payload) {

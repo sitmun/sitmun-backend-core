@@ -72,17 +72,12 @@ class ServiceResourceAccessValidatorTest {
   }
 
   @Test
-  @DisplayName("supports returns true for API service type")
-  void supportsReturnsTrueForApi() {
-    assertTrue(validator.supports("API"));
-    assertTrue(validator.supports("api"));
-  }
-
-  @Test
   @DisplayName("supports returns false for unsupported service type")
   void supportsReturnsFalseForUnsupportedType() {
     assertFalse(validator.supports("SQL"));
     assertFalse(validator.supports("UNKNOWN"));
+    // API is task-based, not service-based, so it's not supported here
+    assertFalse(validator.supports("API"));
   }
 
   @Test

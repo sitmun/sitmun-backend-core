@@ -66,8 +66,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ServiceResourceAccessValidator implements ResourceAccessValidator {
 
-  private static final Set<String> SUPPORTED_TYPES =
-      Set.of(TYPE_WMS, TYPE_WMTS, TYPE_WFS, TYPE_API);
+  // Service-based proxy types (OGC services)
+  // Note: API type for tasks is handled by TaskResourceAccessValidator
+  private static final Set<String> SUPPORTED_TYPES = Set.of(TYPE_WMS, TYPE_WMTS, TYPE_WFS);
 
   private final ServiceRepository serviceRepository;
   private final UserRepository userRepository;

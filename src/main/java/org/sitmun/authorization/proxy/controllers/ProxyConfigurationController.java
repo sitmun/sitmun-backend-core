@@ -66,7 +66,8 @@ public class ProxyConfigurationController {
       log.info("User {} is authorized to access the requested configuration", username);
       try {
         ConfigProxyDto configProxyDto =
-            proxyConfigurationService.getConfiguration(configProxyRequestDto, expirationTime);
+            proxyConfigurationService.getConfiguration(
+                configProxyRequestDto, expirationTime, username);
         proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequestDto, username);
         log.info("User {} is informed of the configuration", username);
         return ResponseEntity.ok().body(configProxyDto);

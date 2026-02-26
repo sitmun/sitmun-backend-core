@@ -1,7 +1,8 @@
 package org.sitmun.authorization.proxy.validator;
 
-import static org.sitmun.domain.DomainConstants.Tasks.PROXY_TYPE_SQL;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
@@ -12,9 +13,11 @@ import org.sitmun.domain.user.UserRepository;
 import org.springframework.stereotype.Component;
 
 /**
- * Validates user access to Task-based resources (SQL tasks, API tasks). Enforces role-based access
- * control by checking if the user has the appropriate role to access the task within the specified
- * application and territory context.
+ * Validates user access to Task-based resources (SQL tasks, API tasks, URL redirects). Enforces
+ * role-based access control by checking if the user has the appropriate role to access the task
+ * within the specified application and territory context.
+ *
+ * <p>Supported types: SQL, API, URL (more-info task scope types)
  *
  * <p>Validation includes:
  *
@@ -39,6 +42,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TaskResourceAccessValidator implements ResourceAccessValidator {
 
+  // Task-based proxy types (more-info scope types)
+  private static final Set<String> SUPPORTED_TYPES = Set.of(SCOPE_SQL, SCOPE_API, SCOPE_URL);
+
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
   private final ApplicationRepository applicationRepository;
@@ -46,7 +52,7 @@ public class TaskResourceAccessValidator implements ResourceAccessValidator {
 
   @Override
   public boolean supports(String type) {
-    return PROXY_TYPE_SQL.equalsIgnoreCase(type);
+    return SUPPORTED_TYPES.stream().anyMatch(t -> t.equalsIgnoreCase(type));
   }
 
   @Override

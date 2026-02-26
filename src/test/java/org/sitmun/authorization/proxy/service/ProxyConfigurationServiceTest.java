@@ -2,10 +2,10 @@ package org.sitmun.authorization.proxy.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.sitmun.domain.DomainConstants.Services.TYPE_API;
-import static org.sitmun.domain.DomainConstants.Services.TYPE_WMS;
+import static org.sitmun.domain.DomainConstants.Proxy.TYPE_API;
+import static org.sitmun.domain.DomainConstants.Proxy.TYPE_SQL;
+import static org.sitmun.domain.DomainConstants.Proxy.TYPE_WMS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
-import static org.sitmun.domain.DomainConstants.Tasks.PROXY_TYPE_SQL;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +22,7 @@ import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
@@ -30,6 +31,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,24 +41,34 @@ class ProxyConfigurationServiceTest {
   @Mock private TaskRepository taskRepository;
   @Mock private UserRepository userRepository;
   @Mock private TerritoryRepository territoryRepository;
+  @Mock private ApplicationRepository applicationRepository;
   @Mock private QueryFixedFiltersDecorator queryFixedFiltersDecorator;
   @Mock private QueryVaryFiltersDecorator queryVaryFiltersDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
+  @Mock private SystemVariableResolver systemVariableResolver;
 
   private ProxyConfigurationService service;
 
   @BeforeEach
   void setUp() {
+    // Mock SystemVariableResolver to return template unchanged (no variable resolution in tests)
+    // Use lenient() because not all tests call resolve()
+    lenient()
+        .when(systemVariableResolver.resolve(anyString(), any(), any(), any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
     service =
         new ProxyConfigurationService(
             serviceRepository,
             taskRepository,
             userRepository,
             territoryRepository,
+            applicationRepository,
             queryFixedFiltersDecorator,
             queryVaryFiltersDecorator,
             queryPaginationDecorator,
-            Collections.emptyList()); // Empty validators list for non-validation tests
+            Collections.emptyList(), // Empty validators list for non-validation tests
+            systemVariableResolver);
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
@@ -84,7 +96,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -122,7 +134,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -170,7 +182,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -215,7 +227,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -251,7 +263,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -278,7 +290,8 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(999)).thenReturn(Optional.empty());
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -322,7 +335,7 @@ class ProxyConfigurationServiceTest {
         ConfigProxyRequestDto.builder()
             .appId(1)
             .terId(1)
-            .type(PROXY_TYPE_SQL)
+            .type(TYPE_SQL)
             .typeId(1)
             .method("GET")
             .parameters(new HashMap<>())
@@ -331,11 +344,11 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
-    assertEquals(PROXY_TYPE_SQL, result.getType());
+    assertEquals(TYPE_SQL, result.getType());
     assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
 
     JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
@@ -363,7 +376,7 @@ class ProxyConfigurationServiceTest {
         ConfigProxyRequestDto.builder()
             .appId(1)
             .terId(1)
-            .type(PROXY_TYPE_SQL)
+            .type(TYPE_SQL)
             .typeId(1)
             .method("GET")
             .parameters(new HashMap<>())
@@ -372,7 +385,8 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -388,7 +402,7 @@ class ProxyConfigurationServiceTest {
         ConfigProxyRequestDto.builder()
             .appId(1)
             .terId(1)
-            .type(PROXY_TYPE_SQL)
+            .type(TYPE_SQL)
             .typeId(1)
             .method("GET")
             .build();
@@ -396,7 +410,8 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -427,7 +442,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -463,7 +478,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -499,7 +514,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -528,7 +543,8 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -554,7 +570,8 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -580,7 +597,8 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
-    assertThrows(BadRequestException.class, () -> service.getConfiguration(request, 0L));
+    assertThrows(
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
   }
 
   @Test
@@ -606,7 +624,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -648,7 +666,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -691,7 +709,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
 
     // Then
     assertNotNull(result);
@@ -706,7 +724,7 @@ class ProxyConfigurationServiceTest {
   void validateUserAccessReturnsTrueWhenDisabled() {
     // Given: validation is disabled (default)
     ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(PROXY_TYPE_SQL).typeId(23).build();
+        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
     // When
     boolean result = service.validateUserAccess(request, "admin");
@@ -721,7 +739,7 @@ class ProxyConfigurationServiceTest {
     // Given: validation is enabled
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
     ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(PROXY_TYPE_SQL).typeId(23).build();
+        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
     // When
     boolean result = service.validateUserAccess(request, null);
@@ -736,7 +754,7 @@ class ProxyConfigurationServiceTest {
     // Given: validation is enabled
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
     ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(PROXY_TYPE_SQL).typeId(23).build();
+        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
     // When
     boolean result = service.validateUserAccess(request, "   ");
@@ -768,7 +786,7 @@ class ProxyConfigurationServiceTest {
 
     org.sitmun.authorization.proxy.validator.ResourceAccessValidator mockValidator =
         mock(org.sitmun.authorization.proxy.validator.ResourceAccessValidator.class);
-    when(mockValidator.supports(PROXY_TYPE_SQL)).thenReturn(true);
+    when(mockValidator.supports(TYPE_SQL)).thenReturn(true);
     when(mockValidator.validate(any(), eq("admin"))).thenReturn(true);
 
     // Create service with the mock validator
@@ -778,15 +796,17 @@ class ProxyConfigurationServiceTest {
             taskRepository,
             userRepository,
             territoryRepository,
+            applicationRepository,
             queryFixedFiltersDecorator,
             queryVaryFiltersDecorator,
             queryPaginationDecorator,
-            List.of(mockValidator));
+            List.of(mockValidator),
+            systemVariableResolver);
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
 
     ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(PROXY_TYPE_SQL).typeId(23).build();
+        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
     // When
     boolean result = serviceWithValidator.validateUserAccess(request, "admin");
@@ -804,7 +824,7 @@ class ProxyConfigurationServiceTest {
 
     org.sitmun.authorization.proxy.validator.ResourceAccessValidator mockValidator =
         mock(org.sitmun.authorization.proxy.validator.ResourceAccessValidator.class);
-    when(mockValidator.supports(PROXY_TYPE_SQL)).thenReturn(true);
+    when(mockValidator.supports(TYPE_SQL)).thenReturn(true);
     when(mockValidator.validate(any(), eq("unauthorizedUser"))).thenReturn(false);
 
     ProxyConfigurationService serviceWithValidator =
@@ -813,15 +833,17 @@ class ProxyConfigurationServiceTest {
             taskRepository,
             userRepository,
             territoryRepository,
+            applicationRepository,
             queryFixedFiltersDecorator,
             queryVaryFiltersDecorator,
             queryPaginationDecorator,
-            List.of(mockValidator));
+            List.of(mockValidator),
+            systemVariableResolver);
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
 
     ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(PROXY_TYPE_SQL).typeId(23).build();
+        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
     // When
     boolean result = serviceWithValidator.validateUserAccess(request, "unauthorizedUser");
@@ -853,10 +875,12 @@ class ProxyConfigurationServiceTest {
             taskRepository,
             userRepository,
             territoryRepository,
+            applicationRepository,
             queryFixedFiltersDecorator,
             queryVaryFiltersDecorator,
             queryPaginationDecorator,
-            List.of(validator1, validator2));
+            List.of(validator1, validator2),
+            systemVariableResolver);
     ReflectionTestUtils.setField(serviceWithValidators, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidators, "validateUserAccessEnabled", true);
 

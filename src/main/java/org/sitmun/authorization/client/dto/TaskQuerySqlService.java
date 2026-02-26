@@ -11,6 +11,8 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.util.ParameterValidator;
+import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,20 +46,15 @@ public class TaskQuerySqlService implements TaskMapper {
    * @return TaskDto containing task information and parameters
    */
   public TaskDto map(Task task, Application application, Territory territory) {
-    Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
+    ParameterValidator.validateProvidedFlag(properties);
+
+    Map<String, Object> parameters = new HashMap<>();
     if (properties != null) {
       parameters = convertToJsonObject(properties);
     }
 
-    String url =
-        proxyUrl
-            + "/proxy/"
-            + application.getId()
-            + "/"
-            + territory.getId()
-            + "/SQL/"
-            + task.getId();
+    String url = ProxyUrlBuilder.forSqlTask(proxyUrl, application, territory, task);
 
     return TaskDto.builder()
         .id("task/" + task.getId())
@@ -84,10 +81,19 @@ public class TaskQuerySqlService implements TaskMapper {
                 DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
 
     for (Map<String, Object> param : listOfParameters) {
-      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME)
+      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
+      boolean isProvided =
+          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
+
+      if (isProvided) {
+        continue;
+      }
+
+      String name = TaskParameterUtil.getParameterVariable(param);
+
+      if (name != null
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
           && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
-        String name = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_NAME));
         String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
         Boolean required =
             Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));

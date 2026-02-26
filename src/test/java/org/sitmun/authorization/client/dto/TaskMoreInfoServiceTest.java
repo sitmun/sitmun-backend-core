@@ -36,7 +36,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("moreInfo");
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -52,7 +52,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("MOREINFO");
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -68,7 +68,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("MoReInFo");
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -114,7 +114,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("SQL");
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_QUERY);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -166,7 +166,7 @@ class TaskMoreInfoServiceTest {
     assertEquals("info", result.getType());
     assertEquals("10", result.getCartographyId());
     assertEquals("API", result.getScope());
-    assertEquals("https://api.example.com/info", result.getCommand());
+    assertNull(result.getCommand()); // Command is always null for more-info tasks (security)
     assertEquals("http://localhost:8080/middleware/proxy/1/2/API/42", result.getUrl());
   }
 
@@ -309,8 +309,9 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
-  @DisplayName("map maps parameters entries by label")
-  void mapMapsParametersEntriesByLabel() {
+  @DisplayName(
+      "map maps parameters entries by variable (with backward compatibility for label-only legacy data)")
+  void mapMapsParametersEntriesByVariable() {
     // Given
     Task task = mock(Task.class);
     Application application = mock(Application.class);
@@ -337,8 +338,23 @@ class TaskMoreInfoServiceTest {
     // Then
     assertNotNull(result.getParameters());
     assertEquals(2, result.getParameters().size());
-    assertEquals(param1, result.getParameters().get("city"));
-    assertEquals(param2, result.getParameters().get("country"));
+
+    // Verify the map is keyed by variable (fallback to label for legacy data)
+    assertTrue(result.getParameters().containsKey("city"));
+    assertTrue(result.getParameters().containsKey("country"));
+
+    // Verify enriched parameter structure includes name field
+    @SuppressWarnings("unchecked")
+    Map<String, Object> cityParam = (Map<String, Object>) result.getParameters().get("city");
+    assertEquals("city", cityParam.get("label"));
+    assertEquals("Barcelona", cityParam.get("value"));
+    assertEquals("city", cityParam.get("name")); // New standard field
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> countryParam = (Map<String, Object>) result.getParameters().get("country");
+    assertEquals("country", countryParam.get("label"));
+    assertEquals("Spain", countryParam.get("value"));
+    assertEquals("country", countryParam.get("name")); // New standard field
   }
 
   @Test

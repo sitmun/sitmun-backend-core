@@ -34,7 +34,7 @@ public interface TaskRepository
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
-  @EntityGraph(attributePaths = {"roles"})
+  @EntityGraph(attributePaths = {"roles", "ui", "type"})
   @Query(
       """
     SELECT tsk
