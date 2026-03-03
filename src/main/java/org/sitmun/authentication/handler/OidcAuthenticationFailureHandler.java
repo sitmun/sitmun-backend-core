@@ -6,6 +6,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authentication.service.OidcRedirectService;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile("oidc")
+@Profile(Profiles.OIDC)
 @RequiredArgsConstructor
 public class OidcAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 

@@ -2,6 +2,7 @@ package org.sitmun.infrastructure.persistence.config;
 
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -10,7 +11,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("dev")
+@Profile(Profiles.DEV)
 @Slf4j
 public class AppContextRefreshedEventPropertiesPrinter {
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.stereotype.Component;
 
-@Profile("ldap")
+@Profile(Profiles.LDAP)
 @Slf4j
 @RequiredArgsConstructor
 @Component

@@ -10,7 +10,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authentication.OidcClientTypes;
 import org.sitmun.authentication.service.OidcRedirectService;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.filter.SitmunClientFilter;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -25,7 +28,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@AdditiveActiveProfiles("oidc")
+@AdditiveActiveProfiles(value = Profiles.OIDC)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @DisplayName("OIDC integration tests")
 class OidcLoginIntegrationTest {
 
@@ -36,7 +40,7 @@ class OidcLoginIntegrationTest {
   private static MockHttpServletRequest buildMockHttpServletRequestWithClientType(
       final String clientType) {
     final MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setParameter("client_type", clientType);
+    request.setParameter(OidcClientTypes.QUERY_PARAM_NAME, clientType);
     return request;
   }
 
@@ -80,18 +84,22 @@ class OidcLoginIntegrationTest {
   void testClientTypeParameterStoredInSession() throws Exception {
     final MvcResult result =
         mockMvc
-            .perform(get("/oauth2/authorization/mock").param("client_type", "admin"))
+            .perform(
+                get("/oauth2/authorization/mock")
+                    .param(OidcClientTypes.QUERY_PARAM_NAME, OidcClientTypes.ADMIN))
             .andExpect(status().is3xxRedirection())
             .andReturn();
 
     final HttpSession session = result.getRequest().getSession(false);
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute(OidcRedirectService.CLIENT_TYPE)).isEqualTo("admin");
+    assertThat(session.getAttribute(OidcRedirectService.CLIENT_TYPE))
+        .isEqualTo(OidcClientTypes.ADMIN);
   }
 
   @Test
   void testOidcRedirectServiceReturnsAdminUrlForAdminClientType() throws Exception {
-    final MockHttpServletRequest request = buildMockHttpServletRequestWithClientType("admin");
+    final MockHttpServletRequest request =
+        buildMockHttpServletRequestWithClientType(OidcClientTypes.ADMIN);
     final MockHttpServletResponse response = new MockHttpServletResponse();
     passRequestThroughFilter(request, response);
     final String redirectUrl = redirectService.selectRedirectUrl(request);
@@ -100,7 +108,8 @@ class OidcLoginIntegrationTest {
 
   @Test
   void testOidcRedirectServiceReturnsViewerUrlForViewerClientType() throws Exception {
-    final MockHttpServletRequest request = buildMockHttpServletRequestWithClientType("viewer");
+    final MockHttpServletRequest request =
+        buildMockHttpServletRequestWithClientType(OidcClientTypes.VIEWER);
     final MockHttpServletResponse response = new MockHttpServletResponse();
     passRequestThroughFilter(request, response);
     final String redirectUrl = redirectService.selectRedirectUrl(request);
@@ -114,5 +123,22 @@ class OidcLoginIntegrationTest {
     passRequestThroughFilter(request, response);
     final String redirectUrl = redirectService.selectRedirectUrl(request);
     assertThat(redirectUrl).isEqualTo("http://localhost:4200/default");
+  }
+
+  @Test
+  @DisplayName("Non-OIDC path falls through to general security chain")
+  void testNonOidcPathFallsThroughToGeneralChain() throws Exception {
+    mockMvc.perform(get("/api/dashboard/health")).andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("Unknown OIDC provider does not produce redirect to external IdP")
+  void testUnknownOidcProviderDoesNotRedirectToExternalIdp() throws Exception {
+    MvcResult result = mockMvc.perform(get("/oauth2/authorization/nonexistent")).andReturn();
+    int status = result.getResponse().getStatus();
+    String location = result.getResponse().getHeader("Location");
+    if (status >= 300 && status < 400 && location != null) {
+      assertThat(location).doesNotContain("mock.example.com");
+    }
   }
 }

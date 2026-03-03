@@ -12,11 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
  * <p>This annotation combines the profiles specified here with the existing spring.profiles.active
  * system property set by Gradle (for database selection: h2, postgres, oracle).
  *
- * <p>Usage: @AdditiveActiveProfiles("ldap") // Adds "ldap" to existing
- * profiles @AdditiveActiveProfiles({"ldap", "mail"}) // Adds both profiles
- *
- * <p>This implementation uses a non-mutating resolver and does not modify JVM-global state, making
- * it parallel-safe.
+ * <p>Usage: @AdditiveActiveProfiles(Profiles.LDAP) // Adds ldap to existing
+ * profiles; @AdditiveActiveProfiles({Profiles.LDAP, Profiles.MAIL}) // Adds both profiles
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

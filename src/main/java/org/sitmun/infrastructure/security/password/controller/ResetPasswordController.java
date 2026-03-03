@@ -11,6 +11,7 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.token.UserTokenDTO;
 import org.sitmun.domain.user.token.UserTokenService;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.password.dto.EmailForgotPassword;
 import org.sitmun.infrastructure.security.password.dto.RequestNewPassword;
 import org.sitmun.infrastructure.security.password.dto.ResetPasswordRequest;
@@ -41,7 +42,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/password-reset")
 @Tag(name = "ResetPassword", description = "Reset the password of the user")
-@Profile("mail")
+@Profile(Profiles.MAIL)
 @Validated
 public class ResetPasswordController {
   @Value("${sitmun.recover-password.code-otp.max-attempt}")

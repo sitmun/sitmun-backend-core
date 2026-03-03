@@ -7,6 +7,7 @@ import java.util.List;
 import org.sitmun.authentication.handler.OidcAuthenticationFailureHandler;
 import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
@@ -140,7 +141,7 @@ public class WebSecurityConfigurer {
     return new CorsFilter(corsConfigurationSource());
   }
 
-  @Profile("oidc")
+  @Profile(Profiles.OIDC)
   @Bean
   @Order(1)
   public SecurityFilterChain oidcSecurityFilterChain(

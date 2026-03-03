@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@AdditiveActiveProfiles(value = {"ldap", "mail"})
+@AdditiveActiveProfiles(value = {Profiles.LDAP, Profiles.MAIL})
 @DisplayName("Authentication Controller LDAP + Mail enabled tests")
 class AuthenticationControllerLdapMailTest {
 

@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.security.password.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.password.dto.EmailForgotPassword;
 import org.sitmun.infrastructure.security.password.dto.EmailObject;
 import org.sitmun.infrastructure.security.password.service.MailService;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
  * recovery functionality.
  */
 @Service
-@Profile("mail")
+@Profile(Profiles.MAIL)
 @Primary
 @Slf4j
 public class TestMailService implements MailService {

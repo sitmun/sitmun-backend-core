@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.security.storage;
 
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.core.LdapUserAuthoritiesPopulator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -10,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-@Profile("ldap")
+@Profile(Profiles.LDAP)
 @Component
 @Order(1)
 public class LdapPasswordStorage implements PasswordStorage {

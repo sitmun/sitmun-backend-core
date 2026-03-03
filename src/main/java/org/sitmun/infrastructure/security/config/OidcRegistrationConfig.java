@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -15,7 +16,7 @@ import org.springframework.util.StringUtils;
 
 @Slf4j
 @Configuration
-@Profile("oidc")
+@Profile(Profiles.OIDC)
 @RequiredArgsConstructor
 public class OidcRegistrationConfig {
 
@@ -54,7 +55,7 @@ public class OidcRegistrationConfig {
             });
 
     if (registrations.isEmpty()) {
-      log.error(
+      throw new IllegalStateException(
           "OIDC profile is enabled, but no OIDC providers were found. Set SITMUN_AUTHENTICATION_OIDC_PROVIDERS_* environment variables.");
     }
 

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -26,16 +27,27 @@ import org.springframework.util.StringUtils;
  * Handler for successful OIDC authentication. Obtains user from database and generates JWT token.
  */
 @Slf4j
-@Profile("oidc")
+@Profile(Profiles.OIDC)
 @Component
 @RequiredArgsConstructor
 public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+  public static final String OIDC_TOKEN_COOKIE_NAME = "oidc_token";
 
   private final UserRepository userRepository;
   private final OidcRedirectService redirectService;
   private final UserDetailsService userDetailsService;
   private final JsonWebTokenService jsonWebTokenService;
 
+  /**
+   * Controls the {@code HttpOnly} flag on the {@code oidc_token} cookie. When {@code false}
+   * (default), the cookie is accessible to frontend JavaScript via {@code document.cookie} /
+   * cookie-service libraries. When {@code true}, the browser hides the cookie from JavaScript (XSS
+   * mitigation), but current frontends cannot read the token. A future improvement will replace
+   * cookie transfer with a URL fragment, making {@code true} the safe default.
+   *
+   * @see <a href="README.md">OIDC Configuration — Current limitation and future improvement</a>
+   */
   @Value("${sitmun.authentication.oidc.http-only-cookie:false}")
   private Boolean oidcCookieHttpOnly;
 
@@ -63,7 +75,7 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
       final String jwtToken =
           jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
-      final Cookie jwtCookie = new Cookie("oidc_token", jwtToken);
+      final Cookie jwtCookie = new Cookie(OIDC_TOKEN_COOKIE_NAME, jwtToken);
       jwtCookie.setHttpOnly(oidcCookieHttpOnly);
       jwtCookie.setSecure(request.isSecure());
       jwtCookie.setPath("/");

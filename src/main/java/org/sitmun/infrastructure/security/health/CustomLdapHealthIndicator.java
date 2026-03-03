@@ -3,6 +3,7 @@ package org.sitmun.infrastructure.security.health;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.context.annotation.Profile;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
  * 'ldap' profile is enabled.
  */
 @Component
-@Profile("ldap")
+@Profile(Profiles.LDAP)
 @Slf4j
 public class CustomLdapHealthIndicator implements HealthIndicator {
 
