@@ -31,8 +31,7 @@ public final class CodeListsConstants {
   public static final String USER_POSITION_TYPE = "userPosition.type";
   public static final String USER_IDENTIFICATION_TYPE = "user.identificationType";
   public static final String TREE_TYPE = "tree.type";
-  public static final String TREE_NODE_LEAF_TYPE = "treenode.leaf.type";
-  public static final String TREE_NODE_FOLDER_TYPE = "treenode.folder.type";
+  public static final String TREE_NODE_TYPE = "treenode.node.type";
   public static final String TREE_NODE_VIEWMODE = "treenode.viewmode";
 
   private CodeListsConstants() {}

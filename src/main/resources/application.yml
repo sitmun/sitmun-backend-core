@@ -151,27 +151,30 @@ sitmun:
         - code-list-name: tree.type
           value: edition
           description: Edition tree
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.node.type
           value: cartography
           description: Cartography
-        - code-list-name: treenode.leaf.type
-          value: cartography
-          description: Cartography
-        - code-list-name: treenode.folder.type
-          value: menu
-          description: Menu
-        - code-list-name: treenode.folder.type
+        - code-list-name: treenode.node.type
+          value: folder
+          description: Folder
+        - code-list-name: treenode.node.type
           value: list
           description: List
-        - code-list-name: treenode.leaf.type
+        - code-list-name: treenode.node.type
+          value: menu
+          description: Menu
+        - code-list-name: treenode.node.type
           value: task
           description: Task
-        - code-list-name: treenode.leaf.type
+        - code-list-name: treenode.node.type
           value: fav
           description: Favorites
-        - code-list-name: treenode.leaf.type
+        - code-list-name: treenode.node.type
           value: map
           description: Map
+        - code-list-name: treenode.node.type
+          value: nm
+          description: Near me
         - code-list-name: treenode.viewmode
           value: dl
           description: Detailed list
@@ -199,9 +202,6 @@ sitmun:
         - code-list-name: treenode.viewmode
           value: gallery
           description: Gallery
-        - code-list-name: treenode.leaf.type
-          value: nm
-          description: Near me
         - code-list-name: taskEntity.jsonParamType
           value: string
           description: string
