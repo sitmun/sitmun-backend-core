@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `SitmunConstants`: application-wide keys for default language (`language.default`) and proxy config (`proxy`).
+- **Proxy setup**: proxy middleware URL is configured via `sitmun.proxy-middleware.url` (optional `sitmun.proxy-middleware.force`) and exposed to the client in profile `global.proxy`; per-service proxy URLs still use the same property for the base. Replaces previous DB-based `STM_CONF` proxy entry.
+
+### Changed
+
+- Unified tree node type constants (`CodeListsConstants`) and application configuration for node type handling.
+- OIDC: added provider/client constants (`AuthProviderIds`, `OidcClientTypes`), improved tests and documentation.
+- Locale resolution: use `SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY` for DB default language; `sitmun.language` default set to `en`.
+
+### Removed
+
+- Proxy URL from seed config `STM_CONF` (proxy URL now from Spring property only).
+
 ## [1.2.3] - 2026-02-26
 
 ### Added

@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.SitmunConstants;
 import org.sitmun.test.Fixtures;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ class ConfigurationParameterRepositoryDataRestTest {
                 .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.configuration-parameters[?(@.name=='language.default')].value")
+            jsonPath("$._embedded.configuration-parameters[?(@.name=='" + SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY + "')].value")
                 .value("en"));
   }
 }

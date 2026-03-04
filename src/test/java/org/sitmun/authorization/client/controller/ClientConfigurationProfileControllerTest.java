@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.SitmunConstants;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -224,7 +225,7 @@ class ClientConfigurationProfileControllerTest {
   void proxy() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.global.proxy", is("https://middleware.com")));
+        .andExpect(jsonPath("$.global." + SitmunConstants.PROXY_CONF_KEY, is(proxyUrl)));
   }
 
   @Test

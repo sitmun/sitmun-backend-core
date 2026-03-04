@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.factory.Mappers;
+import org.sitmun.SitmunConstants;
 import org.sitmun.authorization.client.dto.*;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ProfileContext;
@@ -227,6 +228,7 @@ public class ClientConfigurationController {
         .map(it -> profileMapper.map(it, it.getApplication(), it.getTerritory()))
         .map(decorateWithFilter(profileContext))
         .map(decorateWithProxy(profileContext))
+        .map(decorateWithGlobalProxy())
         .map(profile -> ResponseEntity.ok().body(profile))
         .orElseGet(() -> ResponseEntity.status(UNAUTHORIZED).build());
   }
@@ -306,6 +308,19 @@ public class ClientConfigurationController {
                   service.setUrl(uri);
                 }
               });
+      return profileDto;
+    };
+  }
+
+  /** Inject proxy middleware URL from Spring property into global config map. */
+  private Function<ProfileDto, ProfileDto> decorateWithGlobalProxy() {
+    return profileDto -> {
+      if (!proxyUrl.isBlank()) {
+        if (profileDto.getGlobal() == null) {
+          profileDto.setGlobal(new java.util.HashMap<>());
+        }
+        profileDto.getGlobal().put(SitmunConstants.PROXY_CONF_KEY, proxyUrl);
+      }
       return profileDto;
     };
   }

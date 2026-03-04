@@ -11,6 +11,7 @@ import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
+import org.sitmun.SitmunConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 @Slf4j
 public class RequestLocaleResolutionService {
 
-  private static final String DEFAULT_LANGUAGE_PARAM = "default.language";
-
-  @Value("${sitmun.language}")
+  @Value("${sitmun.language:en}")
   private String sitmunLanguage;
 
   private final LocaleResolver localeResolver;
@@ -52,12 +51,12 @@ public class RequestLocaleResolutionService {
 
   /**
    * Applies LocaleChangeInterceptor semantics and resolves the request language. Source order:
-   * lang-param → accept-language → resolver → context-holder → default.
+   * lang-param → accept-language → resolver → context-holder → database → {@code sitmun.language}.
    *
    * @param request current HTTP request
    * @param response current HTTP response
    * @param handler current handler object
-   * @param defaultLanguage fallback if no locale can be determined (deprecated, use database)
+   * @param defaultLanguage unused fallback kept for interface compatibility
    * @return resolved language tag for DB lookup (e.g. en, fr, oc-aranes)
    */
   public String resolveLanguage(
@@ -152,7 +151,7 @@ public class RequestLocaleResolutionService {
 
     // 6) Final fallback: sitmun.language property
     log.debug("RequestLocaleResolutionService source=sitmun-property matched={}", sitmunLanguage);
-    return sitmunLanguage != null ? sitmunLanguage : "en";
+    return sitmunLanguage;
   }
 
   /**
@@ -204,7 +203,7 @@ public class RequestLocaleResolutionService {
 
   /**
    * Gets default language from ConfigurationParameter table. Looks for parameter with name
-   * "default.language".
+   * {@value SitmunConstants#LANGUAGE_DEFAULT_CONF_KEY}.
    *
    * @return the default language shortname or null if not found
    */
@@ -212,7 +211,7 @@ public class RequestLocaleResolutionService {
     try {
       Optional<ConfigurationParameter> param =
           configurationParameterRepository.findAll().stream()
-              .filter(p -> DEFAULT_LANGUAGE_PARAM.equals(p.getName()))
+              .filter(p -> SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY.equals(p.getName()))
               .findFirst();
 
       if (param.isPresent() && param.get().getValue() != null) {

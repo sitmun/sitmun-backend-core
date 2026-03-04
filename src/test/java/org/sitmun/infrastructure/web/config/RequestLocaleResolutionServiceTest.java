@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.SitmunConstants;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
@@ -206,14 +207,14 @@ class RequestLocaleResolutionServiceTest {
 
     @Test
     @DisplayName(
-        "falls back to database default.language parameter when resolver returns unsupported")
+        "falls back to database language.default parameter when resolver returns unsupported")
     void fallbackToDatabaseDefaultParameter() {
       when(request.getParameter("lang")).thenReturn(null);
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.forLanguageTag("de"));
 
       ConfigurationParameter defaultLangParam =
-          ConfigurationParameter.builder().name("default.language").value("es").build();
+          ConfigurationParameter.builder().name(SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY).value("es").build();
 
       // Reset and setup mocks for this test
       reset(configurationParameterRepository);
