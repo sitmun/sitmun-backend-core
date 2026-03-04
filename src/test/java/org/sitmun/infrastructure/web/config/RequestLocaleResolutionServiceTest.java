@@ -214,7 +214,10 @@ class RequestLocaleResolutionServiceTest {
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.forLanguageTag("de"));
 
       ConfigurationParameter defaultLangParam =
-          ConfigurationParameter.builder().name(SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY).value("es").build();
+          ConfigurationParameter.builder()
+              .name(SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY)
+              .value("es")
+              .build();
 
       // Reset and setup mocks for this test
       reset(configurationParameterRepository);

@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.SitmunConstants;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
-import org.sitmun.SitmunConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -202,8 +202,8 @@ public class RequestLocaleResolutionService {
   }
 
   /**
-   * Gets default language from ConfigurationParameter table. Looks for parameter with name
-   * {@value SitmunConstants#LANGUAGE_DEFAULT_CONF_KEY}.
+   * Gets default language from ConfigurationParameter table. Looks for parameter with name {@value
+   * SitmunConstants#LANGUAGE_DEFAULT_CONF_KEY}.
    *
    * @return the default language shortname or null if not found
    */

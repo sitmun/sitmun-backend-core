@@ -150,6 +150,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
                         .field(error.getField())
                         .rejectedValue(error.getRejectedValue())
                         .message(messageSourceAccessor.getMessage(error))
+                        .messageCode(error.getCode())
                         .build()));
 
     ValidationProblemDetail problem =
@@ -804,6 +805,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
               .rejectedValue(error.getRejectedValue())
               .expectedType(error.getCode())
               .message(error.getDefaultMessage())
+              .messageCode(error.getCode())
               .build());
     }
 

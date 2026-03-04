@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - `SitmunConstants`: application-wide keys for default language (`language.default`) and proxy config (`proxy`).
+- `messageCode` on validation Problem Detail `FieldError` (set in exception handlers) for client-side i18n of validation messages.
 - **Proxy setup**: proxy middleware URL is configured via `sitmun.proxy-middleware.url` (optional `sitmun.proxy-middleware.force`) and exposed to the client in profile `global.proxy`; per-service proxy URLs still use the same property for the base. Replaces previous DB-based `STM_CONF` proxy entry.
 
 ### Changed

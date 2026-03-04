@@ -66,5 +66,12 @@ public class ValidationProblemDetail extends ProblemDetail {
 
     /** The validation error message for this specific field. */
     private String message;
+
+    /**
+     * Stable machine-readable code for frontend i18n lookup (e.g. "NotBlank",
+     * "BoundingBox.maxYGreaterThanMinY"). Clients can translate via key "validation.{messageCode}";
+     * falls back to {@link #message} when absent.
+     */
+    private String messageCode;
   }
 }

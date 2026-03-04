@@ -47,6 +47,7 @@ public class DeserializationExceptionHandler {
                 .message(
                     String.format(
                         "Invalid value '%s' for field '%s'", ife.getValue(), ref.getFieldName()))
+                .messageCode("InvalidFormat")
                 .build());
       }
     } else if (cause instanceof MismatchedInputException mie) {
@@ -58,6 +59,7 @@ public class DeserializationExceptionHandler {
                 .expectedType(
                     mie.getTargetType() != null ? mie.getTargetType().getSimpleName() : null)
                 .message(String.format("Mismatched input for field '%s'", ref.getFieldName()))
+                .messageCode("MismatchedInput")
                 .build());
       }
     }

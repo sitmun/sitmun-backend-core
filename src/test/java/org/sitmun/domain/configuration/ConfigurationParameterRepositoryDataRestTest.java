@@ -30,7 +30,10 @@ class ConfigurationParameterRepositoryDataRestTest {
                 .with(SecurityMockMvcRequestPostProcessors.user(Fixtures.admin())))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$._embedded.configuration-parameters[?(@.name=='" + SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY + "')].value")
+            jsonPath(
+                    "$._embedded.configuration-parameters[?(@.name=='"
+                        + SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY
+                        + "')].value")
                 .value("en"));
   }
 }

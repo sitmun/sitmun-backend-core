@@ -50,7 +50,7 @@ class CodeListsTest {
             CodeListsConstants.TASK_ENTITY_JSON_PARAM_TYPE,
             CodeListsConstants.TERRITORY_SCOPE,
             CodeListsConstants.TREE_NODE_VIEWMODE,
-            CodeListsConstants.TREE_TYPE,            
+            CodeListsConstants.TREE_TYPE,
             CodeListsConstants.TREE_NODE_TYPE,
             CodeListsConstants.USER_IDENTIFICATION_TYPE,
             CodeListsConstants.USER_POSITION_TYPE);
