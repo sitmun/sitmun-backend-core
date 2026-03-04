@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-03-04
+
 ### Added
 
 - `SitmunConstants`: application-wide keys for default language (`language.default`) and proxy config (`proxy`).
@@ -211,7 +213,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.3...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.4...HEAD
+[1.2.4]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.3...sitmun-backend-core/1.2.4
 [1.2.3]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.2...sitmun-backend-core/1.2.3
 [1.2.2]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.1...sitmun-backend-core/1.2.2
 [1.2.1]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.0...sitmun-backend-core/1.2.1
