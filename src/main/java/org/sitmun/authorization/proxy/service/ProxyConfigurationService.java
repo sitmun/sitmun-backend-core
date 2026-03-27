@@ -6,10 +6,11 @@ import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.authorization.proxy.decorators.QueryFixedFiltersDecorator;
+import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
-import org.sitmun.authorization.proxy.decorators.QueryVaryFiltersDecorator;
+import org.sitmun.authorization.proxy.decorators.SqlUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
@@ -19,7 +20,6 @@ import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
 import org.sitmun.domain.DomainConstants;
-import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
@@ -27,9 +27,7 @@ import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
-import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
-import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
@@ -39,6 +37,17 @@ import org.springframework.util.StringUtils;
 @Slf4j
 @org.springframework.stereotype.Service
 public class ProxyConfigurationService {
+
+  /** OpenAPI 3.x {@code SecurityScheme.type} for username/password HTTP authentication. */
+  private static final String SECURITY_SCHEME_TYPE_HTTP = "http";
+
+  /** OpenAPI 3.x {@code SecurityScheme.type} for API key authentication. */
+  private static final String SECURITY_SCHEME_TYPE_API_KEY = "apiKey";
+
+  /**
+   * OpenAPI 3.x {@code SecurityScheme.scheme} for HTTP Basic (IANA, lowercase per spec examples).
+   */
+  private static final String OPENAPI_SECURITY_SCHEME_HTTP_BASIC = "basic";
 
   private final ServiceRepository serviceRepository;
 
@@ -50,9 +59,9 @@ public class ProxyConfigurationService {
 
   private final ApplicationRepository applicationRepository;
 
-  private final QueryFixedFiltersDecorator queryFixedFiltersDecorator;
+  private final SqlUserParametrizationDecorator sqlUserParametrizationDecorator;
 
-  private final QueryVaryFiltersDecorator queryVaryFiltersDecorator;
+  private final HttpUserParametrizationDecorator httpUserParametrizationDecorator;
 
   private final QueryPaginationDecorator queryPaginationDecorator;
 
@@ -72,8 +81,8 @@ public class ProxyConfigurationService {
       UserRepository userRepository,
       TerritoryRepository territoryRepository,
       ApplicationRepository applicationRepository,
-      QueryFixedFiltersDecorator queryFixedFiltersDecorator,
-      QueryVaryFiltersDecorator queryVaryFiltersDecorator,
+      SqlUserParametrizationDecorator sqlUserParametrizationDecorator,
+      HttpUserParametrizationDecorator httpUserParametrizationDecorator,
       QueryPaginationDecorator queryPaginationDecorator,
       List<ResourceAccessValidator> accessValidators,
       SystemVariableResolver systemVariableResolver) {
@@ -82,8 +91,8 @@ public class ProxyConfigurationService {
     this.userRepository = userRepository;
     this.territoryRepository = territoryRepository;
     this.applicationRepository = applicationRepository;
-    this.queryFixedFiltersDecorator = queryFixedFiltersDecorator;
-    this.queryVaryFiltersDecorator = queryVaryFiltersDecorator;
+    this.sqlUserParametrizationDecorator = sqlUserParametrizationDecorator;
+    this.httpUserParametrizationDecorator = httpUserParametrizationDecorator;
     this.queryPaginationDecorator = queryPaginationDecorator;
     this.accessValidators = accessValidators;
     this.systemVariableResolver = systemVariableResolver;
@@ -92,9 +101,7 @@ public class ProxyConfigurationService {
   private WmsPayloadDto getOgcWmsConfiguration(
       Service service,
       ConfigProxyRequestDto configProxyRequestDto,
-      User user,
-      Territory territory,
-      Application application) {
+      RequestCoordinates coordinates) {
 
     if (service == null) {
       return null;
@@ -104,8 +111,8 @@ public class ProxyConfigurationService {
     if (Boolean.TRUE.equals(service.getPasswordSet())) {
       security =
           HttpSecurityDto.builder()
-              .type("http")
-              .scheme("basic")
+              .type(SECURITY_SCHEME_TYPE_HTTP)
+              .scheme(OPENAPI_SECURITY_SCHEME_HTTP_BASIC)
               .username(service.getUser())
               .password(service.getPassword())
               .build();
@@ -116,28 +123,33 @@ public class ProxyConfigurationService {
       parameters = new HashMap<>();
     }
     Set<ServiceParameter> servParams = service.getParameters();
-    log.info("Parametros servicio {}", servParams.size());
     List<String> varyParameters = new ArrayList<>();
     for (ServiceParameter parameter : servParams) {
       if (DomainConstants.Proxy.PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
         final String resolvedValue =
-            systemVariableResolver.resolve(parameter.getValue(), user, territory, application);
+            systemVariableResolver.resolve(parameter.getValue(), coordinates);
         parameters.put(parameter.getName(), resolvedValue);
       }
     }
 
-    final String resolvedUrl =
-        systemVariableResolver.resolve(service.getServiceURL(), user, territory, application);
-    return WmsPayloadDto.builder()
-        .uri(resolvedUrl)
-        .method(configProxyRequestDto.getMethod())
-        .vary(varyParameters)
-        .parameters(parameters)
-        .body(configProxyRequestDto.getRequestBody())
-        .security(security)
-        .build();
+    final String resolvedUrl = systemVariableResolver.resolve(service.getServiceURL(), coordinates);
+    WmsPayloadDto ogcPayload =
+        WmsPayloadDto.builder()
+            .uri(resolvedUrl)
+            .method(configProxyRequestDto.getMethod())
+            .vary(varyParameters)
+            .parameters(parameters)
+            .body(configProxyRequestDto.getRequestBody())
+            .security(security)
+            .build();
+    log.debug(
+        "OGC/WMS proxy payload: uri={} method={} security={}",
+        resolvedUrl,
+        configProxyRequestDto.getMethod(),
+        security == null ? "none" : security.describeForLog());
+    return ogcPayload;
   }
 
   private static String getSqlByTask(Task task) {
@@ -153,33 +165,27 @@ public class ProxyConfigurationService {
     return sql;
   }
 
-  private JdbcPayloadDto getDatasourceConfiguration(
-      Task task,
-      org.sitmun.domain.user.User user,
-      Territory territory,
-      org.sitmun.domain.application.Application application) {
+  private JdbcPayloadDto getDatasourceConfiguration(Task task, RequestCoordinates coordinates) {
     DatabaseConnection databaseConnection = task.getConnection();
     String sql = getSqlByTask(task);
 
     // Resolve system variables (#{}) before sending to proxy
-    sql = systemVariableResolver.resolve(sql, user, territory, application);
+    sql = systemVariableResolver.resolve(sql, coordinates);
 
-    return databaseConnection != null
-        ? JdbcPayloadDto.builder()
-            .uri(databaseConnection.getUrl())
-            .user(databaseConnection.getUser())
-            .password(databaseConnection.getPassword())
-            .driver(databaseConnection.getDriver())
-            .sql(sql)
-            .build()
-        : null;
+    if (databaseConnection == null) {
+      return null;
+    }
+    log.debug("JDBC proxy payload built (connection URL, credentials, and SQL omitted from logs)");
+    return JdbcPayloadDto.builder()
+        .uri(databaseConnection.getUrl())
+        .user(databaseConnection.getUser())
+        .password(databaseConnection.getPassword())
+        .driver(databaseConnection.getDriver())
+        .sql(sql)
+        .build();
   }
 
-  private WmsPayloadDto getHttpApiConfiguration(
-      Task task,
-      org.sitmun.domain.user.User user,
-      Territory territory,
-      org.sitmun.domain.application.Application application) {
+  private WmsPayloadDto getHttpApiConfiguration(Task task, RequestCoordinates coordinates) {
     final Map<String, Object> taskProps = task.getProperties();
 
     //  Check for null properties
@@ -190,12 +196,12 @@ public class ProxyConfigurationService {
     String url = (String) taskProps.get(DomainConstants.Tasks.PROPERTY_COMMAND);
 
     // Check for null or blank URL
-    if (url == null || !StringUtils.hasText(url)) {
+    if (!StringUtils.hasText(url)) {
       return null;
     }
 
     // Resolve system variables (#{}) in URL before sending to proxy
-    url = systemVariableResolver.resolve(url, user, territory, application);
+    url = systemVariableResolver.resolve(url, coordinates);
 
     // Handle non-String parameter values - key by variable name (with backward compatibility)
     @SuppressWarnings("unchecked")
@@ -204,21 +210,21 @@ public class ProxyConfigurationService {
                 taskProps.getOrDefault(
                     DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList()))
             .stream()
-                .map(
+                .flatMap(
                     p -> {
                       // Use backward-compatible variable reading (tries 'variable' then 'name')
                       String key = TaskParameterUtil.getParameterVariable(p);
                       // Fallback to label if neither variable nor name exists (legacy support)
                       if (key == null) {
-                        key = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_LABEL));
+                        Object label = p.get(DomainConstants.Tasks.PARAMETERS_LABEL);
+                        key = label != null ? String.valueOf(label) : null;
+                      }
+                      if (!StringUtils.hasText(key)) {
+                        return Stream.empty();
                       }
                       String value = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_VALUE));
-                      return Map.entry(key, value);
+                      return Stream.of(Map.entry(key, value));
                     })
-                .filter(
-                    e ->
-                        e.getKey() != null
-                            && !"null".equals(e.getKey())) // Skip entries without a valid key
                 .collect(
                     Collectors.toMap(
                         Map.Entry::getKey,
@@ -227,31 +233,43 @@ public class ProxyConfigurationService {
 
     final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
 
+    // Only build security DTO if authentication is configured
+    HttpSecurityDto security = null;
     String authenticationMode =
         (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE, null);
     String apiUser = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_USER, null);
     String apiPassword =
         (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
+    Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
 
-    // Only build security DTO if authentication is configured
-    HttpSecurityDto security = null;
-    if (authenticationMode != null || apiUser != null || apiPassword != null) {
-      HttpSecurityDto.HttpSecurityDtoBuilder securityBuilder =
+    var isApiKeyType = headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();
+    var isHttpType =
+        StringUtils.hasText(authenticationMode)
+            && StringUtils.hasText(apiUser)
+            && StringUtils.hasText(apiPassword);
+    if (isHttpType) {
+      security =
           HttpSecurityDto.builder()
-              .type(authenticationMode)
-              .scheme("Basic")
+              .type(SECURITY_SCHEME_TYPE_HTTP)
+              .scheme(OPENAPI_SECURITY_SCHEME_HTTP_BASIC)
               .username(apiUser)
-              .password(apiPassword);
-
-      Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
-      if (headersObject instanceof Map<?, ?> headers) {
-        securityBuilder.headers(
-            headers.entrySet().stream()
-                .filter(e -> e.getKey() instanceof String && e.getValue() instanceof String)
-                .collect(Collectors.toMap(e -> (String) e.getKey(), e -> (String) e.getValue())));
+              .password(apiPassword)
+              .build();
+    } else if (isApiKeyType) {
+      Map<?, ?> headers = (Map<?, ?>) headersObject;
+      var securityHeaders = new HashMap<String, String>();
+      for (var e : headers.entrySet()) {
+        if (e.getKey() instanceof String key
+            && StringUtils.hasText(key)
+            && e.getValue() instanceof String value) {
+          securityHeaders.put(key, value);
+        }
       }
-
-      security = securityBuilder.build();
+      security =
+          HttpSecurityDto.builder()
+              .type(SECURITY_SCHEME_TYPE_API_KEY)
+              .headers(securityHeaders)
+              .build();
     }
 
     // API method is hardcoded to GET as per current proxy middleware implementation.
@@ -260,13 +278,19 @@ public class ProxyConfigurationService {
     // This value is used for HTTP-based payloads but may need to be parameterized in future
     // versions
     // if backend-level method switching is required.
-    return WmsPayloadDto.builder()
-        .uri(url)
-        .method("GET")
-        .parameters(parameters)
-        .body(body)
-        .security(security)
-        .build();
+    WmsPayloadDto httpApiPayload =
+        WmsPayloadDto.builder()
+            .uri(url)
+            .method("GET")
+            .parameters(parameters)
+            .body(body)
+            .security(security)
+            .build();
+    log.debug(
+        "HTTP API proxy payload: uri={} security={}",
+        url,
+        security == null ? "none" : security.describeForLog());
+    return httpApiPayload;
   }
 
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
@@ -303,19 +327,28 @@ public class ProxyConfigurationService {
             });
   }
 
+  public RequestCoordinates getRequestCoordinates(
+      ConfigProxyRequestDto configProxyRequestDto, String username) {
+    var response = new RequestCoordinates();
+    // Fetch context entities for system variable resolution
+    response.user = userRepository.findByUsername(username).orElse(null);
+    response.territory =
+        territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
+    response.application =
+        applicationRepository.findById(configProxyRequestDto.getAppId()).orElse(null);
+    return response;
+  }
+
   public ConfigProxyDto getConfiguration(
-      ConfigProxyRequestDto configProxyRequestDto, long expirationTimeToken, String username) {
+      ConfigProxyRequestDto configProxyRequestDto,
+      long expirationTimeToken,
+      RequestCoordinates coordinates) {
     log.info(
         "Fetching configuration for service type {} with id {}",
         configProxyRequestDto.getType(),
         configProxyRequestDto.getTypeId());
 
-    // Fetch context entities for system variable resolution
-    final org.sitmun.domain.user.User user = userRepository.findByUsername(username).orElse(null);
-    final Territory territory =
-        territoryRepository.findById(configProxyRequestDto.getTerId()).orElse(null);
-    final org.sitmun.domain.application.Application application =
-        applicationRepository.findById(configProxyRequestDto.getAppId()).orElse(null);
+    Objects.requireNonNull(coordinates, "coordinates");
 
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
@@ -324,7 +357,7 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getDatasourceConfiguration(task, user, territory, application));
+                payload.set(getDatasourceConfiguration(task, coordinates));
                 configType.set(DomainConstants.Proxy.TYPE_SQL);
               });
     } else if (DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
@@ -332,7 +365,7 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getHttpApiConfiguration(task, user, territory, application));
+                payload.set(getHttpApiConfiguration(task, coordinates));
                 configType.set(DomainConstants.Proxy.TYPE_API);
               });
     } else {
@@ -344,9 +377,7 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               service -> {
-                payload.set(
-                    getOgcWmsConfiguration(
-                        service, configProxyRequestDto, user, territory, application));
+                payload.set(getOgcWmsConfiguration(service, configProxyRequestDto, coordinates));
                 configType.set(service.getType());
               });
     }
@@ -355,6 +386,12 @@ public class ProxyConfigurationService {
           expirationTimeToken > 0
               ? expirationTimeToken / 1000
               : (new Date().getTime() / 1000) + responseValidityTime;
+      log.debug(
+          "Proxy configuration built: requestedType={} resultConfigType={} expSec={} summary={}",
+          configProxyRequestDto.getType(),
+          configType.get(),
+          expirationTime,
+          summarizePayloadForLog(payload.get()));
       return ConfigProxyDto.builder()
           .type(configType.get())
           .exp(expirationTime)
@@ -369,32 +406,64 @@ public class ProxyConfigurationService {
   }
 
   public void applyDecorators(
-      ConfigProxyDto configProxyDto, ConfigProxyRequestDto configProxyRequestDto, String username) {
+      ConfigProxyDto configProxyDto,
+      ConfigProxyRequestDto configProxyRequestDto,
+      RequestCoordinates coordinates) {
+    Objects.requireNonNull(coordinates, "coordinates");
     PayloadDto payload = configProxyDto.getPayload();
+    log.debug(
+        "applyDecorators: incomingRequestParameterCount={} payloadClass={}",
+        configProxyRequestDto.getParameters() == null
+            ? 0
+            : configProxyRequestDto.getParameters().size(),
+        payload.getClass().getSimpleName());
 
-    // System variables (#{}) are now resolved in getDatasourceConfiguration/getHttpApiConfiguration
+    // System variables (#{}) are resolved in getDatasourceConfiguration, getHttpApiConfiguration,
+    // and getOgcWmsConfiguration (via systemVariableResolver.resolve).
+    // Coordinates carry user/territory/application for future decorator steps that need context.
     // No need for addFixedFilters() anymore
 
     Map<String, String> parameters = configProxyRequestDto.getParameters();
 
     if (parameters != null && !parameters.isEmpty()) {
-      String limit = null;
-      if (parameters.containsKey(SQL_LIMIT)) {
-        limit = parameters.get(SQL_LIMIT);
-        parameters.remove(SQL_LIMIT);
-      }
-      String offset = null;
-      if (parameters.containsKey(SQL_OFFSET)) {
-        offset = parameters.get(SQL_OFFSET);
-        parameters.remove(SQL_OFFSET);
-      }
-      addVaryFilters(parameters, payload);
+      String[] pagination = takePaginationValuesAndStripKeys(parameters);
+      String limit = pagination[0];
+      String offset = pagination[1];
+
+      expandUserParameters(parameters, payload);
       addPagination(limit, offset, payload);
     }
   }
 
-  private void addVaryFilters(Map<String, String> parameters, PayloadDto payload) {
-    queryVaryFiltersDecorator.apply(parameters, payload);
+  /**
+   * Reads LIMIT and OFFSET from the request map using case-insensitive key names, removes every
+   * matching key, and returns {@code [limit, offset]}. When several keys match the same semantic
+   * (e.g. {@code limit} and {@code LIMIT}), the last entry encountered in map iteration order wins.
+   */
+  private static String[] takePaginationValuesAndStripKeys(Map<String, String> parameters) {
+    String limit = null;
+    String offset = null;
+    List<String> keysToRemove = new ArrayList<>();
+    for (Map.Entry<String, String> e : parameters.entrySet()) {
+      String key = e.getKey();
+      if (!StringUtils.hasText(key)) {
+        continue;
+      }
+      if (SQL_LIMIT.equalsIgnoreCase(key)) {
+        limit = e.getValue();
+        keysToRemove.add(key);
+      } else if (SQL_OFFSET.equalsIgnoreCase(key)) {
+        offset = e.getValue();
+        keysToRemove.add(key);
+      }
+    }
+    keysToRemove.forEach(parameters::remove);
+    return new String[] {limit, offset};
+  }
+
+  private void expandUserParameters(Map<String, String> parameters, PayloadDto payload) {
+    sqlUserParametrizationDecorator.apply(parameters, payload);
+    httpUserParametrizationDecorator.apply(parameters, payload);
   }
 
   private void addPagination(String limit, String offset, PayloadDto payload) {
@@ -406,5 +475,21 @@ public class ProxyConfigurationService {
       pagination.put(SQL_OFFSET, offset);
     }
     queryPaginationDecorator.apply(pagination, payload);
+  }
+
+  private static String summarizePayloadForLog(PayloadDto payload) {
+    if (payload instanceof WmsPayloadDto wms) {
+      HttpSecurityDto sec = wms.getSecurity();
+      return "uri="
+          + wms.getUri()
+          + ", method="
+          + wms.getMethod()
+          + ", "
+          + (sec == null ? "security=null" : sec.describeForLog());
+    }
+    if (payload instanceof JdbcPayloadDto) {
+      return "jdbc(payload credentials and SQL omitted)";
+    }
+    return payload.getClass().getSimpleName();
   }
 }

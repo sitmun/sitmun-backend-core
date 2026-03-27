@@ -9,12 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
-import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
-import org.sitmun.infrastructure.util.UriTemplateExpander;
 import org.springframework.stereotype.Component;
 
 @Component
-public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>> {
+public class SqlUserParametrizationDecorator implements Decorator<Map<String, String>> {
 
   // Case-insensitive WHERE detector
   private static final Pattern HAS_WHERE = Pattern.compile("\\bwhere\\b", Pattern.CASE_INSENSITIVE);
@@ -23,15 +21,13 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
 
   @Override
   public boolean accept(Map<String, String> target, PayloadDto payload) {
-    return payload instanceof JdbcPayloadDto || payload instanceof WmsPayloadDto;
+    return payload instanceof JdbcPayloadDto;
   }
 
   @Override
   public void addBehavior(Map<String, String> target, PayloadDto payload) {
     if (payload instanceof JdbcPayloadDto jdbc) {
       applyJdbcParameterization(target, jdbc);
-    } else if (payload instanceof WmsPayloadDto wms) {
-      applyHttpParameterization(target, wms);
     }
   }
 
@@ -81,25 +77,5 @@ public class QueryVaryFiltersDecorator implements Decorator<Map<String, String>>
 
     jdbc.setSql(sql);
     jdbc.setParameters(parameters);
-  }
-
-  private void applyHttpParameterization(Map<String, String> target, WmsPayloadDto wms) {
-    if (target == null || target.isEmpty()) {
-      return;
-    }
-
-    String uri = wms.getUri();
-
-    // Use UriTemplateExpander to expand {variable} in URIs
-    UriTemplateExpander.ExpandedResult result =
-        UriTemplateExpander.expandWithUsedVariables(uri, target);
-    uri = result.getUri();
-
-    // Remove expanded variables from WMS parameters
-    if (wms.getParameters() != null) {
-      result.getUsedVariables().forEach(key -> wms.getParameters().remove(key));
-    }
-
-    wms.setUri(uri);
   }
 }

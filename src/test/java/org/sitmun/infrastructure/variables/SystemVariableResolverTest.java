@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
@@ -54,11 +55,20 @@ class SystemVariableResolverTest {
     resolver = new SystemVariableResolver(properties);
   }
 
+  private static RequestCoordinates coords(
+      User user, Territory territory, Application application) {
+    RequestCoordinates c = new RequestCoordinates();
+    c.setUser(user);
+    c.setTerritory(territory);
+    c.setApplication(application);
+    return c;
+  }
+
   @Test
   void resolve_withSingleUserVariable_replacesCorrectly() {
     String template = "SELECT * FROM users WHERE id = #{USER_ID}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("SELECT * FROM users WHERE id = 100");
   }
@@ -67,7 +77,7 @@ class SystemVariableResolverTest {
   void resolve_withSingleTerritoryVariable_replacesCorrectly() {
     String template = "SELECT * FROM data WHERE territory = '#{TERR_COD}'";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("SELECT * FROM data WHERE territory = 'TERR_CODE'");
   }
@@ -77,7 +87,7 @@ class SystemVariableResolverTest {
     String template =
         "SELECT * FROM logs WHERE user_id = #{USER_ID} AND terr_id = #{TERR_ID} AND app_id = #{APP_ID}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result)
         .isEqualTo("SELECT * FROM logs WHERE user_id = 100 AND terr_id = 200 AND app_id = 300");
@@ -87,7 +97,7 @@ class SystemVariableResolverTest {
   void resolve_withStringVariable_replacesCorrectly() {
     String template = "User #{USER_NAME} in #{TERR_NAME}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("User testuser in Test Territory");
   }
@@ -96,7 +106,7 @@ class SystemVariableResolverTest {
   void resolve_withNoVariables_returnsUnchanged() {
     String template = "SELECT * FROM data WHERE status = 'active'";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo(template);
   }
@@ -105,21 +115,21 @@ class SystemVariableResolverTest {
   void resolve_withUndefinedVariable_returnsUnchangedPlaceholder() {
     String template = "SELECT * FROM data WHERE unknown = #{UNDEFINED_VAR}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("SELECT * FROM data WHERE unknown = #{UNDEFINED_VAR}");
   }
 
   @Test
   void resolve_withNullTemplate_returnsNull() {
-    String result = resolver.resolve(null, user, territory, application);
+    String result = resolver.resolve(null, coords(user, territory, application));
 
     assertThat(result).isNull();
   }
 
   @Test
   void resolve_withEmptyTemplate_returnsEmpty() {
-    String result = resolver.resolve("", user, territory, application);
+    String result = resolver.resolve("", coords(user, territory, application));
 
     assertThat(result).isEmpty();
   }
@@ -128,7 +138,7 @@ class SystemVariableResolverTest {
   void resolve_withNullUser_handlesGracefully() {
     String template = "SELECT * FROM data WHERE terr_id = #{TERR_ID}";
 
-    String result = resolver.resolve(template, null, territory, application);
+    String result = resolver.resolve(template, coords(null, territory, application));
 
     assertThat(result).isEqualTo("SELECT * FROM data WHERE terr_id = 200");
   }
@@ -137,7 +147,7 @@ class SystemVariableResolverTest {
   void resolve_withNullTerritory_handlesGracefully() {
     String template = "SELECT * FROM data WHERE user_id = #{USER_ID}";
 
-    String result = resolver.resolve(template, user, null, application);
+    String result = resolver.resolve(template, coords(user, null, application));
 
     assertThat(result).isEqualTo("SELECT * FROM data WHERE user_id = 100");
   }
@@ -146,7 +156,7 @@ class SystemVariableResolverTest {
   void resolve_withNullApplication_handlesGracefully() {
     String template = "SELECT * FROM data WHERE user_id = #{USER_ID}";
 
-    String result = resolver.resolve(template, user, territory, null);
+    String result = resolver.resolve(template, coords(user, territory, null));
 
     assertThat(result).isEqualTo("SELECT * FROM data WHERE user_id = 100");
   }
@@ -155,7 +165,7 @@ class SystemVariableResolverTest {
   void resolve_withAccessToNullEntity_returnsEmptyString() {
     String template = "App ID: #{APP_ID}";
 
-    String result = resolver.resolve(template, user, territory, null);
+    String result = resolver.resolve(template, coords(user, territory, null));
 
     // Since application is null, SpEL evaluation will fail gracefully
     // and return the placeholder unchanged
@@ -166,7 +176,7 @@ class SystemVariableResolverTest {
   void resolve_withSameVariableMultipleTimes_replacesAll() {
     String template = "User #{USER_ID} logged in. Previous user was #{USER_ID}.";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("User 100 logged in. Previous user was 100.");
   }
@@ -175,7 +185,7 @@ class SystemVariableResolverTest {
   void resolve_withVariableInMiddleOfWord_replacesOnlyPlaceholder() {
     String template = "prefix_#{TERR_ID}_suffix";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("prefix_200_suffix");
   }
@@ -187,7 +197,7 @@ class SystemVariableResolverTest {
 
     String template = "Logged in as: #{USER_DISPLAY}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("Logged in as: testuser (ID: 100)");
   }
@@ -237,7 +247,7 @@ class SystemVariableResolverTest {
 
     String template = "SELECT * FROM data WHERE territory = '#{TERR_COD}'";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     // The malicious code is inserted as-is (string substitution)
     // SQL injection protection should be handled by PreparedStatements in the proxy middleware
@@ -251,7 +261,7 @@ class SystemVariableResolverTest {
 
     String template = "Value: #{TEST_VAR}";
 
-    String result = resolver.resolve(template, user, territory, application);
+    String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("Value: 100");
   }

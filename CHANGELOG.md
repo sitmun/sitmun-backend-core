@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `RequestCoordinates` (user, territory, application) for proxy configuration context.
+- `HttpUserParametrizationDecorator` and `SqlUserParametrizationDecorator` for client-driven HTTP URI template expansion and JDBC `${var}` / WHERE augmentation.
+- `JdbcSqlDialect` for dialect-aware SQL `LIMIT`/`OFFSET` in `QueryPaginationDecorator`.
+- `HttpPayloadDto` base for HTTP-like proxy payloads; `HttpSecurityDto.describeForLog()` for safe debug summaries (no passwords or header values).
+- `SensitiveDataMasking` for log redaction of secrets.
+- Tests: proxy URI template integration, decorator and pagination regression coverage.
+
+### Changed
+
+- OGC/WMS proxy build: `SystemVariableResolver` resolves `#{...}` in service URL and fixed (non-VARY) service parameter values using `RequestCoordinates`.
+- HTTP API tasks: optional Basic auth or API-key-style security via `HttpSecurityDto` `type` and `headers` map.
+- `applyDecorators`: strips `LIMIT`/`OFFSET` case-insensitively from incoming parameters before pagination; applies `SqlUserParametrizationDecorator` then `HttpUserParametrizationDecorator`.
+- `SystemVariableResolver` resolves templates with `RequestCoordinates` (nullable coordinates when no entity bindings).
+- Renamed `QueryVaryFiltersDecorator` to `SqlUserParametrizationDecorator`.
+
+### Removed
+
+- `SqlTemplateExpander` and `QueryFixedFiltersDecorator` (logic replaced by the new JDBC/HTTP decorators).
+
 ## [1.2.5] - 2026-03-11
 
 ### Changed

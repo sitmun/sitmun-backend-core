@@ -5,3 +5,4 @@ SER_ID,SER_NAME,SER_URL,SER_PROJECTS,SER_INFOURL,SER_CREATED,SER_PROTOCOL,SER_BL
 4,ICC BT25M,https://geoserveis.icgc.cat/icc_bt25m/wms/service,NULL,NULL,NULL,WMS,0
 5,ICC BT50M,https://geoserveis.icgc.cat/icc_bt50m/wms/service,NULL,NULL,NULL,WMS,0
 6,ICC Mapesbase,https://geoserveis.icgc.cat/icc_mapesbase/wms/service,NULL,NULL,NULL,WMS,0
+7,WMTS URI template (tests),https://example.com/wmts/{tileSet}/service,NULL,NULL,NULL,WMTS,0

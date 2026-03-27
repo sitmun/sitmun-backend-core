@@ -1,6 +1,5 @@
 package org.sitmun.authorization.proxy.controller;
 
-import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

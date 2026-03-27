@@ -5,7 +5,11 @@ import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_API;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_SQL;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_WMS;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_HEADERS;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PASSWORD;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_USER;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sitmun.authorization.proxy.decorators.QueryFixedFiltersDecorator;
+import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
-import org.sitmun.authorization.proxy.decorators.QueryVaryFiltersDecorator;
+import org.sitmun.authorization.proxy.decorators.SqlUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
@@ -42,8 +46,8 @@ class ProxyConfigurationServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private TerritoryRepository territoryRepository;
   @Mock private ApplicationRepository applicationRepository;
-  @Mock private QueryFixedFiltersDecorator queryFixedFiltersDecorator;
-  @Mock private QueryVaryFiltersDecorator queryVaryFiltersDecorator;
+  @Mock private SqlUserParametrizationDecorator SQLUserParametrizationDecorator;
+  @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
   @Mock private SystemVariableResolver systemVariableResolver;
 
@@ -54,7 +58,7 @@ class ProxyConfigurationServiceTest {
     // Mock SystemVariableResolver to return template unchanged (no variable resolution in tests)
     // Use lenient() because not all tests call resolve()
     lenient()
-        .when(systemVariableResolver.resolve(anyString(), any(), any(), any()))
+        .when(systemVariableResolver.resolve(anyString(), any(RequestCoordinates.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     service =
@@ -64,13 +68,17 @@ class ProxyConfigurationServiceTest {
             userRepository,
             territoryRepository,
             applicationRepository,
-            queryFixedFiltersDecorator,
-            queryVaryFiltersDecorator,
+            SQLUserParametrizationDecorator,
+            httpUserParametrizationDecorator,
             queryPaginationDecorator,
             Collections.emptyList(), // Empty validators list for non-validation tests
             systemVariableResolver);
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
+  }
+
+  private RequestCoordinates coordinatesFor(ConfigProxyRequestDto request) {
+    return service.getRequestCoordinates(request, "testuser");
   }
 
   @Test
@@ -96,7 +104,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -134,7 +142,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -182,7 +190,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -227,7 +235,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -245,7 +253,7 @@ class ProxyConfigurationServiceTest {
   void getConfigurationResolvesSystemVariablesInWmsServiceUrlAndFixedParameters() {
     // Given
     reset(systemVariableResolver);
-    when(systemVariableResolver.resolve(anyString(), any(), any(), any()))
+    when(systemVariableResolver.resolve(anyString(), any(RequestCoordinates.class)))
         .thenAnswer(
             invocation -> {
               String input = invocation.getArgument(0);
@@ -291,7 +299,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -328,7 +336,7 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(1)).thenReturn(Optional.of(mockService));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -356,7 +364,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -409,7 +418,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -451,7 +460,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -476,7 +486,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -507,7 +518,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -518,6 +529,81 @@ class ProxyConfigurationServiceTest {
     assertEquals("https://api.example.com/endpoint", payload.getUri());
     assertEquals("GET", payload.getMethod());
     assertEquals("secret123", payload.getParameters().get("apiKey"));
+  }
+
+  @Test
+  @DisplayName(
+      "getConfiguration sets OpenAPI-style http/basic security on API task when auth is configured")
+  void getConfigurationSetsOpenApiHttpBasicSecurityForApiTask() {
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/endpoint");
+    taskProperties.put(PROPERTY_AUTHENTICATION_MODE, "HTTP Basic authentication");
+    taskProperties.put(PROPERTY_USER, "apiUser");
+    taskProperties.put(PROPERTY_PASSWORD, "apiSecret");
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_API)
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertNotNull(payload.getSecurity());
+    assertEquals("http", payload.getSecurity().getType());
+    assertEquals("basic", payload.getSecurity().getScheme());
+    assertEquals("apiUser", payload.getSecurity().getUsername());
+    assertEquals("apiSecret", payload.getSecurity().getPassword());
+  }
+
+  @Test
+  @DisplayName(
+      "getConfiguration sets OpenAPI-style apiKey security on API task when headers map is present")
+  void getConfigurationSetsOpenApiApiKeySecurityWhenHeadersMapPresent() {
+    Map<String, Object> headers = new LinkedHashMap<>();
+    headers.put("X-API-Key", "secret-key");
+    headers.put("Authorization", "Bearer token");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/endpoint");
+    taskProperties.put(PROPERTY_HEADERS, headers);
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_API)
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertNotNull(payload.getSecurity());
+    assertEquals("apiKey", payload.getSecurity().getType());
+    assertNull(payload.getSecurity().getScheme());
+    assertNotNull(payload.getSecurity().getHeaders());
+    assertEquals("secret-key", payload.getSecurity().getHeaders().get("X-API-Key"));
+    assertEquals("Bearer token", payload.getSecurity().getHeaders().get("Authorization"));
   }
 
   @Test
@@ -543,7 +629,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -579,7 +665,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -609,7 +695,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -636,7 +723,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -663,7 +751,8 @@ class ProxyConfigurationServiceTest {
 
     // When & Then
     assertThrows(
-        BadRequestException.class, () -> service.getConfiguration(request, 0L, "testuser"));
+        BadRequestException.class,
+        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
   }
 
   @Test
@@ -689,7 +778,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -731,7 +820,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -774,7 +863,7 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When
-    ConfigProxyDto result = service.getConfiguration(request, 0L, "testuser");
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
     // Then
     assertNotNull(result);
@@ -862,8 +951,8 @@ class ProxyConfigurationServiceTest {
             userRepository,
             territoryRepository,
             applicationRepository,
-            queryFixedFiltersDecorator,
-            queryVaryFiltersDecorator,
+            SQLUserParametrizationDecorator,
+            httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(mockValidator),
             systemVariableResolver);
@@ -899,8 +988,8 @@ class ProxyConfigurationServiceTest {
             userRepository,
             territoryRepository,
             applicationRepository,
-            queryFixedFiltersDecorator,
-            queryVaryFiltersDecorator,
+            SQLUserParametrizationDecorator,
+            httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(mockValidator),
             systemVariableResolver);
@@ -941,8 +1030,8 @@ class ProxyConfigurationServiceTest {
             userRepository,
             territoryRepository,
             applicationRepository,
-            queryFixedFiltersDecorator,
-            queryVaryFiltersDecorator,
+            SQLUserParametrizationDecorator,
+            httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(validator1, validator2),
             systemVariableResolver);
