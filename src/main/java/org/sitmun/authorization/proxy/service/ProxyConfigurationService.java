@@ -19,6 +19,7 @@ import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
 import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
@@ -28,6 +29,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
+import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
@@ -87,8 +89,12 @@ public class ProxyConfigurationService {
     this.systemVariableResolver = systemVariableResolver;
   }
 
-  private static WmsPayloadDto getOgcWmsConfiguration(
-      Service service, ConfigProxyRequestDto configProxyRequestDto) {
+  private WmsPayloadDto getOgcWmsConfiguration(
+      Service service,
+      ConfigProxyRequestDto configProxyRequestDto,
+      User user,
+      Territory territory,
+      Application application) {
 
     if (service == null) {
       return null;
@@ -116,11 +122,16 @@ public class ProxyConfigurationService {
       if (DomainConstants.Proxy.PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
-        parameters.put(parameter.getName(), parameter.getValue());
+        final String resolvedValue =
+            systemVariableResolver.resolve(parameter.getValue(), user, territory, application);
+        parameters.put(parameter.getName(), resolvedValue);
       }
     }
+
+    final String resolvedUrl =
+        systemVariableResolver.resolve(service.getServiceURL(), user, territory, application);
     return WmsPayloadDto.builder()
-        .uri(service.getServiceURL())
+        .uri(resolvedUrl)
         .method(configProxyRequestDto.getMethod())
         .vary(varyParameters)
         .parameters(parameters)
@@ -333,7 +344,9 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               service -> {
-                payload.set(getOgcWmsConfiguration(service, configProxyRequestDto));
+                payload.set(
+                    getOgcWmsConfiguration(
+                        service, configProxyRequestDto, user, territory, application));
                 configType.set(service.getType());
               });
     }
