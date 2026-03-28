@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -33,12 +34,12 @@ public class CartographyPermission {
 
   /** Unique identifier. */
   @TableGenerator(
-      name = "STM_GRP_GI_GEN",
-      table = "STM_SEQUENCE",
-      pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT",
-      pkColumnValue = "GGI_ID",
-      allocationSize = 1)
+    name = "STM_GRP_GI_GEN",
+    table = "STM_SEQUENCE",
+    pkColumnName = "SEQ_NAME",
+    valueColumnName = "SEQ_COUNT",
+    pkColumnValue = "GGI_ID",
+    allocationSize = 1)
   @Id
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "STM_GRP_GI_GEN")
   @Column(name = "GGI_ID")
@@ -61,11 +62,12 @@ public class CartographyPermission {
   /** The geographic information that the roles can access. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-      name = "STM_GGI_GI",
-      joinColumns =
-          @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
-      inverseJoinColumns =
-          @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
+    name = "STM_GGI_GI",
+    joinColumns =
+    @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
+    inverseJoinColumns =
+    @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<Cartography> members = new HashSet<>();
@@ -73,11 +75,12 @@ public class CartographyPermission {
   /** The roles allowed to access the members. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
-      name = "STM_ROL_GGI",
-      joinColumns =
-          @JoinColumn(name = "RGG_GGIID", foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
-      inverseJoinColumns =
-          @JoinColumn(name = "RGG_ROLEID", foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
+    name = "STM_ROL_GGI",
+    joinColumns =
+    @JoinColumn(name = "RGG_GGIID", foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
+    inverseJoinColumns =
+    @JoinColumn(name = "RGG_ROLEID", foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 

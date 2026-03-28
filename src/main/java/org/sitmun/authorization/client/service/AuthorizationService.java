@@ -42,7 +42,6 @@ import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -193,7 +192,7 @@ public class AuthorizationService {
     return roleRepository.findRolesByApplicationAndUserAndTerritory(username, appId, territoryId);
   }
 
-  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+  @Transactional(readOnly = true)
   public Optional<Profile> createProfile(ProfileContext context) {
     return buildProfile(context).map(this::pruneProfile);
   }
