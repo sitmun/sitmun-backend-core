@@ -27,6 +27,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - `SqlTemplateExpander` and `QueryFixedFiltersDecorator` (logic replaced by the new JDBC/HTTP decorators).
 
+### Fixed
+
+- Improved app configuration loading times by replacing `@EntityGraph` with `@BatchSize` to avoid Cartesian product when fetching members and roles in `CartographyPermission` ([#250](https://github.com/sitmun/sitmun-backend-core/pull/250)).
+
 ## [1.2.5] - 2026-03-11
 
 ### Changed
