@@ -48,6 +48,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthorizationService {
 
+  // TODO: Fix cartesian product via @EntityGraph on multiple collections.
+  //   Fixed in 29cdef6f, 6dcb5bbd: replaced @EntityGraph with @BatchSize in
+  //   CartographyPermission and CartographyPermissionRepository.
+  //   Other locations are still potentially affected, ex.:
+  //   - TreeRepository.findByAppAndRoles          (availableRoles + availableApplications)
+  //   - CartographyRepository.findById            (permissions, availabilities, styles, filters…)
+  //   - CartographyRepository.findAll             (service, styles…)
+  //   - TaskRepository.findByRolesAndTerritory    (roles, ui, type)
+
   private final TerritoryRepository territoryRepository;
   private final ApplicationRepository applicationRepository;
   private final BackgroundRepository backgroundRepository;
