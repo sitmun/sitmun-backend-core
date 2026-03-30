@@ -12,7 +12,10 @@ public final class Profiles {
   public static final String MAIL = "mail";
   public static final String OPENAPI = "openapi";
   public static final String POSTGRES = "postgres";
+  public static final String ORACLE = "oracle";
+  public static final String H2 = "h2";
   public static final String DEV = "dev";
+  public static final String PROD = "prod";
 
   private Profiles() {}
 }

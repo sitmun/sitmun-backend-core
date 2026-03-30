@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 import org.hibernate.Length;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
@@ -19,6 +20,7 @@ import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 
 /** Task type. */
 @Entity
+@BatchSize(size = 50)
 @Table(name = "STM_TSK_TYP")
 @Builder
 @Getter

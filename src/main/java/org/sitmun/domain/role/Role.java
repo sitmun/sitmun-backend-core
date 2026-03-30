@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.Application;
@@ -65,6 +66,7 @@ public class Role {
           @JoinColumn(name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_ARO_FK_ROL")),
       inverseJoinColumns =
           @JoinColumn(name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_ARO_FK_APP")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.Base.class)
   private Set<Application> applications = new HashSet<>();
@@ -77,6 +79,7 @@ public class Role {
           @JoinColumn(name = "RTS_ROLEID", foreignKey = @ForeignKey(name = "STM_RTS_FK_ROL")),
       inverseJoinColumns =
           @JoinColumn(name = "RTS_TASKID", foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<Task> tasks = new HashSet<>();
@@ -89,6 +92,7 @@ public class Role {
           @JoinColumn(name = "RGG_ROLEID", foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")),
       inverseJoinColumns =
           @JoinColumn(name = "RGG_GGIID", foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<CartographyPermission> permissions = new HashSet<>();
@@ -101,12 +105,14 @@ public class Role {
           @JoinColumn(name = "TRO_ROLEID", foreignKey = @ForeignKey(name = "STM_TRO_FK_ROL")),
       inverseJoinColumns =
           @JoinColumn(name = "TRO_TREEID", foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<Tree> trees = new HashSet<>();
 
   /** Users that use this role in a territory. */
   @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
 

@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.cartography.availability.CartographyAvailability;
@@ -226,11 +227,13 @@ public class Cartography {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.LAZY)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyAvailability> availabilities = new HashSet<>();
 
   /** Styles. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyStyle> styles = new HashSet<>();
 
@@ -260,11 +263,13 @@ public class Cartography {
 
   /** Filters. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyFilter> filters = new HashSet<>();
 
   /** Parameters. */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyParameter> parameters = new HashSet<>();
 
@@ -274,12 +279,14 @@ public class Cartography {
    * @deprecated Because the spatial selection should be implemented as a {@link Task}.
    */
   @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   @Deprecated
   private Set<CartographySpatialSelectionParameter> spatialSelectionParameters = new HashSet<>();
 
   /** Tree nodes. */
   @OneToMany(mappedBy = "cartography")
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<TreeNode> treeNodes = new HashSet<>();
 
@@ -291,6 +298,7 @@ public class Cartography {
           @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")),
       inverseJoinColumns =
           @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyPermission> permissions = new HashSet<>();
 

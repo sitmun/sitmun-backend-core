@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -202,6 +203,7 @@ public class Territory {
           @JoinColumn(name = "GTE_TERID", foreignKey = @ForeignKey(name = "STM_GTE_FK_TER")),
       inverseJoinColumns =
           @JoinColumn(name = "GTE_TERMID", foreignKey = @ForeignKey(name = "STM_GTE_FK_TERM")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Territory> members = new HashSet<>();
 
@@ -213,32 +215,38 @@ public class Territory {
           @JoinColumn(name = "GTE_TERMID", foreignKey = @ForeignKey(name = "STM_GTE_FK_TERM")),
       inverseJoinColumns =
           @JoinColumn(name = "GTE_TERID", foreignKey = @ForeignKey(name = "STM_GTE_FK_TER")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Territory> memberOf = new HashSet<>();
 
   /** Task availabilities. */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<TaskAvailability> taskAvailabilities = new HashSet<>();
 
   /** Cartography availabilities. */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyAvailability> cartographyAvailabilities = new HashSet<>();
 
   /** Positions available. */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<UserPosition> positions = new HashSet<>();
 
   /** Users that can access to this territory a role. */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.Base.class)
   private Set<UserConfiguration> userConfigurations = new HashSet<>();
 
   /** Applications. */
   @OneToMany(mappedBy = "territory", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<ApplicationTerritory> applications = new HashSet<>();
 

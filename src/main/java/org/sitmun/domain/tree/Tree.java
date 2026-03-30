@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 import org.hibernate.Length;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -91,6 +92,7 @@ public class Tree {
           @JoinColumn(name = "TRO_TREEID", foreignKey = @ForeignKey(name = "STM_TRO_FK_TRE")),
       inverseJoinColumns =
           @JoinColumn(name = "TRO_ROLEID", foreignKey = @ForeignKey(name = "STM_TRO_FK_ROL")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Role> availableRoles = new HashSet<>();
 
@@ -102,6 +104,7 @@ public class Tree {
           @JoinColumn(name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")),
       inverseJoinColumns =
           @JoinColumn(name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Application> availableApplications = new HashSet<>();
 

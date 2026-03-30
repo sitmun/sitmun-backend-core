@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.*;
 import org.hibernate.Length;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -175,6 +176,7 @@ public class Application {
 
   /** Application parameters. */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<ApplicationParameter> parameters = new HashSet<>();
 
@@ -186,6 +188,7 @@ public class Application {
           @JoinColumn(name = "ARO_APPID", foreignKey = @ForeignKey(name = "STM_ARO_FK_APP")),
       inverseJoinColumns =
           @JoinColumn(name = "ARO_ROLEID", foreignKey = @ForeignKey(name = "STM_ARO_FK_ROL")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Role> availableRoles = new HashSet<>();
 
@@ -197,16 +200,19 @@ public class Application {
           @JoinColumn(name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")),
       inverseJoinColumns =
           @JoinColumn(name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Tree> trees = new HashSet<>();
 
   /** Backgrounds maps. */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<ApplicationBackground> backgrounds = new HashSet<>();
 
   /** Territories. */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<ApplicationTerritory> territories = new HashSet<>();
 

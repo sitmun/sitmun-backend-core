@@ -8,11 +8,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.task.type.TaskType;
 
 /** Task UI. */
 @Entity
+@BatchSize(size = 50)
 @Table(name = "STM_TSK_UI")
 @Builder
 @Getter

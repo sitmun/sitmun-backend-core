@@ -1,0 +1,11 @@
+# =====================================================================================================================
+# Dev profile configuration
+#
+# This profile is used for local development with lazy-load detection in warning mode.
+# =====================================================================================================================
+
+sitmun:
+  lazy-detection:
+    enabled: true
+    mode: warn
+    max-logged-loads: 100

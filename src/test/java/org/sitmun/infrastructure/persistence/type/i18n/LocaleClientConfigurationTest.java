@@ -19,10 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Slf4j
 @DisplayName("Locale Client Configuration Test")
 class LocaleClientConfigurationTest {
 

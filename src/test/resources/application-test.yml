@@ -70,3 +70,6 @@ sitmun:
       TERR_NAME: "#{#territory.name}"
       APP_ID: "#{#application.id}"
       APP_NAME: "#{#application.name}"
+  lazy-detection:
+    enabled: true
+    mode: warn

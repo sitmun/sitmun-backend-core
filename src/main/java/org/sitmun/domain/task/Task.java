@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.*;
 import lombok.*;
 import org.hibernate.Length;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.database.DatabaseConnection;
@@ -111,6 +112,7 @@ public class Task {
           @JoinColumn(name = "RTS_TASKID", foreignKey = @ForeignKey(name = "STM_RTS_FK_TAS")),
       inverseJoinColumns =
           @JoinColumn(name = "RTS_ROLEID", foreignKey = @ForeignKey(name = "STM_RTS_FK_ROL")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 

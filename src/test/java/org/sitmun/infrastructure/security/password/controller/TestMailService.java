@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
  * Test implementation of MailService that doesn't actually send emails. Used for testing password
  * recovery functionality.
  */
+@Slf4j
 @Service
 @Profile(Profiles.MAIL)
 @Primary
-@Slf4j
 public class TestMailService implements MailService {
 
   @Override

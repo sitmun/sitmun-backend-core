@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.sitmun.domain.role.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,27 +21,9 @@ import org.springframework.lang.NonNull;
 public interface CartographyRepository extends JpaRepository<Cartography, Integer> {
 
   @Override
-  @EntityGraph(
-      attributePaths = {
-        "service",
-        "spatialSelectionService",
-        "spatialSelectionConnection",
-        "styles"
-      })
   Page<Cartography> findAll(Pageable pageable);
 
   @Override
-  @EntityGraph(
-      attributePaths = {
-        "service",
-        "permissions",
-        "availabilities",
-        "styles",
-        "filters",
-        "parameters",
-        "spatialSelectionParameters",
-        "treeNodes"
-      })
   Optional<Cartography> findById(Integer id);
 
   @Query(
@@ -61,7 +42,6 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
   Iterable<Cartography> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
-  @EntityGraph(attributePaths = {"service"})
   @Query(
       """
       SELECT DISTINCT car

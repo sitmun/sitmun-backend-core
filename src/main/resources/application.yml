@@ -25,6 +25,12 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: false
+    # Open-In-View (OSIV) pattern: Keep default (true) for backward compatibility.
+    # OSIV extends the persistence context through the entire HTTP request/response cycle,
+    # allowing lazy loading in views/projections. Tests may override with false for strict
+    # validation of fetch strategies. Future consideration: set to false + add explicit
+    # @Transactional boundaries for stricter session management.
+    # open-in-view: true  # (commented: relying on Spring Boot default)
     properties:
       # Disable auto-commit to allow lazy collection loading
       hibernate.connection.provider_disables_autocommit: true
@@ -287,3 +293,6 @@ sitmun:
       TERR_NAME: "#{#territory.name}"
       APP_ID: "#{#application.id}"
       APP_NAME: "#{#application.name}"
+  lazy-detection:
+    enabled: false
+    mode: off

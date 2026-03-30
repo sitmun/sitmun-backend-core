@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Set;
 import org.sitmun.domain.role.Role;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -34,7 +33,6 @@ public interface TaskRepository
   Set<Task> available(@Param("applicationId") @NonNull Integer applicationId);
 
   @RestResource(exported = false)
-  @EntityGraph(attributePaths = {"roles", "ui", "type"})
   @Query(
       """
     SELECT tsk

@@ -11,7 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,9 +45,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+@Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-@Log
 @DisplayName("Application Repository Data REST test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ApplicationResourceTest {
@@ -196,7 +196,7 @@ class ApplicationResourceTest {
       String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
       application.setCreatedDate(formatter.parse(dateInString));
     } catch (ParseException e) {
-      log.warning("Error parsing date:" + e.getMessage());
+      log.warn("Error parsing date: {}", e.getMessage());
     }
     applications.add(application);
 

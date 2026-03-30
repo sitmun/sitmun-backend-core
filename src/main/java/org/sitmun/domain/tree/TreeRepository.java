@@ -3,7 +3,6 @@ package org.sitmun.domain.tree;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.sitmun.domain.role.Role;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -16,7 +15,6 @@ public interface TreeRepository extends JpaRepository<Tree, Integer> {
   @Query("select tree from Tree tree left join fetch tree.allNodes where tree.id = ?1")
   Tree findOneWithEagerRelationships(Integer id);
 
-  @EntityGraph(attributePaths = {"availableRoles", "availableApplications"})
   @Query(
       """
       SELECT tree

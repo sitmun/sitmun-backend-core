@@ -2,7 +2,6 @@ package org.sitmun.infrastructure.persistence.type.i18n;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,7 +32,14 @@ public interface TranslationRepository extends JpaRepository<Translation, Intege
    * @return List of translations for the specified entity
    */
   @RestResource(path = "byElement", rel = "byElement")
-  @EntityGraph(attributePaths = "language")
+  @Query(
+      """
+      SELECT DISTINCT tr
+      FROM Translation tr
+      JOIN FETCH tr.language
+      WHERE tr.element = :element
+        AND tr.column LIKE CONCAT(:column, '%')
+      """)
   List<Translation> findByElementAndColumnStartingWith(
       @Param("element") Integer element, @Param("column") String column);
 
