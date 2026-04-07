@@ -55,7 +55,11 @@ class OidcAuthenticationSuccessHandlerTest {
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
-            userRepository, redirectService, userDetailsService, jsonWebTokenService, cookieService);
+            userRepository,
+            redirectService,
+            userDetailsService,
+            jsonWebTokenService,
+            cookieService);
   }
 
   private static OAuth2AuthenticationToken oauth2TokenWithOidcUser(
@@ -92,8 +96,7 @@ class OidcAuthenticationSuccessHandlerTest {
     assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
     Cookie[] cookies = response.getCookies();
     assertThat(cookies).isNotNull().hasSize(1);
-    assertThat(cookies[0].getName())
-        .isEqualTo(CookieService.OIDC_TOKEN_COOKIE_NAME);
+    assertThat(cookies[0].getName()).isEqualTo(CookieService.OIDC_TOKEN_COOKIE_NAME);
     assertThat(cookies[0].getValue()).isEqualTo(JWT_TOKEN);
     assertThat(cookies[0].isHttpOnly()).isFalse();
     assertThat(cookies[0].getPath()).isEqualTo("/");

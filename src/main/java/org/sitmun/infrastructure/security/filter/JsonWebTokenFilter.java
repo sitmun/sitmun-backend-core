@@ -3,16 +3,18 @@ package org.sitmun.infrastructure.security.filter;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,14 +44,14 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse httpServletResponse,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    final String requestTokenHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-    if (StringUtils.isEmpty(requestTokenHeader)
-        || !StringUtils.startsWith(requestTokenHeader, "Bearer ")) {
+    final String jwtToken = getTokenFromRequest(httpServletRequest);
+
+    if (StringUtils.isEmpty(jwtToken)) {
       filterChain.doFilter(httpServletRequest, httpServletResponse);
       return;
     }
+
     try {
-      String jwtToken = requestTokenHeader.substring(7);
       String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
       if (StringUtils.isNotEmpty(username)
           && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -77,5 +79,13 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       logger.error(e.getMessage(), e);
     }
     filterChain.doFilter(httpServletRequest, httpServletResponse);
+  }
+
+  private String getTokenFromRequest(HttpServletRequest request) {
+    return Arrays.stream(request.getCookies())
+        .filter(c -> CookieService.OIDC_TOKEN_COOKIE_NAME.equals(c.getName()))
+        .findFirst()
+        .map(Cookie::getValue)
+        .orElse(null);
   }
 }

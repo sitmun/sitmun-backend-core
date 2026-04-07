@@ -77,8 +77,7 @@ class OidcLoginUnitTest {
         new OAuth2AuthenticationToken(oidcUser, java.util.List.of(), "mock");
     when(redirectService.selectRedirectUrl(any())).thenReturn("/success");
 
-    final Field field =
-        CookieService.class.getDeclaredField("tokenCookieHttpOnly");
+    final Field field = CookieService.class.getDeclaredField("tokenCookieHttpOnly");
     field.setAccessible(true);
     field.set(cookieService, Boolean.TRUE);
 

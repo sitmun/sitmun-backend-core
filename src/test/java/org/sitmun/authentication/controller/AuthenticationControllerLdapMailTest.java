@@ -74,6 +74,6 @@ class AuthenticationControllerLdapMailTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-      .andExpect(cookie().exists(CookieService.OIDC_TOKEN_COOKIE_NAME));
+        .andExpect(cookie().exists(CookieService.OIDC_TOKEN_COOKIE_NAME));
   }
 }
