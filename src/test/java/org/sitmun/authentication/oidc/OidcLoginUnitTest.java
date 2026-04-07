@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
@@ -41,6 +42,8 @@ class OidcLoginUnitTest {
   @Mock private JsonWebTokenService jsonWebTokenService;
 
   @InjectMocks private OidcAuthenticationSuccessHandler successHandler;
+
+  @InjectMocks private CookieService cookieService;
 
   @Test
   @DisplayName("Cookie is set on successful OIDC authentication")
@@ -75,13 +78,13 @@ class OidcLoginUnitTest {
     when(redirectService.selectRedirectUrl(any())).thenReturn("/success");
 
     final Field field =
-        OidcAuthenticationSuccessHandler.class.getDeclaredField("oidcCookieHttpOnly");
+        CookieService.class.getDeclaredField("tokenCookieHttpOnly");
     field.setAccessible(true);
-    field.set(successHandler, Boolean.TRUE);
+    field.set(cookieService, Boolean.TRUE);
 
     successHandler.onAuthenticationSuccess(request, response, auth);
     Arrays.stream(response.getCookies())
-        .filter(cookie -> "oidc_token".equals(cookie.getName()))
+        .filter(cookie -> "jwt_token".equals(cookie.getName()))
         .findFirst()
         .ifPresent(
             cookie -> {

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
@@ -42,14 +43,19 @@ class OidcAuthenticationSuccessHandlerTest {
 
   @Mock private JsonWebTokenService jsonWebTokenService;
 
+  private CookieService cookieService;
+
   private OidcAuthenticationSuccessHandler handler;
 
   @BeforeEach
   void setUp() {
+    cookieService = new CookieService();
+    ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", false);
+    ReflectionTestUtils.setField(cookieService, "accessTokenMaxAge", 3600);
+    ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
-            userRepository, redirectService, userDetailsService, jsonWebTokenService);
-    ReflectionTestUtils.setField(handler, "oidcCookieHttpOnly", false);
+            userRepository, redirectService, userDetailsService, jsonWebTokenService, cookieService);
   }
 
   private static OAuth2AuthenticationToken oauth2TokenWithOidcUser(
@@ -87,7 +93,7 @@ class OidcAuthenticationSuccessHandlerTest {
     Cookie[] cookies = response.getCookies();
     assertThat(cookies).isNotNull().hasSize(1);
     assertThat(cookies[0].getName())
-        .isEqualTo(OidcAuthenticationSuccessHandler.OIDC_TOKEN_COOKIE_NAME);
+        .isEqualTo(CookieService.OIDC_TOKEN_COOKIE_NAME);
     assertThat(cookies[0].getValue()).isEqualTo(JWT_TOKEN);
     assertThat(cookies[0].isHttpOnly()).isFalse();
     assertThat(cookies[0].getPath()).isEqualTo("/");
@@ -161,7 +167,7 @@ class OidcAuthenticationSuccessHandlerTest {
   @Test
   @DisplayName("cookie httpOnly flag respects config")
   void cookieHttpOnlyFlag_respectsConfig() throws Exception {
-    ReflectionTestUtils.setField(handler, "oidcCookieHttpOnly", true);
+    ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", true);
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     when(redirectService.selectRedirectUrl(request)).thenReturn(REDIRECT_URL);

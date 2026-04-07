@@ -81,6 +81,9 @@ sitmun:
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true
   authentication:
+    http-only-cookie: false
+    access-token-max-age: 3600
+    same-site-cookie: Strict
     oidc:
       enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
       providers: { }

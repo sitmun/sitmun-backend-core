@@ -1,12 +1,13 @@
 package org.sitmun.authentication.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +34,7 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(cookie().exists(CookieService.OIDC_TOKEN_COOKIE_NAME));
   }
 
   @Test
