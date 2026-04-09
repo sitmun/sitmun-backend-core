@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
@@ -82,8 +82,11 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
   }
 
   private String getTokenFromRequest(HttpServletRequest request) {
+    if (request.getCookies() == null) {
+      return null;
+    }
     return Arrays.stream(request.getCookies())
-        .filter(c -> CookieService.OIDC_TOKEN_COOKIE_NAME.equals(c.getName()))
+        .filter(c -> AuthenticationController.ACCESS_TOKEN_COOKIE_NAME.equals(c.getName()))
         .findFirst()
         .map(Cookie::getValue)
         .orElse(null);

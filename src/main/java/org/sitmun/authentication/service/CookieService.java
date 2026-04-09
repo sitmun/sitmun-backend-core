@@ -10,22 +10,24 @@ public class CookieService {
   @Value("${sitmun.authentication.http-only-cookie:false}")
   private Boolean tokenCookieHttpOnly;
 
-  @Value("${sitmun.authentication.access-token-max-age:3600}")
-  private int accessTokenMaxAge;
+  @Value("${sitmun.user.token-validity-in-milliseconds:36000000}")
+  private int tokenValidityInMillis;
 
   @Value("${sitmun.authentication.same-site-cookie:Strict}")
   private String sameSiteCookie;
 
-  public static final String OIDC_TOKEN_COOKIE_NAME = "jwt_token";
+  public Cookie customizeAccessTokenCookie(Cookie cookie, boolean isSecure, Integer maxAge) {
+    return addCookieConfig(
+        cookie, isSecure, maxAge != null ? maxAge : tokenValidityInMillis / 1000);
+  }
 
-  public Cookie createJwtCookie(String jwtToken, boolean isSecure) {
-    final Cookie jwtCookie = new Cookie(OIDC_TOKEN_COOKIE_NAME, jwtToken);
-    jwtCookie.setHttpOnly(tokenCookieHttpOnly);
-    jwtCookie.setSecure(isSecure);
-    jwtCookie.setPath("/");
-    jwtCookie.setMaxAge(accessTokenMaxAge);
-    jwtCookie.setAttribute("SameSite", sameSiteCookie);
+  public Cookie addCookieConfig(Cookie cookie, boolean isSecure, int maxAge) {
+    cookie.setHttpOnly(tokenCookieHttpOnly);
+    cookie.setSecure(isSecure);
+    cookie.setPath("/");
+    cookie.setAttribute("SameSite", sameSiteCookie);
+    cookie.setMaxAge(maxAge);
 
-    return jwtCookie;
+    return cookie;
   }
 }

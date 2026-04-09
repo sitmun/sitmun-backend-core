@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
@@ -51,7 +52,7 @@ class OidcAuthenticationSuccessHandlerTest {
   void setUp() {
     cookieService = new CookieService();
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", false);
-    ReflectionTestUtils.setField(cookieService, "accessTokenMaxAge", 3600);
+    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 36000000);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
@@ -60,6 +61,7 @@ class OidcAuthenticationSuccessHandlerTest {
             userDetailsService,
             jsonWebTokenService,
             cookieService);
+    ReflectionTestUtils.setField(handler, "validity", 3600);
   }
 
   private static OAuth2AuthenticationToken oauth2TokenWithOidcUser(
@@ -96,7 +98,7 @@ class OidcAuthenticationSuccessHandlerTest {
     assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
     Cookie[] cookies = response.getCookies();
     assertThat(cookies).isNotNull().hasSize(1);
-    assertThat(cookies[0].getName()).isEqualTo(CookieService.OIDC_TOKEN_COOKIE_NAME);
+    assertThat(cookies[0].getName()).isEqualTo(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME);
     assertThat(cookies[0].getValue()).isEqualTo(JWT_TOKEN);
     assertThat(cookies[0].isHttpOnly()).isFalse();
     assertThat(cookies[0].getPath()).isEqualTo("/");

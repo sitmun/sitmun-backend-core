@@ -1,7 +1,8 @@
 package org.sitmun.authentication.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
-import org.sitmun.authentication.service.CookieService;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
@@ -74,7 +74,7 @@ class AuthenticationControllerLdapEnabledTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-        .andExpect(cookie().exists(CookieService.OIDC_TOKEN_COOKIE_NAME));
+        .andExpect(cookie().exists(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
   }
 
   @Test
@@ -89,7 +89,7 @@ class AuthenticationControllerLdapEnabledTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-        .andExpect(cookie().exists(CookieService.OIDC_TOKEN_COOKIE_NAME));
+        .andExpect(cookie().exists(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
   }
 
   @Test

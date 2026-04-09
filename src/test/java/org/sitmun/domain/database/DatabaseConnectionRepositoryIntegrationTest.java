@@ -10,8 +10,6 @@ import net.minidev.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
-import org.sitmun.authentication.dto.AuthenticationResponse;
-import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +78,10 @@ class DatabaseConnectionRepositoryIntegrationTest {
   @DisplayName("GET: List DatabaseConnection")
   void requestConnections() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.add(
+        HttpHeaders.COOKIE,
+        "access_token="
+            + TestUtils.requestAuthorization(restTemplate, port)); // Use token in cookies
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
@@ -164,19 +165,15 @@ class DatabaseConnectionRepositoryIntegrationTest {
   }
 
   private String getAuthorization() {
-    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
-    login.setUsername("admin");
-    login.setPassword("admin");
-    ResponseEntity<AuthenticationResponse> loginResponse =
-        restTemplate.postForEntity(
-            "http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
-    assertThat(loginResponse.getBody()).isNotNull();
-    return loginResponse.getBody().getIdToken();
+    return TestUtils.requestAuthorization(restTemplate, port);
   }
 
   private JSONObject getConnection(int id) throws JSONException {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.add(
+        HttpHeaders.COOKIE,
+        "access_token="
+            + TestUtils.requestAuthorization(restTemplate, port)); // Use token in cookies
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id;
@@ -189,7 +186,10 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   private JSONObject getConnectionCartographies(int id) throws JSONException {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.add(
+        HttpHeaders.COOKIE,
+        "access_token="
+            + TestUtils.requestAuthorization(restTemplate, port)); // Use token in cookies
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     String uri = "http://localhost:" + port + "/api/connections/" + id + "/cartographies";
@@ -202,7 +202,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   private boolean hasCartographiesSpatialSelectionConnection(int id, String auth) {
     HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(auth);
+    headers.add(HttpHeaders.COOKIE, "access_token=" + auth);
     try {
       restTemplate.exchange(
           "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
@@ -220,7 +220,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   private void deleteCartographiesSpatialSelectionConnection(int id, String auth) {
     HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(auth);
+    headers.add(HttpHeaders.COOKIE, "access_token=" + auth);
     restTemplate.exchange(
         "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
         HttpMethod.DELETE,
@@ -232,7 +232,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
       int id, List<String> newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.parseMediaType("text/uri-list"));
-    headers.setBearerAuth(auth);
+    headers.add(HttpHeaders.COOKIE, "access_token=" + auth);
     restTemplate.exchange(
         "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
         HttpMethod.PUT,
@@ -243,7 +243,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   private void updateConnectionCartograhies(int id, List<String> newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.parseMediaType("text/uri-list"));
-    headers.setBearerAuth(auth);
+    headers.add(HttpHeaders.COOKIE, "access_token=" + auth);
     restTemplate.exchange(
         "http://localhost:" + port + "/api/connections/" + id + "/cartographies",
         HttpMethod.PUT,
@@ -254,7 +254,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   private void updateConnection(int id, JSONObject newValue, String auth) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.setBearerAuth(auth);
+    headers.add(HttpHeaders.COOKIE, "access_token=" + auth);
     restTemplate.exchange(
         "http://localhost:" + port + "/api/connections/" + id,
         HttpMethod.PUT,
