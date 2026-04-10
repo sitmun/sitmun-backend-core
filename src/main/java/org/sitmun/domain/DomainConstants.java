@@ -63,8 +63,13 @@ public class DomainConstants {
     public static final String SCOPE_INFORME = "INFORME";
 
     // Scope types (query tasks)
+    public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
     public static final String SCOPE_SQL_QUERY = "sql-query";
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
+    public static final String SCOPE_URL_QUERY = "url-query";
+
+    // Task relation types
+    public static final String RELATION_TYPE_QUERY_TASK = "query-task";
 
     // HTTP API task properties
     public static final String PROPERTY_BODY = "body";

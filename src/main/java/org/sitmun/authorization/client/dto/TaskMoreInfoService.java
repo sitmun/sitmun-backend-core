@@ -4,11 +4,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.util.ParameterValidator;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
@@ -48,6 +51,8 @@ public class TaskMoreInfoService implements TaskMapper {
   public TaskDto map(Task task, Application application, Territory territory) {
     Map<String, Object> properties = task.getProperties();
     ParameterValidator.validateProvidedFlag(properties);
+    Task executionTask = resolveExecutionTask(task).orElse(task);
+    Map<String, Object> executionProperties = executionTask.getProperties();
 
     String uiControl = null;
     String type = null;
@@ -64,9 +69,7 @@ public class TaskMoreInfoService implements TaskMapper {
     String name = task.getName();
     String cartographyId =
         task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
-    final Object scopeObj =
-        properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_SCOPE) : null;
-    final String scope = scopeObj != null ? scopeObj.toString() : null;
+    final String scope = normalizeExecutionScope(executionProperties);
 
     final TaskDto.TaskDtoBuilder taskBuilder =
         TaskDto.builder()
@@ -84,8 +87,8 @@ public class TaskMoreInfoService implements TaskMapper {
       // API/SQL scopes: route through proxy middleware
       if (DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)) {
         String command =
-            properties != null
-                ? (String) properties.get(DomainConstants.Tasks.PROPERTY_COMMAND)
+            executionProperties != null
+                ? (String) executionProperties.get(DomainConstants.Tasks.PROPERTY_COMMAND)
                 : null;
         taskBuilder.url(command);
       } else {
@@ -96,6 +99,42 @@ public class TaskMoreInfoService implements TaskMapper {
     }
 
     return taskBuilder.build();
+  }
+
+  private Optional<Task> resolveExecutionTask(Task task) {
+    if (task == null || task.getRelations() == null) {
+      return Optional.empty();
+    }
+    return task.getRelations().stream()
+        .filter(Objects::nonNull)
+        .filter(
+            relation ->
+                DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK.equalsIgnoreCase(
+                    relation.getRelationType()))
+        .map(TaskRelation::getRelatedTask)
+        .filter(Objects::nonNull)
+        .findFirst();
+  }
+
+  private String normalizeExecutionScope(Map<String, Object> properties) {
+    if (properties == null) {
+      return null;
+    }
+    Object scopeObj = properties.get(DomainConstants.Tasks.PROPERTY_SCOPE);
+    if (scopeObj == null) {
+      return null;
+    }
+    String scope = scopeObj.toString();
+    if (DomainConstants.Tasks.SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_SQL;
+    }
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_API;
+    }
+    if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_URL;
+    }
+    return scope;
   }
 
   /**

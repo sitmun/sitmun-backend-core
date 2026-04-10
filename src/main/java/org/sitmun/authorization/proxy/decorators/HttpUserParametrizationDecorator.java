@@ -1,5 +1,6 @@
 package org.sitmun.authorization.proxy.decorators;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.sitmun.authorization.proxy.dto.HttpPayloadDto;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
@@ -22,22 +23,29 @@ public class HttpUserParametrizationDecorator implements Decorator<Map<String, S
   }
 
   private void applyHttpParameterization(Map<String, String> target, HttpPayloadDto http) {
-    if (target == null || target.isEmpty()) {
+    Map<String, String> payloadParameters =
+        http.getParameters() != null ? new HashMap<>(http.getParameters()) : new HashMap<>();
+
+    if ((target == null || target.isEmpty()) && payloadParameters.isEmpty()) {
       return;
     }
+
+    Map<String, String> combinedParameters = new HashMap<>(payloadParameters);
+    if (target != null && !target.isEmpty()) {
+      combinedParameters.putAll(target);
+    }
+
+    Map<String, String> remainingParameters = new HashMap<>(combinedParameters);
 
     String uri = http.getUri();
 
     // Use UriTemplateExpander to expand {variable} in URIs
     UriTemplateExpander.ExpandedResult result =
-        UriTemplateExpander.expandWithUsedVariables(uri, target);
+        UriTemplateExpander.expandWithUsedVariables(uri, combinedParameters);
     uri = result.getUri();
-
-    // Remove expanded variables from parameters
-    if (http.getParameters() != null) {
-      result.getUsedVariables().forEach(key -> http.getParameters().remove(key));
-    }
+    result.getUsedVariables().forEach(remainingParameters::remove);
 
     http.setUri(uri);
+    http.setParameters(remainingParameters);
   }
 }
