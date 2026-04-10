@@ -86,6 +86,6 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
     mvc.perform(get(URI_TEMPLATE, "https://fake"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
-        .andExpect(jsonPath("$.reason", Matchers.startsWith("UnknownHostException: fake")));
+        .andExpect(jsonPath("$.reason", Matchers.startsWith("UnknownHostException: Host desconocido (fake)")));
   }
 }

@@ -16,18 +16,16 @@ public class CookieService {
   @Value("${sitmun.authentication.same-site-cookie:Strict}")
   private String sameSiteCookie;
 
-  public Cookie customizeAccessTokenCookie(Cookie cookie, boolean isSecure, Integer maxAge) {
-    return addCookieConfig(
+  public void customizeAccessTokenCookie(Cookie cookie, boolean isSecure, Integer maxAge) {
+    addCookieConfig(
         cookie, isSecure, maxAge != null ? maxAge : tokenValidityInMillis / 1000);
   }
 
-  public Cookie addCookieConfig(Cookie cookie, boolean isSecure, int maxAge) {
+  public void addCookieConfig(Cookie cookie, boolean isSecure, int maxAge) {
     cookie.setHttpOnly(tokenCookieHttpOnly);
     cookie.setSecure(isSecure);
     cookie.setPath("/");
     cookie.setAttribute("SameSite", sameSiteCookie);
     cookie.setMaxAge(maxAge);
-
-    return cookie;
   }
 }

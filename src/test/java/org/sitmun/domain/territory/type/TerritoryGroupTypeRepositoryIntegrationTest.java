@@ -65,7 +65,7 @@ class TerritoryGroupTypeRepositoryIntegrationTest {
   @Test
   void requestRoles() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =

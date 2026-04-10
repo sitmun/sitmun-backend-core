@@ -6,8 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.util.Date;
-import java.util.Optional;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
@@ -22,12 +20,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
+import java.util.Optional;
 
 /** Controller to authenticate users. */
 @RestController
@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
   public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
-  public static final String PROXY_TOKEN_COOKIE_NAME = "proxy_token";
 
   @Value("${sitmun.proxy-middleware.token-validity-in-milliseconds}")
   private int validity;
@@ -48,7 +47,6 @@ public class AuthenticationController {
 
   private final UserRepository userRepository;
 
-  private final PasswordEncoder encoder;
 
   private final JsonWebTokenService jsonWebTokenService;
 
@@ -57,13 +55,11 @@ public class AuthenticationController {
   public AuthenticationController(
       AuthenticationManager authenticationManager,
       UserDetailsService userDetailsService,
-      PasswordEncoder encoder,
       JsonWebTokenService jsonWebTokenService,
       UserRepository userRepository,
       CookieService cookieService) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
-    this.encoder = encoder;
     this.jsonWebTokenService = jsonWebTokenService;
     this.userRepository = userRepository;
     this.cookieService = cookieService;
@@ -95,24 +91,31 @@ public class AuthenticationController {
           jsonWebTokenService.generateToken(userDetails, user.get().getLastPasswordChange());
 
       final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, token);
-      response.addCookie(
-          cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null));
+      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
+      response.addCookie(cookie);
       return ResponseEntity.status(HttpStatus.OK).build();
     }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 
   @PostMapping("/proxy")
-  public ResponseEntity<AuthenticationResponse> authenticateProxy(
-      Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+  public ResponseEntity<AuthenticationResponse> authenticateProxy(Authentication authentication) {
     final String username = authentication.getName();
 
     final String shortLivedToken =
         jsonWebTokenService.generateToken(username, new Date(), validity);
-    final Cookie cookie = new Cookie(PROXY_TOKEN_COOKIE_NAME, shortLivedToken);
 
-    response.addCookie(
-        cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), validity / 1000));
+    AuthenticationResponse authResponse = new AuthenticationResponse();
+    authResponse.setProxyToken(shortLivedToken);
+
+    return ResponseEntity.status(HttpStatus.OK).body(authResponse);
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+    final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, null);
+    cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), 0);
+    response.addCookie(cookie);
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 }
