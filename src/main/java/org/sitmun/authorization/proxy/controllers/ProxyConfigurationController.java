@@ -59,10 +59,10 @@ public class ProxyConfigurationController {
         log.error("JWT is invalid for user {}", username);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       }
-      log.debug("JWT resolved principal={} expMs={}", username, expirationTime);
+      log.info("Token identifies user {} with expiration time {}", username, expirationTime);
     } else {
       username = SecurityConstants.PUBLIC_PRINCIPAL;
-      log.debug("Resolved public principal={}", username);
+      log.info("No token identifies user {} with expiration time {}", username, expirationTime);
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequestDto, username)) {
       log.info("User {} is authorized to access the requested configuration", username);
