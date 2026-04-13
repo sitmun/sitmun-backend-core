@@ -173,6 +173,46 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
+  @DisplayName("map resolves url-query linked task: scope becomes URL and url is set to command")
+  void mapResolvesUrlQueryLinkedTask() {
+    Task task = mock(Task.class);
+    Task relatedUrlQueryTask = mock(Task.class);
+    Application application = mock(Application.class);
+    Territory territory = mock(Territory.class);
+
+    when(task.getId()).thenReturn(55);
+    when(task.getName()).thenReturn("More info URL");
+    when(task.getUi()).thenReturn(null);
+    when(task.getCartography()).thenReturn(null);
+    when(task.getProperties()).thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of()));
+
+    when(relatedUrlQueryTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_SCOPE,
+                DomainConstants.Tasks.SCOPE_URL_QUERY,
+                DomainConstants.Tasks.PROPERTY_COMMAND,
+                "https://external.example.com/doc?id={code}"));
+
+    TaskRelation relation =
+        TaskRelation.builder()
+            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relatedTask(relatedUrlQueryTask)
+            .build();
+    when(task.getRelations()).thenReturn(Set.of(relation));
+
+    when(application.getId()).thenReturn(1);
+    when(territory.getId()).thenReturn(2);
+
+    TaskDto result = service.map(task, application, territory);
+
+    assertNotNull(result);
+    assertEquals(DomainConstants.Tasks.SCOPE_URL, result.getScope());
+    assertEquals("https://external.example.com/doc?id={code}", result.getUrl());
+    assertNull(result.getCommand()); // Command is never exposed (only url field)
+  }
+
+  @Test
   @DisplayName("map returns TaskDto with all fields mapped")
   void mapReturnsTaskDtoWithAllFieldsMapped() {
     // Given
