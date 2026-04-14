@@ -173,7 +173,7 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
-  @DisplayName("map resolves url-query linked task: scope becomes URL and url is set to command")
+  @DisplayName("map resolves URL-scope query task linked via relation: url is set to command")
   void mapResolvesUrlQueryLinkedTask() {
     Task task = mock(Task.class);
     Task relatedUrlQueryTask = mock(Task.class);
@@ -190,7 +190,7 @@ class TaskMoreInfoServiceTest {
         .thenReturn(
             Map.of(
                 DomainConstants.Tasks.PROPERTY_SCOPE,
-                DomainConstants.Tasks.SCOPE_URL_QUERY,
+                DomainConstants.Tasks.SCOPE_URL,
                 DomainConstants.Tasks.PROPERTY_COMMAND,
                 "https://external.example.com/doc?id={code}"));
 
