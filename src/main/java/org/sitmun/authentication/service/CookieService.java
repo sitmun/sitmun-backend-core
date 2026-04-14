@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CookieService {
 
-  @Value("${sitmun.authentication.http-only-cookie:false}")
+  @Value("${sitmun.authentication.http-only-cookie:true}")
   private Boolean tokenCookieHttpOnly;
 
   @Value("${sitmun.user.token-validity-in-milliseconds:36000000}")

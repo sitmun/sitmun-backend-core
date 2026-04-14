@@ -465,7 +465,7 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 | `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                                       | Yes (prod) |
 | `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                           | No |
 | `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | JWT token validity in milliseconds | `36000000`                               | No |
-| `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `false`                                  | No |
+| `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `true`                                   | No |
 | `SITMUN_AUTHENTICATION_SAME_SITE_COOKIE` | SameSite attribute for JWT cookie | `Strict`                                 | No |
 | `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                           | No |
 | `SITMUN_PROXY_MIDDLEWARE_TOKEN_VALIDITY_IN_MILLISECONDS` | Proxy token validity in milliseconds | `900000` (15 min)                        | No |
