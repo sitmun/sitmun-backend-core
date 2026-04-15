@@ -294,6 +294,7 @@ spring.profiles.active=prod
 | `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
 | `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
 | `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
+| `/api/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
 
 ### Usage Examples
 
@@ -399,6 +400,14 @@ curl -X GET "http://localhost:8080/api/helpers/capabilities?url=http://example.c
 
 # Extract feature type information
 curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.com/wfs"
+```
+
+#### Logout
+
+```bash
+# Logout - clears the authentication cookie and invalidates the session
+curl -X POST http://localhost:8080/api/logout
+
 ```
 
 ### Request Parameters
