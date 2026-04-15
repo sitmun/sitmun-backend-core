@@ -75,13 +75,10 @@ class AuthenticationControllerTest {
   @WithMockUser(
       username = "admin",
       roles = {"ADMIN"})
-  @DisplayName("POST /proxy: Response must contain proxy_token field")
-  void proxyAuthenticationResponseContent() throws Exception {
-    MvcResult result = mvc.perform(post("/api/authenticate/proxy").secure(true))
+  @DisplayName("POST /logout: Authenticated user must logout successfully")
+  void logoutSuccess() throws Exception {
+    mvc.perform(post("/api/authenticate/logout").secure(true))
         .andExpect(status().isOk())
-        .andReturn();
-
-    String content = result.getResponse().getContentAsString();
-    assertThat(content).containsIgnoringCase("proxyToken");
+        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 }

@@ -62,7 +62,7 @@ public class ProxyConfigurationController {
       log.info("Token identifies user {} with expiration time {}", username, expirationTime);
     } else {
       username = SecurityConstants.PUBLIC_PRINCIPAL;
-      log.info("No token identifies user {} with expiration time {}", username, expirationTime);
+      log.debug("Resolved public principal={}", username);
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequestDto, username)) {
       log.info("User {} is authorized to access the requested configuration", username);
