@@ -83,7 +83,7 @@ class OidcLoginUnitTest {
 
     successHandler.onAuthenticationSuccess(request, response, auth);
     Arrays.stream(response.getCookies())
-        .filter(cookie -> "jwt_token".equals(cookie.getName()))
+        .filter(cookie -> "access_token".equals(cookie.getName()))
         .findFirst()
         .ifPresent(
             cookie -> {
