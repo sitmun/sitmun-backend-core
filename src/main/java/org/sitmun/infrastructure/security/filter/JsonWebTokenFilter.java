@@ -59,6 +59,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
 
         Optional<User> user = this.userRepository.findByUsername(username);
         if (user.isEmpty()) {
+          filterChain.doFilter(httpServletRequest, httpServletResponse);
           return;
         }
         Date lastPasswordChange = user.get().getLastPasswordChange();

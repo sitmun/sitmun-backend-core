@@ -62,9 +62,10 @@ class AuthenticationControllerTest {
       roles = {"ADMIN"})
   @DisplayName("POST /proxy: Authenticated user must get short-lived token in response")
   void proxyAuthenticationSuccess() throws Exception {
-    MvcResult result = mvc.perform(post("/api/authenticate/proxy").secure(true))
-        .andExpect(status().isOk())
-        .andReturn();
+    MvcResult result =
+        mvc.perform(post("/api/authenticate/proxy").secure(true))
+            .andExpect(status().isOk())
+            .andReturn();
 
     String content = result.getResponse().getContentAsString();
     AuthenticationResponse response = objectMapper.readValue(content, AuthenticationResponse.class);

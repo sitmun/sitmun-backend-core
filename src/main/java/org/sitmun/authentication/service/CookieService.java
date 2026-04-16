@@ -17,8 +17,7 @@ public class CookieService {
   private String sameSiteCookie;
 
   public void customizeAccessTokenCookie(Cookie cookie, boolean isSecure, Integer maxAge) {
-    addCookieConfig(
-        cookie, isSecure, maxAge != null ? maxAge : tokenValidityInMillis / 1000);
+    addCookieConfig(cookie, isSecure, maxAge != null ? maxAge : tokenValidityInMillis / 1000);
   }
 
   public void addCookieConfig(Cookie cookie, boolean isSecure, int maxAge) {

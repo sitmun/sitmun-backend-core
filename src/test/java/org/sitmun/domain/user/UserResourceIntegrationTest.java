@@ -69,7 +69,8 @@ class UserResourceIntegrationTest {
   @DisplayName("POST: Create new user and delete")
   void createNewUserAndDelete() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(
+        HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
 
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
     HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
@@ -112,7 +113,8 @@ class UserResourceIntegrationTest {
   @DisplayName("GET: Get all users")
   void getAllUsers() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
+    headers.set(
+        HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
 
     ResponseEntity<CollectionModel<User>> response =
         restTemplate.exchange(

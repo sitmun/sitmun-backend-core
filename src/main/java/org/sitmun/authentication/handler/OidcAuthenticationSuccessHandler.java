@@ -68,7 +68,7 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
       final String jwtToken =
           jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
-      final Cookie cookie =  new Cookie(ACCESS_TOKEN_COOKIE_NAME, jwtToken);
+      final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, jwtToken);
       cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), validity);
 
       response.addCookie(cookie);

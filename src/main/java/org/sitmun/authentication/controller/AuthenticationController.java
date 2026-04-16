@@ -6,6 +6,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.Date;
+import java.util.Optional;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
@@ -26,9 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-import java.util.Optional;
-
 /** Controller to authenticate users. */
 @RestController
 @RequestMapping("/api/authenticate")
@@ -46,7 +45,6 @@ public class AuthenticationController {
   private final UserDetailsService userDetailsService;
 
   private final UserRepository userRepository;
-
 
   private final JsonWebTokenService jsonWebTokenService;
 

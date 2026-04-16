@@ -6,11 +6,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,8 +74,7 @@ class UserControllerTest {
   @Test
   @DisplayName("GET: Read user account with valid token")
   void readAccount() throws Exception {
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
@@ -91,8 +90,7 @@ class UserControllerTest {
   @Test
   @DisplayName("GET: Read user account with expired token should fail")
   void readAccountWithExpiredToken() throws Exception {
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, expiredToken)))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, expiredToken)))
         .andExpect(status().isUnauthorized());
   }
 
@@ -114,8 +112,7 @@ class UserControllerTest {
                 .content(content))
         .andExpect(status().isOk());
 
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.firstName", equalTo("NameChanged")))
