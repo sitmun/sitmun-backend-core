@@ -276,6 +276,7 @@ spring.profiles.active=prod
 | Endpoint | Method | Description | Access | Controller |
 | ---------- | --------- | ------------- | ---------- | ------------ |
 | `/api/authenticate` | POST | User authentication | Public | AuthenticationController |
+| `/api/authenticate/proxy` | POST | Generate short-lived proxy token | Authenticated | AuthenticationController |
 | `/api/account` | GET | User account management | Authenticated | UserController |
 | `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
 | `/api/account/public/{id}` | GET | Get public user info | Public | UserController |
@@ -293,22 +294,46 @@ spring.profiles.active=prod
 | `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
 | `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
 | `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
+| `/api/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
 
 ### Usage Examples
 
 #### Authentication
 
 ```bash
-# Login
+# Login - JWT is automatically set as an HTTP cookie
 curl -X POST http://localhost:8080/api/authenticate \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
 
-# Response
-{
-  "token": "eyJhbGciOiJIUzI1NiJ9..."
-}
+# The response sets the JWT token in an HTTP-only cookie named 'access_token'
+# Future requests will automatically include the cookie
 ```
+
+#### Using the Authentication Token
+
+Once authenticated, the JWT token is stored in the `access_token` cookie and automatically sent on requests:
+
+```bash
+# The cookie is automatically included by the browser/client
+# No need to manually add Authorization headers
+
+# The server validates the JWT token from the cookie
+```
+
+#### Proxy Authentication
+
+Generate a short-lived proxy token for the SITMUN Proxy Middleware:
+
+```bash
+# Requires user authentication (the access_token cookie is automatically included)
+curl -X POST http://localhost:8080/api/authenticate/proxy
+
+# The response sets a short-lived JWT token in the 'proxy_token' cookie
+# This token is used by proxy middleware
+```
+
+**Note:** The proxy token has a shorter expiration time (configured by `sitmun.proxy-middleware.token-validity-in-milliseconds`) than access token.
 
 #### Health Check
 
@@ -377,6 +402,14 @@ curl -X GET "http://localhost:8080/api/helpers/capabilities?url=http://example.c
 curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.com/wfs"
 ```
 
+#### Logout
+
+```bash
+# Logout - clears the authentication cookie and invalidates the session
+curl -X POST http://localhost:8080/api/logout
+
+```
+
 ### Request Parameters
 
 #### Authentication Request
@@ -433,18 +466,22 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 
 ### Environment Variables
 
-| Variable                                 | Description | Default                          | Required |
-| ---------------------------------------- | ------------- | ---------------------------------- | ---------- |
-| `SPRING_PROFILES_ACTIVE`                 | Active Spring profile | `dev`                            | No |
-| `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                     | Yes (prod) |
-| `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                             | Yes (prod) |
-| `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                               | Yes (prod) |
-| `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                   | No |
-| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                   | No |
-| `SITMUN_FRONTEND_REDIRECTURL`            | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback` | If OIDC enabled |
-| `SITMUN_FRONTEND_REDIRECTURLVIEWER`      | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback` | If OIDC enabled |
+| Variable                                 | Description | Default                                  | Required |
+| ---------------------------------------- | ------------- |------------------------------------------| ---------- |
+| `SPRING_PROFILES_ACTIVE`                 | Active Spring profile | `dev`                                    | No |
+| `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                             | Yes (prod) |
+| `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                                     | Yes (prod) |
+| `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                                       | Yes (prod) |
+| `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                           | No |
+| `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | JWT token validity in milliseconds | `36000000`                               | No |
+| `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `true`                                   | No |
+| `SITMUN_AUTHENTICATION_SAME_SITE_COOKIE` | SameSite attribute for JWT cookie | `Strict`                                 | No |
+| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                           | No |
+| `SITMUN_PROXY_MIDDLEWARE_TOKEN_VALIDITY_IN_MILLISECONDS` | Proxy token validity in milliseconds | `900000` (15 min)                        | No |
+| `SITMUN_FRONTEND_REDIRECTURL`            | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
+| `SITMUN_FRONTEND_REDIRECTURLVIEWER`      | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
 | `SITMUN_FRONTEND_REDIRECTURLADMIN`       | Frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
-| `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | -                                | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | -                                        | If OIDC enabled |
 
 **Note:** OIDC providers are configured dynamically under `sitmun.authentication.oidc.providers.{providerId}`. See [OIDC Configuration](#oidcoauth2-configuration) for details.
 
@@ -479,8 +516,12 @@ sitmun:
   user:
     secret: ${SITMUN_USER_SECRET:auto-generated}
     token-validity-in-milliseconds: 36000000
+  authentication:
+    http-only-cookie: true
+    same-site-cookie: Strict
   proxy-middleware:
     secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    token-validity-in-milliseconds: 900000
     config-response-validity-in-seconds: 3600
 ```
 
@@ -686,7 +727,8 @@ Comprehensive testing strategy:
 
 The application provides comprehensive security features:
 
-- **JWT Authentication**: Secure token-based authentication
+- **JWT Authentication**: Secure token-based authentication via HTTP-only cookies
+- **Cookie-Based Token Storage**: JWT tokens are stored in HTTP-only cookies for improved security
 - **Role-Based Access Control**: Fine-grained permission system
 - **Application Privacy**: Applications can be marked as private
 - **Public User Support**: Anonymous access with restrictions
@@ -700,8 +742,24 @@ The application provides comprehensive security features:
 sitmun:
   user:
     secret: ${SITMUN_USER_SECRET:auto-generated}
-    token-validity-in-milliseconds: 36000000
+    token-validity-in-milliseconds: 36000000  # JWT token lifetime in milliseconds (10 hours)
+  authentication:
+    http-only-cookie: true  # Whether to set HttpOnly flag on JWT cookie
+    same-site-cookie: Strict  # SameSite attribute for CSRF protection
 ```
+
+JWT tokens are stored in an HTTP-only cookie (`access_token`) that is automatically set during authentication. The cookie's `max-age` is automatically derived from `token-validity-in-milliseconds` to keep both values synchronized. The `http-only-cookie` setting controls whether the cookie can be accessed by JavaScript.
+
+#### Proxy Token Configuration
+
+```yaml
+sitmun:
+  proxy-middleware:
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    token-validity-in-milliseconds: 900000  # Proxy token lifetime (15 minutes default)
+```
+
+The proxy token is a short-lived JWT token generated via the `/api/authenticate/proxy` endpoint for secure communication between the Backend Core and Proxy Middleware. It is stored in the `proxy_token` cookie and automatically included in requests to the Proxy Middleware. The token has a much shorter lifetime than the regular access token for additional security.
 
 #### LDAP Configuration
 
@@ -855,7 +913,7 @@ const mapViewerConfig = {
     baseUrl: 'http://localhost:8080/api',
     authentication: {
       endpoint: '/authenticate',
-      tokenStorage: 'localStorage'
+      cookieStorage: 'access_token'
     }
   },
   applications: {
