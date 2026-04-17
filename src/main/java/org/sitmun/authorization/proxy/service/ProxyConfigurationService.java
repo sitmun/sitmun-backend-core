@@ -246,8 +246,10 @@ public class ProxyConfigurationService {
     String apiPassword =
         (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
     Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
+    Object queryParamsObject = taskProps.get(DomainConstants.Tasks.PROPERTY_QUERY_PARAMS);
 
     var isApiKeyType = headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();
+    var isQueryParamType = queryParamsObject instanceof Map<?, ?> && !((Map<?, ?>) queryParamsObject).isEmpty();
     var isHttpType =
         StringUtils.hasText(authenticationMode)
             && StringUtils.hasText(apiUser)
@@ -274,6 +276,21 @@ public class ProxyConfigurationService {
           HttpSecurityDto.builder()
               .type(SECURITY_SCHEME_TYPE_API_KEY)
               .headers(securityHeaders)
+              .build();
+    } else if (isQueryParamType) {
+      Map<?, ?> qParams = (Map<?, ?>) queryParamsObject;
+      var securityQueryParams = new HashMap<String, String>();
+      for (var e : qParams.entrySet()) {
+        if (e.getKey() instanceof String key
+            && StringUtils.hasText(key)
+            && e.getValue() instanceof String value) {
+          securityQueryParams.put(key, value);
+        }
+      }
+      security =
+          HttpSecurityDto.builder()
+              .type(SECURITY_SCHEME_TYPE_API_KEY)
+              .queryParams(securityQueryParams)
               .build();
     }
 
