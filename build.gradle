@@ -117,6 +117,7 @@ dependencies {
 
   // URI Templates
   implementation libs.handyUriTemplates
+  implementation libs.handlebars
 
   // Core annotation processing
   annotationProcessor libs.jakarta.annotation.api
@@ -427,4 +428,3 @@ tasks.register('removeGitHooks') {
 tasks.named('build') {
   dependsOn 'setupGitHooks'
 }
-

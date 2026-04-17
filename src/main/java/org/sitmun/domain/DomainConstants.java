@@ -21,6 +21,8 @@ public class DomainConstants {
     public static final String PROPERTY_MAPPING = "mapping";
     public static final String PROPERTY_FIELDS = "fields";
     public static final String PROPERTY_SCOPE = "scope";
+    public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
+    public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
 
     // Parameter properties
     public static final String PARAMETERS_NAME = "name";
@@ -71,6 +73,8 @@ public class DomainConstants {
 
     // Task relation types
     public static final String RELATION_TYPE_QUERY_TASK = "query-task";
+    public static final String RELATION_TYPE_TEMPLATE_TASK = "template-task";
+    public static final String RELATION_TYPE_TEMPLATE_NESTED = "template-nested";
 
     // HTTP API task properties
     public static final String PROPERTY_BODY = "body";
@@ -97,6 +101,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_BASIC = 1;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
+    public static final int TASK_TYPE_ID_TEMPLATE = 15;
 
     // Proxy types
     public static final String PROXY_TYPE_SQL = "sql";
