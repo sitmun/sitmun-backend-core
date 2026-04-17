@@ -20,6 +20,8 @@ public class DomainConstants {
     public static final String PROPERTY_COMMAND = "command";
     public static final String PROPERTY_FIELDS = "fields";
     public static final String PROPERTY_SCOPE = "scope";
+    public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
+    public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
 
     // Parameter properties
     public static final String PARAMETERS_NAME = "name";
@@ -65,6 +67,8 @@ public class DomainConstants {
 
     // Task relation types
     public static final String RELATION_TYPE_QUERY_TASK = "query-task";
+    public static final String RELATION_TYPE_TEMPLATE_TASK = "template-task";
+    public static final String RELATION_TYPE_TEMPLATE_NESTED = "template-nested";
 
     /** Client profile task id prefix used in REST profile payloads (e.g. {@code task/42}). */
     public static final String TASK_PROFILE_ID_PREFIX = "task/";
@@ -121,6 +125,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_LOCATOR = 4;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
+    public static final int TASK_TYPE_ID_TEMPLATE = 15;
 
     private static Integer taskTypeId(Task task) {
       if (task == null || task.getType() == null) {
