@@ -187,7 +187,7 @@ class CodeListsTest {
   @DisplayName("Verify service.authenticationMode code list values")
   void checkServiceAuthenticationMode() {
     assertThat(select(CodeListsConstants.SERVICE_AUTHENTICATION_MODE))
-        .containsExactlyInAnyOrder("None", "HTTP Basic authentication");
+        .containsExactlyInAnyOrder("None", "HTTP Basic authentication", "API key");
   }
 
   @Test
