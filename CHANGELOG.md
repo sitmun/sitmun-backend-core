@@ -8,15 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Authentication**: `POST /api/authenticate/proxy` returns a short-lived `proxy_token` in JSON for proxy middleware; validity from `sitmun.proxy-middleware.token-validity-in-milliseconds`.
+- **Authentication**: `POST /api/authenticate/logout` clears the `access_token` session cookie.
 - `RequestCoordinates` (user, territory, application) for proxy configuration context.
 - `HttpUserParametrizationDecorator` and `SqlUserParametrizationDecorator` for client-driven HTTP URI template expansion and JDBC `${var}` / WHERE augmentation.
 - `JdbcSqlDialect` for dialect-aware SQL `LIMIT`/`OFFSET` in `QueryPaginationDecorator`.
 - `HttpPayloadDto` base for HTTP-like proxy payloads; `HttpSecurityDto.describeForLog()` for safe debug summaries (no passwords or header values).
 - `SensitiveDataMasking` for log redaction of secrets.
-- Tests: proxy URI template integration, decorator and pagination regression coverage.
+- Tests: proxy URI template integration, decorator and pagination regression coverage; unit tests for `JsonWebTokenFilter`, `ProxyTokenFilter`, and `CookieService`.
 
 ### Changed
 
+- **Authentication**: `POST /api/authenticate` (database/LDAP) issues the session JWT in an HttpOnly `access_token` cookie; cookie attributes use `sitmun.authentication.http-only-cookie` and `sitmun.authentication.same-site-cookie` (see `CookieService`).
 - OGC/WMS proxy build: `SystemVariableResolver` resolves `#{...}` in service URL and fixed (non-VARY) service parameter values using `RequestCoordinates`.
 - HTTP API tasks: optional Basic auth or API-key-style security via `HttpSecurityDto` `type` and `headers` map.
 - `applyDecorators`: strips `LIMIT`/`OFFSET` case-insensitively from incoming parameters before pagination; applies `SqlUserParametrizationDecorator` then `HttpUserParametrizationDecorator`.
@@ -29,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Security**: `JsonWebTokenFilter` continues the filter chain when the JWT username has no matching persisted user (previously returned without delegating).
 - Improved app configuration loading times by replacing `@EntityGraph` with `@BatchSize` to avoid Cartesian product when fetching members and roles in `CartographyPermission` ([#250](https://github.com/sitmun/sitmun-backend-core/pull/250)).
 
 ## [1.2.5] - 2026-03-11

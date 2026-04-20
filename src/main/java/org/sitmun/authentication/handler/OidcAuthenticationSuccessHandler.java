@@ -1,11 +1,14 @@
 package org.sitmun.authentication.handler;
 
+import static org.sitmun.authentication.controller.AuthenticationController.ACCESS_TOKEN_COOKIE_NAME;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
@@ -32,24 +35,14 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-  public static final String OIDC_TOKEN_COOKIE_NAME = "oidc_token";
+  @Value("${sitmun.user.token-validity-in-milliseconds:36000000}")
+  private int validity;
 
   private final UserRepository userRepository;
   private final OidcRedirectService redirectService;
   private final UserDetailsService userDetailsService;
   private final JsonWebTokenService jsonWebTokenService;
-
-  /**
-   * Controls the {@code HttpOnly} flag on the {@code oidc_token} cookie. When {@code false}
-   * (default), the cookie is accessible to frontend JavaScript via {@code document.cookie} /
-   * cookie-service libraries. When {@code true}, the browser hides the cookie from JavaScript (XSS
-   * mitigation), but current frontends cannot read the token. A future improvement will replace
-   * cookie transfer with a URL fragment, making {@code true} the safe default.
-   *
-   * @see <a href="README.md">OIDC Configuration — Current limitation and future improvement</a>
-   */
-  @Value("${sitmun.authentication.oidc.http-only-cookie:false}")
-  private Boolean oidcCookieHttpOnly;
+  private final CookieService cookieService;
 
   @Override
   public void onAuthenticationSuccess(
@@ -75,13 +68,10 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
       final String jwtToken =
           jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
-      final Cookie jwtCookie = new Cookie(OIDC_TOKEN_COOKIE_NAME, jwtToken);
-      jwtCookie.setHttpOnly(oidcCookieHttpOnly);
-      jwtCookie.setSecure(request.isSecure());
-      jwtCookie.setPath("/");
-      jwtCookie.setMaxAge(3600);
+      final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, jwtToken);
+      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), validity);
 
-      response.addCookie(jwtCookie);
+      response.addCookie(cookie);
     } catch (Exception e) {
       log.error("OIDC authentication processing failed", e);
       log.error("Error message: {}", e.getMessage());

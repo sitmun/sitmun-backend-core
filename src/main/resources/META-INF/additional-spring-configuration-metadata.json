@@ -173,6 +173,23 @@
       "type": "java.lang.Boolean",
       "description": "Check code lists on startup.",
       "defaultValue": true
+    },
+    {
+      "name": "sitmun.proxy-middleware.token-validity-in-milliseconds",
+      "type": "java.lang.Long",
+      "description": "Token validity duration for proxy middleware in milliseconds.",
+      "defaultValue": 900000
+    },
+    {
+      "name": "sitmun.authentication.oidc.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable OIDC authentication.",
+      "defaultValue": false
+    },
+    {
+      "name": "sitmun.authentication.oidc.providers",
+      "type": "java.util.Map<java.lang.String, java.lang.Object>",
+      "description": "OIDC providers configuration."
     }
   ],
   "hints": [
@@ -199,4 +216,4 @@
       ]
     }
   ]
-} 
+}

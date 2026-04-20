@@ -27,18 +27,22 @@ public class JsonWebTokenService {
   private SecretKey key;
 
   public String generateToken(UserDetails userDetails, Date lastPasswordChange) {
-    return generateToken(userDetails.getUsername(), new Date(), lastPasswordChange);
+    return generateToken(userDetails.getUsername(), new Date(), lastPasswordChange, validity);
   }
 
   public String generateToken(UserDetails userDetails) {
-    return generateToken(userDetails.getUsername(), new Date(), null);
+    return generateToken(userDetails.getUsername(), new Date(), null, validity);
   }
 
   public String generateToken(String username, Date date) {
-    return generateToken(username, date, null);
+    return generateToken(username, date, null, validity);
   }
 
-  public String generateToken(String username, Date date, Date lastPasswordChange) {
+  public String generateToken(String username, Date date, int validity) {
+    return generateToken(username, date, null, validity);
+  }
+
+  public String generateToken(String username, Date date, Date lastPasswordChange, int validity) {
 
     long currentTimeMillis = date.getTime();
     JwtBuilder builder =

@@ -1,7 +1,7 @@
 package org.sitmun.authentication.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -74,6 +74,6 @@ class AuthenticationControllerLdapMailTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id_token").exists());
+        .andExpect(cookie().exists(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
   }
 }
