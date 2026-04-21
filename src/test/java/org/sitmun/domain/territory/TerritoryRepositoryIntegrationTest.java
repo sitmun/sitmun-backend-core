@@ -43,7 +43,10 @@ class TerritoryRepositoryIntegrationTest {
   @Test
   void requestMembers() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.add(
+        HttpHeaders.COOKIE,
+        "access_token="
+            + TestUtils.requestAuthorization(restTemplate, port)); // Use token in cookies
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =
@@ -61,7 +64,8 @@ class TerritoryRepositoryIntegrationTest {
   @Test
   void requestMemberOf() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    headers.add(
+        HttpHeaders.COOKIE, "access_token=" + TestUtils.requestAuthorization(restTemplate, port));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =

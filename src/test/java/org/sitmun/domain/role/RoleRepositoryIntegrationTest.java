@@ -60,7 +60,8 @@ class RoleRepositoryIntegrationTest {
   @Test
   void requestRoles() {
     HttpHeaders headers = new HttpHeaders();
-    headers.set(HttpHeaders.AUTHORIZATION, TestUtils.requestAuthorization(restTemplate, port));
+    String accessToken = TestUtils.requestAuthorization(restTemplate, port);
+    headers.set(HttpHeaders.COOKIE, "access_token=" + accessToken);
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<String> response =

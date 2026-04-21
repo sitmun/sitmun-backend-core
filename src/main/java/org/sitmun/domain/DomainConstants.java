@@ -82,6 +82,7 @@ public class DomainConstants {
     public static final String PROPERTY_USER = "user";
     public static final String PROPERTY_PASSWORD = "password";
     public static final String PROPERTY_HEADERS = "headers";
+    public static final String PROPERTY_QUERY_PARAMS = "queryParams";
 
     // Parameter types
     public static final String TYPE_STRING = "string";

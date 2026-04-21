@@ -6,6 +6,7 @@ import java.net.URI;
 import org.assertj.core.api.Assertions;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,8 +36,14 @@ public class TestUtils {
     ResponseEntity<AuthenticationResponse> loginResponse =
         restTemplate.postForEntity(
             "http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
-    Assertions.assertThat(loginResponse.getBody()).isNotNull();
-    return "Bearer " + loginResponse.getBody().getIdToken();
+    Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    String accessTokenCookie = loginResponse.getHeaders().getFirst("Set-Cookie");
+    if (accessTokenCookie != null && accessTokenCookie.contains("access_token=")) {
+      return accessTokenCookie.split(";")[0].split("=")[1];
+    }
+
+    return null;
   }
 
   public static Integer extractId(String url) {
