@@ -21,7 +21,7 @@ class TemplateRenderServiceTest {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("SITMUN");
 
-    TemplateRenderService service = new TemplateRenderService(resolver);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -36,7 +36,7 @@ class TemplateRenderServiceTest {
   @Test
   void renderPreviewReturnsControlledErrorForInvalidHandlebarsSyntax() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
     assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of()))
         .isInstanceOf(ResponseStatusException.class)
@@ -47,7 +47,7 @@ class TemplateRenderServiceTest {
   void renderPreviewSupportsNestedJsonAccessWithArraySyntax() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
 
-    TemplateRenderService service = new TemplateRenderService(resolver);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -60,5 +60,58 @@ class TemplateRenderServiceTest {
 
     assertThat(response.getHtml()).contains("<p>2</p>").contains("<p>1</p>");
     assertThat(response.getPlaceholders()).containsExactly("task_13.a[1].e", "task_13.m");
+  }
+
+  @Test
+  void renderPreviewKeepsUnresolvedTaskPlaceholdersVisibleWithExecutionHint() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<p>{{task_13.name}}</p><p>{{task_99.url}}</p>",
+            Map.of("task_13", Map.of("name", "Parcela 23-A")));
+
+    assertThat(response.getHtml())
+        .contains("<p>Parcela 23-A</p>")
+        .contains("task_99.url")
+        .contains("(falta ejecutar tarea)");
+  }
+
+  @Test
+  void renderPreviewKeepsSystemVariablePlaceholderWhenValueCannotBeResolved() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_ID}"), any())).thenReturn("#{APP_ID}");
+
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of());
+
+    assertThat(response.getHtml()).contains("#APP_ID");
+  }
+
+  @Test
+  void renderPreviewInsertsNestedTemplateHtmlWithoutEscapingMarkup() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+  
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<section>{{task_96.html}}</section>",
+            Map.of("task_96", Map.of("html", "<p><strong>hola</strong></p>")));
+
+    assertThat(response.getHtml()).contains("<section><p><strong>hola</strong></p></section>");
+  }
+
+  @Test
+  void renderPreviewResolvesUserVariablesWhenResolverHasCurrentUserContext() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{USER_NAME}"), any())).thenReturn("admin");
+
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of());
+
+    assertThat(response.getHtml()).contains("<p>admin</p>");
   }
 }
