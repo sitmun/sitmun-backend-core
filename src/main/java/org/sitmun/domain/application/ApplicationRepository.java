@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -15,6 +16,15 @@ import org.springframework.data.rest.core.annotation.RestResource;
     collectionResourceRel = "applications",
     path = "applications" /*, excerptProjection = ApplicationProjection.class*/)
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
+
+  @RestResource(exported = false)
+  @EntityGraph(attributePaths = {"territories", "territories.territory"})
+  @Query(
+      """
+      select distinct app from Application app, Task task, Role role
+      where task.id = ?1 and role member of app.availableRoles and role member of task.roles
+      """)
+  List<Application> findByTaskId(Integer taskId);
 
   @RestResource(exported = false)
   @Query(

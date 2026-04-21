@@ -8,4 +8,5 @@ public class TemplateTaskExecutionRequestDto {
   private Integer templateTaskId;
   private Integer linkedTaskId;
   private Map<String, Object> parameters;
+  private Map<String, Map<String, Object>> childTaskParameters;
 }
