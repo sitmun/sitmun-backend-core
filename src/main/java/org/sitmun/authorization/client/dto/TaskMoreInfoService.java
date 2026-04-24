@@ -131,6 +131,9 @@ public class TaskMoreInfoService implements TaskMapper {
     if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
       return DomainConstants.Tasks.SCOPE_API;
     }
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_URL;
+    }
     if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
       return DomainConstants.Tasks.SCOPE_URL;
     }

@@ -152,14 +152,12 @@ class CodeListsTest {
   void checkQueryTaskScope() {
     assertThat(select(CodeListsConstants.QUERY_TASK_SCOPE))
         .containsExactlyInAnyOrder(
-            "INFORME",
             "SQL",
-            "TAREA",
             "URL",
-            "WS",
             "cartography-query",
             "sql-query",
-            "web-api-query");
+            "web-api-query",
+            "web-api-query-no-proxy");
   }
 
   @Test
