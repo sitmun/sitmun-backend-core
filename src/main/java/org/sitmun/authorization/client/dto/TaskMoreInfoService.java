@@ -64,41 +64,53 @@ public class TaskMoreInfoService implements TaskMapper {
     if (properties != null) {
       parameters = convertToJsonObject(properties);
     }
-    // More info: command is never exposed to client (URL/API/SQL may contain secrets)
 
     String name = task.getName();
     String cartographyId =
         task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
     final String scope = normalizeExecutionScope(executionProperties);
+    final String mimeType = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+    final String filename = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_FILENAME);
+    final String url = resolveUrl(scope, task, executionProperties, application, territory);
 
-    final TaskDto.TaskDtoBuilder taskBuilder =
-        TaskDto.builder()
-            .id("task/" + task.getId())
-            .name(name)
-            .uiControl(uiControl)
-            .type(type)
-            .parameters(parameters)
-            .cartographyId(cartographyId)
-            .scope(scope)
-            .command(null);
+    return TaskDto.builder()
+        .id("task/" + task.getId())
+        .name(name)
+        .uiControl(uiControl)
+        .type(type)
+        .parameters(parameters)
+        .cartographyId(cartographyId)
+        .scope(scope)
+        .mimeType(mimeType)
+        .filename(filename)
+        .url(url)
+        .command(null)
+        .build();
+  }
 
-    if (StringUtils.hasText(scope) && task.getId() != null) {
-      // URL scope: use command directly (external redirect, no proxy)
-      // API/SQL scopes: route through proxy middleware
-      if (DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)) {
-        String command =
-            executionProperties != null
-                ? (String) executionProperties.get(DomainConstants.Tasks.PROPERTY_COMMAND)
-                : null;
-        taskBuilder.url(command);
-      } else {
-        String id = String.valueOf(task.getId());
-        taskBuilder.url(
-            ProxyUrlBuilder.forScopedResource(proxyUrl, application, territory, scope, id));
-      }
+  private String extractStringProperty(Map<String, Object> properties, String key) {
+    if (properties == null) {
+      return null;
     }
+    Object value = properties.get(key);
+    return value != null ? value.toString() : null;
+  }
 
-    return taskBuilder.build();
+  private String resolveUrl(
+      String scope,
+      Task task,
+      Map<String, Object> executionProperties,
+      Application application,
+      Territory territory) {
+    if (!StringUtils.hasText(scope) || task.getId() == null) {
+      return null;
+    }
+    if (DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)) {
+      return extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_COMMAND);
+    }
+    return ProxyUrlBuilder.forScopedResource(
+        proxyUrl, application, territory, scope, String.valueOf(task.getId()));
   }
 
   private Optional<Task> resolveExecutionTask(Task task) {
@@ -132,7 +144,14 @@ public class TaskMoreInfoService implements TaskMapper {
       return DomainConstants.Tasks.SCOPE_API;
     }
     if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
-      return DomainConstants.Tasks.SCOPE_URL;
+      // No-proxy with mimeType → RESOURCE (mimeType-driven rendering, direct fetch)
+      // No-proxy without mimeType → URL (external redirect)
+      Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+      boolean hasMimeType = mimeTypeObj != null
+          && StringUtils.hasText(mimeTypeObj.toString());
+      return hasMimeType
+          ? DomainConstants.Tasks.SCOPE_RESOURCE
+          : DomainConstants.Tasks.SCOPE_URL;
     }
     if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
       return DomainConstants.Tasks.SCOPE_URL;

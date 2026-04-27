@@ -59,6 +59,7 @@ public class DomainConstants {
     public static final String SCOPE_URL = "URL";
     public static final String SCOPE_API = "API";
     public static final String SCOPE_SQL = "SQL";
+    public static final String SCOPE_RESOURCE = "RESOURCE";
 
     // Scope types (query tasks)
     public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
