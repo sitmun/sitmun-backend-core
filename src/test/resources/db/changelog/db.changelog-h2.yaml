@@ -19,3 +19,5 @@ databaseChangeLog:
   - include:
       file: 08_more_info_data.yaml
       relativeToChangelogFile: true
+  - include:
+      file: file:config/db/changelog/09_task_relation_reference_alias.yaml

@@ -45,6 +45,10 @@ public class TaskRelation {
   @NotNull
   private String relationType;
 
+  /** Optional alias used to reference the related task inside template HTML. */
+  @Column(name = "TAR_ALIAS", length = PersistenceConstants.IDENTIFIER)
+  private String referenceAlias;
+
   /**
    * The target of the relation.
    *

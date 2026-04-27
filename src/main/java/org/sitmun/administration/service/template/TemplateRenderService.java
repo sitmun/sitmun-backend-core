@@ -6,9 +6,11 @@ import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -27,25 +29,36 @@ public class TemplateRenderService {
   private static final String HANDLEBARS_CLOSE = "&#125;&#125;";
 
   private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z_]+)}}");
-  private static final Pattern PARAMETER_LOOKUP_PATTERN = Pattern.compile("\\{\\{(task_\\d+)\\.(\\$[A-Za-z0-9_]+)}}");
+  private static final Pattern PARAMETER_LOOKUP_PATTERN =
+      Pattern.compile("\\{\\{([A-Za-z_][A-Za-z0-9_]*)\\.(\\$[A-Za-z0-9_]+)}}");
   private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{([^{}]+)}}");
   private static final Pattern ARRAY_INDEX_PATTERN = Pattern.compile("([A-Za-z0-9_$.]+)\\[(\\d+)]");
   private static final Pattern PATH_SEGMENT_PATTERN = Pattern.compile("([^.\\[\\]]+)|\\[(\\d+)]");
-  private static final Pattern HTML_RESULT_PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{(task_\\d+\\.html)}}");
+  private static final Pattern HTML_RESULT_PLACEHOLDER_PATTERN =
+      Pattern.compile("\\{\\{([A-Za-z_][A-Za-z0-9_]*\\.html)}}");
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final Handlebars handlebars = new Handlebars();
 
   public TemplatePreviewResponseDto renderPreview(String templateHtml, Map<String, Object> context) {
-    return renderPreview(templateHtml, context, null);
+    return renderPreview(templateHtml, context, null, Collections.emptyList());
   }
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context, Integer templateTaskId) {
+    return renderPreview(templateHtml, context, templateTaskId, Collections.emptyList());
+  }
+
+  public TemplatePreviewResponseDto renderPreview(
+      String templateHtml,
+      Map<String, Object> context,
+      Integer templateTaskId,
+      List<String> knownTaskReferences) {
     String source = templateHtml == null ? "" : templateHtml;
     Map<String, Object> safeContext = context == null ? Collections.emptyMap() : context;
-    String withExecutionHints = annotateUnresolvedTaskPlaceholders(source, safeContext);
+    String withExecutionHints =
+        annotateUnresolvedTaskPlaceholders(source, safeContext, knownTaskReferences);
     String withBackendVars = replaceBackendVariables(withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
@@ -81,12 +94,19 @@ public class TemplateRenderService {
     return buffer.toString();
   }
 
-  private String annotateUnresolvedTaskPlaceholders(String templateHtml, Map<String, Object> context) {
+  private String annotateUnresolvedTaskPlaceholders(
+      String templateHtml, Map<String, Object> context, List<String> knownTaskReferences) {
+    Set<String> knownRoots = new LinkedHashSet<>();
+    knownRoots.addAll(context.keySet());
+    if (knownTaskReferences != null) {
+      knownRoots.addAll(knownTaskReferences);
+    }
+
     Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
     StringBuffer buffer = new StringBuffer();
     while (matcher.find()) {
       String placeholderContent = matcher.group(1).trim();
-      if (placeholderContent.startsWith("task_")
+      if (isKnownTaskPlaceholder(placeholderContent, knownRoots)
           && !isTaskPlaceholderResolved(placeholderContent, context)) {
         matcher.appendReplacement(
             buffer,
@@ -100,9 +120,21 @@ public class TemplateRenderService {
     return buffer.toString();
   }
 
+  private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
+    if (placeholderContent.isBlank()
+        || placeholderContent.startsWith("#")
+        || placeholderContent.startsWith("/")
+        || placeholderContent.contains(" ")) {
+      return false;
+    }
+
+    String rootKey = extractRootKey(placeholderContent);
+    return knownRoots.contains(rootKey) || rootKey.startsWith("task_");
+  }
+
   private boolean isTaskPlaceholderResolved(String placeholderContent, Map<String, Object> context) {
     int firstDot = placeholderContent.indexOf('.');
-    String rootKey = firstDot >= 0 ? placeholderContent.substring(0, firstDot) : placeholderContent;
+    String rootKey = extractRootKey(placeholderContent);
     if (!context.containsKey(rootKey)) {
       return false;
     }
@@ -133,6 +165,19 @@ public class TemplateRenderService {
     }
 
     return true;
+  }
+
+  private String extractRootKey(String placeholderContent) {
+    int firstDot = placeholderContent.indexOf('.');
+    int firstBracket = placeholderContent.indexOf('[');
+    int endIndex = placeholderContent.length();
+    if (firstDot >= 0) {
+      endIndex = Math.min(endIndex, firstDot);
+    }
+    if (firstBracket >= 0) {
+      endIndex = Math.min(endIndex, firstBracket);
+    }
+    return placeholderContent.substring(0, endIndex);
   }
 
   private String escapeHandlebarsPlaceholder(String placeholderContent) {
