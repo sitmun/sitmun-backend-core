@@ -66,7 +66,7 @@ public class DomainConstants {
     public static final String SCOPE_SQL_QUERY = "sql-query";
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
     public static final String SCOPE_WEB_API_QUERY_NO_PROXY = "web-api-query-no-proxy";
-    public static final String SCOPE_URL_QUERY = "URL";
+    public static final String SCOPE_URL_QUERY = "external-link";
 
     // Task relation types
     public static final String RELATION_TYPE_QUERY_TASK = "query-task";

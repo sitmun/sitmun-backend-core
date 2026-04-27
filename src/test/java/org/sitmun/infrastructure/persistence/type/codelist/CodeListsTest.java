@@ -153,7 +153,7 @@ class CodeListsTest {
     assertThat(select(CodeListsConstants.QUERY_TASK_SCOPE))
         .containsExactlyInAnyOrder(
             "SQL",
-            "URL",
+            "external-link",
             "cartography-query",
             "sql-query",
             "web-api-query",
