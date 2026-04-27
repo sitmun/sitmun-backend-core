@@ -37,8 +37,8 @@ class RoleRepositoryDataRestTest {
   void getTasksOfARole() throws Exception {
     mvc.perform(get(URIConstants.ROLE_TASKS_URI, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.*.*", hasSize(35)))
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(jsonPath("$._embedded.*.*", hasSize(36)))
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(36)));
   }
 
   @Test
