@@ -28,3 +28,5 @@ databaseChangeLog:
       file: file:config/db/changelog/10_application_tree_order.yaml
   - include:
       file: file:config/db/changelog/11_language_order_enabled_and_labels.yaml
+  - include:
+      file: file:config/db/changelog/09_task_relation_reference_alias.yaml

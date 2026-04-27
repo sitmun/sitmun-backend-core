@@ -25,12 +25,11 @@ class TemplateRenderServiceTest {
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
-            "<h1>{{#APP_NAME}}</h1><p>{{task_13.nombre}}</p><span>{{task_13.$param1}}</span>",
-            Map.of("task_13", Map.of("nombre", "Parcela 23-A", "$param1", "foo")));
+            "<h1>{{#APP_NAME}}</h1><p>{{pepe.nombre}}</p><span>{{pepe.$param1}}</span>",
+            Map.of("pepe", Map.of("nombre", "Parcela 23-A", "$param1", "foo")));
 
     assertThat(response.getHtml()).contains("SITMUN").contains("Parcela 23-A").contains("foo");
-    assertThat(response.getPlaceholders())
-        .containsExactly("#APP_NAME", "task_13.nombre", "task_13.$param1");
+    assertThat(response.getPlaceholders()).containsExactly("#APP_NAME", "pepe.nombre", "pepe.$param1");
   }
 
   @Test
@@ -51,15 +50,15 @@ class TemplateRenderServiceTest {
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
-            "<p>{{task_13.a[1].e}}</p><p>{{task_13.m}}</p>",
+            "<p>{{pepe.a[1].e}}</p><p>{{pepe.m}}</p>",
             Map.of(
-                "task_13",
+                "pepe",
                 Map.of(
                     "a", List.of(Map.of("c", 1), Map.of("e", 2)),
                     "m", 1)));
 
     assertThat(response.getHtml()).contains("<p>2</p>").contains("<p>1</p>");
-    assertThat(response.getPlaceholders()).containsExactly("task_13.a[1].e", "task_13.m");
+    assertThat(response.getPlaceholders()).containsExactly("pepe.a[1].e", "pepe.m");
   }
 
   @Test
@@ -69,12 +68,14 @@ class TemplateRenderServiceTest {
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
-            "<p>{{task_13.name}}</p><p>{{task_99.url}}</p>",
-            Map.of("task_13", Map.of("name", "Parcela 23-A")));
+            "<p>{{pepe.name}}</p><p>{{consulta.url}}</p>",
+            Map.of("pepe", Map.of("name", "Parcela 23-A")),
+            null,
+            List.of("pepe", "consulta"));
 
     assertThat(response.getHtml())
         .contains("<p>Parcela 23-A</p>")
-        .contains("task_99.url")
+        .contains("consulta.url")
         .contains("(falta ejecutar tarea)");
   }
 
@@ -97,8 +98,8 @@ class TemplateRenderServiceTest {
   
     TemplatePreviewResponseDto response =
         service.renderPreview(
-            "<section>{{task_96.html}}</section>",
-            Map.of("task_96", Map.of("html", "<p><strong>hola</strong></p>")));
+            "<section>{{pepe.html}}</section>",
+            Map.of("pepe", Map.of("html", "<p><strong>hola</strong></p>")));
 
     assertThat(response.getHtml()).contains("<section><p><strong>hola</strong></p></section>");
   }

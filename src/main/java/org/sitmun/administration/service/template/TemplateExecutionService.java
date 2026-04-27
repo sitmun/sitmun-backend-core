@@ -51,6 +51,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TemplateExecutionService {
 
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
+  private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
 
   private final TaskRepository taskRepository;
@@ -144,6 +145,7 @@ public class TemplateExecutionService {
       Task childTask = relation.getRelatedTask();
       Map<String, Object> rawParams =
           childTaskParameters.getOrDefault(String.valueOf(childTask.getId()), Collections.emptyMap());
+      String referenceAlias = resolveReferenceAlias(relation);
       TemplateTaskExecutionResponseDto childResult =
           executeTask(
               childTask,
@@ -152,7 +154,8 @@ public class TemplateExecutionService {
               rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
               coordinates,
               depth);
-      templateContext.put("task_" + childTask.getId(), childResult.getContext());
+      templateContext.put(referenceAlias, childResult.getContext());
+      templateContext.put(buildLegacyReferenceAlias(childTask), childResult.getContext());
     }
 
     TemplatePreviewResponseDto rendered =
@@ -312,6 +315,19 @@ public class TemplateExecutionService {
     Map<String, String> normalized = new LinkedHashMap<>();
     parameters.forEach((key, value) -> normalized.put(key, value == null ? "" : String.valueOf(value)));
     return normalized;
+  }
+
+  private String resolveReferenceAlias(TaskRelation relation) {
+    String referenceAlias = relation.getReferenceAlias();
+    if (StringUtils.hasText(referenceAlias)
+        && REFERENCE_ALIAS_PATTERN.matcher(referenceAlias.trim()).matches()) {
+      return referenceAlias.trim();
+    }
+    return buildLegacyReferenceAlias(relation.getRelatedTask());
+  }
+
+  private String buildLegacyReferenceAlias(Task relatedTask) {
+    return "task_" + relatedTask.getId();
   }
 
   private Map<String, Object> buildRowAndParameterContext(

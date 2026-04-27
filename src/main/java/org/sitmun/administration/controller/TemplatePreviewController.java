@@ -35,6 +35,9 @@ public class TemplatePreviewController {
       @RequestBody TemplatePreviewRequestDto requestDto) {
     return ResponseEntity.ok(
         templateRenderService.renderPreview(
-            requestDto.getTemplateHtml(), requestDto.getContext(), requestDto.getTemplateTaskId()));
+            requestDto.getTemplateHtml(),
+            requestDto.getContext(),
+            requestDto.getTemplateTaskId(),
+            requestDto.getKnownTaskReferences()));
   }
 }

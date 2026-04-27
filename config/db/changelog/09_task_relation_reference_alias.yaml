@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            columnExists:
+              tableName: STM_TASKREL
+              columnName: TAR_ALIAS
+      changes:
+        - addColumn:
+            tableName: STM_TASKREL
+            columns:
+              - column:
+                  name: TAR_ALIAS
+                  type: varchar(50)
+      rollback:
+        - dropColumn:
+            tableName: STM_TASKREL
+            columnName: TAR_ALIAS
+
+  - changeSet:
+      id: 9b
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            uniqueConstraintExists:
+              tableName: STM_TASKREL
+              constraintName: STM_TAR_UK_TASK_ALIAS
+      changes:
+        - addUniqueConstraint:
+            tableName: STM_TASKREL
+            columnNames: TAR_TASKID, TAR_ALIAS
+            constraintName: STM_TAR_UK_TASK_ALIAS
+      rollback:
+        - dropUniqueConstraint:
+            tableName: STM_TASKREL
+            constraintName: STM_TAR_UK_TASK_ALIAS

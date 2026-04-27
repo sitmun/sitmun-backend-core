@@ -194,13 +194,13 @@ class TemplateExecutionServiceTest {
     Task parentTemplate =
         Task.builder()
             .id(200)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<div>{{task_201.html}}</div>"))
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<div>{{plantilla_hija.html}}</div>"))
             .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task childTemplate =
         Task.builder()
             .id(201)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>{{task_202.url}}</p>"))
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>{{consulta_url.url}}</p>"))
             .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task urlTask =
@@ -219,17 +219,29 @@ class TemplateExecutionServiceTest {
     requestDto.setChildTaskParameters(Map.of("202", Map.of("slug", "abc")));
 
     when(taskRepository.findById(200)).thenReturn(Optional.of(parentTemplate));
-    when(taskRelationRepository.findByTaskId(200))
-        .thenReturn(
-            List.of(
-                TaskRelation.builder().id(1).task(parentTemplate).relationType("template-nested").relatedTask(childTemplate).build()));
     when(taskRelationRepository.findByTaskId(201))
         .thenReturn(
             List.of(
-                TaskRelation.builder().id(2).task(childTemplate).relationType("template-task").relatedTask(urlTask).build()));
-    when(templateRenderService.renderPreview(eq("<p>{{task_202.url}}</p>"), any(), eq(200)))
+                TaskRelation.builder()
+                    .id(2)
+                    .task(childTemplate)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_url")
+                    .relatedTask(urlTask)
+                    .build()));
+    when(taskRelationRepository.findByTaskId(200))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(parentTemplate)
+                    .relationType("template-nested")
+                    .referenceAlias("plantilla_hija")
+                    .relatedTask(childTemplate)
+                    .build()));
+    when(templateRenderService.renderPreview(eq("<p>{{consulta_url.url}}</p>"), any(), eq(200)))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<p>https://example.com/abc</p>").placeholders(List.of()).build());
-    when(templateRenderService.renderPreview(eq("<div>{{task_201.html}}</div>"), any(), eq(200)))
+    when(templateRenderService.renderPreview(eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(200)))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<div><p>https://example.com/abc</p></div>").placeholders(List.of()).build());
 
     TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);

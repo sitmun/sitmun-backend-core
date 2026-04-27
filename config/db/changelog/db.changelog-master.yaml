@@ -38,3 +38,6 @@ databaseChangeLog:
   - include:
       file: 11_language_order_enabled_and_labels.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 09_task_relation_reference_alias.yaml
+      relativeToChangelogFile: true
