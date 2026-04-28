@@ -62,6 +62,57 @@ class TemplateRenderServiceTest {
   }
 
   @Test
+  void renderPreviewExpandsSitmunTableIterationAttributes() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<table data-sitmun-each=\"consulta_sql.rows\"><thead><tr><th>tui_name</th></tr></thead><tbody><tr><td>{{tui_name}}</td></tr></tbody></table>",
+            Map.of(
+                "consulta_sql",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("tui_name", "sitna.layerCatalog"),
+                        Map.of("tui_name", "sitna.search")))));
+
+    assertThat(response.getHtml())
+        .contains("<td>sitna.layerCatalog</td>")
+        .contains("<td>sitna.search</td>")
+        .doesNotContain("data-sitmun-each");
+  }
+
+  @Test
+  void renderPreviewExpandsQuillTableBetterMarkupAfterHeaderEditing() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+
+    String templateHtml = "<table class=\"ql-table-better\"><temporary class=\"ql-table-temporary\" data-class=\"ql-table-better\"></temporary>"
+        + "<thead><tr><th data-row=\"1\"><p class=\"table-th-block\" data-cell=\"1\" data-sitmun-each=\"task_32281.rows\">tui_tooltip a</p></th></tr></thead>"
+        + "<tbody><tr><td data-row=\"2\"><p class=\"ql-table-block\" data-cell=\"1\" data-sitmun-each=\"task_32281.rows\">{{tui_tooltip}}</p></td></tr></tbody></table>";
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            templateHtml,
+            Map.of(
+                "task_32281",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("tui_tooltip", "layerCatalog"),
+                        Map.of("tui_tooltip", "search")))));
+
+    assertThat(response.getHtml())
+        .contains("tui_tooltip a")
+        .contains("layerCatalog")
+        .contains("search")
+        .contains("ql-table-better")
+        .doesNotContain("<temporary")
+        .doesNotContain("data-sitmun-each");
+  }
+
+  @Test
   void renderPreviewKeepsUnresolvedTaskPlaceholdersVisibleWithExecutionHint() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
