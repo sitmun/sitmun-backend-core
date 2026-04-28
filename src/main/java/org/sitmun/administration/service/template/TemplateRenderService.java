@@ -36,6 +36,14 @@ public class TemplateRenderService {
   private static final Pattern PATH_SEGMENT_PATTERN = Pattern.compile("([^.\\[\\]]+)|\\[(\\d+)]");
   private static final Pattern HTML_RESULT_PLACEHOLDER_PATTERN =
       Pattern.compile("\\{\\{([A-Za-z_][A-Za-z0-9_]*\\.html)}}");
+  private static final Pattern SITMUN_TABLE_ITERATION_PATTERN =
+      Pattern.compile("<table\\b[^>]*>[\\s\\S]*?</table>");
+  private static final Pattern SITMUN_TABLE_EACH_ATTRIBUTE_PATTERN =
+      Pattern.compile("\\sdata-sitmun-each=\"([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\"");
+  private static final Pattern SITMUN_TEMPORARY_TABLE_PATTERN =
+      Pattern.compile("<temporary\\b[^>]*>[\\s\\S]*?</temporary>");
+  private static final Pattern TABLE_BODY_PATTERN =
+      Pattern.compile("<tbody([^>]*)>([\\s\\S]*?)</tbody>");
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
@@ -57,8 +65,9 @@ public class TemplateRenderService {
       List<String> knownTaskReferences) {
     String source = templateHtml == null ? "" : templateHtml;
     Map<String, Object> safeContext = context == null ? Collections.emptyMap() : context;
+    String withTableIterations = expandSitmunTableIterations(source);
     String withExecutionHints =
-        annotateUnresolvedTaskPlaceholders(source, safeContext, knownTaskReferences);
+        annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
     String withBackendVars = replaceBackendVariables(withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
@@ -77,6 +86,41 @@ public class TemplateRenderService {
     } catch (IOException e) {
       throw new IllegalArgumentException("Failed to render template preview", e);
     }
+  }
+
+  private String expandSitmunTableIterations(String templateHtml) {
+    Matcher matcher = SITMUN_TABLE_ITERATION_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    StringBuffer buffer = new StringBuffer();
+    while (matcher.find()) {
+      matcher.appendReplacement(buffer, Matcher.quoteReplacement(expandSitmunTableIteration(matcher.group())));
+    }
+    matcher.appendTail(buffer);
+    return buffer.toString();
+  }
+
+  private String expandSitmunTableIteration(String tableHtml) {
+    Matcher eachMatcher = SITMUN_TABLE_EACH_ATTRIBUTE_PATTERN.matcher(tableHtml);
+    if (!eachMatcher.find()) {
+      return tableHtml;
+    }
+
+    String eachPath = eachMatcher.group(1);
+    String normalizedTable = SITMUN_TEMPORARY_TABLE_PATTERN.matcher(tableHtml).replaceAll("");
+    normalizedTable = SITMUN_TABLE_EACH_ATTRIBUTE_PATTERN.matcher(normalizedTable).replaceAll("");
+
+    Matcher bodyMatcher = TABLE_BODY_PATTERN.matcher(normalizedTable);
+    if (!bodyMatcher.find()) {
+      return normalizedTable;
+    }
+
+    String bodyReplacement = "<tbody"
+        + bodyMatcher.group(1)
+        + ">{{#each "
+        + eachPath
+        + "}}"
+        + bodyMatcher.group(2)
+        + "{{/each}}</tbody>";
+    return bodyMatcher.replaceFirst(Matcher.quoteReplacement(bodyReplacement));
   }
 
   private String replaceBackendVariables(String templateHtml, RequestCoordinates coordinates) {

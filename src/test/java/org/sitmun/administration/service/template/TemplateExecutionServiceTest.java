@@ -26,6 +26,7 @@ import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
+import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
@@ -77,6 +78,56 @@ class TemplateExecutionServiceTest {
               assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
               assertThat(responseStatusException.getReason()).isEqualTo("Bad request");
             });
+  }
+
+  @Test
+  void executeLinkedSqlTaskIncludesRowsInTemplateContextForIteration() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            databaseConnectionService,
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService);
+
+    Task task =
+        Task.builder()
+            .id(32281)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32281);
+    JdbcPayloadDto payload = JdbcPayloadDto.builder()
+        .driver("org.postgresql.Driver")
+        .uri("jdbc:postgresql://localhost/example")
+        .user("user")
+        .password("password")
+        .sql("select * from layers")
+        .build();
+    List<Map<String, Object>> rows = List.of(
+        Map.of("tui_tooltip", "Layer", "tui_id", 35),
+        Map.of("tui_tooltip", "Other", "tui_id", 36));
+
+    when(taskRepository.findById(32281)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any()))
+        .thenReturn(ConfigProxyDto.builder().type("JDBC").payload(payload).build());
+    when(databaseConnectionService.executeQuery(any(), eq("select * from layers"), any()))
+        .thenReturn(rows);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getRows()).isEqualTo(rows);
+    assertThat(result.getContext()).containsEntry("rows", rows);
+    assertThat(result.getContext()).containsEntry("tui_tooltip", "Layer");
   }
 
   @Test

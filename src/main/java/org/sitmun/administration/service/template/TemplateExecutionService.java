@@ -268,7 +268,7 @@ public class TemplateExecutionService {
         String body = response.body() != null ? response.body().string() : "";
         Map<String, Object> bodyContext = normalizeBodyToContext(body);
         List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
-        Map<String, Object> context = buildApiContext(bodyContext, parameters);
+        Map<String, Object> context = buildApiContext(bodyContext, rows, parameters);
 
         return TemplateTaskExecutionResponseDto.builder()
             .taskId(task.getId())
@@ -334,6 +334,7 @@ public class TemplateExecutionService {
       List<Map<String, Object>> rows, Map<String, String> parameters) {
     Map<String, Object> context = new LinkedHashMap<>();
     parameters.forEach((key, value) -> context.put("$" + key, value));
+    context.put("rows", rows);
     if (!rows.isEmpty()) {
       rows.get(0).forEach(context::put);
     }
@@ -341,9 +342,12 @@ public class TemplateExecutionService {
   }
 
   private Map<String, Object> buildApiContext(
-      Map<String, Object> bodyContext, Map<String, String> parameters) {
+      Map<String, Object> bodyContext,
+      List<Map<String, Object>> rows,
+      Map<String, String> parameters) {
     Map<String, Object> context = new LinkedHashMap<>();
     parameters.forEach((key, value) -> context.put("$" + key, value));
+    context.put("rows", rows);
     if (bodyContext != null) {
       context.putAll(bodyContext);
     }
