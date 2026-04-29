@@ -136,6 +136,18 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Profile situation map excludes blocked cartographies")
+  void situationMapExcludesBlockedCartographies() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.application.situation-map", is("group/3")))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/3')].title", hasItem("Situation Map")))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/3')].layers.*", hasItem("layer/4")))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/3')].layers.*", not(hasItem("layer/10"))))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/3')].layers.*", not(hasItem("layer/11"))));
+  }
+
+  @Test
   @DisplayName("GET: Get tasks details")
   void tasks() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
@@ -201,6 +213,21 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Profile tree excludes nodes referencing blocked cartographies")
+  void treeExcludesNodesWithBlockedCartographies() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/10']").doesNotExist())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/11']").doesNotExist())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]", not(hasItem("node/10"))))
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]", not(hasItem("node/11"))));
+  }
+
+  @Test
   @DisplayName("GET: Ensure order in children")
   void treeNodeOrder() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
@@ -262,5 +289,36 @@ class ClientConfigurationProfileControllerTest {
         .andDo(print())
         .andExpect(jsonPath("$.trees[0].rootNode", is("node/1")))
         .andExpect(jsonPath("$.trees[0].nodes.size()", is(3)));
+  }
+
+  @Test
+  @DisplayName("GET: Profile omits cartographies, services, and tasks tied to blocked services")
+  void profileOmitsBlockedServiceContent() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[*].id", not(hasItem("layer/10"))))
+        .andExpect(jsonPath("$.services[*].id", not(hasItem("service/8"))))
+        .andExpect(jsonPath("$.tasks[*].id", not(hasItem("task/36"))));
+  }
+
+  @Test
+  @DisplayName(
+      "GET: Profile omits cartographies blocked at layer (GEO_BLOCKED) with usable service")
+  void profileOmitsGeoBlockedCartography() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[*].id", not(hasItem("layer/11"))));
+  }
+
+  @Test
+  @DisplayName("GET: Profile includes background group but excludes blocked members")
+  void backgroundGroupExcludesBlockedLayers() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.groups[?(@.id=='group/2')].title", hasItem("Background Map")))
+        .andExpect(
+            jsonPath("$.groups[?(@.id=='group/2')].layers.*", hasItems("layer/1", "layer/2")))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/2')].layers.*", not(hasItem("layer/10"))))
+        .andExpect(jsonPath("$.groups[?(@.id=='group/2')].layers.*", not(hasItem("layer/11"))));
   }
 }

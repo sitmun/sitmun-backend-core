@@ -187,11 +187,11 @@ class TaskRepositoryDataRestTest extends BaseTest {
   void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(36)));
 
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(36)));
   }
 
   @Test
@@ -206,7 +206,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
   void getTasksAsSitmunAdmin() throws Exception {
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(37)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(38)));
   }
 
   @Test

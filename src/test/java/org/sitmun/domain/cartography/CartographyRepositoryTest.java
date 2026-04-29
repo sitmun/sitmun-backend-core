@@ -67,7 +67,7 @@ class CartographyRepositoryTest {
         roleRepository.findRolesByApplicationAndUserAndTerritory(
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Cartography> cp = cartographyRepository.findByRolesAndTerritory(roles, 1);
-    assertThat(cp).hasSize(7);
+    assertThat(cp).hasSize(11);
   }
 
   @TestConfiguration
