@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Client configuration profile (`GET /api/config/client/profile/{appId}/{terrId}`): each layer may include `minScaleDenominator` and `maxScaleDenominator` mapped from cartography minimum/maximum scale (positive values only; omitted when unset or non-positive).
 - Client configuration profile: each layer may include `transparency` (0–100, where 0 is fully opaque) mapped from `Cartography.transparency`; omitted when unset.
+- Client configuration profile: each layer may include `metadataURL` and `datasetURL` mapped from cartography; omitted when unset (OGC WMS Layer `MetadataURL` / `DataURL` hrefs).
+- Client configuration profile: each tree node may include `metadataURL` and `datasetURL` mapped from `TreeNode`; omitted when unset (folder-level URLs alongside cartography on leaves).
 - **Authentication**: `POST /api/authenticate/proxy` returns a short-lived `proxy_token` in JSON for proxy middleware; validity from `sitmun.proxy-middleware.token-validity-in-milliseconds`.
 - **Authentication**: `POST /api/authenticate/logout` clears the `access_token` session cookie.
 - `RequestCoordinates` (user, territory, application) for proxy configuration context.

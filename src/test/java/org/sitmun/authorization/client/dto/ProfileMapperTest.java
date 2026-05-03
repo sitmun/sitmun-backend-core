@@ -20,10 +20,19 @@ class ProfileMapperTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   private Cartography cartography(Integer minScale, Integer maxScale) {
-    return cartography(minScale, maxScale, null);
+    return cartography(minScale, maxScale, null, null, null);
   }
 
   private Cartography cartography(Integer minScale, Integer maxScale, Integer transparency) {
+    return cartography(minScale, maxScale, transparency, null, null);
+  }
+
+  private Cartography cartography(
+      Integer minScale,
+      Integer maxScale,
+      Integer transparency,
+      String metadataURL,
+      String datasetURL) {
     return Cartography.builder()
         .id(42)
         .name("Test layer")
@@ -31,6 +40,8 @@ class ProfileMapperTest {
         .minimumScale(minScale)
         .maximumScale(maxScale)
         .transparency(transparency)
+        .metadataURL(metadataURL)
+        .datasetURL(datasetURL)
         .service(Service.builder().id(99).build())
         .build();
   }
@@ -149,6 +160,41 @@ class ProfileMapperTest {
 
     String json = objectMapper.writeValueAsString(dto);
     assertThat(json).doesNotContain("transparency");
+  }
+
+  @Test
+  @DisplayName("Maps metadataURL and datasetURL when set")
+  void mapsMetadataAndDatasetUrls() {
+    CartographyDto dto =
+        profileMapper.map(
+            cartography(null, null, null, "https://example.com/md", "https://example.com/data"));
+    assertThat(dto.getMetadataURL()).isEqualTo("https://example.com/md");
+    assertThat(dto.getDatasetURL()).isEqualTo("https://example.com/data");
+  }
+
+  @Test
+  @DisplayName("Jackson omits null metadataURL and datasetURL keys")
+  void jacksonOmitsNullMetadataAndDatasetUrls() throws Exception {
+    CartographyDto dto = profileMapper.map(cartography(null, null, null, null, null));
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).doesNotContain("metadataURL");
+    assertThat(json).doesNotContain("datasetURL");
+  }
+
+  @Test
+  @DisplayName("NodeDto carries optional tree node metadata and dataset URLs")
+  void nodeDtoOptionalUrls() throws Exception {
+    NodeDto dto =
+        NodeDto.builder()
+            .title("Folder")
+            .metadataURL("https://example.com/md")
+            .datasetURL("https://example.com/data.zip")
+            .build();
+    assertThat(dto.getMetadataURL()).isEqualTo("https://example.com/md");
+    assertThat(dto.getDatasetURL()).isEqualTo("https://example.com/data.zip");
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).contains("\"metadataURL\":\"https://example.com/md\"");
+    assertThat(json).contains("\"datasetURL\":\"https://example.com/data.zip\"");
   }
 
   @Test

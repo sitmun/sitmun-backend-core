@@ -18,4 +18,6 @@ public class CartographyDto {
   Integer minScaleDenominator;
   Integer maxScaleDenominator;
   Integer transparency;
+  String metadataURL;
+  String datasetURL;
 }

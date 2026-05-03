@@ -66,6 +66,8 @@ public abstract class ProfileMapper {
         .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
         .maxScaleDenominator(positiveOrNull(cartography.getMaximumScale()))
         .transparency(cartography.getTransparency())
+        .metadataURL(cartography.getMetadataURL())
+        .datasetURL(cartography.getDatasetURL())
         .build();
   }
 
@@ -222,7 +224,9 @@ public abstract class ProfileMapper {
             .type(it.getType())
             .image(it.getImage())
             .order(it.getOrder())
-            .mapping(it.getMapping());
+            .mapping(it.getMapping())
+            .metadataURL(it.getMetadataURL())
+            .datasetURL(it.getDatasetURL());
     if (it.getCartographyId() != null) {
       nodeDtoBuilder = nodeDtoBuilder.resource("layer/" + it.getCartographyId());
     }
