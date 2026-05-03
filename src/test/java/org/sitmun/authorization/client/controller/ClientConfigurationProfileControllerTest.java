@@ -85,6 +85,24 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Layer scale denominators appear in profile JSON when set")
+  void layerScaleDenominatorsInProfile() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].minScaleDenominator", hasItem(500)))
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].maxScaleDenominator", hasItem(1000000)));
+  }
+
+  @Test
+  @DisplayName("GET: Layers without scale omit denominator keys")
+  void layersWithoutScaleOmitDenominatorKeys() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/3')].minScaleDenominator").doesNotExist())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/3')].maxScaleDenominator").doesNotExist());
+  }
+
+  @Test
   @DisplayName("GET: Get services details")
   void services() throws Exception {
     String url =

@@ -63,7 +63,20 @@ public abstract class ProfileMapper {
         .title(cartography.getName())
         .layers(cartography.getLayers())
         .service("service/" + cartography.getService().getId())
+        .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
+        .maxScaleDenominator(positiveOrNull(cartography.getMaximumScale()))
         .build();
+  }
+
+  /**
+   * Maps scale to profile JSON only when positive. Zero and negatives are normalized to null so
+   * they are omitted (NON_NULL) and SITNA never sees a zero max denominator.
+   */
+  private static Integer positiveOrNull(Integer v) {
+    if (v == null || v <= 0) {
+      return null;
+    }
+    return v;
   }
 
   /**
