@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Client configuration profile (`GET /api/config/client/profile/{appId}/{terrId}`): each layer may include `minScaleDenominator` and `maxScaleDenominator` mapped from cartography minimum/maximum scale (positive values only; omitted when unset or non-positive).
+- Client configuration profile: each layer may include `transparency` (0–100, where 0 is fully opaque) mapped from `Cartography.transparency`; omitted when unset.
 - **Authentication**: `POST /api/authenticate/proxy` returns a short-lived `proxy_token` in JSON for proxy middleware; validity from `sitmun.proxy-middleware.token-validity-in-milliseconds`.
 - **Authentication**: `POST /api/authenticate/logout` clears the `access_token` session cookie.
 - `RequestCoordinates` (user, territory, application) for proxy configuration context.

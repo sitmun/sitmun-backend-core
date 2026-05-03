@@ -20,17 +20,19 @@ class ProfileMapperTest {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   private Cartography cartography(Integer minScale, Integer maxScale) {
-    Service service = new Service();
-    service.setId(99);
+    return cartography(minScale, maxScale, null);
+  }
 
-    Cartography cartography = new Cartography();
-    cartography.setId(42);
-    cartography.setName("Test layer");
-    cartography.setLayers(List.of("L1"));
-    cartography.setMinimumScale(minScale);
-    cartography.setMaximumScale(maxScale);
-    cartography.setService(service);
-    return cartography;
+  private Cartography cartography(Integer minScale, Integer maxScale, Integer transparency) {
+    return Cartography.builder()
+        .id(42)
+        .name("Test layer")
+        .layers(List.of("L1"))
+        .minimumScale(minScale)
+        .maximumScale(maxScale)
+        .transparency(transparency)
+        .service(Service.builder().id(99).build())
+        .build();
   }
 
   @Test
@@ -111,5 +113,57 @@ class ProfileMapperTest {
     String json = objectMapper.writeValueAsString(dto);
     assertThat(json).contains("\"minScaleDenominator\":500");
     assertThat(json).contains("\"maxScaleDenominator\":1000000");
+  }
+
+  @Test
+  @DisplayName("Maps null entity transparency to null DTO field")
+  void nullTransparencyBecomesNull() {
+    CartographyDto dto = profileMapper.map(cartography(null, null, null));
+    assertThat(dto.getTransparency()).isNull();
+  }
+
+  @Test
+  @DisplayName("Maps zero transparency (max opacity) verbatim")
+  void zeroTransparencyMaps() {
+    CartographyDto dto = profileMapper.map(cartography(null, null, 0));
+    assertThat(dto.getTransparency()).isEqualTo(0);
+  }
+
+  @Test
+  @DisplayName("Maps maximum transparency verbatim")
+  void hundredTransparencyMaps() {
+    CartographyDto dto = profileMapper.map(cartography(null, null, 100));
+    assertThat(dto.getTransparency()).isEqualTo(100);
+  }
+
+  @Test
+  @DisplayName("Jackson omits null transparency key")
+  void jacksonOmitsNullTransparency() throws Exception {
+    CartographyDto dto =
+        CartographyDto.builder()
+            .id("layer/1")
+            .title("t")
+            .layers(List.of("a"))
+            .service("service/1")
+            .build();
+
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).doesNotContain("transparency");
+  }
+
+  @Test
+  @DisplayName("Jackson serializes zero transparency")
+  void jacksonSerializesZeroTransparency() throws Exception {
+    CartographyDto dto =
+        CartographyDto.builder()
+            .id("layer/1")
+            .title("t")
+            .layers(List.of("a"))
+            .service("service/1")
+            .transparency(0)
+            .build();
+
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).contains("\"transparency\":0");
   }
 }

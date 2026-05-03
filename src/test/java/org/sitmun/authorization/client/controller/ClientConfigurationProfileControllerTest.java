@@ -103,6 +103,22 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Layer transparency appears in profile JSON when set")
+  void layerTransparencyInProfile() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].transparency", hasItem(50)));
+  }
+
+  @Test
+  @DisplayName("GET: Layers without transparency omit transparency key")
+  void layersWithoutTransparencyOmitKey() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/3')].transparency").doesNotExist());
+  }
+
+  @Test
   @DisplayName("GET: Get services details")
   void services() throws Exception {
     String url =

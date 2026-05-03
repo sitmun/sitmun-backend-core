@@ -17,4 +17,5 @@ public class CartographyDto {
   String service;
   Integer minScaleDenominator;
   Integer maxScaleDenominator;
+  Integer transparency;
 }

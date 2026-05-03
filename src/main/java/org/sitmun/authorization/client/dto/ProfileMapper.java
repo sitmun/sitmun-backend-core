@@ -65,6 +65,7 @@ public abstract class ProfileMapper {
         .service("service/" + cartography.getService().getId())
         .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
         .maxScaleDenominator(positiveOrNull(cartography.getMaximumScale()))
+        .transparency(cartography.getTransparency())
         .build();
   }
 
