@@ -33,9 +33,20 @@ class ProfileMapperTest {
       Integer transparency,
       String metadataURL,
       String datasetURL) {
+    return cartography(minScale, maxScale, transparency, metadataURL, datasetURL, null);
+  }
+
+  private Cartography cartography(
+      Integer minScale,
+      Integer maxScale,
+      Integer transparency,
+      String metadataURL,
+      String datasetURL,
+      String description) {
     return Cartography.builder()
         .id(42)
         .name("Test layer")
+        .description(description)
         .layers(List.of("L1"))
         .minimumScale(minScale)
         .maximumScale(maxScale)
@@ -211,5 +222,37 @@ class ProfileMapperTest {
 
     String json = objectMapper.writeValueAsString(dto);
     assertThat(json).contains("\"transparency\":0");
+  }
+
+  @Test
+  @DisplayName("Maps cartography description verbatim when set")
+  void mapsDescriptionWhenSet() {
+    CartographyDto dto =
+        profileMapper.map(cartography(null, null, null, null, null, "An abstract description"));
+    assertThat(dto.getDescription()).isEqualTo("An abstract description");
+  }
+
+  @Test
+  @DisplayName("Null cartography description maps to null DTO field")
+  void nullDescriptionBecomesNull() {
+    CartographyDto dto = profileMapper.map(cartography(null, null, null, null, null, null));
+    assertThat(dto.getDescription()).isNull();
+  }
+
+  @Test
+  @DisplayName("Jackson omits null description key")
+  void jacksonOmitsNullDescription() throws Exception {
+    CartographyDto dto = profileMapper.map(cartography(null, null, null, null, null, null));
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).doesNotContain("description");
+  }
+
+  @Test
+  @DisplayName("Jackson serializes non-null description")
+  void jacksonSerializesDescription() throws Exception {
+    CartographyDto dto =
+        profileMapper.map(cartography(null, null, null, null, null, "Some abstract"));
+    String json = objectMapper.writeValueAsString(dto);
+    assertThat(json).contains("\"description\":\"Some abstract\"");
   }
 }

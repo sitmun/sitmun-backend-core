@@ -13,6 +13,7 @@ import lombok.Setter;
 public class CartographyDto {
   String id;
   String title;
+  String description;
   List<String> layers;
   String service;
   Integer minScaleDenominator;

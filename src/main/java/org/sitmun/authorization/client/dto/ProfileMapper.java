@@ -61,6 +61,7 @@ public abstract class ProfileMapper {
     return CartographyDto.builder()
         .id("layer/" + cartography.getId())
         .title(cartography.getName())
+        .description(cartography.getDescription())
         .layers(cartography.getLayers())
         .service("service/" + cartography.getService().getId())
         .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
