@@ -69,6 +69,7 @@ public abstract class ProfileMapper {
         .transparency(cartography.getTransparency())
         .metadataURL(cartography.getMetadataURL())
         .datasetURL(cartography.getDatasetURL())
+        .queryableFeatureEnabled(cartography.getQueryableFeatureEnabled())
         .build();
   }
 

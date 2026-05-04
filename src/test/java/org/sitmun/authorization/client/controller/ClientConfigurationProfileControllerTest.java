@@ -81,7 +81,9 @@ class ClientConfigurationProfileControllerTest {
         .andExpect(
             jsonPath("$.layers[?(@.id=='layer/1')].title", hasItem("WMTS Bases - ICGC- Topo")))
         .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].layers[0]", hasItem("topo")))
-        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service", hasItem("service/1")));
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].service", hasItem("service/1")))
+        .andExpect(
+            jsonPath("$.layers[?(@.id=='layer/1')].queryableFeatureEnabled", hasItem(false)));
   }
 
   @Test

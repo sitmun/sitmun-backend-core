@@ -21,4 +21,5 @@ public class CartographyDto {
   Integer transparency;
   String metadataURL;
   String datasetURL;
+  Boolean queryableFeatureEnabled;
 }

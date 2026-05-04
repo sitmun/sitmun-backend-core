@@ -461,6 +461,11 @@ paths:
                         service:
                           description: Identificador del servicio.
                           type: string
+                        queryableFeatureEnabled:
+                          description: >-
+                            Si es false, las capacidades WMS fusionadas marcan la capa como no
+                            consultable (GetFeatureInfo).
+                          type: boolean
                   services:
                     description: Lista de servicios.
                     type: array
