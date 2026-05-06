@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `HttpPayloadDto` base for HTTP-like proxy payloads; `HttpSecurityDto.describeForLog()` for safe debug summaries (no passwords or header values).
 - `SensitiveDataMasking` for log redaction of secrets.
 - Tests: proxy URI template integration, decorator and pagination regression coverage; unit tests for `JsonWebTokenFilter`, `ProxyTokenFilter`, and `CookieService`.
+- **Connections**: Microsoft SQL Server JDBC driver on the classpath and `databaseConnection.driver` startup codelist (`com.microsoft.sqlserver.jdbc.SQLServerDriver`); proxy middleware ships the same driver for JDBC tasks ([#251](https://github.com/sitmun/sitmun-backend-core/issues/251)).
 
 ### Changed
 

@@ -70,6 +70,7 @@ dependencies {
   // Production databases
   implementation libs.postgresql
   implementation libs.oracle.jdbc
+  implementation libs.mssql.jdbc
 
   // Database migration
   implementation libs.liquibase.core

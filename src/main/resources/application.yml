@@ -138,6 +138,8 @@ sitmun:
           description: PostgreSQL JDBC Driver
         - driver-class: oracle.jdbc.OracleDriver
           description: Oracle JDBC driver
+        - driver-class: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          description: Microsoft SQL Server JDBC Driver
       code-list-values:
         - code-list-name: application.type
           value: T
