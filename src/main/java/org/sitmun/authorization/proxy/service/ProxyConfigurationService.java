@@ -27,6 +27,7 @@ import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
@@ -222,7 +223,11 @@ public class ProxyConfigurationService {
                       if (!StringUtils.hasText(key)) {
                         return Stream.empty();
                       }
-                      String value = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_VALUE));
+                      Object rawValue = p.get(DomainConstants.Tasks.PARAMETERS_VALUE);
+                      if (rawValue == null) {
+                        return Stream.empty();
+                      }
+                      String value = String.valueOf(rawValue);
                       return Stream.of(Map.entry(key, value));
                     })
                 .collect(
@@ -241,8 +246,10 @@ public class ProxyConfigurationService {
     String apiPassword =
         (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
     Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
+    Object queryParamsObject = taskProps.get(DomainConstants.Tasks.PROPERTY_QUERY_PARAMS);
 
     var isApiKeyType = headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();
+    var isQueryParamType = queryParamsObject instanceof Map<?, ?> && !((Map<?, ?>) queryParamsObject).isEmpty();
     var isHttpType =
         StringUtils.hasText(authenticationMode)
             && StringUtils.hasText(apiUser)
@@ -270,6 +277,21 @@ public class ProxyConfigurationService {
               .type(SECURITY_SCHEME_TYPE_API_KEY)
               .headers(securityHeaders)
               .build();
+    } else if (isQueryParamType) {
+      Map<?, ?> qParams = (Map<?, ?>) queryParamsObject;
+      var securityQueryParams = new HashMap<String, String>();
+      for (var e : qParams.entrySet()) {
+        if (e.getKey() instanceof String key
+            && StringUtils.hasText(key)
+            && e.getValue() instanceof String value) {
+          securityQueryParams.put(key, value);
+        }
+      }
+      security =
+          HttpSecurityDto.builder()
+              .type(SECURITY_SCHEME_TYPE_API_KEY)
+              .queryParams(securityQueryParams)
+              .build();
     }
 
     // API method is hardcoded to GET as per current proxy middleware implementation.
@@ -291,6 +313,24 @@ public class ProxyConfigurationService {
         url,
         security == null ? "none" : security.describeForLog());
     return httpApiPayload;
+  }
+
+  private Task resolveExecutionTask(Task task) {
+    if (task == null
+        || !DomainConstants.Tasks.isMoreInfoTask(task)
+        || task.getRelations() == null) {
+      return task;
+    }
+    return task.getRelations().stream()
+        .filter(Objects::nonNull)
+        .filter(
+            relation ->
+                DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK.equalsIgnoreCase(
+                    relation.getRelationType()))
+        .map(TaskRelation::getRelatedTask)
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(task);
   }
 
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
@@ -357,7 +397,7 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getDatasourceConfiguration(task, coordinates));
+                payload.set(getDatasourceConfiguration(resolveExecutionTask(task), coordinates));
                 configType.set(DomainConstants.Proxy.TYPE_SQL);
               });
     } else if (DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
@@ -365,7 +405,7 @@ public class ProxyConfigurationService {
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getHttpApiConfiguration(task, coordinates));
+                payload.set(getHttpApiConfiguration(resolveExecutionTask(task), coordinates));
                 configType.set(DomainConstants.Proxy.TYPE_API);
               });
     } else {
@@ -423,16 +463,126 @@ public class ProxyConfigurationService {
     // Coordinates carry user/territory/application for future decorator steps that need context.
     // No need for addFixedFilters() anymore
 
-    Map<String, String> parameters = configProxyRequestDto.getParameters();
+    Map<String, String> parameters =
+        configProxyRequestDto.getParameters() == null
+            ? null
+            : new LinkedHashMap<>(configProxyRequestDto.getParameters());
 
+    String limit = null;
+    String offset = null;
     if (parameters != null && !parameters.isEmpty()) {
       String[] pagination = takePaginationValuesAndStripKeys(parameters);
-      String limit = pagination[0];
-      String offset = pagination[1];
-
-      expandUserParameters(parameters, payload);
-      addPagination(limit, offset, payload);
+      limit = pagination[0];
+      offset = pagination[1];
     }
+
+    parameters = filterIncomingTaskParameters(configProxyRequestDto, parameters);
+    parameters = addSqlDefaultParametersForExplicitPlaceholders(configProxyRequestDto, payload, parameters);
+
+    if (parameters != null && !parameters.isEmpty()) {
+      expandUserParameters(parameters, payload);
+    }
+
+    addPagination(limit, offset, payload);
+  }
+
+  private Map<String, String> filterIncomingTaskParameters(
+      ConfigProxyRequestDto configProxyRequestDto, Map<String, String> parameters) {
+    if (parameters == null || parameters.isEmpty()) {
+      return parameters;
+    }
+
+    if (!DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())
+        && !DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
+      return parameters;
+    }
+
+    return taskRepository
+        .findById(configProxyRequestDto.getTypeId())
+        .map(this::resolveExecutionTask)
+        .map(this::getDeclaredTaskParameterNames)
+        .map(
+            declaredNames ->
+                parameters.entrySet().stream()
+                    .filter(entry -> declaredNames.contains(entry.getKey()))
+                    .collect(
+                        Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (left, right) -> right,
+                            LinkedHashMap::new)))
+        .orElseGet(LinkedHashMap::new);
+  }
+
+  private Set<String> getDeclaredTaskParameterNames(Task task) {
+    Map<String, Object> properties = task != null ? task.getProperties() : null;
+    if (properties == null) {
+      return Collections.emptySet();
+    }
+
+    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
+    if (!(rawParameters instanceof List<?> parameterList)) {
+      return Collections.emptySet();
+    }
+
+    return parameterList.stream()
+        .filter(Map.class::isInstance)
+        .map(
+            param -> {
+              Map<String, Object> parameter = (Map<String, Object>) param;
+              String name = TaskParameterUtil.getParameterVariable(parameter);
+              if (StringUtils.hasText(name)) {
+                return name;
+              }
+              Object label = parameter.get(DomainConstants.Tasks.PARAMETERS_LABEL);
+              return label != null ? String.valueOf(label) : null;
+            })
+        .filter(StringUtils::hasText)
+        .collect(Collectors.toSet());
+  }
+
+  private Map<String, String> addSqlDefaultParametersForExplicitPlaceholders(
+      ConfigProxyRequestDto configProxyRequestDto, PayloadDto payload, Map<String, String> parameters) {
+    if (!(payload instanceof JdbcPayloadDto jdbcPayload)
+        || !DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
+      return parameters;
+    }
+
+    Map<String, String> merged = parameters == null ? new LinkedHashMap<>() : new LinkedHashMap<>(parameters);
+
+    taskRepository
+        .findById(configProxyRequestDto.getTypeId())
+        .map(this::resolveExecutionTask)
+        .map(Task::getProperties)
+        .map(properties -> properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS))
+        .filter(List.class::isInstance)
+        .map(List.class::cast)
+        .ifPresent(
+            parameterList -> {
+              for (Object rawParam : parameterList) {
+                if (!(rawParam instanceof Map<?, ?> param)) {
+                  continue;
+                }
+                String name = TaskParameterUtil.getParameterVariable((Map<String, Object>) param);
+                if (!StringUtils.hasText(name)) {
+                  Object label = param.get(DomainConstants.Tasks.PARAMETERS_LABEL);
+                  name = label != null ? String.valueOf(label) : null;
+                }
+                Object rawValue = param.get(DomainConstants.Tasks.PARAMETERS_VALUE);
+                if (!StringUtils.hasText(name) || rawValue == null) {
+                  continue;
+                }
+                if (merged.containsKey(name)) {
+                  continue;
+                }
+                if (jdbcPayload.getSql() != null
+                    && jdbcPayload.getSql().contains("${" + name + "}")) {
+                  merged.put(name, String.valueOf(rawValue));
+                }
+              }
+            });
+
+    return merged;
   }
 
   /**

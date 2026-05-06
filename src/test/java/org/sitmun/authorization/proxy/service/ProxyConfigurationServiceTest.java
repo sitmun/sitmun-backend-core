@@ -31,8 +31,10 @@ import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
@@ -386,6 +388,57 @@ class ProxyConfigurationServiceTest {
 
     // Then
     assertTrue(result);
+  }
+
+  @Test
+  @DisplayName("getConfiguration resolves linked query task for SQL more-info tasks")
+  void getConfigurationResolvesLinkedQueryTaskForSqlMoreInfoTasks() {
+    Map<String, Object> queryTaskProperties = new HashMap<>();
+    queryTaskProperties.put(PROPERTY_COMMAND, "SELECT * FROM users WHERE id = ${userId}");
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
+    when(mockConnection.getUser()).thenReturn("dbuser");
+    when(mockConnection.getPassword()).thenReturn("dbpass");
+    when(mockConnection.getDriver()).thenReturn("oracle.jdbc.driver.OracleDriver");
+
+    Task relatedQueryTask = mock(Task.class);
+    when(relatedQueryTask.getProperties()).thenReturn(queryTaskProperties);
+    when(relatedQueryTask.getConnection()).thenReturn(mockConnection);
+
+    TaskRelation relation =
+        TaskRelation.builder()
+            .relationType(org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relatedTask(relatedQueryTask)
+            .build();
+
+    Task moreInfoTask = mock(Task.class);
+    TaskType moreInfoType = mock(TaskType.class);
+    when(moreInfoType.getId()).thenReturn(org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(moreInfoTask.getType()).thenReturn(moreInfoType);
+    when(moreInfoTask.getRelations()).thenReturn(Set.of(relation));
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_SQL)
+            .typeId(42)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(42)).thenReturn(Optional.of(moreInfoTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    assertNotNull(result);
+    assertEquals(TYPE_SQL, result.getType());
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("jdbc:oracle:thin:@localhost:1521:orcl", payload.getUri());
+    assertEquals("SELECT * FROM users WHERE id = ${userId}", payload.getSql());
   }
 
   @Test
@@ -786,6 +839,245 @@ class ProxyConfigurationServiceTest {
 
     WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
     assertTrue(payload.getParameters().isEmpty());
+  }
+
+  @Test
+  @DisplayName("getConfiguration omits API task parameters whose configured value is null")
+  void getConfigurationOmitsApiTaskParametersWithNullValue() {
+    Map<String, Object> param1 = new HashMap<>();
+    param1.put("label", "capa");
+    param1.put("value", null);
+
+    Map<String, Object> param2 = new HashMap<>();
+    param2.put("label", "where");
+    param2.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/endpoint");
+    taskProperties.put("parameters", List.of(param1, param2));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_API)
+            .typeId(1)
+            .method("GET")
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertFalse(payload.getParameters().containsKey("capa"));
+    assertFalse(payload.getParameters().containsKey("where"));
+  }
+
+  @Test
+  @DisplayName("applyDecorators merges incoming HTTP request params into API payload parameters")
+  void applyDecoratorsMergesIncomingHttpRequestParamsIntoApiPayloadParameters() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> staticParam = new HashMap<>();
+    staticParam.put("label", "f");
+    staticParam.put("value", "pjson");
+
+    Map<String, Object> declaredRequestParam = new HashMap<>();
+    declaredRequestParam.put("label", "where");
+    declaredRequestParam.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/query?backendParam=#{TERR_COD}");
+    taskProperties.put("parameters", List.of(staticParam, declaredRequestParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("where", "Mitjana");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(32289)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32289)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("Mitjana", payload.getParameters().get("where"));
+    assertEquals("pjson", payload.getParameters().get("f"));
+  }
+
+  @Test
+  @DisplayName("applyDecorators expands URI templates using static payload params and keeps dynamic request params")
+  void applyDecoratorsExpandsUriTemplatesUsingStaticPayloadParamsAndKeepsDynamicRequestParams() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> templateParam = new HashMap<>();
+    templateParam.put("label", "capa");
+    templateParam.put("value", "agol_precio_m2");
+
+    Map<String, Object> queryParam = new HashMap<>();
+    queryParam.put("label", "f");
+    queryParam.put("value", "pjson");
+
+    Map<String, Object> declaredRequestParam = new HashMap<>();
+    declaredRequestParam.put("label", "where");
+    declaredRequestParam.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(
+        PROPERTY_COMMAND,
+        "https://services-eu1.arcgis.com/UpPGybwp9RK4YtZj/ArcGIS/rest/services/{capa}/FeatureServer/3/query");
+    taskProperties.put("parameters", List.of(templateParam, queryParam, declaredRequestParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("where", "Mitjana");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(32289)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32289)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals(
+        "https://services-eu1.arcgis.com/UpPGybwp9RK4YtZj/ArcGIS/rest/services/agol_precio_m2/FeatureServer/3/query",
+        payload.getUri());
+    assertFalse(payload.getParameters().containsKey("capa"));
+    assertEquals("Mitjana", payload.getParameters().get("where"));
+    assertEquals("pjson", payload.getParameters().get("f"));
+  }
+
+  @Test
+  @DisplayName("applyDecorators ignores unmatched incoming SQL params when task does not declare them")
+  void applyDecoratorsIgnoresUnmatchedIncomingSqlParamsWhenTaskDoesNotDeclareThem() {
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI");
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mock(DatabaseConnection.class));
+    when(mockTask.getConnection().getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockTask.getConnection().getUser()).thenReturn("sitmun3");
+    when(mockTask.getConnection().getPassword()).thenReturn("sitmun3");
+    when(mockTask.getConnection().getDriver()).thenReturn("org.postgresql.Driver");
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("test", "Mitjana");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(32290)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32290)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_TSK_UI", payload.getSql());
+    assertTrue(payload.getParameters().isEmpty());
+  }
+
+  @Test
+  @DisplayName("applyDecorators substitutes explicit SQL placeholders from task default parameter values")
+  void applyDecoratorsSubstitutesExplicitSqlPlaceholdersFromTaskDefaultParameterValues() {
+    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> declaredParam = new HashMap<>();
+    declaredParam.put("label", "test");
+    declaredParam.put("type", org.sitmun.domain.DomainConstants.Tasks.PARAM_TYPE_TEMPLATE);
+    declaredParam.put("value", "Media");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI WHERE tui_name = ${test}");
+    taskProperties.put("parameters", List.of(declaredParam));
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockConnection.getUser()).thenReturn("sitmun3");
+    when(mockConnection.getPassword()).thenReturn("sitmun3");
+    when(mockConnection.getDriver()).thenReturn("org.postgresql.Driver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(32290)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(32290)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_TSK_UI WHERE tui_name = ?", payload.getSql());
+    assertEquals(List.of("Media"), payload.getParameters());
   }
 
   @Test

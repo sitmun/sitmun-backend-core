@@ -4,11 +4,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.util.ParameterValidator;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
@@ -48,6 +51,8 @@ public class TaskMoreInfoService implements TaskMapper {
   public TaskDto map(Task task, Application application, Territory territory) {
     Map<String, Object> properties = task.getProperties();
     ParameterValidator.validateProvidedFlag(properties);
+    Task executionTask = resolveExecutionTask(task).orElse(task);
+    Map<String, Object> executionProperties = executionTask.getProperties();
 
     String uiControl = null;
     String type = null;
@@ -59,43 +64,99 @@ public class TaskMoreInfoService implements TaskMapper {
     if (properties != null) {
       parameters = convertToJsonObject(properties);
     }
-    // More info: command is never exposed to client (URL/API/SQL may contain secrets)
 
     String name = task.getName();
     String cartographyId =
         task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
-    final Object scopeObj =
-        properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_SCOPE) : null;
-    final String scope = scopeObj != null ? scopeObj.toString() : null;
+    final String scope = normalizeExecutionScope(executionProperties);
+    final String mimeType = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+    final String filename = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_FILENAME);
+    final String url = resolveUrl(scope, task, executionProperties, application, territory);
 
-    final TaskDto.TaskDtoBuilder taskBuilder =
-        TaskDto.builder()
-            .id("task/" + task.getId())
-            .name(name)
-            .uiControl(uiControl)
-            .type(type)
-            .parameters(parameters)
-            .cartographyId(cartographyId)
-            .scope(scope)
-            .command(null);
+    return TaskDto.builder()
+        .id("task/" + task.getId())
+        .name(name)
+        .uiControl(uiControl)
+        .type(type)
+        .parameters(parameters)
+        .cartographyId(cartographyId)
+        .scope(scope)
+        .mimeType(mimeType)
+        .filename(filename)
+        .url(url)
+        .command(null)
+        .build();
+  }
 
-    if (StringUtils.hasText(scope) && task.getId() != null) {
-      // URL scope: use command directly (external redirect, no proxy)
-      // API/SQL scopes: route through proxy middleware
-      if (DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)) {
-        String command =
-            properties != null
-                ? (String) properties.get(DomainConstants.Tasks.PROPERTY_COMMAND)
-                : null;
-        taskBuilder.url(command);
-      } else {
-        String id = String.valueOf(task.getId());
-        taskBuilder.url(
-            ProxyUrlBuilder.forScopedResource(proxyUrl, application, territory, scope, id));
-      }
+  private String extractStringProperty(Map<String, Object> properties, String key) {
+    if (properties == null) {
+      return null;
     }
+    Object value = properties.get(key);
+    return value != null ? value.toString() : null;
+  }
 
-    return taskBuilder.build();
+  private String resolveUrl(
+      String scope,
+      Task task,
+      Map<String, Object> executionProperties,
+      Application application,
+      Territory territory) {
+    if (!StringUtils.hasText(scope) || task.getId() == null) {
+      return null;
+    }
+    if (DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)) {
+      return extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_COMMAND);
+    }
+    return ProxyUrlBuilder.forScopedResource(
+        proxyUrl, application, territory, scope, String.valueOf(task.getId()));
+  }
+
+  private Optional<Task> resolveExecutionTask(Task task) {
+    if (task == null || task.getRelations() == null) {
+      return Optional.empty();
+    }
+    return task.getRelations().stream()
+        .filter(Objects::nonNull)
+        .filter(
+            relation ->
+                DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK.equalsIgnoreCase(
+                    relation.getRelationType()))
+        .map(TaskRelation::getRelatedTask)
+        .filter(Objects::nonNull)
+        .findFirst();
+  }
+
+  private String normalizeExecutionScope(Map<String, Object> properties) {
+    if (properties == null) {
+      return null;
+    }
+    Object scopeObj = properties.get(DomainConstants.Tasks.PROPERTY_SCOPE);
+    if (scopeObj == null) {
+      return null;
+    }
+    String scope = scopeObj.toString();
+    if (DomainConstants.Tasks.SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_SQL;
+    }
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_API;
+    }
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
+      // No-proxy with mimeType → RESOURCE (mimeType-driven rendering, direct fetch)
+      // No-proxy without mimeType → URL (external redirect)
+      Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+      boolean hasMimeType = mimeTypeObj != null
+          && StringUtils.hasText(mimeTypeObj.toString());
+      return hasMimeType
+          ? DomainConstants.Tasks.SCOPE_RESOURCE
+          : DomainConstants.Tasks.SCOPE_URL;
+    }
+    if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
+      return DomainConstants.Tasks.SCOPE_URL;
+    }
+    return scope;
   }
 
   /**

@@ -50,15 +50,30 @@ public class TaskQueryWebService implements TaskMapper {
     ParameterValidator.validateProvidedFlag(properties);
 
     String url = null;
+    String mimeType = null;
+    String filename = null;
     Map<String, Object> parameters = new HashMap<>();
 
     if (properties != null) {
       boolean hasProvidedVars = ParameterValidator.hasProvidedVariables(properties);
+      Object scopeObj = properties.get(DomainConstants.Tasks.PROPERTY_SCOPE);
+      String scopeStr = String.valueOf(scopeObj);
+      boolean isNoProxy = DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY
+          .equalsIgnoreCase(scopeStr);
 
-      if (hasProvidedVars) {
+      if (!isNoProxy && hasProvidedVars) {
         url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
       } else if (properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) != null) {
         url = properties.get(DomainConstants.Tasks.PROPERTY_COMMAND).toString();
+      }
+
+      Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+      if (mimeTypeObj != null) {
+        mimeType = mimeTypeObj.toString();
+      }
+      Object filenameObj = properties.get(DomainConstants.Tasks.PROPERTY_FILENAME);
+      if (filenameObj != null) {
+        filename = filenameObj.toString();
       }
 
       parameters = convertToJsonObject(properties);
@@ -69,6 +84,8 @@ public class TaskQueryWebService implements TaskMapper {
         .type(AuthorizationConstants.TaskDto.SIMPLE)
         .parameters(parameters)
         .url(url)
+        .mimeType(mimeType)
+        .filename(filename)
         .build();
   }
 

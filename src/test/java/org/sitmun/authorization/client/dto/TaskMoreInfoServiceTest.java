@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.domain.territory.Territory;
@@ -122,6 +124,92 @@ class TaskMoreInfoServiceTest {
 
     // Then
     assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("map uses linked query task execution while keeping more-info parameters")
+  void mapUsesLinkedQueryTaskExecutionWhileKeepingMoreInfoParameters() {
+    Task task = mock(Task.class);
+    Task relatedQueryTask = mock(Task.class);
+    Application application = mock(Application.class);
+    Territory territory = mock(Territory.class);
+
+    when(task.getId()).thenReturn(42);
+    when(task.getName()).thenReturn("More info");
+    when(task.getUi()).thenReturn(null);
+    when(task.getCartography()).thenReturn(null);
+
+    Map<String, Object> ownParameter = new HashMap<>();
+    ownParameter.put("label", "docId");
+    ownParameter.put("value", "ID");
+    when(task.getProperties())
+        .thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(ownParameter)));
+
+    when(relatedQueryTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_SCOPE,
+                DomainConstants.Tasks.SCOPE_WEB_API_QUERY,
+                DomainConstants.Tasks.PROPERTY_COMMAND,
+                "https://api.example.com/info/{docId}"));
+
+    TaskRelation relation =
+        TaskRelation.builder()
+            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relatedTask(relatedQueryTask)
+            .build();
+    when(task.getRelations()).thenReturn(Set.of(relation));
+
+    when(application.getId()).thenReturn(1);
+    when(territory.getId()).thenReturn(2);
+
+    TaskDto result = service.map(task, application, territory);
+
+    assertNotNull(result);
+    assertEquals(DomainConstants.Tasks.SCOPE_API, result.getScope());
+    assertEquals("http://localhost:8080/middleware/proxy/1/2/API/42", result.getUrl());
+    assertNotNull(result.getParameters());
+    assertTrue(result.getParameters().containsKey("docId"));
+  }
+
+  @Test
+  @DisplayName("map resolves URL-scope query task linked via relation: url is set to command")
+  void mapResolvesUrlQueryLinkedTask() {
+    Task task = mock(Task.class);
+    Task relatedUrlQueryTask = mock(Task.class);
+    Application application = mock(Application.class);
+    Territory territory = mock(Territory.class);
+
+    when(task.getId()).thenReturn(55);
+    when(task.getName()).thenReturn("More info URL");
+    when(task.getUi()).thenReturn(null);
+    when(task.getCartography()).thenReturn(null);
+    when(task.getProperties()).thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of()));
+
+    when(relatedUrlQueryTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_SCOPE,
+                DomainConstants.Tasks.SCOPE_URL,
+                DomainConstants.Tasks.PROPERTY_COMMAND,
+                "https://external.example.com/doc?id={code}"));
+
+    TaskRelation relation =
+        TaskRelation.builder()
+            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relatedTask(relatedUrlQueryTask)
+            .build();
+    when(task.getRelations()).thenReturn(Set.of(relation));
+
+    when(application.getId()).thenReturn(1);
+    when(territory.getId()).thenReturn(2);
+
+    TaskDto result = service.map(task, application, territory);
+
+    assertNotNull(result);
+    assertEquals(DomainConstants.Tasks.SCOPE_URL, result.getScope());
+    assertEquals("https://external.example.com/doc?id={code}", result.getUrl());
+    assertNull(result.getCommand()); // Command is never exposed (only url field)
   }
 
   @Test

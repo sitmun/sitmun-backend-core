@@ -22,6 +22,7 @@ public final class CodeListsConstants {
   public static final String SERVICE_PARAMETER_TYPE = "serviceParameter.type";
   public static final String SERVICE_TYPE = "service.type";
   public static final String TERRITORY_SCOPE = "territory.scope";
+  public static final String QUERY_TASK_MIME_TYPE = "queryTask.mimeType";
   public static final String QUERY_TASK_SCOPE = "queryTask.scope";
   public static final String QUERY_TASK_PARAMETER_TYPE = "queryTask.parameterType";
   public static final String TASK_ENTITY_JSON_PARAM_TYPE = "taskEntity.jsonParamType";

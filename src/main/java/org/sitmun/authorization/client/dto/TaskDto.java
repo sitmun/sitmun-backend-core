@@ -41,4 +41,10 @@ public class TaskDto {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @JsonProperty("name")
   private String name;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String mimeType;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String filename;
 }

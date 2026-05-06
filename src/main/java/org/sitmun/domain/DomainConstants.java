@@ -59,12 +59,21 @@ public class DomainConstants {
     public static final String SCOPE_URL = "URL";
     public static final String SCOPE_API = "API";
     public static final String SCOPE_SQL = "SQL";
-    public static final String SCOPE_IFRAME = "IFRAME";
-    public static final String SCOPE_INFORME = "INFORME";
+    public static final String SCOPE_RESOURCE = "RESOURCE";
 
     // Scope types (query tasks)
+    public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
     public static final String SCOPE_SQL_QUERY = "sql-query";
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
+    public static final String SCOPE_WEB_API_QUERY_NO_PROXY = "web-api-query-no-proxy";
+    public static final String SCOPE_URL_QUERY = "external-link";
+
+    // Task relation types
+    public static final String RELATION_TYPE_QUERY_TASK = "query-task";
+
+    // Resource properties
+    public static final String PROPERTY_MIME_TYPE = "mimeType";
+    public static final String PROPERTY_FILENAME = "filename";
 
     // HTTP API task properties
     public static final String PROPERTY_BODY = "body";
@@ -72,6 +81,7 @@ public class DomainConstants {
     public static final String PROPERTY_USER = "user";
     public static final String PROPERTY_PASSWORD = "password";
     public static final String PROPERTY_HEADERS = "headers";
+    public static final String PROPERTY_QUERY_PARAMS = "queryParams";
 
     // Parameter types
     public static final String TYPE_STRING = "string";
@@ -126,7 +136,9 @@ public class DomainConstants {
       Map<String, Object> properties = task.getProperties();
       if (properties != null) {
         Object scope = properties.get(PROPERTY_SCOPE);
-        return SCOPE_WEB_API_QUERY.equalsIgnoreCase(String.valueOf(scope));
+        String scopeStr = String.valueOf(scope);
+        return SCOPE_WEB_API_QUERY.equalsIgnoreCase(scopeStr)
+            || SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
       }
       return false;
     }

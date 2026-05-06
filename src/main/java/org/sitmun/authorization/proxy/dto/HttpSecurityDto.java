@@ -27,6 +27,8 @@ public class HttpSecurityDto {
 
   private Map<String, String> headers;
 
+  private Map<String, String> queryParams;
+
   /**
    * Debug-oriented summary: {@code apiKey} → header names (and username if erroneously set); {@code
    * http} (including legacy blank type with credentials) → scheme, username (literal when set), and
