@@ -1,4 +1,4 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
@@ -25,10 +26,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 class TaskMoreInfoServiceTest {
 
   private TaskMoreInfoService service;
+  private org.sitmun.domain.task.MoreInfoTaskResolver moreInfoTaskResolver;
 
   @BeforeEach
   void setUp() {
-    service = new TaskMoreInfoService();
+    moreInfoTaskResolver = mock(org.sitmun.domain.task.MoreInfoTaskResolver.class);
+    service = new TaskMoreInfoService(moreInfoTaskResolver);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
   }
 
@@ -95,12 +98,11 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
-  @DisplayName("accept returns false for null task type title")
-  void acceptReturnsFalseForNullTaskTypeTitle() {
+  @DisplayName("accept returns false when task type id is unset")
+  void acceptReturnsFalseWhenTaskTypeIdIsUnset() {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn(null);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -108,6 +110,23 @@ class TaskMoreInfoServiceTest {
 
     // Then
     assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("accept ignores task type title")
+  void acceptIgnoresTaskTypeTitle() {
+    // Given
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getTitle()).thenReturn("Some Title");
+    when(task.getType()).thenReturn(taskType);
+
+    // When
+    boolean result = service.accept(task);
+
+    // Then
+    assertTrue(result);
   }
 
   @Test
@@ -163,6 +182,9 @@ class TaskMoreInfoServiceTest {
     when(application.getId()).thenReturn(1);
     when(territory.getId()).thenReturn(2);
 
+    when(moreInfoTaskResolver.findRelatedQueryTask(task))
+        .thenReturn(java.util.Optional.of(relatedQueryTask));
+
     TaskDto result = service.map(task, application, territory);
 
     assertNotNull(result);
@@ -184,7 +206,8 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("More info URL");
     when(task.getUi()).thenReturn(null);
     when(task.getCartography()).thenReturn(null);
-    when(task.getProperties()).thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of()));
+    when(task.getProperties())
+        .thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of()));
 
     when(relatedUrlQueryTask.getProperties())
         .thenReturn(
@@ -203,6 +226,9 @@ class TaskMoreInfoServiceTest {
 
     when(application.getId()).thenReturn(1);
     when(territory.getId()).thenReturn(2);
+
+    when(moreInfoTaskResolver.findRelatedQueryTask(task))
+        .thenReturn(java.util.Optional.of(relatedUrlQueryTask));
 
     TaskDto result = service.map(task, application, territory);
 

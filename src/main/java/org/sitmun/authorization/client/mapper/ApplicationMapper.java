@@ -1,8 +1,9 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.mapper;
 
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
+import org.sitmun.authorization.client.dto.ApplicationDtoLittle;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.user.User;
 

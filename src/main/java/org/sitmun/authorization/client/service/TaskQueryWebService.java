@@ -1,4 +1,4 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.service;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +7,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.AuthorizationConstants;
+import org.sitmun.authorization.client.dto.TaskDto;
+import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
@@ -17,58 +19,83 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Service for handling SQL query tasks in SITMUN. Maps SQL query tasks to DTOs and manages their
- * parameters.
+ * Maps web service query tasks to DTOs. Handles conversion of task properties and parameters for
+ * web API queries.
  */
 @Slf4j
 @Component
-public class TaskQuerySqlService implements TaskMapper {
+public class TaskQueryWebService implements TaskMapper {
 
   @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
 
   /**
-   * Determines if a task is a SQL query task.
+   * Checks if the task is a web API query task.
    *
-   * @param task The task to check
-   * @return true if the task is a SQL query task
+   * @param task Task to check
+   * @return true if task is a web API query
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isSqlQueryTask(task);
+    return DomainConstants.Tasks.isWebApiQuery(task);
   }
 
   /**
-   * Maps a SQL query task to a TaskDto.
+   * Maps a web service query task to a TaskDto.
    *
-   * @param task The SQL query task
-   * @param application The application context
-   * @param territory The territory context
-   * @return TaskDto containing task information and parameters
+   * @param task Task to map
+   * @param application Application context
+   * @param territory Territory context
+   * @return Mapped TaskDto with parameters and URL
    */
   public TaskDto map(Task task, Application application, Territory territory) {
     Map<String, Object> properties = task.getProperties();
     ParameterValidator.validateProvidedFlag(properties);
 
+    String url = null;
+    String mimeType = null;
+    String filename = null;
     Map<String, Object> parameters = new HashMap<>();
+
     if (properties != null) {
+      boolean hasProvidedVars = ParameterValidator.hasProvidedVariables(properties);
+      Object scopeObj = properties.get(DomainConstants.Tasks.PROPERTY_SCOPE);
+      String scopeStr = String.valueOf(scopeObj);
+      boolean isNoProxy =
+          DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
+
+      if (!isNoProxy && hasProvidedVars) {
+        url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
+      } else if (properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) != null) {
+        url = properties.get(DomainConstants.Tasks.PROPERTY_COMMAND).toString();
+      }
+
+      Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+      if (mimeTypeObj != null) {
+        mimeType = mimeTypeObj.toString();
+      }
+      Object filenameObj = properties.get(DomainConstants.Tasks.PROPERTY_FILENAME);
+      if (filenameObj != null) {
+        filename = filenameObj.toString();
+      }
+
       parameters = convertToJsonObject(properties);
     }
-
-    String url = ProxyUrlBuilder.forSqlTask(proxyUrl, application, territory, task);
 
     return TaskDto.builder()
         .id("task/" + task.getId())
         .type(AuthorizationConstants.TaskDto.SIMPLE)
         .parameters(parameters)
         .url(url)
+        .mimeType(mimeType)
+        .filename(filename)
         .build();
   }
 
   /**
    * Converts task properties to a parameter map.
    *
-   * @param properties The task properties to convert
-   * @return Map of parameter names to their type and required status, or null if no parameters
+   * @param properties Task properties to convert
+   * @return Map of parameter names to their type and required status, or null if empty
    */
   @Nullable
   private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {

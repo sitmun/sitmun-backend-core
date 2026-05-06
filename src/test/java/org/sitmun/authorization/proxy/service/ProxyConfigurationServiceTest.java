@@ -9,6 +9,7 @@ import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MO
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_HEADERS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PASSWORD;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_QUERY_PARAMS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_USER;
 
 import java.util.*;
@@ -26,14 +27,15 @@ import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
-import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
@@ -52,6 +54,7 @@ class ProxyConfigurationServiceTest {
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
   @Mock private SystemVariableResolver systemVariableResolver;
+  @Mock private org.sitmun.domain.task.MoreInfoTaskResolver moreInfoTaskResolver;
 
   private ProxyConfigurationService service;
 
@@ -61,6 +64,11 @@ class ProxyConfigurationServiceTest {
     // Use lenient() because not all tests call resolve()
     lenient()
         .when(systemVariableResolver.resolve(anyString(), any(RequestCoordinates.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Mock MoreInfoTaskResolver to return the input task unchanged (no resolution in tests)
+    lenient()
+        .when(moreInfoTaskResolver.resolveOrSelf(any(Task.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     service =
@@ -74,7 +82,8 @@ class ProxyConfigurationServiceTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             Collections.emptyList(), // Empty validators list for non-validation tests
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver);
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
@@ -371,26 +380,6 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName("validateUserAccess returns true (TODO implementation)")
-  void validateUserAccessReturnsTrue() {
-    // Given
-    ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder()
-            .appId(1)
-            .terId(1)
-            .type(TYPE_WMS)
-            .typeId(1)
-            .method("GET")
-            .build();
-
-    // When
-    boolean result = service.validateUserAccess(request, "testuser");
-
-    // Then
-    assertTrue(result);
-  }
-
-  @Test
   @DisplayName("getConfiguration resolves linked query task for SQL more-info tasks")
   void getConfigurationResolvesLinkedQueryTaskForSqlMoreInfoTasks() {
     Map<String, Object> queryTaskProperties = new HashMap<>();
@@ -414,9 +403,11 @@ class ProxyConfigurationServiceTest {
 
     Task moreInfoTask = mock(Task.class);
     TaskType moreInfoType = mock(TaskType.class);
-    when(moreInfoType.getId()).thenReturn(org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
-    when(moreInfoTask.getType()).thenReturn(moreInfoType);
-    when(moreInfoTask.getRelations()).thenReturn(Set.of(relation));
+    lenient()
+        .when(moreInfoType.getId())
+        .thenReturn(org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    lenient().when(moreInfoTask.getType()).thenReturn(moreInfoType);
+    lenient().when(moreInfoTask.getRelations()).thenReturn(Set.of(relation));
 
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder()
@@ -429,6 +420,7 @@ class ProxyConfigurationServiceTest {
             .build();
 
     when(taskRepository.findById(42)).thenReturn(Optional.of(moreInfoTask));
+    when(moreInfoTaskResolver.resolveOrSelf(moreInfoTask)).thenReturn(relatedQueryTask);
 
     ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
 
@@ -657,6 +649,86 @@ class ProxyConfigurationServiceTest {
     assertNotNull(payload.getSecurity().getHeaders());
     assertEquals("secret-key", payload.getSecurity().getHeaders().get("X-API-Key"));
     assertEquals("Bearer token", payload.getSecurity().getHeaders().get("Authorization"));
+  }
+
+  @Test
+  @DisplayName(
+      "getConfiguration sets OpenAPI-style apiKey security on API task when query params map is present")
+  void getConfigurationSetsOpenApiApiKeySecurityWhenQueryParamsMapPresent() {
+    Map<String, Object> queryParams = new LinkedHashMap<>();
+    queryParams.put("api_key", "secret-key");
+    queryParams.put("token", "access-token");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/endpoint");
+    taskProperties.put(PROPERTY_QUERY_PARAMS, queryParams);
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_API)
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertNotNull(payload.getSecurity());
+    assertEquals("apiKey", payload.getSecurity().getType());
+    assertNull(payload.getSecurity().getScheme());
+    assertNotNull(payload.getSecurity().getQueryParams());
+    assertEquals("secret-key", payload.getSecurity().getQueryParams().get("api_key"));
+    assertEquals("access-token", payload.getSecurity().getQueryParams().get("token"));
+  }
+
+  @Test
+  @DisplayName(
+      "getConfiguration HTTP Basic auth takes precedence over API key when both are configured")
+  void getConfigurationHttpBasicAuthTakesPrecedenceOverApiKey() {
+    Map<String, Object> headers = new LinkedHashMap<>();
+    headers.put("X-API-Key", "should-be-ignored");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/endpoint");
+    taskProperties.put(PROPERTY_AUTHENTICATION_MODE, "HTTP Basic authentication");
+    taskProperties.put(PROPERTY_USER, "admin");
+    taskProperties.put(PROPERTY_PASSWORD, "secret");
+    taskProperties.put(PROPERTY_HEADERS, headers);
+    taskProperties.put("parameters", Collections.emptyList());
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_API)
+            .typeId(1)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertNotNull(payload.getSecurity());
+    assertEquals("http", payload.getSecurity().getType());
+    assertEquals("basic", payload.getSecurity().getScheme());
+    assertEquals("admin", payload.getSecurity().getUsername());
+    assertEquals("secret", payload.getSecurity().getPassword());
+    assertNull(payload.getSecurity().getHeaders());
   }
 
   @Test
@@ -930,7 +1002,8 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName("applyDecorators expands URI templates using static payload params and keeps dynamic request params")
+  @DisplayName(
+      "applyDecorators expands URI templates using static payload params and keeps dynamic request params")
   void applyDecoratorsExpandsUriTemplatesUsingStaticPayloadParamsAndKeepsDynamicRequestParams() {
     doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
     doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
@@ -989,7 +1062,8 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName("applyDecorators ignores unmatched incoming SQL params when task does not declare them")
+  @DisplayName(
+      "applyDecorators ignores unmatched incoming SQL params when task does not declare them")
   void applyDecoratorsIgnoresUnmatchedIncomingSqlParamsWhenTaskDoesNotDeclareThem() {
     Map<String, Object> taskProperties = new HashMap<>();
     taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI");
@@ -1031,7 +1105,8 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName("applyDecorators substitutes explicit SQL placeholders from task default parameter values")
+  @DisplayName(
+      "applyDecorators substitutes explicit SQL placeholders from task default parameter values")
   void applyDecoratorsSubstitutesExplicitSqlPlaceholdersFromTaskDefaultParameterValues() {
     doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
     doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
@@ -1039,7 +1114,6 @@ class ProxyConfigurationServiceTest {
 
     Map<String, Object> declaredParam = new HashMap<>();
     declaredParam.put("label", "test");
-    declaredParam.put("type", org.sitmun.domain.DomainConstants.Tasks.PARAM_TYPE_TEMPLATE);
     declaredParam.put("value", "Media");
 
     Map<String, Object> taskProperties = new HashMap<>();
@@ -1078,6 +1152,435 @@ class ProxyConfigurationServiceTest {
     JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
     assertEquals("SELECT * FROM STM_TSK_UI WHERE tui_name = ?", payload.getSql());
     assertEquals(List.of("Media"), payload.getParameters());
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators prefers task SQL ${placeholder} defaults over matching client parameters")
+  void applyDecoratorsPrefersTaskSqlPlaceholderDefaultsOverMatchingClientParameters() {
+    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> declaredParam = new HashMap<>();
+    declaredParam.put("label", "test");
+    declaredParam.put("value", "Media");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI WHERE tui_name = ${test}");
+    taskProperties.put("parameters", List.of(declaredParam));
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockConnection.getUser()).thenReturn("sitmun3");
+    when(mockConnection.getPassword()).thenReturn("sitmun3");
+    when(mockConnection.getDriver()).thenReturn("org.postgresql.Driver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("test", "ClientShouldNotWin");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(32290)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32290)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_TSK_UI WHERE tui_name = ?", payload.getSql());
+    assertEquals(List.of("Media"), payload.getParameters());
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators prefers backend-configured HTTP payload parameters over client request parameters")
+  void applyDecoratorsPrefersBackendConfiguredHttpPayloadParametersOverClientRequestParameters() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> backendFixed = new HashMap<>();
+    backendFixed.put("variable", "f");
+    backendFixed.put("value", "pjson");
+
+    Map<String, Object> declaredRequestParam = new HashMap<>();
+    declaredRequestParam.put("variable", "outFields");
+    declaredRequestParam.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/query");
+    taskProperties.put("parameters", List.of(backendFixed, declaredRequestParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("f", "geojson");
+    requestParams.put("outFields", "*");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(32289)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32289)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("pjson", payload.getParameters().get("f"));
+    assertEquals("*", payload.getParameters().get("outFields"));
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators uses client HTTP parameter when task backend default is blank (empty string)")
+  void applyDecoratorsUsesClientHttpParameterWhenTaskBackendDefaultIsBlankString() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> backendBlank = new HashMap<>();
+    backendBlank.put("variable", "f");
+    backendBlank.put("value", "");
+
+    Map<String, Object> declaredRequestParam = new HashMap<>();
+    declaredRequestParam.put("variable", "where");
+    declaredRequestParam.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/query");
+    taskProperties.put("parameters", List.of(backendBlank, declaredRequestParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("f", "geojson");
+    requestParams.put("where", "CLIENT_WHERE");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(33204)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(33204)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("geojson", payload.getParameters().get("f"));
+    assertEquals("CLIENT_WHERE", payload.getParameters().get("where"));
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators uses client for SQL ${placeholder} when task configured default is blank")
+  void applyDecoratorsUsesClientForSqlPlaceholderWhenTaskConfiguredDefaultIsBlankString() {
+    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> declaredParam = new HashMap<>();
+    declaredParam.put("label", "test");
+    declaredParam.put("value", "");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI WHERE tui_name = ${test}");
+    taskProperties.put("parameters", List.of(declaredParam));
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockConnection.getUser()).thenReturn("sitmun3");
+    when(mockConnection.getPassword()).thenReturn("sitmun3");
+    when(mockConnection.getDriver()).thenReturn("org.postgresql.Driver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(33205)
+            .method("GET")
+            .parameters(Map.of("test", "FromClient"))
+            .build();
+
+    when(taskRepository.findById(33205)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_TSK_UI WHERE tui_name = ?", payload.getSql());
+    assertEquals(List.of("FromClient"), payload.getParameters());
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators prefers resolved #{…} task parameter values over client even when blank")
+  void applyDecoratorsPrefersResolvedSystemVariableParameterOverClientEvenWhenBlank() {
+    reset(systemVariableResolver);
+    lenient()
+        .when(systemVariableResolver.resolve(anyString(), any(RequestCoordinates.class)))
+        .thenAnswer(inv -> "#{PROXY_EMPTY}".equals(inv.getArgument(0)) ? "" : inv.getArgument(0));
+
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> computedParam = new HashMap<>();
+    computedParam.put("variable", "token");
+    computedParam.put("value", "#{PROXY_EMPTY}");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/data");
+    taskProperties.put("parameters", List.of(computedParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(33206)
+            .method("GET")
+            .parameters(Map.of("token", "client-token"))
+            .build();
+
+    when(taskRepository.findById(33206)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("", payload.getParameters().get("token"));
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators ignores client attempts to supply backend-only provided parameter names")
+  void applyDecoratorsIgnoresClientAttemptsToSupplyBackendOnlyProvidedParameterNames() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> secretParam = new HashMap<>();
+    secretParam.put("variable", "apiKey");
+    secretParam.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, true);
+    secretParam.put("value", "backend-secret");
+
+    Map<String, Object> declaredRequestParam = new HashMap<>();
+    declaredRequestParam.put("variable", "where");
+    declaredRequestParam.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/data?token={apiKey}");
+    taskProperties.put("parameters", List.of(secretParam, declaredRequestParam));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("apiKey", "client-evil");
+    requestParams.put("where", "1=1");
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(32289)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    when(taskRepository.findById(32289)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertNotNull(result);
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("https://api.example.com/data?token=backend-secret", payload.getUri());
+    assertFalse(payload.getParameters().containsKey("apiKey"));
+    assertEquals("1=1", payload.getParameters().get("where"));
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators keeps client HTTP parameter values when the task declares no backend value")
+  void applyDecoratorsKeepsClientHttpParameterValuesWhenTaskDeclaresNoBackendValue() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> declaredOnly = new HashMap<>();
+    declaredOnly.put("variable", "where");
+    declaredOnly.put("value", null);
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "https://api.example.com/search");
+    taskProperties.put("parameters", List.of(declaredOnly));
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_API)
+            .typeId(33201)
+            .method("GET")
+            .parameters(Map.of("where", "CLIENT_PREDICATE"))
+            .build();
+
+    when(taskRepository.findById(33201)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    WmsPayloadDto payload = (WmsPayloadDto) result.getPayload();
+    assertEquals("https://api.example.com/search", payload.getUri());
+    assertEquals("CLIENT_PREDICATE", payload.getParameters().get("where"));
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators uses client values for SQL ${placeholder} when task parameter has no default value")
+  void applyDecoratorsUsesClientValuesForSqlPlaceholderWhenTaskParameterHasNoDefaultValue() {
+    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> declaredParam = new HashMap<>();
+    declaredParam.put("label", "test");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_TSK_UI WHERE tui_name = ${test}");
+    taskProperties.put("parameters", List.of(declaredParam));
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockConnection.getUser()).thenReturn("sitmun3");
+    when(mockConnection.getPassword()).thenReturn("sitmun3");
+    when(mockConnection.getDriver()).thenReturn("org.postgresql.Driver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(33202)
+            .method("GET")
+            .parameters(Map.of("test", "FromClient"))
+            .build();
+
+    when(taskRepository.findById(33202)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_TSK_UI WHERE tui_name = ?", payload.getSql());
+    assertEquals(List.of("FromClient"), payload.getParameters());
+  }
+
+  @Test
+  @DisplayName(
+      "applyDecorators uses client vary-filter values when SQL has no ${placeholder} for task defaults")
+  void applyDecoratorsUsesClientVaryFilterValuesWhenSqlHasNoPlaceholderForTaskDefaults() {
+    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+
+    Map<String, Object> taskDefaultUnusedWithoutPlaceholder = new HashMap<>();
+    taskDefaultUnusedWithoutPlaceholder.put("variable", "columnA");
+    taskDefaultUnusedWithoutPlaceholder.put("value", "BACKEND_DEFAULT_NOT_REFERENCED_IN_SQL");
+
+    Map<String, Object> taskProperties = new HashMap<>();
+    taskProperties.put(PROPERTY_COMMAND, "SELECT * FROM STM_EXAMPLE");
+    taskProperties.put("parameters", List.of(taskDefaultUnusedWithoutPlaceholder));
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:postgresql://postgres:5432/sitmun3");
+    when(mockConnection.getUser()).thenReturn("sitmun3");
+    when(mockConnection.getPassword()).thenReturn("sitmun3");
+    when(mockConnection.getDriver()).thenReturn("org.postgresql.Driver");
+
+    Task mockTask = mock(Task.class);
+    when(mockTask.getProperties()).thenReturn(taskProperties);
+    when(mockTask.getConnection()).thenReturn(mockConnection);
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(12)
+            .terId(4)
+            .type(TYPE_SQL)
+            .typeId(33203)
+            .method("GET")
+            .parameters(Map.of("columnA", "client_filter"))
+            .build();
+
+    when(taskRepository.findById(33203)).thenReturn(Optional.of(mockTask));
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("SELECT * FROM STM_EXAMPLE WHERE 1=1 AND columnA=?", payload.getSql());
+    assertEquals(List.of("client_filter"), payload.getParameters());
   }
 
   @Test
@@ -1247,7 +1750,8 @@ class ProxyConfigurationServiceTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(mockValidator),
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver);
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
 
@@ -1284,7 +1788,8 @@ class ProxyConfigurationServiceTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(mockValidator),
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver);
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
 
@@ -1326,7 +1831,8 @@ class ProxyConfigurationServiceTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             List.of(validator1, validator2),
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver);
     ReflectionTestUtils.setField(serviceWithValidators, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidators, "validateUserAccessEnabled", true);
 

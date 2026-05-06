@@ -1,4 +1,4 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.mapper;
 
 import java.util.List;
 import org.mapstruct.*;

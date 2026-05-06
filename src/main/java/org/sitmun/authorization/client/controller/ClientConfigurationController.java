@@ -17,6 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.mapstruct.factory.Mappers;
 import org.sitmun.SitmunConstants;
 import org.sitmun.authorization.client.dto.*;
+import org.sitmun.authorization.client.mapper.ApplicationMapper;
+import org.sitmun.authorization.client.mapper.ProfileMapper;
+import org.sitmun.authorization.client.mapper.TerritoryMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ProfileContext;
 import org.sitmun.domain.application.Application;
@@ -185,8 +188,8 @@ public class ClientConfigurationController {
   @Transactional(readOnly = true)
   public ResponseEntity<ProfileDto> getProfile(
       @CurrentSecurityContext SecurityContext context,
-      @PathVariable("appId") Integer appId,
-      @PathVariable("terrId") Integer terrId,
+      @PathVariable Integer appId,
+      @PathVariable Integer terrId,
       @RequestParam(value = "filter", defaultValue = "none") String filter) {
     String username = context.getAuthentication().getName();
     if (!authorizationService.mayAccessUser(appId, username)) {

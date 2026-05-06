@@ -1,6 +1,7 @@
 package org.sitmun.authorization.proxy.decorators;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.sitmun.authorization.proxy.dto.HttpPayloadDto;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
@@ -30,10 +31,13 @@ public class HttpUserParametrizationDecorator implements Decorator<Map<String, S
       return;
     }
 
-    Map<String, String> combinedParameters = new HashMap<>(payloadParameters);
+    // Client request parameters first; task payload parameters (defaults, provided secrets, etc.)
+    // overwrite on key collision so backend configuration always wins.
+    Map<String, String> combinedParameters = new LinkedHashMap<>();
     if (target != null && !target.isEmpty()) {
       combinedParameters.putAll(target);
     }
+    combinedParameters.putAll(payloadParameters);
 
     Map<String, String> remainingParameters = new HashMap<>(combinedParameters);
 

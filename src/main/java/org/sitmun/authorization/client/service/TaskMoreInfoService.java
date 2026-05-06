@@ -1,17 +1,17 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.service;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.sitmun.authorization.client.dto.TaskDto;
+import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
-import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.util.ParameterValidator;
 import org.sitmun.infrastructure.util.TaskParameterUtil;
@@ -29,6 +29,12 @@ public class TaskMoreInfoService implements TaskMapper {
 
   @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
+
+  private final MoreInfoTaskResolver moreInfoTaskResolver;
+
+  public TaskMoreInfoService(MoreInfoTaskResolver moreInfoTaskResolver) {
+    this.moreInfoTaskResolver = moreInfoTaskResolver;
+  }
 
   /**
    * Determines if a task is a moreInfo task.
@@ -51,7 +57,7 @@ public class TaskMoreInfoService implements TaskMapper {
   public TaskDto map(Task task, Application application, Territory territory) {
     Map<String, Object> properties = task.getProperties();
     ParameterValidator.validateProvidedFlag(properties);
-    Task executionTask = resolveExecutionTask(task).orElse(task);
+    Task executionTask = moreInfoTaskResolver.findRelatedQueryTask(task).orElse(task);
     Map<String, Object> executionProperties = executionTask.getProperties();
 
     String uiControl = null;
@@ -69,8 +75,10 @@ public class TaskMoreInfoService implements TaskMapper {
     String cartographyId =
         task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
     final String scope = normalizeExecutionScope(executionProperties);
-    final String mimeType = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_MIME_TYPE);
-    final String filename = extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_FILENAME);
+    final String mimeType =
+        extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+    final String filename =
+        extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_FILENAME);
     final String url = resolveUrl(scope, task, executionProperties, application, territory);
 
     return TaskDto.builder()
@@ -113,21 +121,6 @@ public class TaskMoreInfoService implements TaskMapper {
         proxyUrl, application, territory, scope, String.valueOf(task.getId()));
   }
 
-  private Optional<Task> resolveExecutionTask(Task task) {
-    if (task == null || task.getRelations() == null) {
-      return Optional.empty();
-    }
-    return task.getRelations().stream()
-        .filter(Objects::nonNull)
-        .filter(
-            relation ->
-                DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK.equalsIgnoreCase(
-                    relation.getRelationType()))
-        .map(TaskRelation::getRelatedTask)
-        .filter(Objects::nonNull)
-        .findFirst();
-  }
-
   private String normalizeExecutionScope(Map<String, Object> properties) {
     if (properties == null) {
       return null;
@@ -147,11 +140,8 @@ public class TaskMoreInfoService implements TaskMapper {
       // No-proxy with mimeType → RESOURCE (mimeType-driven rendering, direct fetch)
       // No-proxy without mimeType → URL (external redirect)
       Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
-      boolean hasMimeType = mimeTypeObj != null
-          && StringUtils.hasText(mimeTypeObj.toString());
-      return hasMimeType
-          ? DomainConstants.Tasks.SCOPE_RESOURCE
-          : DomainConstants.Tasks.SCOPE_URL;
+      boolean hasMimeType = mimeTypeObj != null && StringUtils.hasText(mimeTypeObj.toString());
+      return hasMimeType ? DomainConstants.Tasks.SCOPE_RESOURCE : DomainConstants.Tasks.SCOPE_URL;
     }
     if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
       return DomainConstants.Tasks.SCOPE_URL;

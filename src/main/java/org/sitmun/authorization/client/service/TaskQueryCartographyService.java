@@ -1,4 +1,4 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.service;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.client.AuthorizationConstants;
+import org.sitmun.authorization.client.dto.TaskDto;
+import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;

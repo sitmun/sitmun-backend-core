@@ -54,6 +54,7 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
   @Mock private SystemVariableResolver systemVariableResolver;
+  @Mock private org.sitmun.domain.task.MoreInfoTaskResolver moreInfoTaskResolver;
 
   private ProxyConfigurationService service;
 
@@ -74,7 +75,8 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             Collections.emptyList(),
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver);
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }

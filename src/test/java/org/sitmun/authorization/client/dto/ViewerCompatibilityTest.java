@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.client.service.TaskMoreInfoService;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
@@ -35,7 +36,9 @@ class ViewerCompatibilityTest {
 
   @BeforeEach
   void setUp() {
-    service = new TaskMoreInfoService();
+    org.sitmun.domain.task.MoreInfoTaskResolver resolver =
+        mock(org.sitmun.domain.task.MoreInfoTaskResolver.class);
+    service = new TaskMoreInfoService(resolver);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
 
     application = mock(Application.class);

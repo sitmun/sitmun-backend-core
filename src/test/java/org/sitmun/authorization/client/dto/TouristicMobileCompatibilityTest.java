@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.client.service.TaskQuerySqlService;
+import org.sitmun.authorization.client.service.TaskQueryWebService;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
@@ -212,29 +214,6 @@ class TouristicMobileCompatibilityTest {
       assertThat(mappingInput.get("LONGITUD")).startsWith("${");
       assertThat(mappingInput.get("LATITUD")).startsWith("${");
       assertThat(mappingInput.get("KEYWORD")).startsWith("${");
-    }
-
-    @Test
-    @DisplayName("CRITICAL: Calculated mapping.input values MUST keep ${...} wrapper")
-    void calculatedValuesMustKeepWrapper() {
-      // Given: Format expected by RequestService.getCalculatedInputValue()
-      String latitudValue = "${LATITUD}";
-      String longitudValue = "${LONGITUD}";
-      String keywordValue = "${KEYWORD}";
-
-      // RequestService checks: if (value && value.startsWith('${')) { ... }
-      // If wrapper removed (WRONG): "LATITUD" instead of "${LATITUD}"
-      // The calculated resolution never triggers, literal "LATITUD" sent to server
-
-      // When: Check value format
-      boolean hasWrapper = latitudValue.startsWith("${") && latitudValue.endsWith("}");
-
-      // Then: MUST have ${...} wrapper
-      assertThat(hasWrapper).isTrue();
-
-      // Constant values can be plain (no wrapper needed)
-      String constantValue = "CATEGORY";
-      assertThat(constantValue).doesNotStartWith("${");
     }
 
     @Test

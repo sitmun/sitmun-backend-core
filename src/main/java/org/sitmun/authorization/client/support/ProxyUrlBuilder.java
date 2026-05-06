@@ -1,4 +1,4 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.support;
 
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.service.Service;

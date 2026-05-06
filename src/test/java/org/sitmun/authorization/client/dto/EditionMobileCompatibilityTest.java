@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
+import org.sitmun.authorization.client.service.TaskEditCartographyService;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.database.DatabaseConnection;
@@ -34,11 +35,10 @@ class EditionMobileCompatibilityTest {
   private TaskEditCartographyService service;
   private Application application;
   private Territory territory;
-  private DatabaseConnectionService dbConnectionService;
 
   @BeforeEach
   void setUp() {
-    dbConnectionService = mock(DatabaseConnectionService.class);
+    DatabaseConnectionService dbConnectionService = mock(DatabaseConnectionService.class);
     service = new TaskEditCartographyService(dbConnectionService);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
 

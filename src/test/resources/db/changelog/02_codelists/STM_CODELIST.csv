@@ -39,6 +39,7 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 38,downloadTask.scope,C,FALSE,FALSE,Layer
 39,queryTask.scope,SQL,FALSE,FALSE,SQL
 40,queryTask.scope,external-link,FALSE,FALSE,External link
+43,service.authenticationMode,API key,TRUE,FALSE,API key
 44,service.authenticationMode,HTTP Basic authentication,TRUE,FALSE,HTTP Basic authentication
 45,service.authenticationMode,None,TRUE,TRUE,None
 46,service.type,AIMS,FALSE,FALSE,AIMS
