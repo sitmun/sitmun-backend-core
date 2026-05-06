@@ -2,7 +2,6 @@ package org.sitmun.authorization.client.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,6 +117,22 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.layers[?(@.id=='layer/3')].transparency").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("GET: Layer order appears in profile JSON when set")
+  void layerOrderInProfile() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/1')].order", hasItem(10)));
+  }
+
+  @Test
+  @DisplayName("GET: Layers without order omit order key")
+  void layersWithoutOrderOmitKey() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.layers[?(@.id=='layer/4')].order").doesNotExist());
   }
 
   @Test
@@ -267,7 +282,6 @@ class ClientConfigurationProfileControllerTest {
   @DisplayName("GET: Ensure order in children")
   void treeNodeOrder() throws Exception {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI, 1, 1))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(
             jsonPath(
@@ -322,7 +336,6 @@ class ClientConfigurationProfileControllerTest {
         .andExpect(jsonPath("$.trees[0].nodes.size()", is(3)));
 
     mvc.perform(get(URIConstants.CONFIG_CLIENT_PROFILE_URI_FILTERED, 1, 1, "node/1"))
-        .andDo(print())
         .andExpect(jsonPath("$.trees[0].rootNode", is("node/1")))
         .andExpect(jsonPath("$.trees[0].nodes.size()", is(3)));
   }

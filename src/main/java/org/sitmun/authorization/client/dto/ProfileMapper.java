@@ -67,6 +67,7 @@ public abstract class ProfileMapper {
         .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
         .maxScaleDenominator(positiveOrNull(cartography.getMaximumScale()))
         .transparency(cartography.getTransparency())
+        .order(cartography.getOrder())
         .metadataURL(cartography.getMetadataURL())
         .datasetURL(cartography.getDatasetURL())
         .queryableFeatureEnabled(cartography.getQueryableFeatureEnabled())

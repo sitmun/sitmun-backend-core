@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Client configuration profile (`GET /api/config/client/profile/{appId}/{terrId}`): each layer may include `minScaleDenominator` and `maxScaleDenominator` mapped from cartography minimum/maximum scale (positive values only; omitted when unset or non-positive).
 - Client configuration profile: each layer may include `transparency` (0–100, where 0 is fully opaque) mapped from `Cartography.transparency`; omitted when unset.
+- Client configuration profile: each layer may include `order` mapped from `Cartography.order` (`GEO_ORDER`); omitted when null. Viewer reads it as the SITNA `zIndex` when adding the layer to the working layers (default 0 when absent).
 - Client configuration profile: each layer may include `metadataURL` and `datasetURL` mapped from cartography; omitted when unset (OGC WMS Layer `MetadataURL` / `DataURL` hrefs).
 - Client configuration profile: each layer may include `description` (i18n-translated abstract) mapped from `Cartography.description` (`GEO_ABSTRACT`); omitted when unset. Viewer merges this onto matched real WMS GetCapabilities layers as the OGC `Abstract`.
 - Client configuration profile: each tree node may include `metadataURL` and `datasetURL` mapped from `TreeNode`; omitted when unset (folder-level URLs alongside cartography on leaves).
@@ -24,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `ClientConfigurationProfileControllerTest`: removed `MockMvcResultHandlers.print()` from tests that only assert JSON (less noisy console output during `./gradlew test`).
 - **Authentication**: `POST /api/authenticate` (database/LDAP) issues the session JWT in an HttpOnly `access_token` cookie; cookie attributes use `sitmun.authentication.http-only-cookie` and `sitmun.authentication.same-site-cookie` (see `CookieService`).
 - OGC/WMS proxy build: `SystemVariableResolver` resolves `#{...}` in service URL and fixed (non-VARY) service parameter values using `RequestCoordinates`.
 - HTTP API tasks: optional Basic auth or API-key-style security via `HttpSecurityDto` `type` and `headers` map.
