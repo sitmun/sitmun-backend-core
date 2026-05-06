@@ -62,6 +62,7 @@ public class TaskBasicService implements TaskMapper {
     return TaskDto.builder()
         .id("task/" + task.getId())
         .uiControl(control)
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .parameters(parameters)
         .build();
   }

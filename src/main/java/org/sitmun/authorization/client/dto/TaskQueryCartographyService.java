@@ -76,6 +76,7 @@ public class TaskQueryCartographyService implements TaskMapper {
     }
     return TaskDto.builder()
         .id("task/" + task.getId())
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .type(AuthorizationConstants.TaskDto.SIMPLE)
         .parameters(parameters)
         .url(url)

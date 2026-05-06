@@ -94,6 +94,7 @@ public class TaskEditCartographyService implements TaskMapper {
     }
     return TaskDto.builder()
         .id("task/" + task.getId())
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .type(AuthorizationConstants.TaskDto.EDITION)
         .parameters(parameters)
         .fields(fields)

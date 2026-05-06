@@ -49,6 +49,49 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
+  @DisplayName("accept returns true for moreInfoAdvanced task")
+  void acceptReturnsTrueForMoreInfoAdvancedTask() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED);
+    when(task.getType()).thenReturn(taskType);
+
+    assertTrue(service.accept(task));
+  }
+
+  @Test
+  @DisplayName("map exposes MIA client contract without requiring a ui-control")
+  void mapExposesMoreInfoAdvancedClientContract() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    Cartography cartography = mock(Cartography.class);
+
+    when(task.getId()).thenReturn(16);
+    when(task.getName()).thenReturn("MIA parent");
+    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED);
+    when(task.getType()).thenReturn(taskType);
+    when(task.getUi()).thenReturn(null);
+    when(cartography.getId()).thenReturn(12);
+    when(task.getCartography()).thenReturn(cartography);
+    when(task.getProperties())
+        .thenReturn(
+            Map.of(
+                "advancedTaskKind", "parent",
+                "parentLayout", "scroll",
+                "childTaskOrderIds", List.of(101, 102),
+                "moreInfoAdvanced", true));
+
+    TaskDto result = service.map(task, mock(Application.class), mock(Territory.class));
+
+    assertEquals(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED, result.getTypeId());
+    assertNull(result.getUiControl());
+    assertEquals("12", result.getCartographyId());
+    assertEquals("parent", result.getParameters().get("advancedTaskKind"));
+    assertEquals("scroll", result.getParameters().get("visualizationMode"));
+    assertEquals(List.of(101, 102), result.getParameters().get("childTaskOrderIds"));
+  }
+
+  @Test
   @DisplayName("accept returns true for MOREINFO task (uppercase)")
   void acceptReturnsTrueForUppercaseMoreInfo() {
     // Given

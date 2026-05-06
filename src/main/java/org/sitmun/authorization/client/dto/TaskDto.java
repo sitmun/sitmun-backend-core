@@ -24,6 +24,9 @@ public class TaskDto {
   private String type;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Integer typeId;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private Map<String, Object> parameters;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)

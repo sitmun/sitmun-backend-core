@@ -37,7 +37,8 @@ public class TaskMoreInfoService implements TaskMapper {
    * @return true if the task is a moreInfo task
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isMoreInfoTask(task);
+    return DomainConstants.Tasks.isMoreInfoTask(task)
+        || DomainConstants.Tasks.isMoreInfoAdvancedTask(task);
   }
 
   /**
@@ -63,6 +64,12 @@ public class TaskMoreInfoService implements TaskMapper {
     Map<String, Object> parameters = new HashMap<>();
     if (properties != null) {
       parameters = convertToJsonObject(properties);
+      if (DomainConstants.Tasks.isMoreInfoAdvancedTask(task)) {
+        if (parameters == null) {
+          parameters = new HashMap<>();
+        }
+        addMoreInfoAdvancedClientProperties(parameters, properties);
+      }
     }
     // More info: command is never exposed to client (URL/API/SQL may contain secrets)
 
@@ -77,6 +84,7 @@ public class TaskMoreInfoService implements TaskMapper {
             .name(name)
             .uiControl(uiControl)
             .type(type)
+            .typeId(task.getType() != null ? task.getType().getId() : null)
             .parameters(parameters)
             .cartographyId(cartographyId)
             .scope(scope)
@@ -201,5 +209,23 @@ public class TaskMoreInfoService implements TaskMapper {
     }
 
     return parameters.isEmpty() ? null : parameters;
+  }
+
+  private void addMoreInfoAdvancedClientProperties(
+      Map<String, Object> parameters, Map<String, Object> properties) {
+    copyIfPresent(parameters, properties, "advancedTaskKind");
+    copyIfPresent(parameters, properties, "moreInfoAdvanced");
+    copyIfPresent(parameters, properties, "childTaskOrderIds");
+    Object parentLayout = properties.get("parentLayout");
+    if (parentLayout != null) {
+      parameters.put("visualizationMode", parentLayout);
+    }
+  }
+
+  private void copyIfPresent(
+      Map<String, Object> target, Map<String, Object> source, String propertyName) {
+    if (source.containsKey(propertyName)) {
+      target.put(propertyName, source.get(propertyName));
+    }
   }
 }

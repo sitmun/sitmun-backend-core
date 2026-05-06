@@ -103,6 +103,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
+    public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
 
     // Proxy types
     public static final String PROXY_TYPE_SQL = "sql";
@@ -118,6 +119,10 @@ public class DomainConstants {
 
     public static boolean isMoreInfoTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
+    }
+
+    public static boolean isMoreInfoAdvancedTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
     }
 
     public static boolean isSqlQueryTask(Task task) {

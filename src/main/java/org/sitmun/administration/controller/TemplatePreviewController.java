@@ -1,6 +1,8 @@
 package org.sitmun.administration.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewRequestDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
@@ -27,6 +29,13 @@ public class TemplatePreviewController {
   public ResponseEntity<TemplateTaskExecutionResponseDto> executeChild(
       @RequestBody TemplateTaskExecutionRequestDto requestDto) {
     return ResponseEntity.ok(adminTaskExecutionService.executeLinkedTask(requestDto));
+  }
+
+  @PostMapping("/more-info-advanced/render")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<MoreInfoAdvancedRenderResponseDto> renderMoreInfoAdvanced(
+      @RequestBody MoreInfoAdvancedRenderRequestDto requestDto) {
+    return ResponseEntity.ok(adminTaskExecutionService.renderMoreInfoAdvanced(requestDto));
   }
 
   @PostMapping("/preview")

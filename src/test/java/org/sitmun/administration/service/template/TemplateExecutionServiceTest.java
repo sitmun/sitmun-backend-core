@@ -19,6 +19,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
@@ -35,11 +37,64 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
+import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 class TemplateExecutionServiceTest {
+
+  @Test
+  void renderMoreInfoAdvancedResolvesChildOrderInBackend() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService);
+
+    TaskUI miaUi = mock(TaskUI.class);
+    when(miaUi.getName()).thenReturn("sitna.moreInfoAdvanced");
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getUi()).thenReturn(miaUi);
+    when(miaTask.getProperties())
+        .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(101)));
+
+    Task childTask = mock(Task.class);
+    when(childTask.getId()).thenReturn(101);
+    when(childTask.getName()).thenReturn("Document");
+    when(childTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_SCOPE,
+                DomainConstants.Tasks.SCOPE_URL,
+                DomainConstants.Tasks.PROPERTY_COMMAND,
+                "https://example.org/doc/{code}",
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(Map.of("name", "code", "value", "id"))));
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("id", "A-1"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml()).contains("https://example.org/doc/A-1");
+  }
 
   @Test
   void executeLinkedTaskMapsInvalidSqlTaskConfigurationToBadRequest() {
