@@ -126,6 +126,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
+    public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
 
     private static Integer taskTypeId(Task task) {
       if (task == null || task.getType() == null) {
@@ -156,6 +157,10 @@ public class DomainConstants {
 
     public static boolean isMoreInfoTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
+    }
+
+    public static boolean isMoreInfoAdvancedTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
     }
 
     /** Any task whose type id is {@link #TASK_TYPE_ID_QUERY} (scope/FK rules use other helpers). */

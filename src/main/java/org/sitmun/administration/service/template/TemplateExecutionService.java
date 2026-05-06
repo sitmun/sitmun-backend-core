@@ -3,6 +3,7 @@ package org.sitmun.administration.service.template;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import okhttp3.Credentials;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -42,6 +46,7 @@ import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -53,6 +58,8 @@ public class TemplateExecutionService {
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
   private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
+  private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
+  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE = new TypeReference<>() {};
 
   private final TaskRepository taskRepository;
   private final TaskRelationRepository taskRelationRepository;
@@ -91,6 +98,404 @@ public class TemplateExecutionService {
         rootTemplateTaskId,
         coordinates,
         0);
+  }
+
+  @Transactional(readOnly = true)
+  public MoreInfoAdvancedRenderResponseDto renderMoreInfoAdvanced(
+      MoreInfoAdvancedRenderRequestDto requestDto) {
+    List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
+    List<Integer> miaTaskIds = requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
+    Map<String, Object> featureParameters =
+        requestDto.getParameters() == null ? Collections.emptyMap() : requestDto.getParameters();
+
+    for (Integer miaTaskId : miaTaskIds) {
+      renderedTasks.add(renderSingleMoreInfoAdvancedTask(miaTaskId, featureParameters));
+    }
+
+    return MoreInfoAdvancedRenderResponseDto.builder().tasks(renderedTasks).build();
+  }
+
+  private MoreInfoAdvancedRenderedTaskDto renderSingleMoreInfoAdvancedTask(
+      Integer miaTaskId, Map<String, Object> featureParameters) {
+    Task miaTask =
+        taskRepository
+            .findById(miaTaskId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    if (miaTask.getUi() == null || !"sitna.moreInfoAdvanced".equals(miaTask.getUi().getName())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task is not a MIA task");
+    }
+
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+    Map<String, Object> miaParameters = convertBasicParameters(properties);
+    String visualizationMode =
+        "scroll".equals(miaParameters.get("visualizationMode"))
+                || "scroll".equals(properties.get("parentLayout"))
+            ? "scroll"
+            : "tabs";
+    List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
+
+    String html =
+        "tabs".equals(visualizationMode)
+            ? renderMiaChildrenAsTabs(miaTask, includedTasks, featureParameters)
+            : renderMiaChildrenAsScroll(miaTask, includedTasks, featureParameters);
+
+    return MoreInfoAdvancedRenderedTaskDto.builder()
+        .taskId(miaTask.getId())
+        .title(miaTask.getName())
+        .html(html)
+        .error(null)
+        .build();
+  }
+
+  private String renderMiaChildrenAsTabs(
+      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+    String renderId = "mia-backend-" + miaTask.getId();
+    StringBuilder tabs = new StringBuilder();
+    StringBuilder panels = new StringBuilder();
+
+    for (int index = 0; index < includedTasks.size(); index++) {
+      Map<String, Object> childDefinition = includedTasks.get(index);
+      String panelId = renderId + "-" + index;
+      String active = index == 0 ? " sitmun-mia-tab-active" : "";
+      String hidden = index == 0 ? "" : " style=\"display:none\"";
+      tabs.append("<button class=\"sitmun-mia-tab")
+          .append(active)
+          .append("\" data-mia-tab=\"")
+          .append(panelId)
+          .append("\">")
+          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
+          .append("</button>");
+      panels.append("<div class=\"sitmun-mia-tab-panel\" data-mia-panel=\"")
+          .append(panelId)
+          .append("\"")
+          .append(hidden)
+          .append(">")
+          .append(renderMiaChild(childDefinition, featureParameters))
+          .append("</div>");
+    }
+
+    return "<div class=\"sitmun-mia-tabs-bar\" data-mia-tabs=\""
+        + renderId
+        + "\">"
+        + tabs
+        + "</div><div class=\"sitmun-mia-body\">"
+        + panels
+        + "</div>";
+  }
+
+  private String renderMiaChildrenAsScroll(
+      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+    StringBuilder sections = new StringBuilder();
+    for (int index = 0; index < includedTasks.size(); index++) {
+      Map<String, Object> childDefinition = includedTasks.get(index);
+      sections
+          .append("<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
+          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
+          .append("</div>")
+          .append(renderMiaChild(childDefinition, featureParameters))
+          .append("</div>");
+    }
+    return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + "</div>";
+  }
+
+  @SuppressWarnings("unchecked")
+  private String renderMiaChild(Map<String, Object> childDefinition, Map<String, Object> featureParameters) {
+    Integer childTaskId = parseTaskId(childDefinition.get("id"));
+    if (childTaskId == null) {
+      return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
+    }
+
+    Task childTask =
+        taskRepository
+            .findById(childTaskId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    Map<String, String> childParameters =
+        stringifyParameters(resolveMappedParameters(childDefinition.get("parameters"), featureParameters));
+    Map<String, Map<String, Object>> childTaskParameters =
+        resolveMappedChildTaskParameters(childDefinition.get("childTaskParameters"), featureParameters);
+    Integer rootTemplateTaskId =
+        childTask.getType() != null
+                && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .equals(childTask.getType().getId())
+            ? childTask.getId()
+            : null;
+    RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
+
+    TemplateTaskExecutionResponseDto result =
+        executeTask(childTask, childParameters, childTaskParameters, rootTemplateTaskId, coordinates, 0);
+
+    if ("template".equals(result.getResultType())) {
+      Object html = result.getContext() != null ? result.getContext().get("html") : null;
+      return html == null ? "" : String.valueOf(html);
+    }
+    if ("table".equals(result.getResultType())) {
+      return renderRowsAsTable(result.getRows());
+    }
+    if (result.getResourceUrl() != null) {
+      String url = escapeHtml(result.getResourceUrl());
+      return "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
+    }
+    return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> readIncludedTasks(
+      Task miaTask, Map<String, Object> miaParameters) {
+    Object rawIncludedTasks = miaParameters.get("includedTasks");
+    if (!(rawIncludedTasks instanceof List<?> rawList)) {
+      return readIncludedTasksFromChildOrder(miaTask);
+    }
+    List<Map<String, Object>> includedTasks = new ArrayList<>();
+    for (Object rawItem : rawList) {
+      if (rawItem instanceof Map<?, ?> rawMap) {
+        includedTasks.add((Map<String, Object>) rawMap);
+      }
+    }
+    includedTasks.sort(
+        (left, right) -> Integer.compare(toInt(left.get("order"), 999), toInt(right.get("order"), 999)));
+    return includedTasks;
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> readIncludedTasksFromChildOrder(Task miaTask) {
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+    Object rawChildOrder = properties.get("childTaskOrderIds");
+    if (!(rawChildOrder instanceof List<?> childOrder) || childOrder.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Map<String, Object>> includedTasks = new ArrayList<>();
+    for (int index = 0; index < childOrder.size(); index++) {
+      int order = index;
+      Integer childTaskId = parseTaskId(childOrder.get(index));
+      if (childTaskId == null) {
+        continue;
+      }
+      taskRepository
+          .findById(childTaskId)
+          .ifPresent(
+              childTask -> {
+                Map<String, Object> childDefinition = new LinkedHashMap<>();
+                childDefinition.put("id", childTask.getId());
+                childDefinition.put("name", childTask.getName());
+                childDefinition.put("order", order);
+                childDefinition.put(
+                    "childType",
+                    childTask.getType() != null
+                            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                                .equals(childTask.getType().getId())
+                        ? "template"
+                        : "query");
+                childDefinition.put("parameters", readMiaChildParameterMappings(childTask));
+                includedTasks.add(childDefinition);
+              });
+    }
+    return includedTasks;
+  }
+
+  private Map<String, Object> readMiaChildParameterMappings(Task childTask) {
+    Map<String, Object> mappings = new LinkedHashMap<>();
+    Map<String, Object> properties =
+        childTask.getProperties() == null ? Collections.emptyMap() : childTask.getProperties();
+    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
+    if (!(rawParameters instanceof List<?> parameters)) {
+      return mappings;
+    }
+    for (Object rawParameter : parameters) {
+      if (!(rawParameter instanceof Map<?, ?> parameter)) {
+        continue;
+      }
+      Object name = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
+      Object field = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
+      if (name != null && field != null) {
+        mappings.put(String.valueOf(name), String.valueOf(field));
+      }
+    }
+    return mappings;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> convertBasicParameters(Map<String, Object> properties) {
+    if (properties == null) {
+      return Collections.emptyMap();
+    }
+    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
+    if (!(rawParameters instanceof List<?> rawList)) {
+      return Collections.emptyMap();
+    }
+    Map<String, Object> converted = new LinkedHashMap<>();
+    for (Object rawParameter : rawList) {
+      if (!(rawParameter instanceof Map<?, ?> parameter)) {
+        continue;
+      }
+      Object rawName = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
+      Object rawType = parameter.get(DomainConstants.Tasks.PARAMETERS_TYPE);
+      Object rawValue = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
+      if (rawName == null || rawType == null) {
+        continue;
+      }
+      converted.put(String.valueOf(rawName), convertTypedParameterValue(String.valueOf(rawType), rawValue));
+    }
+    return converted;
+  }
+
+  private Object convertTypedParameterValue(String type, Object value) {
+    String stringValue = value == null ? null : String.valueOf(value);
+    try {
+      return switch (type) {
+        case DomainConstants.Tasks.TYPE_NUMBER -> stringValue == null ? null : objectMapper.readValue(stringValue, Number.class);
+        case DomainConstants.Tasks.TYPE_ARRAY -> stringValue == null ? List.of() : objectMapper.readValue(stringValue, ARRAY_TYPE_REFERENCE);
+        case DomainConstants.Tasks.TYPE_OBJECT -> stringValue == null ? Map.of() : objectMapper.readValue(stringValue, OBJECT_TYPE_REFERENCE);
+        case DomainConstants.Tasks.TYPE_BOOLEAN -> stringValue == null ? Boolean.FALSE : objectMapper.readValue(stringValue, Boolean.class);
+        case DomainConstants.Tasks.TYPE_NULL -> null;
+        default -> stringValue == null ? "" : stringValue;
+      };
+    } catch (IOException exception) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid MIA parameter value", exception);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> resolveMappedParameters(
+      Object rawParameterDefinitions, Map<String, Object> featureParameters) {
+    if (!(rawParameterDefinitions instanceof Map<?, ?> parameterDefinitions)) {
+      return Collections.emptyMap();
+    }
+    Map<String, Object> resolved = new LinkedHashMap<>();
+    parameterDefinitions.forEach(
+        (rawName, rawDefinition) -> {
+          if (rawName == null) {
+            return;
+          }
+          Object value = resolveMappedValue(rawName, rawDefinition, featureParameters);
+          if (value != null) {
+            resolved.put(String.valueOf(rawName), value);
+          }
+        });
+    return resolved;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Map<String, Object>> resolveMappedChildTaskParameters(
+      Object rawChildTaskParameters, Map<String, Object> featureParameters) {
+    if (!(rawChildTaskParameters instanceof Map<?, ?> childTaskParameters)) {
+      return Collections.emptyMap();
+    }
+    Map<String, Map<String, Object>> resolved = new LinkedHashMap<>();
+    childTaskParameters.forEach(
+        (rawTaskId, rawParameterDefinitions) -> {
+          Map<String, Object> taskParameters = resolveMappedParameters(rawParameterDefinitions, featureParameters);
+          if (!taskParameters.isEmpty()) {
+            resolved.put(String.valueOf(rawTaskId), taskParameters);
+          }
+        });
+    return resolved;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Object resolveMappedValue(
+      Object rawName, Object rawDefinition, Map<String, Object> featureParameters) {
+    if (rawDefinition instanceof Map<?, ?> definition) {
+      Object fieldPath = definition.get("value") != null ? definition.get("value") : definition.get("name");
+      if (fieldPath == null) {
+        fieldPath = rawName;
+      }
+      return getValueByPath(featureParameters, String.valueOf(fieldPath));
+    }
+    return getValueByPath(featureParameters, String.valueOf(rawDefinition));
+  }
+
+  private Object getValueByPath(Map<String, Object> data, String path) {
+    if (data == null || path == null || path.isBlank()) {
+      return null;
+    }
+    if (data.containsKey(path)) {
+      return data.get(path);
+    }
+    if (!path.contains(".")) {
+      return null;
+    }
+    Object current = data;
+    for (String part : path.split("\\.")) {
+      if (!(current instanceof Map<?, ?> map)) {
+        return null;
+      }
+      current = map.get(part);
+      if (current == null) {
+        return null;
+      }
+    }
+    return current;
+  }
+
+  private Integer parseTaskId(Object rawId) {
+    if (rawId instanceof Number number) {
+      return number.intValue();
+    }
+    if (rawId == null) {
+      return null;
+    }
+    Matcher matcher = Pattern.compile("(?:^|/)\\d+$").matcher(String.valueOf(rawId));
+    if (!matcher.find()) {
+      return null;
+    }
+    return Integer.parseInt(matcher.group().replace("/", ""));
+  }
+
+  private int toInt(Object value, int fallback) {
+    if (value instanceof Number number) {
+      return number.intValue();
+    }
+    if (value == null) {
+      return fallback;
+    }
+    try {
+      return Integer.parseInt(String.valueOf(value));
+    } catch (NumberFormatException exception) {
+      return fallback;
+    }
+  }
+
+  private String resolveChildTitle(Map<String, Object> childDefinition, int index) {
+    Object name = childDefinition.get("name");
+    return name == null || String.valueOf(name).isBlank() ? "Consulta " + (index + 1) : String.valueOf(name);
+  }
+
+  private String renderRowsAsTable(List<Map<String, Object>> rows) {
+    if (rows == null || rows.isEmpty()) {
+      return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+    }
+    Set<String> columns = new LinkedHashSet<>();
+    rows.forEach(row -> columns.addAll(row.keySet()));
+    StringBuilder html = new StringBuilder("<table class=\"sitmun-json-table\"><thead><tr>");
+    columns.forEach(column -> html.append("<th>").append(escapeHtml(column)).append("</th>"));
+    html.append("</tr></thead><tbody>");
+    for (Map<String, Object> row : rows) {
+      html.append("<tr>");
+      columns.forEach(
+          column ->
+              html.append("<td>")
+                  .append(escapeHtml(row.get(column) == null ? "" : String.valueOf(row.get(column))))
+                  .append("</td>"));
+      html.append("</tr>");
+    }
+    html.append("</tbody></table>");
+    return html.toString();
+  }
+
+  private String escapeHtml(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;");
   }
 
   private TemplateTaskExecutionResponseDto executeTask(
@@ -268,7 +673,7 @@ public class TemplateExecutionService {
         String body = response.body() != null ? response.body().string() : "";
         Map<String, Object> bodyContext = normalizeBodyToContext(body);
         List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
-        Map<String, Object> context = buildApiContext(bodyContext, rows, parameters);
+        Map<String, Object> context = buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
 
         return TemplateTaskExecutionResponseDto.builder()
             .taskId(task.getId())
@@ -344,14 +749,27 @@ public class TemplateExecutionService {
   private Map<String, Object> buildApiContext(
       Map<String, Object> bodyContext,
       List<Map<String, Object>> rows,
-      Map<String, String> parameters) {
+      Map<String, String> configuredParameters,
+      Map<String, String> executionParameters) {
     Map<String, Object> context = new LinkedHashMap<>();
-    parameters.forEach((key, value) -> context.put("$" + key, value));
+    mergeTemplateParameterContext(context, configuredParameters, executionParameters);
     context.put("rows", rows);
     if (bodyContext != null) {
       context.putAll(bodyContext);
     }
     return context;
+  }
+
+  private void mergeTemplateParameterContext(
+      Map<String, Object> context,
+      Map<String, String> configuredParameters,
+      Map<String, String> executionParameters) {
+    if (configuredParameters != null) {
+      configuredParameters.forEach((key, value) -> context.put("$" + key, value));
+    }
+    if (executionParameters != null) {
+      executionParameters.forEach((key, value) -> context.put("$" + key, value));
+    }
   }
 
   private Map<String, Object> normalizeBodyToContext(String body) throws IOException {
@@ -485,9 +903,13 @@ public class TemplateExecutionService {
   private String resolveTemplateUrl(
       String command, Map<String, String> parameters, RequestCoordinates coordinates) {
     String resolved = systemVariableResolver.resolve(command, coordinates);
+    if (resolved == null) {
+      resolved = command;
+    }
     for (Map.Entry<String, String> entry : parameters.entrySet()) {
-      resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue());
-      resolved = resolved.replace("${" + entry.getKey() + "}", entry.getValue());
+      String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
+      resolved = resolved.replace("{" + entry.getKey() + "}", encodedValue);
+      resolved = resolved.replace("${" + entry.getKey() + "}", encodedValue);
     }
     return resolved;
   }

@@ -43,7 +43,7 @@ public class TaskMoreInfoService implements TaskMapper {
    * @return true if the task is a moreInfo task
    */
   public boolean accept(Task task) {
-    return isMoreInfoTask(task);
+    return isMoreInfoTask(task) || isMoreInfoAdvancedTask(task);
   }
 
   /**
@@ -64,6 +64,13 @@ public class TaskMoreInfoService implements TaskMapper {
       List<TaskParameter> parameters = taskParameterProcessor.parse(task);
       parametersDto = convertToViewerProfile(parameters);
       // If no valid parameters, convertToViewerProfile returns null
+    }
+
+    if (isMoreInfoAdvancedTask(task) && task.getProperties() != null) {
+      if (parametersDto == null) {
+        parametersDto = new HashMap<>();
+      }
+      addMoreInfoAdvancedClientProperties(parametersDto, task.getProperties());
     }
 
     Task executionTask = moreInfoTaskResolver.findRelatedQueryTask(task).orElse(task);
@@ -93,6 +100,7 @@ public class TaskMoreInfoService implements TaskMapper {
         .name(name)
         .uiControl(uiControl)
         .type(type)
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .parameters(parametersDto)
         .cartographyId(cartographyNumericId)
         .layer(cartographyProfileId)
@@ -125,6 +133,24 @@ public class TaskMoreInfoService implements TaskMapper {
     }
 
     return result.isEmpty() ? null : result;
+  }
+
+  private void addMoreInfoAdvancedClientProperties(
+      Map<String, Object> parameters, Map<String, Object> properties) {
+    copyIfPresent(parameters, properties, "advancedTaskKind");
+    copyIfPresent(parameters, properties, "moreInfoAdvanced");
+    copyIfPresent(parameters, properties, "childTaskOrderIds");
+    Object parentLayout = properties.get("parentLayout");
+    if (parentLayout != null) {
+      parameters.put("visualizationMode", parentLayout);
+    }
+  }
+
+  private void copyIfPresent(
+      Map<String, Object> target, Map<String, Object> source, String propertyName) {
+    if (source.containsKey(propertyName)) {
+      target.put(propertyName, source.get(propertyName));
+    }
   }
 
   private String extractStringProperty(Map<String, Object> properties, String key) {
