@@ -213,14 +213,22 @@ public class TemplateExecutionService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     Map<String, String> childParameters =
         stringifyParameters(resolveMappedParameters(childDefinition.get("parameters"), featureParameters));
+    if (childParameters.isEmpty()) {
+      childParameters =
+          stringifyParameters(resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters));
+    }
     Map<String, Map<String, Object>> childTaskParameters =
-        resolveMappedChildTaskParameters(childDefinition.get("childTaskParameters"), featureParameters);
+        new LinkedHashMap<>(
+            resolveMappedChildTaskParameters(childDefinition.get("childTaskParameters"), featureParameters));
     Integer rootTemplateTaskId =
         childTask.getType() != null
                 && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
                     .equals(childTask.getType().getId())
             ? childTask.getId()
             : null;
+    if (rootTemplateTaskId != null) {
+      enrichTemplateChildTaskParameters(childTask, childTaskParameters, featureParameters, 0);
+    }
     RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
 
     TemplateTaskExecutionResponseDto result =
@@ -238,6 +246,35 @@ public class TemplateExecutionService {
       return "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
     }
     return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+  }
+
+  private void enrichTemplateChildTaskParameters(
+      Task templateTask,
+      Map<String, Map<String, Object>> childTaskParameters,
+      Map<String, Object> featureParameters,
+      int depth) {
+    List<TaskRelation> relations = taskRelationRepository.findByTaskId(templateTask.getId());
+    for (TaskRelation relation : relations) {
+      if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
+        continue;
+      }
+      Task relatedTask = relation.getRelatedTask();
+      Map<String, Object> resolvedParameters =
+          resolveMappedParameters(readMiaChildParameterMappings(relatedTask), featureParameters);
+      if (!resolvedParameters.isEmpty()) {
+        Map<String, Object> existingParameters =
+            childTaskParameters.computeIfAbsent(String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
+        resolvedParameters.forEach(existingParameters::putIfAbsent);
+      }
+      if (isTemplateTask(relatedTask) && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
+        enrichTemplateChildTaskParameters(relatedTask, childTaskParameters, featureParameters, depth + 1);
+      }
+    }
+  }
+
+  private boolean isTemplateTask(Task task) {
+    return task.getType() != null
+        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId());
   }
 
   @SuppressWarnings("unchecked")
@@ -310,8 +347,8 @@ public class TemplateExecutionService {
       }
       Object name = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
       Object field = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
-      if (name != null && field != null) {
-        mappings.put(String.valueOf(name), String.valueOf(field));
+      if (name != null) {
+        mappings.put(String.valueOf(name), field != null ? String.valueOf(field) : String.valueOf(name));
       }
     }
     return mappings;
