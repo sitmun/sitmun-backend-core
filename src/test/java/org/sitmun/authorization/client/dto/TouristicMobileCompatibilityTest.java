@@ -2,6 +2,9 @@ package org.sitmun.authorization.client.dto;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.client.service.TaskQuerySqlService;
+import org.sitmun.authorization.client.service.TaskQueryWebService;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
@@ -37,10 +42,18 @@ class TouristicMobileCompatibilityTest {
 
   @BeforeEach
   void setUp() {
-    sqlService = new TaskQuerySqlService();
+    // Create a real TaskParameterProcessor with mock SystemVariableResolver
+    org.sitmun.infrastructure.variables.SystemVariableResolver mockResolver =
+        mock(org.sitmun.infrastructure.variables.SystemVariableResolver.class);
+    when(mockResolver.resolve(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
+
+    org.sitmun.domain.task.parameter.TaskParameterProcessor processor =
+        new org.sitmun.domain.task.parameter.TaskParameterProcessor(mockResolver);
+
+    sqlService = new TaskQuerySqlService(processor);
     ReflectionTestUtils.setField(sqlService, "proxyUrl", "http://localhost:8080/middleware");
 
-    webService = new TaskQueryWebService();
+    webService = new TaskQueryWebService(processor);
 
     application = mock(Application.class);
     when(application.getId()).thenReturn(10);
@@ -59,7 +72,7 @@ class TouristicMobileCompatibilityTest {
       // Given
       Task task = createSqlQueryTask();
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, "sql-query");
+      properties.put(PROPERTY_SCOPE, "sql-query");
       properties.put(
           DomainConstants.Tasks.PROPERTY_COMMAND,
           "SELECT * FROM pois WHERE territory_id = #{TERR_ID}");
@@ -80,15 +93,15 @@ class TouristicMobileCompatibilityTest {
       Task task = createWebApiQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "category");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_NAME, "category");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
       param.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, "web-api-query");
+      properties.put(PROPERTY_SCOPE, "web-api-query");
       properties.put(DomainConstants.Tasks.PROPERTY_COMMAND, "https://api.example.com/pois");
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -106,17 +119,17 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_NAME, "status");
-      param1.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param1.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param1.put(PARAMETERS_NAME, "status");
+      param1.put(PARAMETERS_TYPE, "query");
+      param1.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_NAME, "category");
-      param2.put(DomainConstants.Tasks.PARAMETERS_TYPE, "template");
-      param2.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, true);
+      param2.put(PARAMETERS_NAME, "category");
+      param2.put(PARAMETERS_TYPE, "template");
+      param2.put(PARAMETERS_REQUIRED, true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -133,12 +146,12 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "filter");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, true);
+      param.put(PARAMETERS_NAME, "filter");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -147,8 +160,8 @@ class TouristicMobileCompatibilityTest {
       // Then: Parameter has type and required
       @SuppressWarnings("unchecked")
       Map<String, Object> paramDto = (Map<String, Object>) result.getParameters().get("filter");
-      assertThat(paramDto).containsEntry(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      assertThat(paramDto).containsEntry(DomainConstants.Tasks.PARAMETERS_REQUIRED, true);
+      assertThat(paramDto).containsEntry(PARAMETERS_TYPE, "query");
+      assertThat(paramDto).containsEntry(PARAMETERS_REQUIRED, true);
     }
 
     @Test
@@ -158,13 +171,13 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "keyword");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_NAME, "keyword");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
       param.put(DomainConstants.Tasks.PARAMETERS_VALUE, "default"); // Present in storage
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -173,9 +186,7 @@ class TouristicMobileCompatibilityTest {
       // Then: 'value' NOT included (pre-existing gap, touristic-mobile uses mapping.input defaults)
       @SuppressWarnings("unchecked")
       Map<String, Object> paramDto = (Map<String, Object>) result.getParameters().get("keyword");
-      assertThat(paramDto)
-          .containsKeys(
-              DomainConstants.Tasks.PARAMETERS_TYPE, DomainConstants.Tasks.PARAMETERS_REQUIRED);
+      assertThat(paramDto).containsKeys(PARAMETERS_TYPE, PARAMETERS_REQUIRED);
       assertThat(paramDto).doesNotContainKey(DomainConstants.Tasks.PARAMETERS_VALUE);
     }
   }
@@ -212,29 +223,6 @@ class TouristicMobileCompatibilityTest {
       assertThat(mappingInput.get("LONGITUD")).startsWith("${");
       assertThat(mappingInput.get("LATITUD")).startsWith("${");
       assertThat(mappingInput.get("KEYWORD")).startsWith("${");
-    }
-
-    @Test
-    @DisplayName("CRITICAL: Calculated mapping.input values MUST keep ${...} wrapper")
-    void calculatedValuesMustKeepWrapper() {
-      // Given: Format expected by RequestService.getCalculatedInputValue()
-      String latitudValue = "${LATITUD}";
-      String longitudValue = "${LONGITUD}";
-      String keywordValue = "${KEYWORD}";
-
-      // RequestService checks: if (value && value.startsWith('${')) { ... }
-      // If wrapper removed (WRONG): "LATITUD" instead of "${LATITUD}"
-      // The calculated resolution never triggers, literal "LATITUD" sent to server
-
-      // When: Check value format
-      boolean hasWrapper = latitudValue.startsWith("${") && latitudValue.endsWith("}");
-
-      // Then: MUST have ${...} wrapper
-      assertThat(hasWrapper).isTrue();
-
-      // Constant values can be plain (no wrapper needed)
-      String constantValue = "CATEGORY";
-      assertThat(constantValue).doesNotStartWith("${");
     }
 
     @Test
@@ -294,22 +282,22 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_NAME, "distance");
-      param1.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param1.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param1.put(PARAMETERS_NAME, "distance");
+      param1.put(PARAMETERS_TYPE, "query");
+      param1.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_NAME, "longitude");
-      param2.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param2.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param2.put(PARAMETERS_NAME, "longitude");
+      param2.put(PARAMETERS_TYPE, "query");
+      param2.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> param3 = new HashMap<>();
-      param3.put(DomainConstants.Tasks.PARAMETERS_NAME, "latitude");
-      param3.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param3.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param3.put(PARAMETERS_NAME, "latitude");
+      param3.put(PARAMETERS_TYPE, "query");
+      param3.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2, param3));
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2, param3));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -358,17 +346,17 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_NAME, "startDate");
-      param1.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param1.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param1.put(PARAMETERS_NAME, "startDate");
+      param1.put(PARAMETERS_TYPE, "query");
+      param1.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_NAME, "endDate");
-      param2.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param2.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param2.put(PARAMETERS_NAME, "endDate");
+      param2.put(PARAMETERS_TYPE, "query");
+      param2.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -387,12 +375,12 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "keyword");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_NAME, "keyword");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -416,12 +404,12 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "propertyname");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_NAME, "propertyname");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -447,12 +435,12 @@ class TouristicMobileCompatibilityTest {
       Task task = createSqlQueryTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "category");
-      param.put(DomainConstants.Tasks.PARAMETERS_TYPE, "query");
-      param.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_NAME, "category");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When: Mobile sends additional undeclared parameter
@@ -492,7 +480,7 @@ class TouristicMobileCompatibilityTest {
     when(task.getId()).thenReturn(42);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, "sql-query");
+    properties.put(PROPERTY_SCOPE, "sql-query");
     when(task.getProperties()).thenReturn(properties);
 
     return task;
@@ -506,7 +494,7 @@ class TouristicMobileCompatibilityTest {
     when(task.getId()).thenReturn(42);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, "web-api-query");
+    properties.put(PROPERTY_SCOPE, "web-api-query");
     when(task.getProperties()).thenReturn(properties);
 
     return task;

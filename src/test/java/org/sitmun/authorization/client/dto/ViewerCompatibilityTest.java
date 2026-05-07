@@ -2,6 +2,17 @@ package org.sitmun.authorization.client.dto;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_LABEL;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_NAME;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_PROVIDED;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_VALUE;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +21,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.sitmun.domain.DomainConstants;
+import org.sitmun.authorization.client.service.TaskMoreInfoService;
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -35,7 +49,11 @@ class ViewerCompatibilityTest {
 
   @BeforeEach
   void setUp() {
-    service = new TaskMoreInfoService();
+    MoreInfoTaskResolver resolver = mock(MoreInfoTaskResolver.class);
+    SystemVariableResolver mockSystemVariableResolver = mock(SystemVariableResolver.class);
+    TaskParameterProcessor taskParameterProcessor =
+        new TaskParameterProcessor(mockSystemVariableResolver);
+    service = new TaskMoreInfoService(resolver, taskParameterProcessor);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
 
     application = mock(Application.class);
@@ -56,19 +74,18 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "id"); // Internal key (post-migration)
-      param1.put(
-          DomainConstants.Tasks.PARAMETERS_FIELD, "$.identifier"); // Internal key (post-migration)
+      param1.put(PARAMETERS_VARIABLE, "id"); // Internal key (post-migration)
+      param1.put(PARAMETERS_FIELD, "$.identifier"); // Internal key (post-migration)
       param1.put("order", 0);
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "name");
-      param2.put(DomainConstants.Tasks.PARAMETERS_FIELD, "$.title");
+      param2.put(PARAMETERS_VARIABLE, "name");
+      param2.put(PARAMETERS_FIELD, "$.title");
       param2.put("order", 1);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -81,20 +98,16 @@ class ViewerCompatibilityTest {
       // Verify first parameter has viewer-compatible structure
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoParam1 = (Map<String, Object>) result.getParameters().get("id");
-      assertThat(dtoParam1)
-          .containsEntry(DomainConstants.Tasks.PARAMETERS_LABEL, "id"); // Viewer reads this
-      assertThat(dtoParam1)
-          .containsEntry(
-              DomainConstants.Tasks.PARAMETERS_VALUE, "$.identifier"); // Viewer reads this
-      assertThat(dtoParam1)
-          .containsEntry(DomainConstants.Tasks.PARAMETERS_NAME, "id"); // Optional fallback
+      assertThat(dtoParam1).containsEntry(PARAMETERS_LABEL, "id"); // Viewer reads this
+      assertThat(dtoParam1).containsEntry(PARAMETERS_VALUE, "$.identifier"); // Viewer reads this
+      assertThat(dtoParam1).containsEntry(PARAMETERS_NAME, "id"); // Optional fallback
 
       // Verify second parameter
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoParam2 = (Map<String, Object>) result.getParameters().get("name");
-      assertThat(dtoParam2).containsEntry(DomainConstants.Tasks.PARAMETERS_LABEL, "name");
-      assertThat(dtoParam2).containsEntry(DomainConstants.Tasks.PARAMETERS_VALUE, "$.title");
-      assertThat(dtoParam2).containsEntry(DomainConstants.Tasks.PARAMETERS_NAME, "name");
+      assertThat(dtoParam2).containsEntry(PARAMETERS_LABEL, "name");
+      assertThat(dtoParam2).containsEntry(PARAMETERS_VALUE, "$.title");
+      assertThat(dtoParam2).containsEntry(PARAMETERS_NAME, "name");
     }
 
     @Test
@@ -104,12 +117,12 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_LABEL, "city"); // Old key (pre-migration)
-      param.put(DomainConstants.Tasks.PARAMETERS_VALUE, "$.cityName"); // Old key (pre-migration)
+      param.put(PARAMETERS_LABEL, "city"); // Old key (pre-migration)
+      param.put(PARAMETERS_VALUE, "$.cityName"); // Old key (pre-migration)
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -120,8 +133,8 @@ class ViewerCompatibilityTest {
 
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoParam = (Map<String, Object>) result.getParameters().get("city");
-      assertThat(dtoParam).containsEntry(DomainConstants.Tasks.PARAMETERS_LABEL, "city");
-      assertThat(dtoParam).containsEntry(DomainConstants.Tasks.PARAMETERS_VALUE, "$.cityName");
+      assertThat(dtoParam).containsEntry(PARAMETERS_LABEL, "city");
+      assertThat(dtoParam).containsEntry(PARAMETERS_VALUE, "$.cityName");
     }
 
     @Test
@@ -131,12 +144,12 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "userId");
-      param1.put(DomainConstants.Tasks.PARAMETERS_FIELD, "$.user.id");
+      param1.put(PARAMETERS_VARIABLE, "userId");
+      param1.put(PARAMETERS_FIELD, "$.user.id");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1));
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
+      properties.put(PROPERTY_PARAMETERS, List.of(param1));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -159,19 +172,18 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> publicParam = new HashMap<>();
-      publicParam.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "category");
-      publicParam.put(DomainConstants.Tasks.PARAMETERS_FIELD, "$.category");
-      publicParam.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, false); // Public variable
+      publicParam.put(PARAMETERS_VARIABLE, "category");
+      publicParam.put(PARAMETERS_FIELD, "$.category");
+      publicParam.put(PARAMETERS_PROVIDED, false); // Public variable
 
       Map<String, Object> secretParam = new HashMap<>();
-      secretParam.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "apiKey");
-      secretParam.put(
-          DomainConstants.Tasks.PARAMETERS_FIELD, "#{APP_KEY}"); // System variable in value
-      secretParam.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, true); // Backend-only secret
+      secretParam.put(PARAMETERS_VARIABLE, "apiKey");
+      secretParam.put(PARAMETERS_FIELD, "#{APP_KEY}"); // System variable in value
+      secretParam.put(PARAMETERS_PROVIDED, true); // Backend-only secret
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(publicParam, secretParam));
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
+      properties.put(PROPERTY_PARAMETERS, List.of(publicParam, secretParam));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -191,10 +203,8 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_COMMAND,
-          "https://api.example.com/data?territory=#{TERR_ID}");
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
+      properties.put(PROPERTY_COMMAND, "https://api.example.com/data?territory=#{TERR_ID}");
       // This should be resolved to actual territory ID backend-side, never sent to client
       when(task.getProperties()).thenReturn(properties);
 
@@ -222,15 +232,14 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "code");
-      param.put(DomainConstants.Tasks.PARAMETERS_FIELD, "CODE");
-      param.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, false); // No secrets
+      param.put(PARAMETERS_VARIABLE, "code");
+      param.put(PARAMETERS_FIELD, "CODE");
+      param.put(PARAMETERS_PROVIDED, false); // No secrets
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_URL);
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_COMMAND, "https://docs.example.com/manual/{code}.pdf");
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_SCOPE, SCOPE_URL);
+      properties.put(PROPERTY_COMMAND, "https://docs.example.com/manual/{code}.pdf");
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -238,7 +247,7 @@ class ViewerCompatibilityTest {
 
       // Then: For URL-type tasks, command is exposed via url field (external redirect)
       assertThat(result.getUrl()).isEqualTo("https://docs.example.com/manual/{code}.pdf");
-      assertThat(result.getScope()).isEqualTo(DomainConstants.Tasks.SCOPE_URL);
+      assertThat(result.getScope()).isEqualTo(SCOPE_URL);
     }
 
     @Test
@@ -248,16 +257,14 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> secretParam = new HashMap<>();
-      secretParam.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "token");
-      secretParam.put(DomainConstants.Tasks.PARAMETERS_FIELD, "#{API_TOKEN}");
-      secretParam.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, true); // Secret
+      secretParam.put(PARAMETERS_VARIABLE, "token");
+      secretParam.put(PARAMETERS_FIELD, "#{API_TOKEN}");
+      secretParam.put(PARAMETERS_PROVIDED, true); // Secret
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_COMMAND,
-          "https://api.example.com/secure?token=#{API_TOKEN}");
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(secretParam));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
+      properties.put(PROPERTY_COMMAND, "https://api.example.com/secure?token=#{API_TOKEN}");
+      properties.put(PROPERTY_PARAMETERS, List.of(secretParam));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -276,9 +283,8 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL);
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_COMMAND, "SELECT * FROM data WHERE id = {itemId}");
+      properties.put(PROPERTY_SCOPE, SCOPE_SQL);
+      properties.put(PROPERTY_COMMAND, "SELECT * FROM data WHERE id = {itemId}");
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -287,7 +293,7 @@ class ViewerCompatibilityTest {
       // Then: URL present (proxy execution path)
       assertThat(result.getUrl())
           .isEqualTo("http://localhost:8080/middleware/proxy/10/5/SQL/" + task.getId());
-      assertThat(result.getScope()).isEqualTo(DomainConstants.Tasks.SCOPE_SQL);
+      assertThat(result.getScope()).isEqualTo(SCOPE_SQL);
     }
   }
 
@@ -302,16 +308,16 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "startDate");
-      param1.put(DomainConstants.Tasks.PARAMETERS_FIELD, "$.start");
+      param1.put(PARAMETERS_VARIABLE, "startDate");
+      param1.put(PARAMETERS_FIELD, "$.start");
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "endDate");
-      param2.put(DomainConstants.Tasks.PARAMETERS_FIELD, "$.end");
+      param2.put(PARAMETERS_VARIABLE, "endDate");
+      param2.put(PARAMETERS_FIELD, "$.end");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -329,12 +335,9 @@ class ViewerCompatibilityTest {
                 Map<String, Object> param = (Map<String, Object>) paramObj;
 
                 // Viewer expects these fields to exist
-                assertThat(param)
-                    .containsKeys(
-                        DomainConstants.Tasks.PARAMETERS_LABEL,
-                        DomainConstants.Tasks.PARAMETERS_VALUE);
-                assertThat(param.get(DomainConstants.Tasks.PARAMETERS_LABEL)).isNotNull();
-                assertThat(param.get(DomainConstants.Tasks.PARAMETERS_VALUE)).isNotNull();
+                assertThat(param).containsKeys(PARAMETERS_LABEL, PARAMETERS_VALUE);
+                assertThat(param.get(PARAMETERS_LABEL)).isNotNull();
+                assertThat(param.get(PARAMETERS_VALUE)).isNotNull();
               });
     }
 
@@ -345,8 +348,8 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_API);
-      properties.put(DomainConstants.Tasks.PROPERTY_COMMAND, "https://api.example.com/info");
+      properties.put(PROPERTY_SCOPE, SCOPE_API);
+      properties.put(PROPERTY_COMMAND, "https://api.example.com/info");
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -354,7 +357,7 @@ class ViewerCompatibilityTest {
 
       // Then: Viewer uses result.url (proxy) not result.command (may have secrets)
       assertThat(result.getUrl()).isNotNull();
-      assertThat(result.getScope()).isEqualTo(DomainConstants.Tasks.SCOPE_API);
+      assertThat(result.getScope()).isEqualTo(SCOPE_API);
 
       // Viewer would call: this.http.get(taskDto.url, { params: userInputs })
       String expectedProxyUrl = "http://localhost:8080/middleware/proxy/10/5/API/" + task.getId();
@@ -368,13 +371,13 @@ class ViewerCompatibilityTest {
       Task task = createMoreInfoTask();
 
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_VARIABLE, "docId");
-      param.put(DomainConstants.Tasks.PARAMETERS_FIELD, "ID");
+      param.put(PARAMETERS_VARIABLE, "docId");
+      param.put(PARAMETERS_FIELD, "ID");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_URL);
-      properties.put(DomainConstants.Tasks.PROPERTY_COMMAND, "https://external.com/doc/{docId}");
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_SCOPE, SCOPE_URL);
+      properties.put(PROPERTY_COMMAND, "https://external.com/doc/{docId}");
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -383,7 +386,7 @@ class ViewerCompatibilityTest {
       // Then: Viewer uses result.url to construct external link
       assertThat(result.getUrl()).isNotNull();
       assertThat(result.getUrl()).isEqualTo("https://external.com/doc/{docId}");
-      assertThat(result.getScope()).isEqualTo(DomainConstants.Tasks.SCOPE_URL);
+      assertThat(result.getScope()).isEqualTo(SCOPE_URL);
 
       // Viewer would do: window.open(taskDto.url.replace('{docId}', userInput))
     }
@@ -393,7 +396,7 @@ class ViewerCompatibilityTest {
   private Task createMoreInfoTask() {
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
     when(task.getId()).thenReturn(42);
     when(task.getName()).thenReturn("Test More Info");

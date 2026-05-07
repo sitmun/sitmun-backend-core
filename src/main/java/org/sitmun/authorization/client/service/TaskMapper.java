@@ -1,5 +1,6 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.service;
 
+import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;

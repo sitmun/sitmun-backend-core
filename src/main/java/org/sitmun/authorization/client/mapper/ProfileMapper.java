@@ -1,10 +1,12 @@
-package org.sitmun.authorization.client.dto;
+package org.sitmun.authorization.client.mapper;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
+import org.sitmun.authorization.client.dto.*;
 import org.sitmun.authorization.client.service.Profile;
+import org.sitmun.authorization.client.service.TaskMapper;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.background.Background;

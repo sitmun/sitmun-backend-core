@@ -152,14 +152,12 @@ class CodeListsTest {
   void checkQueryTaskScope() {
     assertThat(select(CodeListsConstants.QUERY_TASK_SCOPE))
         .containsExactlyInAnyOrder(
-            "INFORME",
             "SQL",
-            "TAREA",
-            "URL",
-            "WS",
+            "external-link",
             "cartography-query",
             "sql-query",
-            "web-api-query");
+            "web-api-query",
+            "web-api-query-no-proxy");
   }
 
   @Test
@@ -187,7 +185,7 @@ class CodeListsTest {
   @DisplayName("Verify service.authenticationMode code list values")
   void checkServiceAuthenticationMode() {
     assertThat(select(CodeListsConstants.SERVICE_AUTHENTICATION_MODE))
-        .containsExactlyInAnyOrder("None", "HTTP Basic authentication");
+        .containsExactlyInAnyOrder("None", "HTTP Basic authentication", "API key");
   }
 
   @Test

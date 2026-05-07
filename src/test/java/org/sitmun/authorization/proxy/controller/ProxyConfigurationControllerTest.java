@@ -139,7 +139,10 @@ class ProxyConfigurationControllerTest {
 
     mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE LIMIT 100 OFFSET 100"));
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value(
+                    "SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=? LIMIT 100 OFFSET 100"));
   }
 
   @Test

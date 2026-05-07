@@ -232,6 +232,9 @@ sitmun:
           value: web-api-query
           description: "Web API Query"
         - code-list-name: queryTask.scope
+          value: web-api-query-no-proxy
+          description: "Web API Query (No Proxy)"
+        - code-list-name: queryTask.scope
           value: cartography-query
           description: "Cartography Query"
         - code-list-name: queryTask.parameterType

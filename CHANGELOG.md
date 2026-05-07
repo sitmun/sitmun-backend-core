@@ -33,6 +33,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `applyDecorators`: strips `LIMIT`/`OFFSET` case-insensitively from incoming parameters before pagination; applies `SqlUserParametrizationDecorator` then `HttpUserParametrizationDecorator`.
 - `SystemVariableResolver` resolves templates with `RequestCoordinates` (nullable coordinates when no entity bindings).
 - Renamed `QueryVaryFiltersDecorator` to `SqlUserParametrizationDecorator`.
+- **Refactoring**: Task parameter processing centralized into `TaskParameterProcessor` service with unified parsing, classification (`TaskParameterType` enum), filtering, and effective-value computation. Removes ~9 helper methods from `ProxyConfigurationService`. Parameter precedence rules (locked > provided > client > literal > empty) and security checks now handled uniformly across proxy and client-facing endpoints.
+- **Refactoring**: All TaskMapper implementations (`TaskQuerySqlService`, `TaskQueryWebService`, `TaskQueryCartographyService`, `TaskEditCartographyService`, `TaskMoreInfoService`, `TaskBasicService`) now use `TaskParameterProcessor` for consistent parameter parsing and classification, eliminating duplicated filtering logic while maintaining backward-compatible DTO formats.
+- **Refactoring**: Parameter-to-DTO conversion centralized into `TaskParameterProcessor` with three per-parameter converter methods (`toSimpleParameterDto`, `toParameterDtoWithValue`, `toViewerParameterDto`). Eliminates ~30-40 lines of duplicated DTO-building code across five TaskMapper services while preserving service-specific control over loop/filter/null-return behavior and default type values.
 
 ### Removed
 

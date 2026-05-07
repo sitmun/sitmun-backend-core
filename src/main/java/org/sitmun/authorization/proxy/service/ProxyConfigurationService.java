@@ -2,11 +2,11 @@ package org.sitmun.authorization.proxy.service;
 
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_LIMIT;
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_OFFSET;
+import static org.sitmun.domain.DomainConstants.Proxy.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
@@ -25,11 +25,13 @@ import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.service.parameter.ServiceParameter;
+import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
@@ -69,6 +71,10 @@ public class ProxyConfigurationService {
 
   private final SystemVariableResolver systemVariableResolver;
 
+  private final MoreInfoTaskResolver moreInfoTaskResolver;
+
+  private final TaskParameterProcessor taskParameterProcessor;
+
   @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
@@ -85,7 +91,9 @@ public class ProxyConfigurationService {
       HttpUserParametrizationDecorator httpUserParametrizationDecorator,
       QueryPaginationDecorator queryPaginationDecorator,
       List<ResourceAccessValidator> accessValidators,
-      SystemVariableResolver systemVariableResolver) {
+      SystemVariableResolver systemVariableResolver,
+      MoreInfoTaskResolver moreInfoTaskResolver,
+      TaskParameterProcessor taskParameterProcessor) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -96,6 +104,8 @@ public class ProxyConfigurationService {
     this.queryPaginationDecorator = queryPaginationDecorator;
     this.accessValidators = accessValidators;
     this.systemVariableResolver = systemVariableResolver;
+    this.moreInfoTaskResolver = moreInfoTaskResolver;
+    this.taskParameterProcessor = taskParameterProcessor;
   }
 
   private WmsPayloadDto getOgcWmsConfiguration(
@@ -125,7 +135,7 @@ public class ProxyConfigurationService {
     Set<ServiceParameter> servParams = service.getParameters();
     List<String> varyParameters = new ArrayList<>();
     for (ServiceParameter parameter : servParams) {
-      if (DomainConstants.Proxy.PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
+      if (PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
         final String resolvedValue =
@@ -155,8 +165,8 @@ public class ProxyConfigurationService {
   private static String getSqlByTask(Task task) {
     String sql = "";
     Map<String, Object> taskParams = task.getProperties();
-    if (taskParams != null && taskParams.containsKey(DomainConstants.Tasks.PROPERTY_COMMAND)) {
-      sql = (String) taskParams.get(DomainConstants.Tasks.PROPERTY_COMMAND);
+    if (taskParams != null && taskParams.containsKey(PROPERTY_COMMAND)) {
+      sql = (String) taskParams.get(PROPERTY_COMMAND);
     }
 
     if (!StringUtils.hasText(sql)) {
@@ -193,7 +203,7 @@ public class ProxyConfigurationService {
       return null;
     }
 
-    String url = (String) taskProps.get(DomainConstants.Tasks.PROPERTY_COMMAND);
+    String url = (String) taskProps.get(PROPERTY_COMMAND);
 
     // Check for null or blank URL
     if (!StringUtils.hasText(url)) {
@@ -203,74 +213,25 @@ public class ProxyConfigurationService {
     // Resolve system variables (#{}) in URL before sending to proxy
     url = systemVariableResolver.resolve(url, coordinates);
 
-    // Handle non-String parameter values - key by variable name (with backward compatibility)
-    @SuppressWarnings("unchecked")
-    final Map<String, String> parameters =
-        ((List<Map<String, Object>>)
-                taskProps.getOrDefault(
-                    DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList()))
-            .stream()
-                .flatMap(
-                    p -> {
-                      // Use backward-compatible variable reading (tries 'variable' then 'name')
-                      String key = TaskParameterUtil.getParameterVariable(p);
-                      // Fallback to label if neither variable nor name exists (legacy support)
-                      if (key == null) {
-                        Object label = p.get(DomainConstants.Tasks.PARAMETERS_LABEL);
-                        key = label != null ? String.valueOf(label) : null;
-                      }
-                      if (!StringUtils.hasText(key)) {
-                        return Stream.empty();
-                      }
-                      String value = String.valueOf(p.get(DomainConstants.Tasks.PARAMETERS_VALUE));
-                      return Stream.of(Map.entry(key, value));
-                    })
-                .collect(
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (a, b) -> b)); // last-wins for duplicates
-
-    final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
-
-    // Only build security DTO if authentication is configured
-    HttpSecurityDto security = null;
-    String authenticationMode =
-        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE, null);
-    String apiUser = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_USER, null);
-    String apiPassword =
-        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
-    Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
-
-    var isApiKeyType = headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();
-    var isHttpType =
-        StringUtils.hasText(authenticationMode)
-            && StringUtils.hasText(apiUser)
-            && StringUtils.hasText(apiPassword);
-    if (isHttpType) {
-      security =
-          HttpSecurityDto.builder()
-              .type(SECURITY_SCHEME_TYPE_HTTP)
-              .scheme(OPENAPI_SECURITY_SCHEME_HTTP_BASIC)
-              .username(apiUser)
-              .password(apiPassword)
-              .build();
-    } else if (isApiKeyType) {
-      Map<?, ?> headers = (Map<?, ?>) headersObject;
-      var securityHeaders = new HashMap<String, String>();
-      for (var e : headers.entrySet()) {
-        if (e.getKey() instanceof String key
-            && StringUtils.hasText(key)
-            && e.getValue() instanceof String value) {
-          securityHeaders.put(key, value);
+    // HTTP payload parameters contain only strict backend defaults (locked + provided)
+    // so logging at construction time shows only what the backend controls.
+    // Full effectiveParameters (including client values) are overlaid later in applyDecorators.
+    List<TaskParameter> parameters = taskParameterProcessor.parse(task);
+    Map<String, String> backendOnlyParameters =
+        taskParameterProcessor.buildEffectiveParameters(parameters, null, coordinates);
+    // Filter to only backend-only (LOCKED + PROVIDED) parameters
+    Map<String, String> filteredBackendOnly = new LinkedHashMap<>();
+    for (TaskParameter param : parameters) {
+      if (taskParameterProcessor.classify(param).isBackendOnly()) {
+        String value = backendOnlyParameters.get(param.name());
+        if (value != null) {
+          filteredBackendOnly.put(param.name(), value);
         }
       }
-      security =
-          HttpSecurityDto.builder()
-              .type(SECURITY_SCHEME_TYPE_API_KEY)
-              .headers(securityHeaders)
-              .build();
     }
+
+    final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
+    final HttpSecurityDto security = buildHttpSecurity(taskProps);
 
     // API method is hardcoded to GET as per current proxy middleware implementation.
     // The actual HTTP method (GET/POST) is determined by the client's original request in the
@@ -282,7 +243,7 @@ public class ProxyConfigurationService {
         WmsPayloadDto.builder()
             .uri(url)
             .method("GET")
-            .parameters(parameters)
+            .parameters(filteredBackendOnly)
             .body(body)
             .security(security)
             .build();
@@ -352,21 +313,24 @@ public class ProxyConfigurationService {
 
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
-    if (DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    if (TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getDatasourceConfiguration(task, coordinates));
-                configType.set(DomainConstants.Proxy.TYPE_SQL);
+                payload.set(
+                    getDatasourceConfiguration(
+                        moreInfoTaskResolver.resolveOrSelf(task), coordinates));
+                configType.set(TYPE_SQL);
               });
-    } else if (DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    } else if (TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
-                payload.set(getHttpApiConfiguration(task, coordinates));
-                configType.set(DomainConstants.Proxy.TYPE_API);
+                payload.set(
+                    getHttpApiConfiguration(moreInfoTaskResolver.resolveOrSelf(task), coordinates));
+                configType.set(TYPE_API);
               });
     } else {
       log.info(
@@ -410,6 +374,11 @@ public class ProxyConfigurationService {
       ConfigProxyRequestDto configProxyRequestDto,
       RequestCoordinates coordinates) {
     Objects.requireNonNull(coordinates, "coordinates");
+
+    // Security: reject any client-supplied parameter value containing #{...} patterns before
+    // processing, to prevent injection of system variable expressions.
+    taskParameterProcessor.rejectClientSystemVariables(configProxyRequestDto.getParameters());
+
     PayloadDto payload = configProxyDto.getPayload();
     log.debug(
         "applyDecorators: incomingRequestParameterCount={} payloadClass={}",
@@ -418,21 +387,69 @@ public class ProxyConfigurationService {
             : configProxyRequestDto.getParameters().size(),
         payload.getClass().getSimpleName());
 
-    // System variables (#{}) are resolved in getDatasourceConfiguration, getHttpApiConfiguration,
-    // and getOgcWmsConfiguration (via systemVariableResolver.resolve).
-    // Coordinates carry user/territory/application for future decorator steps that need context.
-    // No need for addFixedFilters() anymore
+    Map<String, String> parameters =
+        configProxyRequestDto.getParameters() == null
+            ? null
+            : new LinkedHashMap<>(configProxyRequestDto.getParameters());
 
-    Map<String, String> parameters = configProxyRequestDto.getParameters();
-
+    // Strip pagination parameters before filtering
+    String limit = null;
+    String offset = null;
     if (parameters != null && !parameters.isEmpty()) {
       String[] pagination = takePaginationValuesAndStripKeys(parameters);
-      String limit = pagination[0];
-      String offset = pagination[1];
-
-      expandUserParameters(parameters, payload);
-      addPagination(limit, offset, payload);
+      limit = pagination[0];
+      offset = pagination[1];
+      // Update the original request to reflect stripped pagination parameters
+      configProxyRequestDto.setParameters(parameters);
     }
+
+    // Parse task parameters and filter/build effective parameters
+    List<TaskParameter> taskParameters = getTaskParametersForRequest(configProxyRequestDto);
+
+    Map<String, String> filteredClientParameters;
+    if (taskParameters.isEmpty()) {
+      // For OGC/WMS/WMTS services (non-task requests), use client parameters directly
+      // without filtering through task parameter declarations to support URI template expansion
+      filteredClientParameters = parameters;
+    } else {
+      // For task requests (SQL/API), filter client parameters against client-allowed names
+      filteredClientParameters =
+          taskParameterProcessor.filterClientParameters(taskParameters, parameters);
+    }
+
+    // Build effectiveParameters with priority: locked > provided > client > literal > empty
+    Map<String, String> effectiveParameters =
+        taskParameterProcessor.buildEffectiveParameters(
+            taskParameters, filteredClientParameters, coordinates);
+
+    // For OGC/WMS/WMTS services, use filtered client parameters directly for expansion
+    // For task requests, use effective parameters
+    Map<String, String> parametersForExpansion =
+        taskParameters.isEmpty() ? filteredClientParameters : effectiveParameters;
+
+    if (parametersForExpansion != null && !parametersForExpansion.isEmpty()) {
+      expandUserParameters(parametersForExpansion, payload);
+    }
+
+    addPagination(limit, offset, payload);
+  }
+
+  /**
+   * Gets the parsed task parameters for the current request. Returns empty list for non-task
+   * requests (OGC/WMS services).
+   */
+  private List<TaskParameter> getTaskParametersForRequest(
+      ConfigProxyRequestDto configProxyRequestDto) {
+    if (!TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())
+        && !TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
+      return Collections.emptyList();
+    }
+
+    return taskRepository
+        .findById(configProxyRequestDto.getTypeId())
+        .map(moreInfoTaskResolver::resolveOrSelf)
+        .map(taskParameterProcessor::parse)
+        .orElse(Collections.emptyList());
   }
 
   /**
@@ -475,6 +492,76 @@ public class ProxyConfigurationService {
       pagination.put(SQL_OFFSET, offset);
     }
     queryPaginationDecorator.apply(pagination, payload);
+  }
+
+  /**
+   * Extracts string key-value pairs from a map object, filtering out non-string keys or values and
+   * empty keys.
+   *
+   * @param mapObject the object to extract from (expected to be a Map)
+   * @return a new map containing only valid string key-value pairs
+   */
+  private Map<String, String> extractStringMap(Object mapObject) {
+    if (!(mapObject instanceof Map<?, ?> sourceMap)) {
+      return new HashMap<>();
+    }
+    Map<String, String> result = new HashMap<>();
+    for (var entry : sourceMap.entrySet()) {
+      if (entry.getKey() instanceof String key
+          && StringUtils.hasText(key)
+          && entry.getValue() instanceof String value) {
+        result.put(key, value);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Builds HTTP security DTO from task properties. Supports three authentication types with
+   * precedence: HTTP Basic Auth > API Key Headers > API Key Query Params.
+   *
+   * @param taskProps the task properties map
+   * @return HttpSecurityDto if authentication is configured, null otherwise
+   */
+  private HttpSecurityDto buildHttpSecurity(Map<String, Object> taskProps) {
+    String authenticationMode = (String) taskProps.getOrDefault(PROPERTY_AUTHENTICATION_MODE, null);
+    String apiUser = (String) taskProps.getOrDefault(PROPERTY_USER, null);
+    String apiPassword = (String) taskProps.getOrDefault(PROPERTY_PASSWORD, null);
+    Object headersObject = taskProps.get(PROPERTY_HEADERS);
+    Object queryParamsObject = taskProps.get(PROPERTY_QUERY_PARAMS);
+
+    boolean isApiKeyType =
+        headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();
+    boolean isQueryParamType =
+        queryParamsObject instanceof Map<?, ?> && !((Map<?, ?>) queryParamsObject).isEmpty();
+    boolean isHttpType =
+        StringUtils.hasText(authenticationMode)
+            && StringUtils.hasText(apiUser)
+            && StringUtils.hasText(apiPassword);
+
+    // HTTP basic authentication takes precedence if multiple security configurations are present
+    if (isHttpType) {
+      return HttpSecurityDto.builder()
+          .type(SECURITY_SCHEME_TYPE_HTTP)
+          .scheme(OPENAPI_SECURITY_SCHEME_HTTP_BASIC)
+          .username(apiUser)
+          .password(apiPassword)
+          .build();
+    } else if (isApiKeyType) {
+      Map<String, String> securityHeaders = extractStringMap(headersObject);
+      return HttpSecurityDto.builder()
+          .type(SECURITY_SCHEME_TYPE_API_KEY)
+          .headers(securityHeaders)
+          .build();
+    } else if (isQueryParamType) {
+      Map<String, String> securityQueryParams = extractStringMap(queryParamsObject);
+      return HttpSecurityDto.builder()
+          .type(SECURITY_SCHEME_TYPE_API_KEY)
+          .queryParams(securityQueryParams)
+          .build();
+    }
+
+    return null;
   }
 
   private static String summarizePayloadForLog(PayloadDto payload) {
