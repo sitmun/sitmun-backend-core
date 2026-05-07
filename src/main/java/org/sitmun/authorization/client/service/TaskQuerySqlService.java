@@ -1,9 +1,9 @@
 package org.sitmun.authorization.client.service;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.AuthorizationConstants;
@@ -12,9 +12,9 @@ import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
-import org.sitmun.infrastructure.util.ParameterValidator;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TaskQuerySqlService implements TaskMapper {
+
+  private final TaskParameterProcessor taskParameterProcessor;
 
   @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
@@ -48,65 +51,39 @@ public class TaskQuerySqlService implements TaskMapper {
    * @return TaskDto containing task information and parameters
    */
   public TaskDto map(Task task, Application application, Territory territory) {
-    Map<String, Object> properties = task.getProperties();
-    ParameterValidator.validateProvidedFlag(properties);
-
-    Map<String, Object> parameters = new HashMap<>();
-    if (properties != null) {
-      parameters = convertToJsonObject(properties);
-    }
+    List<TaskParameter> parameters = taskParameterProcessor.parse(task);
+    Map<String, Object> parametersDto = convertToClientProfile(parameters);
 
     String url = ProxyUrlBuilder.forSqlTask(proxyUrl, application, territory, task);
 
     return TaskDto.builder()
         .id("task/" + task.getId())
         .type(AuthorizationConstants.TaskDto.SIMPLE)
-        .parameters(parameters)
+        .parameters(parametersDto)
         .url(url)
         .build();
   }
 
   /**
-   * Converts task properties to a parameter map.
+   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
+   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
    *
-   * @param properties The task properties to convert
+   * <p>Output format: {@code {name -> {type, required}}}
+   *
+   * @param parameters The parsed task parameters
    * @return Map of parameter names to their type and required status, or null if no parameters
    */
   @Nullable
-  private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
-    Map<String, Object> parameters = new HashMap<>();
+  private Map<String, Object> convertToClientProfile(List<TaskParameter> parameters) {
+    Map<String, Object> result = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> listOfParameters =
-        (List<Map<String, Object>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
-
-    for (Map<String, Object> param : listOfParameters) {
-      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-      boolean isProvided =
-          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
-
-      if (isProvided) {
+    for (TaskParameter param : parameters) {
+      if (taskParameterProcessor.classify(param).isBackendOnly()) {
         continue;
       }
-
-      String name = TaskParameterUtil.getParameterVariable(param);
-
-      if (name != null
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
-        String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
-        Boolean required =
-            Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));
-
-        Map<String, Object> values = new HashMap<>();
-        values.put(AuthorizationConstants.TaskDto.PARAMETER_TYPE, type);
-        values.put(AuthorizationConstants.TaskDto.PARAMETER_REQUIRED, required);
-        parameters.put(name, values);
-      }
+      result.put(param.name(), taskParameterProcessor.toSimpleParameterDto(param, "string"));
     }
 
-    return parameters.isEmpty() ? null : parameters;
+    return result.isEmpty() ? null : result;
   }
 }

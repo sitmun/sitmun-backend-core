@@ -2,11 +2,11 @@ package org.sitmun.authorization.proxy.service;
 
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_LIMIT;
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_OFFSET;
+import static org.sitmun.domain.DomainConstants.Proxy.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
@@ -28,9 +28,10 @@ import org.sitmun.domain.service.parameter.ServiceParameter;
 import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
@@ -72,6 +73,8 @@ public class ProxyConfigurationService {
 
   private final MoreInfoTaskResolver moreInfoTaskResolver;
 
+  private final TaskParameterProcessor taskParameterProcessor;
+
   @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
@@ -89,7 +92,8 @@ public class ProxyConfigurationService {
       QueryPaginationDecorator queryPaginationDecorator,
       List<ResourceAccessValidator> accessValidators,
       SystemVariableResolver systemVariableResolver,
-      MoreInfoTaskResolver moreInfoTaskResolver) {
+      MoreInfoTaskResolver moreInfoTaskResolver,
+      TaskParameterProcessor taskParameterProcessor) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -101,6 +105,7 @@ public class ProxyConfigurationService {
     this.accessValidators = accessValidators;
     this.systemVariableResolver = systemVariableResolver;
     this.moreInfoTaskResolver = moreInfoTaskResolver;
+    this.taskParameterProcessor = taskParameterProcessor;
   }
 
   private WmsPayloadDto getOgcWmsConfiguration(
@@ -130,7 +135,7 @@ public class ProxyConfigurationService {
     Set<ServiceParameter> servParams = service.getParameters();
     List<String> varyParameters = new ArrayList<>();
     for (ServiceParameter parameter : servParams) {
-      if (DomainConstants.Proxy.PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
+      if (PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
         varyParameters.add(parameter.getName());
       } else {
         final String resolvedValue =
@@ -160,8 +165,8 @@ public class ProxyConfigurationService {
   private static String getSqlByTask(Task task) {
     String sql = "";
     Map<String, Object> taskParams = task.getProperties();
-    if (taskParams != null && taskParams.containsKey(DomainConstants.Tasks.PROPERTY_COMMAND)) {
-      sql = (String) taskParams.get(DomainConstants.Tasks.PROPERTY_COMMAND);
+    if (taskParams != null && taskParams.containsKey(PROPERTY_COMMAND)) {
+      sql = (String) taskParams.get(PROPERTY_COMMAND);
     }
 
     if (!StringUtils.hasText(sql)) {
@@ -198,7 +203,7 @@ public class ProxyConfigurationService {
       return null;
     }
 
-    String url = (String) taskProps.get(DomainConstants.Tasks.PROPERTY_COMMAND);
+    String url = (String) taskProps.get(PROPERTY_COMMAND);
 
     // Check for null or blank URL
     if (!StringUtils.hasText(url)) {
@@ -208,7 +213,23 @@ public class ProxyConfigurationService {
     // Resolve system variables (#{}) in URL before sending to proxy
     url = systemVariableResolver.resolve(url, coordinates);
 
-    final Map<String, String> parameters = extractTaskParametersAsMap(taskProps, coordinates);
+    // HTTP payload parameters contain only strict backend defaults (locked + provided)
+    // so logging at construction time shows only what the backend controls.
+    // Full effectiveParameters (including client values) are overlaid later in applyDecorators.
+    List<TaskParameter> parameters = taskParameterProcessor.parse(task);
+    Map<String, String> backendOnlyParameters =
+        taskParameterProcessor.buildEffectiveParameters(parameters, null, coordinates);
+    // Filter to only backend-only (LOCKED + PROVIDED) parameters
+    Map<String, String> filteredBackendOnly = new LinkedHashMap<>();
+    for (TaskParameter param : parameters) {
+      if (taskParameterProcessor.classify(param).isBackendOnly()) {
+        String value = backendOnlyParameters.get(param.name());
+        if (value != null) {
+          filteredBackendOnly.put(param.name(), value);
+        }
+      }
+    }
+
     final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
     final HttpSecurityDto security = buildHttpSecurity(taskProps);
 
@@ -222,7 +243,7 @@ public class ProxyConfigurationService {
         WmsPayloadDto.builder()
             .uri(url)
             .method("GET")
-            .parameters(parameters)
+            .parameters(filteredBackendOnly)
             .body(body)
             .security(security)
             .build();
@@ -292,7 +313,7 @@ public class ProxyConfigurationService {
 
     AtomicReference<PayloadDto> payload = new AtomicReference<>(null);
     AtomicReference<String> configType = new AtomicReference<>("");
-    if (DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    if (TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
@@ -300,16 +321,16 @@ public class ProxyConfigurationService {
                 payload.set(
                     getDatasourceConfiguration(
                         moreInfoTaskResolver.resolveOrSelf(task), coordinates));
-                configType.set(DomainConstants.Proxy.TYPE_SQL);
+                configType.set(TYPE_SQL);
               });
-    } else if (DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
+    } else if (TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
       taskRepository
           .findById(configProxyRequestDto.getTypeId())
           .ifPresent(
               task -> {
                 payload.set(
                     getHttpApiConfiguration(moreInfoTaskResolver.resolveOrSelf(task), coordinates));
-                configType.set(DomainConstants.Proxy.TYPE_API);
+                configType.set(TYPE_API);
               });
     } else {
       log.info(
@@ -353,6 +374,11 @@ public class ProxyConfigurationService {
       ConfigProxyRequestDto configProxyRequestDto,
       RequestCoordinates coordinates) {
     Objects.requireNonNull(coordinates, "coordinates");
+
+    // Security: reject any client-supplied parameter value containing #{...} patterns before
+    // processing, to prevent injection of system variable expressions.
+    taskParameterProcessor.rejectClientSystemVariables(configProxyRequestDto.getParameters());
+
     PayloadDto payload = configProxyDto.getPayload();
     log.debug(
         "applyDecorators: incomingRequestParameterCount={} payloadClass={}",
@@ -361,17 +387,12 @@ public class ProxyConfigurationService {
             : configProxyRequestDto.getParameters().size(),
         payload.getClass().getSimpleName());
 
-    // System variables (#{}) are resolved in getDatasourceConfiguration, getHttpApiConfiguration,
-    // and getOgcWmsConfiguration (URL/SQL/command). Task parameter values use the same resolver;
-    // null/blank literals omit defaults (client wins), but #{...} in a parameter value always
-    // yields a
-    // backend default from resolution (even blank), which wins over the client.
-
     Map<String, String> parameters =
         configProxyRequestDto.getParameters() == null
             ? null
             : new LinkedHashMap<>(configProxyRequestDto.getParameters());
 
+    // Strip pagination parameters before filtering
     String limit = null;
     String offset = null;
     if (parameters != null && !parameters.isEmpty()) {
@@ -382,117 +403,53 @@ public class ProxyConfigurationService {
       configProxyRequestDto.setParameters(parameters);
     }
 
-    parameters = filterIncomingTaskParameters(configProxyRequestDto, parameters);
-    parameters =
-        addSqlDefaultParametersForExplicitPlaceholders(
-            configProxyRequestDto, payload, parameters, coordinates);
+    // Parse task parameters and filter/build effective parameters
+    List<TaskParameter> taskParameters = getTaskParametersForRequest(configProxyRequestDto);
 
-    if (parameters != null && !parameters.isEmpty()) {
-      expandUserParameters(parameters, payload);
+    Map<String, String> filteredClientParameters;
+    if (taskParameters.isEmpty()) {
+      // For OGC/WMS/WMTS services (non-task requests), use client parameters directly
+      // without filtering through task parameter declarations to support URI template expansion
+      filteredClientParameters = parameters;
+    } else {
+      // For task requests (SQL/API), filter client parameters against client-allowed names
+      filteredClientParameters =
+          taskParameterProcessor.filterClientParameters(taskParameters, parameters);
+    }
+
+    // Build effectiveParameters with priority: locked > provided > client > literal > empty
+    Map<String, String> effectiveParameters =
+        taskParameterProcessor.buildEffectiveParameters(
+            taskParameters, filteredClientParameters, coordinates);
+
+    // For OGC/WMS/WMTS services, use filtered client parameters directly for expansion
+    // For task requests, use effective parameters
+    Map<String, String> parametersForExpansion =
+        taskParameters.isEmpty() ? filteredClientParameters : effectiveParameters;
+
+    if (parametersForExpansion != null && !parametersForExpansion.isEmpty()) {
+      expandUserParameters(parametersForExpansion, payload);
     }
 
     addPagination(limit, offset, payload);
   }
 
-  private Map<String, String> filterIncomingTaskParameters(
-      ConfigProxyRequestDto configProxyRequestDto, Map<String, String> parameters) {
-    if (parameters == null || parameters.isEmpty()) {
-      return parameters;
+  /**
+   * Gets the parsed task parameters for the current request. Returns empty list for non-task
+   * requests (OGC/WMS services).
+   */
+  private List<TaskParameter> getTaskParametersForRequest(
+      ConfigProxyRequestDto configProxyRequestDto) {
+    if (!TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())
+        && !TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
+      return Collections.emptyList();
     }
 
-    if (!DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())
-        && !DomainConstants.Proxy.TYPE_API.equalsIgnoreCase(configProxyRequestDto.getType())) {
-      return parameters;
-    }
-
-    Set<String> declaredNames =
-        taskRepository
-            .findById(configProxyRequestDto.getTypeId())
-            .map(moreInfoTaskResolver::resolveOrSelf)
-            .map(this::getDeclaredTaskParameterNames)
-            .orElse(Collections.emptySet());
-    // Security: Only allow parameters that are explicitly declared in the task configuration.
-    // If no parameters are declared (empty set), reject all incoming parameters.
-    Map<String, String> filtered =
-        parameters.entrySet().stream()
-            .filter(entry -> declaredNames.contains(entry.getKey()))
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (left, right) -> right,
-                    LinkedHashMap::new));
-    return filtered;
-  }
-
-  private Set<String> getDeclaredTaskParameterNames(Task task) {
-    Map<String, Object> properties = task != null ? task.getProperties() : null;
-    if (properties == null) {
-      return Collections.emptySet();
-    }
-
-    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
-    if (!(rawParameters instanceof List<?> parameterList)) {
-      return Collections.emptySet();
-    }
-
-    return parameterList.stream()
-        .filter(Map.class::isInstance)
-        .map(
-            param -> {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> parameter = (Map<String, Object>) param;
-              if (isBackendProvidedParameter(parameter)) {
-                return null;
-              }
-              return resolveParameterName(parameter);
-            })
-        .filter(StringUtils::hasText)
-        .collect(Collectors.toSet());
-  }
-
-  private Map<String, String> addSqlDefaultParametersForExplicitPlaceholders(
-      ConfigProxyRequestDto configProxyRequestDto,
-      PayloadDto payload,
-      Map<String, String> parameters,
-      RequestCoordinates coordinates) {
-    if (!(payload instanceof JdbcPayloadDto jdbcPayload)
-        || !DomainConstants.Proxy.TYPE_SQL.equalsIgnoreCase(configProxyRequestDto.getType())) {
-      return parameters;
-    }
-
-    Map<String, String> merged =
-        parameters == null ? new LinkedHashMap<>() : new LinkedHashMap<>(parameters);
-
-    taskRepository
+    return taskRepository
         .findById(configProxyRequestDto.getTypeId())
         .map(moreInfoTaskResolver::resolveOrSelf)
-        .map(Task::getProperties)
-        .map(properties -> properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS))
-        .filter(List.class::isInstance)
-        .map(List.class::cast)
-        .ifPresent(
-            parameterList -> {
-              for (Object rawParam : parameterList) {
-                if (!(rawParam instanceof Map<?, ?> param)) {
-                  continue;
-                }
-                @SuppressWarnings("unchecked")
-                String name = resolveParameterName((Map<String, Object>) param);
-                Object rawValue = param.get(DomainConstants.Tasks.PARAMETERS_VALUE);
-                if (!StringUtils.hasText(name)) {
-                  continue;
-                }
-                if (jdbcPayload.getSql() == null
-                    || !jdbcPayload.getSql().contains("${" + name + "}")) {
-                  continue;
-                }
-                resolveEffectiveBackendParameterValue(rawValue, coordinates)
-                    .ifPresent(v -> merged.put(name, v));
-              }
-            });
-
-    return merged;
+        .map(taskParameterProcessor::parse)
+        .orElse(Collections.emptyList());
   }
 
   /**
@@ -560,91 +517,6 @@ public class ProxyConfigurationService {
   }
 
   /**
-   * Resolves a parameter name by trying variable first, then falling back to label.
-   *
-   * @param parameter the task parameter map
-   * @return the resolved parameter name, or null if none found
-   */
-  private String resolveParameterName(Map<String, Object> parameter) {
-    String name = TaskParameterUtil.getParameterVariable(parameter);
-    if (!StringUtils.hasText(name)) {
-      Object label = parameter.get(DomainConstants.Tasks.PARAMETERS_LABEL);
-      name = label != null ? String.valueOf(label) : null;
-    }
-    return name;
-  }
-
-  /**
-   * Backend-only parameters ({@code provided: true}) are merged from task configuration and must
-   * not be accepted from the client.
-   */
-  private static boolean isBackendProvidedParameter(Map<String, Object> parameter) {
-    Object provided = parameter.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-    return Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
-  }
-
-  /**
-   * Effective backend default for a task parameter {@code value}: absent when {@code null} or a
-   * blank literal that contains no {@code #{}} references — then the client wins. When the
-   * configured text contains {@code #{}} system variables, the resolved string always participates
-   * as the backend value (and wins over the client on merge), including when the resolution is null
-   * or blank. Plain literals without {@code #{}} participate only when non-blank after resolution.
-   */
-  private Optional<String> resolveEffectiveBackendParameterValue(
-      Object rawValue, RequestCoordinates coordinates) {
-    if (rawValue == null) {
-      return Optional.empty();
-    }
-    String asString = String.valueOf(rawValue);
-    if (!StringUtils.hasText(asString)) {
-      return Optional.empty();
-    }
-    String resolved = systemVariableResolver.resolve(asString, coordinates);
-    if (SystemVariableResolver.containsSystemVariables(asString)) {
-      return Optional.of(resolved != null ? resolved : "");
-    }
-    if (!StringUtils.hasText(resolved)) {
-      return Optional.empty();
-    }
-    return Optional.of(resolved);
-  }
-
-  /**
-   * Extracts task parameters from task properties into a string map for HTTP payloads. Omits
-   * entries whose configured {@code value} is null/blank unless it contains {@code #{}} references;
-   * values with {@code #{}} are always resolved and included (possibly blank).
-   *
-   * @param taskProps the task properties map
-   * @param coordinates context for system variable resolution
-   * @return a map of parameter names to string values (last-wins for duplicates)
-   */
-  @SuppressWarnings("unchecked")
-  private Map<String, String> extractTaskParametersAsMap(
-      Map<String, Object> taskProps, RequestCoordinates coordinates) {
-    Objects.requireNonNull(coordinates, "coordinates");
-    return ((List<Map<String, Object>>)
-            taskProps.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList()))
-        .stream()
-            .flatMap(
-                p -> {
-                  String key = resolveParameterName(p);
-                  if (!StringUtils.hasText(key)) {
-                    return Stream.empty();
-                  }
-                  return resolveEffectiveBackendParameterValue(
-                          p.get(DomainConstants.Tasks.PARAMETERS_VALUE), coordinates)
-                      .stream()
-                      .map(v -> Map.entry(key, v));
-                })
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (a, b) -> b)); // last-wins for duplicates
-  }
-
-  /**
    * Builds HTTP security DTO from task properties. Supports three authentication types with
    * precedence: HTTP Basic Auth > API Key Headers > API Key Query Params.
    *
@@ -652,13 +524,11 @@ public class ProxyConfigurationService {
    * @return HttpSecurityDto if authentication is configured, null otherwise
    */
   private HttpSecurityDto buildHttpSecurity(Map<String, Object> taskProps) {
-    String authenticationMode =
-        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE, null);
-    String apiUser = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_USER, null);
-    String apiPassword =
-        (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_PASSWORD, null);
-    Object headersObject = taskProps.get(DomainConstants.Tasks.PROPERTY_HEADERS);
-    Object queryParamsObject = taskProps.get(DomainConstants.Tasks.PROPERTY_QUERY_PARAMS);
+    String authenticationMode = (String) taskProps.getOrDefault(PROPERTY_AUTHENTICATION_MODE, null);
+    String apiUser = (String) taskProps.getOrDefault(PROPERTY_USER, null);
+    String apiPassword = (String) taskProps.getOrDefault(PROPERTY_PASSWORD, null);
+    Object headersObject = taskProps.get(PROPERTY_HEADERS);
+    Object queryParamsObject = taskProps.get(PROPERTY_QUERY_PARAMS);
 
     boolean isApiKeyType =
         headersObject instanceof Map<?, ?> && !((Map<?, ?>) headersObject).isEmpty();

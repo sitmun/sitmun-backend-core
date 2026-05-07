@@ -1,18 +1,25 @@
 package org.sitmun.authorization.client.service;
 
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.TYPE_BOOLEAN;
+import static org.sitmun.domain.DomainConstants.Tasks.TYPE_NULL;
+import static org.sitmun.domain.DomainConstants.Tasks.TYPE_OBJECT;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.util.ParameterValidator;
 import org.springframework.stereotype.Component;
@@ -23,12 +30,15 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TaskBasicService implements TaskMapper {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
   private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE =
       new TypeReference<>() {};
+
+  private final TaskParameterProcessor taskParameterProcessor;
 
   /**
    * Checks if the task is a basic task type.
@@ -58,7 +68,7 @@ public class TaskBasicService implements TaskMapper {
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
       ParameterValidator.validateNoProvidedVariables(properties, "Basic");
-      parameters = convertToJsonObject(properties);
+      parameters = convertToJsonObject(task);
     }
     return TaskDto.builder()
         .id("task/" + task.getId())
@@ -68,29 +78,20 @@ public class TaskBasicService implements TaskMapper {
   }
 
   /**
-   * Converts task properties to a JSON object structure.
+   * Converts parsed task parameters to JSON object structure with type-based conversion.
    *
-   * @param properties Task properties to convert
+   * @param task Task to convert
    * @return Map of converted parameters or null if empty
    */
   @Nullable
-  private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
+  private Map<String, Object> convertToJsonObject(Task task) {
     Map<String, Object> parameters = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    List<Map<String, String>> listOfParameters =
-        (List<Map<String, String>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
+    List<TaskParameter> taskParameters = taskParameterProcessor.parse(task);
 
-    for (Map<String, String> param : listOfParameters) {
-      if (param.containsKey(DomainConstants.Tasks.PARAMETERS_NAME)
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_VALUE)) {
-        String name = param.get(DomainConstants.Tasks.PARAMETERS_NAME);
-        String type = param.get(DomainConstants.Tasks.PARAMETERS_TYPE);
-        String value = param.get(DomainConstants.Tasks.PARAMETERS_VALUE);
-        typeBasedConversion(type, value, parameters, name);
+    for (TaskParameter param : taskParameters) {
+      if (param.type() != null && param.rawValue() != null) {
+        typeBasedConversion(param.type(), param.rawValue(), parameters, param.name());
       }
     }
     return parameters.isEmpty() ? null : parameters;
@@ -108,22 +109,22 @@ public class TaskBasicService implements TaskMapper {
       String type, String value, Map<String, Object> parameters, String name) {
     try {
       switch (type) {
-        case DomainConstants.Tasks.TYPE_STRING:
+        case TYPE_STRING:
           parameters.put(name, value != null ? value : "");
           break;
-        case DomainConstants.Tasks.TYPE_NUMBER:
+        case TYPE_NUMBER:
           parameters.put(name, Double.parseDouble(value));
           break;
-        case DomainConstants.Tasks.TYPE_ARRAY:
+        case TYPE_ARRAY:
           parameters.put(name, OBJECT_MAPPER.readValue(value, ARRAY_TYPE_REFERENCE));
           break;
-        case DomainConstants.Tasks.TYPE_OBJECT:
+        case TYPE_OBJECT:
           parameters.put(name, OBJECT_MAPPER.readValue(value, OBJECT_TYPE_REFERENCE));
           break;
-        case DomainConstants.Tasks.TYPE_BOOLEAN:
+        case TYPE_BOOLEAN:
           parameters.put(name, Boolean.parseBoolean(value));
           break;
-        case DomainConstants.Tasks.TYPE_NULL:
+        case TYPE_NULL:
           parameters.put(name, null);
           break;
         default:

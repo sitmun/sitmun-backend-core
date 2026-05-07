@@ -1,9 +1,13 @@
 package org.sitmun.authorization.client.service;
 
-import java.util.Collections;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_FILENAME;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.AuthorizationConstants;
@@ -12,9 +16,10 @@ import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.infrastructure.util.ParameterValidator;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +29,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TaskQueryWebService implements TaskMapper {
+
+  private final TaskParameterProcessor taskParameterProcessor;
 
   @Value("${sitmun.proxy-middleware.url:}")
   private String proxyUrl;
@@ -49,42 +57,41 @@ public class TaskQueryWebService implements TaskMapper {
    */
   public TaskDto map(Task task, Application application, Territory territory) {
     Map<String, Object> properties = task.getProperties();
-    ParameterValidator.validateProvidedFlag(properties);
 
     String url = null;
     String mimeType = null;
     String filename = null;
-    Map<String, Object> parameters = new HashMap<>();
+    Map<String, Object> parametersDto = new HashMap<>();
 
     if (properties != null) {
       boolean hasProvidedVars = ParameterValidator.hasProvidedVariables(properties);
-      Object scopeObj = properties.get(DomainConstants.Tasks.PROPERTY_SCOPE);
+      Object scopeObj = properties.get(PROPERTY_SCOPE);
       String scopeStr = String.valueOf(scopeObj);
-      boolean isNoProxy =
-          DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
+      boolean isNoProxy = SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
 
       if (!isNoProxy && hasProvidedVars) {
         url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
-      } else if (properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) != null) {
-        url = properties.get(DomainConstants.Tasks.PROPERTY_COMMAND).toString();
+      } else if (properties.get(PROPERTY_COMMAND) != null) {
+        url = properties.get(PROPERTY_COMMAND).toString();
       }
 
-      Object mimeTypeObj = properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE);
+      Object mimeTypeObj = properties.get(PROPERTY_MIME_TYPE);
       if (mimeTypeObj != null) {
         mimeType = mimeTypeObj.toString();
       }
-      Object filenameObj = properties.get(DomainConstants.Tasks.PROPERTY_FILENAME);
+      Object filenameObj = properties.get(PROPERTY_FILENAME);
       if (filenameObj != null) {
         filename = filenameObj.toString();
       }
 
-      parameters = convertToJsonObject(properties);
+      List<TaskParameter> parameters = taskParameterProcessor.parse(task);
+      parametersDto = convertToClientProfile(parameters);
     }
 
     return TaskDto.builder()
         .id("task/" + task.getId())
         .type(AuthorizationConstants.TaskDto.SIMPLE)
-        .parameters(parameters)
+        .parameters(parametersDto)
         .url(url)
         .mimeType(mimeType)
         .filename(filename)
@@ -92,46 +99,25 @@ public class TaskQueryWebService implements TaskMapper {
   }
 
   /**
-   * Converts task properties to a parameter map.
+   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
+   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
    *
-   * @param properties Task properties to convert
-   * @return Map of parameter names to their type and required status, or null if empty
+   * <p>Output format: {@code {name -> {type, required}}}
+   *
+   * @param parameters The parsed task parameters
+   * @return Map of parameter names to their type and required status, or null if no parameters
    */
   @Nullable
-  private Map<String, Object> convertToJsonObject(Map<String, Object> properties) {
-    Map<String, Object> parameters = new HashMap<>();
+  private Map<String, Object> convertToClientProfile(List<TaskParameter> parameters) {
+    Map<String, Object> result = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> listOfParameters =
-        (List<Map<String, Object>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
-
-    for (Map<String, Object> param : listOfParameters) {
-      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-      boolean isProvided =
-          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
-
-      if (isProvided) {
+    for (TaskParameter param : parameters) {
+      if (taskParameterProcessor.classify(param).isBackendOnly()) {
         continue;
       }
-
-      String name = TaskParameterUtil.getParameterVariable(param);
-
-      if (name != null
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
-          && param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)) {
-        String type = String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE));
-        Boolean required =
-            Boolean.valueOf(String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)));
-
-        Map<String, Object> values = new HashMap<>();
-        values.put(AuthorizationConstants.TaskDto.PARAMETER_TYPE, type);
-        values.put(AuthorizationConstants.TaskDto.PARAMETER_REQUIRED, required);
-        parameters.put(name, values);
-      }
+      result.put(param.name(), taskParameterProcessor.toSimpleParameterDto(param, "string"));
     }
 
-    return parameters.isEmpty() ? null : parameters;
+    return result.isEmpty() ? null : result;
   }
 }

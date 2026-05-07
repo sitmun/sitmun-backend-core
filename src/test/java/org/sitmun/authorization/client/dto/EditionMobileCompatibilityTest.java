@@ -2,6 +2,19 @@ package org.sitmun.authorization.client.dto;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_EDITABLE;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_LABEL;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_LIST_VALUES;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_NAME;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_REQUIRED;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_SELECTABLE;
+import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_TYPE;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_REQUIRED;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_VALUE;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAM_TYPE_QUERY;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_FIELDS;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +29,10 @@ import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -39,7 +54,10 @@ class EditionMobileCompatibilityTest {
   @BeforeEach
   void setUp() {
     DatabaseConnectionService dbConnectionService = mock(DatabaseConnectionService.class);
-    service = new TaskEditCartographyService(dbConnectionService);
+    SystemVariableResolver mockSystemVariableResolver = mock(SystemVariableResolver.class);
+    TaskParameterProcessor taskParameterProcessor =
+        new TaskParameterProcessor(mockSystemVariableResolver);
+    service = new TaskEditCartographyService(dbConnectionService, taskParameterProcessor);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
 
     application = mock(Application.class);
@@ -97,19 +115,19 @@ class EditionMobileCompatibilityTest {
       Task task = createEditTask();
 
       Map<String, Object> param1 = new HashMap<>();
-      param1.put(DomainConstants.Tasks.PARAMETERS_NAME, "typename");
-      param1.put(DomainConstants.Tasks.PARAMETERS_TYPE, DomainConstants.Tasks.PARAM_TYPE_TEMPLATE);
-      param1.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, true);
-      param1.put(DomainConstants.Tasks.PARAMETERS_VALUE, "sitmun:layer");
+      param1.put(PARAMETERS_NAME, "typename");
+      param1.put(PARAMETERS_TYPE, PARAM_TYPE_TEMPLATE);
+      param1.put(PARAMETERS_REQUIRED, true);
+      param1.put(PARAMETERS_VALUE, "sitmun:layer");
 
       Map<String, Object> param2 = new HashMap<>();
-      param2.put(DomainConstants.Tasks.PARAMETERS_NAME, "srsName");
-      param2.put(DomainConstants.Tasks.PARAMETERS_TYPE, DomainConstants.Tasks.PARAM_TYPE_QUERY);
-      param2.put(DomainConstants.Tasks.PARAMETERS_REQUIRED, false);
-      param2.put(DomainConstants.Tasks.PARAMETERS_VALUE, "EPSG:4326");
+      param2.put(PARAMETERS_NAME, "srsName");
+      param2.put(PARAMETERS_TYPE, PARAM_TYPE_QUERY);
+      param2.put(PARAMETERS_REQUIRED, false);
+      param2.put(PARAMETERS_VALUE, "EPSG:4326");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
+      properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -133,25 +151,24 @@ class EditionMobileCompatibilityTest {
       when(task.getConnection()).thenReturn(connection);
 
       Map<String, Object> field1 = new HashMap<>();
-      field1.put(
-          DomainConstants.Tasks.FIELDS_NAME, "poi_name"); // MUST be "name" (field identifier)
-      field1.put(DomainConstants.Tasks.FIELDS_LABEL, "POI Name");
-      field1.put(DomainConstants.Tasks.FIELDS_TYPE, "text");
-      field1.put(DomainConstants.Tasks.FIELDS_REQUIRED, true);
-      field1.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
-      field1.put(DomainConstants.Tasks.FIELDS_SELECTABLE, false);
+      field1.put(FIELDS_NAME, "poi_name"); // MUST be "name" (field identifier)
+      field1.put(FIELDS_LABEL, "POI Name");
+      field1.put(FIELDS_TYPE, "text");
+      field1.put(FIELDS_REQUIRED, true);
+      field1.put(FIELDS_EDITABLE, true);
+      field1.put(FIELDS_SELECTABLE, false);
 
       Map<String, Object> field2 = new HashMap<>();
-      field2.put(DomainConstants.Tasks.FIELDS_NAME, "category");
-      field2.put(DomainConstants.Tasks.FIELDS_LABEL, "Category");
-      field2.put(DomainConstants.Tasks.FIELDS_TYPE, "listbox");
-      field2.put(DomainConstants.Tasks.FIELDS_REQUIRED, false);
-      field2.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
-      field2.put(DomainConstants.Tasks.FIELDS_SELECTABLE, true);
-      field2.put(DomainConstants.Tasks.FIELDS_LIST_VALUES, "Tourism,Culture,Sports");
+      field2.put(FIELDS_NAME, "category");
+      field2.put(FIELDS_LABEL, "Category");
+      field2.put(FIELDS_TYPE, "listbox");
+      field2.put(FIELDS_REQUIRED, false);
+      field2.put(FIELDS_EDITABLE, true);
+      field2.put(FIELDS_SELECTABLE, true);
+      field2.put(FIELDS_LIST_VALUES, "Tourism,Culture,Sports");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field1, field2));
+      properties.put(PROPERTY_FIELDS, List.of(field1, field2));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -164,17 +181,17 @@ class EditionMobileCompatibilityTest {
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoField1 = (Map<String, Object>) result.getFields().get("poi_name");
       assertThat(dtoField1).containsKey("name"); // NOT "variable"
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_NAME, "poi_name");
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_LABEL, "POI Name");
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_TYPE, "text");
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_REQUIRED, true);
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_EDITABLE, true);
-      assertThat(dtoField1).containsEntry(DomainConstants.Tasks.FIELDS_SELECTABLE, false);
+      assertThat(dtoField1).containsEntry(FIELDS_NAME, "poi_name");
+      assertThat(dtoField1).containsEntry(FIELDS_LABEL, "POI Name");
+      assertThat(dtoField1).containsEntry(FIELDS_TYPE, "text");
+      assertThat(dtoField1).containsEntry(FIELDS_REQUIRED, true);
+      assertThat(dtoField1).containsEntry(FIELDS_EDITABLE, true);
+      assertThat(dtoField1).containsEntry(FIELDS_SELECTABLE, false);
 
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoField2 = (Map<String, Object>) result.getFields().get("category");
-      assertThat(dtoField2).containsKey(DomainConstants.Tasks.FIELDS_NAME);
-      assertThat(dtoField2).containsKey(DomainConstants.Tasks.FIELDS_LIST_VALUES);
+      assertThat(dtoField2).containsKey(FIELDS_NAME);
+      assertThat(dtoField2).containsKey(FIELDS_LIST_VALUES);
     }
 
     @Test
@@ -216,14 +233,12 @@ class EditionMobileCompatibilityTest {
       when(task.getConnection()).thenReturn(connection);
 
       Map<String, Object> field = new HashMap<>();
-      field.put(
-          DomainConstants.Tasks.FIELDS_NAME,
-          "category"); // This identifies the database column/WFS property
-      field.put(DomainConstants.Tasks.FIELDS_LABEL, "Category"); // This is display text
-      field.put(DomainConstants.Tasks.FIELDS_TYPE, "text");
+      field.put(FIELDS_NAME, "category"); // This identifies the database column/WFS property
+      field.put(FIELDS_LABEL, "Category"); // This is display text
+      field.put(FIELDS_TYPE, "text");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field));
+      properties.put(PROPERTY_FIELDS, List.of(field));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -236,7 +251,7 @@ class EditionMobileCompatibilityTest {
 
       @SuppressWarnings("unchecked")
       Map<String, Object> dtoField = (Map<String, Object>) result.getFields().get("category");
-      assertThat(dtoField.get(DomainConstants.Tasks.FIELDS_NAME)).isEqualTo("category");
+      assertThat(dtoField.get(FIELDS_NAME)).isEqualTo("category");
     }
 
     @Test
@@ -248,26 +263,24 @@ class EditionMobileCompatibilityTest {
       when(task.getConnection()).thenReturn(connection);
 
       Map<String, Object> textField = new HashMap<>();
-      textField.put(DomainConstants.Tasks.FIELDS_NAME, "name");
-      textField.put(DomainConstants.Tasks.FIELDS_TYPE, "text");
+      textField.put(FIELDS_NAME, "name");
+      textField.put(FIELDS_TYPE, "text");
 
       Map<String, Object> dateField = new HashMap<>();
-      dateField.put(DomainConstants.Tasks.FIELDS_NAME, "created_date");
-      dateField.put(DomainConstants.Tasks.FIELDS_TYPE, "date");
+      dateField.put(FIELDS_NAME, "created_date");
+      dateField.put(FIELDS_TYPE, "date");
 
       Map<String, Object> numberField = new HashMap<>();
-      numberField.put(DomainConstants.Tasks.FIELDS_NAME, "capacity");
-      numberField.put(DomainConstants.Tasks.FIELDS_TYPE, "number");
+      numberField.put(FIELDS_NAME, "capacity");
+      numberField.put(FIELDS_TYPE, "number");
 
       Map<String, Object> listboxField = new HashMap<>();
-      listboxField.put(DomainConstants.Tasks.FIELDS_NAME, "status");
-      listboxField.put(DomainConstants.Tasks.FIELDS_TYPE, "listbox");
-      listboxField.put(DomainConstants.Tasks.FIELDS_LIST_VALUES, "Active,Inactive,Pending");
+      listboxField.put(FIELDS_NAME, "status");
+      listboxField.put(FIELDS_TYPE, "listbox");
+      listboxField.put(FIELDS_LIST_VALUES, "Active,Inactive,Pending");
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_FIELDS,
-          List.of(textField, dateField, numberField, listboxField));
+      properties.put(PROPERTY_FIELDS, List.of(textField, dateField, numberField, listboxField));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -310,11 +323,11 @@ class EditionMobileCompatibilityTest {
       when(task.getConnection()).thenReturn(connection);
 
       Map<String, Object> field = new HashMap<>();
-      field.put(DomainConstants.Tasks.FIELDS_NAME, "poi_name");
-      field.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
+      field.put(FIELDS_NAME, "poi_name");
+      field.put(FIELDS_EDITABLE, true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field));
+      properties.put(PROPERTY_FIELDS, List.of(field));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -406,7 +419,7 @@ class EditionMobileCompatibilityTest {
       field.put("editable", true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field));
+      properties.put(PROPERTY_FIELDS, List.of(field));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -432,15 +445,15 @@ class EditionMobileCompatibilityTest {
       when(task.getConnection()).thenReturn(connection);
 
       Map<String, Object> field1 = new HashMap<>();
-      field1.put(DomainConstants.Tasks.FIELDS_NAME, "poi_name");
-      field1.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
+      field1.put(FIELDS_NAME, "poi_name");
+      field1.put(FIELDS_EDITABLE, true);
 
       Map<String, Object> field2 = new HashMap<>();
-      field2.put(DomainConstants.Tasks.FIELDS_NAME, "category");
-      field2.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
+      field2.put(FIELDS_NAME, "category");
+      field2.put(FIELDS_EDITABLE, true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field1, field2));
+      properties.put(PROPERTY_FIELDS, List.of(field1, field2));
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -474,17 +487,17 @@ class EditionMobileCompatibilityTest {
 
       // Parameter: WFS layer name
       Map<String, Object> param = new HashMap<>();
-      param.put(DomainConstants.Tasks.PARAMETERS_NAME, "typename");
-      param.put(DomainConstants.Tasks.PARAMETERS_VALUE, "sitmun:poi_layer");
+      param.put(PARAMETERS_NAME, "typename");
+      param.put(PARAMETERS_VALUE, "sitmun:poi_layer");
 
       // Field: Editable attribute
       Map<String, Object> field = new HashMap<>();
-      field.put(DomainConstants.Tasks.FIELDS_NAME, "poi_name");
-      field.put(DomainConstants.Tasks.FIELDS_EDITABLE, true);
+      field.put(FIELDS_NAME, "poi_name");
+      field.put(FIELDS_EDITABLE, true);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
-      properties.put(DomainConstants.Tasks.PROPERTY_FIELDS, List.of(field));
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
+      properties.put(PROPERTY_FIELDS, List.of(field));
       when(task.getProperties()).thenReturn(properties);
 
       // When

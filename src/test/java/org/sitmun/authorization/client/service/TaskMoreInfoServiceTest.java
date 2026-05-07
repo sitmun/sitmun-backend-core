@@ -2,6 +2,13 @@ package org.sitmun.authorization.client.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
+import static org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_QUERY;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,26 +19,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.client.dto.TaskDto;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @DisplayName("TaskMoreInfoService baseline tests")
 class TaskMoreInfoServiceTest {
 
   private TaskMoreInfoService service;
-  private org.sitmun.domain.task.MoreInfoTaskResolver moreInfoTaskResolver;
+  private MoreInfoTaskResolver moreInfoTaskResolver;
 
   @BeforeEach
   void setUp() {
-    moreInfoTaskResolver = mock(org.sitmun.domain.task.MoreInfoTaskResolver.class);
-    service = new TaskMoreInfoService(moreInfoTaskResolver);
+    moreInfoTaskResolver = mock(MoreInfoTaskResolver.class);
+    SystemVariableResolver mockSystemVariableResolver = mock(SystemVariableResolver.class);
+    TaskParameterProcessor taskParameterProcessor =
+        new TaskParameterProcessor(mockSystemVariableResolver);
+    service = new TaskMoreInfoService(moreInfoTaskResolver, taskParameterProcessor);
     ReflectionTestUtils.setField(service, "proxyUrl", "http://localhost:8080/middleware");
   }
 
@@ -41,7 +53,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -57,7 +69,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -73,7 +85,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -118,7 +130,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(taskType.getTitle()).thenReturn("Some Title");
     when(task.getType()).thenReturn(taskType);
 
@@ -135,7 +147,7 @@ class TaskMoreInfoServiceTest {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_QUERY);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_QUERY);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -161,20 +173,19 @@ class TaskMoreInfoServiceTest {
     Map<String, Object> ownParameter = new HashMap<>();
     ownParameter.put("label", "docId");
     ownParameter.put("value", "ID");
-    when(task.getProperties())
-        .thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(ownParameter)));
+    when(task.getProperties()).thenReturn(Map.of(PROPERTY_PARAMETERS, List.of(ownParameter)));
 
     when(relatedQueryTask.getProperties())
         .thenReturn(
             Map.of(
-                DomainConstants.Tasks.PROPERTY_SCOPE,
-                DomainConstants.Tasks.SCOPE_WEB_API_QUERY,
-                DomainConstants.Tasks.PROPERTY_COMMAND,
+                PROPERTY_SCOPE,
+                SCOPE_WEB_API_QUERY,
+                PROPERTY_COMMAND,
                 "https://api.example.com/info/{docId}"));
 
     TaskRelation relation =
         TaskRelation.builder()
-            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(relatedQueryTask)
             .build();
     when(task.getRelations()).thenReturn(Set.of(relation));
@@ -188,7 +199,7 @@ class TaskMoreInfoServiceTest {
     TaskDto result = service.map(task, application, territory);
 
     assertNotNull(result);
-    assertEquals(DomainConstants.Tasks.SCOPE_API, result.getScope());
+    assertEquals(SCOPE_API, result.getScope());
     assertEquals("http://localhost:8080/middleware/proxy/1/2/API/42", result.getUrl());
     assertNotNull(result.getParameters());
     assertTrue(result.getParameters().containsKey("docId"));
@@ -206,20 +217,19 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("More info URL");
     when(task.getUi()).thenReturn(null);
     when(task.getCartography()).thenReturn(null);
-    when(task.getProperties())
-        .thenReturn(Map.of(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of()));
+    when(task.getProperties()).thenReturn(Map.of(PROPERTY_PARAMETERS, List.of()));
 
     when(relatedUrlQueryTask.getProperties())
         .thenReturn(
             Map.of(
-                DomainConstants.Tasks.PROPERTY_SCOPE,
-                DomainConstants.Tasks.SCOPE_URL,
-                DomainConstants.Tasks.PROPERTY_COMMAND,
+                PROPERTY_SCOPE,
+                SCOPE_URL,
+                PROPERTY_COMMAND,
                 "https://external.example.com/doc?id={code}"));
 
     TaskRelation relation =
         TaskRelation.builder()
-            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(relatedUrlQueryTask)
             .build();
     when(task.getRelations()).thenReturn(Set.of(relation));
@@ -233,7 +243,7 @@ class TaskMoreInfoServiceTest {
     TaskDto result = service.map(task, application, territory);
 
     assertNotNull(result);
-    assertEquals(DomainConstants.Tasks.SCOPE_URL, result.getScope());
+    assertEquals(SCOPE_URL, result.getScope());
     assertEquals("https://external.example.com/doc?id={code}", result.getUrl());
     assertNull(result.getCommand()); // Command is never exposed (only url field)
   }
@@ -261,7 +271,7 @@ class TaskMoreInfoServiceTest {
     param1.put("value", "Barcelona");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1));
+    properties.put(PROPERTY_PARAMETERS, List.of(param1));
     properties.put("scope", "API");
     properties.put("command", "https://api.example.com/info");
 
@@ -443,7 +453,7 @@ class TaskMoreInfoServiceTest {
     param2.put("value", "Spain");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1, param2));
+    properties.put(PROPERTY_PARAMETERS, List.of(param1, param2));
     when(task.getProperties()).thenReturn(properties);
 
     // When
@@ -483,7 +493,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
+    properties.put(PROPERTY_PARAMETERS, Collections.emptyList());
     when(task.getProperties()).thenReturn(properties);
 
     // When
@@ -529,7 +539,7 @@ class TaskMoreInfoServiceTest {
     // No "label" key
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param1));
+    properties.put(PROPERTY_PARAMETERS, List.of(param1));
     when(task.getProperties()).thenReturn(properties);
 
     // When

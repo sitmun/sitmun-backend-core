@@ -1,12 +1,18 @@
 package org.sitmun.authorization.client.service;
 
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.*;
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.EDITION;
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_REQUIRED;
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_TYPE;
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_VALUE;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
-import org.sitmun.authorization.client.AuthorizationConstants;
 import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.authorization.client.support.ProxyUrlBuilder;
 import org.sitmun.domain.DomainConstants;
@@ -15,9 +21,9 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
-import org.sitmun.infrastructure.util.ParameterValidator;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -34,9 +40,12 @@ public class TaskEditCartographyService implements TaskMapper {
   private String proxyUrl;
 
   private final DatabaseConnectionService dbConService;
+  private final TaskParameterProcessor taskParameterProcessor;
 
-  public TaskEditCartographyService(DatabaseConnectionService dbConService) {
+  public TaskEditCartographyService(
+      DatabaseConnectionService dbConService, TaskParameterProcessor taskParameterProcessor) {
     this.dbConService = dbConService;
+    this.taskParameterProcessor = taskParameterProcessor;
   }
 
   /**
@@ -59,98 +68,65 @@ public class TaskEditCartographyService implements TaskMapper {
    * @return A TaskDto containing the mapped task information
    */
   public TaskDto map(Task task, Application application, Territory territory) {
-    Map<String, Object> properties = task.getProperties();
-    ParameterValidator.validateProvidedFlag(properties);
+    List<TaskParameter> parameters = taskParameterProcessor.parse(task);
+    Map<String, Object> parametersDto = convertParametersToClientProfile(parameters);
 
-    Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> fields = new HashMap<>();
+    Map<String, Object> properties = task.getProperties();
     if (properties != null) {
-      parameters = convertParametersToJsonObject(properties);
       fields = convertFieldsToJsonObject(properties, task.getConnection());
     }
 
-    boolean postRequest =
-        false; // parameters.entrySet().stream().anyMatch(e -> "body".equals(((Map<String,
+    // boolean postRequest = parameters.entrySet().stream().anyMatch(e ->
+    // "body".equals(((Map<String,
     // Object>)e.getValue()).get("type")));
-    String paramType =
-        postRequest
-            ? DomainConstants.Tasks.PARAM_TYPE_BODY
-            : DomainConstants.Tasks.PARAM_TYPE_QUERY;
+    // String paramType =
+    //    postRequest
+    //        ? DomainConstants.Tasks.PARAM_TYPE_BODY
+    //        : DomainConstants.Tasks.PARAM_TYPE_QUERY;
+    String paramType = PARAM_TYPE_QUERY;
 
     Cartography cartography = task.getCartography();
     Service service = cartography.getService();
 
     String url = ProxyUrlBuilder.forCartographyService(proxyUrl, application, territory, service);
-    parameters.put(
-        AuthorizationConstants.TaskDto.PARAMETER_SERVICE,
-        getParametersObject(paramType, true, service.getType()));
+    parametersDto.put(PARAMETER_SERVICE, getParametersObject(paramType, service.getType()));
     String layers = cartography.getLayers().stream().reduce((a, b) -> a + "," + b).orElse("");
     if (DomainConstants.Services.isWfsService(service)) {
-      parameters.put(
-          AuthorizationConstants.TaskDto.PARAMETER_WFS_TYPENAME,
-          getParametersObject(paramType, true, layers));
+      parametersDto.put(PARAMETER_WFS_TYPENAME, getParametersObject(paramType, layers));
     } else {
-      parameters.put(
-          AuthorizationConstants.TaskDto.PARAMETER_LAYERS,
-          getParametersObject(paramType, true, layers));
+      parametersDto.put(PARAMETER_LAYERS, getParametersObject(paramType, layers));
     }
     return TaskDto.builder()
         .id("task/" + task.getId())
-        .type(AuthorizationConstants.TaskDto.EDITION)
-        .parameters(parameters)
+        .type(EDITION)
+        .parameters(parametersDto)
         .fields(fields)
         .url(url)
         .build();
   }
 
   /**
-   * Converts task properties to a JSON-compatible parameter map.
+   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
+   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
    *
-   * @param properties The task properties to convert
+   * <p>Output format: {@code {name -> {type, required, value?}}}
+   *
+   * @param parameters The parsed task parameters
    * @return A map of parameter names to their configuration
    */
-  private Map<String, Object> convertParametersToJsonObject(Map<String, Object> properties) {
-    Map<String, Object> parameters = new HashMap<>();
+  private Map<String, Object> convertParametersToClientProfile(List<TaskParameter> parameters) {
+    Map<String, Object> result = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> listOfParameters =
-        (List<Map<String, Object>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
-
-    for (Map<String, Object> param : listOfParameters) {
-      Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-      boolean isProvided =
-          Boolean.TRUE.equals(provided) || "true".equalsIgnoreCase(String.valueOf(provided));
-
-      if (isProvided) {
+    for (TaskParameter param : parameters) {
+      if (taskParameterProcessor.classify(param).isBackendOnly()) {
         continue;
       }
-
-      // Use backward-compatible helper to read 'variable' or 'name'
-      String name = TaskParameterUtil.getParameterVariable(param);
-
-      if (name != null) {
-        String type =
-            param.containsKey(DomainConstants.Tasks.PARAMETERS_TYPE)
-                ? String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_TYPE))
-                : DomainConstants.Tasks.PARAM_TYPE_QUERY;
-        String value =
-            param.containsKey(DomainConstants.Tasks.PARAMETERS_VALUE)
-                ? String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_VALUE))
-                : null;
-        Boolean required =
-            param.containsKey(DomainConstants.Tasks.PARAMETERS_REQUIRED)
-                ? Boolean.valueOf(
-                    String.valueOf(param.get(DomainConstants.Tasks.PARAMETERS_REQUIRED)))
-                : false;
-
-        Map<String, Object> values = getParametersObject(type, required, value);
-        parameters.put(name, values);
-      }
+      result.put(
+          param.name(), taskParameterProcessor.toParameterDtoWithValue(param, PARAM_TYPE_QUERY));
     }
 
-    return parameters;
+    return result;
   }
 
   /**
@@ -166,47 +142,40 @@ public class TaskEditCartographyService implements TaskMapper {
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> listOfFields =
         (List<Map<String, Object>>)
-            properties.getOrDefault(DomainConstants.Tasks.PROPERTY_FIELDS, Collections.emptyList());
+            properties.getOrDefault(PROPERTY_FIELDS, Collections.emptyList());
 
     for (Map<String, Object> field : listOfFields) {
       // CRITICAL: 'name' is the minimum required key for fields (edition-mobile contract)
-      if (field.containsKey(DomainConstants.Tasks.FIELDS_NAME)) {
-        String name = String.valueOf(field.get(DomainConstants.Tasks.FIELDS_NAME));
+      if (field.containsKey(FIELDS_NAME)) {
+        String name = String.valueOf(field.get(FIELDS_NAME));
         String type =
-            field.containsKey(DomainConstants.Tasks.FIELDS_TYPE)
-                ? String.valueOf(field.get(DomainConstants.Tasks.FIELDS_TYPE))
-                : DomainConstants.Tasks.FIELD_TYPE_TEXT;
+            field.containsKey(FIELDS_TYPE)
+                ? String.valueOf(field.get(FIELDS_TYPE))
+                : FIELD_TYPE_TEXT;
         String label =
-            field.containsKey(DomainConstants.Tasks.FIELDS_LABEL)
-                ? String.valueOf(field.get(DomainConstants.Tasks.FIELDS_LABEL))
-                : name;
+            field.containsKey(FIELDS_LABEL) ? String.valueOf(field.get(FIELDS_LABEL)) : name;
         Boolean required =
-            field.containsKey(DomainConstants.Tasks.FIELDS_REQUIRED)
-                ? Boolean.valueOf(String.valueOf(field.get(DomainConstants.Tasks.FIELDS_REQUIRED)))
-                : false;
+            field.containsKey(FIELDS_REQUIRED)
+                && Boolean.parseBoolean(String.valueOf(field.get(FIELDS_REQUIRED)));
         Boolean selectable =
-            field.containsKey(DomainConstants.Tasks.FIELDS_SELECTABLE)
-                ? Boolean.valueOf(
-                    String.valueOf(field.get(DomainConstants.Tasks.FIELDS_SELECTABLE)))
-                : false;
+            field.containsKey(FIELDS_SELECTABLE)
+                && Boolean.parseBoolean(String.valueOf(field.get(FIELDS_SELECTABLE)));
         Boolean editable =
-            field.containsKey(DomainConstants.Tasks.FIELDS_EDITABLE)
-                ? Boolean.valueOf(String.valueOf(field.get(DomainConstants.Tasks.FIELDS_EDITABLE)))
-                : true;
+            field.containsKey(FIELDS_EDITABLE)
+                && Boolean.parseBoolean(String.valueOf(field.get(FIELDS_EDITABLE)));
         String value =
-            field.containsKey(DomainConstants.Tasks.PARAMETERS_VALUE)
-                ? String.valueOf(field.get(DomainConstants.Tasks.PARAMETERS_VALUE))
+            field.containsKey(PARAMETERS_VALUE)
+                ? String.valueOf(field.get(PARAMETERS_VALUE))
                 : null;
 
         // Handle listValues - either from query or direct value
         List<Map<String, Object>> listValues = null;
-        if (field.containsKey(DomainConstants.Tasks.FIELDS_QUERY) && connection != null) {
+        if (field.containsKey(FIELDS_QUERY) && (connection != null)) {
           listValues =
-              dbConService.executeQuery(
-                  connection, String.valueOf(field.get(DomainConstants.Tasks.FIELDS_QUERY)));
-        } else if (field.containsKey(DomainConstants.Tasks.FIELDS_LIST_VALUES)) {
+              dbConService.executeQuery(connection, String.valueOf(field.get(FIELDS_QUERY)));
+        } else if (field.containsKey(FIELDS_LIST_VALUES)) {
           // Preserve direct listValues (could be String or List)
-          Object listValuesObj = field.get(DomainConstants.Tasks.FIELDS_LIST_VALUES);
+          Object listValuesObj = field.get(FIELDS_LIST_VALUES);
           if (listValuesObj instanceof List) {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> castList = (List<Map<String, Object>>) listValuesObj;
@@ -219,11 +188,9 @@ public class TaskEditCartographyService implements TaskMapper {
             getFieldObject(name, label, type, required, selectable, editable, value, listValues);
 
         // If listValues is a String, preserve it directly
-        if (field.containsKey(DomainConstants.Tasks.FIELDS_LIST_VALUES)
-            && field.get(DomainConstants.Tasks.FIELDS_LIST_VALUES) instanceof String) {
-          values.put(
-              DomainConstants.Tasks.FIELDS_LIST_VALUES,
-              field.get(DomainConstants.Tasks.FIELDS_LIST_VALUES));
+        if (field.containsKey(FIELDS_LIST_VALUES)
+            && field.get(FIELDS_LIST_VALUES) instanceof String) {
+          values.put(FIELDS_LIST_VALUES, field.get(FIELDS_LIST_VALUES));
         }
 
         fields.put(name, values);
@@ -237,16 +204,15 @@ public class TaskEditCartographyService implements TaskMapper {
    * Creates a parameter configuration object with type, required flag, and optional value.
    *
    * @param type The parameter type
-   * @param required Whether the parameter is required
    * @param value The parameter value (can be null)
    * @return A map containing the parameter configuration
    */
-  private Map<String, Object> getParametersObject(String type, Boolean required, String value) {
+  private Map<String, Object> getParametersObject(String type, String value) {
     Map<String, Object> values = new HashMap<>();
-    values.put(AuthorizationConstants.TaskDto.PARAMETER_TYPE, type);
-    values.put(AuthorizationConstants.TaskDto.PARAMETER_REQUIRED, required);
+    values.put(PARAMETER_TYPE, type);
+    values.put(PARAMETER_REQUIRED, true);
     if (value != null) {
-      values.put(AuthorizationConstants.TaskDto.PARAMETER_VALUE, value);
+      values.put(PARAMETER_VALUE, value);
     }
     return values;
   }
@@ -274,19 +240,17 @@ public class TaskEditCartographyService implements TaskMapper {
       String value,
       List<Map<String, Object>> listValues) {
     Map<String, Object> values = new HashMap<>();
-    values.put(
-        DomainConstants.Tasks.FIELDS_NAME,
-        name); // CRITICAL: edition-mobile needs this to identify fields
-    values.put(DomainConstants.Tasks.FIELDS_TYPE, type);
-    values.put(DomainConstants.Tasks.FIELDS_LABEL, label);
-    values.put(DomainConstants.Tasks.FIELDS_REQUIRED, required);
-    values.put(DomainConstants.Tasks.FIELDS_SELECTABLE, selectable);
-    values.put(DomainConstants.Tasks.FIELDS_EDITABLE, editable);
+    values.put(FIELDS_NAME, name); // CRITICAL: edition-mobile needs this to identify fields
+    values.put(FIELDS_TYPE, type);
+    values.put(FIELDS_LABEL, label);
+    values.put(FIELDS_REQUIRED, required);
+    values.put(FIELDS_SELECTABLE, selectable);
+    values.put(FIELDS_EDITABLE, editable);
     if (value != null && !value.isEmpty()) {
-      values.put(DomainConstants.Tasks.PARAMETERS_VALUE, value);
+      values.put(PARAMETERS_VALUE, value);
     }
     if (listValues != null && !listValues.isEmpty()) {
-      values.put(DomainConstants.Tasks.FIELDS_LIST_VALUES, listValues);
+      values.put(FIELDS_LIST_VALUES, listValues);
     }
     return values;
   }
