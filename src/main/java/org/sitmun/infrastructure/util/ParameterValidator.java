@@ -1,35 +1,32 @@
 package org.sitmun.infrastructure.util;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.task.parameter.TaskParameter;
 
+/**
+ * Utility for validating task parameters.
+ *
+ * <p>Phase 4: Now operates on typed {@link TaskParameter} instead of {@code Map<String, Object>}.
+ */
 public class ParameterValidator {
 
   private static final Pattern SYSTEM_VARIABLE_PATTERN = Pattern.compile("#\\{[^}]+}");
 
   private ParameterValidator() {}
 
-  public static boolean hasProvidedVariables(Map<String, Object> properties) {
-    if (properties == null) {
+  /**
+   * Checks if any parameter has the provided flag set.
+   *
+   * @param parameters Typed task parameters
+   * @return true if any parameter has providedFlag = true
+   */
+  public static boolean hasProvidedVariables(List<TaskParameter> parameters) {
+    if (parameters == null || parameters.isEmpty()) {
       return false;
     }
-
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> parameters =
-        (List<Map<String, Object>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
-
-    return parameters.stream()
-        .anyMatch(
-            param -> {
-              Object provided = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-              return Boolean.TRUE.equals(provided)
-                  || "true".equalsIgnoreCase(String.valueOf(provided));
-            });
+    return parameters.stream().anyMatch(TaskParameter::providedFlag);
   }
 
   public static boolean containsSystemVariables(String value) {
@@ -39,54 +36,44 @@ public class ParameterValidator {
     return SYSTEM_VARIABLE_PATTERN.matcher(value).find();
   }
 
-  public static void validateProvidedFlag(Map<String, Object> properties) {
-    if (properties == null) {
-      return;
+  /**
+   * Checks if any parameter contains system variables (#{...}) in its raw value.
+   *
+   * @param parameters Typed task parameters
+   * @return true if any parameter raw value contains system variables
+   */
+  public static boolean containsSystemVariablesInParameters(List<TaskParameter> parameters) {
+    if (parameters == null || parameters.isEmpty()) {
+      return false;
     }
-
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> parameters =
-        (List<Map<String, Object>>)
-            properties.getOrDefault(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS, Collections.emptyList());
-
-    for (Map<String, Object> param : parameters) {
-      Object valueObj = param.get(DomainConstants.Tasks.PARAMETERS_VALUE);
-      if (valueObj == null) {
-        continue;
-      }
-
-      String value = String.valueOf(valueObj);
-      boolean hasSystemVars = containsSystemVariables(value);
-
-      if (hasSystemVars) {
-        Object providedObj = param.get(DomainConstants.Tasks.PARAMETERS_PROVIDED);
-        boolean isProvided =
-            Boolean.TRUE.equals(providedObj)
-                || "true".equalsIgnoreCase(String.valueOf(providedObj));
-
-        if (!isProvided) {
-          String varName = getVariableName(param);
-          throw new IllegalArgumentException(
-              "System variables (#{...}) require 'provided' flag for variable: " + varName);
-        }
-      }
-    }
+    return parameters.stream().anyMatch(param -> containsSystemVariables(param.rawValue()));
   }
 
-  public static void validateNoProvidedVariables(Map<String, Object> properties, String taskType) {
-    if (hasProvidedVariables(properties)) {
+  /**
+   * Checks if any value in the given map contains system variables (#{...}).
+   *
+   * @param map Map to check (e.g., headers or queryParams)
+   * @return true if any value contains system variables
+   */
+  public static boolean containsSystemVariablesInMapValues(Map<String, Object> map) {
+    if (map == null || map.isEmpty()) {
+      return false;
+    }
+    return map.values().stream()
+        .anyMatch(value -> value != null && containsSystemVariables(String.valueOf(value)));
+  }
+
+  /**
+   * Validates that no parameters have the provided flag set.
+   *
+   * @param parameters Typed task parameters
+   * @param taskType Task type label for error message
+   * @throws IllegalArgumentException if any parameter has providedFlag = true
+   */
+  public static void validateNoProvidedVariables(List<TaskParameter> parameters, String taskType) {
+    if (hasProvidedVariables(parameters)) {
       throw new IllegalArgumentException(
           taskType + " tasks cannot have provided variables (no proxy execution path)");
     }
-  }
-
-  private static String getVariableName(Map<String, Object> param) {
-    String varName = TaskParameterUtil.getParameterVariable(param);
-    if (varName != null) {
-      return varName;
-    }
-    Object label = param.get(DomainConstants.Tasks.PARAMETERS_LABEL);
-    return label != null ? String.valueOf(label) : "unknown";
   }
 }

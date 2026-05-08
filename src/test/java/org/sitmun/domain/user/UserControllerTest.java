@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -19,7 +20,6 @@ import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +35,7 @@ class UserControllerTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = false;
+  public static final String ACCESS_TOKEN = "access_token";
   @Autowired JsonWebTokenService tokenProvider;
   @Autowired private MockMvc mvc;
   @Autowired private UserRepository userRepository;
@@ -73,8 +74,7 @@ class UserControllerTest {
   @Test
   @DisplayName("GET: Read user account with valid token")
   void readAccount() throws Exception {
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI).header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.firstName", equalTo(USER_FIRSTNAME)))
@@ -90,9 +90,7 @@ class UserControllerTest {
   @Test
   @DisplayName("GET: Read user account with expired token should fail")
   void readAccountWithExpiredToken() throws Exception {
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, expiredToken)))
         .andExpect(status().isUnauthorized());
   }
 
@@ -109,13 +107,12 @@ class UserControllerTest {
 
     mvc.perform(
             post(URIConstants.ACCOUNT_URI)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
+                .cookie(new Cookie(ACCESS_TOKEN, validToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
         .andExpect(status().isOk());
 
-    mvc.perform(
-            get(URIConstants.ACCOUNT_URI).header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken))
+    mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, validToken)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.firstName", equalTo("NameChanged")))
@@ -144,7 +141,7 @@ class UserControllerTest {
 
     mvc.perform(
             post(URIConstants.ACCOUNT_URI)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
+                .cookie(new Cookie(ACCESS_TOKEN, validToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
         .andExpect(status().isOk())

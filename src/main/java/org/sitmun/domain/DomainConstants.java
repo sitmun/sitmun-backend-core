@@ -18,7 +18,6 @@ public class DomainConstants {
     // Property keys
     public static final String PROPERTY_PARAMETERS = "parameters";
     public static final String PROPERTY_COMMAND = "command";
-    public static final String PROPERTY_MAPPING = "mapping";
     public static final String PROPERTY_FIELDS = "fields";
     public static final String PROPERTY_SCOPE = "scope";
 
@@ -50,21 +49,47 @@ public class DomainConstants {
 
     // Field type values
     public static final String FIELD_TYPE_TEXT = "text";
-    public static final String FIELD_TYPE_DATE = "date";
-    public static final String FIELD_TYPE_NUMBER = "number";
-    public static final String FIELD_TYPE_IMAGE = "image";
-    public static final String FIELD_TYPE_LISTBOX = "listbox";
 
     // Scope types (more-info tasks)
     public static final String SCOPE_URL = "URL";
     public static final String SCOPE_API = "API";
     public static final String SCOPE_SQL = "SQL";
-    public static final String SCOPE_IFRAME = "IFRAME";
-    public static final String SCOPE_INFORME = "INFORME";
+    public static final String SCOPE_RESOURCE = "RESOURCE";
 
     // Scope types (query tasks)
+    public static final String SCOPE_CARTOGRAPHY_QUERY = "cartography-query";
     public static final String SCOPE_SQL_QUERY = "sql-query";
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
+    public static final String SCOPE_WEB_API_QUERY_NO_PROXY = "web-api-query-no-proxy";
+    public static final String SCOPE_URL_QUERY = "external-link";
+
+    // Task relation types
+    public static final String RELATION_TYPE_QUERY_TASK = "query-task";
+
+    /** Client profile task id prefix used in REST profile payloads (e.g. {@code task/42}). */
+    public static final String TASK_PROFILE_ID_PREFIX = "task/";
+
+    /**
+     * Client profile cartography id prefix; layer entries use {@code layer/<id>} (see {@code
+     * ProfileMapper}).
+     */
+    public static final String PROFILE_LAYER_ID_PREFIX = "layer/";
+
+    /** Client profile cartography-group id prefix in REST payloads ({@code group/<id>}). */
+    public static final String PROFILE_GROUP_ID_PREFIX = "group/";
+
+    /** Client profile service id prefix ({@code service/<id>}). */
+    public static final String PROFILE_SERVICE_ID_PREFIX = "service/";
+
+    /** Client profile tree id prefix ({@code tree/<id>}). */
+    public static final String PROFILE_TREE_ID_PREFIX = "tree/";
+
+    /** Client profile tree-node id prefix ({@code node/<id>}). */
+    public static final String PROFILE_NODE_ID_PREFIX = "node/";
+
+    // Resource properties
+    public static final String PROPERTY_MIME_TYPE = "mimeType";
+    public static final String PROPERTY_FILENAME = "filename";
 
     // HTTP API task properties
     public static final String PROPERTY_BODY = "body";
@@ -72,6 +97,10 @@ public class DomainConstants {
     public static final String PROPERTY_USER = "user";
     public static final String PROPERTY_PASSWORD = "password";
     public static final String PROPERTY_HEADERS = "headers";
+    public static final String PROPERTY_QUERY_PARAMS = "queryParams";
+
+    /** Task property {@code authenticationMode}: no proxy auth (matches admin codelist). */
+    public static final String AUTHENTICATION_MODE_NONE = "None";
 
     // Parameter types
     public static final String TYPE_STRING = "string";
@@ -92,29 +121,60 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
 
-    // Proxy types
-    public static final String PROXY_TYPE_SQL = "sql";
-    public static final String PROXY_TYPE_HTTP = "http";
-
     private static Integer taskTypeId(Task task) {
-      return task.getType() != null ? task.getType().getId() : null;
+      if (task == null || task.getType() == null) {
+        return null;
+      }
+      return task.getType().getId();
     }
 
     public static boolean isBasicTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_BASIC).equals(taskTypeId(task));
     }
 
+    /**
+     * Basic task with legacy JSON: no {@link #PROPERTY_SCOPE} (three-field parameters only; see
+     * {@code TaskBasicValidator}).
+     */
+    public static boolean isLegacyBasicTask(Task task) {
+      if (!isBasicTask(task)) {
+        return false;
+      }
+      Map<String, Object> properties = task.getProperties();
+      return properties == null || !properties.containsKey(PROPERTY_SCOPE);
+    }
+
     public static boolean isMoreInfoTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
     }
 
+    /** Any task whose type id is {@link #TASK_TYPE_ID_QUERY} (scope/FK rules use other helpers). */
+    public static boolean isQueryTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task));
+    }
+
     public static boolean isSqlQueryTask(Task task) {
-      return Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))
-          && task.getConnection() != null;
+      if (!isQueryTask(task)) {
+        return false;
+      }
+      if (task.getConnection() == null) {
+        return false;
+      }
+      // When scope is explicitly set, it must match sql-query
+      Map<String, Object> properties = task.getProperties();
+      if (properties != null) {
+        Object scope = properties.get(PROPERTY_SCOPE);
+        if (scope != null) {
+          String scopeStr = String.valueOf(scope);
+          return SCOPE_SQL_QUERY.equalsIgnoreCase(scopeStr);
+        }
+      }
+      // Scope not set: legacy behavior, accept based on connection presence
+      return true;
     }
 
     public static boolean isWebApiQuery(Task task) {
-      if (!Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))) {
+      if (!isQueryTask(task)) {
         return false;
       }
       if (task.getConnection() != null || task.getCartography() != null) {
@@ -126,14 +186,47 @@ public class DomainConstants {
       Map<String, Object> properties = task.getProperties();
       if (properties != null) {
         Object scope = properties.get(PROPERTY_SCOPE);
-        return SCOPE_WEB_API_QUERY.equalsIgnoreCase(String.valueOf(scope));
+        String scopeStr = String.valueOf(scope);
+        return SCOPE_WEB_API_QUERY.equalsIgnoreCase(scopeStr)
+            || SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
       }
       return false;
     }
 
     public static boolean isCartographyQueryTask(Task task) {
-      return Integer.valueOf(TASK_TYPE_ID_QUERY).equals(taskTypeId(task))
-          && task.getCartography() != null;
+      if (!isQueryTask(task)) {
+        return false;
+      }
+      if (task.getCartography() == null) {
+        return false;
+      }
+      // When scope is explicitly set, it must match cartography-query
+      Map<String, Object> properties = task.getProperties();
+      if (properties != null) {
+        Object scope = properties.get(PROPERTY_SCOPE);
+        if (scope != null) {
+          String scopeStr = String.valueOf(scope);
+          return SCOPE_CARTOGRAPHY_QUERY.equalsIgnoreCase(scopeStr);
+        }
+      }
+      // Scope not set: legacy behavior, accept based on cartography presence
+      return true;
+    }
+
+    public static boolean isUrlQueryTask(Task task) {
+      if (!isQueryTask(task)) {
+        return false;
+      }
+      if (task.getConnection() != null || task.getCartography() != null) {
+        return false;
+      }
+      Map<String, Object> properties = task.getProperties();
+      if (properties != null) {
+        Object scope = properties.get(PROPERTY_SCOPE);
+        String scopeStr = String.valueOf(scope);
+        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr);
+      }
+      return false;
     }
 
     public static boolean isCartographyEditionTask(Task task) {
@@ -151,7 +244,6 @@ public class DomainConstants {
     public static final String TYPE_WMS = "WMS";
     public static final String TYPE_WMTS = "WMTS";
     public static final String TYPE_WFS = "WFS";
-    public static final String TYPE_API = "API";
 
     public static boolean isWfsService(Service service) {
       return service != null && TYPE_WFS.equalsIgnoreCase(service.getType());
@@ -192,27 +284,12 @@ public class DomainConstants {
     }
   }
 
-  /** System variable registry constants. */
-  public static class SystemVariables {
-    public static final String PREFIX = "#{";
-    public static final String SUFFIX = "}";
-
-    private SystemVariables() {
-      // Utility class
-    }
-  }
-
   /** Proxy-related constants. */
   public static class Proxy {
-    // Vary key modes
-    public static final String VARY_KEY_MODE_MONITOR = "MONITOR";
-    public static final String VARY_KEY_MODE_ENFORCE = "ENFORCE";
-
     // Resource/connection type keys
     public static final String TYPE_SQL = "SQL";
     public static final String TYPE_API = "API";
     public static final String TYPE_WMS = "WMS";
-    public static final String TYPE_WFS = "WFS";
 
     // Parameter type for vary parameters
     public static final String PARAM_TYPE_VARY = "VARY";

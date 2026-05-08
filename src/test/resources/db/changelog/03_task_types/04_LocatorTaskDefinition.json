@@ -79,7 +79,7 @@
         "label": "tasksEntity.sql",
         "control": [
           {
-            "scope": "SQL",
+            "scope": "sql-query",
             "control": "textArea"
           },
           {

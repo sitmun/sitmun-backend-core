@@ -23,4 +23,10 @@ public class NodeDto {
   Integer order;
   Map<String, Object> mapping;
   List<String> children;
+
+  /** Optional folder-level metadata URL (tree node). */
+  String metadataURL;
+
+  /** Optional folder-level dataset download URL (tree node). */
+  String datasetURL;
 }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
@@ -66,6 +67,7 @@ public class CartographyPermission {
           @JoinColumn(name = "GGG_GGIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GGI")),
       inverseJoinColumns =
           @JoinColumn(name = "GGG_GIID", foreignKey = @ForeignKey(name = "STM_GGG_FK_GEO")))
+  @BatchSize(size = 50)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<Cartography> members = new HashSet<>();
@@ -78,6 +80,7 @@ public class CartographyPermission {
           @JoinColumn(name = "RGG_GGIID", foreignKey = @ForeignKey(name = "STM_RGG_FK_GGI")),
       inverseJoinColumns =
           @JoinColumn(name = "RGG_ROLEID", foreignKey = @ForeignKey(name = "STM_RGG_FK_ROL")))
+  @BatchSize(size = 50)
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 

@@ -3,6 +3,7 @@ package org.sitmun.authorization.proxy.decorators;
 import java.util.Map;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
+import org.sitmun.authorization.proxy.protocols.jdbc.JdbcSqlDialect;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,13 +23,13 @@ public class QueryPaginationDecorator implements Decorator<Map<String, String>> 
     if (payload instanceof JdbcPayloadDto jdbcPayloadDto) {
       String sql = jdbcPayloadDto.getSql();
       if (sql != null && !sql.isEmpty()) {
-        if (target.containsKey(SQL_LIMIT)) {
-          sql = sql + ' ' + SQL_LIMIT + ' ' + target.get(SQL_LIMIT);
+        String limit = target.get(SQL_LIMIT);
+        String offset = target.get(SQL_OFFSET);
+        if (limit != null || offset != null) {
+          JdbcSqlDialect dialect =
+              JdbcSqlDialect.fromJdbcMetadata(jdbcPayloadDto.getDriver(), jdbcPayloadDto.getUri());
+          jdbcPayloadDto.setSql(dialect.appendPagination(sql, limit, offset));
         }
-        if (target.containsKey(SQL_OFFSET)) {
-          sql = sql + ' ' + SQL_OFFSET + ' ' + target.get(SQL_OFFSET);
-        }
-        jdbcPayloadDto.setSql(sql);
       }
     }
   }

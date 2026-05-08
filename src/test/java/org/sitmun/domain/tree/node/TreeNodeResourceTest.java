@@ -174,6 +174,6 @@ class TreeNodeResourceTest {
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
     List<TreeNode> nodesFound = treeNodeRepository.findByTrees(tr);
-    assertThat(nodesFound).hasSize(9);
+    assertThat(nodesFound).hasSize(11);
   }
 }

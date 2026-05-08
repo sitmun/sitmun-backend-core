@@ -6,19 +6,13 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.sitmun.authorization.proxy.dto.HttpPayloadDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
-import org.sitmun.authorization.proxy.dto.PayloadDto;
 
 @Getter
 @Setter
 @JsonTypeName("OgcWmsPayload")
-public class WmsPayloadDto extends PayloadDto {
-
-  private String uri;
-  private String method;
-  private Map<String, String> parameters;
-  private HttpSecurityDto security;
-  private String body;
+public class WmsPayloadDto extends HttpPayloadDto {
 
   @Builder
   public WmsPayloadDto(
@@ -28,11 +22,6 @@ public class WmsPayloadDto extends PayloadDto {
       Map<String, String> parameters,
       HttpSecurityDto security,
       String body) {
-    super(vary);
-    this.uri = uri;
-    this.method = method;
-    this.parameters = parameters;
-    this.security = security;
-    this.body = body;
+    super(vary, uri, method, parameters, security, body);
   }
 }

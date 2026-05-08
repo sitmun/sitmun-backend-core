@@ -1,10 +1,12 @@
 sitmun:
   authentication:
+    http-only-cookie: false
+    access-token-max-age: 3600
+    same-site-cookie: Strict
     oidc:
       frontend-redirect-url-admin: "http://localhost:4200/#/callback"
       frontend-redirect-url-viewer: "http://localhost:4201/callback"
       frontend-redirect-url: "http://localhost:4200/default"
-      http-only-cookie: false
       providers:
         mock:
           provider-name: "mock"

@@ -42,7 +42,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
-  version: 1.2.5
+  version: 1.2.6
   contact:
     name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
@@ -461,6 +461,11 @@ paths:
                         service:
                           description: Identificador del servicio.
                           type: string
+                        queryableFeatureEnabled:
+                          description: >-
+                            Si es false, las capacidades WMS fusionadas marcan la capa como no
+                            consultable (GetFeatureInfo).
+                          type: boolean
                   services:
                     description: Lista de servicios.
                     type: array

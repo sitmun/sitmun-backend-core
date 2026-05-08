@@ -64,10 +64,9 @@
           "name": "name",
           "value": "id"
         },
-        "condition": "scope",
         "hidden": [
           {
-            "scope": "SQL",
+            "scope": "sql-query",
             "hidden": true
           },
           {
@@ -93,13 +92,13 @@
         ],
         "condition": "scope",
         "label": [
-          { "scope": "SQL", "text": "tasksEntity.sql" },
+          { "scope": "sql-query", "text": "tasksEntity.sql" },
           { "scope": "API", "text": "tasksEntity.apiUrl" },
           { "scope": "URL", "text": "tasksEntity.url" }
         ],
         "control": [
           {
-            "scope": "SQL",
+            "scope": "sql-query",
             "control": "textArea"
           },
           {

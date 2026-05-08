@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
+import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.http.HttpStatus;
@@ -43,10 +44,11 @@ public class ProxyConfigurationController {
         configProxyRequestDto.getType(),
         configProxyRequestDto.getTypeId());
     String token = configProxyRequestDto.getToken();
+    boolean idTokenPresent = StringUtils.hasText(token);
+    log.debug("Proxy config POST idTokenPresent={}", idTokenPresent);
     String username = null;
     long expirationTime = 0;
-    if (StringUtils.hasText(token)) {
-      log.info("Request has token");
+    if (idTokenPresent) {
       try {
         username = jsonWebTokenService.getUsernameFromToken(token);
         expirationTime = jsonWebTokenService.getExpirationDateFromToken(token).getTime();
@@ -60,15 +62,25 @@ public class ProxyConfigurationController {
       log.info("Token identifies user {} with expiration time {}", username, expirationTime);
     } else {
       username = SecurityConstants.PUBLIC_PRINCIPAL;
-      log.info("No token identifies user {} with expiration time {}", username, expirationTime);
+      log.debug("Resolved public principal={}", username);
     }
     if (proxyConfigurationService.validateUserAccess(configProxyRequestDto, username)) {
       log.info("User {} is authorized to access the requested configuration", username);
       try {
+        RequestCoordinates coordinates =
+            proxyConfigurationService.getRequestCoordinates(configProxyRequestDto, username);
         ConfigProxyDto configProxyDto =
             proxyConfigurationService.getConfiguration(
-                configProxyRequestDto, expirationTime, username);
-        proxyConfigurationService.applyDecorators(configProxyDto, configProxyRequestDto, username);
+                configProxyRequestDto, expirationTime, coordinates);
+        log.debug(
+            "Returning proxy configuration: configType={} exp={} payloadClass={}",
+            configProxyDto.getType(),
+            configProxyDto.getExp(),
+            configProxyDto.getPayload() != null
+                ? configProxyDto.getPayload().getClass().getSimpleName()
+                : "null");
+        proxyConfigurationService.applyDecorators(
+            configProxyDto, configProxyRequestDto, coordinates);
         log.info("User {} is informed of the configuration", username);
         return ResponseEntity.ok().body(configProxyDto);
       } catch (Exception e) {

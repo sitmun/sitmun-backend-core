@@ -3,10 +3,11 @@ package org.sitmun.authorization.client.service;
 import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +24,7 @@ import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.background.BackgroundRepository;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.cartography.CartographyBlockPolicy;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.cartography.permission.CartographyPermissionRepository;
@@ -30,6 +32,7 @@ import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
+import org.sitmun.domain.service.ServiceBlockPolicy;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.Territory;
@@ -42,12 +45,20 @@ import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 public class AuthorizationService {
+
+  // TODO: Fix cartesian product via @EntityGraph on multiple collections.
+  //   Fixed in 29cdef6f, 6dcb5bbd: replaced @EntityGraph with @BatchSize in
+  //   CartographyPermission and CartographyPermissionRepository.
+  //   Other locations are still potentially affected, ex.:
+  //   - TreeRepository.findByAppAndRoles          (availableRoles + availableApplications)
+  //   - CartographyRepository.findById            (permissions, availabilities, styles, filters…)
+  //   - CartographyRepository.findAll             (service, styles…)
+  //   - TaskRepository.findByRolesAndTerritory    (roles, ui, type)
 
   private final TerritoryRepository territoryRepository;
   private final ApplicationRepository applicationRepository;
@@ -188,12 +199,7 @@ public class AuthorizationService {
     return application;
   }
 
-  public List<Role> findRolesByApplicationAndUserAndTerritory(
-      String username, Integer appId, Integer territoryId) {
-    return roleRepository.findRolesByApplicationAndUserAndTerritory(username, appId, territoryId);
-  }
-
-  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+  @Transactional(readOnly = true)
   public Optional<Profile> createProfile(ProfileContext context) {
     return buildProfile(context).map(this::pruneProfile);
   }
@@ -222,31 +228,41 @@ public class AuthorizationService {
     List<Background> backgrounds =
         backgroundRepository.findActiveByApplication(context.getAppId()).stream()
             .map(objects -> (Background) objects[1])
-            .collect(Collectors.toList());
+            .toList();
     backgrounds.forEach(translationService::updateInternationalization);
 
     List<CartographyPermission> cartographyPermissions =
-        cartographyPermissionRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    cartographyPermissions =
-        cartographyPermissions.stream()
-            .filter(cp -> cp.getMembers() != null && cp.getRoles() != null)
-            .collect(Collectors.toList());
+        new ArrayList<>(
+            cartographyPermissionRepository
+                .findByRolesAndTerritory(roles, context.getTerritoryId())
+                .stream()
+                .filter(cp -> cp.getMembers() != null)
+                .filter(cp -> cp.getRoles() != null)
+                .toList());
     cartographyPermissions.forEach(translationService::updateInternationalization);
 
     List<Cartography> layers =
-        cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    layers = layers.stream().filter(l -> l.getService() != null).collect(Collectors.toList());
+        new ArrayList<>(
+            cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId()).stream()
+                .filter(CartographyBlockPolicy::isNotDirectlyBlocked)
+                .filter(l -> ServiceBlockPolicy.isAccessibleInClientProfile(l.getService()))
+                .toList());
     layers.forEach(translationService::updateInternationalization);
 
     List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    tasks = tasks.stream().filter(t -> t.getRoles() != null).collect(Collectors.toList());
+    tasks =
+        tasks.stream()
+            .filter(t -> t.getRoles() != null)
+            .filter(t -> ServiceBlockPolicy.isAccessibleInClientProfileOrNull(t.getService()))
+            .toList();
     tasks.forEach(translationService::updateInternationalization);
 
     List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
     trees =
         trees.stream()
-            .filter(t -> t.getAvailableRoles() != null && t.getAvailableApplications() != null)
-            .collect(Collectors.toList());
+            .filter(t -> t.getAvailableRoles() != null)
+            .filter(t -> t.getAvailableApplications() != null)
+            .toList();
     trees.forEach(translationService::updateInternationalization);
 
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);
@@ -255,8 +271,7 @@ public class AuthorizationService {
     Map<Tree, List<TreeNode>> treeNodes =
         nodes.stream().collect(Collectors.groupingBy(TreeNode::getTree));
 
-    List<ConfigurationParameter> global =
-        ImmutableList.copyOf(configurationParameterRepository.findAll());
+    List<ConfigurationParameter> global = List.copyOf(configurationParameterRepository.findAll());
 
     List<org.sitmun.domain.service.Service> services = new ArrayList<>();
     layers.forEach(layer -> services.add(layer.getService()));
@@ -273,13 +288,11 @@ public class AuthorizationService {
       // Add situation-map layers (members) if not already present
       if (situationMap.getMembers() != null) {
         Set<Integer> existingLayerIds =
-            layers.stream().map(Cartography::getId).collect(Collectors.toSet());
+            layers.stream().map(Cartography::getId).collect(Collectors.toUnmodifiableSet());
         List<Cartography> situationMapLayers =
             situationMap.getMembers().stream()
-                .filter(
-                    member ->
-                        !existingLayerIds.contains(member.getId()) && member.getService() != null)
-                .collect(Collectors.toList());
+                .filter(member -> situationMapMemberAddsToProfileLayers(member, existingLayerIds))
+                .toList();
         situationMapLayers.forEach(translationService::updateInternationalization);
         layers.addAll(situationMapLayers);
         // Add services from situation-map layers
@@ -293,8 +306,9 @@ public class AuthorizationService {
     List<org.sitmun.domain.service.Service> filteredServices =
         services.stream()
             .filter(Objects::nonNull)
+            .filter(ServiceBlockPolicy::isAccessibleInClientProfile)
             .filter(distinctByKey(org.sitmun.domain.service.Service::getId))
-            .collect(Collectors.toList());
+            .toList();
 
     return Optional.of(
         Profile.builder()
@@ -314,43 +328,135 @@ public class AuthorizationService {
 
   private List<TreeNode> pruneNodes(List<TreeNode> nodes, Integer pivotNode) {
     return nodes.stream()
+        .filter(Objects::nonNull)
         .filter(
             node ->
-                node != null
-                    && (Objects.equals(node.getId(), pivotNode)
-                        || Objects.equals(node.getParentId(), pivotNode)))
-        .collect(Collectors.toList());
+                Objects.equals(node.getId(), pivotNode)
+                    || Objects.equals(node.getParentId(), pivotNode))
+        .toList();
   }
 
+  /**
+   * Situation-map cartographies merged into the profile layer list (not blocked, not duplicate).
+   */
+  private static boolean situationMapMemberAddsToProfileLayers(
+      Cartography member, Set<Integer> existingLayerIds) {
+    return CartographyBlockPolicy.isNotDirectlyBlocked(member)
+        && !existingLayerIds.contains(member.getId())
+        && ServiceBlockPolicy.isAccessibleInClientProfile(member.getService());
+  }
+
+  private static boolean treeHasAnyNodes(Tree tree, Map<Tree, List<TreeNode>> treeNodes) {
+    return !treeNodes.getOrDefault(tree, List.of()).isEmpty();
+  }
+
+  private boolean layerRetainedInPrunedProfile(
+      Cartography layer,
+      Set<Integer> nodeLayerIds,
+      Set<Integer> taskLayerIds,
+      Set<Integer> backgroundLayerIds,
+      Set<Integer> situationMapLayerIds) {
+    boolean belongsToNode = nodeLayerIds.contains(layer.getId());
+    boolean belongsToTask = taskLayerIds.contains(layer.getId());
+    boolean belongsToBackground = backgroundLayerIds.contains(layer.getId());
+    boolean belongsToSituationMap = situationMapLayerIds.contains(layer.getId());
+    boolean retained =
+        belongsToNode || belongsToTask || belongsToBackground || belongsToSituationMap;
+    log.info(
+        "Layer {} belongs to node: {}, task: {}, background: {}, situation-map: {} => remove: {}",
+        layer.getId(),
+        belongsToNode,
+        belongsToTask,
+        belongsToBackground,
+        belongsToSituationMap,
+        !retained);
+    return retained;
+  }
+
+  private static boolean treeNodeCartographyStillInProfile(
+      TreeNode node, Set<Integer> remainingLayerIds) {
+    return node.getCartography() == null
+        || remainingLayerIds.contains(node.getCartography().getId());
+  }
+
+  private CartographyPermission groupWithMembersRestrictedToLayerIds(
+      CartographyPermission group, Set<Integer> remainingLayerIds) {
+    if (group.getMembers() == null) {
+      return group;
+    }
+    Set<Cartography> filteredMembers =
+        group.getMembers().stream()
+            .filter(member -> remainingLayerIds.contains(member.getId()))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+    return group.toBuilder().members(filteredMembers).build();
+  }
+
+  private boolean groupRetainedInClientProfile(
+      CartographyPermission permission, List<Background> backgrounds, Integer situationMapId) {
+    boolean belongsToBackground =
+        backgrounds.stream()
+            .flatMap(background -> Optional.ofNullable(background.getCartographyGroup()).stream())
+            .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
+    boolean isSituationMap = Objects.equals(permission.getId(), situationMapId);
+    boolean retained = belongsToBackground || isSituationMap;
+    log.info(
+        "Group {} belongs to background: {}, is situation-map: {} => remove: {}",
+        permission.getId(),
+        belongsToBackground,
+        isSituationMap,
+        !retained);
+    return retained;
+  }
+
+  private boolean serviceRetainedInPrunedProfile(
+      org.sitmun.domain.service.Service service,
+      Set<Integer> taskServiceIds,
+      Set<Integer> nodeServiceIds,
+      Set<Integer> layerServiceIds) {
+    boolean belongsToTask = taskServiceIds.contains(service.getId());
+    boolean belongsToNode = nodeServiceIds.contains(service.getId());
+    boolean belongsToLayer = layerServiceIds.contains(service.getId());
+    boolean retained = belongsToTask || belongsToNode || belongsToLayer;
+    log.info(
+        "Service {} belongs to task: {}, node: {}, layer: {} => remove: {}",
+        service.getId(),
+        belongsToTask,
+        belongsToNode,
+        belongsToLayer,
+        !retained);
+    return retained;
+  }
+
+  /**
+   * Replaces pruned layers, trees, tree-node map, groups, and services on {@code profile}. Input
+   * collections on the profile are treated as read-only snapshots (no {@code removeIf}, {@code
+   * setMembers}, or in-place map edits).
+   */
   private Profile pruneProfile(Profile profile) {
+
+    Map<Tree, List<TreeNode>> treeNodes = new LinkedHashMap<>();
+    profile.getTreeNodes().forEach((tree, nodes) -> treeNodes.put(tree, List.copyOf(nodes)));
 
     if (profile.getContext().getNodeSectionBehaviour().nodePageMode()) {
 
       Integer pivotNode = profile.getContext().getNodeId();
 
-      profile
-          .getTreeNodes()
-          .forEach(
-              (tree, nodes) -> {
-                Integer size = nodes.size();
-                List<TreeNode> prunedNodes = pruneNodes(nodes, pivotNode);
-                if (pivotNode == null && prunedNodes.size() == 1) {
-                  prunedNodes = pruneNodes(nodes, prunedNodes.get(0).getId());
-                }
-                log.info(
-                    "Pruned {} nodes to {} nodes using as pivot {}",
-                    size,
-                    prunedNodes.size(),
-                    pivotNode);
-                profile.getTreeNodes().put(tree, prunedNodes);
-              });
+      for (Map.Entry<Tree, List<TreeNode>> entry : new ArrayList<>(treeNodes.entrySet())) {
+        Tree tree = entry.getKey();
+        List<TreeNode> nodes = entry.getValue();
+        Integer size = nodes.size();
+        List<TreeNode> prunedNodes = pruneNodes(nodes, pivotNode);
+        if (pivotNode == null && prunedNodes.size() == 1) {
+          prunedNodes = pruneNodes(nodes, prunedNodes.get(0).getId());
+        }
+        log.info(
+            "Pruned {} nodes to {} nodes using as pivot {}", size, prunedNodes.size(), pivotNode);
+        treeNodes.put(tree, prunedNodes);
+      }
     }
 
-    profile.setTrees(
-        profile.getTrees().stream()
-            .filter(tree -> profile.getTreeNodes().get(tree) != null)
-            .filter(tree -> !profile.getTreeNodes().get(tree).isEmpty())
-            .collect(Collectors.toList()));
+    List<Tree> treesAfterPivot =
+        profile.getTrees().stream().filter(tree -> treeHasAnyNodes(tree, treeNodes)).toList();
 
     // Prune cartography layers that either:
     // - Do not belong to a node
@@ -361,123 +467,117 @@ public class AuthorizationService {
     CartographyPermission situationMap = profile.getApplication().getSituationMap();
     Set<Integer> situationMapLayerIds =
         situationMap != null && situationMap.getMembers() != null
-            ? situationMap.getMembers().stream().map(Cartography::getId).collect(Collectors.toSet())
+            ? situationMap.getMembers().stream()
+                .map(Cartography::getId)
+                .collect(Collectors.toUnmodifiableSet())
             : Collections.emptySet();
 
-    profile
-        .getLayers()
-        .removeIf(
-            layer -> {
-              boolean belongsToNode =
-                  profile.getTreeNodes().values().stream()
-                      .flatMap(Collection::stream)
-                      .map(TreeNode::getCartography)
-                      .filter(Objects::nonNull)
-                      .map(Cartography::getId)
-                      .anyMatch(cartographyId -> Objects.equals(layer.getId(), cartographyId));
+    Set<Integer> nodeLayerIds =
+        treeNodes.values().stream()
+            .flatMap(Collection::stream)
+            .map(TreeNode::getCartography)
+            .filter(Objects::nonNull)
+            .map(Cartography::getId)
+            .collect(Collectors.toUnmodifiableSet());
 
-              boolean belongsToTask =
-                  profile.getTasks().stream()
-                      .map(Task::getCartography)
-                      .filter(Objects::nonNull)
-                      .map(Cartography::getId)
-                      .anyMatch(cartographyId -> Objects.equals(cartographyId, layer.getId()));
+    Set<Integer> taskLayerIds =
+        profile.getTasks().stream()
+            .map(Task::getCartography)
+            .filter(Objects::nonNull)
+            .map(Cartography::getId)
+            .collect(Collectors.toUnmodifiableSet());
 
-              boolean belongsToBackground =
-                  profile.getBackgrounds().stream()
-                      .flatMap(
-                          background ->
-                              Optional.ofNullable(background.getCartographyGroup())
-                                  .map(CartographyPermission::getMembers)
-                                  .orElseGet(Collections::emptySet)
-                                  .stream())
-                      .anyMatch(member -> Objects.equals(member.getId(), layer.getId()));
+    Set<Integer> backgroundLayerIds =
+        profile.getBackgrounds().stream()
+            .flatMap(
+                background ->
+                    Optional.ofNullable(background.getCartographyGroup())
+                        .map(CartographyPermission::getMembers)
+                        .orElseGet(Collections::emptySet)
+                        .stream())
+            .map(Cartography::getId)
+            .collect(Collectors.toUnmodifiableSet());
 
-              boolean belongsToSituationMap = situationMapLayerIds.contains(layer.getId());
-
-              log.info(
-                  "Layer {} belongs to node: {}, task: {}, background: {}, situation-map: {} => remove: {}",
-                  layer.getId(),
-                  belongsToNode,
-                  belongsToTask,
-                  belongsToBackground,
-                  belongsToSituationMap,
-                  !belongsToNode
-                      && !belongsToTask
-                      && !belongsToBackground
-                      && !belongsToSituationMap);
-              return !belongsToNode
-                  && !belongsToTask
-                  && !belongsToBackground
-                  && !belongsToSituationMap;
-            });
+    List<Cartography> layersFiltered =
+        profile.getLayers().stream()
+            .filter(
+                layer ->
+                    layerRetainedInPrunedProfile(
+                        layer,
+                        nodeLayerIds,
+                        taskLayerIds,
+                        backgroundLayerIds,
+                        situationMapLayerIds))
+            .toList();
 
     // Prune groups that are not related to backgrounds or situation-map
     Integer situationMapId = situationMap != null ? situationMap.getId() : null;
-    profile
-        .getGroups()
-        .removeIf(
-            permission -> {
-              boolean belongsToBackground =
-                  profile.getBackgrounds().stream()
-                      .flatMap(
-                          background ->
-                              Optional.ofNullable(background.getCartographyGroup()).stream())
-                      .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
 
-              boolean isSituationMap = Objects.equals(permission.getId(), situationMapId);
+    Set<Integer> remainingLayerIds =
+        layersFiltered.stream().map(Cartography::getId).collect(Collectors.toUnmodifiableSet());
 
-              log.info(
-                  "Group {} belongs to background: {}, is situation-map: {} => remove: {}",
-                  permission.getId(),
-                  belongsToBackground,
-                  isSituationMap,
-                  !belongsToBackground && !isSituationMap);
-              return !belongsToBackground && !isSituationMap;
-            });
+    Map<Tree, List<TreeNode>> treeNodesFiltered = new LinkedHashMap<>();
+    treeNodes.forEach(
+        (tree, nodes) ->
+            treeNodesFiltered.put(
+                tree,
+                nodes.stream()
+                    .filter(node -> treeNodeCartographyStillInProfile(node, remainingLayerIds))
+                    .toList()));
 
-    // Prune services that either:
-    // - Do not belong to a task
-    // - Do not belong to a node
-    // - Do not belong to a layer
-    // Note: Services from situation-map layers are already included in layers list
-    profile
-        .getServices()
-        .removeIf(
-            service -> {
-              boolean belongsToTask =
-                  profile.getTasks().stream()
-                      .map(Task::getService)
-                      .filter(Objects::nonNull)
-                      .map(org.sitmun.domain.service.Service::getId)
-                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+    List<Tree> treesFiltered =
+        treesAfterPivot.stream().filter(tree -> treeHasAnyNodes(tree, treeNodesFiltered)).toList();
 
-              boolean belongsToNode =
-                  profile.getTreeNodes().values().stream()
-                      .flatMap(Collection::stream)
-                      .map(TreeNode::getCartography)
-                      .filter(Objects::nonNull)
-                      .map(Cartography::getService)
-                      .filter(Objects::nonNull)
-                      .map(org.sitmun.domain.service.Service::getId)
-                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+    List<CartographyPermission> groupsWithFilteredMembers =
+        profile.getGroups().stream()
+            .map(group -> groupWithMembersRestrictedToLayerIds(group, remainingLayerIds))
+            .toList();
 
-              boolean belongsToLayer =
-                  profile.getLayers().stream()
-                      .map(Cartography::getService)
-                      .filter(Objects::nonNull)
-                      .map(org.sitmun.domain.service.Service::getId)
-                      .anyMatch(serviceId -> Objects.equals(serviceId, service.getId()));
+    List<CartographyPermission> groupsFiltered =
+        groupsWithFilteredMembers.stream()
+            .filter(
+                permission ->
+                    groupRetainedInClientProfile(
+                        permission, profile.getBackgrounds(), situationMapId))
+            .toList();
 
-              log.info(
-                  "Service {} belongs to task: {}, node: {}, layer: {} => remove: {}",
-                  service.getId(),
-                  belongsToTask,
-                  belongsToNode,
-                  belongsToLayer,
-                  !belongsToTask && !belongsToNode && !belongsToLayer);
-              return !belongsToTask && !belongsToNode && !belongsToLayer;
-            });
+    Set<Integer> taskServiceIds =
+        profile.getTasks().stream()
+            .map(Task::getService)
+            .filter(Objects::nonNull)
+            .map(org.sitmun.domain.service.Service::getId)
+            .collect(Collectors.toUnmodifiableSet());
+
+    Set<Integer> nodeServiceIds =
+        treeNodesFiltered.values().stream()
+            .flatMap(Collection::stream)
+            .map(TreeNode::getCartography)
+            .filter(Objects::nonNull)
+            .map(Cartography::getService)
+            .filter(Objects::nonNull)
+            .map(org.sitmun.domain.service.Service::getId)
+            .collect(Collectors.toUnmodifiableSet());
+
+    Set<Integer> layerServiceIds =
+        layersFiltered.stream()
+            .map(Cartography::getService)
+            .filter(Objects::nonNull)
+            .map(org.sitmun.domain.service.Service::getId)
+            .collect(Collectors.toUnmodifiableSet());
+
+    List<org.sitmun.domain.service.Service> servicesFiltered =
+        profile.getServices().stream()
+            .filter(
+                service ->
+                    serviceRetainedInPrunedProfile(
+                        service, taskServiceIds, nodeServiceIds, layerServiceIds))
+            .toList();
+
+    profile.setTreeNodes(Map.copyOf(treeNodesFiltered));
+    profile.setTrees(treesFiltered);
+    profile.setLayers(layersFiltered);
+    profile.setGroups(groupsFiltered);
+    profile.setServices(servicesFiltered);
     return profile;
   }
 

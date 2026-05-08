@@ -1,6 +1,5 @@
 package org.sitmun.authorization.proxy.controller;
 
-import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -140,7 +139,10 @@ class ProxyConfigurationControllerTest {
 
     mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.payload.sql").value("SELECT * FROM EXAMPLE LIMIT 100 OFFSET 100"));
+        .andExpect(
+            jsonPath("$.payload.sql")
+                .value(
+                    "SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=? LIMIT 100 OFFSET 100"));
   }
 
   @Test

@@ -1,23 +1,28 @@
 package org.sitmun.domain.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
+
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.sitmun.authorization.client.service.support.BasicParameterValueConverter;
+import org.sitmun.authorization.client.service.support.BasicParameterValueType;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 @Component
+@RequiredArgsConstructor
 public class TaskBasicValidator implements TaskValidator {
 
-  private static final String PROPERTIES = "properties";
+  /** Spring-binding field for {@link Task#getProperties()} constraint targets. */
+  private static final String ERRORS_PROPERTIES_FIELD = "properties";
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final BasicParameterValueConverter parameterValueConverter;
 
   @Override
   public boolean accept(Task task) {
-    return !getProperties(task).containsKey("scope");
+    return isLegacyBasicTask(task);
   }
 
   @Override
@@ -25,93 +30,54 @@ public class TaskBasicValidator implements TaskValidator {
     List<Map<String, Object>> parameters = getParameters(task);
     Errors errors = init(task);
     for (Map<String, Object> parameter : parameters) {
-      if (!(parameter.containsKey("name")
-          && parameter.containsKey("type")
-          && parameter.containsKey("value"))) {
-        errors.rejectValue(
-            PROPERTIES,
-            "parameters.missing",
-            "[name], [type] and [value] properties were expected");
-      } else if (parameter.size() != 3) {
-        errors.rejectValue(PROPERTIES, "parameters.extra", "Extra properties were found");
-      } else if (!(parameter.get("name") instanceof String name)
-          || !(parameter.get("type") instanceof String type)) {
-        errors.rejectValue(PROPERTIES, "parameters.invalid", "Invalid parameter types");
-      } else {
-        Object value = parameter.get("value");
-
-        //noinspection StatementWithEmptyBody
-        switch (type) {
-          case "string" -> {
-            // Any value is valid
-            // null is considered equal to the empty string
-          }
-          case "number" -> {
-            if (value instanceof String stringValue) {
-              try {
-                objectMapper.readValue(stringValue, Number.class);
-              } catch (JsonProcessingException e) {
-                errors.rejectValue(
-                    PROPERTIES,
-                    "parameters.number",
-                    name + " property contains '" + value + "' when number was expected");
-              }
-            }
-          }
-          case "boolean" -> {
-            if (value instanceof String stringValue) {
-              try {
-                objectMapper.readValue(stringValue, Boolean.class);
-              } catch (JsonProcessingException e) {
-                errors.rejectValue(
-                    PROPERTIES,
-                    "parameters.boolean",
-                    name + " property contains '" + value + "' when boolean was expected");
-              }
-            }
-          }
-          case "array" -> {
-            if (value instanceof String stringValue) {
-              try {
-                objectMapper.readValue(stringValue, List.class);
-              } catch (JsonProcessingException e) {
-                errors.rejectValue(
-                    PROPERTIES,
-                    "parameters.array",
-                    name + " property contains '" + value + "' when array was expected");
-              }
-            }
-          }
-          case "object" -> {
-            if (value instanceof String stringValue) {
-              try {
-                objectMapper.readValue(stringValue, Map.class);
-              } catch (JsonProcessingException e) {
-                errors.rejectValue(
-                    PROPERTIES,
-                    "parameters.object",
-                    name + " property contains '" + value + "' when map was expected");
-              }
-            }
-          }
-          case "null" -> {
-            if (value != null) {
-              errors.rejectValue(
-                  PROPERTIES,
-                  "parameters.null",
-                  name + " property contains '" + value + "' when null was expected");
-            }
-          }
-          default ->
-              errors.rejectValue(
-                  PROPERTIES,
-                  "parameters.any",
-                  name + " property contains '" + value + "' when type '" + type + "'");
-        }
-      }
+      validateLegacyBasicParameter(parameter, errors);
     }
+    failIfErrored(errors);
+  }
+
+  private void failIfErrored(Errors errors) throws RepositoryConstraintViolationException {
     if (errors.hasErrors()) {
       throw new RepositoryConstraintViolationException(errors);
     }
+  }
+
+  private void validateLegacyBasicParameter(Map<String, Object> parameter, Errors errors) {
+    if (!hasNameTypeValueKeys(parameter)) {
+      errors.rejectValue(
+          ERRORS_PROPERTIES_FIELD,
+          "parameters.missing",
+          "[name], [type] and [value] properties were expected");
+      return;
+    }
+    if (parameter.size() != 3) {
+      errors.rejectValue(
+          ERRORS_PROPERTIES_FIELD, "parameters.extra", "Extra properties were found");
+      return;
+    }
+    if (!(parameter.get(PARAMETERS_NAME) instanceof String name)
+        || !(parameter.get(PARAMETERS_TYPE) instanceof String type)) {
+      errors.rejectValue(ERRORS_PROPERTIES_FIELD, "parameters.invalid", "Invalid parameter types");
+      return;
+    }
+    validateValueMatchesDeclaredType(name, type, parameter.get(PARAMETERS_VALUE), errors);
+  }
+
+  private static boolean hasNameTypeValueKeys(Map<String, Object> parameter) {
+    return parameter.containsKey(PARAMETERS_NAME)
+        && parameter.containsKey(PARAMETERS_TYPE)
+        && parameter.containsKey(PARAMETERS_VALUE);
+  }
+
+  private void validateValueMatchesDeclaredType(
+      String name, String typeString, Object value, Errors errors) {
+    BasicParameterValueType type = BasicParameterValueType.from(typeString);
+    if (type == null) {
+      errors.rejectValue(
+          ERRORS_PROPERTIES_FIELD,
+          "parameters.any",
+          name + " property contains '" + value + "' when type '" + typeString + "'");
+      return;
+    }
+    parameterValueConverter.validate(name, type, value, errors);
   }
 }

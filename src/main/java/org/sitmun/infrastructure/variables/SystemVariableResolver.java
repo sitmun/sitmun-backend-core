@@ -6,9 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.domain.application.Application;
-import org.sitmun.domain.territory.Territory;
-import org.sitmun.domain.user.User;
+import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.config.SystemVariableProperties;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -45,25 +43,23 @@ public class SystemVariableResolver {
   private static final Pattern SYSTEM_VAR_PATTERN = Pattern.compile("#\\{([A-Z_]+)\\}");
 
   /**
-   * Resolves all system variables in the given template string.
+   * Resolves all system variables using {@link RequestCoordinates} (user, territory, application).
    *
-   * @param template Template string containing #{VARIABLE_NAME} placeholders
-   * @param user User context for resolution
-   * @param territory Territory context for resolution
-   * @param application Application context for resolution
-   * @return Template with all system variables resolved to their values
+   * @param template template string containing {@code #{VARIABLE_NAME}} placeholders
+   * @param coordinates request context; if {@code null}, resolves with no entity bindings
+   * @return template with placeholders replaced where possible
    */
-  public String resolve(String template, User user, Territory territory, Application application) {
+  public String resolve(String template, RequestCoordinates coordinates) {
     if (template == null || template.isEmpty()) {
       return template;
     }
 
     // Build the evaluation context with available entities
-    EvaluationContext context = createEvaluationContext(user, territory, application);
+    EvaluationContext context = createEvaluationContext(coordinates);
 
     // Find all system variable references
     Matcher matcher = SYSTEM_VAR_PATTERN.matcher(template);
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
 
     while (matcher.find()) {
       String variableName = matcher.group(1);
@@ -110,25 +106,26 @@ public class SystemVariableResolver {
   /**
    * Creates a SpEL evaluation context with the provided entities.
    *
-   * @param user User entity
-   * @param territory Territory entity
-   * @param application Application entity
-   * @return Evaluation context with entities registered as variables
+   * @param coordinates user, territory, and application to expose as SpEL variables; {@code null}
+   *     yields an empty context
+   * @return evaluation context with non-null entities registered as {@code user}, {@code
+   *     territory}, and {@code application}
    */
-  private EvaluationContext createEvaluationContext(
-      User user, Territory territory, Application application) {
+  private EvaluationContext createEvaluationContext(RequestCoordinates coordinates) {
     StandardEvaluationContext context = new StandardEvaluationContext();
-
-    if (user != null) {
-      context.setVariable("user", user);
-    }
-    if (territory != null) {
-      context.setVariable("territory", territory);
-    }
-    if (application != null) {
-      context.setVariable("application", application);
+    if (coordinates == null) {
+      return context;
     }
 
+    if (coordinates.getUser() != null) {
+      context.setVariable("user", coordinates.getUser());
+    }
+    if (coordinates.getTerritory() != null) {
+      context.setVariable("territory", coordinates.getTerritory());
+    }
+    if (coordinates.getApplication() != null) {
+      context.setVariable("application", coordinates.getApplication());
+    }
     return context;
   }
 

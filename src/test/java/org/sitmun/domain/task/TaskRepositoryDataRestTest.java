@@ -3,6 +3,7 @@ package org.sitmun.domain.task;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 import static org.sitmun.test.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -82,39 +83,39 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @NotNull
   private static Map<String, Object> fixtureProperties() {
     Map<String, Object> string = new HashMap<>();
-    string.put("name", "string");
-    string.put("type", "string");
-    string.put("value", "value");
+    string.put(PARAMETERS_NAME, TYPE_STRING);
+    string.put(PARAMETERS_TYPE, TYPE_STRING);
+    string.put(PARAMETERS_VALUE, "value");
 
     Map<String, Object> number = new HashMap<>();
-    number.put("name", "number");
-    number.put("type", "number");
-    number.put("value", "1.0");
+    number.put(PARAMETERS_NAME, "number");
+    number.put(PARAMETERS_TYPE, TYPE_NUMBER);
+    number.put(PARAMETERS_VALUE, "1.0");
 
     Map<String, Object> integer = new HashMap<>();
-    integer.put("name", "number");
-    integer.put("type", "number");
-    integer.put("value", "1");
+    integer.put(PARAMETERS_NAME, "number");
+    integer.put(PARAMETERS_TYPE, TYPE_NUMBER);
+    integer.put(PARAMETERS_VALUE, "1");
 
     Map<String, Object> array = new HashMap<>();
-    array.put("name", "array");
-    array.put("type", "array");
-    array.put("value", "[\"one\", \"two\", \"three\"]");
+    array.put(PARAMETERS_NAME, "array");
+    array.put(PARAMETERS_TYPE, TYPE_ARRAY);
+    array.put(PARAMETERS_VALUE, "[\"one\", \"two\", \"three\"]");
 
     Map<String, Object> object = new HashMap<>();
-    object.put("name", "object");
-    object.put("type", "object");
-    object.put("value", "{\"one\": \"two\", \"three\": 3}");
+    object.put(PARAMETERS_NAME, "object");
+    object.put(PARAMETERS_TYPE, TYPE_OBJECT);
+    object.put(PARAMETERS_VALUE, "{\"one\": \"two\", \"three\": 3}");
 
     Map<String, Object> bool = new HashMap<>();
-    bool.put("name", "boolean");
-    bool.put("type", "boolean");
-    bool.put("value", "true");
+    bool.put(PARAMETERS_NAME, "boolean");
+    bool.put(PARAMETERS_TYPE, TYPE_BOOLEAN);
+    bool.put(PARAMETERS_VALUE, "true");
 
     Map<String, Object> none = new HashMap<>();
-    none.put("name", "null");
-    none.put("type", "null");
-    none.put("value", null);
+    none.put(PARAMETERS_NAME, "null");
+    none.put(PARAMETERS_TYPE, TYPE_NULL);
+    none.put(PARAMETERS_VALUE, null);
 
     List<Map<String, Object>> list = new ArrayList<>();
     list.add(string);
@@ -126,7 +127,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
     list.add(none);
 
     Map<String, Object> container = new HashMap<>();
-    container.put("parameters", list);
+    container.put(PROPERTY_PARAMETERS, list);
     return container;
   }
 
@@ -174,7 +175,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
-        .andExpect(jsonPath("$.properties.parameters[0].name", equalTo("string")));
+        .andExpect(jsonPath("$.properties.parameters[0].name", equalTo(TYPE_STRING)));
 
     String[] paths = URI.create(location).getPath().split("/");
     Integer id = Integer.parseInt(paths[paths.length - 1]);
@@ -187,11 +188,11 @@ class TaskRepositoryDataRestTest extends BaseTest {
   void getTasksAvailableForApplication() throws Exception {
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(40)));
 
     mvc.perform(get(URIConstants.TASKS_AVAILABLE_URI, 2))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(35)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(40)));
   }
 
   @Test
@@ -204,9 +205,10 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("GET: This endpoint is enabled for ROLE_ADMIN")
   void getTasksAsSitmunAdmin() throws Exception {
+    // Full task projection includes this class's @BeforeEach fixtures (+2) atop seeded tasks (40).
     mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(37)));
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(42)));
   }
 
   @Test
