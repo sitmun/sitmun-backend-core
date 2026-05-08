@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.6] - 2026-05-08
+
 ### Added
 
 - **Task Query Services**: `TaskQueryUrlService` mapper for `external-link` scope query tasks; builds `TaskDto` with `scope=URL`, direct URL from command, and viewer-compatible parameter DTOs. Expands task type coverage to all five canonical query scopes (SQL, API, RESOURCE, URL, cartography-query).
@@ -268,7 +270,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...HEAD
+[1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.4...sitmun-backend-core/1.2.5
 [1.2.4]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.3...sitmun-backend-core/1.2.4
 [1.2.3]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.2...sitmun-backend-core/1.2.3
