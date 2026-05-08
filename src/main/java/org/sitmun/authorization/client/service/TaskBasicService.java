@@ -1,13 +1,7 @@
 package org.sitmun.authorization.client.service;
 
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.TYPE_BOOLEAN;
-import static org.sitmun.domain.DomainConstants.Tasks.TYPE_NULL;
-import static org.sitmun.domain.DomainConstants.Tasks.TYPE_OBJECT;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.dto.TaskDto;
-import org.sitmun.domain.DomainConstants;
+import org.sitmun.authorization.client.service.support.BasicParameterValueConverter;
+import org.sitmun.authorization.client.service.support.BasicParameterValueType;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.parameter.TaskParameter;
@@ -33,12 +28,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TaskBasicService implements TaskMapper {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-  private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
-  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE =
-      new TypeReference<>() {};
-
   private final TaskParameterProcessor taskParameterProcessor;
+  private final BasicParameterValueConverter parameterValueConverter;
 
   /**
    * Checks if the task is a basic task type.
@@ -47,7 +38,7 @@ public class TaskBasicService implements TaskMapper {
    * @return true if task is a basic task type
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isBasicTask(task);
+    return isBasicTask(task);
   }
 
   /**
@@ -67,11 +58,12 @@ public class TaskBasicService implements TaskMapper {
     Map<String, Object> parameters = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
-      ParameterValidator.validateNoProvidedVariables(properties, "Basic");
-      parameters = convertToJsonObject(task);
+      List<TaskParameter> taskParameters = taskParameterProcessor.parse(task);
+      ParameterValidator.validateNoProvidedVariables(taskParameters, "Basic");
+      parameters = convertToJsonObject(taskParameters);
     }
     return TaskDto.builder()
-        .id("task/" + task.getId())
+        .id(TASK_PROFILE_ID_PREFIX + task.getId())
         .uiControl(control)
         .parameters(parameters)
         .build();
@@ -80,14 +72,12 @@ public class TaskBasicService implements TaskMapper {
   /**
    * Converts parsed task parameters to JSON object structure with type-based conversion.
    *
-   * @param task Task to convert
+   * @param taskParameters Parsed task parameters
    * @return Map of converted parameters or null if empty
    */
   @Nullable
-  private Map<String, Object> convertToJsonObject(Task task) {
+  private Map<String, Object> convertToJsonObject(List<TaskParameter> taskParameters) {
     Map<String, Object> parameters = new HashMap<>();
-
-    List<TaskParameter> taskParameters = taskParameterProcessor.parse(task);
 
     for (TaskParameter param : taskParameters) {
       if (param.type() != null && param.rawValue() != null) {
@@ -98,41 +88,23 @@ public class TaskBasicService implements TaskMapper {
   }
 
   /**
-   * Converts parameter value based on its type.
+   * Converts parameter value based on its type using {@link BasicParameterValueConverter}.
    *
-   * @param type Parameter type
+   * @param typeString Parameter type string
    * @param value Parameter value
    * @param parameters Target parameters map
    * @param name Parameter name
    */
   private void typeBasedConversion(
-      String type, String value, Map<String, Object> parameters, String name) {
-    try {
-      switch (type) {
-        case TYPE_STRING:
-          parameters.put(name, value != null ? value : "");
-          break;
-        case TYPE_NUMBER:
-          parameters.put(name, Double.parseDouble(value));
-          break;
-        case TYPE_ARRAY:
-          parameters.put(name, OBJECT_MAPPER.readValue(value, ARRAY_TYPE_REFERENCE));
-          break;
-        case TYPE_OBJECT:
-          parameters.put(name, OBJECT_MAPPER.readValue(value, OBJECT_TYPE_REFERENCE));
-          break;
-        case TYPE_BOOLEAN:
-          parameters.put(name, Boolean.parseBoolean(value));
-          break;
-        case TYPE_NULL:
-          parameters.put(name, null);
-          break;
-        default:
-          log.warn("Unknown type {} for parameter {}", type, name);
-          break;
-      }
-    } catch (JsonProcessingException e) {
-      log.error("Error processing {} type for parameter {}", type, name, e);
+      String typeString, String value, Map<String, Object> parameters, String name) {
+    BasicParameterValueType type = BasicParameterValueType.from(typeString);
+    if (type == null) {
+      log.warn("Unknown type {} for parameter {}", typeString, name);
+      return;
+    }
+    Object converted = parameterValueConverter.convert(type, value);
+    if (converted != null || type == BasicParameterValueType.NULL) {
+      parameters.put(name, converted);
     }
   }
 }

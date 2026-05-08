@@ -1,25 +1,21 @@
 package org.sitmun.authorization.client.service;
 
 import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.*;
-import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.EDITION;
-import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_REQUIRED;
-import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_TYPE;
-import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.PARAMETER_VALUE;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
+import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.authorization.client.dto.TaskDto;
-import org.sitmun.authorization.client.support.ProxyUrlBuilder;
-import org.sitmun.domain.DomainConstants;
+import org.sitmun.authorization.client.support.CartographyTaskProfileSupport;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.database.DatabaseConnection;
-import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.parameter.TaskParameter;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
@@ -55,7 +51,7 @@ public class TaskEditCartographyService implements TaskMapper {
    * @return true if the task is a cartography edit task
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isCartographyEditionTask(task);
+    return isCartographyEditionTask(task);
   }
 
   /**
@@ -69,7 +65,9 @@ public class TaskEditCartographyService implements TaskMapper {
    */
   public TaskDto map(Task task, Application application, Territory territory) {
     List<TaskParameter> parameters = taskParameterProcessor.parse(task);
-    Map<String, Object> parametersDto = convertParametersToClientProfile(parameters);
+    Map<String, Object> parametersDto =
+        taskParameterProcessor.toProfileParameterMap(
+            parameters, EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT, false);
 
     Map<String, Object> fields = new HashMap<>();
     Map<String, Object> properties = task.getProperties();
@@ -77,56 +75,26 @@ public class TaskEditCartographyService implements TaskMapper {
       fields = convertFieldsToJsonObject(properties, task.getConnection());
     }
 
-    // boolean postRequest = parameters.entrySet().stream().anyMatch(e ->
-    // "body".equals(((Map<String,
-    // Object>)e.getValue()).get("type")));
-    // String paramType =
-    //    postRequest
-    //        ? DomainConstants.Tasks.PARAM_TYPE_BODY
-    //        : DomainConstants.Tasks.PARAM_TYPE_QUERY;
-    String paramType = PARAM_TYPE_QUERY;
+    // HTTP body vs query string: admin stores per-parameter {"type":"body"|"query"|...}.
+    boolean postRequest =
+        parameters.stream()
+            .map(TaskParameter::type)
+            .filter(Objects::nonNull)
+            .anyMatch(t -> PARAM_TYPE_BODY.equalsIgnoreCase(t.trim()));
+    String paramType = postRequest ? PARAM_TYPE_BODY : PARAM_TYPE_QUERY;
 
     Cartography cartography = task.getCartography();
-    Service service = cartography.getService();
 
-    String url = ProxyUrlBuilder.forCartographyService(proxyUrl, application, territory, service);
-    parametersDto.put(PARAMETER_SERVICE, getParametersObject(paramType, service.getType()));
-    String layers = cartography.getLayers().stream().reduce((a, b) -> a + "," + b).orElse("");
-    if (DomainConstants.Services.isWfsService(service)) {
-      parametersDto.put(PARAMETER_WFS_TYPENAME, getParametersObject(paramType, layers));
-    } else {
-      parametersDto.put(PARAMETER_LAYERS, getParametersObject(paramType, layers));
-    }
+    String url =
+        CartographyTaskProfileSupport.putCartographyProxyAndLayerSlots(
+            parametersDto, proxyUrl, application, territory, cartography, paramType);
     return TaskDto.builder()
-        .id("task/" + task.getId())
+        .id(TASK_PROFILE_ID_PREFIX + task.getId())
         .type(EDITION)
         .parameters(parametersDto)
         .fields(fields)
         .url(url)
         .build();
-  }
-
-  /**
-   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
-   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
-   *
-   * <p>Output format: {@code {name -> {type, required, value?}}}
-   *
-   * @param parameters The parsed task parameters
-   * @return A map of parameter names to their configuration
-   */
-  private Map<String, Object> convertParametersToClientProfile(List<TaskParameter> parameters) {
-    Map<String, Object> result = new HashMap<>();
-
-    for (TaskParameter param : parameters) {
-      if (taskParameterProcessor.classify(param).isBackendOnly()) {
-        continue;
-      }
-      result.put(
-          param.name(), taskParameterProcessor.toParameterDtoWithValue(param, PARAM_TYPE_QUERY));
-    }
-
-    return result;
   }
 
   /**
@@ -198,23 +166,6 @@ public class TaskEditCartographyService implements TaskMapper {
     }
 
     return !fields.isEmpty() ? fields : null;
-  }
-
-  /**
-   * Creates a parameter configuration object with type, required flag, and optional value.
-   *
-   * @param type The parameter type
-   * @param value The parameter value (can be null)
-   * @return A map containing the parameter configuration
-   */
-  private Map<String, Object> getParametersObject(String type, String value) {
-    Map<String, Object> values = new HashMap<>();
-    values.put(PARAMETER_TYPE, type);
-    values.put(PARAMETER_REQUIRED, true);
-    if (value != null) {
-      values.put(PARAMETER_VALUE, value);
-    }
-    return values;
   }
 
   /**

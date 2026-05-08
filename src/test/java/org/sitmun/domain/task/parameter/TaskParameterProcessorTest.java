@@ -1,9 +1,8 @@
 package org.sitmun.domain.task.parameter;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,11 +10,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authorization.client.dto.profile.FeatureInfoParameter;
+import org.sitmun.authorization.client.dto.profile.QueryParameter;
+import org.sitmun.authorization.client.dto.profile.ServiceParameter;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.task.Task;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 
@@ -67,10 +70,10 @@ class TaskParameterProcessorTest {
     @DisplayName("parses parameter with variable field")
     void parsesParameterWithVariableField() {
       Map<String, Object> param = new HashMap<>();
-      param.put("variable", "userId");
+      param.put(PARAMETERS_VARIABLE, "userId");
       param.put("value", "123");
-      param.put("type", "string");
-      param.put("required", true);
+      param.put(PARAMETERS_TYPE, TYPE_STRING);
+      param.put(PARAMETERS_REQUIRED, true);
 
       Task task = createTaskWithParameters(List.of(param));
 
@@ -80,7 +83,7 @@ class TaskParameterProcessorTest {
       TaskParameter parsed = result.get(0);
       assertThat(parsed.name()).isEqualTo("userId");
       assertThat(parsed.rawValue()).isEqualTo("123");
-      assertThat(parsed.type()).isEqualTo("string");
+      assertThat(parsed.type()).isEqualTo(TYPE_STRING);
       assertThat(parsed.required()).isTrue();
       assertThat(parsed.providedFlag()).isFalse();
     }
@@ -89,7 +92,7 @@ class TaskParameterProcessorTest {
     @DisplayName("falls back to name field when variable is absent")
     void fallsBackToNameFieldWhenVariableIsAbsent() {
       Map<String, Object> param = new HashMap<>();
-      param.put("name", "userName");
+      param.put(PARAMETERS_NAME, "userName");
       param.put("value", "admin");
 
       Task task = createTaskWithParameters(List.of(param));
@@ -132,9 +135,9 @@ class TaskParameterProcessorTest {
     @DisplayName("captures field property for MoreInfo compatibility")
     void capturesFieldPropertyForMoreInfoCompatibility() {
       Map<String, Object> param = new HashMap<>();
-      param.put("variable", "param1");
+      param.put(PARAMETERS_VARIABLE, "param1");
       param.put("value", "defaultValue");
-      param.put("field", "alternateField");
+      param.put(PARAMETERS_FIELD, "alternateField");
 
       Task task = createTaskWithParameters(List.of(param));
 
@@ -148,16 +151,16 @@ class TaskParameterProcessorTest {
     @DisplayName("parses provided flag correctly")
     void parsesProvidedFlagCorrectly() {
       Map<String, Object> providedTrue = new HashMap<>();
-      providedTrue.put("variable", "p1");
-      providedTrue.put("provided", true);
+      providedTrue.put(PARAMETERS_VARIABLE, "p1");
+      providedTrue.put(PARAMETERS_PROVIDED, true);
 
       Map<String, Object> providedFalse = new HashMap<>();
-      providedFalse.put("variable", "p2");
-      providedFalse.put("provided", false);
+      providedFalse.put(PARAMETERS_VARIABLE, "p2");
+      providedFalse.put(PARAMETERS_PROVIDED, false);
 
       Map<String, Object> providedString = new HashMap<>();
-      providedString.put("variable", "p3");
-      providedString.put("provided", "true");
+      providedString.put(PARAMETERS_VARIABLE, "p3");
+      providedString.put(PARAMETERS_PROVIDED, "true");
 
       Task task = createTaskWithParameters(List.of(providedTrue, providedFalse, providedString));
 
@@ -173,9 +176,9 @@ class TaskParameterProcessorTest {
     @DisplayName("preserves label and description")
     void preservesLabelAndDescription() {
       Map<String, Object> param = new HashMap<>();
-      param.put("variable", "param1");
+      param.put(PARAMETERS_VARIABLE, "param1");
       param.put("label", "User Parameter");
-      param.put("description", "Parameter description");
+      param.put(PARAMETERS_DESCRIPTION, "Parameter description");
 
       Task task = createTaskWithParameters(List.of(param));
 
@@ -190,7 +193,7 @@ class TaskParameterProcessorTest {
     @DisplayName("preserves raw map for unmapped keys")
     void preservesRawMapForUnmappedKeys() {
       Map<String, Object> param = new HashMap<>();
-      param.put("variable", "param1");
+      param.put(PARAMETERS_VARIABLE, "param1");
       param.put("customKey", "customValue");
 
       Task task = createTaskWithParameters(List.of(param));
@@ -536,13 +539,15 @@ class TaskParameterProcessorTest {
           .hasMessageContaining("system variable patterns");
     }
 
-    @Test
-    @DisplayName("throws BadRequestException for lowercase #{user.id} pattern")
-    void throwsBadRequestExceptionForLowercaseSystemVariablePattern() {
-      Map<String, String> clientParams = Map.of("param", "#{user.id}");
+    @ParameterizedTest
+    @DisplayName("throws BadRequestException for lowercase / mixed-name patterns in #{...}")
+    @ValueSource(strings = {"#{user.id}", "#{app}", "#{tenant_id}", "#{x}"})
+    void throwsBadRequestExceptionForLowercaseSystemVariablePattern(String valueWithPattern) {
+      Map<String, String> clientParams = Map.of("param", valueWithPattern);
 
       assertThatThrownBy(() -> processor.rejectClientSystemVariables(clientParams))
-          .isInstanceOf(BadRequestException.class);
+          .isInstanceOf(BadRequestException.class)
+          .hasMessageContaining("system variable patterns");
     }
 
     @Test
@@ -575,19 +580,28 @@ class TaskParameterProcessorTest {
   }
 
   @Nested
-  @DisplayName("toSimpleParameterDto")
-  class ToSimpleParameterDto {
+  @DisplayName("toQueryParameter")
+  class ToQueryParameter {
 
     @Test
     @DisplayName("creates DTO with type and required from parameter")
     void createsDtoWithTypeAndRequired() {
       TaskParameter param =
           new TaskParameter(
-              "format", "json", null, "string", true, false, "Format", "Output format", Map.of());
+              "format",
+              "json",
+              null,
+              TYPE_STRING,
+              true,
+              false,
+              "Format",
+              "Output format",
+              Map.of());
 
-      Map<String, Object> dto = processor.toSimpleParameterDto(param, "default");
+      QueryParameter dto = processor.toQueryParameter(param, "default");
 
-      assertThat(dto).containsEntry("type", "string").containsEntry("required", true);
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isTrue();
     }
 
     @Test
@@ -596,20 +610,22 @@ class TaskParameterProcessorTest {
       TaskParameter param =
           new TaskParameter("format", "json", null, null, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toSimpleParameterDto(param, "string");
+      QueryParameter dto = processor.toQueryParameter(param, TYPE_STRING);
 
-      assertThat(dto).containsEntry("type", "string").containsEntry("required", true);
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isTrue();
     }
 
     @Test
     @DisplayName("defaults required to false when null")
     void defaultsRequiredToFalseWhenNull() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", null, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, null, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toSimpleParameterDto(param, "default");
+      QueryParameter dto = processor.toQueryParameter(param, "default");
 
-      assertThat(dto).containsEntry("type", "string").containsEntry("required", false);
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isFalse();
     }
 
     @Test
@@ -618,55 +634,55 @@ class TaskParameterProcessorTest {
       TaskParameter param =
           new TaskParameter("query", null, null, null, false, false, null, null, Map.of());
 
-      Map<String, Object> dtoString = processor.toSimpleParameterDto(param, "string");
-      Map<String, Object> dtoQuery = processor.toSimpleParameterDto(param, "query");
+      QueryParameter dtoString = processor.toQueryParameter(param, TYPE_STRING);
+      QueryParameter dtoQuery = processor.toQueryParameter(param, PARAM_TYPE_QUERY);
 
-      assertThat(dtoString).containsEntry("type", "string");
-      assertThat(dtoQuery).containsEntry("type", "query");
+      assertThat(dtoString.type()).isEqualTo(TYPE_STRING);
+      assertThat(dtoQuery.type()).isEqualTo(PARAM_TYPE_QUERY);
     }
 
     @Test
     @DisplayName("does not include value field")
     void doesNotIncludeValueField() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toSimpleParameterDto(param, "string");
+      QueryParameter dto = processor.toQueryParameter(param, TYPE_STRING);
 
-      assertThat(dto).doesNotContainKey("value");
+      // QueryParameter record has no value field by design
+      assertThat(dto).isNotNull();
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
     }
   }
 
   @Nested
-  @DisplayName("toParameterDtoWithValue")
-  class ToParameterDtoWithValue {
+  @DisplayName("toServiceParameter")
+  class ToServiceParameter {
 
     @Test
     @DisplayName("creates DTO with type, required, and value")
     void createsDtoWithTypeRequiredAndValue() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toParameterDtoWithValue(param, "default");
+      ServiceParameter dto = processor.toServiceParameter(param, "default");
 
-      assertThat(dto)
-          .containsEntry("type", "string")
-          .containsEntry("required", true)
-          .containsEntry("value", "json");
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isTrue();
+      assertThat(dto.value()).isEqualTo("json");
     }
 
     @Test
     @DisplayName("omits value field when rawValue is null")
     void omitsValueFieldWhenRawValueIsNull() {
       TaskParameter param =
-          new TaskParameter("format", null, null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", null, null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toParameterDtoWithValue(param, "default");
+      ServiceParameter dto = processor.toServiceParameter(param, "default");
 
-      assertThat(dto)
-          .containsEntry("type", "string")
-          .containsEntry("required", true)
-          .doesNotContainKey("value");
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isTrue();
+      assertThat(dto.value()).isNull();
     }
 
     @Test
@@ -675,37 +691,37 @@ class TaskParameterProcessorTest {
       TaskParameter param =
           new TaskParameter("format", "json", null, null, false, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toParameterDtoWithValue(param, "query");
+      ServiceParameter dto = processor.toServiceParameter(param, PARAM_TYPE_QUERY);
 
-      assertThat(dto).containsEntry("type", "query");
+      assertThat(dto.type()).isEqualTo(PARAM_TYPE_QUERY);
     }
 
     @Test
     @DisplayName("defaults required to false when null")
     void defaultsRequiredToFalseWhenNull() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", null, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, null, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toParameterDtoWithValue(param, "default");
+      ServiceParameter dto = processor.toServiceParameter(param, "default");
 
-      assertThat(dto).containsEntry("required", false);
+      assertThat(dto.required()).isFalse();
     }
 
     @Test
     @DisplayName("includes empty string as value")
     void includesEmptyStringAsValue() {
       TaskParameter param =
-          new TaskParameter("format", "", null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", "", null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toParameterDtoWithValue(param, "default");
+      ServiceParameter dto = processor.toServiceParameter(param, "default");
 
-      assertThat(dto).containsEntry("value", "");
+      assertThat(dto.value()).isEqualTo("");
     }
   }
 
   @Nested
-  @DisplayName("toViewerParameterDto")
-  class ToViewerParameterDto {
+  @DisplayName("toFeatureInfoParameter")
+  class ToFeatureInfoParameter {
 
     @Test
     @DisplayName("creates DTO with label, value from field, and name")
@@ -715,35 +731,33 @@ class TaskParameterProcessorTest {
               "format",
               "json",
               "OUTPUT_FORMAT",
-              "string",
+              TYPE_STRING,
               true,
               false,
               "Output Format",
               "Select format",
               Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", "OUTPUT_FORMAT")
-          .containsEntry("name", "format")
-          .containsEntry("type", "string")
-          .containsEntry("required", true);
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isEqualTo("OUTPUT_FORMAT");
+      assertThat(dto.name()).isEqualTo("format");
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isTrue();
     }
 
     @Test
     @DisplayName("falls back to rawValue when field is null")
     void fallsBackToRawValueWhenFieldIsNull() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", "json")
-          .containsEntry("name", "format");
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isEqualTo("json");
+      assertThat(dto.name()).isEqualTo("format");
     }
 
     @Test
@@ -752,30 +766,28 @@ class TaskParameterProcessorTest {
       TaskParameter param =
           new TaskParameter("format", "json", null, null, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", "json")
-          .containsEntry("name", "format")
-          .containsEntry("required", true)
-          .doesNotContainKey("type");
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isEqualTo("json");
+      assertThat(dto.name()).isEqualTo("format");
+      assertThat(dto.required()).isTrue();
+      assertThat(dto.type()).isNull();
     }
 
     @Test
     @DisplayName("omits required field when parameter required is null")
     void omitsRequiredFieldWhenParameterRequiredIsNull() {
       TaskParameter param =
-          new TaskParameter("format", "json", null, "string", null, false, null, null, Map.of());
+          new TaskParameter("format", "json", null, TYPE_STRING, null, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", "json")
-          .containsEntry("name", "format")
-          .containsEntry("type", "string")
-          .doesNotContainKey("required");
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isEqualTo("json");
+      assertThat(dto.name()).isEqualTo("format");
+      assertThat(dto.type()).isEqualTo(TYPE_STRING);
+      assertThat(dto.required()).isNull();
     }
 
     @Test
@@ -784,28 +796,26 @@ class TaskParameterProcessorTest {
       TaskParameter param =
           new TaskParameter("format", "json", null, null, null, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", "json")
-          .containsEntry("name", "format")
-          .doesNotContainKey("type")
-          .doesNotContainKey("required");
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isEqualTo("json");
+      assertThat(dto.name()).isEqualTo("format");
+      assertThat(dto.type()).isNull();
+      assertThat(dto.required()).isNull();
     }
 
     @Test
     @DisplayName("handles null rawValue when field is also null")
     void handlesNullRawValueWhenFieldIsAlsoNull() {
       TaskParameter param =
-          new TaskParameter("format", null, null, "string", true, false, null, null, Map.of());
+          new TaskParameter("format", null, null, TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto)
-          .containsEntry("label", "format")
-          .containsEntry("value", null)
-          .containsEntry("name", "format");
+      assertThat(dto.label()).isEqualTo("format");
+      assertThat(dto.value()).isNull();
+      assertThat(dto.name()).isEqualTo("format");
     }
 
     @Test
@@ -813,11 +823,11 @@ class TaskParameterProcessorTest {
     void prefersFieldOverNonNullRawValue() {
       TaskParameter param =
           new TaskParameter(
-              "format", "json", "XML_FORMAT", "string", true, false, null, null, Map.of());
+              "format", "json", "XML_FORMAT", TYPE_STRING, true, false, null, null, Map.of());
 
-      Map<String, Object> dto = processor.toViewerParameterDto(param);
+      FeatureInfoParameter dto = processor.toFeatureInfoParameter(param);
 
-      assertThat(dto).containsEntry("value", "XML_FORMAT");
+      assertThat(dto.value()).isEqualTo("XML_FORMAT");
     }
   }
 
@@ -825,17 +835,17 @@ class TaskParameterProcessorTest {
 
   private Task createTaskWithParameters(List<Map<String, Object>> parameters) {
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, parameters);
+    properties.put(PROPERTY_PARAMETERS, parameters);
     return Task.builder().properties(properties).build();
   }
 
   private TaskParameter createTaskParameter(String name, String rawValue, boolean providedFlag) {
     Map<String, Object> raw = new HashMap<>();
-    raw.put("variable", name);
+    raw.put(PARAMETERS_VARIABLE, name);
     if (rawValue != null) {
-      raw.put("value", rawValue);
+      raw.put(PARAMETERS_VALUE, rawValue);
     }
-    raw.put("provided", providedFlag);
+    raw.put(PARAMETERS_PROVIDED, providedFlag);
 
     return new TaskParameter(name, rawValue, null, null, null, providedFlag, null, null, raw);
   }

@@ -1,14 +1,6 @@
 package org.sitmun.authorization.client.service;
 
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_FILENAME;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_MIME_TYPE;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL_QUERY;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL_QUERY;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_WEB_API_QUERY;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.authorization.client.support.ProxyUrlBuilder;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
+import org.sitmun.domain.task.TaskScopeNormalizer;
 import org.sitmun.domain.task.parameter.TaskParameter;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
@@ -51,7 +43,7 @@ public class TaskMoreInfoService implements TaskMapper {
    * @return true if the task is a moreInfo task
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isMoreInfoTask(task);
+    return isMoreInfoTask(task);
   }
 
   /**
@@ -85,20 +77,25 @@ public class TaskMoreInfoService implements TaskMapper {
     }
 
     String name = task.getName();
-    String cartographyId =
+    String cartographyNumericId =
         task.getCartography() != null ? String.valueOf(task.getCartography().getId()) : null;
-    final String scope = normalizeExecutionScope(executionProperties);
+    String cartographyProfileId =
+        task.getCartography() != null
+            ? PROFILE_LAYER_ID_PREFIX + task.getCartography().getId()
+            : null;
+    final String scope = TaskScopeNormalizer.normalizeExecutionScope(executionProperties);
     final String mimeType = extractStringProperty(executionProperties, PROPERTY_MIME_TYPE);
     final String filename = extractStringProperty(executionProperties, PROPERTY_FILENAME);
     final String url = resolveUrl(scope, task, executionProperties, application, territory);
 
     return TaskDto.builder()
-        .id("task/" + task.getId())
+        .id(TASK_PROFILE_ID_PREFIX + task.getId())
         .name(name)
         .uiControl(uiControl)
         .type(type)
         .parameters(parametersDto)
-        .cartographyId(cartographyId)
+        .cartographyId(cartographyNumericId)
+        .layer(cartographyProfileId)
         .scope(scope)
         .mimeType(mimeType)
         .filename(filename)
@@ -124,7 +121,7 @@ public class TaskMoreInfoService implements TaskMapper {
       if (taskParameterProcessor.classify(param).isBackendOnly()) {
         continue;
       }
-      result.put(param.name(), taskParameterProcessor.toViewerParameterDto(param));
+      result.put(param.name(), taskParameterProcessor.toFeatureInfoParameter(param));
     }
 
     return result.isEmpty() ? null : result;
@@ -148,37 +145,9 @@ public class TaskMoreInfoService implements TaskMapper {
       return null;
     }
     if (SCOPE_RESOURCE.equalsIgnoreCase(scope) || SCOPE_URL.equalsIgnoreCase(scope)) {
-      return extractStringProperty(executionProperties, DomainConstants.Tasks.PROPERTY_COMMAND);
+      return extractStringProperty(executionProperties, PROPERTY_COMMAND);
     }
     return ProxyUrlBuilder.forScopedResource(
         proxyUrl, application, territory, scope, String.valueOf(task.getId()));
-  }
-
-  private String normalizeExecutionScope(Map<String, Object> properties) {
-    if (properties == null) {
-      return null;
-    }
-    Object scopeObj = properties.get(PROPERTY_SCOPE);
-    if (scopeObj == null) {
-      return null;
-    }
-    String scope = scopeObj.toString();
-    if (SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
-      return SCOPE_SQL;
-    }
-    if (SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
-      return SCOPE_API;
-    }
-    if (SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
-      // No-proxy with mimeType → RESOURCE (mimeType-driven rendering, direct fetch)
-      // No-proxy without mimeType → URL (external redirect)
-      Object mimeTypeObj = properties.get(PROPERTY_MIME_TYPE);
-      boolean hasMimeType = mimeTypeObj != null && StringUtils.hasText(mimeTypeObj.toString());
-      return hasMimeType ? SCOPE_RESOURCE : SCOPE_URL;
-    }
-    if (SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
-      return SCOPE_URL;
-    }
-    return scope;
   }
 }

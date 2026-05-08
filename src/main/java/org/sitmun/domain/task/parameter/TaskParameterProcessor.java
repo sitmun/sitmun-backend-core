@@ -1,11 +1,6 @@
 package org.sitmun.domain.task.parameter;
 
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_DESCRIPTION;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_FIELD;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_PROVIDED;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_REQUIRED;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_TYPE;
 import static org.sitmun.domain.task.parameter.TaskParameterType.*;
 
 import java.util.*;
@@ -13,10 +8,12 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.sitmun.authorization.client.dto.profile.FeatureInfoParameter;
+import org.sitmun.authorization.client.dto.profile.QueryParameter;
+import org.sitmun.authorization.client.dto.profile.ServiceParameter;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.task.Task;
-import org.sitmun.infrastructure.util.TaskParameterUtil;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -48,7 +45,7 @@ public class TaskParameterProcessor {
    * Broad regex to detect any {@code #{...}} pattern in client-supplied values. Catches arbitrary
    * content inside braces to defend against injection at the client boundary.
    */
-  private static final Pattern CLIENT_SYSTEM_VAR_DETECTOR = Pattern.compile("#\\{[^}]*\\}");
+  private static final Pattern CLIENT_SYSTEM_VAR_DETECTOR = Pattern.compile("#\\{[^}]*}");
 
   /**
    * Parses task.properties.parameters into TaskParameter records. Returns empty list if task is
@@ -84,11 +81,28 @@ public class TaskParameterProcessor {
       Map<String, Object> parameter = (Map<String, Object>) param;
 
       // Resolve name with fallback chain: variable > name > label
-      String name = TaskParameterUtil.getParameterVariable(parameter);
+      String name = null;
+
+      // Try "variable" first (new standard for query/edit/more-info)
+      Object variableObj = parameter.get(PARAMETERS_VARIABLE);
+      if (variableObj != null) {
+        name = String.valueOf(variableObj);
+      }
+
+      // Fall back to "name" (old standard, still used by basic tasks)
       if (!StringUtils.hasText(name)) {
-        // Additional fallback to label (used by TaskMoreInfoService)
+        Object nameObj = parameter.get(PARAMETERS_NAME);
+        if (nameObj != null) {
+          name = String.valueOf(nameObj);
+        }
+      }
+
+      // Additional fallback to label (used by TaskMoreInfoService)
+      if (!StringUtils.hasText(name)) {
         Object labelObj = parameter.get(PARAMETERS_LABEL);
-        name = labelObj != null ? String.valueOf(labelObj) : null;
+        if (labelObj != null) {
+          name = String.valueOf(labelObj);
+        }
       }
 
       if (!StringUtils.hasText(name)) {
@@ -341,62 +355,144 @@ public class TaskParameterProcessor {
   }
 
   /**
-   * Converts a single parameter to simple DTO format: {@code {type, required}}.
+   * How each client-visible task parameter is projected into the authorization profile payload.
    *
-   * <p>Used by TaskQuerySqlService and TaskQueryWebService for client profile DTOs.
+   * @see #toProfileParameterMap
+   */
+  public enum ProfileParameterShape {
+    /**
+     * External-link (URL) query tasks: {@link #toFeatureInfoParameter(TaskParameter)} (name, label,
+     * value, optional type/required).
+     */
+    EXTERNAL_LINK_VIEWER,
+    /**
+     * SQL and web API query tasks: {@link #toQueryParameter(TaskParameter, String)} with default
+     * type {@value org.sitmun.domain.DomainConstants.Tasks#TYPE_STRING}.
+     */
+    SIMPLE_STRING_DEFAULT,
+    /**
+     * Cartography query tasks: {@link #toServiceParameter(TaskParameter, String)} with default type
+     * {@value org.sitmun.domain.DomainConstants.Tasks#TYPE_STRING}.
+     */
+    CARTOGRAPHY_QUERY_WITH_VALUE_STRING_DEFAULT,
+    /**
+     * Cartography edition tasks: {@link #toServiceParameter(TaskParameter, String)} with default
+     * type {@value org.sitmun.domain.DomainConstants.Tasks#PARAM_TYPE_QUERY}.
+     */
+    EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT
+  }
+
+  /**
+   * Builds {@code name -> parameter DTO} for client configuration profiles. Skips backend-only
+   * parameters ({@link TaskParameterType#isBackendOnly()}). Optionally omits URI template slots
+   * (proxied {@code web-api-query}).
+   *
+   * <p>Returns an empty mutable map when no parameters are exposed. {@link
+   * org.sitmun.authorization.client.dto.TaskDto} serializes omitted or empty maps as absent JSON
+   * members ({@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY}), matching the
+   * previous nullable contract for wire format.
+   *
+   * <p>Values in the returned map are typed {@link
+   * org.sitmun.authorization.client.dto.profile.ProfileParameter} records, but the public signature
+   * remains {@code Map<String, Object>} for wire-format compatibility.
+   *
+   * @param parameters parsed task parameters
+   * @param shape DTO projection per parameter
+   * @param omitUriTemplatePlaceholders when {@code true}, drops parameters whose storage type is
+   *     template ({@value org.sitmun.domain.DomainConstants.Tasks#PARAM_TYPE_TEMPLATE})
+   * @return profile parameters map with typed record values, never {@code null} (possibly empty)
+   */
+  public Map<String, Object> toProfileParameterMap(
+      List<TaskParameter> parameters,
+      ProfileParameterShape shape,
+      boolean omitUriTemplatePlaceholders) {
+    Map<String, Object> result = new HashMap<>();
+
+    for (TaskParameter param : parameters) {
+      if (classify(param).isBackendOnly()) {
+        continue;
+      }
+      if (omitUriTemplatePlaceholders && isUriTemplatePlaceholderType(param.type())) {
+        continue;
+      }
+      Object dto =
+          switch (shape) {
+            case EXTERNAL_LINK_VIEWER -> toFeatureInfoParameter(param);
+            case SIMPLE_STRING_DEFAULT -> toQueryParameter(param, TYPE_STRING);
+            case CARTOGRAPHY_QUERY_WITH_VALUE_STRING_DEFAULT ->
+                toServiceParameter(param, TYPE_STRING);
+            case EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT ->
+                toServiceParameter(param, PARAM_TYPE_QUERY);
+          };
+      result.put(param.name(), dto);
+    }
+
+    return result;
+  }
+
+  private static boolean isUriTemplatePlaceholderType(@Nullable String type) {
+    return type != null && PARAM_TYPE_TEMPLATE.equalsIgnoreCase(type.trim());
+  }
+
+  /**
+   * Converts a single parameter to query parameter configuration: {@code {type, required}}.
+   *
+   * <p>Used with {@link #toProfileParameterMap} ({@link
+   * ProfileParameterShape#SIMPLE_STRING_DEFAULT}).
    *
    * @param parameter the parameter to convert
    * @param defaultType default type if parameter.type() is null (e.g., "string", "query")
-   * @return DTO map with type and required fields
+   * @return typed record with type and required fields
    */
-  public Map<String, Object> toSimpleParameterDto(TaskParameter parameter, String defaultType) {
-    Map<String, Object> dto = new HashMap<>();
-    dto.put(PARAMETERS_TYPE, parameter.type() != null ? parameter.type() : defaultType);
-    dto.put(PARAMETERS_REQUIRED, parameter.required() != null && parameter.required());
-    return dto;
+  public QueryParameter toQueryParameter(TaskParameter parameter, String defaultType) {
+    String type = parameter.type() != null ? parameter.type() : defaultType;
+    boolean required = parameter.required() != null && parameter.required();
+    return new QueryParameter(type, required);
   }
 
   /**
    * Converts a single parameter to DTO with optional value: {@code {type, required, value?}}.
    *
-   * <p>Used by TaskQueryCartographyService and TaskEditCartographyService for client profile DTOs
-   * that include default values.
+   * <p>Used with {@link #toProfileParameterMap} ({@link
+   * ProfileParameterShape#CARTOGRAPHY_QUERY_WITH_VALUE_STRING_DEFAULT} and {@link
+   * ProfileParameterShape#EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT}).
    *
    * @param parameter the parameter to convert
    * @param defaultType default type if parameter.type() is null
-   * @return DTO map with type, required, and optional value fields
+   * @return typed record with type, required, and optional value fields
    */
-  public Map<String, Object> toParameterDtoWithValue(TaskParameter parameter, String defaultType) {
-    Map<String, Object> dto = new HashMap<>();
-    dto.put(PARAMETERS_TYPE, parameter.type() != null ? parameter.type() : defaultType);
-    dto.put(PARAMETERS_REQUIRED, parameter.required() != null && parameter.required());
-    if (parameter.rawValue() != null) {
-      dto.put(PARAMETERS_VALUE, parameter.rawValue());
-    }
-    return dto;
+  public ServiceParameter toServiceParameter(TaskParameter parameter, String defaultType) {
+    String type = parameter.type() != null ? parameter.type() : defaultType;
+    boolean required = parameter.required() != null && parameter.required();
+    String value = parameter.rawValue();
+    return new ServiceParameter(type, required, value);
   }
 
   /**
-   * Converts a single parameter to Viewer-compatible DTO: {@code {label, value, name, type?,
-   * required?}}.
+   * Converts a single parameter to more-info/feature-info field-forwarding DTO: {@code {label,
+   * value, name, type?, required?}}.
    *
-   * <p>Uses field property as value (falls back to rawValue). Conditionally includes type and
-   * required fields. Used by TaskMoreInfoService for backward-compatible Viewer DTOs.
+   * <p>Uses field property as value (falls back to rawValue). The {@code value} represents a
+   * feature data field name for more-info tasks, enabling the viewer to extract and forward feature
+   * attributes. Conditionally includes type and required fields.
+   *
+   * <p><strong>Contract Distinction:</strong> This shape is for more-info / feature-info
+   * field-forwarding and external-link URL query profiles via {@link #toProfileParameterMap}
+   * ({@link ProfileParameterShape#EXTERNAL_LINK_VIEWER}). Direct SQL / web-api query profiles use
+   * {@link #toQueryParameter} instead (minimal {@code {type, required}}).
+   *
+   * <p>Do NOT switch direct query mappers to this method without first auditing that direct profile
+   * consumers need the field-forwarding semantics.
    *
    * @param parameter the parameter to convert
-   * @return DTO map in Viewer-expected format
+   * @return typed record in Viewer-expected format for feature-field forwarding
    */
-  public Map<String, Object> toViewerParameterDto(TaskParameter parameter) {
-    Map<String, Object> dto = new HashMap<>();
-    dto.put(PARAMETERS_LABEL, parameter.name());
-    dto.put(PARAMETERS_VALUE, parameter.field() != null ? parameter.field() : parameter.rawValue());
-    dto.put(PARAMETERS_NAME, parameter.name());
-    if (parameter.type() != null) {
-      dto.put(PARAMETERS_TYPE, parameter.type());
-    }
-    if (parameter.required() != null) {
-      dto.put(PARAMETERS_REQUIRED, parameter.required());
-    }
-    return dto;
+  public FeatureInfoParameter toFeatureInfoParameter(TaskParameter parameter) {
+    String name = parameter.name();
+    String label = parameter.name();
+    String value = parameter.field() != null ? parameter.field() : parameter.rawValue();
+    String type = parameter.type();
+    Boolean required = parameter.required();
+    return new FeatureInfoParameter(name, label, type, value, required);
   }
 }

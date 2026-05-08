@@ -2,13 +2,13 @@ package org.sitmun.domain.task;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 
@@ -70,7 +70,7 @@ class MoreInfoTaskResolverTest {
 
     TaskRelation queryRelation =
         TaskRelation.builder()
-            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(queryTask)
             .build();
 
@@ -113,7 +113,7 @@ class MoreInfoTaskResolverTest {
 
     TaskRelation queryRelation =
         TaskRelation.builder()
-            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(queryTask)
             .build();
 
@@ -146,7 +146,7 @@ class MoreInfoTaskResolverTest {
     // Given
     Task queryTask = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_QUERY);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_QUERY);
     when(queryTask.getType()).thenReturn(taskType);
 
     // When
@@ -162,7 +162,7 @@ class MoreInfoTaskResolverTest {
     // Given
     Task moreInfoTask = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(moreInfoTask.getType()).thenReturn(taskType);
     when(moreInfoTask.getRelations()).thenReturn(Set.of());
 
@@ -181,12 +181,12 @@ class MoreInfoTaskResolverTest {
     Task queryTask = mock(Task.class);
 
     TaskType moreInfoType = mock(TaskType.class);
-    when(moreInfoType.getId()).thenReturn(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    when(moreInfoType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(moreInfoTask.getType()).thenReturn(moreInfoType);
 
     TaskRelation queryRelation =
         TaskRelation.builder()
-            .relationType(DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(queryTask)
             .build();
 

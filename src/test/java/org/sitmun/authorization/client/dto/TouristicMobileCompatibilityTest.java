@@ -3,8 +3,6 @@ package org.sitmun.authorization.client.dto;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authorization.client.dto.profile.QueryParameter;
 import org.sitmun.authorization.client.service.TaskQuerySqlService;
 import org.sitmun.authorization.client.service.TaskQueryWebService;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.type.TaskType;
@@ -26,11 +24,16 @@ import org.springframework.test.util.ReflectionTestUtils;
  * NON-REGRESSION GUARDRAIL 4: Touristic Mobile (touristic-mobile-app) DTO compatibility tests
  *
  * <p>These tests verify backward compatibility with the touristic mobile application which expects:
- * - task.url present and executable (direct or proxy URL) - task.parameters map with type/required
- * fields (value only for cartography services) - Near-me search continues working (LATITUD/LONGITUD
- * in mapping.input) - Event filtering continues working (date/keyword params) - Property-based WFS
- * filtering continues working (propertyname param) - mapping.input format unchanged (keys plain,
- * calculated values with ${...} wrapper) - TNO_MAPPING data completely untouched by migration
+ *
+ * <ul>
+ *   <li>task.url present and executable (direct or proxy URL)
+ *   <li>task.parameters map with type/required fields (value only for cartography services)
+ *   <li>Near-me search continues working (LATITUD/LONGITUD in mapping.input)
+ *   <li>Event filtering continues working (date/keyword params)
+ *   <li>Property-based WFS filtering continues working (propertyname param)
+ *   <li>mapping.input format unchanged (keys plain, calculated values with ${...} wrapper)
+ *   <li>TNO_MAPPING data completely untouched by migration
+ * </ul>
  */
 @DisplayName("Touristic Mobile Compatibility Tests (Guardrail 4)")
 class TouristicMobileCompatibilityTest {
@@ -54,6 +57,7 @@ class TouristicMobileCompatibilityTest {
     ReflectionTestUtils.setField(sqlService, "proxyUrl", "http://localhost:8080/middleware");
 
     webService = new TaskQueryWebService(processor);
+    ReflectionTestUtils.setField(webService, "proxyUrl", "http://localhost:8080/middleware");
 
     application = mock(Application.class);
     when(application.getId()).thenReturn(10);
@@ -72,10 +76,8 @@ class TouristicMobileCompatibilityTest {
       // Given
       Task task = createSqlQueryTask();
       Map<String, Object> properties = new HashMap<>();
-      properties.put(PROPERTY_SCOPE, "sql-query");
-      properties.put(
-          DomainConstants.Tasks.PROPERTY_COMMAND,
-          "SELECT * FROM pois WHERE territory_id = #{TERR_ID}");
+      properties.put(PROPERTY_SCOPE, SCOPE_SQL_QUERY);
+      properties.put(PROPERTY_COMMAND, "SELECT * FROM pois WHERE territory_id = #{TERR_ID}");
       when(task.getProperties()).thenReturn(properties);
 
       // When
@@ -87,29 +89,52 @@ class TouristicMobileCompatibilityTest {
     }
 
     @Test
-    @DisplayName("Web API query task MUST have task.url (direct or proxy)")
-    void webApiTaskHasUrl() {
-      // Given: Web API task without secrets
+    @DisplayName(
+        "web-api-query MUST expose task.url as middleware proxy (upstream never in client url)")
+    void webApiQueryScopeUsesProxyUrl() {
       Task task = createWebApiQueryTask();
 
       Map<String, Object> param = new HashMap<>();
       param.put(PARAMETERS_NAME, "category");
       param.put(PARAMETERS_TYPE, "query");
       param.put(PARAMETERS_REQUIRED, false);
-      param.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, false);
+      param.put(PARAMETERS_PROVIDED, false);
 
       Map<String, Object> properties = new HashMap<>();
-      properties.put(PROPERTY_SCOPE, "web-api-query");
-      properties.put(DomainConstants.Tasks.PROPERTY_COMMAND, "https://api.example.com/pois");
+      properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY);
+      properties.put(PROPERTY_COMMAND, "https://api.example.com/pois");
       properties.put(PROPERTY_PARAMETERS, List.of(param));
       when(task.getProperties()).thenReturn(properties);
 
-      // When
       TaskDto result = webService.map(task, application, territory);
 
-      // Then: URL present (raw command URL since no secrets)
+      assertThat(result.getUrl()).isNotNull();
+      assertThat(result.getUrl()).isEqualTo("http://localhost:8080/middleware/proxy/10/5/API/42");
+      assertThat(result.getScope()).isEqualTo(SCOPE_API);
+    }
+
+    @Test
+    @DisplayName("web-api-query-no-proxy MUST expose task.url as direct command URL")
+    void webApiQueryNoProxyScopeUsesDirectCommandUrl() {
+      Task task = createWebApiQueryNoProxyTask();
+
+      Map<String, Object> param = new HashMap<>();
+      param.put(PARAMETERS_NAME, "category");
+      param.put(PARAMETERS_TYPE, "query");
+      param.put(PARAMETERS_REQUIRED, false);
+      param.put(PARAMETERS_PROVIDED, false);
+
+      Map<String, Object> properties = new HashMap<>();
+      properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
+      properties.put(PROPERTY_COMMAND, "https://api.example.com/pois");
+      properties.put(PROPERTY_PARAMETERS, List.of(param));
+      when(task.getProperties()).thenReturn(properties);
+
+      TaskDto result = webService.map(task, application, territory);
+
       assertThat(result.getUrl()).isNotNull();
       assertThat(result.getUrl()).isEqualTo("https://api.example.com/pois");
+      assertThat(result.getScope()).isEqualTo(SCOPE_URL);
     }
 
     @Test
@@ -158,10 +183,9 @@ class TouristicMobileCompatibilityTest {
       TaskDto result = sqlService.map(task, application, territory);
 
       // Then: Parameter has type and required
-      @SuppressWarnings("unchecked")
-      Map<String, Object> paramDto = (Map<String, Object>) result.getParameters().get("filter");
-      assertThat(paramDto).containsEntry(PARAMETERS_TYPE, "query");
-      assertThat(paramDto).containsEntry(PARAMETERS_REQUIRED, true);
+      QueryParameter paramDto = (QueryParameter) result.getParameters().get("filter");
+      assertThat(paramDto.type()).isEqualTo("query");
+      assertThat(paramDto.required()).isTrue();
     }
 
     @Test
@@ -174,7 +198,7 @@ class TouristicMobileCompatibilityTest {
       param.put(PARAMETERS_NAME, "keyword");
       param.put(PARAMETERS_TYPE, "query");
       param.put(PARAMETERS_REQUIRED, false);
-      param.put(DomainConstants.Tasks.PARAMETERS_VALUE, "default"); // Present in storage
+      param.put(PARAMETERS_VALUE, "default"); // Present in storage
 
       Map<String, Object> properties = new HashMap<>();
       properties.put(PROPERTY_PARAMETERS, List.of(param));
@@ -184,10 +208,9 @@ class TouristicMobileCompatibilityTest {
       TaskDto result = sqlService.map(task, application, territory);
 
       // Then: 'value' NOT included (pre-existing gap, touristic-mobile uses mapping.input defaults)
-      @SuppressWarnings("unchecked")
-      Map<String, Object> paramDto = (Map<String, Object>) result.getParameters().get("keyword");
-      assertThat(paramDto).containsKeys(PARAMETERS_TYPE, PARAMETERS_REQUIRED);
-      assertThat(paramDto).doesNotContainKey(DomainConstants.Tasks.PARAMETERS_VALUE);
+      QueryParameter paramDto = (QueryParameter) result.getParameters().get("keyword");
+      assertThat(paramDto.type()).isNotNull();
+      // QueryParameter does not have a 'value' field (only type and required)
     }
   }
 
@@ -480,7 +503,7 @@ class TouristicMobileCompatibilityTest {
     when(task.getId()).thenReturn(42);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(PROPERTY_SCOPE, "sql-query");
+    properties.put(PROPERTY_SCOPE, SCOPE_SQL_QUERY);
     when(task.getProperties()).thenReturn(properties);
 
     return task;
@@ -494,7 +517,21 @@ class TouristicMobileCompatibilityTest {
     when(task.getId()).thenReturn(42);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(PROPERTY_SCOPE, "web-api-query");
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY);
+    when(task.getProperties()).thenReturn(properties);
+
+    return task;
+  }
+
+  private Task createWebApiQueryNoProxyTask() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getTitle()).thenReturn("Query");
+    when(task.getType()).thenReturn(taskType);
+    when(task.getId()).thenReturn(42);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
     when(task.getProperties()).thenReturn(properties);
 
     return task;

@@ -19,7 +19,6 @@ import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
@@ -230,7 +229,7 @@ public class ProxyConfigurationService {
       }
     }
 
-    final String body = (String) taskProps.getOrDefault(DomainConstants.Tasks.PROPERTY_BODY, null);
+    final String body = (String) taskProps.getOrDefault(PROPERTY_BODY, null);
     final HttpSecurityDto security = buildHttpSecurity(taskProps);
 
     // API method is hardcoded to GET as per current proxy middleware implementation.
@@ -375,63 +374,78 @@ public class ProxyConfigurationService {
       RequestCoordinates coordinates) {
     Objects.requireNonNull(coordinates, "coordinates");
 
-    // Security: reject any client-supplied parameter value containing #{...} patterns before
-    // processing, to prevent injection of system variable expressions.
-    taskParameterProcessor.rejectClientSystemVariables(configProxyRequestDto.getParameters());
-
     PayloadDto payload = configProxyDto.getPayload();
+
+    // Wrap client parameters in value object
+    ClientRequestParameters clientParams =
+        ClientRequestParameters.of(configProxyRequestDto.getParameters());
+
     log.debug(
         "applyDecorators: incomingRequestParameterCount={} payloadClass={}",
-        configProxyRequestDto.getParameters() == null
-            ? 0
-            : configProxyRequestDto.getParameters().size(),
+        clientParams.asMap().size(),
         payload.getClass().getSimpleName());
 
-    Map<String, String> parameters =
-        configProxyRequestDto.getParameters() == null
-            ? null
-            : new LinkedHashMap<>(configProxyRequestDto.getParameters());
+    // Security: reject any client-supplied parameter value containing #{...} patterns before
+    // processing, to prevent injection of system variable expressions.
+    clientParams.rejectSystemVariables(taskParameterProcessor);
 
     // Strip pagination parameters before filtering
-    String limit = null;
-    String offset = null;
-    if (parameters != null && !parameters.isEmpty()) {
-      String[] pagination = takePaginationValuesAndStripKeys(parameters);
-      limit = pagination[0];
-      offset = pagination[1];
-      // Update the original request to reflect stripped pagination parameters
-      configProxyRequestDto.setParameters(parameters);
-    }
+    ClientRequestParameters.PaginationExtractionResult paginationResult =
+        clientParams.takePagination();
+    Pagination pagination = paginationResult.pagination();
+    ClientRequestParameters paramsWithoutPagination = paginationResult.remainingParameters();
+
+    // Update the original request to reflect stripped pagination parameters
+    configProxyRequestDto.setParameters(new LinkedHashMap<>(paramsWithoutPagination.asMap()));
 
     // Parse task parameters and filter/build effective parameters
     List<TaskParameter> taskParameters = getTaskParametersForRequest(configProxyRequestDto);
 
-    Map<String, String> filteredClientParameters;
+    ClientRequestParameters filteredClientParameters;
     if (taskParameters.isEmpty()) {
       // For OGC/WMS/WMTS services (non-task requests), use client parameters directly
       // without filtering through task parameter declarations to support URI template expansion
-      filteredClientParameters = parameters;
+      filteredClientParameters = paramsWithoutPagination;
     } else {
       // For task requests (SQL/API), filter client parameters against client-allowed names
       filteredClientParameters =
-          taskParameterProcessor.filterClientParameters(taskParameters, parameters);
+          paramsWithoutPagination.filterToAllowed(taskParameters, taskParameterProcessor);
     }
 
     // Build effectiveParameters with priority: locked > provided > client > literal > empty
-    Map<String, String> effectiveParameters =
-        taskParameterProcessor.buildEffectiveParameters(
-            taskParameters, filteredClientParameters, coordinates);
+    EffectiveParameters effectiveParameters =
+        buildEffectiveParametersTyped(
+            taskParameters, filteredClientParameters.asMap(), coordinates);
 
     // For OGC/WMS/WMTS services, use filtered client parameters directly for expansion
     // For task requests, use effective parameters
     Map<String, String> parametersForExpansion =
-        taskParameters.isEmpty() ? filteredClientParameters : effectiveParameters;
+        taskParameters.isEmpty() ? filteredClientParameters.asMap() : effectiveParameters.asMap();
 
-    if (parametersForExpansion != null && !parametersForExpansion.isEmpty()) {
+    if (!parametersForExpansion.isEmpty()) {
       expandUserParameters(parametersForExpansion, payload);
     }
 
-    addPagination(limit, offset, payload);
+    addPagination(pagination.limit(), pagination.offset(), payload);
+  }
+
+  /**
+   * Builds effective parameters and wraps result in {@link EffectiveParameters}.
+   *
+   * @param taskParameters declared task parameters
+   * @param filteredClientParameters client-supplied parameters after filtering
+   * @param coordinates request coordinates
+   * @return typed effective parameters
+   */
+  private EffectiveParameters buildEffectiveParametersTyped(
+      List<TaskParameter> taskParameters,
+      Map<String, String> filteredClientParameters,
+      RequestCoordinates coordinates) {
+    Map<String, String> effectiveMap =
+        taskParameterProcessor.buildEffectiveParameters(
+            taskParameters, filteredClientParameters, coordinates);
+    // Wrap in LinkedHashMap to ensure stable iteration order
+    return new EffectiveParameters(new LinkedHashMap<>(effectiveMap));
   }
 
   /**
@@ -457,27 +471,6 @@ public class ProxyConfigurationService {
    * matching key, and returns {@code [limit, offset]}. When several keys match the same semantic
    * (e.g. {@code limit} and {@code LIMIT}), the last entry encountered in map iteration order wins.
    */
-  private static String[] takePaginationValuesAndStripKeys(Map<String, String> parameters) {
-    String limit = null;
-    String offset = null;
-    List<String> keysToRemove = new ArrayList<>();
-    for (Map.Entry<String, String> e : parameters.entrySet()) {
-      String key = e.getKey();
-      if (!StringUtils.hasText(key)) {
-        continue;
-      }
-      if (SQL_LIMIT.equalsIgnoreCase(key)) {
-        limit = e.getValue();
-        keysToRemove.add(key);
-      } else if (SQL_OFFSET.equalsIgnoreCase(key)) {
-        offset = e.getValue();
-        keysToRemove.add(key);
-      }
-    }
-    keysToRemove.forEach(parameters::remove);
-    return new String[] {limit, offset};
-  }
-
   private void expandUserParameters(Map<String, String> parameters, PayloadDto payload) {
     sqlUserParametrizationDecorator.apply(parameters, payload);
     httpUserParametrizationDecorator.apply(parameters, payload);

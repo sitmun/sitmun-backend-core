@@ -3,18 +3,6 @@ databaseChangeLog:
       id: 8
       author: sitmun
       changes:
-        - update:
-            tableName: STM_TSK_TYP
-            columns:
-              - column:
-                  name: TTY_SPEC
-                  valueClobFile: 03_task_types/06_MoreInformationTaskDefinition.json
-            where: TTY_ID=6
-
-  - changeSet:
-      id: 9
-      author: sitmun
-      changes:
         - sql:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = SEQ_COUNT + 1 WHERE SEQ_NAME = 'COD_ID';
         - insert:

@@ -3,6 +3,7 @@ package org.sitmun.authorization.client.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.Application;
@@ -30,7 +31,7 @@ class ProxyUrlBuilderTest {
 
     String url = ProxyUrlBuilder.forSqlTask(BASE_URL, app, territory, task);
 
-    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/SQL/300");
+    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/" + SCOPE_SQL + "/300");
   }
 
   @Test
@@ -58,9 +59,9 @@ class ProxyUrlBuilderTest {
     Territory territory = mock(Territory.class);
     when(territory.getId()).thenReturn(TERRITORY_ID);
 
-    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, "SQL", "999");
+    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, SCOPE_SQL, "999");
 
-    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/SQL/999");
+    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/" + SCOPE_SQL + "/999");
   }
 
   @Test
@@ -71,9 +72,9 @@ class ProxyUrlBuilderTest {
     Territory territory = mock(Territory.class);
     when(territory.getId()).thenReturn(TERRITORY_ID);
 
-    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, "API", "777");
+    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, SCOPE_API, "777");
 
-    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/API/777");
+    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/" + SCOPE_API + "/777");
   }
 
   @Test
@@ -84,9 +85,9 @@ class ProxyUrlBuilderTest {
     Territory territory = mock(Territory.class);
     when(territory.getId()).thenReturn(TERRITORY_ID);
 
-    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, "URL", "555");
+    String url = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, SCOPE_URL, "555");
 
-    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/URL/555");
+    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/" + SCOPE_URL + "/555");
   }
 
   @Test
@@ -102,7 +103,8 @@ class ProxyUrlBuilderTest {
 
     // SQL task URL should match scoped resource URL with SQL scope
     String sqlTaskUrl = ProxyUrlBuilder.forSqlTask(BASE_URL, app, territory, task);
-    String scopedSqlUrl = ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, "SQL", "300");
+    String scopedSqlUrl =
+        ProxyUrlBuilder.forScopedResource(BASE_URL, app, territory, SCOPE_SQL, "300");
 
     assertThat(sqlTaskUrl).isEqualTo(scopedSqlUrl);
   }
@@ -123,7 +125,6 @@ class ProxyUrlBuilderTest {
 
     // This will produce double slash, but it's a known limitation
     // Best practice is to pass base URL without trailing slash
-    assertThat(url).contains("/proxy/");
-    assertThat(url).contains("/100/200/SQL/300");
+    assertThat(url).contains("/proxy/").contains("/100/200/" + SCOPE_SQL + "/300");
   }
 }

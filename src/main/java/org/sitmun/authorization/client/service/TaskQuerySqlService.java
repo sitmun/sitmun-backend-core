@@ -1,15 +1,17 @@
 package org.sitmun.authorization.client.service;
 
-import java.util.HashMap;
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.SIMPLE;
+import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_PROFILE_ID_PREFIX;
+import static org.sitmun.domain.DomainConstants.Tasks.isSqlQueryTask;
+import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.SIMPLE_STRING_DEFAULT;
+
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
-import org.sitmun.authorization.client.AuthorizationConstants;
 import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.authorization.client.support.ProxyUrlBuilder;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.parameter.TaskParameter;
@@ -39,7 +41,7 @@ public class TaskQuerySqlService implements TaskMapper {
    * @return true if the task is a SQL query task
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isSqlQueryTask(task);
+    return isSqlQueryTask(task);
   }
 
   /**
@@ -52,38 +54,18 @@ public class TaskQuerySqlService implements TaskMapper {
    */
   public TaskDto map(Task task, Application application, Territory territory) {
     List<TaskParameter> parameters = taskParameterProcessor.parse(task);
-    Map<String, Object> parametersDto = convertToClientProfile(parameters);
+    Map<String, Object> parametersDto =
+        taskParameterProcessor.toProfileParameterMap(
+            parameters, SIMPLE_STRING_DEFAULT, /* omitUriTemplatePlaceholders */ false);
 
     String url = ProxyUrlBuilder.forSqlTask(proxyUrl, application, territory, task);
 
     return TaskDto.builder()
-        .id("task/" + task.getId())
-        .type(AuthorizationConstants.TaskDto.SIMPLE)
+        .id(TASK_PROFILE_ID_PREFIX + task.getId())
+        .type(SIMPLE)
+        .scope(SCOPE_SQL)
         .parameters(parametersDto)
         .url(url)
         .build();
-  }
-
-  /**
-   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
-   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
-   *
-   * <p>Output format: {@code {name -> {type, required}}}
-   *
-   * @param parameters The parsed task parameters
-   * @return Map of parameter names to their type and required status, or null if no parameters
-   */
-  @Nullable
-  private Map<String, Object> convertToClientProfile(List<TaskParameter> parameters) {
-    Map<String, Object> result = new HashMap<>();
-
-    for (TaskParameter param : parameters) {
-      if (taskParameterProcessor.classify(param).isBackendOnly()) {
-        continue;
-      }
-      result.put(param.name(), taskParameterProcessor.toSimpleParameterDto(param, "string"));
-    }
-
-    return result.isEmpty() ? null : result;
   }
 }

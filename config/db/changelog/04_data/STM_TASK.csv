@@ -33,4 +33,8 @@ TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONN
 # Query tasks
 #,,,,,,,,,
 35,Events,NULL,5,5,NULL,NULL,1,NULL,"{""parameters"":[{""name"": ""limit"",""label"": ""limit"",""type"": ""query"",""required"": true}],""scope"":""sql-query"",""command"":""select * from order limit {limit}""}"
-36,Timetable,NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}"",""scope"":""web-api-query"",""parameters"":[{""name"": ""codigo"",""label"" :""codigo"", ""type"":""template"", ""required"":true}]}"
+36,Timetable,NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}"",""scope"":""web-api-query"",""parameters"":[{""name"": ""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}]}"
+37,Web API proxied (query param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/items"",""scope"":""web-api-query"",""parameters"":[{""variable"":""limit"",""label"":""limit"",""type"":""query"",""required"":false}]}"
+38,Web API direct (template param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/stopcode/{codigo}"",""scope"":""web-api-query-no-proxy"",""parameters"":[{""variable"":""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}]}"
+39,Web API direct (query param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/page?limit={limit}"",""scope"":""web-api-query-no-proxy"",""parameters"":[{""variable"":""limit"",""label"":""limit"",""type"":""query"",""required"":true}]}"
+40,SQL sample (template param),NULL,5,5,NULL,NULL,1,NULL,"{""parameters"":[{""variable"":""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}],""scope"":""sql-query"",""command"":""select * from stops where code = {codigo}""}"

@@ -3,18 +3,6 @@ package org.sitmun.authorization.client.dto;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_EDITABLE;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_LABEL;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_LIST_VALUES;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_NAME;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_REQUIRED;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_SELECTABLE;
-import static org.sitmun.domain.DomainConstants.Tasks.FIELDS_TYPE;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_REQUIRED;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_VALUE;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAM_TYPE_QUERY;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_FIELDS;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,15 +24,21 @@ import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * NON-REGRESSION GUARDRAIL 3: Edition Mobile (edition-mobile-app) DTO compatibility tests
+ * Edition Mobile (edition-mobile-app) DTO compatibility tests
  *
- * <p>These tests verify backward compatibility with the edition mobile application which expects: -
- * task.url present and valid - task.parameters.typename.value for WFS layer name resolution -
- * task.fields payload with specific keys (name, label, type, value, required, selectable, editable)
- * - Fields keys NOT renamed (fields use "name" as identifier, not expansion variable) - WFS/OGC
- * standard parameters not blocked by vary-key whitelist - Edit task execution continues working
+ * <p>These tests verify backward compatibility with the edition mobile application which expects:
+ *
+ * <ul>
+ *   <li>task.url present and valid
+ *   <li>task.parameters.typename.value for WFS layer name resolution
+ *   <li>task.fields payload with specific keys (name, label, type, value, required, selectable,
+ *       editable)
+ *   <li>Fields keys NOT renamed (fields use "name" as identifier, not expansion variable)
+ *   <li>WFS/OGC standard parameters not blocked by vary-key whitelist
+ *   <li>Edit task execution continues working
+ * </ul>
  */
-@DisplayName("Edition Mobile Compatibility Tests (Guardrail 3)")
+@DisplayName("Edition Mobile Compatibility Tests")
 class EditionMobileCompatibilityTest {
 
   private TaskEditCartographyService service;
@@ -100,12 +94,12 @@ class EditionMobileCompatibilityTest {
       // Then: typename from cartography present (edition-mobile needs this for WFS requests)
       assertThat(result.getParameters()).containsKey("typename");
 
-      @SuppressWarnings("unchecked")
-      Map<String, Object> typenameDto =
-          (Map<String, Object>) result.getParameters().get("typename");
-      assertThat(typenameDto).containsEntry("value", "layer1"); // From cartography.getLayers()
-      assertThat(typenameDto).containsEntry("type", "query");
-      assertThat(typenameDto).containsEntry("required", true);
+      org.sitmun.authorization.client.dto.profile.ServiceParameter typenameDto =
+          (org.sitmun.authorization.client.dto.profile.ServiceParameter)
+              result.getParameters().get("typename");
+      assertThat(typenameDto.value()).isEqualTo("layer1"); // From cartography.getLayers()
+      assertThat(typenameDto.type()).isEqualTo("query");
+      assertThat(typenameDto.required()).isTrue();
     }
 
     @Test

@@ -78,7 +78,7 @@
         "condition": "scope",
         "label": [
           {
-            "scope": "SQL",
+            "scope": "sql-query",
             "text": "tasksEntity.sql"
           },
           {
@@ -92,7 +92,7 @@
         ],
         "control": [
           {
-            "scope": "SQL",
+            "scope": "sql-query",
             "control": "textArea"
           },
           {

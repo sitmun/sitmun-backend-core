@@ -3,28 +3,21 @@ package org.sitmun.authorization.client.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PARAMETERS;
-import static org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL;
-import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
-import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_QUERY;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.client.dto.TaskDto;
+import org.sitmun.authorization.client.dto.profile.FeatureInfoParameter;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.task.MoreInfoTaskResolver;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
-import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.domain.territory.Territory;
@@ -48,40 +41,8 @@ class TaskMoreInfoServiceTest {
   }
 
   @Test
-  @DisplayName("accept returns true for moreInfo task (case-insensitive)")
+  @DisplayName("accept returns true for More Info task type id")
   void acceptReturnsTrueForMoreInfoTask() {
-    // Given
-    Task task = mock(Task.class);
-    TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
-    when(task.getType()).thenReturn(taskType);
-
-    // When
-    boolean result = service.accept(task);
-
-    // Then
-    assertTrue(result);
-  }
-
-  @Test
-  @DisplayName("accept returns true for MOREINFO task (uppercase)")
-  void acceptReturnsTrueForUppercaseMoreInfo() {
-    // Given
-    Task task = mock(Task.class);
-    TaskType taskType = mock(TaskType.class);
-    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
-    when(task.getType()).thenReturn(taskType);
-
-    // When
-    boolean result = service.accept(task);
-
-    // Then
-    assertTrue(result);
-  }
-
-  @Test
-  @DisplayName("accept returns true for MoReInFo task (mixed case)")
-  void acceptReturnsTrueForMixedCaseMoreInfo() {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
@@ -139,6 +100,7 @@ class TaskMoreInfoServiceTest {
 
     // Then
     assertTrue(result);
+    verify(taskType, never()).getTitle();
   }
 
   @Test
@@ -183,13 +145,6 @@ class TaskMoreInfoServiceTest {
                 PROPERTY_COMMAND,
                 "https://api.example.com/info/{docId}"));
 
-    TaskRelation relation =
-        TaskRelation.builder()
-            .relationType(RELATION_TYPE_QUERY_TASK)
-            .relatedTask(relatedQueryTask)
-            .build();
-    when(task.getRelations()).thenReturn(Set.of(relation));
-
     when(application.getId()).thenReturn(1);
     when(territory.getId()).thenReturn(2);
 
@@ -226,13 +181,6 @@ class TaskMoreInfoServiceTest {
                 SCOPE_URL,
                 PROPERTY_COMMAND,
                 "https://external.example.com/doc?id={code}"));
-
-    TaskRelation relation =
-        TaskRelation.builder()
-            .relationType(RELATION_TYPE_QUERY_TASK)
-            .relatedTask(relatedUrlQueryTask)
-            .build();
-    when(task.getRelations()).thenReturn(Set.of(relation));
 
     when(application.getId()).thenReturn(1);
     when(territory.getId()).thenReturn(2);
@@ -272,8 +220,8 @@ class TaskMoreInfoServiceTest {
 
     Map<String, Object> properties = new HashMap<>();
     properties.put(PROPERTY_PARAMETERS, List.of(param1));
-    properties.put("scope", "API");
-    properties.put("command", "https://api.example.com/info");
+    properties.put(PROPERTY_SCOPE, SCOPE_API);
+    properties.put(PROPERTY_COMMAND, "https://api.example.com/info");
 
     when(task.getProperties()).thenReturn(properties);
     when(application.getId()).thenReturn(1);
@@ -289,7 +237,8 @@ class TaskMoreInfoServiceTest {
     assertEquals("infoControl", result.getUiControl());
     assertEquals("info", result.getType());
     assertEquals("10", result.getCartographyId());
-    assertEquals("API", result.getScope());
+    assertEquals(PROFILE_LAYER_ID_PREFIX + "10", result.getLayer());
+    assertEquals(SCOPE_API, result.getScope());
     assertNull(result.getCommand()); // Command is always null for more-info tasks (security)
     assertEquals("http://localhost:8080/middleware/proxy/1/2/API/42", result.getUrl());
   }
@@ -308,7 +257,7 @@ class TaskMoreInfoServiceTest {
     when(task.getCartography()).thenReturn(null);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("scope", "WMS");
+    properties.put(PROPERTY_SCOPE, "WMS");
     when(task.getProperties()).thenReturn(properties);
 
     when(application.getId()).thenReturn(5);
@@ -352,7 +301,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("scope", "");
+    properties.put(PROPERTY_SCOPE, "");
     when(task.getProperties()).thenReturn(properties);
 
     // When
@@ -374,7 +323,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("scope", "   ");
+    properties.put(PROPERTY_SCOPE, "   ");
     when(task.getProperties()).thenReturn(properties);
 
     // When
@@ -396,7 +345,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("scope", "SQL");
+    properties.put(PROPERTY_SCOPE, SCOPE_SQL_QUERY);
     when(task.getProperties()).thenReturn(properties);
 
     // When
@@ -420,7 +369,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("scope", "SQL");
+    properties.put(PROPERTY_SCOPE, SCOPE_SQL_QUERY);
     when(task.getProperties()).thenReturn(properties);
     when(application.getId()).thenReturn(0);
     when(territory.getId()).thenReturn(0);
@@ -468,17 +417,16 @@ class TaskMoreInfoServiceTest {
     assertTrue(result.getParameters().containsKey("country"));
 
     // Verify enriched parameter structure includes name field
-    @SuppressWarnings("unchecked")
-    Map<String, Object> cityParam = (Map<String, Object>) result.getParameters().get("city");
-    assertEquals("city", cityParam.get("label"));
-    assertEquals("Barcelona", cityParam.get("value"));
-    assertEquals("city", cityParam.get("name")); // New standard field
+    FeatureInfoParameter cityParam = (FeatureInfoParameter) result.getParameters().get("city");
+    assertEquals("city", cityParam.label());
+    assertEquals("Barcelona", cityParam.value());
+    assertEquals("city", cityParam.name()); // New standard field
 
-    @SuppressWarnings("unchecked")
-    Map<String, Object> countryParam = (Map<String, Object>) result.getParameters().get("country");
-    assertEquals("country", countryParam.get("label"));
-    assertEquals("Spain", countryParam.get("value"));
-    assertEquals("country", countryParam.get("name")); // New standard field
+    FeatureInfoParameter countryParam =
+        (FeatureInfoParameter) result.getParameters().get("country");
+    assertEquals("country", countryParam.label());
+    assertEquals("Spain", countryParam.value());
+    assertEquals("country", countryParam.name()); // New standard field
   }
 
   @Test
@@ -567,6 +515,7 @@ class TaskMoreInfoServiceTest {
 
     // Then
     assertNull(result.getCartographyId());
+    assertNull(result.getLayer());
   }
 
   @Test
@@ -602,7 +551,7 @@ class TaskMoreInfoServiceTest {
     when(task.getName()).thenReturn("Test");
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put("command", null);
+    properties.put(PROPERTY_COMMAND, null);
     when(task.getProperties()).thenReturn(properties);
 
     // When

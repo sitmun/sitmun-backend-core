@@ -1,31 +1,33 @@
 package org.sitmun.authorization.client.service;
 
+import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.SIMPLE;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_FILENAME;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
+import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.SIMPLE_STRING_DEFAULT;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
-import org.sitmun.authorization.client.AuthorizationConstants;
 import org.sitmun.authorization.client.dto.TaskDto;
 import org.sitmun.authorization.client.support.ProxyUrlBuilder;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.parameter.TaskParameter;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.Territory;
-import org.sitmun.infrastructure.util.ParameterValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * Maps web service query tasks to DTOs. Handles conversion of task properties and parameters for
  * web API queries.
+ *
+ * <p>For {@code web-api-query} (proxied), URI {@code template} parameters are omitted from the
+ * client profile: the viewer uses the middleware URL only. Implemented via {@link
+ * TaskParameterProcessor#toProfileParameterMap} ({@link
+ * org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape#SIMPLE_STRING_DEFAULT}
+ * with URI-template omission when proxied).
  */
 @Slf4j
 @Component
@@ -41,10 +43,10 @@ public class TaskQueryWebService implements TaskMapper {
    * Checks if the task is a web API query task.
    *
    * @param task Task to check
-   * @return true if task is a web API query
+   * @return true if the task is a web API query
    */
   public boolean accept(Task task) {
-    return DomainConstants.Tasks.isWebApiQuery(task);
+    return isWebApiQuery(task);
   }
 
   /**
@@ -59,20 +61,32 @@ public class TaskQueryWebService implements TaskMapper {
     Map<String, Object> properties = task.getProperties();
 
     String url = null;
+    String scope = null;
     String mimeType = null;
     String filename = null;
     Map<String, Object> parametersDto = new HashMap<>();
 
     if (properties != null) {
-      boolean hasProvidedVars = ParameterValidator.hasProvidedVariables(properties);
       Object scopeObj = properties.get(PROPERTY_SCOPE);
       String scopeStr = String.valueOf(scopeObj);
       boolean isNoProxy = SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scopeStr);
 
-      if (!isNoProxy && hasProvidedVars) {
+      // Scope-only proxy gating: web-api-query always proxied, web-api-query-no-proxy always direct
+      if (isNoProxy) {
+        // Direct execution for no-proxy scope
+        if (properties.get(PROPERTY_COMMAND) != null) {
+          url = properties.get(PROPERTY_COMMAND).toString();
+        }
+        // No-proxy: RESOURCE if mimeType present, URL otherwise
+        Object mimeTypeObj = properties.get(PROPERTY_MIME_TYPE);
+        scope =
+            (mimeTypeObj != null && !mimeTypeObj.toString().trim().isEmpty())
+                ? SCOPE_RESOURCE
+                : SCOPE_URL;
+      } else {
+        // Proxied execution for web-api-query scope
         url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
-      } else if (properties.get(PROPERTY_COMMAND) != null) {
-        url = properties.get(PROPERTY_COMMAND).toString();
+        scope = SCOPE_API;
       }
 
       Object mimeTypeObj = properties.get(PROPERTY_MIME_TYPE);
@@ -85,39 +99,21 @@ public class TaskQueryWebService implements TaskMapper {
       }
 
       List<TaskParameter> parameters = taskParameterProcessor.parse(task);
-      parametersDto = convertToClientProfile(parameters);
+      parametersDto =
+          taskParameterProcessor.toProfileParameterMap(
+              parameters,
+              SIMPLE_STRING_DEFAULT,
+              /* omitUriTemplatePlaceholders for proxied web-api-query */ !isNoProxy);
     }
 
     return TaskDto.builder()
-        .id("task/" + task.getId())
-        .type(AuthorizationConstants.TaskDto.SIMPLE)
+        .id(TASK_PROFILE_ID_PREFIX + task.getId())
+        .type(SIMPLE)
+        .scope(scope)
         .parameters(parametersDto)
         .url(url)
         .mimeType(mimeType)
         .filename(filename)
         .build();
-  }
-
-  /**
-   * Converts parsed task parameters to client profile DTO format. Only includes client-allowed
-   * parameters (excludes backend-only LOCKED and PROVIDED parameters).
-   *
-   * <p>Output format: {@code {name -> {type, required}}}
-   *
-   * @param parameters The parsed task parameters
-   * @return Map of parameter names to their type and required status, or null if no parameters
-   */
-  @Nullable
-  private Map<String, Object> convertToClientProfile(List<TaskParameter> parameters) {
-    Map<String, Object> result = new HashMap<>();
-
-    for (TaskParameter param : parameters) {
-      if (taskParameterProcessor.classify(param).isBackendOnly()) {
-        continue;
-      }
-      result.put(param.name(), taskParameterProcessor.toSimpleParameterDto(param, "string"));
-    }
-
-    return result.isEmpty() ? null : result;
   }
 }

@@ -2,6 +2,7 @@ package org.sitmun.domain.task;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,30 +11,62 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.task.parameter.TaskParameter;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.task.type.TaskType;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TaskQueryValidator unit tests")
 class TaskQueryValidatorTest {
 
+  @Mock private TaskParameterProcessor taskParameterProcessor;
+
   private TaskQueryValidator validator;
 
   @BeforeEach
   void setUp() {
-    validator = new TaskQueryValidator();
+    validator = new TaskQueryValidator(taskParameterProcessor);
+  }
+
+  /**
+   * Helper method to set up mocks for task.getProperties() and taskParameterProcessor.parse().
+   *
+   * @param task mocked task
+   * @param properties task properties containing parameters
+   */
+  @SuppressWarnings("unchecked")
+  private void mockTaskParameterParsing(Task task, Map<String, Object> properties) {
+    when(task.getProperties()).thenReturn(properties);
+
+    List<Map<String, Object>> paramList =
+        (List<Map<String, Object>>) properties.getOrDefault(PROPERTY_PARAMETERS, List.of());
+    List<TaskParameter> taskParameters =
+        paramList.stream()
+            .map(
+                param -> {
+                  String name = (String) param.getOrDefault("variable", "unknown");
+                  String rawValue = (String) param.get("value");
+                  Boolean provided = (Boolean) param.get("provided");
+                  boolean providedFlag = Boolean.TRUE.equals(provided);
+                  return new TaskParameter(
+                      name, rawValue, null, null, null, providedFlag, null, null, param);
+                })
+            .toList();
+    when(taskParameterProcessor.parse(task)).thenReturn(taskParameters);
   }
 
   @Test
-  @DisplayName("accept returns true for Query task type")
+  @DisplayName("accept returns true when task type id matches Query (seed TASK_TYPE_ID_QUERY)")
   void acceptReturnsTrueForQueryTaskType() {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("Query");
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_QUERY);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -44,12 +77,25 @@ class TaskQueryValidatorTest {
   }
 
   @Test
-  @DisplayName("accept returns false for non-Query task type")
+  @DisplayName(
+      "accept returns true for Query id even when localized title differs from English \"Query\"")
+  void acceptReturnsTrueForQueryTypeIdRegardlessOfTranslatedTitle() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_QUERY);
+    lenient().when(taskType.getTitle()).thenReturn("Consulta");
+    when(task.getType()).thenReturn(taskType);
+
+    assertTrue(validator.accept(task));
+  }
+
+  @Test
+  @DisplayName("accept returns false for non-Query task type id")
   void acceptReturnsFalseForNonQueryTaskType() {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("MoreInfo");
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -60,12 +106,12 @@ class TaskQueryValidatorTest {
   }
 
   @Test
-  @DisplayName("accept returns false for null task type title")
-  void acceptReturnsFalseForNullTaskTypeTitle() {
+  @DisplayName("accept returns false when task type id is null")
+  void acceptReturnsFalseWhenTaskTypeIdIsNull() {
     // Given
     Task task = mock(Task.class);
     TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn(null);
+    when(taskType.getId()).thenReturn(null);
     when(task.getType()).thenReturn(taskType);
 
     // When
@@ -73,6 +119,18 @@ class TaskQueryValidatorTest {
 
     // Then
     assertFalse(result);
+  }
+
+  @Test
+  @DisplayName(
+      "accept returns false when task type id is not TASK_TYPE_ID_QUERY (id wins over title)")
+  void acceptReturnsFalseWhenTaskTypeIdIsNotQuery() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_BASIC);
+    when(task.getType()).thenReturn(taskType);
+
+    assertFalse(validator.accept(task));
   }
 
   @Test
@@ -100,6 +158,12 @@ class TaskQueryValidatorTest {
   }
 
   @Test
+  @DisplayName("validate is a no-op when task is null")
+  void validateIsNoOpWhenTaskIsNull() {
+    assertDoesNotThrow(() -> validator.validate(null));
+  }
+
+  @Test
   @DisplayName("validate is a no-op when properties is null")
   void validateIsNoOpWhenPropertiesIsNull() {
     // Given
@@ -117,12 +181,12 @@ class TaskQueryValidatorTest {
     // Given
     Task task = mock(Task.class);
     Map<String, Object> properties = new HashMap<>();
-    properties.put(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY);
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY);
 
     Map<String, Object> param = new HashMap<>();
     param.put("variable", "apiKey");
     param.put("provided", true);
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+    properties.put(PROPERTY_PARAMETERS, List.of(param));
 
     when(task.getProperties()).thenReturn(properties);
 
@@ -131,25 +195,21 @@ class TaskQueryValidatorTest {
   }
 
   @Test
-  @DisplayName(
-      "validate throws RepositoryConstraintViolationException for web-api-query-no-proxy with provided parameters")
+  @DisplayName("validate throws exception for web-api-query-no-proxy with provided parameters")
   void validateThrowsExceptionForNoProxyWithProvidedParameters() {
     // Given
     Task task = mock(Task.class);
-    TaskType taskType = mock(TaskType.class);
-    when(taskType.getTitle()).thenReturn("Query");
-    when(task.getType()).thenReturn(taskType);
 
     Map<String, Object> properties = new HashMap<>();
-    properties.put(
-        DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
 
     Map<String, Object> param = new HashMap<>();
     param.put("variable", "apiKey");
     param.put("provided", true);
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+    properties.put(PROPERTY_PARAMETERS, List.of(param));
 
     when(task.getProperties()).thenReturn(properties);
+    mockTaskParameterParsing(task, properties);
 
     // When
     RepositoryConstraintViolationException exception =
@@ -159,43 +219,156 @@ class TaskQueryValidatorTest {
     Errors errors = exception.getErrors();
     assertNotNull(errors);
     assertTrue(errors.hasFieldErrors("properties"));
-    assertEquals(1, errors.getFieldErrorCount());
-    assertEquals("parameters.providedNotAllowed", errors.getFieldError("properties").getCode());
-    assertEquals(
-        "Web API Query (No Proxy) tasks cannot have backend-provided (proxy-injected) variables",
-        errors.getFieldError("properties").getDefaultMessage());
+    FieldError propertiesError = errors.getFieldError("properties");
+    assertNotNull(propertiesError);
+    assertEquals("directExecution.backendFeaturesNotAllowed", propertiesError.getCode());
   }
 
   @Test
-  @DisplayName("validate is a no-op for web-api-query-no-proxy without provided parameters")
-  void validateIsNoOpForNoProxyWithoutProvidedParameters() {
+  @DisplayName("validate throws exception for web-api-query-no-proxy with #{...} in command")
+  void validateThrowsExceptionForNoProxyWithSystemVariablesInCommand() {
+    // Given
+    Task task = mock(Task.class);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_COMMAND, "https://api.example.com?app=#{APP_ID}");
+
+    mockTaskParameterParsing(task, properties);
+
+    // When
+    RepositoryConstraintViolationException exception =
+        assertThrows(RepositoryConstraintViolationException.class, () -> validator.validate(task));
+
+    // Then
+    Errors errors = exception.getErrors();
+    assertNotNull(errors);
+    assertTrue(errors.hasFieldErrors("properties"));
+    FieldError propertiesError = errors.getFieldError("properties");
+    assertNotNull(propertiesError);
+    String message = propertiesError.getDefaultMessage();
+    assertNotNull(message);
+    assertTrue(message.contains("system variables"));
+  }
+
+  @Test
+  @DisplayName("validate throws exception for web-api-query-no-proxy with authentication")
+  void validateThrowsExceptionForNoProxyWithAuthentication() {
+    // Given
+    Task task = mock(Task.class);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_AUTHENTICATION_MODE, "Basic");
+    properties.put(PROPERTY_COMMAND, "https://api.example.com/data");
+
+    mockTaskParameterParsing(task, properties);
+
+    // When
+    RepositoryConstraintViolationException exception =
+        assertThrows(RepositoryConstraintViolationException.class, () -> validator.validate(task));
+
+    // Then
+    Errors errors = exception.getErrors();
+    assertNotNull(errors);
+    assertTrue(errors.hasFieldErrors("properties"));
+    FieldError propertiesError = errors.getFieldError("properties");
+    assertNotNull(propertiesError);
+    String message = propertiesError.getDefaultMessage();
+    assertNotNull(message);
+    assertTrue(message.contains("Authentication"));
+  }
+
+  @Test
+  @DisplayName("validate throws exception for web-api-query-no-proxy with headers")
+  void validateThrowsExceptionForNoProxyWithHeaders() {
+    // Given
+    Task task = mock(Task.class);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_COMMAND, "https://api.example.com/data");
+    properties.put(PROPERTY_HEADERS, Map.of("X-Custom", "value"));
+
+    mockTaskParameterParsing(task, properties);
+
+    // When
+    RepositoryConstraintViolationException exception =
+        assertThrows(RepositoryConstraintViolationException.class, () -> validator.validate(task));
+
+    // Then
+    Errors errors = exception.getErrors();
+    assertNotNull(errors);
+    assertTrue(errors.hasFieldErrors("properties"));
+    FieldError propertiesError = errors.getFieldError("properties");
+    assertNotNull(propertiesError);
+    String message = propertiesError.getDefaultMessage();
+    assertNotNull(message);
+    assertTrue(message.contains("Headers"));
+  }
+
+  @Test
+  @DisplayName("validate throws exception for external-link with provided parameters")
+  void validateThrowsExceptionForExternalLinkWithProvidedParameters() {
+    // Given
+    Task task = mock(Task.class);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_URL_QUERY);
+
+    Map<String, Object> param = new HashMap<>();
+    param.put("variable", "apiKey");
+    param.put("provided", true);
+    properties.put(PROPERTY_PARAMETERS, List.of(param));
+
+    mockTaskParameterParsing(task, properties);
+
+    // When
+    RepositoryConstraintViolationException exception =
+        assertThrows(RepositoryConstraintViolationException.class, () -> validator.validate(task));
+
+    // Then
+    Errors errors = exception.getErrors();
+    assertNotNull(errors);
+    assertTrue(errors.hasFieldErrors("properties"));
+    FieldError propertiesError = errors.getFieldError("properties");
+    assertNotNull(propertiesError);
+    String message = propertiesError.getDefaultMessage();
+    assertNotNull(message);
+    assertTrue(message.contains(SCOPE_URL_QUERY));
+  }
+
+  @Test
+  @DisplayName("validate allows web-api-query-no-proxy with plain public parameters")
+  void validateAllowsNoProxyWithPlainParameters() {
     // Given
     Task task = mock(Task.class);
     Map<String, Object> properties = new HashMap<>();
-    properties.put(
-        DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_SCOPE, SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_COMMAND, "https://public-api.example.com/data");
 
     Map<String, Object> param = new HashMap<>();
-    param.put("variable", "publicParam");
+    param.put("variable", "format");
+    param.put("value", "json");
     param.put("provided", false);
-    properties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of(param));
+    properties.put(PROPERTY_PARAMETERS, List.of(param));
 
-    when(task.getProperties()).thenReturn(properties);
+    mockTaskParameterParsing(task, properties);
 
     // When/Then - no exception thrown
     assertDoesNotThrow(() -> validator.validate(task));
   }
 
   @Test
-  @DisplayName("validate is a no-op for web-api-query-no-proxy with no parameters")
-  void validateIsNoOpForNoProxyWithNoParameters() {
+  @DisplayName("validate allows external-link with plain command and no backend features")
+  void validateAllowsExternalLinkWithPlainCommand() {
     // Given
     Task task = mock(Task.class);
     Map<String, Object> properties = new HashMap<>();
-    properties.put(
-        DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY);
+    properties.put(PROPERTY_SCOPE, SCOPE_URL_QUERY);
+    properties.put(PROPERTY_COMMAND, "https://www.example.com/document.pdf");
 
-    when(task.getProperties()).thenReturn(properties);
+    mockTaskParameterParsing(task, properties);
 
     // When/Then - no exception thrown
     assertDoesNotThrow(() -> validator.validate(task));

@@ -5,12 +5,15 @@ import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_API;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_SQL;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_WMS;
+import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_PROVIDED;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_AUTHENTICATION_MODE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_HEADERS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PASSWORD;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_QUERY_PARAMS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_USER;
+import static org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
 
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +31,6 @@ import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
-import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
@@ -52,7 +54,7 @@ class ProxyConfigurationServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private TerritoryRepository territoryRepository;
   @Mock private ApplicationRepository applicationRepository;
-  @Mock private SqlUserParametrizationDecorator SQLUserParametrizationDecorator;
+  @Mock private SqlUserParametrizationDecorator sqlUserParametrizationDecorator;
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
   @Mock private SystemVariableResolver systemVariableResolver;
@@ -84,7 +86,7 @@ class ProxyConfigurationServiceTest {
             userRepository,
             territoryRepository,
             applicationRepository,
-            SQLUserParametrizationDecorator,
+            sqlUserParametrizationDecorator,
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             Collections.emptyList(), // Empty validators list for non-validation tests
@@ -97,6 +99,33 @@ class ProxyConfigurationServiceTest {
 
   private RequestCoordinates coordinatesFor(ConfigProxyRequestDto request) {
     return service.getRequestCoordinates(request, "testuser");
+  }
+
+  /**
+   * {@link ProxyConfigurationService} wired like {@link #setUp()} but with custom access
+   * validators.
+   */
+  private ProxyConfigurationService proxyServiceWithAccessValidators(
+      List<ResourceAccessValidator> validators) {
+    TaskParameterProcessor taskParameterProcessor =
+        new TaskParameterProcessor(systemVariableResolver);
+    ProxyConfigurationService serviceWithValidator =
+        new ProxyConfigurationService(
+            serviceRepository,
+            taskRepository,
+            userRepository,
+            territoryRepository,
+            applicationRepository,
+            sqlUserParametrizationDecorator,
+            httpUserParametrizationDecorator,
+            queryPaginationDecorator,
+            validators,
+            systemVariableResolver,
+            moreInfoTaskResolver,
+            taskParameterProcessor);
+    ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
+    ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
+    return serviceWithValidator;
   }
 
   @Test
@@ -381,9 +410,9 @@ class ProxyConfigurationServiceTest {
     when(serviceRepository.findById(999)).thenReturn(Optional.empty());
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -404,15 +433,13 @@ class ProxyConfigurationServiceTest {
 
     TaskRelation relation =
         TaskRelation.builder()
-            .relationType(org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK)
+            .relationType(RELATION_TYPE_QUERY_TASK)
             .relatedTask(relatedQueryTask)
             .build();
 
     Task moreInfoTask = mock(Task.class);
     TaskType moreInfoType = mock(TaskType.class);
-    lenient()
-        .when(moreInfoType.getId())
-        .thenReturn(org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO);
+    lenient().when(moreInfoType.getId()).thenReturn(TASK_TYPE_ID_MORE_INFO);
     lenient().when(moreInfoTask.getType()).thenReturn(moreInfoType);
     lenient().when(moreInfoTask.getRelations()).thenReturn(Set.of(relation));
 
@@ -511,9 +538,9 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -537,9 +564,9 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -827,9 +854,9 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -855,9 +882,9 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -883,9 +910,9 @@ class ProxyConfigurationServiceTest {
     when(taskRepository.findById(1)).thenReturn(Optional.of(mockTask));
 
     // When & Then
+    RequestCoordinates coordinates = coordinatesFor(request);
     assertThrows(
-        BadRequestException.class,
-        () -> service.getConfiguration(request, 0L, coordinatesFor(request)));
+        BadRequestException.class, () -> service.getConfiguration(request, 0L, coordinates));
   }
 
   @Test
@@ -1116,9 +1143,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators substitutes explicit SQL placeholders from task default parameter values")
   void applyDecoratorsSubstitutesExplicitSqlPlaceholdersFromTaskDefaultParameterValues() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredParam = new HashMap<>();
     declaredParam.put("label", "test");
@@ -1166,9 +1193,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators allows client to override literal SQL ${placeholder} defaults (client wins when not locked)")
   void applyDecoratorsAllowsClientToOverrideLiteralSqlPlaceholderDefaults() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredParam = new HashMap<>();
     declaredParam.put("label", "test");
@@ -1320,9 +1347,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators uses client for SQL ${placeholder} when task configured default is blank")
   void applyDecoratorsUsesClientForSqlPlaceholderWhenTaskConfiguredDefaultIsBlankString() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredParam = new HashMap<>();
     declaredParam.put("label", "test");
@@ -1417,7 +1444,7 @@ class ProxyConfigurationServiceTest {
 
     Map<String, Object> secretParam = new HashMap<>();
     secretParam.put("variable", "apiKey");
-    secretParam.put(DomainConstants.Tasks.PARAMETERS_PROVIDED, true);
+    secretParam.put(PARAMETERS_PROVIDED, true);
     secretParam.put("value", "backend-secret");
 
     Map<String, Object> declaredRequestParam = new HashMap<>();
@@ -1504,9 +1531,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators uses client values for SQL ${placeholder} when task parameter has no default value")
   void applyDecoratorsUsesClientValuesForSqlPlaceholderWhenTaskParameterHasNoDefaultValue() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredParam = new HashMap<>();
     declaredParam.put("label", "test");
@@ -1550,9 +1577,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators uses client vary-filter values when SQL has no ${placeholder} for task defaults")
   void applyDecoratorsUsesClientVaryFilterValuesWhenSqlHasNoPlaceholderForTaskDefaults() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> taskDefaultUnusedWithoutPlaceholder = new HashMap<>();
     taskDefaultUnusedWithoutPlaceholder.put("variable", "columnA");
@@ -1745,31 +1772,12 @@ class ProxyConfigurationServiceTest {
   @DisplayName("validateUserAccess uses appropriate validator when available")
   void validateUserAccessUsesAppropriateValidator() {
     // Given: validation is enabled with a mock validator
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
-
     ResourceAccessValidator mockValidator = mock(ResourceAccessValidator.class);
     when(mockValidator.supports(TYPE_SQL)).thenReturn(true);
     when(mockValidator.validate(any(), eq("admin"))).thenReturn(true);
 
-    // Create service with the mock validator
-    TaskParameterProcessor taskParameterProcessor =
-        new TaskParameterProcessor(systemVariableResolver);
     ProxyConfigurationService serviceWithValidator =
-        new ProxyConfigurationService(
-            serviceRepository,
-            taskRepository,
-            userRepository,
-            territoryRepository,
-            applicationRepository,
-            SQLUserParametrizationDecorator,
-            httpUserParametrizationDecorator,
-            queryPaginationDecorator,
-            List.of(mockValidator),
-            systemVariableResolver,
-            moreInfoTaskResolver,
-            taskParameterProcessor);
-    ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
+        proxyServiceWithAccessValidators(List.of(mockValidator));
 
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
@@ -1786,30 +1794,12 @@ class ProxyConfigurationServiceTest {
   @DisplayName("validateUserAccess denies access when validator returns false")
   void validateUserAccessDeniesAccessWhenValidatorReturnsFalse() {
     // Given: validation is enabled with a mock validator that denies access
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
-
     ResourceAccessValidator mockValidator = mock(ResourceAccessValidator.class);
     when(mockValidator.supports(TYPE_SQL)).thenReturn(true);
     when(mockValidator.validate(any(), eq("unauthorizedUser"))).thenReturn(false);
 
-    TaskParameterProcessor taskParameterProcessor =
-        new TaskParameterProcessor(systemVariableResolver);
     ProxyConfigurationService serviceWithValidator =
-        new ProxyConfigurationService(
-            serviceRepository,
-            taskRepository,
-            userRepository,
-            territoryRepository,
-            applicationRepository,
-            SQLUserParametrizationDecorator,
-            httpUserParametrizationDecorator,
-            queryPaginationDecorator,
-            List.of(mockValidator),
-            systemVariableResolver,
-            moreInfoTaskResolver,
-            taskParameterProcessor);
-    ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
+        proxyServiceWithAccessValidators(List.of(mockValidator));
 
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
@@ -1826,34 +1816,14 @@ class ProxyConfigurationServiceTest {
   @DisplayName("validateUserAccess selects first matching validator")
   void validateUserAccessSelectsFirstMatchingValidator() {
     // Given: multiple validators, first match wins
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
-
     ResourceAccessValidator validator1 = mock(ResourceAccessValidator.class);
     ResourceAccessValidator validator2 = mock(ResourceAccessValidator.class);
 
     when(validator1.supports(TYPE_WMS)).thenReturn(true);
     when(validator1.validate(any(), any())).thenReturn(true);
-    // Remove the unnecessary stubbing for validator2.supports since it's never called
-    // when(validator2.supports(TYPE_WMS)).thenReturn(true);
 
-    TaskParameterProcessor taskParameterProcessor =
-        new TaskParameterProcessor(systemVariableResolver);
     ProxyConfigurationService serviceWithValidators =
-        new ProxyConfigurationService(
-            serviceRepository,
-            taskRepository,
-            userRepository,
-            territoryRepository,
-            applicationRepository,
-            SQLUserParametrizationDecorator,
-            httpUserParametrizationDecorator,
-            queryPaginationDecorator,
-            List.of(validator1, validator2),
-            systemVariableResolver,
-            moreInfoTaskResolver,
-            taskParameterProcessor);
-    ReflectionTestUtils.setField(serviceWithValidators, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(serviceWithValidators, "validateUserAccessEnabled", true);
+        proxyServiceWithAccessValidators(List.of(validator1, validator2));
 
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(0).type(TYPE_WMS).typeId(1).build();
@@ -1983,9 +1953,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "applyDecorators drops client attempt to override provided: true parameter and uses backend value")
   void applyDecoratorsDropsClientAttemptToOverrideProvidedParameter() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> providedParam = new HashMap<>();
     providedParam.put("variable", "secret");
@@ -2152,9 +2122,9 @@ class ProxyConfigurationServiceTest {
   @Test
   @DisplayName("SQL ${name} declared with no default and client absent binds empty string")
   void sqlPlaceholderDeclaredWithNoDefaultAndClientAbsentBindsEmptyString() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredNoDefault = new HashMap<>();
     declaredNoDefault.put("variable", "filter");
@@ -2202,9 +2172,9 @@ class ProxyConfigurationServiceTest {
   @Test
   @DisplayName("SQL vary-filter declared with no default and client absent binds empty string")
   void sqlVaryFilterDeclaredWithNoDefaultAndClientAbsentBindsEmptyString() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     Map<String, Object> declaredNoDefault = new HashMap<>();
     declaredNoDefault.put("variable", "status");
@@ -2253,9 +2223,9 @@ class ProxyConfigurationServiceTest {
   @DisplayName(
       "SQL vary-filter with #{...} locked default filters out client value and binds resolved backend value")
   void sqlVaryFilterWithLockedDefaultFiltersClientAndBindsBackendValue() {
-    doCallRealMethod().when(SQLUserParametrizationDecorator).apply(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).accept(any(), any());
-    doCallRealMethod().when(SQLUserParametrizationDecorator).addBehavior(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(sqlUserParametrizationDecorator).addBehavior(any(), any());
 
     // Mock systemVariableResolver to resolve #{ADMIN_FILTER} to 'ADMIN_ONLY'
     when(systemVariableResolver.resolve(eq("#{ADMIN_FILTER}"), any(RequestCoordinates.class)))

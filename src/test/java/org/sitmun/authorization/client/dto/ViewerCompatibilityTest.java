@@ -3,16 +3,6 @@ package org.sitmun.authorization.client.dto;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_LABEL;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_NAME;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_PROVIDED;
-import static org.sitmun.domain.DomainConstants.Tasks.PARAMETERS_VALUE;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_COMMAND;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_SCOPE;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL;
-import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL;
-import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,13 +22,17 @@ import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * NON-REGRESSION GUARDRAIL 2: Viewer (sitmun-viewer-app) DTO compatibility tests
+ * Viewer (sitmun-viewer-app) DTO compatibility tests
  *
- * <p>These tests verify backward compatibility with the viewer application which expects: -
- * More-info parameters with 'label', 'value', and optionally 'name' fields - URL-type more-info
- * tasks expose 'command' for external links - API/SQL-type more-info tasks execute via proxy - No
- * secret exposure (provided vars excluded, no resolved #{...} values) - Secret-bearing tasks hide
- * command, provide proxy URL
+ * <p>These tests verify backward compatibility with the viewer application which expects:
+ *
+ * <ul>
+ *   <li>More-info parameters with 'label', 'value', and optionally 'name' fields
+ *   <li>URL-type more-info tasks expose 'command' for external links
+ *   <li>API/SQL-type more-info tasks execute via proxy
+ *   <li>No secret exposure (provided vars excluded, no resolved #{...} values)
+ *   <li>Secret-bearing tasks hide command, provide proxy URL
+ * </ul>
  */
 @DisplayName("Viewer Compatibility Tests (Guardrail 2)")
 class ViewerCompatibilityTest {
@@ -96,18 +90,20 @@ class ViewerCompatibilityTest {
       assertThat(result.getParameters()).hasSize(2);
 
       // Verify first parameter has viewer-compatible structure
-      @SuppressWarnings("unchecked")
-      Map<String, Object> dtoParam1 = (Map<String, Object>) result.getParameters().get("id");
-      assertThat(dtoParam1).containsEntry(PARAMETERS_LABEL, "id"); // Viewer reads this
-      assertThat(dtoParam1).containsEntry(PARAMETERS_VALUE, "$.identifier"); // Viewer reads this
-      assertThat(dtoParam1).containsEntry(PARAMETERS_NAME, "id"); // Optional fallback
+      org.sitmun.authorization.client.dto.profile.FeatureInfoParameter dtoParam1 =
+          (org.sitmun.authorization.client.dto.profile.FeatureInfoParameter)
+              result.getParameters().get("id");
+      assertThat(dtoParam1.label()).isEqualTo("id"); // Viewer reads this
+      assertThat(dtoParam1.value()).isEqualTo("$.identifier"); // Viewer reads this
+      assertThat(dtoParam1.name()).isEqualTo("id"); // Optional fallback
 
       // Verify second parameter
-      @SuppressWarnings("unchecked")
-      Map<String, Object> dtoParam2 = (Map<String, Object>) result.getParameters().get("name");
-      assertThat(dtoParam2).containsEntry(PARAMETERS_LABEL, "name");
-      assertThat(dtoParam2).containsEntry(PARAMETERS_VALUE, "$.title");
-      assertThat(dtoParam2).containsEntry(PARAMETERS_NAME, "name");
+      org.sitmun.authorization.client.dto.profile.FeatureInfoParameter dtoParam2 =
+          (org.sitmun.authorization.client.dto.profile.FeatureInfoParameter)
+              result.getParameters().get("name");
+      assertThat(dtoParam2.label()).isEqualTo("name");
+      assertThat(dtoParam2.value()).isEqualTo("$.title");
+      assertThat(dtoParam2.name()).isEqualTo("name");
     }
 
     @Test
@@ -131,10 +127,11 @@ class ViewerCompatibilityTest {
       // Then: Still works (migration fallback)
       assertThat(result.getParameters()).isNotNull();
 
-      @SuppressWarnings("unchecked")
-      Map<String, Object> dtoParam = (Map<String, Object>) result.getParameters().get("city");
-      assertThat(dtoParam).containsEntry(PARAMETERS_LABEL, "city");
-      assertThat(dtoParam).containsEntry(PARAMETERS_VALUE, "$.cityName");
+      org.sitmun.authorization.client.dto.profile.FeatureInfoParameter dtoParam =
+          (org.sitmun.authorization.client.dto.profile.FeatureInfoParameter)
+              result.getParameters().get("city");
+      assertThat(dtoParam.label()).isEqualTo("city");
+      assertThat(dtoParam.value()).isEqualTo("$.cityName");
     }
 
     @Test
@@ -331,13 +328,12 @@ class ViewerCompatibilityTest {
           .getParameters()
           .forEach(
               (key, paramObj) -> {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> param = (Map<String, Object>) paramObj;
+                org.sitmun.authorization.client.dto.profile.FeatureInfoParameter param =
+                    (org.sitmun.authorization.client.dto.profile.FeatureInfoParameter) paramObj;
 
                 // Viewer expects these fields to exist
-                assertThat(param).containsKeys(PARAMETERS_LABEL, PARAMETERS_VALUE);
-                assertThat(param.get(PARAMETERS_LABEL)).isNotNull();
-                assertThat(param.get(PARAMETERS_VALUE)).isNotNull();
+                assertThat(param.label()).isNotNull();
+                assertThat(param.value()).isNotNull();
               });
     }
 
