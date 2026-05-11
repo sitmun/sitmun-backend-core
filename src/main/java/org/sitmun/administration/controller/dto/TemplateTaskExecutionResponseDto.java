@@ -11,9 +11,7 @@ public class TemplateTaskExecutionResponseDto {
   Integer taskId;
   String status;
   String resultType;
-  Map<String, Object> parameters;
   Map<String, Object> context;
   List<Map<String, Object>> rows;
   String resourceUrl;
-  List<String> flattenedContextKeys;
 }

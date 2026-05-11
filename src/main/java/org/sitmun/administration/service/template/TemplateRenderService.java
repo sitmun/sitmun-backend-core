@@ -49,10 +49,6 @@ public class TemplateRenderService {
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final Handlebars handlebars = new Handlebars();
 
-  public TemplatePreviewResponseDto renderPreview(String templateHtml, Map<String, Object> context) {
-    return renderPreview(templateHtml, context, null, Collections.emptyList());
-  }
-
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context, Integer templateTaskId) {
     return renderPreview(templateHtml, context, templateTaskId, Collections.emptyList());
