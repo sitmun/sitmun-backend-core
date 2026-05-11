@@ -1,5 +1,6 @@
 package org.sitmun.administration.service.template;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +38,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
+import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
@@ -58,15 +60,13 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
-            coordinatesService);
-
-    TaskUI miaUi = mock(TaskUI.class);
-    when(miaUi.getName()).thenReturn("sitna.moreInfoAdvanced");
+            coordinatesService,
+            new ObjectMapper());
 
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getUi()).thenReturn(miaUi);
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(101)));
 
@@ -97,6 +97,41 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  void renderMoreInfoAdvancedRejectsBasicViewerHookTask() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task basicHookTask = mock(Task.class);
+    when(basicHookTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_BASIC).build());
+    when(basicHookTask.getUi()).thenReturn(TaskUI.builder().name("sitna.moreInfoAdvanced").build());
+    when(taskRepository.findById(32306)).thenReturn(Optional.of(basicHookTask));
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(32306));
+
+    assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(responseStatusException.getReason()).isEqualTo("Task is not a MIA task");
+            });
+  }
+
+  @Test
   void renderMoreInfoAdvancedResolvesNestedTemplateUrlTaskParametersFromFeatureAttributes() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
@@ -115,15 +150,13 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             systemVariableResolver,
             templateRenderService,
-            coordinatesService);
-
-    TaskUI miaUi = mock(TaskUI.class);
-    when(miaUi.getName()).thenReturn("sitna.moreInfoAdvanced");
+            coordinatesService,
+            new ObjectMapper());
 
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getUi()).thenReturn(miaUi);
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -209,15 +242,13 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             systemVariableResolver,
             templateRenderService,
-            coordinatesService);
-
-    TaskUI miaUi = mock(TaskUI.class);
-    when(miaUi.getName()).thenReturn("sitna.moreInfoAdvanced");
+            coordinatesService,
+            new ObjectMapper());
 
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getUi()).thenReturn(miaUi);
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -325,7 +356,8 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
-            coordinatesService);
+            coordinatesService,
+            new ObjectMapper());
 
     Task task =
         Task.builder()
@@ -366,7 +398,8 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
-            coordinatesService);
+            coordinatesService,
+            new ObjectMapper());
 
     Task task =
         Task.builder()
@@ -418,7 +451,8 @@ class TemplateExecutionServiceTest {
             httpClientFactory,
             systemVariableResolver,
             mock(TemplateRenderService.class),
-            coordinatesService);
+            coordinatesService,
+            new ObjectMapper());
 
     Task task =
         Task.builder()
@@ -509,7 +543,8 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             systemVariableResolver,
             templateRenderService,
-            coordinatesService);
+            coordinatesService,
+            new ObjectMapper());
 
     Task parentTemplate =
         Task.builder()
@@ -587,7 +622,8 @@ class TemplateExecutionServiceTest {
             mock(HttpClientFactory.class),
             mock(SystemVariableResolver.class),
             templateRenderService,
-            coordinatesService);
+            coordinatesService,
+            new ObjectMapper());
 
     Task template1 =
         Task.builder()

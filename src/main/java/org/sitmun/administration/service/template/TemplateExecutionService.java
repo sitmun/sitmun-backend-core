@@ -70,7 +70,7 @@ public class TemplateExecutionService {
   private final TemplateRenderService templateRenderService;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
 
   public TemplateTaskExecutionResponseDto executeLinkedTask(TemplateTaskExecutionRequestDto requestDto) {
     Task task =
@@ -122,7 +122,7 @@ public class TemplateExecutionService {
             .findById(miaTaskId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-    if (miaTask.getUi() == null || !"sitna.moreInfoAdvanced".equals(miaTask.getUi().getName())) {
+    if (!DomainConstants.Tasks.isMoreInfoAdvancedTask(miaTask)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task is not a MIA task");
     }
 
@@ -145,7 +145,6 @@ public class TemplateExecutionService {
         .taskId(miaTask.getId())
         .title(miaTask.getName())
         .html(html)
-        .error(null)
         .build();
   }
 
@@ -610,11 +609,9 @@ public class TemplateExecutionService {
         .taskId(task.getId())
         .status("COMPLETED")
         .resultType("template")
-        .parameters(Collections.emptyMap())
         .context(Collections.singletonMap("html", rendered.getHtml()))
         .rows(Collections.emptyList())
         .resourceUrl(null)
-        .flattenedContextKeys(List.of("html"))
         .build();
   }
 
@@ -661,11 +658,9 @@ public class TemplateExecutionService {
         .taskId(task.getId())
         .status("COMPLETED")
         .resultType("table")
-        .parameters(new LinkedHashMap<>(parameters))
         .context(context)
         .rows(rows)
         .resourceUrl(null)
-        .flattenedContextKeys(new ArrayList<>(context.keySet()))
         .build();
   }
 
@@ -677,7 +672,6 @@ public class TemplateExecutionService {
             .terId(coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : 0)
             .type(DomainConstants.Proxy.TYPE_API)
             .typeId(task.getId())
-            .parameters(parameters)
             .build();
 
     ConfigProxyDto config;
@@ -716,11 +710,9 @@ public class TemplateExecutionService {
             .taskId(task.getId())
             .status("COMPLETED")
             .resultType("table")
-            .parameters(new LinkedHashMap<>(parameters))
             .context(context)
             .rows(rows)
             .resourceUrl(null)
-            .flattenedContextKeys(extractFlattenedKeys(bodyContext, parameters))
             .build();
       }
     } catch (IOException e) {
@@ -742,11 +734,9 @@ public class TemplateExecutionService {
         .taskId(task.getId())
         .status("COMPLETED")
         .resultType(DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope) ? "resource" : "url")
-        .parameters(new LinkedHashMap<>(parameters))
         .context(context)
         .rows(Collections.emptyList())
         .resourceUrl(resolved)
-        .flattenedContextKeys(new ArrayList<>(context.keySet()))
         .build();
   }
 
@@ -830,14 +820,6 @@ public class TemplateExecutionService {
     return rows;
   }
 
-  private List<String> extractFlattenedKeys(
-      Map<String, Object> bodyContext, Map<String, String> parameters) {
-    List<String> keys = new ArrayList<>();
-    parameters.forEach((key, value) -> keys.add("$" + key));
-    flattenKeys(null, bodyContext, keys);
-    return keys;
-  }
-
   private void flattenValue(String path, Object value, List<Map<String, Object>> rows) {
     if (value instanceof Map<?, ?> mapValue) {
       mapValue.forEach(
@@ -855,23 +837,6 @@ public class TemplateExecutionService {
       row.put("field", path);
       row.put("value", value);
       rows.add(row);
-    }
-  }
-
-  private void flattenKeys(String path, Object value, List<String> keys) {
-    if (value instanceof Map<?, ?> mapValue) {
-      mapValue.forEach(
-          (key, nestedValue) -> flattenKeys(appendPath(path, String.valueOf(key)), nestedValue, keys));
-      return;
-    }
-    if (value instanceof List<?> listValue) {
-      for (int index = 0; index < listValue.size(); index++) {
-        flattenKeys(appendIndex(path, index), listValue.get(index), keys);
-      }
-      return;
-    }
-    if (path != null) {
-      keys.add(path);
     }
   }
 

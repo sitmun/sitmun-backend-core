@@ -26,7 +26,8 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<h1>{{#APP_NAME}}</h1><p>{{pepe.nombre}}</p><span>{{pepe.$param1}}</span>",
-            Map.of("pepe", Map.of("nombre", "Parcela 23-A", "$param1", "foo")));
+            Map.of("pepe", Map.of("nombre", "Parcela 23-A", "$param1", "foo")),
+            null);
 
     assertThat(response.getHtml()).contains("SITMUN").contains("Parcela 23-A").contains("foo");
     assertThat(response.getPlaceholders()).containsExactly("#APP_NAME", "pepe.nombre", "pepe.$param1");
@@ -37,7 +38,7 @@ class TemplateRenderServiceTest {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
-    assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of()))
+    assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of(), null))
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Template preview contains invalid Handlebars syntax");
   }
@@ -55,7 +56,8 @@ class TemplateRenderServiceTest {
                 "pepe",
                 Map.of(
                     "a", List.of(Map.of("c", 1), Map.of("e", 2)),
-                    "m", 1)));
+                    "m", 1)),
+            null);
 
     assertThat(response.getHtml()).contains("<p>2</p>").contains("<p>1</p>");
     assertThat(response.getPlaceholders()).containsExactly("pepe.a[1].e", "pepe.m");
@@ -75,7 +77,8 @@ class TemplateRenderServiceTest {
                     "rows",
                     List.of(
                         Map.of("tui_name", "sitna.layerCatalog"),
-                        Map.of("tui_name", "sitna.search")))));
+                        Map.of("tui_name", "sitna.search")))),
+            null);
 
     assertThat(response.getHtml())
         .contains("<td>sitna.layerCatalog</td>")
@@ -101,7 +104,8 @@ class TemplateRenderServiceTest {
                     "rows",
                     List.of(
                         Map.of("tui_tooltip", "layerCatalog"),
-                        Map.of("tui_tooltip", "search")))));
+                        Map.of("tui_tooltip", "search")))),
+            null);
 
     assertThat(response.getHtml())
         .contains("tui_tooltip a")
@@ -137,7 +141,7 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
-    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of());
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of(), null);
 
     assertThat(response.getHtml()).contains("#APP_ID");
   }
@@ -150,7 +154,8 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<section>{{pepe.html}}</section>",
-            Map.of("pepe", Map.of("html", "<p><strong>hola</strong></p>")));
+            Map.of("pepe", Map.of("html", "<p><strong>hola</strong></p>")),
+            null);
 
     assertThat(response.getHtml()).contains("<section><p><strong>hola</strong></p></section>");
   }
@@ -162,7 +167,7 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
 
-    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of());
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of(), null);
 
     assertThat(response.getHtml()).contains("<p>admin</p>");
   }

@@ -9,5 +9,4 @@ public class MoreInfoAdvancedRenderedTaskDto {
   Integer taskId;
   String title;
   String html;
-  String error;
 }
