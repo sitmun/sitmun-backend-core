@@ -21,11 +21,11 @@ TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONN
 20,printMap.sitna,NULL,1,1,20,NULL,NULL,NULL,"{""parameters"":[{""name"":""div"",""type"":""string"",""value"":""print""},{""name"":""logo"",""type"":""string"",""value"":""https://ide.cime.es/stm3/admin/assets/img/logos/logo_sitmun.svg""},{""name"":""legend"",""type"":""object"",""value"":""{\""visible\"":true}""}]}"
 21,scale,NULL,1,1,21,NULL,NULL,NULL,NULL
 22,scaleBar,NULL,1,1,22,NULL,NULL,NULL,NULL
-23,scaleSelector,NULL,1,1,23,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE""}"
+23,scaleSelector,NULL,1,1,23,NULL,1,NULL,"{""parameters"":[{""variable"":""columnA""},{""variable"":""columnB""}],""command"": ""SELECT * FROM EXAMPLE""}"
 24,search.sitna,NULL,1,1,24,NULL,NULL,NULL,"{""placename"":{""url"":""https://ide.cime.es/geoserver2/base_referencia/wfs"",""featurePrefix"":""base_referencia"",""geometryName"":""the_geom"",""featureType"":""re007top_nomenclator_aux"",""dataIdProperty"":[""gid""],""queryProperties"":{""firstQueryWord"":[""nom"",""dstipus"",""dsmun"",""cerca""]},""suggestionListHead"":{""label"":""search.list.placename"",""color"":""strokeColor""},""outputProperties"":[""nom"",""dstipus"",""dsmun"",""gid""],""outputFormat"":""JSON"",""outputFormatLabel"":""{0} ({1}) - {2}"",""searchWeight"":7,""styles"":[{""point"":{""radius"":0,""label"":""nom"",""fontColor"":""#CB0000"",""fontSize"":14,""labelOutlineColor"":""#FFFFFF"",""labelOutlineWidth"":4}}]}}"
 25,share,NULL,1,1,25,NULL,NULL,NULL,NULL
 26,streetView,NULL,1,1,26,NULL,NULL,NULL,NULL
-27,threed,NULL,1,1,27,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE TERR_COD=#{TERR_COD}""}"
+27,threed,NULL,1,1,27,NULL,1,NULL,"{""parameters"":[{""variable"":""columnA""}],""command"": ""SELECT * FROM EXAMPLE WHERE TERR_COD=#{TERR_COD}""}"
 28,TOC,NULL,1,1,28,NULL,1,NULL,"{""command"": ""SELECT * FROM EXAMPLE WHERE USER_ID=#{USER_ID} AND TERR_ID=#{TERR_ID} AND APP_ID=#{APP_ID} AND TERR_COD=#{TERR_COD}""}"
 29,WFSEdit,NULL,1,1,29,NULL,NULL,NULL,NULL
 30,WFSQuery,NULL,1,1,30,NULL,NULL,NULL,NULL
@@ -41,5 +41,9 @@ TAS_ID,TAS_NAME,TAS_SERID,TAS_GTASKID,TAS_TTASKID,TAS_TUIID,TAS_CREATED,TAS_CONN
 # Query tasks
 #,,,,,,,,,
 34,Events,NULL,5,5,NULL,NULL,1,NULL,"{""parameters"":[{""variable"": ""limit"",""label"": ""limit"",""type"": ""query"",""required"": true}],""scope"":""sql-query"",""command"":""select * from order limit {limit}""}"
-35,Timetable,NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}"",""scope"":""web-api-query"",""parameters"":[{""variable"": ""codigo"",""label"" :""codigo"", ""type"":""template"", ""required"":true}]}"
+35,Timetable,NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://ide.cime.es/api_ide/Mobilitat/stops/Stopcode/{codigo}"",""scope"":""web-api-query"",""parameters"":[{""variable"": ""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}]}"
 36,Task with blocked service,8,1,1,1,NULL,NULL,NULL,NULL
+37,Web API proxied (query param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/items"",""scope"":""web-api-query"",""parameters"":[{""variable"":""limit"",""label"":""limit"",""type"":""query"",""required"":false}]}"
+38,Web API direct (template param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/stopcode/{codigo}"",""scope"":""web-api-query-no-proxy"",""parameters"":[{""variable"":""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}]}"
+39,Web API direct (query param),NULL,5,5,NULL,NULL,NULL,NULL,"{""command"":""https://api.example.invalid/page?limit={limit}"",""scope"":""web-api-query-no-proxy"",""parameters"":[{""variable"":""limit"",""label"":""limit"",""type"":""query"",""required"":true}]}"
+40,SQL sample (template param),NULL,5,5,NULL,NULL,1,NULL,"{""parameters"":[{""variable"":""codigo"",""label"":""codigo"",""type"":""template"",""required"":true}],""scope"":""sql-query"",""command"":""select * from stops where code = {codigo}""}"

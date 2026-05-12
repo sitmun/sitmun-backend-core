@@ -23,25 +23,19 @@ public class HttpUserParametrizationDecorator implements Decorator<Map<String, S
   }
 
   private void applyHttpParameterization(Map<String, String> target, HttpPayloadDto http) {
-    Map<String, String> payloadParameters =
-        http.getParameters() != null ? new HashMap<>(http.getParameters()) : new HashMap<>();
-
-    if ((target == null || target.isEmpty()) && payloadParameters.isEmpty()) {
+    if (target == null || target.isEmpty()) {
       return;
     }
 
-    Map<String, String> combinedParameters = new HashMap<>(payloadParameters);
-    if (target != null && !target.isEmpty()) {
-      combinedParameters.putAll(target);
-    }
-
-    Map<String, String> remainingParameters = new HashMap<>(combinedParameters);
+    // effectiveParameters (target) already has a correct precedence: locked > provided > client >
+    // literal > empty. Just expand URI templates and write leftovers to payload parameters.
+    Map<String, String> remainingParameters = new HashMap<>(target);
 
     String uri = http.getUri();
 
     // Use UriTemplateExpander to expand {variable} in URIs
     UriTemplateExpander.ExpandedResult result =
-        UriTemplateExpander.expandWithUsedVariables(uri, combinedParameters);
+        UriTemplateExpander.expandWithUsedVariables(uri, target);
     uri = result.getUri();
     result.getUsedVariables().forEach(remainingParameters::remove);
 

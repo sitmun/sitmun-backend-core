@@ -1,6 +1,7 @@
 package org.sitmun.domain.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
-import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -61,10 +61,9 @@ class TaskRepositoryTest {
   @DisplayName("Find tasks filtered by roles and territory")
   void findTasksByRolesAndTerritory() {
     List<Role> roles =
-        roleRepository.findRolesByApplicationAndUserAndTerritory(
-            SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
+        roleRepository.findRolesByApplicationAndUserAndTerritory(PUBLIC_PRINCIPAL, 1, 1);
     List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
-    assertThat(cp).hasSize(7);
+    assertThat(cp).hasSize(11);
   }
 
   @TestConfiguration

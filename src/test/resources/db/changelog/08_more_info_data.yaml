@@ -106,7 +106,7 @@ databaseChangeLog:
                   valueComputed: COALESCE((SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = 'TUI_ID'), 40)
               - column:
                   name: TUI_NAME
-                  value: "sitna.moreInfo"
+                  value: "sitmun.moreInfo"
               - column:
                   name: TUI_TOOLTIP
                   value: "More Info"

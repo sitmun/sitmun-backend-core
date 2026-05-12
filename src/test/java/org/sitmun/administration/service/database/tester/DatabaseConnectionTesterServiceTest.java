@@ -26,6 +26,14 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
+  @DisplayName("Test SQL Server driver class is on the classpath")
+  void testSqlServerDriverOnClasspath() {
+    DatabaseConnection connection =
+        DatabaseConnection.builder().driver("com.microsoft.sqlserver.jdbc.SQLServerDriver").build();
+    assertTrue(sut.testDriver(connection));
+  }
+
+  @Test
   @DisplayName("Test driver with invalid driver class should throw exception")
   void testDriverException() {
     DatabaseConnection connection = DatabaseConnection.builder().driver("org.h2.DriverX").build();

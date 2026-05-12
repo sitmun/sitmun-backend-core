@@ -34,7 +34,11 @@ class CodeListValueRepositoryDataRestTest {
   void checkDatabaseConnectionDriverAvailability() throws Exception {
     mvc.perform(get(CODELIST_VALUES_URI_FILTER, DATABASE_CONNECTION_DRIVER))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.codelist-values[*].value", hasItem("org.h2.Driver")));
+        .andExpect(jsonPath("$._embedded.codelist-values[*].value", hasItem("org.h2.Driver")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.codelist-values[*].value",
+                hasItem("com.microsoft.sqlserver.jdbc.SQLServerDriver")));
   }
 
   @Test

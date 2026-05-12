@@ -49,6 +49,7 @@ spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-
 h2 = { module = "com.h2database:h2" }
 postgresql = { module = "org.postgresql:postgresql" }
 oracle-jdbc = { module = "com.oracle.database.jdbc:ojdbc11-production" }
+mssql-jdbc = { module = "com.microsoft.sqlserver:mssql-jdbc" }
 
 # Database migration
 liquibase-core = { module = "org.liquibase:liquibase-core" }

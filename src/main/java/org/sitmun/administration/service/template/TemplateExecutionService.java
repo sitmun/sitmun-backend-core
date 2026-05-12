@@ -562,7 +562,9 @@ public class TemplateExecutionService {
       return executeApiTask(task, parameters, coordinates);
     }
     if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)
-        || DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)) {
+        || DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)) {
       return resolveUrlTask(task, parameters, scope, coordinates);
     }
 
@@ -733,7 +735,11 @@ public class TemplateExecutionService {
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
         .status("COMPLETED")
-        .resultType(DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope) ? "resource" : "url")
+        .resultType(
+            DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
+                    || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
+                ? "resource"
+                : "url")
         .context(context)
         .rows(Collections.emptyList())
         .resourceUrl(resolved)

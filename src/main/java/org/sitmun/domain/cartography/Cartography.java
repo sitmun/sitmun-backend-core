@@ -59,6 +59,7 @@ public class Cartography {
   @Column(name = "GEO_NAME", length = 100)
   @NotBlank
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
+  @I18n
   private String name;
 
   /** Cartography description. */

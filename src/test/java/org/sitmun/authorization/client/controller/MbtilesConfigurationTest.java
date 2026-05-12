@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.authorization.client.dto.ProfileMapper;
+import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.user.position.UserPositionRepository;

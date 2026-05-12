@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_LIMIT;
+import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_OFFSET;
 import static org.sitmun.domain.DomainConstants.Proxy.TYPE_SQL;
 
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.task.TaskRepository;
+import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
@@ -54,6 +57,7 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
   @Mock private QueryPaginationDecorator queryPaginationDecorator;
   @Mock private SystemVariableResolver systemVariableResolver;
+  @Mock private org.sitmun.domain.task.MoreInfoTaskResolver moreInfoTaskResolver;
 
   private ProxyConfigurationService service;
 
@@ -62,6 +66,10 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
     lenient()
         .when(systemVariableResolver.resolve(any(String.class), any(RequestCoordinates.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Use real TaskParameterProcessor with mocked SystemVariableResolver
+    TaskParameterProcessor taskParameterProcessor =
+        new TaskParameterProcessor(systemVariableResolver);
 
     service =
         new ProxyConfigurationService(
@@ -74,7 +82,9 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
             httpUserParametrizationDecorator,
             queryPaginationDecorator,
             Collections.emptyList(),
-            systemVariableResolver);
+            systemVariableResolver,
+            moreInfoTaskResolver,
+            taskParameterProcessor);
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
@@ -121,8 +131,8 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
     ArgumentCaptor<Map<String, String>> paginationCaptor = ArgumentCaptor.forClass(Map.class);
     verify(queryPaginationDecorator).apply(paginationCaptor.capture(), eq(jdbc));
     assertThat(paginationCaptor.getValue())
-        .containsEntry(QueryPaginationDecorator.SQL_LIMIT, "10")
-        .containsEntry(QueryPaginationDecorator.SQL_OFFSET, "5");
+        .containsEntry(SQL_LIMIT, "10")
+        .containsEntry(SQL_OFFSET, "5");
 
     assertThat(request.getParameters().keySet()).noneMatch("limit"::equalsIgnoreCase);
     assertThat(request.getParameters().keySet()).noneMatch("offset"::equalsIgnoreCase);

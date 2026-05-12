@@ -68,7 +68,7 @@ management:
 
 sitmun:
   module: SITMUN 3 Backend Core
-  version: 1.2.5
+  version: 1.2.6
   language: en
   user:
     secret: 9ef80c644166846897f6a87d3cf6ab204d144229
@@ -138,6 +138,8 @@ sitmun:
           description: PostgreSQL JDBC Driver
         - driver-class: oracle.jdbc.OracleDriver
           description: Oracle JDBC driver
+        - driver-class: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          description: Microsoft SQL Server JDBC Driver
       code-list-values:
         - code-list-name: application.type
           value: T
@@ -229,6 +231,9 @@ sitmun:
         - code-list-name: queryTask.scope
           value: web-api-query
           description: "Web API Query"
+        - code-list-name: queryTask.scope
+          value: web-api-query-no-proxy
+          description: "Web API Query (No Proxy)"
         - code-list-name: queryTask.scope
           value: cartography-query
           description: "Cartography Query"
