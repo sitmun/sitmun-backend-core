@@ -561,7 +561,8 @@ public class TemplateExecutionService {
     if (DomainConstants.Tasks.SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
       return executeSqlTask(task, parameters, coordinates);
     }
-    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
       return executeApiTask(task, parameters, coordinates);
     }
     if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)
