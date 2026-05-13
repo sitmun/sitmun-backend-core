@@ -524,6 +524,199 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  void executeLinkedTaskExpandsApiPathTemplateParametersFromTaskCommandWhenPayloadUriIsNormalized()
+      throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    String command = "https://ide.cime.es/api_ide/Mobilitat/stops/distance/{longitud}/{latitud}";
+    Task task =
+        Task.builder()
+            .id(32282)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    command))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32282);
+    LinkedHashMap<String, Object> requestParameters = new LinkedHashMap<>();
+    requestParameters.put("longitud", "4.2429139999999999");
+    requestParameters.put("latitud", "39.869439999999997");
+    requestDto.setParameters(requestParameters);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://ide.cime.es/api_ide/Mobilitat/stops/distance/")
+            .method("GET")
+            .parameters(new LinkedHashMap<>())
+            .build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32282)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq(command), any())).thenReturn(command);
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://ide.cime.es").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(ResponseBody.create("[]", okhttp3.MediaType.parse("application/json")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    service.executeLinkedTask(requestDto);
+
+    verify(httpClientFactory)
+        .executeRequest(
+            org.mockito.ArgumentMatchers.argThat(
+                request -> {
+                  String url = request.url().toString();
+                  return url.equals(
+                          "https://ide.cime.es/api_ide/Mobilitat/stops/distance/4.2429139999999999/39.869439999999997")
+                      && !url.contains("?longitud=")
+                      && !url.contains("?latitud=");
+                }));
+  }
+
+  @Test
+  void executeLinkedTaskRejectsUnsuccessfulApiResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32282)
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32282);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32282)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/items"), any()))
+        .thenReturn("https://api.example.org/items");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/items").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(500)
+            .message("Internal Server Error")
+            .body(
+                ResponseBody.create(
+                    "{\"error\":\"upstream failed\"}", okhttp3.MediaType.parse("application/json")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    assertThatThrownBy(() -> service.executeLinkedTask(requestDto))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+              assertThat(responseStatusException.getReason()).isEqualTo("API task returned HTTP 500");
+            });
+  }
+
+  @Test
+  void executeLinkedTaskFlattensJsonArrayApiResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32282)
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32282);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32282)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/items"), any()))
+        .thenReturn("https://api.example.org/items");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/items").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(
+                ResponseBody.create(
+                    "[{\"distance\":0,\"id\":705}]", okhttp3.MediaType.parse("application/json")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getRows())
+        .contains(
+            Map.of("field", "items[0].distance", "value", 0),
+            Map.of("field", "items[0].id", "value", 705));
+  }
+
+  @Test
   void executeLinkedTaskRendersNestedTemplatesCompletelyInBackend() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);

@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
@@ -53,6 +55,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TemplateExecutionService {
 
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
@@ -672,6 +675,7 @@ public class TemplateExecutionService {
             .terId(coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : 0)
             .type(DomainConstants.Proxy.TYPE_API)
             .typeId(task.getId())
+            .parameters(parameters)
             .build();
 
     ConfigProxyDto config;
@@ -683,7 +687,9 @@ public class TemplateExecutionService {
     }
 
     WmsPayloadDto payload = (WmsPayloadDto) config.getPayload();
-    String requestUrl = buildHttpRequestUrl(payload, parameters, coordinates);
+    String requestUrl =
+        buildHttpRequestUrl(payload, parameters, coordinates, readTaskCommand(task));
+    String sanitizedRequestUrl = sanitizeRequestUrlForLogging(requestUrl, parameters);
 
     try {
       Request.Builder requestBuilder = new Request.Builder().url(requestUrl);
@@ -700,8 +706,31 @@ public class TemplateExecutionService {
         requestBuilder.get();
       }
 
+      log.info(
+          "Executing template API task {} with method {} at {}",
+          task.getId(),
+          method,
+          sanitizedRequestUrl);
+
       try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
-        String body = response.body() != null ? response.body().string() : "";
+        okhttp3.ResponseBody responseBody = response.body();
+        okhttp3.MediaType contentType = responseBody != null ? responseBody.contentType() : null;
+        String body = responseBody != null ? responseBody.string() : "";
+        log.info(
+            "Template API task {} returned HTTP {} content-type {} body length {}",
+            task.getId(),
+            response.code(),
+            contentType,
+            body.length());
+        if (!response.isSuccessful()) {
+          log.warn(
+              "Template API task {} failed with HTTP {} body length {}",
+              task.getId(),
+              response.code(),
+              body.length());
+          throw new ResponseStatusException(
+              HttpStatus.BAD_GATEWAY, "API task returned HTTP " + response.code());
+        }
         Map<String, Object> bodyContext = normalizeBodyToContext(body);
         List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
         Map<String, Object> context = buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
@@ -716,8 +745,63 @@ public class TemplateExecutionService {
             .build();
       }
     } catch (IOException e) {
+      log.warn("Template API task {} failed while calling {}", task.getId(), sanitizedRequestUrl, e);
       throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to execute API task", e);
     }
+  }
+
+  private String sanitizeRequestUrlForLogging(
+      String requestUrl, Map<String, String> executionParameters) {
+    if (!StringUtils.hasText(requestUrl)) {
+      return "";
+    }
+    return maskQueryParameterValues(maskExecutionParameterValues(requestUrl, executionParameters));
+  }
+
+  private String maskExecutionParameterValues(
+      String requestUrl, Map<String, String> executionParameters) {
+    if (executionParameters == null || executionParameters.isEmpty()) {
+      return requestUrl;
+    }
+    String sanitized = requestUrl;
+    List<Map.Entry<String, String>> entries = new ArrayList<>(executionParameters.entrySet());
+    entries.sort(Comparator.comparingInt(entry -> -String.valueOf(entry.getValue()).length()));
+    for (Map.Entry<String, String> entry : entries) {
+      if (!StringUtils.hasText(entry.getKey()) || !StringUtils.hasText(entry.getValue())) {
+        continue;
+      }
+      String placeholder = "{" + entry.getKey() + "}";
+      String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
+      sanitized = sanitized.replace(encodedValue.replace("+", "%20"), placeholder);
+      sanitized = sanitized.replace(encodedValue, placeholder);
+      sanitized = sanitized.replace(entry.getValue(), placeholder);
+    }
+    return sanitized;
+  }
+
+  private String maskQueryParameterValues(String requestUrl) {
+    int fragmentStart = requestUrl.indexOf('#');
+    String urlWithoutFragment = fragmentStart >= 0 ? requestUrl.substring(0, fragmentStart) : requestUrl;
+    String fragment = fragmentStart >= 0 ? requestUrl.substring(fragmentStart) : "";
+    int queryStart = urlWithoutFragment.indexOf('?');
+    if (queryStart < 0) {
+      return requestUrl;
+    }
+    String prefix = urlWithoutFragment.substring(0, queryStart + 1);
+    String query = urlWithoutFragment.substring(queryStart + 1);
+    if (query.isEmpty()) {
+      return requestUrl;
+    }
+    List<String> maskedParameters = new ArrayList<>();
+    for (String queryParameter : query.split("&", -1)) {
+      int valueStart = queryParameter.indexOf('=');
+      if (valueStart < 0) {
+        maskedParameters.add(queryParameter);
+      } else {
+        maskedParameters.add(queryParameter.substring(0, valueStart + 1) + "***");
+      }
+    }
+    return prefix + String.join("&", maskedParameters) + fragment;
   }
 
   private TemplateTaskExecutionResponseDto resolveUrlTask(
@@ -863,7 +947,10 @@ public class TemplateExecutionService {
   }
 
   private String buildHttpRequestUrl(
-      WmsPayloadDto payload, Map<String, String> executionParameters, RequestCoordinates coordinates) {
+      WmsPayloadDto payload,
+      Map<String, String> executionParameters,
+      RequestCoordinates coordinates,
+      String taskCommand) {
     Map<String, String> templateParameters = new LinkedHashMap<>();
     if (payload.getParameters() != null) {
       templateParameters.putAll(payload.getParameters());
@@ -872,10 +959,11 @@ public class TemplateExecutionService {
       templateParameters.putAll(executionParameters);
     }
 
-    String resolvedUri = resolveTemplateUrl(payload.getUri(), templateParameters, coordinates);
+    String uriTemplateSource = selectUriTemplateSource(payload.getUri(), taskCommand);
+    String resolvedUri = resolveTemplateUrl(uriTemplateSource, templateParameters, coordinates);
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(resolvedUri);
 
-    Set<String> uriTemplateParameters = extractUriTemplateParameters(payload.getUri());
+    Set<String> uriTemplateParameters = extractUriTemplateParameters(uriTemplateSource);
     Map<String, String> queryParameters = new LinkedHashMap<>();
     if (payload.getParameters() != null) {
       queryParameters.putAll(payload.getParameters());
@@ -888,6 +976,20 @@ public class TemplateExecutionService {
       queryParameters.forEach(builder::queryParam);
     }
     return builder.build().encode().toUriString();
+  }
+
+  private String selectUriTemplateSource(String payloadUri, String taskCommand) {
+    if (extractUriTemplateParameters(payloadUri).isEmpty()
+        && !extractUriTemplateParameters(taskCommand).isEmpty()) {
+      return taskCommand;
+    }
+    return payloadUri;
+  }
+
+  private String readTaskCommand(Task task) {
+    Map<String, Object> properties = task.getProperties();
+    Object command = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) : null;
+    return command != null ? String.valueOf(command) : null;
   }
 
   private Set<String> extractUriTemplateParameters(String uri) {
