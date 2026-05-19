@@ -19,6 +19,10 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
+import okio.Timeout;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
@@ -28,6 +32,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
+import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
@@ -714,6 +719,365 @@ class TemplateExecutionServiceTest {
         .contains(
             Map.of("field", "items[0].distance", "value", 0),
             Map.of("field", "items[0].id", "value", 705));
+  }
+
+  @Test
+  void executeLinkedTaskReturnsBinaryMetadataForConfiguredPdfApiResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32315)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY,
+                    DomainConstants.Tasks.PROPERTY_MIME_TYPE,
+                    "application/pdf"))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32315);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/report.pdf").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32315)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/report.pdf"), any()))
+        .thenReturn("https://api.example.org/report.pdf");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/report.pdf").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(
+                ResponseBody.create(
+                    "%PDF-1.7 raw binary contents", okhttp3.MediaType.parse("application/pdf")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getResourceUrl()).isEqualTo("https://api.example.org/report.pdf");
+    assertThat(result.getContext())
+        .containsEntry("contentUrl", "https://api.example.org/report.pdf")
+        .containsEntry("url", "https://api.example.org/report.pdf")
+        .containsEntry("mimeType", "application/pdf")
+        .containsEntry("binary", true)
+        .containsEntry("value", "[contenido binario]");
+    assertThat(result.getRows()).contains(Map.of("field", "value", "value", "[contenido binario]"));
+    assertThat(result.getRows()).noneMatch(row -> String.valueOf(row.get("value")).contains("%PDF"));
+    assertThat(result.getContext()).doesNotContainValue("%PDF-1.7 raw binary contents");
+  }
+
+  @Test
+  void executeLinkedTaskReturnsBinaryMetadataForImageApiResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32317)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32317);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/image.jpg").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32317)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/image.jpg"), any()))
+        .thenReturn("https://api.example.org/image.jpg");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/image.jpg").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(
+                ResponseBody.create(
+                    new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff, 0x00, 0x10},
+                    okhttp3.MediaType.parse("image/jpeg")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getResourceUrl()).isEqualTo("https://api.example.org/image.jpg");
+    assertThat(result.getContext())
+        .containsEntry("contentUrl", "https://api.example.org/image.jpg")
+        .containsEntry("url", "https://api.example.org/image.jpg")
+        .containsEntry("mimeType", "image/jpeg")
+        .containsEntry("binary", true)
+        .containsEntry("value", "[contenido binario]");
+    assertThat(result.getRows()).contains(Map.of("field", "value", "value", "[contenido binario]"));
+  }
+
+  @Test
+  void executeLinkedTaskPreservesAlreadyEncodedApiUrlForBinaryImageResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    String imageUrl =
+        "https://raw.githubusercontent.com/sitmun/community/master/logotip%20SITMUN%20JPG/horitzontal/01.principal-horit-normal.jpg";
+    Task task =
+        Task.builder()
+            .id(32317)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32317);
+
+    WmsPayloadDto payload = WmsPayloadDto.builder().uri(imageUrl).method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32317)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq(imageUrl), any())).thenReturn(imageUrl);
+    when(httpClientFactory.executeRequest(any()))
+        .thenAnswer(
+            invocation -> {
+              Request request = invocation.getArgument(0);
+              boolean exactUrl = imageUrl.equals(request.url().toString());
+              return new Response.Builder()
+                  .request(request)
+                  .protocol(Protocol.HTTP_1_1)
+                  .code(exactUrl ? 200 : 404)
+                  .message(exactUrl ? "OK" : "Not Found")
+                  .body(
+                      exactUrl
+                          ? ResponseBody.create(
+                              new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff},
+                              okhttp3.MediaType.parse("image/jpeg"))
+                          : ResponseBody.create("404: Not Found", okhttp3.MediaType.parse("text/plain")))
+                  .build();
+            });
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getResourceUrl()).isEqualTo(imageUrl);
+    assertThat(result.getContext())
+        .containsEntry("contentUrl", imageUrl)
+        .containsEntry("mimeType", "image/jpeg")
+        .containsEntry("binary", true);
+  }
+
+  @Test
+  void executeLinkedTaskTreatsUnknownNonTextMimeFamiliesAsBinaryWithoutReadingBody()
+      throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32318)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32318);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/font.woff2").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32318)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/font.woff2"), any()))
+        .thenReturn("https://api.example.org/font.woff2");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/font.woff2").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(new ThrowingStringResponseBody("font/woff2"))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getContext())
+        .containsEntry("mimeType", "font/woff2")
+        .containsEntry("binary", true)
+        .containsEntry("value", "[contenido binario]");
+    assertThat(result.getRows()).contains(Map.of("field", "value", "value", "[contenido binario]"));
+  }
+
+  @Test
+  void executeLinkedTaskDoesNotExposeDirectUrlForSecuredBinaryApiResponse() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(32319)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(32319);
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder()
+            .uri("https://api.example.org/secure/report.pdf")
+            .method("GET")
+            .security(HttpSecurityDto.builder().username("user").password("secret").build())
+            .build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+
+    when(taskRepository.findById(32319)).thenReturn(Optional.of(task));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(systemVariableResolver.resolve(eq("https://api.example.org/secure/report.pdf"), any()))
+        .thenReturn("https://api.example.org/secure/report.pdf");
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/secure/report.pdf").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body(
+                ResponseBody.create(
+                    new byte[] {0x25, 0x50, 0x44, 0x46}, okhttp3.MediaType.parse("application/pdf")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getResourceUrl()).isNull();
+    assertThat(result.getContext())
+        .containsEntry("mimeType", "application/pdf")
+        .containsEntry("binary", true)
+        .containsEntry("embeddable", false)
+        .containsEntry("value", "[contenido binario]");
+    assertThat(result.getContext()).containsEntry("contentUrl", null).containsEntry("url", null);
+    assertThat(result.getContext()).doesNotContainValue("https://api.example.org/secure/report.pdf");
+  }
+
+  private static final class ThrowingStringResponseBody extends ResponseBody {
+    private final okhttp3.MediaType contentType;
+
+    private ThrowingStringResponseBody(String contentType) {
+      this.contentType = okhttp3.MediaType.parse(contentType);
+    }
+
+    @Override
+    public okhttp3.MediaType contentType() {
+      return contentType;
+    }
+
+    @Override
+    public long contentLength() {
+      return 4;
+    }
+
+    @Override
+    public BufferedSource source() {
+      return Okio.buffer(
+          new Source() {
+            @Override
+            public long read(okio.Buffer sink, long byteCount) {
+              throw new AssertionError("Binary response body must not be read as text");
+            }
+
+            @Override
+            public Timeout timeout() {
+              return Timeout.NONE;
+            }
+
+            @Override
+            public void close() {}
+          });
+    }
   }
 
   @Test

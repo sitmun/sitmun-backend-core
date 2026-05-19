@@ -51,13 +51,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateExecutionService {
 
+  private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
   private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
@@ -718,6 +718,21 @@ public class TemplateExecutionService {
       try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
         okhttp3.ResponseBody responseBody = response.body();
         okhttp3.MediaType contentType = responseBody != null ? responseBody.contentType() : null;
+        String resolvedMimeType = resolveApiResponseMimeType(task, contentType);
+        if (response.isSuccessful() && isBinaryMimeType(resolvedMimeType)) {
+          log.info(
+              "Template API task {} returned HTTP {} binary content-type {} length {}",
+              task.getId(),
+              response.code(),
+              resolvedMimeType,
+              responseBody != null ? responseBody.contentLength() : 0);
+          return buildBinaryApiResponse(
+              task,
+              parameters,
+              payload.getParameters(),
+              hasServerSideHttpSecurity(payload.getSecurity()) ? null : requestUrl,
+              resolvedMimeType);
+        }
         String body = responseBody != null ? responseBody.string() : "";
         log.info(
             "Template API task {} returned HTTP {} content-type {} body length {}",
@@ -878,6 +893,80 @@ public class TemplateExecutionService {
     return context;
   }
 
+  private TemplateTaskExecutionResponseDto buildBinaryApiResponse(
+      Task task,
+      Map<String, String> executionParameters,
+      Map<String, String> configuredParameters,
+      String contentUrl,
+      String mimeType) {
+    Map<String, Object> context = new LinkedHashMap<>();
+    mergeTemplateParameterContext(context, configuredParameters, executionParameters);
+    context.put("contentUrl", contentUrl);
+    context.put("url", contentUrl);
+    context.put("mimeType", mimeType);
+    context.put("binary", true);
+    context.put("embeddable", StringUtils.hasText(contentUrl));
+    if (!StringUtils.hasText(contentUrl)) {
+      context.put("accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
+    }
+    context.put("value", BINARY_VALUE_PLACEHOLDER);
+
+    List<Map<String, Object>> rows = flattenContextToRows(context);
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status("COMPLETED")
+        .resultType("resource")
+        .context(context)
+        .rows(rows)
+        .resourceUrl(contentUrl)
+        .build();
+  }
+
+  private String resolveApiResponseMimeType(Task task, okhttp3.MediaType contentType) {
+    String configuredMimeType = readConfiguredMimeType(task);
+    if (StringUtils.hasText(configuredMimeType)) {
+      return configuredMimeType.trim();
+    }
+    return contentType != null ? contentType.toString() : null;
+  }
+
+  private String readConfiguredMimeType(Task task) {
+    Map<String, Object> properties = task.getProperties();
+    Object mimeType = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE) : null;
+    return mimeType != null ? String.valueOf(mimeType) : null;
+  }
+
+  private boolean isBinaryMimeType(String mimeType) {
+    if (!StringUtils.hasText(mimeType)) {
+      return true;
+    }
+    String normalized = mimeType.toLowerCase().split(";", 2)[0].trim();
+    if (normalized.startsWith("text/")
+        || normalized.equals(MediaType.APPLICATION_JSON_VALUE)
+        || normalized.equals(MediaType.APPLICATION_XML_VALUE)
+        || normalized.equals(MediaType.TEXT_XML_VALUE)
+        || normalized.equals("application/xhtml+xml")
+        || normalized.equals("application/javascript")
+        || normalized.equals("application/x-javascript")
+        || normalized.equals("application/ecmascript")
+        || normalized.equals("application/x-www-form-urlencoded")
+        || normalized.equals("application/csv")
+        || normalized.endsWith("+json")
+        || normalized.endsWith("+xml")) {
+      return false;
+    }
+    return true;
+  }
+
+  private boolean hasServerSideHttpSecurity(HttpSecurityDto security) {
+    if (security == null) {
+      return false;
+    }
+    return (security.getHeaders() != null && !security.getHeaders().isEmpty())
+        || StringUtils.hasText(security.getUsername())
+        || StringUtils.hasText(security.getPassword());
+  }
+
   private void mergeTemplateParameterContext(
       Map<String, Object> context,
       Map<String, String> configuredParameters,
@@ -968,7 +1057,6 @@ public class TemplateExecutionService {
 
     String uriTemplateSource = selectUriTemplateSource(payload.getUri(), taskCommand);
     String resolvedUri = resolveTemplateUrl(uriTemplateSource, templateParameters, coordinates);
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(resolvedUri);
 
     Set<String> uriTemplateParameters = extractUriTemplateParameters(uriTemplateSource);
     Map<String, String> queryParameters = new LinkedHashMap<>();
@@ -979,10 +1067,25 @@ public class TemplateExecutionService {
       executionParameters.forEach(queryParameters::putIfAbsent);
     }
     uriTemplateParameters.forEach(queryParameters::remove);
-    if (!queryParameters.isEmpty()) {
-      queryParameters.forEach(builder::queryParam);
+    return appendEncodedQueryParameters(resolvedUri, queryParameters);
+  }
+
+  private String appendEncodedQueryParameters(String resolvedUri, Map<String, String> queryParameters) {
+    if (queryParameters.isEmpty()) {
+      return resolvedUri;
     }
-    return builder.build().encode().toUriString();
+    StringBuilder url = new StringBuilder(resolvedUri);
+    url.append(resolvedUri.contains("?") ? "&" : "?");
+    List<String> encodedParameters = new ArrayList<>();
+    queryParameters.forEach(
+        (key, value) ->
+            encodedParameters.add(encodeQueryComponent(key) + "=" + encodeQueryComponent(value)));
+    url.append(String.join("&", encodedParameters));
+    return url.toString();
+  }
+
+  private String encodeQueryComponent(String value) {
+    return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8).replace("+", "%20");
   }
 
   private String selectUriTemplateSource(String payloadUri, String taskCommand) {
