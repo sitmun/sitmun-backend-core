@@ -75,6 +75,14 @@ public class Cartography {
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private List<String> layers;
 
+  /**
+   * Read-only string representation of layer identifiers for search purposes. Maps to the same
+   * column as {@link #layers} but without the converter. This allows JPQL queries to search the
+   * comma-separated layer string.
+   */
+  @Column(name = "GEO_LAYERS", length = 800, insertable = false, updatable = false)
+  private String layersSearchString;
+
   /** Minimum scale visibility. */
   @Column(name = "GEO_MINSCALE")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)

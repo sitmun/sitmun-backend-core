@@ -54,6 +54,7 @@ class CartographyRepositoryDataRestTest {
   private Service service;
   private ArrayList<Cartography> cartographies;
   private ArrayList<CartographyAvailability> availabilities;
+  private ArrayList<Service> services;
 
   @BeforeEach
   void init() {
@@ -68,6 +69,8 @@ class CartographyRepositoryDataRestTest {
             .blocked(false)
             .build();
     serviceRepository.save(service);
+    services = new ArrayList<>();
+    services.add(service);
 
     cartographies = new ArrayList<>();
     availabilities = new ArrayList<>();
@@ -106,7 +109,7 @@ class CartographyRepositoryDataRestTest {
   void after() {
     cartographyAvailabilityRepository.deleteAll(availabilities);
     cartographyRepository.deleteAll(cartographies);
-    serviceRepository.delete(service);
+    serviceRepository.deleteAll(services);
     territoryRepository.delete(territory);
   }
 
@@ -237,5 +240,175 @@ class CartographyRepositoryDataRestTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))
         .andExpect(jsonPath("$.applyFilterToSpatialSelection", is(true)));
+  }
+
+  @Test
+  @DisplayName("GET search/content: returns only matching cartographies")
+  @WithMockUser(roles = "ADMIN")
+  void searchContentReturnsOnlyMatchingCartographies() throws Exception {
+    saveCartography("Needle Search Alpha");
+    saveCartography("Unrelated Search Beta");
+
+    mvc.perform(
+            get(CARTOGRAPHIES_URI + "/search/content")
+                .param("q", "Needle Search")
+                .param("projection", "view")
+                .param("page", "0")
+                .param("size", "100")
+                .param("sort", "name,ASC")
+                .param("sort", "id,ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+        .andExpect(jsonPath("$._embedded.cartographies[0].name", is("Needle Search Alpha")));
+  }
+
+  @Test
+  @DisplayName("GET search/content: is case-insensitive")
+  @WithMockUser(roles = "ADMIN")
+  void searchContentIsCaseInsensitive() throws Exception {
+    saveCartography("Case Insensitive Layer");
+
+    mvc.perform(
+            get(CARTOGRAPHIES_URI + "/search/content")
+                .param("q", "cAsE iNsEnSiTiVe")
+                .param("projection", "view")
+                .param("page", "0")
+                .param("size", "100")
+                .param("sort", "name,ASC")
+                .param("sort", "id,ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+        .andExpect(jsonPath("$._embedded.cartographies[0].name", is("Case Insensitive Layer")));
+  }
+
+  @Test
+  @DisplayName("GET search/content: searches service name and preserves projection")
+  @WithMockUser(roles = "ADMIN")
+  void searchContentWorksWithProjectionServiceName() throws Exception {
+    Service searchService = saveService("Unique Search Service");
+    saveCartography("Layer Matched By Service", searchService);
+
+    mvc.perform(
+            get(CARTOGRAPHIES_URI + "/search/content")
+                .param("q", "Unique Search Service")
+                .param("projection", "view")
+                .param("page", "0")
+                .param("size", "100")
+                .param("sort", "name,ASC")
+                .param("sort", "id,ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+        .andExpect(
+            jsonPath("$._embedded.cartographies[0].serviceName", is("Unique Search Service")));
+  }
+
+  @Test
+  @DisplayName("GET search/content: reports filtered page totals")
+  @WithMockUser(roles = "ADMIN")
+  void searchContentReportsFilteredPageTotals() throws Exception {
+    saveCartography("Paged Search One");
+    saveCartography("Paged Search Two");
+    saveCartography("Paged Other");
+
+    mvc.perform(
+            get(CARTOGRAPHIES_URI + "/search/content")
+                .param("q", "Paged Search")
+                .param("projection", "view")
+                .param("page", "0")
+                .param("size", "1")
+                .param("sort", "name,ASC")
+                .param("sort", "id,ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+        .andExpect(jsonPath("$.page.totalElements", is(2)))
+        .andExpect(jsonPath("$.page.totalPages", is(2)));
+  }
+
+  @Test
+  @DisplayName("GET search/content: duplicate-name paging is deterministic with id tie-breaker")
+  @WithMockUser(roles = "ADMIN")
+  void searchContentSortsDeterministicallyWithIdTieBreaker() throws Exception {
+    saveCartography("Duplicate Search");
+    saveCartography("Duplicate Search");
+
+    String firstFetch =
+        mvc.perform(
+                get(CARTOGRAPHIES_URI + "/search/content")
+                    .param("q", "Duplicate Search")
+                    .param("projection", "view")
+                    .param("page", "0")
+                    .param("size", "1")
+                    .param("sort", "name,ASC")
+                    .param("sort", "id,ASC"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+            .andExpect(jsonPath("$.page.totalElements", is(2)))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    mvc.perform(
+            get(CARTOGRAPHIES_URI + "/search/content")
+                .param("q", "Duplicate Search")
+                .param("projection", "view")
+                .param("page", "1")
+                .param("size", "1")
+                .param("sort", "name,ASC")
+                .param("sort", "id,ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+        .andExpect(jsonPath("$.page.number", is(1)));
+
+    String secondFetch =
+        mvc.perform(
+                get(CARTOGRAPHIES_URI + "/search/content")
+                    .param("q", "Duplicate Search")
+                    .param("projection", "view")
+                    .param("page", "0")
+                    .param("size", "1")
+                    .param("sort", "name,ASC")
+                    .param("sort", "id,ASC"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    assertThat(secondFetch, is(firstFetch));
+  }
+
+  @SuppressWarnings("UnusedReturnValue")
+  private Cartography saveCartography(String name) {
+    return saveCartography(name, service);
+  }
+
+  private Cartography saveCartography(String name, Service cartographyService) {
+    Cartography saved =
+        cartographyRepository.save(
+            Cartography.builder()
+                .type("I")
+                .name(name)
+                .layers(List.of("Layer1", "Layer2"))
+                .queryableFeatureAvailable(false)
+                .queryableFeatureEnabled(false)
+                .service(cartographyService)
+                .availabilities(Collections.emptySet())
+                .blocked(false)
+                .build());
+    cartographies.add(saved);
+    return saved;
+  }
+
+  private Service saveService(@SuppressWarnings("SameParameterValue") String name) {
+    Service saved =
+        serviceRepository.save(
+            Service.builder()
+                .name(name)
+                .serviceURL("http://localhost/api/services/" + name.replace(" ", "-"))
+                .type("service-type")
+                .blocked(false)
+                .build());
+    services.add(saved);
+    return saved;
   }
 }
