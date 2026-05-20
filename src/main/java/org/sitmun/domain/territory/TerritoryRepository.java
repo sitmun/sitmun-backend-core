@@ -5,12 +5,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @Tag(name = "territory")
 @RepositoryRestResource(collectionResourceRel = "territories", path = "territories")
 public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
+
+  @RestResource(path = "content", rel = "content")
+  @Query(
+      """
+      select territory
+      from Territory territory
+      where lower(territory.name) like lower(concat('%', :q, '%'))
+      or lower(territory.code) like lower(concat('%', :q, '%'))
+      """)
+  Page<Territory> findByContent(@Param("q") String q, Pageable pageable);
 
   @RestResource(exported = false)
   @Query(
