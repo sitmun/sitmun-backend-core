@@ -229,6 +229,406 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  void renderMoreInfoAdvancedResolvesTemplateParametersAndNestedChildParametersFromMappings() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(systemVariableResolver.resolve(eq("https://example.org/layers/{innerParam}"), any()))
+        .thenReturn("https://example.org/layers/{innerParam}");
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            systemVariableResolver,
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                "parentLayout",
+                "scroll",
+                "childTaskOrderIds",
+                List.of(401),
+                "childTaskParameters",
+                Map.of("401", Map.of("title", "titleAttr")),
+                "templateChildTaskParameters",
+                Map.of("401", Map.of("402", Map.of("innerParam", "layerid")))));
+
+    Task templateTask =
+        Task.builder()
+            .id(401)
+            .name("Plantilla")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task urlTask =
+        Task.builder()
+            .id(402)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.org/layers/{innerParam}"))
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(401)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(401))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_url")
+                    .relatedTask(urlTask)
+                    .build()));
+    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"), any(), eq(401)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_url");
+              return TemplatePreviewResponseDto.builder()
+                  .html("<h1>" + context.get("$title") + "</h1><a>" + childContext.get("url") + "</a>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("titleAttr", "Layer title", "layerid", "roads"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("<h1>Layer title</h1>")
+        .contains("https://example.org/layers/roads");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsTemplateDefaultValueWhenNoDirectMappingExists() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(701)));
+
+    Task templateTask =
+        Task.builder()
+            .id(701)
+            .name("Plantilla")
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<h1>{{$title}}</h1>",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(701)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), eq(701)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              return TemplatePreviewResponseDto.builder()
+                  .html("<h1>" + context.get("$title") + "</h1>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("Default title", "Wrong feature value"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml()).contains("<h1>Default title</h1>");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedPrefersExplicitMappingOverTemplateDefaultValue() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                "parentLayout",
+                "scroll",
+                "childTaskOrderIds",
+                List.of(702),
+                "childTaskParameters",
+                Map.of("702", Map.of("title", "featureTitle"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(702)
+            .name("Plantilla")
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<h1>{{$title}}</h1>",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(702)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), eq(702)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              return TemplatePreviewResponseDto.builder()
+                  .html("<h1>" + context.get("$title") + "</h1>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("featureTitle", "Mapped title", "Default title", "Wrong feature value"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("<h1>Mapped title</h1>")
+        .doesNotContain("Wrong feature value");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedAcceptsNumericTemplateChildTaskParameterKeys() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
+        .thenReturn("https://example.org/items/{innerParam}");
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            systemVariableResolver,
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                "parentLayout",
+                "scroll",
+                "childTaskOrderIds",
+                List.of(501),
+                "templateChildTaskParameters",
+                Map.of(501, Map.of(502, Map.of("innerParam", "featureCode")))));
+
+    Task templateTask =
+        Task.builder()
+            .id(501)
+            .name("Plantilla")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task urlTask =
+        Task.builder()
+            .id(502)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.org/items/{innerParam}"))
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(501)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(501))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_url")
+                    .relatedTask(urlTask)
+                    .build()));
+    when(templateRenderService.renderPreview(eq("<a>{{consulta_url.url}}</a>"), any(), eq(501)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_url");
+              return TemplatePreviewResponseDto.builder()
+                  .html("<a>" + childContext.get("url") + "</a>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("featureCode", "abc"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks().get(0).getHtml()).contains("https://example.org/items/abc");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsExplicitInnerChildMappingOverNestedMapping() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
+        .thenReturn("https://example.org/items/{innerParam}");
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            systemVariableResolver,
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":601,\"name\":\"Plantilla\",\"order\":0,\"childType\":\"template\","
+                            + "\"childTaskParameters\":{\"602\":{\"innerParam\":\"explicitAttr\"}},"
+                            + "\"templateChildTaskParameters\":{\"602\":{\"innerParam\":\"nestedAttr\"}}}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(601)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task urlTask =
+        Task.builder()
+            .id(602)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.org/items/{innerParam}"))
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(601)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(601))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_url")
+                    .relatedTask(urlTask)
+                    .build()));
+    when(templateRenderService.renderPreview(eq("<a>{{consulta_url.url}}</a>"), any(), eq(601)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_url");
+              return TemplatePreviewResponseDto.builder()
+                  .html("<a>" + childContext.get("url") + "</a>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of("explicitAttr", "explicit-value", "nestedAttr", "nested-value"));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("https://example.org/items/explicit-value")
+        .doesNotContain("nested-value");
+  }
+
+  @Test
   void renderMoreInfoAdvancedResolvesUrlParametersInsideRecursiveNestedTemplate() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
@@ -344,6 +744,321 @@ class TemplateExecutionServiceTest {
     assertThat(result.getTasks()).hasSize(1);
     assertThat(result.getTasks().get(0).getHtml())
         .contains("https://www.google.com/search?q=Mitjana");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsTemplateHtmlWhenLinkedApiChildFails() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(systemVariableResolver.resolve(eq("https://api.example.org/items"), any()))
+        .thenReturn("https://api.example.org/items");
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            systemVariableResolver,
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":401,\"name\":\"Plantilla 1\",\"order\":0,\"childType\":\"template\"}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(401)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{consulta_api.html}} {{consulta_api.value}}</article>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task apiTask =
+        Task.builder()
+            .id(402)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://api.example.org/items"))
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(401)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(401))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_api")
+                    .relatedTask(apiTask)
+                    .build()));
+    WmsPayloadDto payload = WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/items").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(500)
+            .message("Internal Server Error")
+            .body(
+                ResponseBody.create(
+                    "{\"error\":\"upstream failed\"}", okhttp3.MediaType.parse("application/json")))
+            .build();
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+    when(templateRenderService.renderPreview(eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"), any(), eq(401)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_api");
+              return TemplatePreviewResponseDto.builder()
+                  .html("<article>" + childContext.get("html") + " " + childContext.get("value") + "</article>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of());
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("sitmun-template-child-error")
+        .contains("API task returned HTTP 500")
+        .contains("[error: API task returned HTTP 500]")
+        .doesNotContain("Error ejecutando tarea: Plantilla 1");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsTemplateHtmlWhenLinkedChildHasBadRequestFailure() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":451,\"name\":\"Plantilla BAD_REQUEST\",\"order\":0,\"childType\":\"template\"}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(451)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{bad_child.html}} {{bad_child.value}}</article>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task unsupportedTask =
+        Task.builder()
+            .id(452)
+            .name("<img src=x onerror=alert(1)>")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, "unsupported<script>"))
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(451)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(451))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("bad_child")
+                    .relatedTask(unsupportedTask)
+                    .build()));
+    when(templateRenderService.renderPreview(eq("<article>{{bad_child.html}} {{bad_child.value}}</article>"), any(), eq(451)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("bad_child");
+              return TemplatePreviewResponseDto.builder()
+                  .html("<article>" + childContext.get("html") + " " + childContext.get("value") + "</article>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of());
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("sitmun-template-child-error")
+        .contains("&lt;img src=x onerror=alert(1)&gt;")
+        .contains("Unsupported linked task scope: unsupported&lt;script&gt;")
+        .contains("[error: Unsupported linked task scope: unsupported&lt;script&gt;]")
+        .doesNotContain("<img src=x onerror=alert(1)>")
+        .doesNotContain("unsupported<script>")
+        .doesNotContain("Error ejecutando tarea: Plantilla BAD_REQUEST");
+  }
+
+  @Test
+  void executeLinkedTaskPropagatesTemplateLinkedChildFailures() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task templateTask =
+        Task.builder()
+            .id(461)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{bad_child.html}}</article>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task unsupportedTask =
+        Task.builder()
+            .id(462)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, "unsupported-scope"))
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(461);
+
+    when(taskRepository.findById(461)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(461))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("bad_child")
+                    .relatedTask(unsupportedTask)
+                    .build()));
+
+    assertThatThrownBy(() -> service.executeLinkedTask(requestDto))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(responseStatusException.getReason())
+                  .isEqualTo("Unsupported linked task scope: unsupported-scope");
+            });
+  }
+
+  @Test
+  void renderMoreInfoAdvancedPropagatesParentTemplateRenderBadRequest() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":471,\"name\":\"Plantilla invalida\",\"order\":0,\"childType\":\"template\"}]"))));
+    Task templateTask =
+        Task.builder()
+            .id(471)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{#if broken}}"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(471)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(471)).thenReturn(List.of());
+    when(templateRenderService.renderPreview(eq("{{#if broken}}"), any(), eq(471)))
+        .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid template syntax"));
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of());
+
+    assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(responseStatusException.getReason()).isEqualTo("Invalid template syntax");
+            });
   }
 
   @Test
@@ -1160,6 +1875,105 @@ class TemplateExecutionServiceTest {
 
     assertThat(result.getResultType()).isEqualTo("template");
     assertThat(result.getContext()).containsEntry("html", "<div><p>https://example.com/abc</p></div>");
+  }
+
+  @Test
+  void executeLinkedTaskUsesConfiguredTemplateParameterDefaultWhenExecutionValueMissing() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task templateTask =
+        Task.builder()
+            .id(801)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<h1>{{$title}}</h1>",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(801);
+
+    when(taskRepository.findById(801)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), eq(801)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              return TemplatePreviewResponseDto.builder()
+                  .html("<h1>" + context.get("$title") + "</h1>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getContext()).containsEntry("html", "<h1>Default title</h1>");
+  }
+
+  @Test
+  void executeLinkedTaskPrefersExecutionTemplateParameterOverConfiguredDefault() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task templateTask =
+        Task.builder()
+            .id(802)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<h1>{{$title}}</h1>",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(802);
+    requestDto.setParameters(Map.of("title", "Mapped title"));
+
+    when(taskRepository.findById(802)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), eq(802)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              return TemplatePreviewResponseDto.builder()
+                  .html("<h1>" + context.get("$title") + "</h1>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getContext()).containsEntry("html", "<h1>Mapped title</h1>");
   }
 
   @Test
