@@ -2,7 +2,10 @@ package org.sitmun.domain.role;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -34,4 +37,13 @@ public interface RoleRepository
       """)
   List<Role> findRolesByApplicationAndUserAndTerritory(
       String username, Integer appId, Integer territoryId);
+
+  @RestResource(path = "content", rel = "content")
+  @Query(
+      """
+      select role
+      from Role role
+      where lower(role.name) like lower(concat('%', :q, '%'))
+      """)
+  Page<Role> findByContent(@Param("q") String q, Pageable pageable);
 }
