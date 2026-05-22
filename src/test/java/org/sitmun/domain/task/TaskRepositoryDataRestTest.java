@@ -206,7 +206,8 @@ class TaskRepositoryDataRestTest extends BaseTest {
   @DisplayName("GET: This endpoint is enabled for ROLE_ADMIN")
   void getTasksAsSitmunAdmin() throws Exception {
     // Full task projection includes this class's @BeforeEach fixtures (+2) atop seeded tasks (40).
-    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW))
+    // Explicit size=100 to fetch all in one page (default page size is now 10)
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&size=100"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.tasks", hasSize(42)));
   }
@@ -250,5 +251,58 @@ class TaskRepositoryDataRestTest extends BaseTest {
     mvc.perform(get(URIConstants.TASK_ROLE_URI, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.roles", hasSize(1)));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("GET: Tasks can be sorted by name ascending")
+  void getTasksSortedByNameAsc() throws Exception {
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&sort=name,ASC&size=100"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(42)))
+        .andExpect(jsonPath("$._embedded.tasks[0].name", lessThanOrEqualTo("ZZZ")))
+        .andExpect(jsonPath("$._embedded.tasks[41].name", greaterThanOrEqualTo("AAA")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("GET: Tasks can be sorted by name descending")
+  void getTasksSortedByNameDesc() throws Exception {
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&sort=name,DESC&size=100"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(42)))
+        .andExpect(jsonPath("$._embedded.tasks[0].name", greaterThanOrEqualTo("AAA")))
+        .andExpect(jsonPath("$._embedded.tasks[41].name", lessThanOrEqualTo("ZZZ")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("GET: Sort order is deterministic across pages")
+  void getTasksSortedDeterministicallyAcrossPages() throws Exception {
+    // First page of 10
+    String firstPageFirstItem =
+        mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&sort=name,ASC&size=10&page=0"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.tasks", hasSize(10)))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    // Verify consistent ordering by fetching the second page
+    mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&sort=name,ASC&size=10&page=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.tasks", hasSize(10)))
+        .andExpect(jsonPath("$.page.number", is(1)));
+
+    // Second fetch of first page should be identical
+    String firstPageSecondFetch =
+        mvc.perform(get(URIConstants.TASKS_URI_PROJECTION_VIEW + "&sort=name,ASC&size=10&page=0"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.tasks", hasSize(10)))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    Assertions.assertThat(firstPageFirstItem).isEqualTo(firstPageSecondFetch);
   }
 }

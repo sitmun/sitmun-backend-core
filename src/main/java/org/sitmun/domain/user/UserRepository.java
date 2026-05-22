@@ -2,6 +2,8 @@ package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,4 +42,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
   @RestResource(exported = false)
   @Query("SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:email)")
   Optional<User> findByEmail(@Param("email") String email);
+
+  @RestResource(path = "content", rel = "content")
+  @Query(
+      """
+      select user
+      from User user
+      where lower(user.username) like lower(concat('%', :q, '%'))
+      or lower(user.firstName) like lower(concat('%', :q, '%'))
+      or lower(user.lastName) like lower(concat('%', :q, '%'))
+      """)
+  Page<User> findByContent(@Param("q") String q, Pageable pageable);
 }
