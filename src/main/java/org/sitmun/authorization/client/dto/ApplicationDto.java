@@ -34,6 +34,12 @@ public class ApplicationDto {
   private Integer defaultZoomLevel;
   private PointOfInterestDto pointOfInterest;
   private Double[] initialExtent;
+  private String territoryCode;
+  private String territoryName;
+  private String territoryDescription;
+  private String territorialAuthorityName;
+  private String territorialAuthorityAddress;
+  private String territoryTypeName;
 
   public void setInitialExtentFromEnvelope(Envelope initialExtent) {
     setInitialExtent(
