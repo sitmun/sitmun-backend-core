@@ -15,6 +15,8 @@ public class UserEventHandler {
   private static final String BUILT_IN_ADMIN_USERNAME = "admin";
   private static final String BUILT_IN_PUBLIC_USERNAME = "public";
 
+  static final String PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty";
+
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
@@ -53,10 +55,9 @@ public class UserEventHandler {
   public void handleUserCreate(@NotNull User user) {
     if (user.getPassword() != null) {
       if (user.getPassword().isEmpty()) {
-        user.setPassword(null);
-      } else {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        throw new IllegalArgumentException(PASSWORD_CANNOT_BE_EMPTY);
       }
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
   }
 
@@ -114,11 +115,11 @@ public class UserEventHandler {
       }
     }
 
-    // Handle password encoding
+    // Handle password encoding (empty password cannot be assigned; null keeps the stored hash)
     if (user.getPassword() == null) {
       user.setPassword(user.getStoredPassword());
     } else if (user.getPassword().isEmpty()) {
-      user.setPassword(null);
+      throw new IllegalArgumentException(PASSWORD_CANNOT_BE_EMPTY);
     } else {
       user.setPassword(passwordEncoder.encode(user.getPassword()));
     }

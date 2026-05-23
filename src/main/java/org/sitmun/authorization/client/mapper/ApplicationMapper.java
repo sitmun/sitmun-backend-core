@@ -15,6 +15,6 @@ public interface ApplicationMapper {
     if (user == null) {
       return null;
     }
-    return user.getUsername();
+    return user.getEmail();
   }
 }

@@ -57,6 +57,7 @@ import org.springframework.web.filter.CorsFilter;
  */
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class WebSecurityConfigurer {
 
   private final SecurityEntryPoint unauthorizedHandler;

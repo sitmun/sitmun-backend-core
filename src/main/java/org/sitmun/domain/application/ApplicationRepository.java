@@ -17,6 +17,9 @@ import org.springframework.data.rest.core.annotation.RestResource;
     path = "applications" /*, excerptProjection = ApplicationProjection.class*/)
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
+  /** Applications where the given user is the point of contact (creator). */
+  List<Application> findByCreatorId(Integer creatorId);
+
   @RestResource(path = "content", rel = "content")
   @Query(
       """

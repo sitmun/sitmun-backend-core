@@ -108,14 +108,16 @@ class ClientConfigurationApplicationControllerTest {
   void readMaxPageSizeCap() throws Exception {
     // Request size exactly at cap should succeed
     mvc.perform(
-            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + pageSize).with(user("internal")))
+            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + pageSize)
+                .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.page.size", is(pageSize)))
         .andExpect(jsonPath("$.content", hasSize(5)));
 
     // Request size exceeding cap should be capped to max
     mvc.perform(
-            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + (pageSize + 1)).with(user("internal")))
+            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + (pageSize + 1))
+                .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.page.size", is(pageSize)))
         .andExpect(jsonPath("$.content", hasSize(5)));

@@ -53,6 +53,23 @@ class UserRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("POST: rejects empty password")
+  @WithMockUser(roles = "ADMIN")
+  void rejectEmptyPasswordOnCreate() throws Exception {
+    mvc.perform(
+            post(URIConstants.USER_URI)
+                .content(
+                    """
+                    {
+                    "username":"user-empty-pwd",
+                    "administrator":false,
+                    "blocked":false,
+                    "password":""
+                    }"""))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   @DisplayName("POST: rejects an invalid email")
   @WithMockUser(roles = "ADMIN")
   void invalidEmail() throws Exception {
