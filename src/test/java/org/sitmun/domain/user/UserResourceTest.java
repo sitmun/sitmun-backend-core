@@ -275,9 +275,7 @@ class UserResourceTest {
         "blocked": false
         }""";
 
-    mockMvc
-        .perform(put(uri).content(withEmptyPassword))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(put(uri).content(withEmptyPassword)).andExpect(status().isBadRequest());
 
     mockMvc
         .perform(get(uri))

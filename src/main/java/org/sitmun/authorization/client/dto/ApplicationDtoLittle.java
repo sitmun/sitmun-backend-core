@@ -21,4 +21,7 @@ public class ApplicationDtoLittle {
   private String creator;
   private Map<String, Object> headerParams;
   private Map<String, String> config;
+
+  /** External portal URL; populated only when type is external and jspTemplate is set. */
+  private String externalUrl;
 }

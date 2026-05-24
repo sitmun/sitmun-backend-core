@@ -26,9 +26,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * (creation, modification, expiration dates) - Type classification - Relationships with User and
  * Territory entities
  *
- * <p>The position is identified by its primary key. A user may hold multiple positions in the
- * same territory. When either the user or territory is deleted, the position is automatically
- * removed (cascade delete).
+ * <p>The position is identified by its primary key. A user may hold multiple positions in the same
+ * territory. When either the user or territory is deleted, the position is automatically removed
+ * (cascade delete).
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)

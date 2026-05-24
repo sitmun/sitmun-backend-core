@@ -182,7 +182,8 @@ class UserPositionRepositoryDataRestTest {
                 .content(positionJson))
         .andExpect(status().isCreated());
 
-    Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory)).hasSize(2);
+    Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory))
+        .hasSize(2);
   }
 
   @Test

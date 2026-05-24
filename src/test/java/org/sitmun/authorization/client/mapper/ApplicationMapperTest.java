@@ -2,39 +2,49 @@ package org.sitmun.authorization.client.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.sitmun.domain.user.User;
+import org.sitmun.authorization.client.dto.ApplicationDtoLittle;
+import org.sitmun.domain.application.Application;
 
 @DisplayName("ApplicationMapper")
 class ApplicationMapperTest {
 
-  private ApplicationMapper mapper;
+  private static final String IDEE_URL = "https://www.idee.es";
 
-  @BeforeEach
-  void setUp() {
-    mapper = Mappers.getMapper(ApplicationMapper.class);
+  private final ApplicationMapper mapper = Mappers.getMapper(ApplicationMapper.class);
+
+  @Test
+  @DisplayName("maps externalUrl for type E with jspTemplate")
+  void mapsExternalUrlForExternalApp() {
+    Application app =
+        Application.builder().id(1).name("IDEE").type("E").jspTemplate(IDEE_URL).build();
+
+    ApplicationDtoLittle dto = mapper.map(app);
+
+    assertThat(dto.getExternalUrl()).isEqualTo(IDEE_URL);
   }
 
   @Test
-  @DisplayName("map(User): returns user email when email is set")
-  void mapUserWithEmailReturnsEmail() {
-    User user = User.builder().username("admin").email("admin@example.com").build();
-    assertThat(mapper.map(user)).isEqualTo("admin@example.com");
+  @DisplayName("does not map externalUrl for type I")
+  void doesNotMapExternalUrlForInternalApp() {
+    Application app =
+        Application.builder().id(1).name("Internal").type("I").jspTemplate("legacy.jsp").build();
+
+    ApplicationDtoLittle dto = mapper.map(app);
+
+    assertThat(dto.getExternalUrl()).isNull();
   }
 
   @Test
-  @DisplayName("map(User): returns null when email is null")
-  void mapUserWithNullEmailReturnsNull() {
-    User user = User.builder().username("admin").email(null).build();
-    assertThat(mapper.map(user)).isNull();
-  }
+  @DisplayName("does not map externalUrl for type E with blank jspTemplate")
+  void doesNotMapExternalUrlWhenTemplateBlank() {
+    Application app =
+        Application.builder().id(1).name("External").type("E").jspTemplate(" ").build();
 
-  @Test
-  @DisplayName("map(User): returns null when user is null")
-  void mapNullUserReturnsNull() {
-    assertThat(mapper.map((User) null)).isNull();
+    ApplicationDtoLittle dto = mapper.map(app);
+
+    assertThat(dto.getExternalUrl()).isNull();
   }
 }
