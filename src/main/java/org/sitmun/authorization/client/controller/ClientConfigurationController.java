@@ -177,6 +177,109 @@ public class ClientConfigurationController {
   }
 
   /**
+   * Get dashboard applications enriched with territory counts.
+   *
+   * @param context the security context
+   * @param pageable the pagination information
+   * @return a page of dashboard applications with territory counts
+   */
+  @GetMapping(path = "/dashboard/applications", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
+  public PagedModel<DashboardApplicationDto> getDashboardApplications(
+      @CurrentSecurityContext SecurityContext context, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    pageable = ensureSortBy(pageable, "title");
+    Page<Application> page =
+        authorizationService.findDashboardApplicationsByUser(username, pageable);
+
+    List<Application> apps = page.getContent();
+    Map<Integer, Integer> territoryCounts =
+        authorizationService.getTerritoryCountsByApplications(apps, username);
+
+    List<DashboardApplicationDto> dashboardApps =
+        apps.stream()
+            .map(
+                app -> {
+                  DashboardApplicationDto dto =
+                      Mappers.getMapper(
+                              org.sitmun.authorization.client.mapper.DashboardMapper.class)
+                          .mapToDashboard(app);
+                  Integer count = territoryCounts.getOrDefault(app.getId(), 0);
+                  dto.setTerritoryCount(count);
+                  dto.setHasTerritories(count > 0);
+                  if (count == 1) {
+                    // Find the single territory ID
+                    Page<Territory> terrs =
+                        authorizationService.findTerritoriesByUserAndApplication(
+                            username, app.getId(), Pageable.unpaged());
+                    if (!terrs.isEmpty()) {
+                      dto.setSingleTerritoryId(terrs.getContent().get(0).getId());
+                    }
+                  }
+                  return dto;
+                })
+            .toList();
+
+    return new PagedModel<>(
+        new PageImpl<>(dashboardApps, page.getPageable(), page.getTotalElements()));
+  }
+
+  /**
+   * Get dashboard suggestions (applications and territories) for search.
+   *
+   * @param context the security context
+   * @param keywords search keywords
+   * @return dashboard suggestions
+   */
+  @GetMapping(path = "/dashboard/suggestions", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
+  public DashboardSuggestionDto getDashboardSuggestions(
+      @CurrentSecurityContext SecurityContext context,
+      @RequestParam(required = false, defaultValue = "") String keywords) {
+    String username = context.getAuthentication().getName();
+    Map<String, List<?>> suggestions =
+        authorizationService.findDashboardSuggestions(username, keywords, 10);
+
+    DashboardSuggestionDto result = new DashboardSuggestionDto();
+
+    @SuppressWarnings("unchecked")
+    List<Application> apps = (List<Application>) suggestions.get("applications");
+    List<DashboardSuggestionDto.ApplicationSuggestion> appSuggestions =
+        apps.stream()
+            .map(
+                app -> {
+                  DashboardSuggestionDto.ApplicationSuggestion s =
+                      new DashboardSuggestionDto.ApplicationSuggestion();
+                  s.setId(app.getId());
+                  s.setName(app.getName());
+                  s.setTitle(app.getTitle());
+                  s.setLogo(app.getLogo());
+                  s.setAppPrivate(app.getAppPrivate());
+                  return s;
+                })
+            .toList();
+
+    @SuppressWarnings("unchecked")
+    List<Territory> terrs = (List<Territory>) suggestions.get("territories");
+    List<DashboardSuggestionDto.TerritorySuggestion> terrSuggestions =
+        terrs.stream()
+            .map(
+                terr -> {
+                  DashboardSuggestionDto.TerritorySuggestion s =
+                      new DashboardSuggestionDto.TerritorySuggestion();
+                  s.setId(terr.getId());
+                  s.setName(terr.getName());
+                  s.setTerritorialAuthorityLogo(terr.getTerritorialAuthorityLogo());
+                  return s;
+                })
+            .toList();
+
+    result.setApplications(appSuggestions);
+    result.setTerritories(terrSuggestions);
+    return result;
+  }
+
+  /**
    * Get the profile for a specific application and territory.
    *
    * @param context the security context

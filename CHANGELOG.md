@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Paginated `GET /api/config/client/dashboard/applications` and search suggestions for viewer dashboard.
+- `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`; `ClientConfigurationDashboardControllerTest`.
 - **Security**: `GET /api/account/{id}` now restricted to the account owner or `ROLE_ADMIN`; unauthorized access returns HTTP 403.
 - **Security**: `GET /api/account/all` restricted to `ROLE_ADMIN` only (`@PreAuthorize("hasRole('ADMIN')")`).
 - **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`); the security context is cleared and the request continues unauthenticated.
