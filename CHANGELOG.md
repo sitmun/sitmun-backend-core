@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Application contact**: `ApplicationMapper` now maps `ApplicationDto.creator` from `user.getEmail()` (null-safe) instead of `user.getUsername()`.
 - **Tests**: `UserControllerTest` for account API authorization guards; `UserBuiltInStartupValidatorTest` for startup invariants; `JsonWebTokenFilterTest` for blocked-user JWT rejection; `ApplicationMapperTest` for creator-email mapping; extended `UserPositionRepositoryDataRestTest` for multiple positions per territory.
 - **Test / seed data**: built-in `admin` and `public` user position fixtures moved from user IDs 1/2 to normal users in `STM_POST.csv`; `STM_USER.csv` updated accordingly.
+- **Territory computed view**: `Territory.getComputedView()` method combines extent and center point to create an optimal initial map view. When both extent and a valid center point exist, returns an envelope centered on the point of interest that is large enough to include the full territorial extent. Handles legacy data by returning extent as-is when center is null, (0,0), or has null coordinates. `ProfileMapper.copyInitialExtentFromTerritory()` now uses `getComputedView()` instead of raw extent for client profile `ApplicationDto.initialExtent`.
+- **Tests**: `TerritoryRepositoryTest` comprehensive coverage for `getComputedView()` edge cases (null extent, null center, legacy (0,0), centered point, offset point).
 
 ### Changed
 
