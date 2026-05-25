@@ -148,6 +148,57 @@ public class Territory {
   @Convert(converter = PointToStringConverter.class)
   private Point center;
 
+  /**
+   * Computes the initial map view by combining the territory extent and center point.
+   *
+   * <p>This computed property is used internally by the backend to set the application's initial
+   * extent in the client profile. The algorithm adjusts the extent to ensure the center point
+   * (pointOfInterest) appears in the middle of the view while keeping the full territorial extent
+   * visible.
+   *
+   * <p>Logic:
+   *
+   * <ul>
+   *   <li>If center is null, returns the extent as-is
+   *   <li>If extent is null, returns null
+   *   <li>If center coordinates are null or (0, 0) from legacy data, returns extent as-is
+   *   <li>If both exist and center is valid, returns an envelope centered on the point of interest
+   *       that is large enough to include the original extent
+   * </ul>
+   *
+   * @return The computed view envelope, or null if extent is not defined
+   */
+  public Envelope getComputedView() {
+    if (extent == null) {
+      return null;
+    }
+
+    // Legacy data might have (0, 0) instead of null
+    if (center == null
+        || center.getX() == null
+        || center.getY() == null
+        || (Double.compare(center.getX(), 0.0) == 0 && Double.compare(center.getY(), 0.0) == 0)) {
+      return extent;
+    }
+
+    // Calculate distances from center to each edge of the extent
+    double distanceToMinX = Math.abs(center.getX() - extent.getMinX());
+    double distanceToMaxX = Math.abs(center.getX() - extent.getMaxX());
+    double distanceToMinY = Math.abs(center.getY() - extent.getMinY());
+    double distanceToMaxY = Math.abs(center.getY() - extent.getMaxY());
+
+    // Use the maximum distances to create a centered view that includes the full extent
+    double halfWidth = Math.max(distanceToMinX, distanceToMaxX);
+    double halfHeight = Math.max(distanceToMinY, distanceToMaxY);
+
+    return Envelope.builder()
+        .minX(center.getX() - halfWidth)
+        .maxX(center.getX() + halfWidth)
+        .minY(center.getY() - halfHeight)
+        .maxY(center.getY() + halfHeight)
+        .build();
+  }
+
   /** Default zoom level. */
   @Column(name = "TER_ZOOM")
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)

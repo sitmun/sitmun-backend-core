@@ -293,7 +293,8 @@ public abstract class ProfileMapper {
 
   final void copyInitialExtentFromTerritory(ApplicationDto applicationDto, Profile profile) {
     Integer selectedTerritory = profile.getTerritory().getId();
-    Envelope defaultEnvelope = profile.getTerritory().getExtent();
+    // Use computedView which combines extent and center point for optimal map initialization
+    Envelope defaultEnvelope = profile.getTerritory().getComputedView();
     applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
     profile.getApplication().getTerritories().stream()
         .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
