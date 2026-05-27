@@ -101,10 +101,10 @@ class ProjectionsTest {
   @DisplayName("GET: Retrieve user position projection with territory and user information")
   @WithMockUser(roles = "ADMIN")
   void userPositionProjectionView() throws Exception {
-    mvc.perform(get(USER_POSITION_PROJECTION_VIEW, 6))
+    mvc.perform(get(USER_POSITION_PROJECTION_VIEW, 648))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.territoryName").value("Provincia A"))
-        .andExpect(jsonPath("$.userId").value(1));
+        .andExpect(jsonPath("$.userId").value(4));
   }
 
   @Test

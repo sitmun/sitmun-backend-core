@@ -6,7 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.2.6] - 2026-05-08
+### Added
+
+- Paginated `GET /api/config/client/dashboard/applications` and search suggestions for viewer dashboard.
+- `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`; `ClientConfigurationDashboardControllerTest`.
+- **Security**: `GET /api/account/{id}` now restricted to the account owner or `ROLE_ADMIN`; unauthorized access returns HTTP 403.
+- **Security**: `GET /api/account/all` restricted to `ROLE_ADMIN` only (`@PreAuthorize("hasRole('ADMIN')")`).
+- **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`); the security context is cleared and the request continues unauthenticated.
+- **Validation**: `UserDTO` `@Size(max = 50)` on `firstName`, `lastName`, and `email` aligned with DB column length (`PersistenceConstants.IDENTIFIER`).
+- **Invariants (write)**: `UserEventHandler` now also protects built-in `public` from blocking (removed — blocking `public` is intentionally allowed as of this release; username change and administrator promotion remain guarded).
+- **Invariants (startup)**: `UserBuiltInStartupValidator` (`ApplicationRunner`) validates built-in user state on startup. Admin: must exist, `administrator=true`, `blocked=false`, password set, no `UserPosition` rows. Public: must exist, `administrator=false`, no password, no PII fields, no `UserPosition` rows (`blocked` may be true).
+- **Application contact**: `ApplicationMapper` now maps `ApplicationDto.creator` from `user.getEmail()` (null-safe) instead of `user.getUsername()`.
+- **Tests**: `UserControllerTest` for account API authorization guards; `UserBuiltInStartupValidatorTest` for startup invariants; `JsonWebTokenFilterTest` for blocked-user JWT rejection; `ApplicationMapperTest` for creator-email mapping; extended `UserPositionRepositoryDataRestTest` for multiple positions per territory.
+- **Test / seed data**: built-in `admin` and `public` user position fixtures moved from user IDs 1/2 to normal users in `STM_POST.csv`; `STM_USER.csv` updated accordingly.
+- **Territory computed view**: `Territory.getComputedView()` method combines extent and center point to create an optimal initial map view. When both extent and a valid center point exist, returns an envelope centered on the point of interest that is large enough to include the full territorial extent. Handles legacy data by returning extent as-is when center is null, (0,0), or has null coordinates. `ProfileMapper.copyInitialExtentFromTerritory()` now uses `getComputedView()` instead of raw extent for client profile `ApplicationDto.initialExtent`.
+- **Tests**: `TerritoryRepositoryTest` comprehensive coverage for `getComputedView()` edge cases (null extent, null center, legacy (0,0), centered point, offset point).
+
+### Changed
+
+- **User positions**: multiple `UserPosition` rows per `(user, territory)` are allowed; JPA unique constraint removed and schema changelogs no longer create `(POS_USERID, POS_TERID)` unique keys.
+- **User warnings**: `entity.user.warning.position-without-details` is raised only when a position row is missing `name` or `organization` (email and type no longer required for the admin warning).
+- **User warnings**: `entity.user.warning.no-password` when a non-built-in user has no password (`public` and `admin` excluded).
+- **User password**: `UserEventHandler` rejects create/update requests that assign an empty password; clearing a password via `""` is no longer allowed (`null` on update still preserves the stored hash).
 
 ### Added
 

@@ -35,6 +35,7 @@ class ApplicationDtoLittleTest {
     dto.setCreator("Test Creator");
     dto.setHeaderParams(testHeaderParams);
     dto.setConfig(testConfig);
+    dto.setExternalUrl("https://www.idee.es");
 
     // Then
     assertThat(dto.getId()).isEqualTo(1);
@@ -49,6 +50,7 @@ class ApplicationDtoLittleTest {
     assertThat(dto.getCreator()).isEqualTo("Test Creator");
     assertThat(dto.getHeaderParams()).isEqualTo(testHeaderParams);
     assertThat(dto.getConfig()).isEqualTo(testConfig);
+    assertThat(dto.getExternalUrl()).isEqualTo("https://www.idee.es");
   }
 
   @Test

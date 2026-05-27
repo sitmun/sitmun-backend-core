@@ -104,6 +104,26 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
+  /** Handles {@link IllegalArgumentException} - invalid argument passed to an operation. */
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ProblemDetail> handleIllegalArgumentException(
+      IllegalArgumentException exception, HttpServletRequest request) {
+    logger.info("Illegal argument: " + exception.getMessage(), exception);
+
+    ProblemDetail problem =
+        ProblemDetail.builder()
+            .type(ProblemTypes.BAD_REQUEST)
+            .status(HttpStatus.BAD_REQUEST.value())
+            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .detail(exception.getMessage())
+            .instance(request.getRequestURI())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
+  }
+
   /**
    * Handles generic {@link RequirementException} - fallback for requirement violations without
    * specific problem types.

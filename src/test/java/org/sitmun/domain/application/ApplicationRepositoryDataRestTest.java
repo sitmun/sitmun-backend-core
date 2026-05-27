@@ -179,6 +179,15 @@ class ApplicationRepositoryDataRestTest {
     applicationRepository.deleteById(appId);
   }
 
+  @Test
+  @DisplayName("GET search: find applications by creator user id")
+  @WithMockUser(roles = "ADMIN")
+  void findByCreatorIdSearch() throws Exception {
+    mvc.perform(get(APPLICATIONS_URI + "/search/findByCreatorId?creatorId=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.applications").isArray());
+  }
+
   @AfterEach
   @WithMockUser(roles = "ADMIN")
   void cleanup() throws Exception {

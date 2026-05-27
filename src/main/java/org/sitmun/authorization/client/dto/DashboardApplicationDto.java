@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ApplicationDtoLittle {
+public class DashboardApplicationDto {
   private int id;
   private String name;
   private String title;
@@ -21,7 +21,10 @@ public class ApplicationDtoLittle {
   private String creator;
   private Map<String, Object> headerParams;
   private Map<String, String> config;
-
-  /** External portal URL; populated only when type is external and jspTemplate is set. */
   private String externalUrl;
+
+  // Dashboard-specific enrichment fields
+  private Integer territoryCount;
+  private Integer singleTerritoryId;
+  private Boolean hasTerritories;
 }

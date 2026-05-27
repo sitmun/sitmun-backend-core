@@ -59,7 +59,8 @@ public interface TaskRepository
       where lower(task.name) like lower(concat('%', :q, '%'))
       and (:typeId is null or task.type.id = :typeId)
       """)
-  Page<Task> findByContent(@Param("q") String q, @Param("typeId") Integer typeId, Pageable pageable);
+  Page<Task> findByContent(
+      @Param("q") String q, @Param("typeId") Integer typeId, Pageable pageable);
 
   @Override
   default void customize(QuerydslBindings querydslBindings, QTask root) {

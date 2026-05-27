@@ -103,6 +103,163 @@ class TerritoryRepositoryTest {
     assertThat(territories.getTotalElements()).isEqualTo(3);
   }
 
+  @Test
+  @DisplayName("ComputedView returns null when extent is null")
+  void computedViewReturnsNullWhenExtentIsNull() {
+    Territory territoryWithoutExtent =
+        Territory.builder().name("Test").code("TEST").blocked(false).build();
+
+    assertThat(territoryWithoutExtent.getComputedView()).isNull();
+  }
+
+  @Test
+  @DisplayName("ComputedView returns extent when center is null")
+  void computedViewReturnsExtentWhenCenterIsNull() {
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =
+        org.sitmun.infrastructure.persistence.type.envelope.Envelope.builder()
+            .minX(100.0)
+            .maxX(200.0)
+            .minY(50.0)
+            .maxY(150.0)
+            .build();
+
+    Territory territoryWithoutCenter =
+        Territory.builder().name("Test").code("TEST").blocked(false).extent(extent).build();
+
+    assertThat(territoryWithoutCenter.getComputedView()).isEqualTo(extent);
+  }
+
+  @Test
+  @DisplayName("ComputedView returns extent when center coordinates are null")
+  void computedViewReturnsExtentWhenCenterCoordinatesAreNull() {
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =
+        org.sitmun.infrastructure.persistence.type.envelope.Envelope.builder()
+            .minX(100.0)
+            .maxX(200.0)
+            .minY(50.0)
+            .maxY(150.0)
+            .build();
+
+    org.sitmun.infrastructure.persistence.type.point.Point incompleteCenter =
+        org.sitmun.infrastructure.persistence.type.point.Point.builder().x(150.0).build();
+
+    Territory territoryWithIncompleteCenter =
+        Territory.builder()
+            .name("Test")
+            .code("TEST")
+            .blocked(false)
+            .extent(extent)
+            .center(incompleteCenter)
+            .build();
+
+    assertThat(territoryWithIncompleteCenter.getComputedView()).isEqualTo(extent);
+  }
+
+  @Test
+  @DisplayName("ComputedView returns extent when center is (0, 0) from legacy data")
+  void computedViewReturnsExtentWhenCenterIsZeroZero() {
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =
+        org.sitmun.infrastructure.persistence.type.envelope.Envelope.builder()
+            .minX(100.0)
+            .maxX(200.0)
+            .minY(50.0)
+            .maxY(150.0)
+            .build();
+
+    org.sitmun.infrastructure.persistence.type.point.Point legacyCenter =
+        org.sitmun.infrastructure.persistence.type.point.Point.builder().x(0.0).y(0.0).build();
+
+    Territory territoryWithLegacyCenter =
+        Territory.builder()
+            .name("Test")
+            .code("TEST")
+            .blocked(false)
+            .extent(extent)
+            .center(legacyCenter)
+            .build();
+
+    assertThat(territoryWithLegacyCenter.getComputedView()).isEqualTo(extent);
+  }
+
+  @Test
+  @DisplayName("ComputedView centers on point of interest when center is at extent center")
+  void computedViewCentersOnPointWhenCenterIsAtExtentCenter() {
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =
+        org.sitmun.infrastructure.persistence.type.envelope.Envelope.builder()
+            .minX(100.0)
+            .maxX(200.0)
+            .minY(50.0)
+            .maxY(150.0)
+            .build();
+
+    // Center point is exactly in the middle of the extent
+    org.sitmun.infrastructure.persistence.type.point.Point center =
+        org.sitmun.infrastructure.persistence.type.point.Point.builder().x(150.0).y(100.0).build();
+
+    Territory territoryWithCenteredPoint =
+        Territory.builder()
+            .name("Test")
+            .code("TEST")
+            .blocked(false)
+            .extent(extent)
+            .center(center)
+            .build();
+
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope computedView =
+        territoryWithCenteredPoint.getComputedView();
+
+    assertThat(computedView).isNotNull();
+    // When center is at the middle, computed view should equal the original extent
+    assertThat(computedView.getMinX()).isEqualTo(100.0);
+    assertThat(computedView.getMaxX()).isEqualTo(200.0);
+    assertThat(computedView.getMinY()).isEqualTo(50.0);
+    assertThat(computedView.getMaxY()).isEqualTo(150.0);
+  }
+
+  @Test
+  @DisplayName("ComputedView expands to keep center in middle when point is offset")
+  void computedViewExpandsWhenCenterIsOffset() {
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =
+        org.sitmun.infrastructure.persistence.type.envelope.Envelope.builder()
+            .minX(100.0)
+            .maxX(200.0)
+            .minY(50.0)
+            .maxY(150.0)
+            .build();
+
+    // Center point is offset to the left and down from the extent center
+    org.sitmun.infrastructure.persistence.type.point.Point center =
+        org.sitmun.infrastructure.persistence.type.point.Point.builder()
+            .x(120.0) // Closer to minX than maxX
+            .y(70.0) // Closer to minY than maxY
+            .build();
+
+    Territory territoryWithOffsetPoint =
+        Territory.builder()
+            .name("Test")
+            .code("TEST")
+            .blocked(false)
+            .extent(extent)
+            .center(center)
+            .build();
+
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope computedView =
+        territoryWithOffsetPoint.getComputedView();
+
+    assertThat(computedView).isNotNull();
+    // Center should be at the middle of the computed view
+    double computedCenterX = (computedView.getMinX() + computedView.getMaxX()) / 2;
+    double computedCenterY = (computedView.getMinY() + computedView.getMaxY()) / 2;
+    assertThat(computedCenterX).isEqualTo(120.0);
+    assertThat(computedCenterY).isEqualTo(70.0);
+
+    // Original extent should be fully contained in computed view
+    assertThat(computedView.getMinX()).isLessThanOrEqualTo(100.0);
+    assertThat(computedView.getMaxX()).isGreaterThanOrEqualTo(200.0);
+    assertThat(computedView.getMinY()).isLessThanOrEqualTo(50.0);
+    assertThat(computedView.getMaxY()).isGreaterThanOrEqualTo(150.0);
+  }
+
   @TestConfiguration
   @Import(I18nTestConfiguration.class)
   static class Configuration {}

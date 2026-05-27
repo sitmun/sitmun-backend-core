@@ -43,6 +43,7 @@ import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -197,6 +198,89 @@ public class AuthorizationService {
               username, appId, territoryId);
     }
     return application;
+  }
+
+  /**
+   * Get dashboard applications enriched with territory counts for the current user.
+   *
+   * @param username the username
+   * @param pageable the pagination information
+   * @return page of dashboard applications with territory counts
+   */
+  public Page<Application> findDashboardApplicationsByUser(String username, Pageable pageable) {
+    return findApplicationsByUser(username, pageable);
+  }
+
+  /**
+   * Enrich applications with territory count information in bulk.
+   *
+   * @param applications the applications to enrich
+   * @param username the current user
+   * @return map of application ID to territory count
+   */
+  public Map<Integer, Integer> getTerritoryCountsByApplications(
+      List<Application> applications, String username) {
+    Map<Integer, Integer> counts = new java.util.HashMap<>();
+    for (Application app : applications) {
+      Pageable unpaged = Pageable.unpaged();
+      Page<Territory> territories =
+          findTerritoriesByUserAndApplication(username, app.getId(), unpaged);
+      counts.put(app.getId(), (int) territories.getTotalElements());
+    }
+    return counts;
+  }
+
+  /**
+   * Find dashboard suggestions (applications and territories) matching keywords.
+   *
+   * @param username the username
+   * @param keywords search keywords
+   * @param maxResults maximum results per category
+   * @return map with "applications" and "territories" lists
+   */
+  public Map<String, List<?>> findDashboardSuggestions(
+      String username, String keywords, int maxResults) {
+    Map<String, List<?>> result = new java.util.HashMap<>();
+
+    if (keywords == null || keywords.trim().length() < 2) {
+      result.put("applications", List.of());
+      result.put("territories", List.of());
+      return result;
+    }
+
+    String normalizedKeywords = keywords.trim().toLowerCase();
+
+    // Find matching applications
+    Pageable appPageable = PageRequest.of(0, maxResults);
+    Page<Application> apps = findApplicationsByUser(username, appPageable);
+    List<Application> filteredApps =
+        apps.getContent().stream()
+            .filter(
+                app -> {
+                  String title = (app.getTitle() != null ? app.getTitle() : app.getName());
+                  String description = app.getDescription();
+                  return (title != null && title.toLowerCase().contains(normalizedKeywords))
+                      || (description != null
+                          && description.toLowerCase().contains(normalizedKeywords));
+                })
+            .limit(maxResults)
+            .toList();
+
+    // Find matching territories
+    Pageable terrPageable = PageRequest.of(0, maxResults);
+    Page<Territory> terrs = findTerritoriesByUser(username, terrPageable);
+    List<Territory> filteredTerrs =
+        terrs.getContent().stream()
+            .filter(
+                terr ->
+                    terr.getName() != null
+                        && terr.getName().toLowerCase().contains(normalizedKeywords))
+            .limit(maxResults)
+            .toList();
+
+    result.put("applications", filteredApps);
+    result.put("territories", filteredTerrs);
+    return result;
   }
 
   @Transactional(readOnly = true)

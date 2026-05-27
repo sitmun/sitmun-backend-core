@@ -57,6 +57,12 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
           && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+        if (!userDetails.isAccountNonLocked()) {
+          SecurityContextHolder.clearContext();
+          filterChain.doFilter(httpServletRequest, httpServletResponse);
+          return;
+        }
+
         Optional<User> user = this.userRepository.findByUsername(username);
         if (user.isEmpty()) {
           filterChain.doFilter(httpServletRequest, httpServletResponse);

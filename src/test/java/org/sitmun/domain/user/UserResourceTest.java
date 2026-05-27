@@ -201,9 +201,9 @@ class UserResourceTest {
   }
 
   @Test
-  @DisplayName("POST: Clear password to an existing user")
+  @DisplayName("PUT: Reject empty password on an existing user")
   @WithMockUser(roles = "ADMIN")
-  void clearPassword() throws Exception {
+  void rejectEmptyPasswordOnUpdate() throws Exception {
     String content =
         """
         {
@@ -275,11 +275,12 @@ class UserResourceTest {
         "blocked": false
         }""";
 
+    mockMvc.perform(put(uri).content(withEmptyPassword)).andExpect(status().isBadRequest());
+
     mockMvc
-        .perform(put(uri).content(withEmptyPassword))
+        .perform(get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.passwordSet").value(false));
+        .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withNonEmptyPassword =
         """
