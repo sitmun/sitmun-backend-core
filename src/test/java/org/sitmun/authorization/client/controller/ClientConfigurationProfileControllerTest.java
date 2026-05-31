@@ -320,6 +320,29 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Profile tree excludes inactive leaf nodes")
+  void treeExcludesInactiveLeaf() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/12']").doesNotExist())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]", not(hasItem("node/12"))));
+  }
+
+  @Test
+  @DisplayName("GET: Profile tree excludes inactive folder and its descendants")
+  void treeExcludesInactiveFolderSubtree() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/13']").doesNotExist())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/14']").doesNotExist())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/1'].children[*]", not(hasItem("node/13"))));
+  }
+
+  @Test
   @DisplayName("GET: Profile tree excludes nodes referencing blocked cartographies")
   void treeExcludesNodesWithBlockedCartographies() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
