@@ -217,6 +217,42 @@ class TerritoryRepositoryTest {
   }
 
   @Test
+  @DisplayName("Seed territory 1: computedView adjusts minY by 1 due to center offset")
+  void territory1ComputedView() {
+    Territory territory = territoryRepository.findById(1).orElseThrow();
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope view = territory.getComputedView();
+    assertThat(view).isNotNull();
+    assertThat(view.getMinX()).isEqualTo(363487.0);
+    assertThat(view.getMinY()).isEqualTo(4561228.0);
+    assertThat(view.getMaxX()).isEqualTo(481617.0);
+    assertThat(view.getMaxY()).isEqualTo(4686464.0);
+  }
+
+  @Test
+  @DisplayName("Seed territory 2: computedView adjusts maxY by 1 due to center offset")
+  void territory2ComputedView() {
+    Territory territory = territoryRepository.findById(2).orElseThrow();
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope view = territory.getComputedView();
+    assertThat(view).isNotNull();
+    assertThat(view.getMinX()).isEqualTo(448046.0);
+    assertThat(view.getMinY()).isEqualTo(4603029.0);
+    assertThat(view.getMaxX()).isEqualTo(458244.0);
+    assertThat(view.getMaxY()).isEqualTo(4609235.0);
+  }
+
+  @Test
+  @DisplayName("Seed territory 3: computedView equals raw extent when center is absent")
+  void territory3ComputedView() {
+    Territory territory = territoryRepository.findById(3).orElseThrow();
+    org.sitmun.infrastructure.persistence.type.envelope.Envelope view = territory.getComputedView();
+    assertThat(view).isNotNull();
+    assertThat(view.getMinX()).isEqualTo(430250.0);
+    assertThat(view.getMinY()).isEqualTo(4612070.0);
+    assertThat(view.getMaxX()).isEqualTo(469609.0);
+    assertThat(view.getMaxY()).isEqualTo(4638298.0);
+  }
+
+  @Test
   @DisplayName("ComputedView expands to keep center in middle when point is offset")
   void computedViewExpandsWhenCenterIsOffset() {
     org.sitmun.infrastructure.persistence.type.envelope.Envelope extent =

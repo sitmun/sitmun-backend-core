@@ -25,6 +25,7 @@ import org.sitmun.infrastructure.persistence.type.boundingbox.BoundingBox;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
+import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeUtils;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.point.Point;
@@ -169,34 +170,7 @@ public class Territory {
    * @return The computed view envelope, or null if extent is not defined
    */
   public Envelope getComputedView() {
-    if (extent == null) {
-      return null;
-    }
-
-    // Legacy data might have (0, 0) instead of null
-    if (center == null
-        || center.getX() == null
-        || center.getY() == null
-        || (Double.compare(center.getX(), 0.0) == 0 && Double.compare(center.getY(), 0.0) == 0)) {
-      return extent;
-    }
-
-    // Calculate distances from center to each edge of the extent
-    double distanceToMinX = Math.abs(center.getX() - extent.getMinX());
-    double distanceToMaxX = Math.abs(center.getX() - extent.getMaxX());
-    double distanceToMinY = Math.abs(center.getY() - extent.getMinY());
-    double distanceToMaxY = Math.abs(center.getY() - extent.getMaxY());
-
-    // Use the maximum distances to create a centered view that includes the full extent
-    double halfWidth = Math.max(distanceToMinX, distanceToMaxX);
-    double halfHeight = Math.max(distanceToMinY, distanceToMaxY);
-
-    return Envelope.builder()
-        .minX(center.getX() - halfWidth)
-        .maxX(center.getX() + halfWidth)
-        .minY(center.getY() - halfHeight)
-        .maxY(center.getY() + halfHeight)
-        .build();
+    return EnvelopeUtils.computeCenteredView(extent, center);
   }
 
   /** Default zoom level. */

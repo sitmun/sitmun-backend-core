@@ -26,7 +26,6 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
-import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -293,9 +292,7 @@ public abstract class ProfileMapper {
 
   final void copyInitialExtentFromTerritory(ApplicationDto applicationDto, Profile profile) {
     Integer selectedTerritory = profile.getTerritory().getId();
-    // Use computedView which combines extent and center point for optimal map initialization
-    Envelope defaultEnvelope = profile.getTerritory().getComputedView();
-    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
+    applicationDto.setInitialExtentFromEnvelope(profile.getTerritory().getComputedView());
     profile.getApplication().getTerritories().stream()
         .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
         .findFirst()

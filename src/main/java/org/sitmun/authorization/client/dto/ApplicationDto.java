@@ -35,7 +35,14 @@ public class ApplicationDto {
   private PointOfInterestDto pointOfInterest;
   private Double[] initialExtent;
 
+  /**
+   * Sets {@link #initialExtent} from an envelope, or clears it when {@code initialExtent} is null.
+   */
   public void setInitialExtentFromEnvelope(Envelope initialExtent) {
+    if (initialExtent == null) {
+      setInitialExtent(null);
+      return;
+    }
     setInitialExtent(
         new Double[] {
           initialExtent.getMinX(),

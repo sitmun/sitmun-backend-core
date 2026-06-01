@@ -33,7 +33,7 @@ class ClientConfigurationProfileControllerTest {
   private String proxyUrl;
 
   @Test
-  @DisplayName("GET: Get application details")
+  @DisplayName("GET: initialExtent computed from territory 1 extent + center")
   void applicationDetails() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
@@ -43,9 +43,10 @@ class ClientConfigurationProfileControllerTest {
                 "$.application.logo",
                 is("https://sitmun.org/Documents/Imatges/8480img1320220524090127.jpg")))
         .andExpect(jsonPath("$.application.srs", is("EPSG:25831")))
-        .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(363487.0, 4561229.0, 481617.0, 4686464.0)));
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(363487.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4561228.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(481617.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4686464.0));
   }
 
   @Test
@@ -57,23 +58,25 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Get application extent from territory")
+  @DisplayName("GET: initialExtent computed from territory 2 extent + center")
   void applicationExtentFromTerritory() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 2))
         .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(448046.0, 4603029.0, 458244.0, 4609234.0)));
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(448046.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4603029.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(458244.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4609235.0));
   }
 
   @Test
-  @DisplayName("GET: Get application extent from the link between territory and application")
+  @DisplayName("GET: initialExtent from app-territory override (territory 3, no center)")
   void applicationExtentFromLinkToTerritory() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 3))
         .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(430250.0, 4612070.0, 469609.0, 4638298.5)));
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(430250.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4612070.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(469609.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4638298.5));
   }
 
   @Test
