@@ -168,8 +168,8 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Update account and clear the password")
-  void updateAccountButClearThePassword() throws Exception {
+  @DisplayName("POST: Reject empty password on account update")
+  void rejectEmptyPasswordOnAccountUpdate() throws Exception {
     String content =
         "{"
             + "\"username\":\"user\","
@@ -184,12 +184,10 @@ class UserControllerTest {
                 .cookie(new Cookie(ACCESS_TOKEN, validToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.password").doesNotExist());
+        .andExpect(status().isBadRequest());
 
-    assertNotNull(user.getPassword());
-    Optional<User> updatedUser = userRepository.findById(user.getId());
-    assertTrue(updatedUser.isPresent());
-    assertNull(updatedUser.get().getPassword());
+    Optional<User> unchangedUser = userRepository.findById(user.getId());
+    assertTrue(unchangedUser.isPresent());
+    assertNotNull(unchangedUser.get().getPassword());
   }
 }
