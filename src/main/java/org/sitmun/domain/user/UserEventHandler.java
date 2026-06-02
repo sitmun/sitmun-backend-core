@@ -62,18 +62,18 @@ public class UserEventHandler {
   }
 
   /**
-   * If the password is null, this method keeps the last value if exists, if the password is empty,
-   * this method clears it, and otherwise the password is encoded. Also enforces built-in admin user
-   * invariants.
+   * Handles password update logic. If the password is null, this method keeps the stored password.
+   * If the password is empty, this method rejects it with an exception. Otherwise the password is
+   * encoded. Also enforces built-in admin and public user invariants.
    *
-   * @param user the new user after being loaded from database and updated with PUT data
+   * @param user the user entity after being loaded from database and updated with request data
    */
   @HandleBeforeSave
   public void handleUserUpdate(@NotNull User user) {
     // Protect built-in admin user invariants
     if (user.getId() != null) {
       User originalUser = userRepository.findById(user.getId()).orElse(null);
-      if (originalUser != null && isBuiltInAdmin(originalUser)) {
+      if (isBuiltInAdmin(originalUser)) {
         // Prevent username change
         if (!BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
           throw new IllegalArgumentException("Cannot change username of built-in admin user");
@@ -89,7 +89,7 @@ public class UserEventHandler {
         }
       }
       // Protect built-in public user invariants
-      if (originalUser != null && isBuiltInPublic(originalUser)) {
+      if (isBuiltInPublic(originalUser)) {
         // Prevent username change
         if (!BUILT_IN_PUBLIC_USERNAME.equals(user.getUsername())) {
           throw new IllegalArgumentException("Cannot change username of built-in public user");
@@ -115,7 +115,6 @@ public class UserEventHandler {
       }
     }
 
-    // Handle password encoding (empty password cannot be assigned; null keeps the stored hash)
     if (user.getPassword() == null) {
       user.setPassword(user.getStoredPassword());
     } else if (user.getPassword().isEmpty()) {

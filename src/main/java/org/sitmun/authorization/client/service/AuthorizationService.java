@@ -521,6 +521,9 @@ public class AuthorizationService {
     Map<Tree, List<TreeNode>> treeNodes = new LinkedHashMap<>();
     profile.getTreeNodes().forEach((tree, nodes) -> treeNodes.put(tree, List.copyOf(nodes)));
 
+    treeNodes.replaceAll(
+        (tree, nodes) -> TreeNodeVisibilityPolicy.filterVisibleInClientProfile(nodes));
+
     if (profile.getContext().getNodeSectionBehaviour().nodePageMode()) {
 
       Integer pivotNode = profile.getContext().getNodeId();

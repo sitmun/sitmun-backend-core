@@ -33,7 +33,7 @@ class ClientConfigurationProfileControllerTest {
   private String proxyUrl;
 
   @Test
-  @DisplayName("GET: Get application details")
+  @DisplayName("GET: initialExtent computed from territory 1 extent + center")
   void applicationDetails() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
@@ -43,9 +43,36 @@ class ClientConfigurationProfileControllerTest {
                 "$.application.logo",
                 is("https://sitmun.org/Documents/Imatges/8480img1320220524090127.jpg")))
         .andExpect(jsonPath("$.application.srs", is("EPSG:25831")))
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(363487.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4561228.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(481617.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4686464.0));
+  }
+
+  @Test
+  @DisplayName("GET: application exposes territory metadata from profile territory")
+  void applicationExposesTerritoryMetadata() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.application.territoryCode", is("60001")))
+        .andExpect(jsonPath("$.application.territoryName", is("Provincia A")))
+        .andExpect(jsonPath("$.application.territorialAuthorityName", is("Provincia A")));
+  }
+
+  @Test
+  @DisplayName(
+      "GET: locator task exposes raw parameters, SQL scope from linked query, and locator proxy URL")
+  void locatorTaskInProfile() throws Exception {
+    String expectedUrl = proxyUrl + "/proxy/1/1/SQL/41";
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].scope", hasItem(SCOPE_SQL)))
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].url", hasItem(expectedUrl)))
         .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(363487.0, 4561229.0, 481617.0, 4686464.0)));
+            jsonPath("$.tasks[?(@.id=='task/41')].parameters.resultsPath", hasItem("/features")))
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].parameters.labelField", hasItem("name")))
+        .andExpect(
+            jsonPath("$.tasks[?(@.id=='task/41')].parameters.resultsPath.type").doesNotExist());
   }
 
   @Test
@@ -57,23 +84,25 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Get application extent from territory")
+  @DisplayName("GET: initialExtent computed from territory 2 extent + center")
   void applicationExtentFromTerritory() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 2))
         .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(448046.0, 4603029.0, 458244.0, 4609234.0)));
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(448046.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4603029.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(458244.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4609235.0));
   }
 
   @Test
-  @DisplayName("GET: Get application extent from the link between territory and application")
+  @DisplayName("GET: initialExtent from app-territory override (territory 3, no center)")
   void applicationExtentFromLinkToTerritory() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 3))
         .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$.application.initialExtent", hasItems(430250.0, 4612070.0, 469609.0, 4638298.5)));
+        .andExpect(jsonPath("$.application.initialExtent[0]").value(430250.0))
+        .andExpect(jsonPath("$.application.initialExtent[1]").value(4612070.0))
+        .andExpect(jsonPath("$.application.initialExtent[2]").value(469609.0))
+        .andExpect(jsonPath("$.application.initialExtent[3]").value(4638298.5));
   }
 
   @Test
@@ -317,6 +346,29 @@ class ClientConfigurationProfileControllerTest {
         .andExpect(
             jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")))
         .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].loadData", hasItem(false)));
+  }
+
+  @Test
+  @DisplayName("GET: Profile tree excludes inactive leaf nodes")
+  void treeExcludesInactiveLeaf() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/12']").doesNotExist())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]", not(hasItem("node/12"))));
+  }
+
+  @Test
+  @DisplayName("GET: Profile tree excludes inactive folder and its descendants")
+  void treeExcludesInactiveFolderSubtree() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/13']").doesNotExist())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/14']").doesNotExist())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/1'].children[*]", not(hasItem("node/13"))));
   }
 
   @Test

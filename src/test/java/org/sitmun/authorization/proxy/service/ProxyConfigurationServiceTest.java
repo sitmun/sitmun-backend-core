@@ -13,6 +13,7 @@ import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PASSWORD;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_QUERY_PARAMS;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_USER;
 import static org.sitmun.domain.DomainConstants.Tasks.RELATION_TYPE_QUERY_TASK;
+import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_LOCATOR;
 import static org.sitmun.domain.DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO;
 
 import java.util.*;
@@ -465,6 +466,58 @@ class ProxyConfigurationServiceTest {
     JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
     assertEquals("jdbc:oracle:thin:@localhost:1521:orcl", payload.getUri());
     assertEquals("SELECT * FROM users WHERE id = ${userId}", payload.getSql());
+  }
+
+  @Test
+  @DisplayName("getConfiguration resolves linked query task for SQL locator tasks")
+  void getConfigurationResolvesLinkedQueryTaskForSqlLocatorTasks() {
+    Map<String, Object> queryTaskProperties = new HashMap<>();
+    queryTaskProperties.put(PROPERTY_COMMAND, "SELECT * FROM events WHERE id = ${eventId}");
+
+    DatabaseConnection mockConnection = mock(DatabaseConnection.class);
+    when(mockConnection.getUrl()).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
+    when(mockConnection.getUser()).thenReturn("dbuser");
+    when(mockConnection.getPassword()).thenReturn("dbpass");
+    when(mockConnection.getDriver()).thenReturn("oracle.jdbc.driver.OracleDriver");
+
+    Task relatedQueryTask = mock(Task.class);
+    when(relatedQueryTask.getProperties()).thenReturn(queryTaskProperties);
+    when(relatedQueryTask.getConnection()).thenReturn(mockConnection);
+
+    TaskRelation relation =
+        TaskRelation.builder()
+            .relationType(RELATION_TYPE_QUERY_TASK)
+            .relatedTask(relatedQueryTask)
+            .build();
+
+    Task locatorTask = mock(Task.class);
+    TaskType locatorType = mock(TaskType.class);
+    lenient().when(locatorType.getId()).thenReturn(TASK_TYPE_ID_LOCATOR);
+    lenient().when(locatorTask.getType()).thenReturn(locatorType);
+    lenient().when(locatorTask.getRelations()).thenReturn(Set.of(relation));
+
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type(TYPE_SQL)
+            .typeId(99)
+            .method("GET")
+            .parameters(new HashMap<>())
+            .build();
+
+    when(taskRepository.findById(99)).thenReturn(Optional.of(locatorTask));
+    when(moreInfoTaskResolver.resolveOrSelf(locatorTask)).thenReturn(relatedQueryTask);
+
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinatesFor(request));
+
+    assertNotNull(result);
+    assertEquals(TYPE_SQL, result.getType());
+    assertInstanceOf(JdbcPayloadDto.class, result.getPayload());
+
+    JdbcPayloadDto payload = (JdbcPayloadDto) result.getPayload();
+    assertEquals("jdbc:oracle:thin:@localhost:1521:orcl", payload.getUri());
+    assertEquals("SELECT * FROM events WHERE id = ${eventId}", payload.getSql());
   }
 
   @Test
