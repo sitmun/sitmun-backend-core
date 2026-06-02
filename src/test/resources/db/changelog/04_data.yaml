@@ -776,7 +776,29 @@ databaseChangeLog:
                   name: TAS_PARAMS
                   type: STRING
         - sql:
-            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 41);
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAS_ID', 42);
+        - loadData:
+            encoding: UTF-8
+            file: 04_data/STM_TASKREL.csv
+            relativeToChangelogFile: true
+            tableName: STM_TASKREL
+            usePreparedStatements: true
+            quotchar: "\""
+            columns:
+              - column:
+                  name: TAR_ID
+                  type: NUMERIC
+              - column:
+                  name: TAR_TYPE
+                  type: STRING
+              - column:
+                  name: TAR_TASKID
+                  type: NUMERIC
+              - column:
+                  name: TAR_TASKRELID
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('TAR_ID', 2);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_ROL_TSK.csv

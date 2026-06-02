@@ -21,9 +21,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Test / seed data**: built-in `admin` and `public` user position fixtures moved from user IDs 1/2 to normal users in `STM_POST.csv`; `STM_USER.csv` updated accordingly.
 - **Territory computed view**: `Territory.getComputedView()` method combines extent and center point to create an optimal initial map view. When both extent and a valid center point exist, returns an envelope centered on the point of interest that is large enough to include the full territorial extent. Handles legacy data by returning extent as-is when center is null, (0,0), or has null coordinates. `ProfileMapper.copyInitialExtentFromTerritory()` now uses `getComputedView()` instead of raw extent for client profile `ApplicationDto.initialExtent`.
 - **Tests**: `TerritoryRepositoryTest` comprehensive coverage for `getComputedView()` edge cases (null extent, null center, legacy (0,0), centered point, offset point).
+- **Client profile — locator tasks**: `TaskLocatorService` maps task type id 4 (locator) to viewer `TaskDto` with flat string parameters (`resultsPath`, `labelField`, etc.) and proxy URLs keyed by the locator task id while execution scope comes from the linked query task.
+- **Client profile — territory metadata**: `ApplicationDto` exposes `territoryCode`, `territoryName`, `territoryDescription`, `territorialAuthorityName`, `territorialAuthorityAddress`, and `territoryTypeName` from the profile territory.
+- **Tests**: `TaskLocatorServiceTest`, locator cases in `MoreInfoTaskResolverTest` and `ProxyConfigurationServiceTest`; profile integration for locator task 41 and territory AppCfg fields; test seed type 4 in `STM_TSK_TYP.csv` and locator `query-task` fixture.
 
 ### Changed
 
+- **MoreInfoTaskResolver**: `resolveOrSelf` delegates locator tasks to linked `query-task` relations (same as more-info tasks).
 - **User positions**: multiple `UserPosition` rows per `(user, territory)` are allowed; JPA unique constraint removed and schema changelogs no longer create `(POS_USERID, POS_TERID)` unique keys.
 - **User warnings**: `entity.user.warning.position-without-details` is raised only when a position row is missing `name` or `organization` (email and type no longer required for the admin warning).
 - **User warnings**: `entity.user.warning.no-password` when a non-built-in user has no password (`public` and `admin` excluded).

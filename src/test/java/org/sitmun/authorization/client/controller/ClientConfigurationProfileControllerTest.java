@@ -50,6 +50,32 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: application exposes territory metadata from profile territory")
+  void applicationExposesTerritoryMetadata() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.application.territoryCode", is("60001")))
+        .andExpect(jsonPath("$.application.territoryName", is("Provincia A")))
+        .andExpect(jsonPath("$.application.territorialAuthorityName", is("Provincia A")));
+  }
+
+  @Test
+  @DisplayName(
+      "GET: locator task exposes raw parameters, SQL scope from linked query, and locator proxy URL")
+  void locatorTaskInProfile() throws Exception {
+    String expectedUrl = proxyUrl + "/proxy/1/1/SQL/41";
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].scope", hasItem(SCOPE_SQL)))
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].url", hasItem(expectedUrl)))
+        .andExpect(
+            jsonPath("$.tasks[?(@.id=='task/41')].parameters.resultsPath", hasItem("/features")))
+        .andExpect(jsonPath("$.tasks[?(@.id=='task/41')].parameters.labelField", hasItem("name")))
+        .andExpect(
+            jsonPath("$.tasks[?(@.id=='task/41')].parameters.resultsPath.type").doesNotExist());
+  }
+
+  @Test
   @DisplayName("GET: Territory SRS overrides SRS application")
   void territorySrsOverridesSrsApplication() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 2))
