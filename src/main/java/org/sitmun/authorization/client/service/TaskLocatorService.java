@@ -23,8 +23,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * Service for handling locator tasks in SITMUN. Maps locator tasks to DTOs and manages their
- * parameters. A locator task delegates its execution to a linked query task via a {@code
- * query-task} relation.
+ * parameters. A locator task delegates its execution to a linked query task via a
+ * {@code query-task} relation.
  */
 @Slf4j
 @Component
