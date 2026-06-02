@@ -320,8 +320,29 @@ public abstract class ProfileMapper {
     copyDefaultZoomLevelFromTerritory(applicationDto, profile);
     copyPointFromTerritory(applicationDto, profile);
     copySrsFromTerritory(applicationDto, profile);
+    copyTerritoryCodeFromTerritory(applicationDto, profile);
+    copyTerritoryNameFromTerritory(applicationDto, profile);
+    copyTerritoryDetailsFromTerritory(applicationDto, profile);
     copySituationMap(applicationDto, profile);
     builder.application(applicationDto);
+  }
+
+  final void copyTerritoryCodeFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    applicationDto.setTerritoryCode(profile.getTerritory().getCode());
+  }
+
+  final void copyTerritoryNameFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    applicationDto.setTerritoryName(profile.getTerritory().getName());
+  }
+
+  final void copyTerritoryDetailsFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    Territory territory = profile.getTerritory();
+    applicationDto.setTerritoryDescription(territory.getDescription());
+    applicationDto.setTerritorialAuthorityName(territory.getTerritorialAuthorityName());
+    applicationDto.setTerritorialAuthorityAddress(territory.getTerritorialAuthorityAddress());
+    if (territory.getType() != null) {
+      applicationDto.setTerritoryTypeName(territory.getType().getName());
+    }
   }
 
   /** Maps situation-map from Application to ApplicationDto. */
