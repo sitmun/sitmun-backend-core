@@ -30,6 +30,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
@@ -138,11 +139,12 @@ public class TemplateExecutionService {
             ? "scroll"
             : "tabs";
     List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
+    List<Map<String, Object>> renderableTasks = filterRenderableMiaChildren(includedTasks);
 
     String html =
         "tabs".equals(visualizationMode)
-            ? renderMiaChildrenAsTabs(miaTask, includedTasks, featureParameters)
-            : renderMiaChildrenAsScroll(miaTask, includedTasks, featureParameters);
+        ? renderMiaChildrenAsTabs(miaTask, renderableTasks, featureParameters)
+        : renderMiaChildrenAsScroll(miaTask, renderableTasks, featureParameters);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -152,7 +154,9 @@ public class TemplateExecutionService {
   }
 
   private String renderMiaChildrenAsTabs(
-      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+      Task miaTask,
+      List<Map<String, Object>> includedTasks,
+      Map<String, Object> featureParameters) {
     String renderId = "mia-backend-" + miaTask.getId();
     StringBuilder tabs = new StringBuilder();
     StringBuilder panels = new StringBuilder();
@@ -188,7 +192,9 @@ public class TemplateExecutionService {
   }
 
   private String renderMiaChildrenAsScroll(
-      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+      Task miaTask,
+      List<Map<String, Object>> includedTasks,
+      Map<String, Object> featureParameters) {
     StringBuilder sections = new StringBuilder();
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
@@ -203,7 +209,9 @@ public class TemplateExecutionService {
   }
 
   @SuppressWarnings("unchecked")
-  private String renderMiaChild(Map<String, Object> childDefinition, Map<String, Object> featureParameters) {
+  private String renderMiaChild(
+      Map<String, Object> childDefinition,
+      Map<String, Object> featureParameters) {
     Integer childTaskId = parseTaskId(childDefinition.get("id"));
     if (childTaskId == null) {
       return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
@@ -233,12 +241,22 @@ public class TemplateExecutionService {
     }
     RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
 
-    TemplateTaskExecutionResponseDto result =
-        executeTask(childTask, childParameters, childTaskParameters, rootTemplateTaskId, coordinates, 0);
+    TemplateTaskExecutionResponseDto result;
+    try {
+      result =
+          executeTask(
+              childTask, childParameters, childTaskParameters, rootTemplateTaskId, coordinates, 0);
+    } catch (ResponseStatusException exception) {
+      return renderMiaChildError(exception);
+    } catch (RuntimeException exception) {
+      log.warn("MIA child {} failed while rendering", childTaskId, exception);
+      return "<div class=\"sitmun-mia-error\">Could not render task</div>";
+    }
 
     if ("template".equals(result.getResultType())) {
       Object html = result.getContext() != null ? result.getContext().get("html") : null;
-      return html == null ? "" : String.valueOf(html);
+      String content = html == null ? "" : String.valueOf(html);
+      return wrapWithDownloadAnnotation(content);
     }
     if ("table".equals(result.getResultType())) {
       return renderRowsAsTable(result.getRows());
@@ -248,6 +266,11 @@ public class TemplateExecutionService {
       return "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
     }
     return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+  }
+
+  private String renderMiaChildError(ResponseStatusException exception) {
+    String message = StringUtils.hasText(exception.getReason()) ? exception.getReason() : "Could not render task";
+    return "<div class=\"sitmun-mia-error\">" + escapeHtml(message) + "</div>";
   }
 
   private void enrichTemplateChildTaskParameters(
@@ -277,6 +300,44 @@ public class TemplateExecutionService {
   private boolean isTemplateTask(Task task) {
     return task.getType() != null
         && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId());
+  }
+
+  private List<Map<String, Object>> filterRenderableMiaChildren(List<Map<String, Object>> includedTasks) {
+    return includedTasks.stream()
+        .filter(childDefinition -> !"documentExport".equals(resolveMiaChildType(childDefinition)))
+        .toList();
+  }
+
+  private String resolveMiaChildType(Map<String, Object> childDefinition) {
+    Object explicitChildType = childDefinition.get("childType");
+    if (explicitChildType != null) {
+      String childType = String.valueOf(explicitChildType);
+      if ("documentExport".equals(childType)) {
+        return childType;
+      }
+      if ("template".equals(childType)) {
+        return childType;
+      }
+    }
+
+    Integer childTaskId = parseTaskId(childDefinition.get("id"));
+    if (childTaskId == null) {
+      return "query";
+    }
+
+    return taskRepository
+        .findById(childTaskId)
+        .map(
+            childTask -> {
+              if (DomainConstants.Tasks.isDocumentExportTask(childTask)) {
+                return "documentExport";
+              }
+              if (isTemplateTask(childTask)) {
+                return "template";
+              }
+              return "query";
+            })
+        .orElse("query");
   }
 
   @SuppressWarnings("unchecked")
@@ -323,11 +384,13 @@ public class TemplateExecutionService {
                 childDefinition.put("order", order);
                 childDefinition.put(
                     "childType",
-                    childTask.getType() != null
-                            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-                                .equals(childTask.getType().getId())
-                        ? "template"
-                        : "query");
+                    DomainConstants.Tasks.isDocumentExportTask(childTask)
+                  ? "documentExport"
+                  : childTask.getType() != null
+                    && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                        .equals(childTask.getType().getId())
+                      ? "template"
+                      : "query");
                 childDefinition.put("parameters", readMiaChildParameterMappings(childTask));
                 includedTasks.add(childDefinition);
               });
@@ -537,6 +600,14 @@ public class TemplateExecutionService {
         .replace("'", "&#39;");
   }
 
+  /**
+   * Wraps rendered template HTML with a marker that lets the viewer inject one button per
+   * authorized {@code documentExport} task.
+   */
+  private String wrapWithDownloadAnnotation(String content) {
+    return "<div data-mia-export-template=\"true\">" + content + "</div>";
+  }
+
   private TemplateTaskExecutionResponseDto executeTask(
       Task task,
       Map<String, String> parameters,
@@ -700,11 +771,10 @@ public class TemplateExecutionService {
 
       String method = StringUtils.hasText(payload.getMethod()) ? payload.getMethod().toUpperCase() : "GET";
       if ("POST".equals(method)) {
-        RequestBody requestBody =
-            RequestBody.create(
-                payload.getBody() == null ? "" : payload.getBody(),
-                okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE));
-        requestBuilder.post(requestBody);
+        RequestBody postBody = RequestBody.create(
+            payload.getBody() == null ? "" : payload.getBody(),
+            okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE));
+        requestBuilder.post(postBody);
       } else {
         requestBuilder.get();
       }

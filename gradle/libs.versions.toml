@@ -12,6 +12,8 @@ docker-compose = "0.17.12"
 spotless = "7.2.0"
 axion-release = "1.18.0"
 bucket4j = "8.10.1"
+openhtmltopdf = "1.0.10"
+jsoup = "1.18.3"
 
 # Dependency versions
 jjwt = "0.12.6"
@@ -76,6 +78,7 @@ okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor" }
 
 # JSON processing
 json = { module = "org.json:json", version.ref = "json" }
+jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml" }
 
 # JWT token handling
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
@@ -95,6 +98,13 @@ jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-ap
 
 # Rate limiting
 bucket4j-core = { module = "com.bucket4j:bucket4j-core", version.ref = "bucket4j" }
+
+# HTML parsing
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+
+# PDF generation
+openhtmltopdf-core = { module = "com.openhtmltopdf:openhtmltopdf-core", version.ref = "openhtmltopdf" }
+openhtmltopdf-pdfbox = { module = "com.openhtmltopdf:openhtmltopdf-pdfbox", version.ref = "openhtmltopdf" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

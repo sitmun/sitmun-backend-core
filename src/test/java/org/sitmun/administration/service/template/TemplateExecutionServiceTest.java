@@ -224,6 +224,132 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  void renderMoreInfoAdvancedMarksTemplateChildrenWithoutLegacyExportConfiguration() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":201,\"name\":\"Plantilla\",\"order\":0,\"childType\":\"template\"}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(201)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>Hola</p>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(201)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(201)).thenReturn(List.of());
+    when(templateRenderService.renderPreview(eq("<p>Hola</p>"), any(), eq(201)))
+        .thenReturn(TemplatePreviewResponseDto.builder().html("<p>Hola</p>").placeholders(List.of()).build());
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("data-mia-export-template=\"true\"")
+        .doesNotContain("data-mia-export-output")
+        .doesNotContain("data-mia-export-actions");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedUsesDocumentExportChildrenAsTemplateButtons() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(201, 701)));
+
+    Task templateTask =
+        Task.builder()
+            .id(201)
+            .name("Plantilla")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>Hola</p>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    Task exportTask =
+        Task.builder()
+            .id(701)
+            .name("PDF oficial")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_DOCUMENT_EXPORT).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(201)).thenReturn(Optional.of(templateTask));
+    when(taskRepository.findById(701)).thenReturn(Optional.of(exportTask));
+    when(taskRelationRepository.findByTaskId(201)).thenReturn(List.of());
+    when(templateRenderService.renderPreview(eq("<p>Hola</p>"), any(), eq(201)))
+        .thenReturn(TemplatePreviewResponseDto.builder().html("<p>Hola</p>").placeholders(List.of()).build());
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("data-mia-export-template=\"true\"")
+        .doesNotContain("data-mia-export-output")
+        .doesNotContain("data-mia-export-actions")
+        .doesNotContain("sitmun-mia-section-title\">PDF oficial")
+        .contains("<p>Hola</p>");
+  }
+
+  @Test
   void renderMoreInfoAdvancedResolvesUrlParametersInsideRecursiveNestedTemplate() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
@@ -656,6 +782,68 @@ class TemplateExecutionServiceTest {
               assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
               assertThat(responseStatusException.getReason()).isEqualTo("API task returned HTTP 500");
             });
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsRenderingWhenOneApiChildFails() throws IOException {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            httpClientFactory,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(32310);
+    when(miaTask.getName()).thenReturn("Tasca MIA prova");
+    when(miaTask.getType())
+        .thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties()).thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(32308)));
+
+    Task apiTask =
+        Task.builder()
+            .id(32308)
+            .name("Consulta API")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .build();
+
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
+    ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
+    Response response =
+        new Response.Builder()
+            .request(new Request.Builder().url("https://api.example.org/items").build())
+            .protocol(Protocol.HTTP_1_1)
+            .code(429)
+            .message("Too Many Requests")
+            .body(
+                ResponseBody.create(
+                    "{\"error\":\"rate limited\"}", okhttp3.MediaType.parse("application/json")))
+            .build();
+
+    when(taskRepository.findById(32310)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(32308)).thenReturn(Optional.of(apiTask));
+    when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
+    when(httpClientFactory.executeRequest(any())).thenReturn(response);
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(32310));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml()).contains("API task returned HTTP 429");
   }
 
   @Test

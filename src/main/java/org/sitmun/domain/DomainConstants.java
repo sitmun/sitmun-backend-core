@@ -22,6 +22,21 @@ public class DomainConstants {
     public static final String PROPERTY_SCOPE = "scope";
     public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
     public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
+    public static final String PROPERTY_EXPORT_ENGINE = "exportEngine";
+
+    /**
+     * Task property {@code downloadFormat}: output format for the download button shown in the MIA
+     * popup when this task is a template child. Supported values: {@code "pdf"}, {@code "xml"}.
+     * If absent or blank, no download button is shown.
+     */
+    public static final String PROPERTY_DOWNLOAD_FORMAT = "downloadFormat";
+
+    /**
+     * Task property {@code downloadSource}: path to a Jasper report file (.jrxml / .xml) relative
+     * to the configured {@code sitmun.template.export.allowed-file-path-prefix} directory.
+     * Only relevant when {@code downloadFormat} is {@code "xml"}.
+     */
+    public static final String PROPERTY_DOWNLOAD_SOURCE = "downloadSource";
 
     // Parameter properties
     public static final String PARAMETERS_NAME = "name";
@@ -125,6 +140,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_BASIC = 1;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
+    public static final int TASK_TYPE_ID_DOCUMENT_EXPORT = 17;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
     public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
 
@@ -153,6 +169,10 @@ public class DomainConstants {
 
     public static boolean isMoreInfoTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
+    }
+
+    public static boolean isDocumentExportTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_DOCUMENT_EXPORT).equals(taskTypeId(task));
     }
 
     public static boolean isMoreInfoAdvancedTask(Task task) {
