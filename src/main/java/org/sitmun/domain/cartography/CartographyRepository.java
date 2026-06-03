@@ -29,7 +29,8 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
         "spatialSelectionConnection",
         "styles"
       })
-  Page<Cartography> findAll(Pageable pageable);
+  @NonNull
+  Page<Cartography> findAll(@NonNull Pageable pageable);
 
   @Override
   @EntityGraph(
@@ -43,11 +44,25 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
         "spatialSelectionParameters",
         "treeNodes"
       })
-  Optional<Cartography> findById(Integer id);
+  @NonNull
+  Optional<Cartography> findById(@NonNull Integer id);
 
   @Query(
       "select cartography from Cartography cartography left join fetch cartography.service where cartography.id =:id")
   Cartography findOneWithEagerRelationships(@Param("id") Integer id);
+
+  @RestResource(path = "content", rel = "content")
+  @EntityGraph(attributePaths = {"service"})
+  @Query(
+      """
+      select cartography
+      from Cartography cartography
+      left join cartography.service service
+      where lower(cartography.name) like lower(concat('%', :q, '%'))
+      or lower(service.name) like lower(concat('%', :q, '%'))
+      or lower(cartography.layersSearchString) like lower(concat('%', :q, '%'))
+      """)
+  Page<Cartography> findByContent(@Param("q") String q, Pageable pageable);
 
   @Query(
       """

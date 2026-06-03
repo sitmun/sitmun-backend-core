@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -16,6 +17,16 @@ import org.springframework.data.rest.core.annotation.RestResource;
     collectionResourceRel = "applications",
     path = "applications" /*, excerptProjection = ApplicationProjection.class*/)
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
+
+  @RestResource(path = "content", rel = "content")
+  @Query(
+      """
+      select application
+      from Application application
+      where lower(application.name) like lower(concat('%', :q, '%'))
+      or lower(application.type) like lower(concat('%', :q, '%'))
+      """)
+  Page<Application> findByContent(@Param("q") String q, Pageable pageable);
 
   @RestResource(exported = false)
   @EntityGraph(attributePaths = {"territories", "territories.territory"})

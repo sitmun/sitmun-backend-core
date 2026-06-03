@@ -52,14 +52,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateExecutionService {
 
+  private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
+  private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX = "Template nesting depth exceeded";
   private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
@@ -101,7 +102,8 @@ public class TemplateExecutionService {
         childTaskParameters,
         rootTemplateTaskId,
         coordinates,
-        0);
+        0,
+        false);
   }
 
   @Transactional(readOnly = true)
@@ -237,20 +239,33 @@ public class TemplateExecutionService {
             ? childTask.getId()
             : null;
     if (rootTemplateTaskId != null) {
+      mergeMappedTemplateChildTaskParameters(
+          childTaskParameters,
+          childDefinition.get("templateChildTaskParameters"),
+          rootTemplateTaskId,
+          featureParameters);
       enrichTemplateChildTaskParameters(childTask, childTaskParameters, featureParameters, 0);
     }
     RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
 
     TemplateTaskExecutionResponseDto result;
+    boolean isTemplateChild = rootTemplateTaskId != null;
     try {
       result =
           executeTask(
-              childTask, childParameters, childTaskParameters, rootTemplateTaskId, coordinates, 0);
+              childTask,
+              childParameters,
+              childTaskParameters,
+              rootTemplateTaskId,
+              coordinates,
+              0,
+              isTemplateChild);
     } catch (ResponseStatusException exception) {
-      return renderMiaChildError(exception);
-    } catch (RuntimeException exception) {
-      log.warn("MIA child {} failed while rendering", childTaskId, exception);
-      return "<div class=\"sitmun-mia-error\">Could not render task</div>";
+      if (isTemplateChild || isTemplateNestingDepthExceeded(exception)) {
+        throw exception;
+      }
+      String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
+      return "<div class=\"sitmun-mia-error\">Error ejecutando tarea: " + escapeHtml(taskName) + "</div>";
     }
 
     if ("template".equals(result.getResultType())) {
@@ -295,6 +310,33 @@ public class TemplateExecutionService {
         enrichTemplateChildTaskParameters(relatedTask, childTaskParameters, featureParameters, depth + 1);
       }
     }
+  }
+
+  private void mergeMappedTemplateChildTaskParameters(
+      Map<String, Map<String, Object>> childTaskParameters,
+      Object rawTemplateChildTaskParameters,
+      Integer templateTaskId,
+      Map<String, Object> featureParameters) {
+    Object rawInnerTaskParameters = selectTemplateChildTaskParameters(rawTemplateChildTaskParameters, templateTaskId);
+    Map<String, Map<String, Object>> resolvedParameters =
+        resolveMappedChildTaskParameters(rawInnerTaskParameters, featureParameters);
+    resolvedParameters.forEach(
+        (taskId, parameters) -> {
+          Map<String, Object> existingParameters =
+              childTaskParameters.computeIfAbsent(taskId, ignored -> new LinkedHashMap<>());
+          parameters.forEach(existingParameters::putIfAbsent);
+        });
+  }
+
+  private Object selectTemplateChildTaskParameters(Object rawTemplateChildTaskParameters, Integer templateTaskId) {
+    if (!(rawTemplateChildTaskParameters instanceof Map<?, ?> templateChildTaskParameters)) {
+      return Collections.emptyMap();
+    }
+    Object exactTemplateMapping = getMapValueByTaskId(templateChildTaskParameters, templateTaskId);
+    if (exactTemplateMapping instanceof Map<?, ?>) {
+      return exactTemplateMapping;
+    }
+    return rawTemplateChildTaskParameters;
   }
 
   private boolean isTemplateTask(Task task) {
@@ -355,7 +397,31 @@ public class TemplateExecutionService {
     }
     includedTasks.sort(
         (left, right) -> Integer.compare(toInt(left.get("order"), 999), toInt(right.get("order"), 999)));
+    attachTemplateChildTaskParameters(miaTask, miaParameters, includedTasks);
     return includedTasks;
+  }
+
+  private void attachTemplateChildTaskParameters(
+      Task miaTask, Map<String, Object> miaParameters, List<Map<String, Object>> includedTasks) {
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+    Object rawTemplateChildTaskParameters =
+        miaParameters.containsKey("templateChildTaskParameters")
+            ? miaParameters.get("templateChildTaskParameters")
+            : properties.get("templateChildTaskParameters");
+    if (!(rawTemplateChildTaskParameters instanceof Map<?, ?> templateChildTaskParameters)) {
+      return;
+    }
+    for (Map<String, Object> includedTask : includedTasks) {
+      Integer childTaskId = parseTaskId(includedTask.get("id"));
+      if (childTaskId == null || includedTask.containsKey("templateChildTaskParameters")) {
+        continue;
+      }
+      Object templateMapping = getMapValueByTaskId(templateChildTaskParameters, childTaskId);
+      if (templateMapping instanceof Map<?, ?> && !((Map<?, ?>) templateMapping).isEmpty()) {
+        includedTask.put("templateChildTaskParameters", templateMapping);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -366,6 +432,15 @@ public class TemplateExecutionService {
     if (!(rawChildOrder instanceof List<?> childOrder) || childOrder.isEmpty()) {
       return Collections.emptyList();
     }
+
+    Map<String, Object> adminChildTaskParameters =
+        properties.get("childTaskParameters") instanceof Map<?, ?> ctp
+            ? (Map<String, Object>) ctp
+            : Collections.emptyMap();
+    Map<String, Object> adminTemplateChildTaskParameters =
+        properties.get("templateChildTaskParameters") instanceof Map<?, ?> tctp
+            ? (Map<String, Object>) tctp
+            : Collections.emptyMap();
 
     List<Map<String, Object>> includedTasks = new ArrayList<>();
     for (int index = 0; index < childOrder.size(); index++) {
@@ -384,22 +459,44 @@ public class TemplateExecutionService {
                 childDefinition.put("order", order);
                 childDefinition.put(
                     "childType",
-                    DomainConstants.Tasks.isDocumentExportTask(childTask)
-                  ? "documentExport"
-                  : childTask.getType() != null
-                    && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-                        .equals(childTask.getType().getId())
-                      ? "template"
-                      : "query");
-                childDefinition.put("parameters", readMiaChildParameterMappings(childTask));
+                    childTask.getType() != null
+                            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                                .equals(childTask.getType().getId())
+                        ? "template"
+                        : "query");
+                Object explicitMapping = getMapValueByTaskId(adminChildTaskParameters, childTask.getId());
+                if (explicitMapping instanceof Map<?, ?> && !((Map<?, ?>) explicitMapping).isEmpty()) {
+                  childDefinition.put("parameters", explicitMapping);
+                } else {
+                  childDefinition.put("parameters", readMiaChildParameterMappings(childTask));
+                }
+                Object templateChildTaskMapping =
+                    getMapValueByTaskId(adminTemplateChildTaskParameters, childTask.getId());
+                if (templateChildTaskMapping instanceof Map<?, ?>
+                    && !((Map<?, ?>) templateChildTaskMapping).isEmpty()) {
+                  childDefinition.put("templateChildTaskParameters", templateChildTaskMapping);
+                }
                 includedTasks.add(childDefinition);
               });
     }
     return includedTasks;
   }
 
+  private Object getMapValueByTaskId(Map<?, ?> valuesByTaskId, Integer taskId) {
+    if (valuesByTaskId == null || taskId == null) {
+      return null;
+    }
+    if (valuesByTaskId.containsKey(taskId)) {
+      return valuesByTaskId.get(taskId);
+    }
+    return valuesByTaskId.get(String.valueOf(taskId));
+  }
+
   private Map<String, Object> readMiaChildParameterMappings(Task childTask) {
     Map<String, Object> mappings = new LinkedHashMap<>();
+    if (isTemplateTask(childTask)) {
+      return mappings;
+    }
     Map<String, Object> properties =
         childTask.getProperties() == null ? Collections.emptyMap() : childTask.getProperties();
     Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
@@ -442,6 +539,45 @@ public class TemplateExecutionService {
       converted.put(String.valueOf(rawName), convertTypedParameterValue(String.valueOf(rawType), rawValue));
     }
     return converted;
+  }
+
+  private Map<String, Object> readTemplateDefaultParameters(Task task) {
+    Map<String, Object> properties = task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
+    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
+    if (!(rawParameters instanceof List<?> rawList)) {
+      return Collections.emptyMap();
+    }
+
+    Map<String, Object> defaults = new LinkedHashMap<>();
+    for (Object rawParameter : rawList) {
+      if (!(rawParameter instanceof Map<?, ?> parameter)) {
+        continue;
+      }
+
+      Object rawName = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
+      if (rawName == null) {
+        rawName = parameter.get("variable");
+      }
+      if (rawName == null) {
+        rawName = parameter.get("label");
+      }
+      if (rawName == null) {
+        continue;
+      }
+
+      Object rawValue = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
+      if (rawValue == null) {
+        continue;
+      }
+
+      Object rawType = parameter.get(DomainConstants.Tasks.PARAMETERS_TYPE);
+      Object convertedValue =
+          rawType == null
+              ? String.valueOf(rawValue)
+              : convertTypedParameterValue(String.valueOf(rawType), rawValue);
+      defaults.put(String.valueOf(rawName), convertedValue);
+    }
+    return defaults;
   }
 
   private Object convertTypedParameterValue(String type, Object value) {
@@ -614,18 +750,26 @@ public class TemplateExecutionService {
       Map<String, Map<String, Object>> childTaskParameters,
       Integer rootTemplateTaskId,
       RequestCoordinates coordinates,
-      int depth) {
+      int depth,
+      boolean isolateTemplateChildFailures) {
     boolean isTemplateTask =
         task.getType() != null
             && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId());
     if (isTemplateTask && depth >= MAX_TEMPLATE_NESTING_LEVEL) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
-          "Template nesting depth exceeded. Maximum allowed is " + MAX_TEMPLATE_NESTING_LEVEL);
+          TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX + ". Maximum allowed is " + MAX_TEMPLATE_NESTING_LEVEL);
     }
 
     if (isTemplateTask) {
-      return executeTemplateTask(task, childTaskParameters, rootTemplateTaskId, coordinates, depth + 1);
+      return executeTemplateTask(
+          task,
+          parameters,
+          childTaskParameters,
+          rootTemplateTaskId,
+          coordinates,
+          depth + 1,
+          isolateTemplateChildFailures);
     }
 
     String scope = String.valueOf(task.getProperties().get(DomainConstants.Tasks.PROPERTY_SCOPE));
@@ -648,12 +792,20 @@ public class TemplateExecutionService {
 
   private TemplateTaskExecutionResponseDto executeTemplateTask(
       Task task,
+      Map<String, String> templateParameters,
       Map<String, Map<String, Object>> childTaskParameters,
       Integer rootTemplateTaskId,
       RequestCoordinates coordinates,
-      int depth) {
+      int depth,
+      boolean isolateTemplateChildFailures) {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(task.getId());
     Map<String, Object> templateContext = new LinkedHashMap<>();
+
+    readTemplateDefaultParameters(task).forEach((key, value) -> templateContext.put("$" + key, value));
+
+    if (templateParameters != null) {
+      templateParameters.forEach((key, value) -> templateContext.put("$" + key, value));
+    }
 
     for (TaskRelation relation : relations) {
       if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
@@ -664,16 +816,31 @@ public class TemplateExecutionService {
       Map<String, Object> rawParams =
           childTaskParameters.getOrDefault(String.valueOf(childTask.getId()), Collections.emptyMap());
       String referenceAlias = resolveReferenceAlias(relation);
-      TemplateTaskExecutionResponseDto childResult =
-          executeTask(
-              childTask,
-              stringifyParameters(rawParams),
-              childTaskParameters,
-              rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
-              coordinates,
-              depth);
-      templateContext.put(referenceAlias, childResult.getContext());
-      templateContext.put(buildLegacyReferenceAlias(childTask), childResult.getContext());
+      Map<String, Object> childContext;
+      try {
+        TemplateTaskExecutionResponseDto childResult =
+            executeTask(
+                childTask,
+                stringifyParameters(rawParams),
+                childTaskParameters,
+                rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
+                coordinates,
+                depth,
+                isolateTemplateChildFailures);
+        childContext = childResult.getContext();
+      } catch (ResponseStatusException exception) {
+        if (!isolateTemplateChildFailures || isTemplateNestingDepthExceeded(exception)) {
+          throw exception;
+        }
+        log.warn(
+            "Template child task {} failed while rendering template {}",
+            childTask.getId(),
+            task.getId(),
+            exception);
+        childContext = buildChildErrorContext(childTask, exception);
+      }
+      templateContext.put(referenceAlias, childContext);
+      templateContext.put(buildLegacyReferenceAlias(childTask), childContext);
     }
 
     TemplatePreviewResponseDto rendered =
@@ -690,6 +857,34 @@ public class TemplateExecutionService {
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
+  }
+
+  private Map<String, Object> buildChildErrorContext(Task childTask, ResponseStatusException exception) {
+    Map<String, Object> context = new LinkedHashMap<>();
+    String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
+    String message =
+        StringUtils.hasText(exception.getReason()) ? exception.getReason() : exception.getMessage();
+    String safeMessage = escapeHtml(StringUtils.hasText(message) ? message : "Error ejecutando tarea");
+    context.put("taskId", childTask.getId());
+    context.put("status", "ERROR");
+    context.put("statusCode", exception.getStatusCode().value());
+    context.put("error", true);
+    context.put("message", safeMessage);
+    context.put(
+        "html",
+        "<div class=\"sitmun-template-child-error\">Error ejecutando tarea: "
+            + escapeHtml(taskName)
+            + " - "
+            + safeMessage
+            + "</div>");
+    context.put("value", "[error: " + safeMessage + "]");
+    return context;
+  }
+
+  private boolean isTemplateNestingDepthExceeded(ResponseStatusException exception) {
+    return HttpStatus.BAD_REQUEST.equals(exception.getStatusCode())
+        && StringUtils.hasText(exception.getReason())
+        && exception.getReason().startsWith(TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX);
   }
 
   private TemplateTaskExecutionResponseDto executeSqlTask(
@@ -788,6 +983,21 @@ public class TemplateExecutionService {
       try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
         okhttp3.ResponseBody responseBody = response.body();
         okhttp3.MediaType contentType = responseBody != null ? responseBody.contentType() : null;
+        String resolvedMimeType = resolveApiResponseMimeType(task, contentType);
+        if (response.isSuccessful() && isBinaryMimeType(resolvedMimeType)) {
+          log.info(
+              "Template API task {} returned HTTP {} binary content-type {} length {}",
+              task.getId(),
+              response.code(),
+              resolvedMimeType,
+              responseBody != null ? responseBody.contentLength() : 0);
+          return buildBinaryApiResponse(
+              task,
+              parameters,
+              payload.getParameters(),
+              hasServerSideHttpSecurity(payload.getSecurity()) ? null : requestUrl,
+              resolvedMimeType);
+        }
         String body = responseBody != null ? responseBody.string() : "";
         log.info(
             "Template API task {} returned HTTP {} content-type {} body length {}",
@@ -948,6 +1158,80 @@ public class TemplateExecutionService {
     return context;
   }
 
+  private TemplateTaskExecutionResponseDto buildBinaryApiResponse(
+      Task task,
+      Map<String, String> executionParameters,
+      Map<String, String> configuredParameters,
+      String contentUrl,
+      String mimeType) {
+    Map<String, Object> context = new LinkedHashMap<>();
+    mergeTemplateParameterContext(context, configuredParameters, executionParameters);
+    context.put("contentUrl", contentUrl);
+    context.put("url", contentUrl);
+    context.put("mimeType", mimeType);
+    context.put("binary", true);
+    context.put("embeddable", StringUtils.hasText(contentUrl));
+    if (!StringUtils.hasText(contentUrl)) {
+      context.put("accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
+    }
+    context.put("value", BINARY_VALUE_PLACEHOLDER);
+
+    List<Map<String, Object>> rows = flattenContextToRows(context);
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status("COMPLETED")
+        .resultType("resource")
+        .context(context)
+        .rows(rows)
+        .resourceUrl(contentUrl)
+        .build();
+  }
+
+  private String resolveApiResponseMimeType(Task task, okhttp3.MediaType contentType) {
+    String configuredMimeType = readConfiguredMimeType(task);
+    if (StringUtils.hasText(configuredMimeType)) {
+      return configuredMimeType.trim();
+    }
+    return contentType != null ? contentType.toString() : null;
+  }
+
+  private String readConfiguredMimeType(Task task) {
+    Map<String, Object> properties = task.getProperties();
+    Object mimeType = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE) : null;
+    return mimeType != null ? String.valueOf(mimeType) : null;
+  }
+
+  private boolean isBinaryMimeType(String mimeType) {
+    if (!StringUtils.hasText(mimeType)) {
+      return true;
+    }
+    String normalized = mimeType.toLowerCase().split(";", 2)[0].trim();
+    if (normalized.startsWith("text/")
+        || normalized.equals(MediaType.APPLICATION_JSON_VALUE)
+        || normalized.equals(MediaType.APPLICATION_XML_VALUE)
+        || normalized.equals(MediaType.TEXT_XML_VALUE)
+        || normalized.equals("application/xhtml+xml")
+        || normalized.equals("application/javascript")
+        || normalized.equals("application/x-javascript")
+        || normalized.equals("application/ecmascript")
+        || normalized.equals("application/x-www-form-urlencoded")
+        || normalized.equals("application/csv")
+        || normalized.endsWith("+json")
+        || normalized.endsWith("+xml")) {
+      return false;
+    }
+    return true;
+  }
+
+  private boolean hasServerSideHttpSecurity(HttpSecurityDto security) {
+    if (security == null) {
+      return false;
+    }
+    return (security.getHeaders() != null && !security.getHeaders().isEmpty())
+        || StringUtils.hasText(security.getUsername())
+        || StringUtils.hasText(security.getPassword());
+  }
+
   private void mergeTemplateParameterContext(
       Map<String, Object> context,
       Map<String, String> configuredParameters,
@@ -1038,7 +1322,6 @@ public class TemplateExecutionService {
 
     String uriTemplateSource = selectUriTemplateSource(payload.getUri(), taskCommand);
     String resolvedUri = resolveTemplateUrl(uriTemplateSource, templateParameters, coordinates);
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(resolvedUri);
 
     Set<String> uriTemplateParameters = extractUriTemplateParameters(uriTemplateSource);
     Map<String, String> queryParameters = new LinkedHashMap<>();
@@ -1049,10 +1332,25 @@ public class TemplateExecutionService {
       executionParameters.forEach(queryParameters::putIfAbsent);
     }
     uriTemplateParameters.forEach(queryParameters::remove);
-    if (!queryParameters.isEmpty()) {
-      queryParameters.forEach(builder::queryParam);
+    return appendEncodedQueryParameters(resolvedUri, queryParameters);
+  }
+
+  private String appendEncodedQueryParameters(String resolvedUri, Map<String, String> queryParameters) {
+    if (queryParameters.isEmpty()) {
+      return resolvedUri;
     }
-    return builder.build().encode().toUriString();
+    StringBuilder url = new StringBuilder(resolvedUri);
+    url.append(resolvedUri.contains("?") ? "&" : "?");
+    List<String> encodedParameters = new ArrayList<>();
+    queryParameters.forEach(
+        (key, value) ->
+            encodedParameters.add(encodeQueryComponent(key) + "=" + encodeQueryComponent(value)));
+    url.append(String.join("&", encodedParameters));
+    return url.toString();
+  }
+
+  private String encodeQueryComponent(String value) {
+    return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8).replace("+", "%20");
   }
 
   private String selectUriTemplateSource(String payloadUri, String taskCommand) {

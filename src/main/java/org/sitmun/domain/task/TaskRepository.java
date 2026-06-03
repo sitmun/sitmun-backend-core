@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Set;
 import org.sitmun.domain.role.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,6 +50,16 @@ public interface TaskRepository
     )
     """)
   List<Task> findByRolesAndTerritory(List<Role> roles, Integer territoryId);
+
+  @RestResource(path = "content", rel = "content")
+  @Query(
+      """
+      select task
+      from Task task
+      where lower(task.name) like lower(concat('%', :q, '%'))
+      and (:typeId is null or task.type.id = :typeId)
+      """)
+  Page<Task> findByContent(@Param("q") String q, @Param("typeId") Integer typeId, Pageable pageable);
 
   @Override
   default void customize(QuerydslBindings querydslBindings, QTask root) {
