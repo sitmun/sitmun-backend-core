@@ -226,6 +226,8 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/logout"))
+        .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/password-reset/**"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.PUT, "/api/password-reset/**"))
@@ -268,6 +270,8 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/user-verification/**"))
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
+        .hasRole(USER.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasRole(USER.name());
   }
 

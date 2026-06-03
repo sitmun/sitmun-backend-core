@@ -13,8 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Security**: `GET /api/account/{id}` now restricted to the account owner or `ROLE_ADMIN`; unauthorized access returns HTTP 403.
 - **Security**: `GET /api/account/all` restricted to `ROLE_ADMIN` only (`@PreAuthorize("hasRole('ADMIN')")`).
 - **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`); the security context is cleared and the request continues unauthenticated.
+- **Security**: `POST /api/authenticate/proxy` is now accessible to authenticated standard users (`ROLE_USER`), allowing the viewer proxy-token refresh to work for non-admin accounts.
+- **Security**: `POST /api/authenticate/logout` is now `permitAll`, allowing the session cookie to be cleared even from stale or anonymous sessions.
 - **Validation**: `UserDTO` `@Size(max = 50)` on `firstName`, `lastName`, and `email` aligned with DB column length (`PersistenceConstants.IDENTIFIER`).
-- **Invariants (write)**: `UserEventHandler` now also protects built-in `public` from blocking (removed — blocking `public` is intentionally allowed as of this release; username change and administrator promotion remain guarded).
 - **Invariants (startup)**: `UserBuiltInStartupValidator` (`ApplicationRunner`) validates built-in user state on startup. Admin: must exist, `administrator=true`, `blocked=false`, password set, no `UserPosition` rows. Public: must exist, `administrator=false`, no password, no PII fields, no `UserPosition` rows (`blocked` may be true).
 - **Application contact**: `ApplicationMapper` now maps `ApplicationDto.creator` from `user.getEmail()` (null-safe) instead of `user.getUsername()`.
 - **Tests**: `UserControllerTest` for account API authorization guards; `UserBuiltInStartupValidatorTest` for startup invariants; `JsonWebTokenFilterTest` for blocked-user JWT rejection; `ApplicationMapperTest` for creator-email mapping; extended `UserPositionRepositoryDataRestTest` for multiple positions per territory.
@@ -32,6 +33,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **User warnings**: `entity.user.warning.position-without-details` is raised only when a position row is missing `name` or `organization` (email and type no longer required for the admin warning).
 - **User warnings**: `entity.user.warning.no-password` when a non-built-in user has no password (`public` and `admin` excluded).
 - **User password**: `UserEventHandler` rejects create/update requests that assign an empty password; clearing a password via `""` is no longer allowed (`null` on update still preserves the stored hash).
+
+### Fixed
+
+- **Auth**: `POST /api/authenticate/proxy` was restricted to `ROLE_ADMIN` via the catch-all rule; standard users (`ROLE_USER`) now have explicit access, fixing silent viewer redirects to login (issue #256).
+- **Auth**: `POST /api/authenticate/logout` is now `permitAll`; stale or anonymous sessions can clear the `access_token` cookie without needing admin credentials.
 
 ### Added
 
