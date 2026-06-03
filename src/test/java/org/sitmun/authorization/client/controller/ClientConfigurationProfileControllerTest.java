@@ -387,16 +387,18 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Ensure order in children")
+  @DisplayName("GET: Ensure root children order follows TNO_ORDER not id order")
   void treeNodeOrder() throws Exception {
+    // node/7 has TNO_ORDER=1 but id=7 (higher id); node/1 has TNO_ORDER=2 but id=1 (lower id).
+    // This verifies the profile returns children sorted by TNO_ORDER, not by insertion/id order.
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath(
                 "$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].children[*]",
-                containsInRelativeOrder("node/1", "node/7")))
-        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/1'].order", hasItem(1)))
-        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].order", hasItem(2)))
+                containsInRelativeOrder("node/7", "node/1")))
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].order", hasItem(1)))
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/1'].order", hasItem(2)))
         .andExpect(
             jsonPath(
                 "$.trees[?(@.id=='tree/1')].nodes['node/7'].children[*]",

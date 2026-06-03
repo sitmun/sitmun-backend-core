@@ -280,6 +280,9 @@ public abstract class ProfileMapper {
         .children(
             allNodes.stream()
                 .filter(it1 -> it1.getParent() == null)
+                .sorted(
+                    Comparator.comparing(
+                        TreeNode::getOrder, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(it1 -> PROFILE_NODE_ID_PREFIX + it1.getId())
                 .collect(Collectors.toList()))
         .build();
