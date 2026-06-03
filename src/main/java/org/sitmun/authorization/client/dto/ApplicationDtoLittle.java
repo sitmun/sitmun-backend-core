@@ -18,7 +18,10 @@ public class ApplicationDtoLittle {
   private Boolean isUnavailable;
   private Boolean appPrivate;
   private Date lastUpdate;
-  private String creator;
+
+  /** Institutional contact email for the application; null when no approved email is configured. */
+  private String pointOfContact;
+
   private Map<String, Object> headerParams;
   private Map<String, String> config;
 

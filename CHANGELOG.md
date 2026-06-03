@@ -36,6 +36,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Point of contact**: `ApplicationDtoLittle` now exposes `pointOfContact` (renamed from `creator`). The field is populated with the selected user's institutional email only; no fallback to name, username, or other personal data. `ApplicationMapper` maps `Application.creator → pointOfContact` explicitly via `@Mapping`. Fixes the viewer showing the current session user's username instead of the configured contact ([sitmun-viewer-app#159](https://github.com/sitmun/sitmun-viewer-app/issues/159)).
+
 - **Auth**: `POST /api/authenticate/proxy` was restricted to `ROLE_ADMIN` via the catch-all rule; standard users (`ROLE_USER`) now have explicit access, fixing silent viewer redirects to login (issue #256).
 - **Auth**: `POST /api/authenticate/logout` is now `permitAll`; stale or anonymous sessions can clear the `access_token` cookie without needing admin credentials.
 
