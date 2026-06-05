@@ -19,3 +19,6 @@ databaseChangeLog:
   - include:
       file: 08_more_info_data.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 09_driver_translation_data.yaml
+      relativeToChangelogFile: true

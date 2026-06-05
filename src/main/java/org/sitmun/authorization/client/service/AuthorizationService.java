@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.background.Background;
@@ -43,7 +44,9 @@ import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +74,7 @@ public class AuthorizationService {
   private final TreeRepository treeRepository;
   private final TreeNodeRepository treeNodeRepository;
   private final TranslationService translationService;
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
 
   public AuthorizationService(
       ApplicationRepository applicationRepository,
@@ -83,7 +87,8 @@ public class AuthorizationService {
       BackgroundRepository backgroundRepository,
       TreeRepository treeRepository,
       TreeNodeRepository treeNodeRepository,
-      TranslationService translationService) {
+      TranslationService translationService,
+      UserApplicationAccessPolicy userApplicationAccessPolicy) {
     this.applicationRepository = applicationRepository;
     this.territoryRepository = territoryRepository;
     this.roleRepository = roleRepository;
@@ -95,6 +100,28 @@ public class AuthorizationService {
     this.treeRepository = treeRepository;
     this.treeNodeRepository = treeNodeRepository;
     this.translationService = translationService;
+    this.userApplicationAccessPolicy = userApplicationAccessPolicy;
+  }
+
+  /**
+   * Account-level gate for list/dashboard client config endpoints. Throws when the user account is
+   * blocked ({@link UserApplicationAccessPolicy#mayUseClientConfigEndpoints}).
+   */
+  public void ensureMayUseClientConfigEndpoints(String username) {
+    if (!userApplicationAccessPolicy.mayUseClientConfigEndpoints(username)) {
+      throw new AccessDeniedException("Access denied: user account is blocked");
+    }
+  }
+
+  /**
+   * App-level gate for territories, profile, and other app-scoped client config endpoints. Throws
+   * when the public principal tries to access a private application. Must be called after {@link
+   * #ensureMayUseClientConfigEndpoints} so that blocked accounts are already rejected.
+   */
+  public void ensureMayAccessApplication(Integer appId, String username) {
+    if (!userApplicationAccessPolicy.mayAccessApplication(appId, username)) {
+      throw new AccessDeniedException("Access denied to application");
+    }
   }
 
   /**
@@ -183,7 +210,7 @@ public class AuthorizationService {
     return page;
   }
 
-  /** Refina la lista de aplicaciones restringiendo a una única aplicación. */
+  /** Finds a single application accessible to {@code username} in the given app/territory pair. */
   public Optional<Application> findApplicationByUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId) {
     Optional<Application> application;
@@ -197,6 +224,78 @@ public class AuthorizationService {
               username, appId, territoryId);
     }
     return application;
+  }
+
+  /**
+   * Enrich applications with territory count information in bulk.
+   *
+   * @param applications the applications to enrich
+   * @param username the current user
+   * @return map of application ID to territory count
+   */
+  public Map<Integer, Integer> getTerritoryCountsByApplications(
+      List<Application> applications, String username) {
+    Map<Integer, Integer> counts = new java.util.HashMap<>();
+    for (Application app : applications) {
+      Pageable unpaged = Pageable.unpaged();
+      Page<Territory> territories =
+          findTerritoriesByUserAndApplication(username, app.getId(), unpaged);
+      counts.put(app.getId(), (int) territories.getTotalElements());
+    }
+    return counts;
+  }
+
+  /**
+   * Find dashboard suggestions (applications and territories) matching keywords.
+   *
+   * @param username the username
+   * @param keywords search keywords
+   * @param maxResults maximum results per category
+   * @return map with "applications" and "territories" lists
+   */
+  public Map<String, List<?>> findDashboardSuggestions(
+      String username, String keywords, int maxResults) {
+    Map<String, List<?>> result = new java.util.HashMap<>();
+
+    if (keywords == null || keywords.trim().length() < 2) {
+      result.put("applications", List.of());
+      result.put("territories", List.of());
+      return result;
+    }
+
+    String normalizedKeywords = keywords.trim().toLowerCase();
+
+    // Find matching applications
+    Pageable appPageable = PageRequest.of(0, maxResults);
+    Page<Application> apps = findApplicationsByUser(username, appPageable);
+    List<Application> filteredApps =
+        apps.getContent().stream()
+            .filter(
+                app -> {
+                  String title = (app.getTitle() != null ? app.getTitle() : app.getName());
+                  String description = app.getDescription();
+                  return (title != null && title.toLowerCase().contains(normalizedKeywords))
+                      || (description != null
+                          && description.toLowerCase().contains(normalizedKeywords));
+                })
+            .limit(maxResults)
+            .toList();
+
+    // Find matching territories
+    Pageable terrPageable = PageRequest.of(0, maxResults);
+    Page<Territory> terrs = findTerritoriesByUser(username, terrPageable);
+    List<Territory> filteredTerrs =
+        terrs.getContent().stream()
+            .filter(
+                terr ->
+                    terr.getName() != null
+                        && terr.getName().toLowerCase().contains(normalizedKeywords))
+            .limit(maxResults)
+            .toList();
+
+    result.put("applications", filteredApps);
+    result.put("territories", filteredTerrs);
+    return result;
   }
 
   @Transactional(readOnly = true)
@@ -437,6 +536,9 @@ public class AuthorizationService {
     Map<Tree, List<TreeNode>> treeNodes = new LinkedHashMap<>();
     profile.getTreeNodes().forEach((tree, nodes) -> treeNodes.put(tree, List.copyOf(nodes)));
 
+    treeNodes.replaceAll(
+        (tree, nodes) -> TreeNodeVisibilityPolicy.filterVisibleInClientProfile(nodes));
+
     if (profile.getContext().getNodeSectionBehaviour().nodePageMode()) {
 
       Integer pivotNode = profile.getContext().getNodeId();
@@ -584,21 +686,5 @@ public class AuthorizationService {
   public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
     return t -> seen.add(keyExtractor.apply(t));
-  }
-
-  /**
-   * Check if the user may access the application based on its privacy settings.
-   *
-   * <p>Users that are not the PUBLIC principal can access any application. Users that are the
-   * PUBLIC principal can only access public applications.
-   *
-   * @param appId ID of the application to check
-   * @param username username of the user trying to access the application
-   * @return true if the user may access the application, false otherwise.
-   */
-  public boolean mayAccessUser(Integer appId, String username) {
-    if (!isPublicPrincipal(username)) return true;
-    Optional<Application> application = applicationRepository.findById(appId);
-    return !application.map(Application::getAppPrivate).orElse(false);
   }
 }

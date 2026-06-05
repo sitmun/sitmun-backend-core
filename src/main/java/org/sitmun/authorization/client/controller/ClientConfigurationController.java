@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,9 +89,8 @@ public class ClientConfigurationController {
       @PathVariable Integer appId,
       Pageable pageable) {
     String username = context.getAuthentication().getName();
-    if (!authorizationService.mayAccessUser(appId, username)) {
-      throw new AccessDeniedException("Access denied to application");
-    }
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
+    authorizationService.ensureMayAccessApplication(appId, username);
     pageable = ensureSortBy(pageable, "name");
     Page<Territory> page =
         authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
@@ -106,7 +104,9 @@ public class ClientConfigurationController {
   @PostMapping(path = "/territory/position", produces = APPLICATION_JSON_VALUE)
   @Transactional
   public ResponseEntity<UserPositionDTO> editTerritoryPositions(
-      @RequestBody UserPositionDTO positionDTOs) {
+      @CurrentSecurityContext SecurityContext context, @RequestBody UserPositionDTO positionDTOs) {
+    String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
     userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);
     return ResponseEntity.ok(positionDTOs);
   }
@@ -123,6 +123,7 @@ public class ClientConfigurationController {
   public PagedModel<ApplicationDtoLittle> getApplications(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
     List<ApplicationDtoLittle> applications =
@@ -147,6 +148,7 @@ public class ClientConfigurationController {
       @PathVariable Integer terrId,
       Pageable pageable) {
     String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
     Page<Application> page =
         authorizationService.findApplicationsByUserAndTerritory(username, terrId, pageable);
@@ -168,12 +170,117 @@ public class ClientConfigurationController {
   public PagedModel<TerritoryDTO> getTerritories(
       @CurrentSecurityContext SecurityContext context, Pageable pageable) {
     String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "name");
     Page<Territory> page = authorizationService.findTerritoriesByUser(username, pageable);
     List<TerritoryDTO> territories =
         Mappers.getMapper(TerritoryMapper.class).map(page.getContent());
     return new PagedModel<>(
         new PageImpl<>(territories, page.getPageable(), page.getTotalElements()));
+  }
+
+  /**
+   * Get dashboard applications enriched with territory counts.
+   *
+   * @param context the security context
+   * @param pageable the pagination information
+   * @return a page of dashboard applications with territory counts
+   */
+  @GetMapping(path = "/dashboard/applications", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
+  public PagedModel<DashboardApplicationDto> getDashboardApplications(
+      @CurrentSecurityContext SecurityContext context, Pageable pageable) {
+    String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
+    pageable = ensureSortBy(pageable, "title");
+    Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
+
+    List<Application> apps = page.getContent();
+    Map<Integer, Integer> territoryCounts =
+        authorizationService.getTerritoryCountsByApplications(apps, username);
+
+    List<DashboardApplicationDto> dashboardApps =
+        apps.stream()
+            .map(
+                app -> {
+                  DashboardApplicationDto dto =
+                      Mappers.getMapper(
+                              org.sitmun.authorization.client.mapper.DashboardMapper.class)
+                          .mapToDashboard(app);
+                  Integer count = territoryCounts.getOrDefault(app.getId(), 0);
+                  dto.setTerritoryCount(count);
+                  dto.setHasTerritories(count > 0);
+                  if (count == 1) {
+                    // Find the single territory ID
+                    Page<Territory> terrs =
+                        authorizationService.findTerritoriesByUserAndApplication(
+                            username, app.getId(), Pageable.unpaged());
+                    if (!terrs.isEmpty()) {
+                      dto.setSingleTerritoryId(terrs.getContent().get(0).getId());
+                    }
+                  }
+                  return dto;
+                })
+            .toList();
+
+    return new PagedModel<>(
+        new PageImpl<>(dashboardApps, page.getPageable(), page.getTotalElements()));
+  }
+
+  /**
+   * Get dashboard suggestions (applications and territories) for search.
+   *
+   * @param context the security context
+   * @param keywords search keywords
+   * @return dashboard suggestions
+   */
+  @GetMapping(path = "/dashboard/suggestions", produces = APPLICATION_JSON_VALUE)
+  @Transactional(readOnly = true)
+  public DashboardSuggestionDto getDashboardSuggestions(
+      @CurrentSecurityContext SecurityContext context,
+      @RequestParam(required = false, defaultValue = "") String keywords) {
+    String username = context.getAuthentication().getName();
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
+    Map<String, List<?>> suggestions =
+        authorizationService.findDashboardSuggestions(username, keywords, 10);
+
+    DashboardSuggestionDto result = new DashboardSuggestionDto();
+
+    @SuppressWarnings("unchecked")
+    List<Application> apps = (List<Application>) suggestions.get("applications");
+    List<DashboardSuggestionDto.ApplicationSuggestion> appSuggestions =
+        apps.stream()
+            .map(
+                app -> {
+                  DashboardSuggestionDto.ApplicationSuggestion s =
+                      new DashboardSuggestionDto.ApplicationSuggestion();
+                  s.setId(app.getId());
+                  s.setName(app.getName());
+                  s.setTitle(app.getTitle());
+                  s.setLogo(app.getLogo());
+                  s.setAppPrivate(app.getAppPrivate());
+                  return s;
+                })
+            .toList();
+
+    @SuppressWarnings("unchecked")
+    List<Territory> terrs = (List<Territory>) suggestions.get("territories");
+    List<DashboardSuggestionDto.TerritorySuggestion> terrSuggestions =
+        terrs.stream()
+            .map(
+                terr -> {
+                  DashboardSuggestionDto.TerritorySuggestion s =
+                      new DashboardSuggestionDto.TerritorySuggestion();
+                  s.setId(terr.getId());
+                  s.setName(terr.getName());
+                  s.setTerritorialAuthorityLogo(terr.getTerritorialAuthorityLogo());
+                  return s;
+                })
+            .toList();
+
+    result.setApplications(appSuggestions);
+    result.setTerritories(terrSuggestions);
+    return result;
   }
 
   /**
@@ -192,9 +299,8 @@ public class ClientConfigurationController {
       @PathVariable Integer terrId,
       @RequestParam(value = "filter", defaultValue = "none") String filter) {
     String username = context.getAuthentication().getName();
-    if (!authorizationService.mayAccessUser(appId, username)) {
-      throw new AccessDeniedException("Access denied to application");
-    }
+    authorizationService.ensureMayUseClientConfigEndpoints(username);
+    authorizationService.ensureMayAccessApplication(appId, username);
 
     AtomicReference<ProfileContext.NodeSectionBehaviour> nodeSectionBehaviour =
         new AtomicReference<>(VIRTUAL_ROOT_ALL_NODES);

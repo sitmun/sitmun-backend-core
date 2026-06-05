@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserChecksService {
 
+  private static final String BUILT_IN_ADMIN_USERNAME = "admin";
+
   private final UserConfigurationRepository userConfigurationRepository;
   private final UserPositionRepository userPositionRepository;
 
@@ -46,6 +48,7 @@ public class UserChecksService {
     try {
       List<String> warnings = new ArrayList<>();
       checkUserConfiguration(user, warnings);
+      checkPasswordSet(user, warnings);
       checkPositionsForUserRole(user, warnings);
       checkRoleWithoutPosition(user, warnings);
       return warnings;
@@ -55,7 +58,21 @@ public class UserChecksService {
     }
   }
 
+  private void checkPasswordSet(User user, List<String> warnings) {
+    if (SecurityConstants.isPublicPrincipal(user.getUsername())
+        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
+      return;
+    }
+    if (!Boolean.TRUE.equals(user.getPasswordSet())) {
+      warnings.add("entity.user.warning.no-password");
+    }
+  }
+
   private void checkUserConfiguration(User user, List<String> warnings) {
+    if (SecurityConstants.isPublicPrincipal(user.getUsername())
+        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
+      return;
+    }
     List<UserConfiguration> configurations = userConfigurationRepository.findByUser(user);
     boolean flagWarnings = configurations.isEmpty();
     if (flagWarnings) {
@@ -64,7 +81,7 @@ public class UserChecksService {
   }
 
   private void checkPositionsForUserRole(User user, List<String> warnings) {
-    if (SecurityConstants.isPublicPrincipal(user.getUsername())) {
+    if (skipsPositionChecks(user)) {
       return;
     }
     List<UserPosition> positions = userPositionRepository.findByUser(user);
@@ -72,9 +89,7 @@ public class UserChecksService {
     for (UserPosition position : positions) {
       flagWarnings =
           StringUtils.isBlank(position.getName())
-              || StringUtils.isBlank(position.getOrganization())
-              || StringUtils.isBlank(position.getEmail())
-              || StringUtils.isBlank(position.getType());
+              || StringUtils.isBlank(position.getOrganization());
       if (flagWarnings) {
         break;
       }
@@ -86,7 +101,7 @@ public class UserChecksService {
 
   /** Read-only check: adds warning if user has roles (configurations) without a position. */
   private void checkRoleWithoutPosition(User user, List<String> warnings) {
-    if (SecurityConstants.isPublicPrincipal(user.getUsername())) {
+    if (skipsPositionChecks(user)) {
       return;
     }
     List<Territory> territories =
@@ -110,11 +125,11 @@ public class UserChecksService {
   /**
    * Creates a UserPosition for each (user, territory) from the user's configurations when missing.
    * Call from a write context (e.g. after saving UserConfiguration), not from projection
-   * serialization. The UI does not allow adding positions for roles; this enforces the invariant.
+   * serialization. Ensures at least one position row exists per configured territory.
    */
   @Transactional
   public void enforcePositionsForUser(User user) {
-    if (user == null || SecurityConstants.isPublicPrincipal(user.getUsername())) {
+    if (user == null || skipsPositionChecks(user)) {
       return;
     }
     List<Territory> territories =
@@ -130,5 +145,10 @@ public class UserChecksService {
         positions.add(newPosition);
       }
     }
+  }
+
+  private boolean skipsPositionChecks(User user) {
+    return SecurityConstants.isPublicPrincipal(user.getUsername())
+        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername());
   }
 }

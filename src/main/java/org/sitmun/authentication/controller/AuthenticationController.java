@@ -111,9 +111,7 @@ public class AuthenticationController {
 
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-    final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, null);
-    cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), 0);
-    response.addCookie(cookie);
+    cookieService.clearAccessTokenCookie(request, response);
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 }

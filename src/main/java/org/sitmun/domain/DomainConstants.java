@@ -118,6 +118,7 @@ public class DomainConstants {
     // Task type IDs (from STM_TSK_TYP)
     public static final int TASK_TYPE_ID_EDIT = 0;
     public static final int TASK_TYPE_ID_BASIC = 1;
+    public static final int TASK_TYPE_ID_LOCATOR = 4;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
 
@@ -142,6 +143,10 @@ public class DomainConstants {
       }
       Map<String, Object> properties = task.getProperties();
       return properties == null || !properties.containsKey(PROPERTY_SCOPE);
+    }
+
+    public static boolean isLocatorTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_LOCATOR).equals(taskTypeId(task));
     }
 
     public static boolean isMoreInfoTask(Task task) {

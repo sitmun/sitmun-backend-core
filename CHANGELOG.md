@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-06-05
+
+### Added
+
+- **Dashboard API**: added paginated `GET /api/config/client/dashboard/applications` and suggestions support, including `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`, and controller tests.
+- **Validation**: aligned `UserDTO` length constraints (`firstName`, `lastName`, `email`) with DB limits.
+- **Startup invariants**: added `UserBuiltInStartupValidator` checks for built-in `admin`/`public` users and aligned dev seed data so built-ins do not carry `UserPosition` rows.
+- Application contact (profile DTO): `ApplicationMapper` now publishes institutional email in `ApplicationDto.creator` (instead of username) for profile payloads.
+- **Territory view**: `Territory.getComputedView()` now drives profile `ApplicationDto.initialExtent`; includes coverage for null/legacy/offset-center edge cases.
+- **Client profile tasks**: added locator task type mapping (`TaskLocatorService`) with proxy URL wiring and linked query-task execution scope handling.
+- **Client profile metadata**: profile `ApplicationDto` now includes territory metadata fields (`territoryCode`, `territoryName`, authority fields, and territory type name).
+- **Tests**: expanded focused coverage for account/security guards, built-in-user invariants, creator-email mapping, locator-task mapping, and profile integration fixtures.
+
+### Security
+
+- **Account API**: `GET /api/account/{id}` is now self-or-admin only and `GET /api/account/all` is admin-only.
+- **JWT filter**: `JsonWebTokenFilter` now rejects blocked accounts with HTTP 401 and clears `access_token` using centralized cookie-expiry behavior.
+- **Auth endpoints**: `POST /api/authenticate/proxy` now supports `ROLE_USER`; `POST /api/authenticate/logout` is `permitAll` for stale/anonymous cleanup.
+- **Proxy RBAC**: `ProxyConfigurationService.validateUserAccess` now blocks built-in `public` and blocked principals on protected/private app contexts (unless explicit bypass flag is enabled).
+- **Client config RBAC**: `/api/config/client/**` now applies blocked/public access rules consistently (401 for anonymous public principal, 403 for authenticated blocked users).
+
+### Changed
+
+- **MoreInfoTaskResolver**: `resolveOrSelf` delegates locator tasks to linked `query-task` relations (same as more-info tasks).
+- **User positions**: multiple `UserPosition` rows per `(user, territory)` are allowed; JPA unique constraint removed and schema changelogs no longer create `(POS_USERID, POS_TERID)` unique keys.
+- **User warnings**: tightened warning conditions (`position-without-details` requires only missing `name`/`organization`; `no-password` applies to non-built-in users).
+- **User password**: `UserEventHandler` now rejects empty-string password assignment on create/update (`null` update still preserves existing hash).
+
+### Fixed
+
+- **Point of contact (little DTO)**: `ApplicationDtoLittle` now exposes `pointOfContact` (renamed from `creator`) as institutional email only, fixing viewer-side contact resolution ([sitmun-viewer-app#159](https://github.com/sitmun/sitmun-viewer-app/issues/159)).
+- **Auth compatibility**: fixed role restrictions that blocked viewer proxy refresh/logout flows by enabling `ROLE_USER` proxy-token refresh and `permitAll` logout cleanup ([#256](https://github.com/sitmun/sitmun-viewer-app/issues/256)).
+- **Database Schema**: Oracle bootstrap no longer uses `DEFAULT FALSE` for `STM_TREE_NOD.TNO_LOAD_DATA` and `STM_TREE_NOD.TNO_FILTERABLE`; both defaults are now `DEFAULT 0` for Oracle 24 compatibility ([#43](https://github.com/sitmun/sitmun-application-stack/issues/43)). Existing Oracle databases that already executed changeset `sitmun:1` may require checksum reconciliation before applying upgrades.
+
 ## [1.2.6] - 2026-05-08
 
 ### Added
@@ -270,7 +304,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...HEAD
+[1.2.7]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...sitmun-backend-core/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.4...sitmun-backend-core/1.2.5
 [1.2.4]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.3...sitmun-backend-core/1.2.4

@@ -28,7 +28,8 @@ public class TranslationService {
   }
 
   public void updateInternationalization(Object target) {
-    String languageTag = LocaleContextHolder.getLocale().getLanguage();
+    // Use full BCP-47 tag (e.g. "oc-aranes"), not getLanguage() which strips variants to "oc".
+    String languageTag = LocaleContextHolder.getLocale().toLanguageTag();
     log.debug(
         "TranslationService.updateInternationalization targetClass={} languageTag={} defaultLanguage={}",
         target != null ? target.getClass().getName() : "null",

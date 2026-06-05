@@ -198,4 +198,41 @@ class MoreInfoTaskResolverTest {
     // Then
     assertSame(queryTask, result);
   }
+
+  @Test
+  @DisplayName("resolveOrSelf returns input task when locator task has no related query task")
+  void resolveOrSelfReturnsInputTaskWhenLocatorHasNoRelatedQueryTask() {
+    Task locatorTask = mock(Task.class);
+    TaskType locatorType = mock(TaskType.class);
+    when(locatorType.getId()).thenReturn(TASK_TYPE_ID_LOCATOR);
+    when(locatorTask.getType()).thenReturn(locatorType);
+    when(locatorTask.getRelations()).thenReturn(Set.of());
+
+    Task result = resolver.resolveOrSelf(locatorTask);
+
+    assertSame(locatorTask, result);
+  }
+
+  @Test
+  @DisplayName("resolveOrSelf returns the related query task for locator tasks")
+  void resolveOrSelfReturnsRelatedQueryTaskForLocatorTasks() {
+    Task locatorTask = mock(Task.class);
+    Task queryTask = mock(Task.class);
+
+    TaskType locatorType = mock(TaskType.class);
+    when(locatorType.getId()).thenReturn(TASK_TYPE_ID_LOCATOR);
+    when(locatorTask.getType()).thenReturn(locatorType);
+
+    TaskRelation queryRelation =
+        TaskRelation.builder()
+            .relationType(RELATION_TYPE_QUERY_TASK)
+            .relatedTask(queryTask)
+            .build();
+
+    when(locatorTask.getRelations()).thenReturn(Set.of(queryRelation));
+
+    Task result = resolver.resolveOrSelf(locatorTask);
+
+    assertSame(queryTask, result);
+  }
 }

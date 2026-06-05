@@ -42,7 +42,11 @@ public class MoreInfoTaskResolver {
    * @return the execution task (query task if linked, or the input task itself)
    */
   public Task resolveOrSelf(Task task) {
-    if (task == null || !DomainConstants.Tasks.isMoreInfoTask(task)) {
+    if (task == null) {
+      return null;
+    }
+    // Both more-info tasks and locator tasks delegate execution to a linked query task.
+    if (!DomainConstants.Tasks.isMoreInfoTask(task) && !DomainConstants.Tasks.isLocatorTask(task)) {
       return task;
     }
     return findRelatedQueryTask(task).orElse(task);

@@ -69,6 +69,28 @@ class ClientConfigurationApplicationControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Default page size applies without explicit size")
+  void readUsesConfiguredDefaultPageSize() throws Exception {
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI).with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.size", is(pageSize)))
+        .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalElements", is(5)));
+  }
+
+  @Test
+  @DisplayName("GET: Explicit size=10 page blocks")
+  void readExplicitPageBlocks() throws Exception {
+    mvc.perform(
+            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=10&page=0")
+                .with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(5)))
+        .andExpect(jsonPath("$.page.size", is(10)))
+        .andExpect(jsonPath("$.page.totalElements", is(5)));
+  }
+
+  @Test
   @DisplayName("GET: Request out of bounds")
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
     mvc.perform(
@@ -79,5 +101,25 @@ class ClientConfigurationApplicationControllerTest {
         .andExpect(jsonPath("$.page.size", is(1)))
         .andExpect(jsonPath("$.page.number", is(5)))
         .andExpect(jsonPath("$.page.totalPages", is(5)));
+  }
+
+  @Test
+  @DisplayName("GET: Max page size cap is enforced")
+  void readMaxPageSizeCap() throws Exception {
+    // Request size exactly at cap should succeed
+    mvc.perform(
+            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + pageSize)
+                .with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.size", is(pageSize)))
+        .andExpect(jsonPath("$.content", hasSize(5)));
+
+    // Request size exceeding cap should be capped to max
+    mvc.perform(
+            get(URIConstants.CONFIG_CLIENT_APPLICATION_URI + "?size=" + (pageSize + 1))
+                .with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.size", is(pageSize)))
+        .andExpect(jsonPath("$.content", hasSize(5)));
   }
 }

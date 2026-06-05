@@ -6,6 +6,7 @@ import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 import java.util.List;
 import org.sitmun.authentication.handler.OidcAuthenticationFailureHandler;
 import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
@@ -57,6 +58,7 @@ import org.springframework.web.filter.CorsFilter;
  */
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class WebSecurityConfigurer {
 
   private final SecurityEntryPoint unauthorizedHandler;
@@ -66,6 +68,8 @@ public class WebSecurityConfigurer {
   private final JsonWebTokenService jsonWebTokenService;
 
   private final UserRepository userRepository;
+
+  private final CookieService cookieService;
 
   private final List<PasswordStorage> passwordStorageList;
 
@@ -77,17 +81,20 @@ public class WebSecurityConfigurer {
       SecurityEntryPoint unauthorizedHandler,
       JsonWebTokenService jsonWebTokenService,
       List<PasswordStorage> passwordStorageList,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      CookieService cookieService) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
     this.userRepository = userRepository;
+    this.cookieService = cookieService;
   }
 
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
-    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService, userRepository);
+    return new JsonWebTokenFilter(
+        userDetailsService, jsonWebTokenService, userRepository, cookieService);
   }
 
   @Bean
@@ -225,6 +232,8 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/logout"))
+        .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/password-reset/**"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.PUT, "/api/password-reset/**"))
@@ -267,6 +276,8 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/user-verification/**"))
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
+        .hasRole(USER.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasRole(USER.name());
   }
 

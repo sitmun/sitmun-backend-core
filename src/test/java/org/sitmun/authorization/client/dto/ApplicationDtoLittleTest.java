@@ -32,9 +32,10 @@ class ApplicationDtoLittleTest {
     dto.setIsUnavailable(false);
     dto.setAppPrivate(false);
     dto.setLastUpdate(testDate);
-    dto.setCreator("Test Creator");
+    dto.setPointOfContact("contact@example.com");
     dto.setHeaderParams(testHeaderParams);
     dto.setConfig(testConfig);
+    dto.setExternalUrl("https://www.idee.es");
 
     // Then
     assertThat(dto.getId()).isEqualTo(1);
@@ -46,9 +47,10 @@ class ApplicationDtoLittleTest {
     assertThat(dto.getIsUnavailable()).isFalse();
     assertThat(dto.getAppPrivate()).isFalse();
     assertThat(dto.getLastUpdate()).isEqualTo(testDate);
-    assertThat(dto.getCreator()).isEqualTo("Test Creator");
+    assertThat(dto.getPointOfContact()).isEqualTo("contact@example.com");
     assertThat(dto.getHeaderParams()).isEqualTo(testHeaderParams);
     assertThat(dto.getConfig()).isEqualTo(testConfig);
+    assertThat(dto.getExternalUrl()).isEqualTo("https://www.idee.es");
   }
 
   @Test
