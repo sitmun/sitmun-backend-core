@@ -12,7 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`; `ClientConfigurationDashboardControllerTest`.
 - **Security**: `GET /api/account/{id}` now restricted to the account owner or `ROLE_ADMIN`; unauthorized access returns HTTP 403.
 - **Security**: `GET /api/account/all` restricted to `ROLE_ADMIN` only (`@PreAuthorize("hasRole('ADMIN')")`).
-- **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`); the security context is cleared and the request continues unauthenticated.
+- **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`) with HTTP 401 instead of continuing the request as anonymous `public`, and clears the `access_token` cookie on that response (same as logout).
+- **Security**: `CookieService.clearAccessTokenCookie` centralizes session cookie expiry; used by logout, blocked-JWT rejection, and `DomainExceptionHandler` on HTTP 403 when the authenticated principal is blocked.
 - **Security**: `POST /api/authenticate/proxy` is now accessible to authenticated standard users (`ROLE_USER`), allowing the viewer proxy-token refresh to work for non-admin accounts.
 - **Security**: `POST /api/authenticate/logout` is now `permitAll`, allowing the session cookie to be cleared even from stale or anonymous sessions.
 - **Validation**: `UserDTO` `@Size(max = 50)` on `firstName`, `lastName`, and `email` aligned with DB column length (`PersistenceConstants.IDENTIFIER`).
@@ -25,6 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Client profile — locator tasks**: `TaskLocatorService` maps task type id 4 (locator) to viewer `TaskDto` with flat string parameters (`resultsPath`, `labelField`, etc.) and proxy URLs keyed by the locator task id while execution scope comes from the linked query task.
 - **Client profile — territory metadata**: `ApplicationDto` exposes `territoryCode`, `territoryName`, `territoryDescription`, `territorialAuthorityName`, `territorialAuthorityAddress`, and `territoryTypeName` from the profile territory.
 - **Tests**: `TaskLocatorServiceTest`, locator cases in `MoreInfoTaskResolverTest` and `ProxyConfigurationServiceTest`; profile integration for locator task 41 and territory AppCfg fields; test seed type 4 in `STM_TSK_TYP.csv` and locator `query-task` fixture.
+
+### Security
+
+- **Proxy RBAC**: `ProxyConfigurationService.validateUserAccess` denies blocked user accounts (including the built-in `public` user) and denies the public principal on private applications (`appPrivate`) when `sitmun.proxy-middleware.validate-user-access` is enabled (default). Blocked users with a non-expired JWT can no longer obtain proxy configuration; config flag `false` still bypasses all checks.
+- **Client config**: `/api/config/client/**` denies blocked accounts on list, dashboard, profile, and territory-position endpoints via shared `UserApplicationAccessPolicy` (parity with proxy account and public/private-app gates). Anonymous `public` receives 401; authenticated blocked users receive 403.
 
 ### Changed
 
