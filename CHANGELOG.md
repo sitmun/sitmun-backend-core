@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - **Point of contact (little DTO)**: `ApplicationDtoLittle` now exposes `pointOfContact` (renamed from `creator`) as institutional email only, fixing viewer-side contact resolution ([sitmun-viewer-app#159](https://github.com/sitmun/sitmun-viewer-app/issues/159)).
 - **Auth compatibility**: fixed role restrictions that blocked viewer proxy refresh/logout flows by enabling `ROLE_USER` proxy-token refresh and `permitAll` logout cleanup ([#256](https://github.com/sitmun/sitmun-viewer-app/issues/256)).
+- **Database Schema**: Oracle bootstrap no longer uses `DEFAULT FALSE` for `STM_TREE_NOD.TNO_LOAD_DATA` and `STM_TREE_NOD.TNO_FILTERABLE`; both defaults are now `DEFAULT 0` for Oracle 24 compatibility ([#43](https://github.com/sitmun/sitmun-application-stack/issues/43)). Existing Oracle databases that already executed changeset `sitmun:1` may require checksum reconciliation before applying upgrades.
 
 ## [1.2.6] - 2026-05-08
 
