@@ -8,44 +8,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Paginated `GET /api/config/client/dashboard/applications` and search suggestions for viewer dashboard.
-- `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`; `ClientConfigurationDashboardControllerTest`.
-- **Security**: `GET /api/account/{id}` now restricted to the account owner or `ROLE_ADMIN`; unauthorized access returns HTTP 403.
-- **Security**: `GET /api/account/all` restricted to `ROLE_ADMIN` only (`@PreAuthorize("hasRole('ADMIN')")`).
-- **Security**: `JsonWebTokenFilter` rejects requests carrying a valid JWT for a blocked user (`!isAccountNonLocked()`) with HTTP 401 instead of continuing the request as anonymous `public`, and clears the `access_token` cookie on that response (same as logout).
-- **Security**: `CookieService.clearAccessTokenCookie` centralizes session cookie expiry; used by logout, blocked-JWT rejection, and `DomainExceptionHandler` on HTTP 403 when the authenticated principal is blocked.
-- **Security**: `POST /api/authenticate/proxy` is now accessible to authenticated standard users (`ROLE_USER`), allowing the viewer proxy-token refresh to work for non-admin accounts.
-- **Security**: `POST /api/authenticate/logout` is now `permitAll`, allowing the session cookie to be cleared even from stale or anonymous sessions.
-- **Validation**: `UserDTO` `@Size(max = 50)` on `firstName`, `lastName`, and `email` aligned with DB column length (`PersistenceConstants.IDENTIFIER`).
-- **Invariants (startup)**: `UserBuiltInStartupValidator` (`ApplicationRunner`) validates built-in user state on startup. Admin: must exist, `administrator=true`, `blocked=false`, password set, no `UserPosition` rows. Public: must exist, `administrator=false`, no password, no PII fields, no `UserPosition` rows (`blocked` may be true).
-- **Application contact**: `ApplicationMapper` now maps `ApplicationDto.creator` from `user.getEmail()` (null-safe) instead of `user.getUsername()`.
-- **Tests**: `UserControllerTest` for account API authorization guards; `UserBuiltInStartupValidatorTest` for startup invariants; `JsonWebTokenFilterTest` for blocked-user JWT rejection; `ApplicationMapperTest` for creator-email mapping; extended `UserPositionRepositoryDataRestTest` for multiple positions per territory.
-- **Test / seed data**: built-in `admin` and `public` user position fixtures moved from user IDs 1/2 to normal users in `STM_POST.csv`; `STM_USER.csv` updated accordingly.
-- **Territory computed view**: `Territory.getComputedView()` method combines extent and center point to create an optimal initial map view. When both extent and a valid center point exist, returns an envelope centered on the point of interest that is large enough to include the full territorial extent. Handles legacy data by returning extent as-is when center is null, (0,0), or has null coordinates. `ProfileMapper.copyInitialExtentFromTerritory()` now uses `getComputedView()` instead of raw extent for client profile `ApplicationDto.initialExtent`.
-- **Tests**: `TerritoryRepositoryTest` comprehensive coverage for `getComputedView()` edge cases (null extent, null center, legacy (0,0), centered point, offset point).
-- **Client profile — locator tasks**: `TaskLocatorService` maps task type id 4 (locator) to viewer `TaskDto` with flat string parameters (`resultsPath`, `labelField`, etc.) and proxy URLs keyed by the locator task id while execution scope comes from the linked query task.
-- **Client profile — territory metadata**: `ApplicationDto` exposes `territoryCode`, `territoryName`, `territoryDescription`, `territorialAuthorityName`, `territorialAuthorityAddress`, and `territoryTypeName` from the profile territory.
-- **Tests**: `TaskLocatorServiceTest`, locator cases in `MoreInfoTaskResolverTest` and `ProxyConfigurationServiceTest`; profile integration for locator task 41 and territory AppCfg fields; test seed type 4 in `STM_TSK_TYP.csv` and locator `query-task` fixture.
+- **Dashboard API**: added paginated `GET /api/config/client/dashboard/applications` and suggestions support, including `DashboardApplicationDto`, `DashboardSuggestionDto`, `DashboardMapper`, and controller tests.
+- **Validation**: aligned `UserDTO` length constraints (`firstName`, `lastName`, `email`) with DB limits.
+- **Startup invariants**: added `UserBuiltInStartupValidator` checks for built-in `admin`/`public` users and aligned dev seed data so built-ins do not carry `UserPosition` rows.
+- Application contact (profile DTO): `ApplicationMapper` now publishes institutional email in `ApplicationDto.creator` (instead of username) for profile payloads.
+- **Territory view**: `Territory.getComputedView()` now drives profile `ApplicationDto.initialExtent`; includes coverage for null/legacy/offset-center edge cases.
+- **Client profile tasks**: added locator task type mapping (`TaskLocatorService`) with proxy URL wiring and linked query-task execution scope handling.
+- **Client profile metadata**: profile `ApplicationDto` now includes territory metadata fields (`territoryCode`, `territoryName`, authority fields, and territory type name).
+- **Tests**: expanded focused coverage for account/security guards, built-in-user invariants, creator-email mapping, locator-task mapping, and profile integration fixtures.
 
 ### Security
 
-- **Proxy RBAC**: `ProxyConfigurationService.validateUserAccess` denies blocked user accounts (including the built-in `public` user) and denies the public principal on private applications (`appPrivate`) when `sitmun.proxy-middleware.validate-user-access` is enabled (default). Blocked users with a non-expired JWT can no longer obtain proxy configuration; config flag `false` still bypasses all checks.
-- **Client config**: `/api/config/client/**` denies blocked accounts on list, dashboard, profile, and territory-position endpoints via shared `UserApplicationAccessPolicy` (parity with proxy account and public/private-app gates). Anonymous `public` receives 401; authenticated blocked users receive 403.
+- **Account API**: `GET /api/account/{id}` is now self-or-admin only and `GET /api/account/all` is admin-only.
+- **JWT filter**: `JsonWebTokenFilter` now rejects blocked accounts with HTTP 401 and clears `access_token` using centralized cookie-expiry behavior.
+- **Auth endpoints**: `POST /api/authenticate/proxy` now supports `ROLE_USER`; `POST /api/authenticate/logout` is `permitAll` for stale/anonymous cleanup.
+- **Proxy RBAC**: `ProxyConfigurationService.validateUserAccess` now blocks built-in `public` and blocked principals on protected/private app contexts (unless explicit bypass flag is enabled).
+- **Client config RBAC**: `/api/config/client/**` now applies blocked/public access rules consistently (401 for anonymous public principal, 403 for authenticated blocked users).
 
 ### Changed
 
 - **MoreInfoTaskResolver**: `resolveOrSelf` delegates locator tasks to linked `query-task` relations (same as more-info tasks).
 - **User positions**: multiple `UserPosition` rows per `(user, territory)` are allowed; JPA unique constraint removed and schema changelogs no longer create `(POS_USERID, POS_TERID)` unique keys.
-- **User warnings**: `entity.user.warning.position-without-details` is raised only when a position row is missing `name` or `organization` (email and type no longer required for the admin warning).
-- **User warnings**: `entity.user.warning.no-password` when a non-built-in user has no password (`public` and `admin` excluded).
-- **User password**: `UserEventHandler` rejects create/update requests that assign an empty password; clearing a password via `""` is no longer allowed (`null` on update still preserves the stored hash).
+- **User warnings**: tightened warning conditions (`position-without-details` requires only missing `name`/`organization`; `no-password` applies to non-built-in users).
+- **User password**: `UserEventHandler` now rejects empty-string password assignment on create/update (`null` update still preserves existing hash).
 
 ### Fixed
 
-- **Point of contact**: `ApplicationDtoLittle` now exposes `pointOfContact` (renamed from `creator`). The field is populated with the selected user's institutional email only; no fallback to name, username, or other personal data. `ApplicationMapper` maps `Application.creator → pointOfContact` explicitly via `@Mapping`. Fixes the viewer showing the current session user's username instead of the configured contact ([sitmun-viewer-app#159](https://github.com/sitmun/sitmun-viewer-app/issues/159)).
+- **Point of contact (little DTO)**: `ApplicationDtoLittle` now exposes `pointOfContact` (renamed from `creator`) as institutional email only, fixing viewer-side contact resolution ([sitmun-viewer-app#159](https://github.com/sitmun/sitmun-viewer-app/issues/159)).
+- **Auth compatibility**: fixed role restrictions that blocked viewer proxy refresh/logout flows by enabling `ROLE_USER` proxy-token refresh and `permitAll` logout cleanup ([#256](https://github.com/sitmun/sitmun-viewer-app/issues/256)).
 
-- **Auth**: `POST /api/authenticate/proxy` was restricted to `ROLE_ADMIN` via the catch-all rule; standard users (`ROLE_USER`) now have explicit access, fixing silent viewer redirects to login (issue #256).
-- **Auth**: `POST /api/authenticate/logout` is now `permitAll`; stale or anonymous sessions can clear the `access_token` cookie without needing admin credentials.
+## [1.2.6] - 2026-05-08
 
 ### Added
 
