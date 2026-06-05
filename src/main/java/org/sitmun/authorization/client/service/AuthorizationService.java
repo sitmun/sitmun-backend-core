@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.background.Background;
@@ -45,6 +46,7 @@ import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +74,7 @@ public class AuthorizationService {
   private final TreeRepository treeRepository;
   private final TreeNodeRepository treeNodeRepository;
   private final TranslationService translationService;
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
 
   public AuthorizationService(
       ApplicationRepository applicationRepository,
@@ -84,7 +87,8 @@ public class AuthorizationService {
       BackgroundRepository backgroundRepository,
       TreeRepository treeRepository,
       TreeNodeRepository treeNodeRepository,
-      TranslationService translationService) {
+      TranslationService translationService,
+      UserApplicationAccessPolicy userApplicationAccessPolicy) {
     this.applicationRepository = applicationRepository;
     this.territoryRepository = territoryRepository;
     this.roleRepository = roleRepository;
@@ -96,6 +100,28 @@ public class AuthorizationService {
     this.treeRepository = treeRepository;
     this.treeNodeRepository = treeNodeRepository;
     this.translationService = translationService;
+    this.userApplicationAccessPolicy = userApplicationAccessPolicy;
+  }
+
+  /**
+   * Account-level gate for list/dashboard client config endpoints. Throws when the user account is
+   * blocked ({@link UserApplicationAccessPolicy#mayUseClientConfigEndpoints}).
+   */
+  public void ensureMayUseClientConfigEndpoints(String username) {
+    if (!userApplicationAccessPolicy.mayUseClientConfigEndpoints(username)) {
+      throw new AccessDeniedException("Access denied: user account is blocked");
+    }
+  }
+
+  /**
+   * App-level gate for territories, profile, and other app-scoped client config endpoints. Throws
+   * when the public principal tries to access a private application. Must be called after {@link
+   * #ensureMayUseClientConfigEndpoints} so that blocked accounts are already rejected.
+   */
+  public void ensureMayAccessApplication(Integer appId, String username) {
+    if (!userApplicationAccessPolicy.mayAccessApplication(appId, username)) {
+      throw new AccessDeniedException("Access denied to application");
+    }
   }
 
   /**
@@ -184,7 +210,7 @@ public class AuthorizationService {
     return page;
   }
 
-  /** Refina la lista de aplicaciones restringiendo a una única aplicación. */
+  /** Finds a single application accessible to {@code username} in the given app/territory pair. */
   public Optional<Application> findApplicationByUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId) {
     Optional<Application> application;
@@ -198,17 +224,6 @@ public class AuthorizationService {
               username, appId, territoryId);
     }
     return application;
-  }
-
-  /**
-   * Get dashboard applications enriched with territory counts for the current user.
-   *
-   * @param username the username
-   * @param pageable the pagination information
-   * @return page of dashboard applications with territory counts
-   */
-  public Page<Application> findDashboardApplicationsByUser(String username, Pageable pageable) {
-    return findApplicationsByUser(username, pageable);
   }
 
   /**
@@ -671,21 +686,5 @@ public class AuthorizationService {
   public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
     return t -> seen.add(keyExtractor.apply(t));
-  }
-
-  /**
-   * Check if the user may access the application based on its privacy settings.
-   *
-   * <p>Users that are not the PUBLIC principal can access any application. Users that are the
-   * PUBLIC principal can only access public applications.
-   *
-   * @param appId ID of the application to check
-   * @param username username of the user trying to access the application
-   * @return true if the user may access the application, false otherwise.
-   */
-  public boolean mayAccessUser(Integer appId, String username) {
-    if (!isPublicPrincipal(username)) return true;
-    Optional<Application> application = applicationRepository.findById(appId);
-    return !application.map(Application::getAppPrivate).orElse(false);
   }
 }

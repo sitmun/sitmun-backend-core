@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
 import org.sitmun.authorization.proxy.decorators.SqlUserParametrizationDecorator;
@@ -93,7 +94,8 @@ class ProxyConfigurationServiceTest {
             Collections.emptyList(), // Empty validators list for non-validation tests
             systemVariableResolver,
             moreInfoTaskResolver,
-            taskParameterProcessor);
+            taskParameterProcessor,
+            new UserApplicationAccessPolicy(userRepository, applicationRepository));
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
@@ -123,7 +125,8 @@ class ProxyConfigurationServiceTest {
             validators,
             systemVariableResolver,
             moreInfoTaskResolver,
-            taskParameterProcessor);
+            taskParameterProcessor,
+            new UserApplicationAccessPolicy(userRepository, applicationRepository));
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
     return serviceWithValidator;

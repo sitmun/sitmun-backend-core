@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.domain.application.Application;
@@ -45,6 +47,10 @@ class ClientConfigurationControllerTest {
   @MockitoBean private TranslationRepository translationRepository;
 
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
+
+  @MockitoBean private CookieService cookieService;
+
+  @MockitoBean private UserApplicationAccessPolicy userApplicationAccessPolicy;
 
   @Test
   @DisplayName("GET: Applications should be decorated with mbtiles URL")

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
 import org.sitmun.authorization.proxy.decorators.SqlUserParametrizationDecorator;
@@ -84,7 +85,8 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
             Collections.emptyList(),
             systemVariableResolver,
             moreInfoTaskResolver,
-            taskParameterProcessor);
+            taskParameterProcessor,
+            new UserApplicationAccessPolicy(userRepository, applicationRepository));
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
