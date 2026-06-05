@@ -42,7 +42,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
-  version: 1.2.7-SNAPSHOT
+  version: 1.2.7
   contact:
     name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
