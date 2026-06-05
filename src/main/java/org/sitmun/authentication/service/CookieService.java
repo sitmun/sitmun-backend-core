@@ -1,6 +1,9 @@
 package org.sitmun.authentication.service;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,5 +29,12 @@ public class CookieService {
     cookie.setPath("/");
     cookie.setAttribute("SameSite", sameSiteCookie);
     cookie.setMaxAge(maxAge);
+  }
+
+  /** Expires the session JWT cookie (same attributes as login/logout). */
+  public void clearAccessTokenCookie(HttpServletRequest request, HttpServletResponse response) {
+    Cookie cookie = new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, null);
+    customizeAccessTokenCookie(cookie, request.isSecure(), 0);
+    response.addCookie(cookie);
   }
 }

@@ -2,12 +2,16 @@ package org.sitmun.infrastructure.security.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -18,29 +22,42 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sitmun.authentication.controller.AuthenticationController;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.security.core.userdetails.UserDetailsImplementation;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JsonWebTokenFilter")
 class JsonWebTokenFilterTest {
 
+  private static final String BLOCKED_USERNAME = "blockeduser";
+  private static final String ACTIVE_USERNAME = "activeuser";
+  private static final String JWT = "valid.jwt.token";
+
   @Mock private UserDetailsService userDetailsService;
   @Mock private JsonWebTokenService jsonWebTokenService;
   @Mock private UserRepository userRepository;
+  @Mock private CookieService cookieService;
   @Mock private FilterChain filterChain;
 
   private JsonWebTokenFilter filter;
+  private MockHttpServletRequest request;
+  private MockHttpServletResponse response;
 
   @BeforeEach
   void setUp() {
-    filter = new JsonWebTokenFilter(userDetailsService, jsonWebTokenService, userRepository);
+    filter =
+        new JsonWebTokenFilter(
+            userDetailsService, jsonWebTokenService, userRepository, cookieService);
+    request = new MockHttpServletRequest();
+    response = new MockHttpServletResponse();
     SecurityContextHolder.clearContext();
   }
 
@@ -50,52 +67,114 @@ class JsonWebTokenFilterTest {
   }
 
   @Test
-  @DisplayName("Blocked user's valid JWT is rejected: security context stays empty")
-  void blockedUserJwtIsRejected() throws Exception {
-    UserDetails blockedDetails = mock(UserDetails.class);
-    when(blockedDetails.isAccountNonLocked()).thenReturn(false);
-
-    when(jsonWebTokenService.getUsernameFromToken(anyString())).thenReturn("blocked");
-    when(userDetailsService.loadUserByUsername("blocked")).thenReturn(blockedDetails);
-
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    jakarta.servlet.http.Cookie cookie =
-        new jakarta.servlet.http.Cookie(
-            AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, "some.valid.token");
-    request.setCookies(cookie);
-
-    MockHttpServletResponse response = new MockHttpServletResponse();
-
+  @DisplayName("continues filter chain when no JWT cookie is present")
+  void continuesFilterChainWhenNoJwtCookie() throws Exception {
     filter.doFilter(request, response, filterChain);
 
-    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     verify(filterChain).doFilter(request, response);
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
-  @DisplayName("Non-locked user's valid JWT is authenticated")
-  void nonLockedUserJwtIsAuthenticated() throws Exception {
-    UserDetails activeDetails = mock(UserDetails.class);
-    when(activeDetails.isAccountNonLocked()).thenReturn(true);
-    when(activeDetails.getAuthorities()).thenReturn(List.of());
-
-    User user = User.builder().username("active").blocked(false).build();
-
-    when(jsonWebTokenService.getUsernameFromToken(anyString())).thenReturn("active");
-    when(userDetailsService.loadUserByUsername("active")).thenReturn(activeDetails);
-    when(userRepository.findByUsername("active")).thenReturn(Optional.of(user));
-    when(jsonWebTokenService.validateToken(anyString(), any(), any())).thenReturn(true);
-
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    jakarta.servlet.http.Cookie cookie =
-        new jakarta.servlet.http.Cookie(
-            AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, "some.valid.token");
-    request.setCookies(cookie);
-
-    MockHttpServletResponse response = new MockHttpServletResponse();
+  @DisplayName("rejects blocked account JWT with 401 and does not continue filter chain")
+  void rejectsBlockedAccountJwtWith401() throws Exception {
+    request.setCookies(
+        new jakarta.servlet.http.Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(BLOCKED_USERNAME);
+    UserDetailsImplementation blockedDetails =
+        UserDetailsImplementation.build(
+            User.builder()
+                .id(1)
+                .username(BLOCKED_USERNAME)
+                .blocked(true)
+                .administrator(false)
+                .build());
+    when(userDetailsService.loadUserByUsername(BLOCKED_USERNAME)).thenReturn(blockedDetails);
 
     filter.doFilter(request, response, filterChain);
 
+    assertThat(response.getStatus()).isEqualTo(401);
+    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(filterChain, never()).doFilter(any(), any());
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("continues filter chain when cookie name does not match access_token")
+  void continuesFilterChainWhenCookieNameDoesNotMatch() throws Exception {
+    request.setCookies(new Cookie("other_cookie", JWT));
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    verify(jsonWebTokenService, never()).getUsernameFromToken(any());
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("authenticates valid unlocked user and continues filter chain")
+  void authenticatesValidUnlockedUser() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(true);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+    assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+        .isEqualTo(ACTIVE_USERNAME);
+  }
+
+  @Test
+  @DisplayName("continues filter chain without authentication when user is not in the database")
+  void continuesFilterChainWhenUserNotFound() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    UserDetailsImplementation activeDetails =
+        UserDetailsImplementation.build(
+            User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build());
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.empty());
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("continues filter chain without authentication when JWT is expired")
+  void continuesFilterChainWhenJwtExpired() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT))
+        .thenThrow(new ExpiredJwtException(null, null, "expired"));
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("skips user details loading when authentication is already in security context")
+  void skipsUserDetailsLoadingWhenAlreadyAuthenticated() throws Exception {
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(ACTIVE_USERNAME, null, List.of()));
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(userDetailsService, never()).loadUserByUsername(any());
+    verify(filterChain).doFilter(request, response);
   }
 }

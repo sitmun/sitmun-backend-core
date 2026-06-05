@@ -6,6 +6,7 @@ import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 import java.util.List;
 import org.sitmun.authentication.handler.OidcAuthenticationFailureHandler;
 import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
@@ -68,6 +69,8 @@ public class WebSecurityConfigurer {
 
   private final UserRepository userRepository;
 
+  private final CookieService cookieService;
+
   private final List<PasswordStorage> passwordStorageList;
 
   @Value("${sitmun.proxy-middleware.secret}")
@@ -78,17 +81,20 @@ public class WebSecurityConfigurer {
       SecurityEntryPoint unauthorizedHandler,
       JsonWebTokenService jsonWebTokenService,
       List<PasswordStorage> passwordStorageList,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      CookieService cookieService) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
     this.userRepository = userRepository;
+    this.cookieService = cookieService;
   }
 
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
-    return new JsonWebTokenFilter(userDetailsService, jsonWebTokenService, userRepository);
+    return new JsonWebTokenFilter(
+        userDetailsService, jsonWebTokenService, userRepository, cookieService);
   }
 
   @Bean
