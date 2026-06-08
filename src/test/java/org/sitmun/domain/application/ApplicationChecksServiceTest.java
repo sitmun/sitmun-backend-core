@@ -96,6 +96,18 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
+  @DisplayName("Should return warning when external application has no URL")
+  @WithMockUser(roles = "ADMIN")
+  void shouldReturnWarningWhenExternalAppHasNoUrl() {
+    Application app =
+        Application.builder().id(1).name("External App").type("E").jspTemplate(null).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings).contains("entity.application.warning.external-url-required");
+  }
+
+  @Test
   @DisplayName("Should return no warnings when user is not admin")
   @WithMockUser(roles = "USER")
   void shouldReturnNullWhenUserIsNotAdmin() {

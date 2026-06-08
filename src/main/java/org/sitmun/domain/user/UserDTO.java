@@ -18,6 +18,7 @@ public class UserDTO {
 
   /** User mail */
   @Email(message = "Email should be valid")
+  @Size(max = 50, message = "Email must not exceed 50 characters")
   private String email;
 
   /** User login. */
@@ -32,11 +33,11 @@ public class UserDTO {
   private Boolean passwordSet;
 
   /** User's first name. */
-  @Size(max = 100, message = "First name must not exceed 100 characters")
+  @Size(max = 50, message = "First name must not exceed 50 characters")
   private String firstName;
 
   /** User last name. */
-  @Size(max = 100, message = "Last name must not exceed 100 characters")
+  @Size(max = 50, message = "Last name must not exceed 50 characters")
   private String lastName;
 
   /** User identification number. */

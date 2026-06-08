@@ -161,7 +161,31 @@ class UserPositionRepositoryDataRestTest {
     createdUserPositions.add(position);
   }
 
-  /** TODO: In runtime, it is possible to create multiple positions via REST */
+  @Test
+  @DisplayName("POST /user-positions: Duplicate (user, territory) is allowed")
+  void shouldAllowDuplicateUserPositionViaRestEndpoint() throws Exception {
+    String positionJson =
+        "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\"}"
+            .formatted(user.getId(), territory.getId());
+
+    mockMvc
+        .perform(
+            post("/api/user-positions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(positionJson))
+        .andExpect(status().isCreated());
+
+    mockMvc
+        .perform(
+            post("/api/user-positions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(positionJson))
+        .andExpect(status().isCreated());
+
+    Assertions.assertThat(userPositionRepository.findByUserAndTerritory(user, territory))
+        .hasSize(2);
+  }
+
   @Test
   @DisplayName("POST: Prevent duplicate user position when user configuration is updated via REST")
   void shouldNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest()

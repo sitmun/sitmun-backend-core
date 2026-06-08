@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.sitmun.authentication.controller.AuthenticationController;
+import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
@@ -28,14 +29,17 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
   private final JsonWebTokenService jsonWebTokenService;
   private final UserDetailsService userDetailsService;
   private final UserRepository userRepository;
+  private final CookieService cookieService;
 
   public JsonWebTokenFilter(
       UserDetailsService userDetailsService,
       JsonWebTokenService jsonWebTokenService,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      CookieService cookieService) {
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
     this.userRepository = userRepository;
+    this.cookieService = cookieService;
   }
 
   @Override
@@ -56,6 +60,13 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       if (StringUtils.isNotEmpty(username)
           && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        if (!userDetails.isAccountNonLocked()) {
+          SecurityContextHolder.clearContext();
+          cookieService.clearAccessTokenCookie(httpServletRequest, httpServletResponse);
+          httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+          return;
+        }
 
         Optional<User> user = this.userRepository.findByUsername(username);
         if (user.isEmpty()) {

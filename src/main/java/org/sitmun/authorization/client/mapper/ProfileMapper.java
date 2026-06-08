@@ -26,7 +26,6 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
-import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -281,6 +280,9 @@ public abstract class ProfileMapper {
         .children(
             allNodes.stream()
                 .filter(it1 -> it1.getParent() == null)
+                .sorted(
+                    Comparator.comparing(
+                        TreeNode::getOrder, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(it1 -> PROFILE_NODE_ID_PREFIX + it1.getId())
                 .collect(Collectors.toList()))
         .build();
@@ -293,8 +295,7 @@ public abstract class ProfileMapper {
 
   final void copyInitialExtentFromTerritory(ApplicationDto applicationDto, Profile profile) {
     Integer selectedTerritory = profile.getTerritory().getId();
-    Envelope defaultEnvelope = profile.getTerritory().getExtent();
-    applicationDto.setInitialExtentFromEnvelope(defaultEnvelope);
+    applicationDto.setInitialExtentFromEnvelope(profile.getTerritory().getComputedView());
     profile.getApplication().getTerritories().stream()
         .filter(it -> Objects.equals(it.getTerritory().getId(), selectedTerritory))
         .findFirst()
@@ -322,8 +323,29 @@ public abstract class ProfileMapper {
     copyDefaultZoomLevelFromTerritory(applicationDto, profile);
     copyPointFromTerritory(applicationDto, profile);
     copySrsFromTerritory(applicationDto, profile);
+    copyTerritoryCodeFromTerritory(applicationDto, profile);
+    copyTerritoryNameFromTerritory(applicationDto, profile);
+    copyTerritoryDetailsFromTerritory(applicationDto, profile);
     copySituationMap(applicationDto, profile);
     builder.application(applicationDto);
+  }
+
+  final void copyTerritoryCodeFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    applicationDto.setTerritoryCode(profile.getTerritory().getCode());
+  }
+
+  final void copyTerritoryNameFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    applicationDto.setTerritoryName(profile.getTerritory().getName());
+  }
+
+  final void copyTerritoryDetailsFromTerritory(ApplicationDto applicationDto, Profile profile) {
+    Territory territory = profile.getTerritory();
+    applicationDto.setTerritoryDescription(territory.getDescription());
+    applicationDto.setTerritorialAuthorityName(territory.getTerritorialAuthorityName());
+    applicationDto.setTerritorialAuthorityAddress(territory.getTerritorialAuthorityAddress());
+    if (territory.getType() != null) {
+      applicationDto.setTerritoryTypeName(territory.getType().getName());
+    }
   }
 
   /** Maps situation-map from Application to ApplicationDto. */

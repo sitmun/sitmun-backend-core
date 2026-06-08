@@ -25,6 +25,7 @@ import org.sitmun.infrastructure.persistence.type.boundingbox.BoundingBox;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeToStringConverter;
+import org.sitmun.infrastructure.persistence.type.envelope.EnvelopeUtils;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.point.Point;
@@ -147,6 +148,30 @@ public class Territory {
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @Convert(converter = PointToStringConverter.class)
   private Point center;
+
+  /**
+   * Computes the initial map view by combining the territory extent and center point.
+   *
+   * <p>This computed property is used internally by the backend to set the application's initial
+   * extent in the client profile. The algorithm adjusts the extent to ensure the center point
+   * (pointOfInterest) appears in the middle of the view while keeping the full territorial extent
+   * visible.
+   *
+   * <p>Logic:
+   *
+   * <ul>
+   *   <li>If center is null, returns the extent as-is
+   *   <li>If extent is null, returns null
+   *   <li>If center coordinates are null or (0, 0) from legacy data, returns extent as-is
+   *   <li>If both exist and center is valid, returns an envelope centered on the point of interest
+   *       that is large enough to include the original extent
+   * </ul>
+   *
+   * @return The computed view envelope, or null if extent is not defined
+   */
+  public Envelope getComputedView() {
+    return EnvelopeUtils.computeCenteredView(extent, center);
+  }
 
   /** Default zoom level. */
   @Column(name = "TER_ZOOM")

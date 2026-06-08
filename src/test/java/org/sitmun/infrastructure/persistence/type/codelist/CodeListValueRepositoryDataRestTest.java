@@ -221,4 +221,62 @@ class CodeListValueRepositoryDataRestTest {
   void cantDeleteCodeListValue() throws Exception {
     mvc.perform(delete(CODELIST_VALUE_URI, 24)).andExpect(status().isBadRequest());
   }
+
+  /**
+   * Regression for https://github.com/sitmun/sitmun-admin-app/issues/411.
+   *
+   * <p>When the connection form requests databaseConnection.driver with lang=es, each driver must
+   * show its own JDBC driver label, not an unrelated translation (e.g. GIF, JPEG, PNG) caused by a
+   * COD_ID collision between startup-created rows and hardcoded translation rows from migration 44.
+   */
+  @Test
+  @DisplayName("GET: databaseConnection.driver descriptions are correctly translated in ES")
+  @WithMockUser(roles = "ADMIN")
+  void driverCodelistTranslationsCorrectInSpanish() throws Exception {
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=es", DATABASE_CONNECTION_DRIVER))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.codelist-values[?(@.value == 'org.h2.Driver')].description")
+                .value("Controlador JDBC H2"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'org.postgresql.Driver')].description")
+                .value("Controlador JDBC PostgreSQL"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'oracle.jdbc.OracleDriver')].description")
+                .value("Controlador JDBC Oracle"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'com.microsoft.sqlserver.jdbc.SQLServerDriver')].description")
+                .value("Controlador JDBC Microsoft SQL Server"));
+  }
+
+  /**
+   * Regression for https://github.com/sitmun/sitmun-admin-app/issues/411.
+   *
+   * <p>Same check in Catalan (lang=ca).
+   */
+  @Test
+  @DisplayName("GET: databaseConnection.driver descriptions are correctly translated in CA")
+  @WithMockUser(roles = "ADMIN")
+  void driverCodelistTranslationsCorrectInCatalan() throws Exception {
+    mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=ca", DATABASE_CONNECTION_DRIVER))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.codelist-values[?(@.value == 'org.h2.Driver')].description")
+                .value("Controlador JDBC H2"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'org.postgresql.Driver')].description")
+                .value("Controlador JDBC PostgreSQL"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'oracle.jdbc.OracleDriver')].description")
+                .value("Controlador JDBC Oracle"))
+        .andExpect(
+            jsonPath(
+                    "$._embedded.codelist-values[?(@.value == 'com.microsoft.sqlserver.jdbc.SQLServerDriver')].description")
+                .value("Controlador JDBC Microsoft SQL Server"));
+  }
 }

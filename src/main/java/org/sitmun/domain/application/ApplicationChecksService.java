@@ -35,8 +35,19 @@ public class ApplicationChecksService {
     List<String> warnings = new ArrayList<>();
 
     checkPrivateApplicationWithPublicUser(app, warnings);
+    checkExternalApplicationUrl(app, warnings);
 
     return warnings;
+  }
+
+  private void checkExternalApplicationUrl(Application app, List<String> warnings) {
+    if (!"E".equals(app.getType())) {
+      return;
+    }
+    String url = app.getJspTemplate();
+    if (url == null || url.isBlank()) {
+      warnings.add("entity.application.warning.external-url-required");
+    }
   }
 
   private void checkPrivateApplicationWithPublicUser(Application app, List<String> warnings) {

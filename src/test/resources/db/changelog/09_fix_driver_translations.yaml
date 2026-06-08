@@ -1,0 +1,195 @@
+databaseChangeLog:
+  - changeSet:
+      id: 50
+      author: sitmun
+      comment: |
+        Fix JDBC driver codelist translations (issue #411).
+        Ensures databaseConnection.driver rows exist and links their translations to actual
+        COD_IDs rather than hardcoded IDs that may not match the startup-created rows.
+      changes:
+        - sql:
+            comment: Insert H2 driver row if missing
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'databaseConnection.driver', 'org.h2.Driver', TRUE, FALSE, 'H2 JDBC Driver'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.h2.Driver'
+              )
+        - sql:
+            comment: Insert PostgreSQL driver row if missing
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'databaseConnection.driver', 'org.postgresql.Driver', TRUE, FALSE, 'PostgreSQL JDBC Driver'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.postgresql.Driver'
+              )
+        - sql:
+            comment: Insert Oracle driver row if missing
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'databaseConnection.driver', 'oracle.jdbc.OracleDriver', TRUE, FALSE, 'Oracle JDBC driver'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'oracle.jdbc.OracleDriver'
+              )
+        - sql:
+            comment: Insert SQL Server driver row if missing
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'databaseConnection.driver', 'com.microsoft.sqlserver.jdbc.SQLServerDriver', TRUE, FALSE, 'Microsoft SQL Server JDBC Driver'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+              )
+        - sql:
+            comment: Sync COD_ID sequence after possible inserts
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID'
+        - sql:
+            comment: Delete stale translations for databaseConnection.driver rows to allow clean re-insert
+            sql: |
+              DELETE FROM STM_TRANSLATION
+              WHERE TRA_ELEID IN (
+                SELECT COD_ID FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver'
+              )
+              AND TRA_COLUMN = 'CodeListValue.description'
+              AND TRA_LANID IN (2, 3, 4, 5)
+        - sql:
+            comment: H2 - ES
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 2, 'Controlador JDBC H2'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.h2.Driver'
+        - sql:
+            comment: H2 - CA
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 3, 'Controlador JDBC H2'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.h2.Driver'
+        - sql:
+            comment: H2 - OC
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 4, 'Controlador JDBC H2'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.h2.Driver'
+        - sql:
+            comment: H2 - FR
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 5, 'Pilote JDBC H2'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.h2.Driver'
+        - sql:
+            comment: PostgreSQL - ES
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 2, 'Controlador JDBC PostgreSQL'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.postgresql.Driver'
+        - sql:
+            comment: PostgreSQL - CA
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 3, 'Controlador JDBC PostgreSQL'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.postgresql.Driver'
+        - sql:
+            comment: PostgreSQL - OC
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 4, 'Controlador JDBC PostgreSQL'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.postgresql.Driver'
+        - sql:
+            comment: PostgreSQL - FR
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 5, 'Pilote JDBC PostgreSQL'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'org.postgresql.Driver'
+        - sql:
+            comment: Oracle - ES
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 2, 'Controlador JDBC Oracle'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'oracle.jdbc.OracleDriver'
+        - sql:
+            comment: Oracle - CA
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 3, 'Controlador JDBC Oracle'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'oracle.jdbc.OracleDriver'
+        - sql:
+            comment: Oracle - OC
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 4, 'Controlador JDBC Oracle'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'oracle.jdbc.OracleDriver'
+        - sql:
+            comment: Oracle - FR
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 5, 'Pilote JDBC Oracle'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'oracle.jdbc.OracleDriver'
+        - sql:
+            comment: SQL Server - ES
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 2, 'Controlador JDBC Microsoft SQL Server'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        - sql:
+            comment: SQL Server - CA
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 3, 'Controlador JDBC Microsoft SQL Server'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        - sql:
+            comment: SQL Server - OC
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 4, 'Controlador JDBC Microsoft SQL Server'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        - sql:
+            comment: SQL Server - FR
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     COD_ID, 'CodeListValue.description', 5, 'Pilote JDBC Microsoft SQL Server'
+              FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver' AND COD_VALUE = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+        - sql:
+            comment: Sync TRA_ID sequence after inserts
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION)
+              WHERE SEQ_NAME = 'TRA_ID'
+      rollback:
+        - sql:
+            sql: |
+              DELETE FROM STM_TRANSLATION
+              WHERE TRA_ELEID IN (
+                SELECT COD_ID FROM STM_CODELIST WHERE COD_LIST = 'databaseConnection.driver'
+              )
+              AND TRA_COLUMN = 'CodeListValue.description'
+              AND TRA_LANID IN (2, 3, 4, 5);
+
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION)
+              WHERE SEQ_NAME = 'TRA_ID'
