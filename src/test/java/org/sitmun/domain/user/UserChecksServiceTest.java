@@ -30,6 +30,13 @@ class UserChecksServiceTest {
 
   @Autowired private UserChecksService userChecksService;
 
+  private static User mockCheckableUser(String username, boolean passwordSet) {
+    User user = mock(User.class);
+    when(user.getUsername()).thenReturn(username);
+    when(user.getPasswordSet()).thenReturn(passwordSet);
+    return user;
+  }
+
   @Test
   @WithMockUser(roles = {"USER", "PUBLIC", "PROXY"})
   @DisplayName("When user is not admin, getWarnings returns null")
@@ -48,12 +55,11 @@ class UserChecksServiceTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   @DisplayName(
-      "When user is admin, getWarnings returns a warning if any position has missing details")
+      "When user is admin, getWarnings returns a warning if any position is missing name or organization")
   void getWarningsWhenPositionDetailsAreMissingAddsWarning() {
     // Arrange
 
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
@@ -75,7 +81,6 @@ class UserChecksServiceTest {
 
     // Assert
     assertNotNull(warnings);
-    System.out.println("Warnings: " + warnings);
     assertEquals(1, warnings.size());
     assertTrue(warnings.contains("entity.user.warning.position-without-details"));
   }
@@ -86,8 +91,7 @@ class UserChecksServiceTest {
       "When user is admin, getWarnings returns a warning if the user has no positions for a territory in an user configuration")
   void getWarningsWhenRoleWithoutPositionAddsWarning() {
     // Arrange
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
@@ -111,7 +115,7 @@ class UserChecksServiceTest {
       "When user is admin, getWarnings returns a warning if the user has no user configuration")
   void getWarningsWhenNoUserConfigurationPresentAddsWarning() {
     // Arrange
-    User user = mock(User.class);
+    User user = mockCheckableUser("testUser", true);
     when(userConfigurationRepository.findByUser(user)).thenReturn(new ArrayList<>());
 
     // Act
@@ -125,7 +129,72 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When user is public user, position checks are skipped")
+  @DisplayName("When user has no password, no-password warning is added")
+  void getWarningsWhenNoPasswordAddsWarning() {
+    User user = mockCheckableUser("testUser", false);
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of());
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of());
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertTrue(warnings.contains("entity.user.warning.no-password"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When built-in admin user has no passwordSet, no-password warning is skipped")
+  void getWarningsWhenBuiltInAdminSkipsNoPasswordWarning() {
+    User user = mockCheckableUser("admin", false);
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of());
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of());
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertTrue(warnings.isEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When built-in admin user has no roles, no-roles warning is skipped")
+  void getWarningsWhenBuiltInAdminSkipsNoRolesWarning() {
+    User user = mockCheckableUser("admin", true);
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of());
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of());
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertFalse(warnings.contains("entity.user.warning.no-roles"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When built-in admin has roles without positions, position warnings are skipped")
+  void getWarningsWhenBuiltInAdminSkipsRoleWithoutPositionWarning() {
+    User user = mockCheckableUser("admin", true);
+
+    Territory territory = mock(Territory.class);
+    UserConfiguration userConfig = mock(UserConfiguration.class);
+    when(userConfig.getTerritory()).thenReturn(territory);
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
+    when(userPositionRepository.findByUser(user)).thenReturn(new ArrayList<>());
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertTrue(warnings.isEmpty());
+    verify(userPositionRepository, never()).save(any(UserPosition.class));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When user is public user, role and position checks are skipped")
   void getWarningsWhenPublicUserSkipsPositionChecks() {
     // Arrange
     User user = mock(User.class);
@@ -138,8 +207,7 @@ class UserChecksServiceTest {
 
     // Assert
     assertNotNull(warnings);
-    assertEquals(1, warnings.size());
-    assertTrue(warnings.contains("entity.user.warning.no-roles"));
+    assertTrue(warnings.isEmpty());
     verify(userPositionRepository, never()).findByUser(user);
   }
 
@@ -171,56 +239,74 @@ class UserChecksServiceTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank organization, warning is added")
   void getWarningsWhenPositionHasBlankOrganizationAddsWarning() {
-    getWarningsWhenPositionHasIssues("Name", "Type", "    ", "email@example.com");
+    assertPositionWarningWhen("Name", "   ");
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When position has blank email, warning is added")
-  void getWarningsWhenPositionHasBlankEmailAddsWarning() {
-    getWarningsWhenPositionHasIssues("Name", "Type", "Org", null);
+  @DisplayName("When position has blank name, warning is added")
+  void getWarningsWhenPositionHasBlankNameAddsWarning() {
+    assertPositionWarningWhen("", "Org");
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When position has blank type, warning is added")
-  void getWarningsWhenPositionHasBlankTypeAddsWarning() {
-    getWarningsWhenPositionHasIssues("Name", "", "Org", "email@example.com");
+  @DisplayName("When position has blank email only, no position-details warning")
+  void getWarningsWhenPositionHasBlankEmailOnlyNoPositionWarning() {
+    assertNoPositionDetailsWarningWhen("Name", "Org", null, "");
   }
 
-  private void getWarningsWhenPositionHasIssues(
-      String name, String type, String organization, String email) {
-    // Arrange
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When position has blank type only, no position-details warning")
+  void getWarningsWhenPositionHasBlankTypeOnlyNoPositionWarning() {
+    assertNoPositionDetailsWarningWhen("Name", "Org", "email@example.com", null);
+  }
+
+  private void assertPositionWarningWhen(String name, String organization) {
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
     when(userConfig.getTerritory()).thenReturn(territory);
 
     UserPosition position = mock(UserPosition.class);
-    when(position.getUser()).thenReturn(user);
     when(position.getTerritory()).thenReturn(territory);
     when(position.getName()).thenReturn(name);
-    when(position.getType()).thenReturn(type);
     when(position.getOrganization()).thenReturn(organization);
-    when(position.getEmail()).thenReturn(email);
-
-    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
-    when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
-    when(position.getOrganization()).thenReturn("   ");
-    when(position.getEmail()).thenReturn("email@example.com");
 
     when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
     when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
 
-    // Act
     List<String> warnings = userChecksService.getWarnings(user);
 
-    // Assert
     assertNotNull(warnings);
     assertEquals(1, warnings.size());
     assertTrue(warnings.contains("entity.user.warning.position-without-details"));
+  }
+
+  private void assertNoPositionDetailsWarningWhen(
+      String name, String organization, String email, String type) {
+    User user = mockCheckableUser("testUser", true);
+
+    Territory territory = mock(Territory.class);
+    UserConfiguration userConfig = mock(UserConfiguration.class);
+    when(userConfig.getTerritory()).thenReturn(territory);
+
+    UserPosition position = mock(UserPosition.class);
+    when(position.getTerritory()).thenReturn(territory);
+    when(position.getName()).thenReturn(name);
+    when(position.getOrganization()).thenReturn(organization);
+    when(position.getEmail()).thenReturn(email);
+    when(position.getType()).thenReturn(type);
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertFalse(warnings.contains("entity.user.warning.position-without-details"));
   }
 
   @Test
@@ -228,8 +314,7 @@ class UserChecksServiceTest {
   @DisplayName("When user has multiple issues, multiple warnings are returned")
   void getWarningsWhenMultipleIssuesReturnsMultipleWarnings() {
     // Arrange
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory1 = mock(Territory.class);
     Territory territory2 = mock(Territory.class);
@@ -265,8 +350,7 @@ class UserChecksServiceTest {
   @DisplayName("When user has valid positions, no position warnings are returned")
   void getWarningsWhenValidPositionsNoPositionWarnings() {
     // Arrange
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
@@ -276,9 +360,7 @@ class UserChecksServiceTest {
     when(position.getUser()).thenReturn(user);
     when(position.getTerritory()).thenReturn(territory);
     when(position.getName()).thenReturn("Valid Name");
-    when(position.getType()).thenReturn("Valid Type");
     when(position.getOrganization()).thenReturn("Valid Org");
-    when(position.getEmail()).thenReturn("valid@example.com");
 
     when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
     when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
@@ -293,11 +375,17 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  @DisplayName("When position has name and organization only, no position-details warning")
+  void getWarningsWhenNameAndOrganizationPresentNoPositionWarningDespiteBlankEmailAndType() {
+    assertNoPositionDetailsWarningWhen("Valid Name", "Valid Org", null, null);
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user has positions for all territories, no role-without-position warning")
   void getWarningsWhenPositionsForAllTerritoriesNoRoleWarning() {
     // Arrange
-    User user = mock(User.class);
-    when(user.getUsername()).thenReturn("testUser");
+    User user = mockCheckableUser("testUser", true);
 
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
@@ -307,9 +395,7 @@ class UserChecksServiceTest {
     when(position.getUser()).thenReturn(user);
     when(position.getTerritory()).thenReturn(territory);
     when(position.getName()).thenReturn("Valid Name");
-    when(position.getType()).thenReturn("Valid Type");
     when(position.getOrganization()).thenReturn("Valid Org");
-    when(position.getEmail()).thenReturn("valid@example.com");
 
     when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
     when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));

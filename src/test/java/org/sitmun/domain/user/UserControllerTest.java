@@ -128,8 +128,48 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Update account and clear the password")
-  void updateAccountButClearThePassword() throws Exception {
+  @DisplayName("GET /{id}: Non-admin reading another user's account gets 403")
+  void getAccountByIdAsDifferentUserGetsForbidden() throws Exception {
+    User admin = userRepository.findByUsername("admin").orElseThrow();
+    // validToken is for the non-admin "user"; accessing a different user account is forbidden
+    mvc.perform(get("/api/account/" + admin.getId()).cookie(new Cookie(ACCESS_TOKEN, validToken)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("GET /{id}: User reading own account gets 200")
+  void getAccountByIdAsOwnUserReturnsOk() throws Exception {
+    mvc.perform(get("/api/account/" + user.getId()).cookie(new Cookie(ACCESS_TOKEN, validToken)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username", equalTo(USER_USERNAME)));
+  }
+
+  @Test
+  @DisplayName("GET /{id}: Admin reading any user's account gets 200")
+  void getAccountByIdAsAdminReturnsOk() throws Exception {
+    String adminToken = tokenProvider.generateToken("admin", new Date());
+    mvc.perform(get("/api/account/" + user.getId()).cookie(new Cookie(ACCESS_TOKEN, adminToken)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("GET /all: Non-admin gets 403")
+  void getAllAccountsAsNonAdminGetsForbidden() throws Exception {
+    mvc.perform(get("/api/account/all").cookie(new Cookie(ACCESS_TOKEN, validToken)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("GET /all: Admin gets 200")
+  void getAllAccountsAsAdminReturnsOk() throws Exception {
+    String adminToken = tokenProvider.generateToken("admin", new Date());
+    mvc.perform(get("/api/account/all").cookie(new Cookie(ACCESS_TOKEN, adminToken)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("POST: Reject empty password on account update")
+  void rejectEmptyPasswordOnAccountUpdate() throws Exception {
     String content =
         "{"
             + "\"username\":\"user\","
@@ -144,12 +184,10 @@ class UserControllerTest {
                 .cookie(new Cookie(ACCESS_TOKEN, validToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.password").doesNotExist());
+        .andExpect(status().isBadRequest());
 
-    assertNotNull(user.getPassword());
-    Optional<User> updatedUser = userRepository.findById(user.getId());
-    assertTrue(updatedUser.isPresent());
-    assertNull(updatedUser.get().getPassword());
+    Optional<User> unchangedUser = userRepository.findById(user.getId());
+    assertTrue(unchangedUser.isPresent());
+    assertNotNull(unchangedUser.get().getPassword());
   }
 }

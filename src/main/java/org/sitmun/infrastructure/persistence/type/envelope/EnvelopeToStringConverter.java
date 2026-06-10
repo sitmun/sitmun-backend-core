@@ -11,17 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EnvelopeToStringConverter implements AttributeConverter<Envelope, String> {
 
-  public static final String RECISION = "######";
+  public static final String PRECISION = "######";
 
   public static final String FORMAT =
       "{0,number,#."
-          + RECISION
+          + PRECISION
           + "} {1,number,#."
-          + RECISION
+          + PRECISION
           + "} {2,number,#."
-          + RECISION
+          + PRECISION
           + "} {3,number,#."
-          + RECISION
+          + PRECISION
           + '}';
 
   public static final Locale defaultLocale = Locale.US;

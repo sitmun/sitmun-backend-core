@@ -71,9 +71,9 @@ class TreeNodeRepositoryDataRestTest {
   void retrieveNodesFromTree() throws Exception {
     mvc.perform(get(TREE_ALL_NODES_URI, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(11)))
-        .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(4)))
-        .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == false)]", hasSize(7)));
+        .andExpect(jsonPath("$._embedded.tree-nodes", hasSize(14)))
+        .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == true)]", hasSize(6)))
+        .andExpect(jsonPath("$._embedded.tree-nodes[?(@.isFolder == false)]", hasSize(8)));
   }
 
   @Test

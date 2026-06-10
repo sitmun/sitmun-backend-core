@@ -59,7 +59,7 @@ class AuthenticationControllerTest {
   @Test
   @WithMockUser(
       username = "admin",
-      roles = {"ADMIN"})
+      roles = {"ADMIN", "USER"})
   @DisplayName("POST /proxy: Authenticated user must get short-lived token in response")
   void proxyAuthenticationSuccess() throws Exception {
     MvcResult result =
@@ -74,10 +74,51 @@ class AuthenticationControllerTest {
 
   @Test
   @WithMockUser(
+      username = "normal-user",
+      roles = {"USER"})
+  @DisplayName("POST /proxy: Standard user must get short-lived token in response")
+  void proxyAuthenticationSuccessForStandardUser() throws Exception {
+    MvcResult result =
+        mvc.perform(post("/api/authenticate/proxy").secure(true))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String content = result.getResponse().getContentAsString();
+    AuthenticationResponse response = objectMapper.readValue(content, AuthenticationResponse.class);
+    assertThat(response.getProxyToken()).isNotNull().isNotEmpty();
+  }
+
+  @Test
+  @WithMockUser(
       username = "admin",
-      roles = {"ADMIN"})
+      roles = {"ADMIN", "USER"})
   @DisplayName("POST /logout: Authenticated user must logout successfully")
   void logoutSuccess() throws Exception {
+    mvc.perform(post("/api/authenticate/logout").secure(true))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @WithMockUser(
+      username = "normal-user",
+      roles = {"USER"})
+  @DisplayName("POST /logout: Standard user must logout successfully")
+  void logoutSuccessForStandardUser() throws Exception {
+    mvc.perform(post("/api/authenticate/logout").secure(true))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @DisplayName("POST /proxy: Anonymous user must be denied")
+  void proxyAuthenticationDeniedForAnonymous() throws Exception {
+    mvc.perform(post("/api/authenticate/proxy").secure(true)).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @DisplayName("POST /logout: Anonymous user can clear stale session cookie")
+  void logoutAllowedForAnonymous() throws Exception {
     mvc.perform(post("/api/authenticate/logout").secure(true))
         .andExpect(status().isOk())
         .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));

@@ -38,5 +38,6 @@ public interface CartographyPermissionRepository
       where (lower(cartographyPermission.name) like lower(concat('%', :q, '%')))
       and (:excludedType is null or cartographyPermission.type <> :excludedType)
       """)
-  Page<CartographyPermission> findByContent(@Param("q") String q, @Param("excludedType") String excludedType, Pageable pageable);
+  Page<CartographyPermission> findByContent(
+      @Param("q") String q, @Param("excludedType") String excludedType, Pageable pageable);
 }

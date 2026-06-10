@@ -118,6 +118,17 @@ class RequestLocaleResolutionServiceTest {
     }
 
     @Test
+    @DisplayName("maps oc-aranes-ES to oc-aranes when oc-aranes is a supported shortname")
+    void localizedOcAranesTagMapsToShortname() {
+      when(request.getParameter("lang")).thenReturn("oc-aranes-ES");
+      when(request.getMethod()).thenReturn("GET");
+
+      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+
+      assertThat(result).isEqualTo("oc-aranes");
+    }
+
+    @Test
     @DisplayName("falls back to database default when lang param not in supported languages")
     void unsupportedLangFallsBackToDefault() {
       when(request.getParameter("lang")).thenReturn("de");

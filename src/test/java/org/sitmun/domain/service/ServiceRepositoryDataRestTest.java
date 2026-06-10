@@ -110,7 +110,8 @@ class ServiceRepositoryDataRestTest {
   @DisplayName("GET search/content: searches serviceURL and type")
   @WithMockUser(roles = "ADMIN")
   void searchContentSearchesServiceURLAndType() throws Exception {
-    saveService("Test Service Unique", "CustomWMTSType", "https://veryunique-wms-endpoint.example.com");
+    saveService(
+        "Test Service Unique", "CustomWMTSType", "https://veryunique-wms-endpoint.example.com");
 
     mvc.perform(
             get(SERVICES_URI + "/search/content")
@@ -163,12 +164,7 @@ class ServiceRepositoryDataRestTest {
   private Service saveService(String name, String type, String serviceURL) {
     Service saved =
         serviceRepository.save(
-            Service.builder()
-                .name(name)
-                .type(type)
-                .serviceURL(serviceURL)
-                .blocked(false)
-                .build());
+            Service.builder().name(name).type(type).serviceURL(serviceURL).blocked(false).build());
     services.add(saved);
     return saved;
   }

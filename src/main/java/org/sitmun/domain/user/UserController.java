@@ -10,7 +10,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeSaveEvent;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -112,9 +114,20 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<UserDTO> getAccountById(@PathVariable Integer id) {
-    Optional<UserDTO> storedUser = userRepository.findById(id).map(UserController::userToDto);
-    return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+  public ResponseEntity<UserDTO> getAccountById(
+      @PathVariable Integer id, Authentication authentication) {
+    Optional<User> foundUser = userRepository.findById(id);
+    if (foundUser.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    User user = foundUser.get();
+    boolean isAdmin =
+        authentication.getAuthorities().stream()
+            .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    if (!isAdmin && !authentication.getName().equals(user.getUsername())) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+    return ResponseEntity.ok(userToDto(user));
   }
 
   @GetMapping("/public/{id}")
@@ -126,6 +139,7 @@ public class UserController {
 
   /** Get all accounts */
   @GetMapping("/all")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<List<UserDTO>> getAllAccounts() {
     List<User> users = userRepository.findAll().stream().toList();
     if (users.isEmpty()) {

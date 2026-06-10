@@ -6,6 +6,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
 import jakarta.persistence.TransactionRequiredException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.LazyInitializationException;
 import org.hibernate.exception.ConstraintViolationException;
+import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.codelist.ImmutableSystemCodeListValueException;
@@ -32,6 +35,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -62,10 +67,17 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
   private final MessageSourceAccessor messageSourceAccessor;
+  private final CookieService cookieService;
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
 
-  public DomainExceptionHandler(MessageSource messageSource) {
+  public DomainExceptionHandler(
+      MessageSource messageSource,
+      CookieService cookieService,
+      UserApplicationAccessPolicy userApplicationAccessPolicy) {
     Assert.notNull(messageSource, "MessageSource must not be null!");
     messageSourceAccessor = new MessageSourceAccessor(messageSource);
+    this.cookieService = cookieService;
+    this.userApplicationAccessPolicy = userApplicationAccessPolicy;
   }
 
   // ============================================================================
@@ -100,6 +112,26 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     return ResponseEntity.status(status)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
+  }
+
+  /** Handles {@link IllegalArgumentException} - invalid argument passed to an operation. */
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ProblemDetail> handleIllegalArgumentException(
+      IllegalArgumentException exception, HttpServletRequest request) {
+    logger.info("Illegal argument: " + exception.getMessage(), exception);
+
+    ProblemDetail problem =
+        ProblemDetail.builder()
+            .type(ProblemTypes.BAD_REQUEST)
+            .status(HttpStatus.BAD_REQUEST.value())
+            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .detail(exception.getMessage())
+            .instance(request.getRequestURI())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
@@ -257,41 +289,21 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     } catch (LazyInitializationException e) {
       // Log WARN with stack trace to identify where lazy access occurs during constraint extraction
       logger.warn(
-          "Lazy initialization exception during constraint extraction. method="
-              + request.getMethod()
-              + " uri="
-              + request.getRequestURI(),
+          "Lazy initialization exception during constraint extraction. "
+              + formatRequestContext(request),
           e);
     } catch (Exception e) {
       logger.debug("Could not extract constraint info, using defaults");
     }
 
-    HttpStatus status = isDuplicateKey ? HttpStatus.CONFLICT : HttpStatus.UNPROCESSABLE_ENTITY;
-
-    // Context-aware error messages based on HTTP method
-    String detail;
-    if (isDuplicateKey) {
-      detail = "A resource with this value already exists.";
-    } else {
-      String method = request.getMethod();
-      if ("DELETE".equals(method)) {
-        detail = "Cannot delete this resource because it is being used by other resources";
-      } else if ("POST".equals(method)) {
-        detail =
-            "Cannot create this resource. A referenced resource does not exist or constraints are violated";
-      } else if ("PUT".equals(method) || "PATCH".equals(method)) {
-        detail =
-            "Cannot update this resource. A referenced resource does not exist or constraints are violated";
-      } else {
-        detail = "This operation violates database constraints";
-      }
-    }
+    HttpStatus status = dataIntegrityViolationStatus(isDuplicateKey);
+    String detail = dataIntegrityViolationDetail(isDuplicateKey, request.getMethod());
 
     ProblemDetail problem =
         ProblemDetail.builder()
             .type(ProblemTypes.DATA_INTEGRITY_VIOLATION)
             .status(status.value())
-            .title(isDuplicateKey ? "Resource Already Exists" : "Data Integrity Violation")
+            .title(dataIntegrityViolationTitle(isDuplicateKey))
             .detail(detail)
             .instance(request.getRequestURI())
             .build();
@@ -330,11 +342,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     // Log the stack trace so we can identify the real access point (the generic warning alone
     // is not actionable).
     logger.warn(
-        "Lazy initialization exception occurred. method="
-            + request.getMethod()
-            + " uri="
-            + request.getRequestURI(),
-        exception);
+        "Lazy initialization exception occurred. " + formatRequestContext(request), exception);
 
     ProblemDetail problem =
         ProblemDetail.builder()
@@ -382,7 +390,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
     try {
       // Safely get cause - may trigger lazy loading
-      Throwable cause = null;
+      Throwable cause;
       try {
         cause = exception.getCause();
       } catch (Exception e) {
@@ -390,7 +398,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         return new ConstraintViolationData(null, null, null, null);
       }
 
-      if (cause == null || !(cause instanceof ConstraintViolationException constraintViolation)) {
+      if (!(cause instanceof ConstraintViolationException constraintViolation)) {
         return new ConstraintViolationData(null, null, null, null);
       }
 
@@ -450,27 +458,19 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       if ("23505".equals(data.sqlState()) || "23001".equals(data.sqlState())) {
         return true;
       }
-      // 23503 = foreign key constraint violation (PostgreSQL) - explicitly exclude
-      if ("23503".equals(data.sqlState())) {
-        return false;
-      }
     }
 
-    // Check constraint name patterns
+    if (DataIntegrityConstraintDetector.isForeignKeyViolation(
+        data.sqlState(), data.constraintName())) {
+      return false;
+    }
+
+    // Unique constraints typically contain _UK, UK_, UNIQUE
     if (data.constraintName() != null) {
       String upperConstraintName = data.constraintName().toUpperCase();
-      // Foreign key constraints typically contain _FK_ or FK_
-      if (upperConstraintName.contains("_FK_")
-          || upperConstraintName.contains("FK_")
-          || upperConstraintName.contains("FOREIGN")) {
-        return false;
-      }
-      // Unique constraints typically contain _UK, UK_, UNIQUE
-      if (upperConstraintName.contains("_UK")
+      return upperConstraintName.contains("_UK")
           || upperConstraintName.contains("UK_")
-          || upperConstraintName.contains("UNIQUE")) {
-        return true;
-      }
+          || upperConstraintName.contains("UNIQUE");
     }
 
     // No fallback to exception.getMessage() - it can trigger LazyInitializationException
@@ -507,23 +507,8 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
       return null;
     }
 
-    // Check SQL state code first for foreign key detection (most reliable)
-    boolean isForeignKey = false;
-    if (data.sqlState() != null) {
-      // 23503 = foreign key constraint violation (PostgreSQL)
-      isForeignKey = "23503".equals(data.sqlState());
-    }
-
-    // Fallback to constraint name pattern matching
-    if (!isForeignKey && data.constraintName() != null) {
-      String upperConstraintName = data.constraintName().toUpperCase();
-      isForeignKey =
-          upperConstraintName.contains("_FK_")
-              || upperConstraintName.contains("FK_")
-              || upperConstraintName.contains("FOREIGN");
-    }
-
-    if (!isForeignKey) {
+    if (!DataIntegrityConstraintDetector.isForeignKeyViolation(
+        data.sqlState(), data.constraintName())) {
       return new ConstraintInfo(data.constraintName(), null, false);
     }
 
@@ -1013,35 +998,29 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
   public ResponseEntity<ProblemDetail> handleAccessDeniedException(
       org.springframework.security.access.AccessDeniedException exception,
-      HttpServletRequest request) {
+      HttpServletRequest request,
+      HttpServletResponse response) {
     logger.warn("Access denied: " + exception.getMessage(), exception);
 
-    // Check if a user is authenticated (not anonymous)
-    org.springframework.security.core.Authentication authentication =
+    Authentication authentication =
         org.springframework.security.core.context.SecurityContextHolder.getContext()
             .getAuthentication();
-    boolean isAnonymous =
-        authentication == null
-            || !authentication.isAuthenticated()
-            || authentication
-                instanceof org.springframework.security.authentication.AnonymousAuthenticationToken;
+    boolean isAnonymous = isAnonymousAuthentication(authentication);
 
-    // For anonymous users, return 401 Unauthorized (need to authenticate)
-    // For authenticated users, return 403 Forbidden (not authorized for this resource)
-    HttpStatus status = isAnonymous ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
-    String problemType = isAnonymous ? ProblemTypes.UNAUTHORIZED : ProblemTypes.FORBIDDEN;
-    String title = isAnonymous ? "Unauthorized" : "Access Denied";
+    clearAccessTokenIfBlockedAuthenticatedUser(authentication, request, response);
+
+    AccessDeniedMetadata metadata = AccessDeniedMetadata.forAnonymousPrincipal(isAnonymous);
 
     ProblemDetail problem =
         ProblemDetail.builder()
-            .type(problemType)
-            .status(status.value())
-            .title(title)
+            .type(metadata.problemType())
+            .status(metadata.status().value())
+            .title(metadata.title())
             .detail(exception.getMessage())
             .instance(request.getRequestURI())
             .build();
 
-    return ResponseEntity.status(status)
+    return ResponseEntity.status(metadata.status())
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
@@ -1111,6 +1090,63 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
   // ============================================================================
   // HELPER METHODS
   // ============================================================================
+
+  private static String formatRequestContext(HttpServletRequest request) {
+    return "method=" + request.getMethod() + " uri=" + request.getRequestURI();
+  }
+
+  private static HttpStatus dataIntegrityViolationStatus(boolean isDuplicateKey) {
+    return isDuplicateKey ? HttpStatus.CONFLICT : HttpStatus.UNPROCESSABLE_ENTITY;
+  }
+
+  private static String dataIntegrityViolationTitle(boolean isDuplicateKey) {
+    return isDuplicateKey ? "Resource Already Exists" : "Data Integrity Violation";
+  }
+
+  private static String dataIntegrityViolationDetail(boolean isDuplicateKey, String httpMethod) {
+    if (isDuplicateKey) {
+      return "A resource with this value already exists.";
+    }
+    return constraintViolationDetailForHttpMethod(httpMethod);
+  }
+
+  private static String constraintViolationDetailForHttpMethod(String httpMethod) {
+    if ("DELETE".equals(httpMethod)) {
+      return "Cannot delete this resource because it is being used by other resources";
+    }
+    if ("POST".equals(httpMethod)) {
+      return "Cannot create this resource. A referenced resource does not exist or constraints are violated";
+    }
+    if ("PUT".equals(httpMethod) || "PATCH".equals(httpMethod)) {
+      return "Cannot update this resource. A referenced resource does not exist or constraints are violated";
+    }
+    return "This operation violates database constraints";
+  }
+
+  private static boolean isAnonymousAuthentication(Authentication authentication) {
+    return authentication == null
+        || !authentication.isAuthenticated()
+        || authentication instanceof AnonymousAuthenticationToken;
+  }
+
+  private void clearAccessTokenIfBlockedAuthenticatedUser(
+      Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    if (isAnonymousAuthentication(authentication)) {
+      return;
+    }
+    if (userApplicationAccessPolicy.isBlockedAccount(authentication.getName())) {
+      cookieService.clearAccessTokenCookie(request, response);
+    }
+  }
+
+  private record AccessDeniedMetadata(HttpStatus status, String problemType, String title) {
+    private static AccessDeniedMetadata forAnonymousPrincipal(boolean anonymous) {
+      return anonymous
+          ? new AccessDeniedMetadata(
+              HttpStatus.UNAUTHORIZED, ProblemTypes.UNAUTHORIZED, "Unauthorized")
+          : new AccessDeniedMetadata(HttpStatus.FORBIDDEN, ProblemTypes.FORBIDDEN, "Access Denied");
+    }
+  }
 
   private String getRequestURI(WebRequest request) {
     if (request instanceof ServletWebRequest servletRequest) {

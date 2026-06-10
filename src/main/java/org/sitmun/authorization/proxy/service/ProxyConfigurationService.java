@@ -8,6 +8,7 @@ import static org.sitmun.domain.DomainConstants.Tasks.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.decorators.HttpUserParametrizationDecorator;
 import org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator;
 import org.sitmun.authorization.proxy.decorators.SqlUserParametrizationDecorator;
@@ -74,6 +75,8 @@ public class ProxyConfigurationService {
 
   private final TaskParameterProcessor taskParameterProcessor;
 
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
+
   @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
@@ -92,7 +95,8 @@ public class ProxyConfigurationService {
       List<ResourceAccessValidator> accessValidators,
       SystemVariableResolver systemVariableResolver,
       MoreInfoTaskResolver moreInfoTaskResolver,
-      TaskParameterProcessor taskParameterProcessor) {
+      TaskParameterProcessor taskParameterProcessor,
+      UserApplicationAccessPolicy userApplicationAccessPolicy) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -105,6 +109,7 @@ public class ProxyConfigurationService {
     this.systemVariableResolver = systemVariableResolver;
     this.moreInfoTaskResolver = moreInfoTaskResolver;
     this.taskParameterProcessor = taskParameterProcessor;
+    this.userApplicationAccessPolicy = userApplicationAccessPolicy;
   }
 
   private WmsPayloadDto getOgcWmsConfiguration(
@@ -253,6 +258,15 @@ public class ProxyConfigurationService {
     return httpApiPayload;
   }
 
+  /**
+   * Validates whether the user may obtain proxy configuration for the requested resource.
+   *
+   * <p>When {@code sitmun.proxy-middleware.validate-user-access} is enabled (default), denies
+   * access for blocked user accounts (including the built-in {@code public} user), denies the
+   * public principal on private applications ({@code appPrivate}), then delegates to resource
+   * validators for role and service checks. When validation is disabled, returns {@code true}
+   * without any checks.
+   */
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
     // Check if validation is enabled via configuration
     if (!validateUserAccessEnabled) {
@@ -262,6 +276,14 @@ public class ProxyConfigurationService {
 
     if (userName == null || userName.isBlank()) {
       log.warn("Username is null or blank, denying access");
+      return false;
+    }
+
+    if (userApplicationAccessPolicy.isBlockedAccount(userName)) {
+      return false;
+    }
+    if (userApplicationAccessPolicy.isPrivateAppDeniedForPublic(
+        userName, configProxyRequestDto.getAppId())) {
       return false;
     }
 

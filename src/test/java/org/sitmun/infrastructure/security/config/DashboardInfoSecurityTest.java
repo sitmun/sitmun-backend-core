@@ -43,4 +43,11 @@ class DashboardInfoSecurityTest {
         .andExpect(jsonPath("$.dashboard").exists())
         .andExpect(jsonPath("$.dashboard.total").exists());
   }
+
+  @Test
+  @DisplayName("GET: /api/dashboard/info should be forbidden for standard user")
+  @WithMockUser(authorities = "ROLE_USER")
+  void dashboardInfoShouldBeForbiddenForStandardUser() throws Exception {
+    mvc.perform(get("/api/dashboard/info")).andExpect(status().isForbidden());
+  }
 }
