@@ -67,6 +67,26 @@ class TaskDocumentExportServiceTest {
   }
 
   @Test
+  void mapOmitsDownloadSourceForPdfTasksWithoutConfiguredSource() {
+    Task task =
+        Task.builder()
+            .id(704)
+            .name("Export PDF")
+            .type(TaskType.builder().id(TASK_TYPE_ID_DOCUMENT_EXPORT).build())
+            .properties(
+                Map.of(
+                    PROPERTY_EXPORT_ENGINE, "openhtmltopdf",
+                    PROPERTY_DOWNLOAD_FORMAT, "pdf"))
+            .build();
+
+    TaskDto result = service.map(task, Application.builder().build(), Territory.builder().build());
+
+    assertEquals("pdf", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
+    assertEquals("pdf", result.getParameters().get("output"));
+    assertFalse(result.getParameters().containsKey(PROPERTY_DOWNLOAD_SOURCE));
+  }
+
+  @Test
   void mapOmitsParametersWhenPropertiesAreNull() {
     Task task =
         Task.builder()
@@ -97,5 +117,22 @@ class TaskDocumentExportServiceTest {
     assertEquals(PROFILE_LAYER_ID_PREFIX + "88", result.getLayer());
     assertEquals("xml", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
     assertEquals("xml", result.getParameters().get("output"));
+  }
+
+  @Test
+  void mapLeavesMissingDownloadSourceAbsentForXmlTasks() {
+    Task task =
+        Task.builder()
+            .id(705)
+            .name("Export XML")
+            .type(TaskType.builder().id(TASK_TYPE_ID_DOCUMENT_EXPORT).build())
+            .properties(Map.of(PROPERTY_DOWNLOAD_FORMAT, "xml"))
+            .build();
+
+    TaskDto result = service.map(task, Application.builder().build(), Territory.builder().build());
+
+    assertEquals("xml", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
+    assertEquals("xml", result.getParameters().get("output"));
+    assertFalse(result.getParameters().containsKey(PROPERTY_DOWNLOAD_SOURCE));
   }
 }

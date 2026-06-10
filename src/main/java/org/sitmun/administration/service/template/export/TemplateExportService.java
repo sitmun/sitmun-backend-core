@@ -137,14 +137,19 @@ public class TemplateExportService {
   }
 
   public String resolveExportFilename(Long taskId, String output) {
+    return resolveExportFilename(null, taskId, output);
+  }
+
+  public String resolveExportFilename(Long templateTaskId, Long taskId, String output) {
     String extension = normalizeOutput(output);
-    if (taskId == null) {
+    Long filenameTaskId = templateTaskId != null ? templateTaskId : taskId;
+    if (filenameTaskId == null) {
       return "report." + extension;
     }
 
-    Task task = taskRepository.findById(taskId.intValue())
+    Task task = taskRepository.findById(filenameTaskId.intValue())
         .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Task not found: " + taskId));
+            HttpStatus.NOT_FOUND, "Task not found: " + filenameTaskId));
 
     String taskName = StringUtils.hasText(task.getName())
         ? task.getName().trim()

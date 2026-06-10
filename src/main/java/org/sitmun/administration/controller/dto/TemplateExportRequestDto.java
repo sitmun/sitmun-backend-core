@@ -8,4 +8,5 @@ import jakarta.validation.constraints.NotBlank;
 public record TemplateExportRequestDto(
     @NotBlank @JacksonXmlProperty(localName = "output") String output,
     @JacksonXmlProperty(localName = "template") String template,
-    @JacksonXmlProperty(localName = "taskId") Long taskId) {}
+    @JacksonXmlProperty(localName = "taskId") Long taskId,
+    @JacksonXmlProperty(localName = "templateTaskId") Long templateTaskId) {}

@@ -271,7 +271,7 @@ public class TemplateExecutionService {
     if ("template".equals(result.getResultType())) {
       Object html = result.getContext() != null ? result.getContext().get("html") : null;
       String content = html == null ? "" : String.valueOf(html);
-      return wrapWithDownloadAnnotation(content);
+      return wrapWithDownloadAnnotation(content, childTaskId);
     }
     if ("table".equals(result.getResultType())) {
       return renderRowsAsTable(result.getRows());
@@ -740,8 +740,9 @@ public class TemplateExecutionService {
    * Wraps rendered template HTML with a marker that lets the viewer inject one button per
    * authorized {@code documentExport} task.
    */
-  private String wrapWithDownloadAnnotation(String content) {
-    return "<div data-mia-export-template=\"true\">" + content + "</div>";
+  private String wrapWithDownloadAnnotation(String content, Integer templateTaskId) {
+    String taskIdAttribute = templateTaskId == null ? "" : " data-mia-template-task-id=\"" + templateTaskId + "\"";
+    return "<div data-mia-export-template=\"true\"" + taskIdAttribute + ">" + content + "</div>";
   }
 
   private TemplateTaskExecutionResponseDto executeTask(

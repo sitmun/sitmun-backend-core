@@ -105,6 +105,19 @@ class TemplateExportServiceTest {
   }
 
   @Test
+  @DisplayName("exportHtml allows pdf task without configured download source when runtime HTML exists")
+  void exportHtmlAllowsPdfTaskWithoutConfiguredDownloadSourceWhenRuntimeHtmlExists() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    when(taskRepository.findById(402)).thenReturn(Optional.of(buildTask(402, Map.of(
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"))));
+
+    byte[] content = service.exportHtml("<html><body>pdf</body></html>", "pdf", 402L);
+
+    assertThat(content).isNotEmpty();
+    verify(taskRepository, atLeastOnce()).findById(402);
+  }
+
+  @Test
   @DisplayName("exportHtml rejects output not enabled for task")
   void exportHtmlRejectsOutputNotEnabledForTask() {
     TemplateExportService service = new TemplateExportService(taskRepository);
@@ -135,6 +148,23 @@ class TemplateExportServiceTest {
           ResponseStatusException responseStatusException = (ResponseStatusException) exception;
           assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
           assertThat(responseStatusException.getReason()).isEqualTo("Invalid file path");
+        });
+  }
+
+  @Test
+  @DisplayName("exportTaskFile fails when xml task lacks configured download source")
+  void exportTaskFileFailsWhenXmlTaskLacksConfiguredDownloadSource() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    ReflectionTestUtils.setField(service, "allowedFilePathPrefix", tempDir.toString());
+    when(taskRepository.findById(551)).thenReturn(Optional.of(buildTask(551, Map.of(
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "xml"))));
+
+    assertThatThrownBy(() -> service.exportTaskFile(551L, "xml"))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(exception -> {
+          ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+          assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+          assertThat(responseStatusException.getReason()).isEqualTo("Task 551 does not have a downloadSource configured");
         });
   }
 
@@ -193,15 +223,17 @@ class TemplateExportServiceTest {
   }
 
   @Test
-  @DisplayName("resolveExportFilename sanitizes task name and uses report fallback")
-  void resolveExportFilenameSanitizesTaskNameAndUsesReportFallback() {
+  @DisplayName("resolveExportFilename prefers template task name and uses report fallback")
+  void resolveExportFilenamePrefersTemplateTaskNameAndUsesReportFallback() {
     TemplateExportService service = new TemplateExportService(taskRepository);
     when(taskRepository.findById(901)).thenReturn(Optional.of(buildTask(901, Map.of())));
     when(taskRepository.findById(902)).thenReturn(Optional.of(buildTaskWithName(902, "Quarterly:/Report?*", Map.of())));
+    when(taskRepository.findById(903)).thenReturn(Optional.of(buildTaskWithName(903, "Plantilla territori", Map.of())));
 
     assertThat(service.resolveExportFilename(null, "pdf")).isEqualTo("report.pdf");
     assertThat(service.resolveExportFilename(901L, "xml")).isEqualTo("Export task.xml");
     assertThat(service.resolveExportFilename(902L, "pdf")).isEqualTo("Quarterly_Report_.pdf");
+    assertThat(service.resolveExportFilename(903L, 901L, "pdf")).isEqualTo("Plantilla territori.pdf");
   }
 
   @Test

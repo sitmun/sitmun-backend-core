@@ -747,6 +747,65 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  void renderMoreInfoAdvancedAnnotatesTemplateWrapperWithTemplateTaskId() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":201,\"name\":\"Plantilla\",\"order\":0,\"childType\":\"template\"}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(201)
+            .name("Plantilla descarrega")
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>Hola</p>"))
+            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(201)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(eq("<p>Hola</p>"), any(), eq(201)))
+        .thenReturn(TemplatePreviewResponseDto.builder().html("<p>Hola</p>").placeholders(List.of()).build());
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml())
+        .contains("data-mia-export-template=\"true\"")
+        .contains("data-mia-template-task-id=\"201\"");
+  }
+
+  @Test
   void renderMoreInfoAdvancedKeepsTemplateHtmlWhenLinkedApiChildFails() throws IOException {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);

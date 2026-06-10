@@ -19,9 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +57,7 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
 
     when(templateExportService.exportHtml(eq("\n    <html>\n      <body>\n        <h1>Informe</h1>\n        <p>Contingut renderitzat</p>\n      </body>\n    </html>\n  "), eq("pdf"), eq(null)))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq("pdf")))
+    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("pdf")))
         .thenReturn("report.pdf");
 
     mvc.perform(
@@ -69,14 +71,15 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /api/tasks/template/export uses task name for download filename")
+  @DisplayName("POST /api/tasks/template/export uses template task name for download filename")
   @WithMockUser(roles = "ADMIN")
-  void exportUsesTaskNameForFilename() throws Exception {
+  void exportUsesTemplateTaskNameForFilename() throws Exception {
     String xml =
         """
         <templateExportRequest>
           <output>pdf</output>
           <taskId>201</taskId>
+          <templateTaskId>301</templateTaskId>
           <template><![CDATA[
             <html><body><h1>Informe</h1></body></html>
           ]]></template>
@@ -85,7 +88,7 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
 
     when(templateExportService.exportHtml(eq("\n    <html><body><h1>Informe</h1></body></html>\n  "), eq("pdf"), eq(201L)))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(201L), eq("pdf")))
+    when(templateExportService.resolveExportFilename(eq(301L), eq(201L), eq("pdf")))
         .thenReturn("Plantilla territori.pdf");
 
     mvc.perform(
@@ -106,7 +109,7 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
 
     when(templateExportService.exportHtml(eq("<report/>"), eq("xml"), eq(null)))
         .thenReturn("<report/>".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq("xml")))
+    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("xml")))
         .thenReturn("report.xml");
 
     mvc.perform(
@@ -120,6 +123,44 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   }
 
   @Test
+  @DisplayName("POST /api/tasks/template/export forwards xml taskId-only request")
+  @WithMockUser(roles = "ADMIN")
+  void exportForwardsXmlTaskIdOnlyRequest() throws Exception {
+    String xml = "<templateExportRequest><output>xml</output><taskId>555</taskId></templateExportRequest>";
+
+    when(templateExportService.exportHtml(eq(null), eq("xml"), eq(555L)))
+        .thenReturn("<report/>".getBytes());
+    when(templateExportService.resolveExportFilename(eq(null), eq(555L), eq("xml")))
+        .thenReturn("Tasca exportar.xml");
+
+    mvc.perform(
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_XML))
+        .andExpect(header().string("Content-Disposition", "attachment; filename=\"Tasca exportar.xml\""));
+  }
+
+  @Test
+  @DisplayName("POST /api/tasks/template/export returns bad request when xml task lacks download source")
+  @WithMockUser(roles = "ADMIN")
+  void exportReturnsBadRequestWhenXmlTaskLacksDownloadSource() throws Exception {
+    String xml = "<templateExportRequest><output>xml</output><taskId>556</taskId></templateExportRequest>";
+
+    when(templateExportService.exportHtml(eq(null), eq("xml"), eq(556L)))
+        .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task 556 does not have a downloadSource configured"));
+
+    mvc.perform(
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   @DisplayName("POST /api/tasks/template/export returns pdf media type for pdf output")
   @WithMockUser(roles = "ADMIN")
   void exportReturnsPdfMediaTypeForPdfOutput() throws Exception {
@@ -127,7 +168,7 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
 
     when(templateExportService.exportHtml(eq("<html><body>ok</body></html>"), eq("pdf"), eq(null)))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq("pdf")))
+    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("pdf")))
         .thenReturn("report.pdf");
 
     mvc.perform(

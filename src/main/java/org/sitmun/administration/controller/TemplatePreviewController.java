@@ -82,7 +82,8 @@ public class TemplatePreviewController {
 
     byte[] content = templateExportService.exportHtml(request.template(), output, request.taskId());
 
-    String filename = templateExportService.resolveExportFilename(request.taskId(), output);
+    String filename =
+        templateExportService.resolveExportFilename(request.templateTaskId(), request.taskId(), output);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(resolveMediaType(output));
     headers.setContentDisposition(
