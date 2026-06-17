@@ -1,7 +1,7 @@
 package org.sitmun.administration.service.template;
 
-import com.github.jknack.handlebars.HandlebarsException;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.HandlebarsException;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
@@ -50,11 +52,13 @@ public class TemplateRenderService {
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final TemplateContextNormalizer templateContextNormalizer;
+  private final TemplateLiteralProcessor templateLiteralProcessor;
+  private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
   private final Handlebars handlebars = new Handlebars();
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context, Integer templateTaskId) {
-    return renderPreview(templateHtml, context, templateTaskId, Collections.emptyList());
+    return renderPreview(templateHtml, context, templateTaskId, Collections.emptyList(), null);
   }
 
   public TemplatePreviewResponseDto renderPreview(
@@ -62,13 +66,24 @@ public class TemplateRenderService {
       Map<String, Object> context,
       Integer templateTaskId,
       List<String> knownTaskReferences) {
+    return renderPreview(templateHtml, context, templateTaskId, knownTaskReferences, null);
+  }
+
+  public TemplatePreviewResponseDto renderPreview(
+      String templateHtml,
+      Map<String, Object> context,
+      Integer templateTaskId,
+      List<String> knownTaskReferences,
+      String language) {
     String source = templateHtml == null ? "" : templateHtml;
     Map<String, Object> safeContext = templateContextNormalizer.normalize(context);
     String withNormalizedEachBlocks = normalizeRootEachBlocks(source, safeContext);
     String withTableIterations = expandSitmunTableIterations(withNormalizedEachBlocks);
     String withExecutionHints =
         annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
-    String withBackendVars = replaceBackendVariables(withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
+    String withBackendVars =
+        replaceBackendVariables(
+            withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
     String normalized = normalizeParameterLookups(withHtmlResults);
@@ -77,7 +92,13 @@ public class TemplateRenderService {
     try {
       Template compiled = handlebars.compileInline(normalized);
       String html = compiled.apply(safeContext);
-      return TemplatePreviewResponseDto.builder().html(html).placeholders(placeholders).build();
+      String renderedLanguage =
+          language != null ? language : currentRequestLanguageResolver.resolve(this);
+      String translatedHtml = templateLiteralProcessor.process(html, renderedLanguage);
+      return TemplatePreviewResponseDto.builder()
+          .html(translatedHtml)
+          .placeholders(placeholders)
+          .build();
     } catch (HandlebarsException e) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
@@ -111,10 +132,12 @@ public class TemplateRenderService {
   }
 
   private String expandSitmunTableIterations(String templateHtml) {
-    Matcher matcher = SITMUN_TABLE_ITERATION_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    Matcher matcher =
+        SITMUN_TABLE_ITERATION_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
-      matcher.appendReplacement(sb, Matcher.quoteReplacement(expandSitmunTableIteration(matcher.group())));
+      matcher.appendReplacement(
+          sb, Matcher.quoteReplacement(expandSitmunTableIteration(matcher.group())));
     }
     matcher.appendTail(sb);
     return sb.toString();
@@ -135,13 +158,14 @@ public class TemplateRenderService {
       return normalizedTable;
     }
 
-    String bodyReplacement = "<tbody"
-        + bodyMatcher.group(1)
-        + ">{{#each "
-        + eachPath
-        + "}}"
-        + bodyMatcher.group(2)
-        + "{{/each}}</tbody>";
+    String bodyReplacement =
+        "<tbody"
+            + bodyMatcher.group(1)
+            + ">{{#each "
+            + eachPath
+            + "}}"
+            + bodyMatcher.group(2)
+            + "{{/each}}</tbody>";
     return bodyMatcher.replaceFirst(Matcher.quoteReplacement(bodyReplacement));
   }
 
@@ -197,7 +221,8 @@ public class TemplateRenderService {
     return knownRoots.contains(rootKey) || rootKey.startsWith("task_");
   }
 
-  private boolean isTaskPlaceholderResolved(String placeholderContent, Map<String, Object> context) {
+  private boolean isTaskPlaceholderResolved(
+      String placeholderContent, Map<String, Object> context) {
     int firstDot = placeholderContent.indexOf('.');
     String rootKey = extractRootKey(placeholderContent);
     if (!context.containsKey(rootKey)) {
@@ -257,7 +282,10 @@ public class TemplateRenderService {
     Matcher matcher = PARAMETER_LOOKUP_PATTERN.matcher(templateHtml);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
-      matcher.appendReplacement(sb, Matcher.quoteReplacement("{{lookup " + matcher.group(1) + " \"" + matcher.group(2) + "\"}}"));
+      matcher.appendReplacement(
+          sb,
+          Matcher.quoteReplacement(
+              "{{lookup " + matcher.group(1) + " \"" + matcher.group(2) + "\"}}"));
     }
     matcher.appendTail(sb);
     return sb.toString();
@@ -278,7 +306,8 @@ public class TemplateRenderService {
   }
 
   private String normalizeHtmlResultPlaceholders(String templateHtml) {
-    Matcher matcher = HTML_RESULT_PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    Matcher matcher =
+        HTML_RESULT_PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       matcher.appendReplacement(sb, Matcher.quoteReplacement("{{{" + matcher.group(1) + "}}}"));
@@ -308,5 +337,4 @@ public class TemplateRenderService {
     }
     return placeholders;
   }
-
 }

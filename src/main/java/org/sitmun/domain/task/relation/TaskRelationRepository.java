@@ -12,6 +12,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 public interface TaskRelationRepository extends JpaRepository<TaskRelation, Integer> {
 
   @RestResource(exported = false)
-  @Query("select tr from TaskRelation tr join fetch tr.relatedTask rt left join fetch rt.type where tr.task.id = ?1")
+  @Query(
+      "select tr from TaskRelation tr join fetch tr.relatedTask rt left join fetch rt.type where tr.task.id = ?1")
   List<TaskRelation> findByTaskId(Integer taskId);
 }

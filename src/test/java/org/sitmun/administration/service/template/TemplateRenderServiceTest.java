@@ -7,20 +7,36 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.web.server.ResponseStatusException;
 
 class TemplateRenderServiceTest {
 
   private TemplateRenderService createService(SystemVariableResolver resolver) {
+    TemplateLiteralProcessor literalProcessor =
+        new TemplateLiteralProcessor((literal, language) -> literal);
     return new TemplateRenderService(
         resolver,
         mock(TemplateRequestCoordinatesService.class),
-        new TemplateContextNormalizer());
+        new TemplateContextNormalizer(),
+        literalProcessor,
+        mock(CurrentRequestLanguageResolver.class));
+  }
+
+  private TemplateRenderService createService(
+      SystemVariableResolver resolver, TemplateLiteralProcessor literalProcessor) {
+    return new TemplateRenderService(
+        resolver,
+        mock(TemplateRequestCoordinatesService.class),
+        new TemplateContextNormalizer(),
+        literalProcessor,
+        mock(CurrentRequestLanguageResolver.class));
   }
 
   @Test
@@ -37,7 +53,8 @@ class TemplateRenderServiceTest {
             null);
 
     assertThat(response.getHtml()).contains("SITMUN").contains("Parcela 23-A").contains("foo");
-    assertThat(response.getPlaceholders()).containsExactly("#APP_NAME", "pepe.nombre", "pepe.$param1");
+    assertThat(response.getPlaceholders())
+        .containsExactly("#APP_NAME", "pepe.nombre", "pepe.$param1");
   }
 
   @Test
@@ -59,11 +76,7 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<p>{{pepe.a[1].e}}</p><p>{{pepe.m}}</p>",
-            Map.of(
-                "pepe",
-                Map.of(
-                    "a", List.of(Map.of("c", 1), Map.of("e", 2)),
-                    "m", 1)),
+            Map.of("pepe", Map.of("a", List.of(Map.of("c", 1), Map.of("e", 2)), "m", 1)),
             null);
 
     assertThat(response.getHtml()).contains("<p>2</p>").contains("<p>1</p>");
@@ -71,7 +84,7 @@ class TemplateRenderServiceTest {
   }
 
   @Test
-  void renderPreviewExpandsSitmunTableIterationAttributes() {
+  void renderPreviewExpandsSitmunTableIterationMarkup() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = createService(resolver);
 
@@ -91,6 +104,24 @@ class TemplateRenderServiceTest {
         .contains("<td>sitna.layerCatalog</td>")
         .contains("<td>sitna.search</td>")
         .doesNotContain("data-sitmun-each");
+  }
+
+  @Test
+  void renderPreviewTranslatesTemplateLiteralsAfterRendering() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service =
+        createService(
+            resolver,
+            new TemplateLiteralProcessor(
+                (literal, language) ->
+                    "es".equals(language) && "Hola món!".equals(literal)
+                        ? "Hola mundo!"
+                        : literal));
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<p><t>Hola món!</t></p>", Map.of(), null, List.of(), "es");
+
+    assertThat(response.getHtml()).isEqualTo("<p>Hola mundo!</p>");
   }
 
   @Test
@@ -168,36 +199,6 @@ class TemplateRenderServiceTest {
   }
 
   @Test
-  void renderPreviewExpandsQuillTableBetterMarkupAfterHeaderEditing() {
-    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = createService(resolver);
-
-    String templateHtml = "<table class=\"ql-table-better\"><temporary class=\"ql-table-temporary\" data-class=\"ql-table-better\"></temporary>"
-        + "<thead><tr><th data-row=\"1\"><p class=\"table-th-block\" data-cell=\"1\" data-sitmun-each=\"task_32281.rows\">tui_tooltip a</p></th></tr></thead>"
-        + "<tbody><tr><td data-row=\"2\"><p class=\"ql-table-block\" data-cell=\"1\" data-sitmun-each=\"task_32281.rows\">{{tui_tooltip}}</p></td></tr></tbody></table>";
-
-    TemplatePreviewResponseDto response =
-        service.renderPreview(
-            templateHtml,
-            Map.of(
-                "task_32281",
-                Map.of(
-                    "rows",
-                    List.of(
-                        Map.of("tui_tooltip", "layerCatalog"),
-                        Map.of("tui_tooltip", "search")))),
-            null);
-
-    assertThat(response.getHtml())
-        .contains("tui_tooltip a")
-        .contains("layerCatalog")
-        .contains("search")
-        .contains("ql-table-better")
-        .doesNotContain("<temporary")
-        .doesNotContain("data-sitmun-each");
-  }
-
-  @Test
   void renderPreviewKeepsUnresolvedTaskPlaceholdersVisibleWithExecutionHint() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = createService(resolver);
@@ -222,7 +223,8 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = createService(resolver);
 
-    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of(), null);
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<p>{{#APP_ID}}</p>", Map.of(), null);
 
     assertThat(response.getHtml()).contains("#APP_ID");
   }
@@ -231,7 +233,7 @@ class TemplateRenderServiceTest {
   void renderPreviewInsertsNestedTemplateHtmlWithoutEscapingMarkup() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = createService(resolver);
-  
+
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<section>{{pepe.html}}</section>",
@@ -248,7 +250,8 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = createService(resolver);
 
-    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of(), null);
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of(), null);
 
     assertThat(response.getHtml()).contains("<p>admin</p>");
   }

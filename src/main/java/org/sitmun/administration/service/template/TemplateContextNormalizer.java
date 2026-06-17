@@ -69,14 +69,16 @@ public class TemplateContextNormalizer {
     Map<Integer, Map<String, Object>> rowMap = new LinkedHashMap<>();
     for (Object rawRow : rows) {
       Map<?, ?> flattenedRow = (Map<?, ?>) rawRow;
-      Matcher matcher = FLATTENED_ROW_FIELD_PATTERN.matcher(String.valueOf(flattenedRow.get("field")));
+      Matcher matcher =
+          FLATTENED_ROW_FIELD_PATTERN.matcher(String.valueOf(flattenedRow.get("field")));
       if (!matcher.matches()) {
         return rows.stream().map(this::normalizeValue).toList();
       }
 
       int rowIndex = Integer.parseInt(matcher.group(1));
       String fieldPath = matcher.group(2);
-      Map<String, Object> normalizedRow = rowMap.computeIfAbsent(rowIndex, ignored -> new LinkedHashMap<>());
+      Map<String, Object> normalizedRow =
+          rowMap.computeIfAbsent(rowIndex, ignored -> new LinkedHashMap<>());
       if (fieldPath == null || fieldPath.isBlank()) {
         normalizedRow.put(VALUE, normalizeValue(flattenedRow.get(VALUE)));
       } else {

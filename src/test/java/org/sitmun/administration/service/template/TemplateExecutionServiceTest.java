@@ -1,6 +1,5 @@
 package org.sitmun.administration.service.template;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,7 +9,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,25 +40,36 @@ import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
+import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 class TemplateExecutionServiceTest {
 
   @Test
-  void renderMoreInfoAdvancedResolvesChildOrderInBackend() {
+  void renderMoreInfoAdvancedShowsTranslatedNoDataWhenChildTaskIsUnauthorized() {
     TaskRepository taskRepository = mock(TaskRepository.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -71,7 +83,328 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":101,\"name\":\"Document\",\"order\":0,\"childType\":\"query\"}]"))));
+
+    Task childTask = mock(Task.class);
+    when(childTask.getId()).thenReturn(101);
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setParameter("lang", "en");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    SecurityContextHolder.getContext()
+        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+    try {
+      MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
+      renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setParameters(Map.of("id", "A-1"));
+
+      MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
+
+      assertThat(result.getTasks()).hasSize(1);
+      assertThat(result.getTasks().get(0).getHtml()).contains("No data").doesNotContain("A-1");
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void renderMoreInfoAdvancedKeepsTemplateHtmlWithTranslatedNoDataWhenNestedChildIsUnauthorized() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":401,\"name\":\"Plantilla\",\"order\":0,\"childType\":\"template\"}]"))));
+
+    Task templateTask =
+        Task.builder()
+            .id(401)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<article>{{consulta_api.html}} {{consulta_api.value}}</article>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
+            .build();
+    Task apiTask = Task.builder().id(402).build();
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of(templateTask));
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(401)).thenReturn(Optional.of(templateTask));
+    when(taskRelationRepository.findByTaskId(401))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(templateTask)
+                    .relationType("template-task")
+                    .referenceAlias("consulta_api")
+                    .relatedTask(apiTask)
+                    .build()));
+    when(templateRenderService.renderPreview(
+            eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"), any(), eq(401)))
+        .thenAnswer(
+            invocation -> {
+              Map<String, Object> context = invocation.getArgument(1);
+              Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_api");
+              return TemplatePreviewResponseDto.builder()
+                  .html(
+                      "<article>"
+                          + childContext.get("html")
+                          + " "
+                          + childContext.get("value")
+                          + "</article>")
+                  .placeholders(List.of())
+                  .build();
+            });
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setParameter("lang", "en");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    SecurityContextHolder.getContext()
+        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+    try {
+      MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
+      renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setParameters(Map.of());
+
+      MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
+
+      assertThat(result.getTasks()).hasSize(1);
+      assertThat(result.getTasks().get(0).getHtml())
+          .contains("<article>")
+          .contains("No data")
+          .doesNotContain("sitmun-template-child-error");
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void renderMoreInfoAdvancedDeniesChildWhenAuthenticatedUserCannotBeResolved() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    RequestCoordinates unresolvedCoordinates = new RequestCoordinates();
+    unresolvedCoordinates.setTerritory(Territory.builder().id(7).build());
+    when(coordinatesService.build(any())).thenReturn(unresolvedCoordinates);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(
+            Map.of(
+                DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                List.of(
+                    Map.of(
+                        "name",
+                        "includedTasks",
+                        "type",
+                        DomainConstants.Tasks.TYPE_ARRAY,
+                        "value",
+                        "[{\"id\":101,\"name\":\"Document\",\"order\":0,\"childType\":\"query\"}]"))));
+
+    Task childTask = mock(Task.class);
+    when(childTask.getId()).thenReturn(101);
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setParameter("lang", "en");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken("viewer@example.org", "n/a", List.of()));
+    try {
+      MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
+      renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setParameters(Map.of("id", "A-1"));
+
+      MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
+
+      assertThat(result.getTasks()).hasSize(1);
+      assertThat(result.getTasks().get(0).getHtml()).contains("No data").doesNotContain("A-1");
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void executeLinkedTaskReturnsNoDataWhenTaskIsUnauthorized() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(13)
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
+            .build();
+    when(taskRepository.findById(13)).thenReturn(Optional.of(task));
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setParameter("lang", "en");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    SecurityContextHolder.getContext()
+        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+    try {
+      TemplateTaskExecutionRequestDto executionRequest = new TemplateTaskExecutionRequestDto();
+      executionRequest.setLinkedTaskId(13);
+      executionRequest.setParameters(Map.of());
+
+      TemplateTaskExecutionResponseDto result = service.executeLinkedTask(executionRequest);
+
+      assertThat(result.getStatus()).isEqualTo("COMPLETED");
+      assertThat(result.getRows()).isEmpty();
+      assertThat(result.getContext()).containsEntry("value", "No data");
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  private TemplateExecutionService newService(
+      TaskRepository taskRepository,
+      TaskRelationRepository taskRelationRepository,
+      ProxyConfigurationService proxyConfigurationService,
+      DatabaseConnectionService databaseConnectionService,
+      HttpClientFactory httpClientFactory,
+      SystemVariableResolver systemVariableResolver,
+      TemplateRenderService templateRenderService,
+      TemplateRequestCoordinatesService coordinatesService,
+      ObjectMapper objectMapper) {
+    RoleRepository roleRepository = mock(RoleRepository.class);
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory(any(), any(), any()))
+        .thenReturn(List.of(Role.builder().id(3).build()));
+    return new TemplateExecutionService(
+        taskRepository,
+        roleRepository,
+        taskRelationRepository,
+        proxyConfigurationService,
+        databaseConnectionService,
+        httpClientFactory,
+        systemVariableResolver,
+        templateRenderService,
+        coordinatesService,
+        objectMapper);
+  }
+
+  private RequestCoordinates requestCoordinatesWithUserPermission(Integer territoryId) {
+    Territory territory = Territory.builder().id(territoryId).build();
+    User user = User.builder().username("viewer").permissions(new HashSet<>()).build();
+    RequestCoordinates coordinates = new RequestCoordinates();
+    coordinates.setApplication(org.sitmun.domain.application.Application.builder().id(5).build());
+    coordinates.setUser(user);
+    coordinates.setTerritory(territory);
+    return coordinates;
+  }
+
+  @Test
+  void renderMoreInfoAdvancedResolvesChildOrderInBackend() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(101)));
 
@@ -104,10 +437,11 @@ class TemplateExecutionServiceTest {
   @Test
   void renderMoreInfoAdvancedRejectsBasicViewerHookTask() {
     TaskRepository taskRepository = mock(TaskRepository.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -119,7 +453,8 @@ class TemplateExecutionServiceTest {
             new ObjectMapper());
 
     Task basicHookTask = mock(Task.class);
-    when(basicHookTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_BASIC).build());
+    when(basicHookTask.getType())
+        .thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_BASIC).build());
     when(basicHookTask.getUi()).thenReturn(TaskUI.builder().name("sitna.moreInfoAdvanced").build());
     when(taskRepository.findById(32306)).thenReturn(Optional.of(basicHookTask));
 
@@ -141,13 +476,14 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://www.google.com/search?q={dificultat}"), any()))
         .thenReturn("https://www.google.com/search?q={dificultat}");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -161,7 +497,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -178,8 +516,12 @@ class TemplateExecutionServiceTest {
     Task templateTask =
         Task.builder()
             .id(201)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task urlTask =
         Task.builder()
@@ -191,7 +533,9 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_COMMAND,
                     "https://www.google.com/search?q={dificultat}",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(new LinkedHashMap<>(Map.of("name", "dificultat", "type", "Query parameter")))))
+                    List.of(
+                        new LinkedHashMap<>(
+                            Map.of("name", "dificultat", "type", "Query parameter")))))
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -233,13 +577,14 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://example.org/layers/{innerParam}"), any()))
         .thenReturn("https://example.org/layers/{innerParam}");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -253,7 +598,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -270,7 +617,10 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(401)
             .name("Plantilla")
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"))
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task urlTask =
@@ -296,13 +646,19 @@ class TemplateExecutionServiceTest {
                     .referenceAlias("consulta_url")
                     .relatedTask(urlTask)
                     .build()));
-    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"), any(), eq(401)))
+    when(templateRenderService.renderPreview(
+            eq("<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"), any(), eq(401)))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
               Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_url");
               return TemplatePreviewResponseDto.builder()
-                  .html("<h1>" + context.get("$title") + "</h1><a>" + childContext.get("url") + "</a>")
+                  .html(
+                      "<h1>"
+                          + context.get("$title")
+                          + "</h1><a>"
+                          + childContext.get("url")
+                          + "</a>")
                   .placeholders(List.of())
                   .build();
             });
@@ -323,11 +679,12 @@ class TemplateExecutionServiceTest {
   void renderMoreInfoAdvancedKeepsTemplateDefaultValueWhenNoDirectMappingExists() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -341,7 +698,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(701)));
 
@@ -354,7 +713,14 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
                     "<h1>{{$title}}</h1>",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+                    List.of(
+                        Map.of(
+                            "name",
+                            "title",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "value",
+                            "Default title"))))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
 
@@ -384,11 +750,12 @@ class TemplateExecutionServiceTest {
   void renderMoreInfoAdvancedPrefersExplicitMappingOverTemplateDefaultValue() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -402,7 +769,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -422,7 +791,14 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
                     "<h1>{{$title}}</h1>",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
+                    List.of(
+                        Map.of(
+                            "name",
+                            "title",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "value",
+                            "Default title"))))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
 
@@ -440,7 +816,8 @@ class TemplateExecutionServiceTest {
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
     request.setMiaTaskIds(List.of(16));
-    request.setParameters(Map.of("featureTitle", "Mapped title", "Default title", "Wrong feature value"));
+    request.setParameters(
+        Map.of("featureTitle", "Mapped title", "Default title", "Wrong feature value"));
 
     MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
 
@@ -455,13 +832,14 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
         .thenReturn("https://example.org/items/{innerParam}");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -475,7 +853,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -490,7 +870,8 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(501)
             .name("Plantilla")
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task urlTask =
@@ -541,13 +922,14 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
         .thenReturn("https://example.org/items/{innerParam}");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -561,7 +943,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -580,7 +964,8 @@ class TemplateExecutionServiceTest {
     Task templateTask =
         Task.builder()
             .id(601)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task urlTask =
@@ -633,13 +1018,14 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://www.google.com/search?q={dificultat}"), any()))
         .thenReturn("https://www.google.com/search?q={dificultat}");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -653,7 +1039,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -670,14 +1058,24 @@ class TemplateExecutionServiceTest {
     Task parentTemplate =
         Task.builder()
             .id(301)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<section>{{plantilla_hija.html}}</section>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<section>{{plantilla_hija.html}}</section>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task nestedTemplate =
         Task.builder()
             .id(302)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<a>{{consulta_url.url}}</a>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task urlTask =
         Task.builder()
@@ -689,7 +1087,9 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_COMMAND,
                     "https://www.google.com/search?q={dificultat}",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(new LinkedHashMap<>(Map.of("name", "dificultat", "type", "Query parameter")))))
+                    List.of(
+                        new LinkedHashMap<>(
+                            Map.of("name", "dificultat", "type", "Query parameter")))))
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -724,11 +1124,13 @@ class TemplateExecutionServiceTest {
                   .placeholders(List.of())
                   .build();
             });
-    when(templateRenderService.renderPreview(eq("<section>{{plantilla_hija.html}}</section>"), any(), eq(301)))
+    when(templateRenderService.renderPreview(
+            eq("<section>{{plantilla_hija.html}}</section>"), any(), eq(301)))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
-              Map<String, Object> childContext = (Map<String, Object>) context.get("plantilla_hija");
+              Map<String, Object> childContext =
+                  (Map<String, Object>) context.get("plantilla_hija");
               return TemplatePreviewResponseDto.builder()
                   .html("<section>" + childContext.get("html") + "</section>")
                   .placeholders(List.of())
@@ -754,12 +1156,13 @@ class TemplateExecutionServiceTest {
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://api.example.org/items"), any()))
         .thenReturn("https://api.example.org/items");
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             proxyConfigurationService,
@@ -773,7 +1176,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -790,8 +1195,14 @@ class TemplateExecutionServiceTest {
     Task templateTask =
         Task.builder()
             .id(401)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{consulta_api.html}} {{consulta_api.value}}</article>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<article>{{consulta_api.html}} {{consulta_api.value}}</article>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task apiTask =
         Task.builder()
@@ -816,7 +1227,8 @@ class TemplateExecutionServiceTest {
                     .referenceAlias("consulta_api")
                     .relatedTask(apiTask)
                     .build()));
-    WmsPayloadDto payload = WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
+    WmsPayloadDto payload =
+        WmsPayloadDto.builder().uri("https://api.example.org/items").method("GET").build();
     ConfigProxyDto config = ConfigProxyDto.builder().type("API").payload(payload).build();
     when(proxyConfigurationService.getConfiguration(any(), eq(0L), any())).thenReturn(config);
     Response response =
@@ -830,13 +1242,19 @@ class TemplateExecutionServiceTest {
                     "{\"error\":\"upstream failed\"}", okhttp3.MediaType.parse("application/json")))
             .build();
     when(httpClientFactory.executeRequest(any())).thenReturn(response);
-    when(templateRenderService.renderPreview(eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"), any(), eq(401)))
+    when(templateRenderService.renderPreview(
+            eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"), any(), eq(401)))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
               Map<String, Object> childContext = (Map<String, Object>) context.get("consulta_api");
               return TemplatePreviewResponseDto.builder()
-                  .html("<article>" + childContext.get("html") + " " + childContext.get("value") + "</article>")
+                  .html(
+                      "<article>"
+                          + childContext.get("html")
+                          + " "
+                          + childContext.get("value")
+                          + "</article>")
                   .placeholders(List.of())
                   .build();
             });
@@ -860,10 +1278,11 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -877,7 +1296,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -894,8 +1315,14 @@ class TemplateExecutionServiceTest {
     Task templateTask =
         Task.builder()
             .id(451)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{bad_child.html}} {{bad_child.value}}</article>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<article>{{bad_child.html}} {{bad_child.value}}</article>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task unsupportedTask =
         Task.builder()
@@ -916,13 +1343,19 @@ class TemplateExecutionServiceTest {
                     .referenceAlias("bad_child")
                     .relatedTask(unsupportedTask)
                     .build()));
-    when(templateRenderService.renderPreview(eq("<article>{{bad_child.html}} {{bad_child.value}}</article>"), any(), eq(451)))
+    when(templateRenderService.renderPreview(
+            eq("<article>{{bad_child.html}} {{bad_child.value}}</article>"), any(), eq(451)))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
               Map<String, Object> childContext = (Map<String, Object>) context.get("bad_child");
               return TemplatePreviewResponseDto.builder()
-                  .html("<article>" + childContext.get("html") + " " + childContext.get("value") + "</article>")
+                  .html(
+                      "<article>"
+                          + childContext.get("html")
+                          + " "
+                          + childContext.get("value")
+                          + "</article>")
                   .placeholders(List.of())
                   .build();
             });
@@ -948,10 +1381,11 @@ class TemplateExecutionServiceTest {
   void executeLinkedTaskPropagatesTemplateLinkedChildFailures() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -965,8 +1399,14 @@ class TemplateExecutionServiceTest {
     Task templateTask =
         Task.builder()
             .id(461)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<article>{{bad_child.html}}</article>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<article>{{bad_child.html}}</article>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task unsupportedTask =
         Task.builder()
@@ -1004,10 +1444,11 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -1021,7 +1462,9 @@ class TemplateExecutionServiceTest {
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
     when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType()).thenReturn(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
     when(miaTask.getProperties())
         .thenReturn(
             Map.of(
@@ -1038,7 +1481,10 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(471)
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{#if broken}}"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -1065,10 +1511,11 @@ class TemplateExecutionServiceTest {
   void executeLinkedTaskMapsInvalidSqlTaskConfigurationToBadRequest() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1082,7 +1529,8 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32285)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32285);
@@ -1106,11 +1554,12 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1124,20 +1573,23 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32281)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32281);
-    JdbcPayloadDto payload = JdbcPayloadDto.builder()
-        .driver("org.postgresql.Driver")
-        .uri("jdbc:postgresql://localhost/example")
-        .user("user")
-        .password("password")
-        .sql("select * from layers")
-        .build();
-    List<Map<String, Object>> rows = List.of(
-        Map.of("tui_tooltip", "Layer", "tui_id", 35),
-        Map.of("tui_tooltip", "Other", "tui_id", 36));
+    JdbcPayloadDto payload =
+        JdbcPayloadDto.builder()
+            .driver("org.postgresql.Driver")
+            .uri("jdbc:postgresql://localhost/example")
+            .user("user")
+            .password("password")
+            .sql("select * from layers")
+            .build();
+    List<Map<String, Object>> rows =
+        List.of(
+            Map.of("tui_tooltip", "Layer", "tui_id", 35),
+            Map.of("tui_tooltip", "Other", "tui_id", 36));
 
     when(taskRepository.findById(32281)).thenReturn(Optional.of(task));
     when(proxyConfigurationService.getConfiguration(any(), eq(0L), any()))
@@ -1159,11 +1611,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1178,7 +1631,9 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(32292)
             .properties(
-                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32292);
@@ -1250,11 +1705,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1324,11 +1780,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1343,7 +1800,9 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(32282)
             .properties(
-                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32282);
@@ -1374,7 +1833,8 @@ class TemplateExecutionServiceTest {
             exception -> {
               ResponseStatusException responseStatusException = (ResponseStatusException) exception;
               assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
-              assertThat(responseStatusException.getReason()).isEqualTo("API task returned HTTP 500");
+              assertThat(responseStatusException.getReason())
+                  .isEqualTo("API task returned HTTP 500");
             });
   }
 
@@ -1384,11 +1844,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1403,7 +1864,9 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(32282)
             .properties(
-                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32282);
@@ -1442,11 +1905,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1501,7 +1965,8 @@ class TemplateExecutionServiceTest {
         .containsEntry("binary", true)
         .containsEntry("value", "[contenido binario]");
     assertThat(result.getRows()).contains(Map.of("field", "value", "value", "[contenido binario]"));
-    assertThat(result.getRows()).noneMatch(row -> String.valueOf(row.get("value")).contains("%PDF"));
+    assertThat(result.getRows())
+        .noneMatch(row -> String.valueOf(row.get("value")).contains("%PDF"));
     assertThat(result.getContext()).doesNotContainValue("%PDF-1.7 raw binary contents");
   }
 
@@ -1511,11 +1976,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1529,7 +1995,10 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32317)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32317);
@@ -1574,11 +2043,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1594,7 +2064,10 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32317)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32317);
@@ -1620,7 +2093,8 @@ class TemplateExecutionServiceTest {
                           ? ResponseBody.create(
                               new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff},
                               okhttp3.MediaType.parse("image/jpeg"))
-                          : ResponseBody.create("404: Not Found", okhttp3.MediaType.parse("text/plain")))
+                          : ResponseBody.create(
+                              "404: Not Found", okhttp3.MediaType.parse("text/plain")))
                   .build();
             });
 
@@ -1641,11 +2115,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1659,7 +2134,10 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32318)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32318);
@@ -1698,11 +2176,12 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             proxyConfigurationService,
@@ -1716,7 +2195,10 @@ class TemplateExecutionServiceTest {
     Task task =
         Task.builder()
             .id(32319)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(32319);
@@ -1741,7 +2223,8 @@ class TemplateExecutionServiceTest {
             .message("OK")
             .body(
                 ResponseBody.create(
-                    new byte[] {0x25, 0x50, 0x44, 0x46}, okhttp3.MediaType.parse("application/pdf")))
+                    new byte[] {0x25, 0x50, 0x44, 0x46},
+                    okhttp3.MediaType.parse("application/pdf")))
             .build();
     when(httpClientFactory.executeRequest(any())).thenReturn(response);
 
@@ -1755,7 +2238,8 @@ class TemplateExecutionServiceTest {
         .containsEntry("embeddable", false)
         .containsEntry("value", "[contenido binario]");
     assertThat(result.getContext()).containsEntry("contentUrl", null).containsEntry("url", null);
-    assertThat(result.getContext()).doesNotContainValue("https://api.example.org/secure/report.pdf");
+    assertThat(result.getContext())
+        .doesNotContainValue("https://api.example.org/secure/report.pdf");
   }
 
   private static final class ThrowingStringResponseBody extends ResponseBody {
@@ -1800,14 +2284,15 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
     when(systemVariableResolver.resolve(eq("https://example.com/{slug}"), any()))
         .thenReturn("https://example.com/{slug}");
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -1821,14 +2306,24 @@ class TemplateExecutionServiceTest {
     Task parentTemplate =
         Task.builder()
             .id(200)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<div>{{plantilla_hija.html}}</div>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<div>{{plantilla_hija.html}}</div>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task childTemplate =
         Task.builder()
             .id(201)
-            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>{{consulta_url.url}}</p>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>{{consulta_url.url}}</p>"))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task urlTask =
         Task.builder()
@@ -1867,25 +2362,36 @@ class TemplateExecutionServiceTest {
                     .relatedTask(childTemplate)
                     .build()));
     when(templateRenderService.renderPreview(eq("<p>{{consulta_url.url}}</p>"), any(), eq(200)))
-        .thenReturn(TemplatePreviewResponseDto.builder().html("<p>https://example.com/abc</p>").placeholders(List.of()).build());
-    when(templateRenderService.renderPreview(eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(200)))
-        .thenReturn(TemplatePreviewResponseDto.builder().html("<div><p>https://example.com/abc</p></div>").placeholders(List.of()).build());
+        .thenReturn(
+            TemplatePreviewResponseDto.builder()
+                .html("<p>https://example.com/abc</p>")
+                .placeholders(List.of())
+                .build());
+    when(templateRenderService.renderPreview(
+            eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(200)))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder()
+                .html("<div><p>https://example.com/abc</p></div>")
+                .placeholders(List.of())
+                .build());
 
     TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
 
     assertThat(result.getResultType()).isEqualTo("template");
-    assertThat(result.getContext()).containsEntry("html", "<div><p>https://example.com/abc</p></div>");
+    assertThat(result.getContext())
+        .containsEntry("html", "<div><p>https://example.com/abc</p></div>");
   }
 
   @Test
   void executeLinkedTaskUsesConfiguredTemplateParameterDefaultWhenExecutionValueMissing() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -1904,8 +2410,18 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
                     "<h1>{{$title}}</h1>",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+                    List.of(
+                        Map.of(
+                            "name",
+                            "title",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "value",
+                            "Default title"))))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(801);
@@ -1930,11 +2446,12 @@ class TemplateExecutionServiceTest {
   void executeLinkedTaskPrefersExecutionTemplateParameterOverConfiguredDefault() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             mock(TaskRelationRepository.class),
             mock(ProxyConfigurationService.class),
@@ -1953,8 +2470,18 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
                     "<h1>{{$title}}</h1>",
                     DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                    List.of(Map.of("name", "title", "type", DomainConstants.Tasks.TYPE_STRING, "value", "Default title"))))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+                    List.of(
+                        Map.of(
+                            "name",
+                            "title",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "value",
+                            "Default title"))))
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
     requestDto.setLinkedTaskId(802);
@@ -1981,11 +2508,12 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
-    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
 
     TemplateExecutionService service =
-        new TemplateExecutionService(
+        newService(
             taskRepository,
             taskRelationRepository,
             mock(ProxyConfigurationService.class),
@@ -2000,25 +2528,37 @@ class TemplateExecutionServiceTest {
         Task.builder()
             .id(301)
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{task_302.html}}"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task template2 =
         Task.builder()
             .id(302)
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{task_303.html}}"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task template3 =
         Task.builder()
             .id(303)
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{task_304.html}}"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
     Task template4 =
         Task.builder()
             .id(304)
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>too deep</p>"))
-            .type(org.sitmun.domain.task.type.TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .type(
+                org.sitmun.domain.task.type.TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .build())
             .build();
 
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
@@ -2026,11 +2566,32 @@ class TemplateExecutionServiceTest {
 
     when(taskRepository.findById(301)).thenReturn(Optional.of(template1));
     when(taskRelationRepository.findByTaskId(301))
-        .thenReturn(List.of(TaskRelation.builder().id(1).task(template1).relationType("template-nested").relatedTask(template2).build()));
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(template1)
+                    .relationType("template-nested")
+                    .relatedTask(template2)
+                    .build()));
     when(taskRelationRepository.findByTaskId(302))
-        .thenReturn(List.of(TaskRelation.builder().id(2).task(template2).relationType("template-nested").relatedTask(template3).build()));
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(2)
+                    .task(template2)
+                    .relationType("template-nested")
+                    .relatedTask(template3)
+                    .build()));
     when(taskRelationRepository.findByTaskId(303))
-        .thenReturn(List.of(TaskRelation.builder().id(3).task(template3).relationType("template-nested").relatedTask(template4).build()));
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(3)
+                    .task(template3)
+                    .relationType("template-nested")
+                    .relatedTask(template4)
+                    .build()));
 
     assertThatThrownBy(() -> service.executeLinkedTask(requestDto))
         .isInstanceOf(ResponseStatusException.class)

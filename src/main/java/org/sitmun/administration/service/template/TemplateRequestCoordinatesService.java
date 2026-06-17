@@ -26,7 +26,9 @@ public class TemplateRequestCoordinatesService {
   public RequestCoordinates build(Integer templateTaskId) {
     RequestCoordinates coordinates = new RequestCoordinates();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.isAuthenticated() && authentication.getName() != null) {
+    if (authentication != null
+        && authentication.isAuthenticated()
+        && authentication.getName() != null) {
       userRepository.findByUsername(authentication.getName()).ifPresent(coordinates::setUser);
     }
 
