@@ -28,8 +28,7 @@ public class DatabaseConnectionService {
       @NotNull List<String> parameters)
       throws DatabaseSQLException {
     List<Map<String, Object>> result = new ArrayList<>();
-    try (Connection con =
-        openConnection(connection)) {
+    try (Connection con = openConnection(connection)) {
       if (parameters.isEmpty()) {
         executeStatement(con, query, result);
       } else {
@@ -47,13 +46,14 @@ public class DatabaseConnectionService {
 
   private Connection openConnection(DatabaseConnection connection)
       throws SQLException, ClassNotFoundException {
-      Class.forName(connection.getDriver());
-      return DriverManager.getConnection(
-          connection.getUrl(), connection.getUser(), connection.getPassword());
+    Class.forName(connection.getDriver());
+    return DriverManager.getConnection(
+        connection.getUrl(), connection.getUser(), connection.getPassword());
   }
 
   private void executeStatement(
-      Connection connection, String query, List<Map<String, Object>> result) throws DatabaseSQLException {
+      Connection connection, String query, List<Map<String, Object>> result)
+      throws DatabaseSQLException {
     try (Statement stmt = connection.createStatement()) {
       retrieveResultSetMetadata(stmt, query, result);
     } catch (SQLException e) {
@@ -93,7 +93,8 @@ public class DatabaseConnectionService {
     }
   }
 
-  private void appendRows(ResultSet resultSet, List<Map<String, Object>> result) throws SQLException {
+  private void appendRows(ResultSet resultSet, List<Map<String, Object>> result)
+      throws SQLException {
     ResultSetMetaData metadata = resultSet.getMetaData();
     while (resultSet.next()) {
       Map<String, Object> row = new HashMap<>();

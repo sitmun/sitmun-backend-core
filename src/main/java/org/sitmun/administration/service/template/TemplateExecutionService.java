@@ -17,13 +17,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
-import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
-import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import okhttp3.Credentials;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
@@ -40,6 +40,8 @@ import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.database.DatabaseConnection;
+import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
@@ -47,9 +49,13 @@ import org.sitmun.domain.task.relation.TaskRelationRepository;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -59,13 +65,28 @@ public class TemplateExecutionService {
 
   private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
-  private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX = "Template nesting depth exceeded";
-  private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+  private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX =
+      "Template nesting depth exceeded";
+  private static final String NO_DATA_LITERAL = "Sense dades";
+  private static final Pattern REFERENCE_ALIAS_PATTERN =
+      Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
-  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE = new TypeReference<>() {};
+  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE =
+      new TypeReference<>() {};
+  public static final String TEMPLATE_CHILD_TASK_PARAMETERS = "templateChildTaskParameters";
+  public static final String PARAMETERS = "parameters";
+  public static final String CHILD_TASK_PARAMETERS = "childTaskParameters";
+  public static final String VALUE = "value";
+  public static final String DIV_CLOSING_TAG = "</div>";
+  public static final String TEMPLATE = "template";
+  public static final String TABLE = "table";
+  public static final String COMPLETED = "COMPLETED";
+  public static final String ORDER = "order";
+  public static final String SCROLL = "scroll";
 
   private final TaskRepository taskRepository;
+  private final RoleRepository roleRepository;
   private final TaskRelationRepository taskRelationRepository;
   private final ProxyConfigurationService proxyConfigurationService;
   private final DatabaseConnectionService databaseConnectionService;
@@ -76,7 +97,8 @@ public class TemplateExecutionService {
 
   private final ObjectMapper objectMapper;
 
-  public TemplateTaskExecutionResponseDto executeLinkedTask(TemplateTaskExecutionRequestDto requestDto) {
+  public TemplateTaskExecutionResponseDto executeLinkedTask(
+      TemplateTaskExecutionRequestDto requestDto) {
     Task task =
         taskRepository
             .findById(requestDto.getLinkedTaskId())
@@ -85,7 +107,8 @@ public class TemplateExecutionService {
     Integer rootTemplateTaskId = requestDto.getTemplateTaskId();
     if (rootTemplateTaskId == null
         && task.getType() != null
-        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId())) {
+        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+            .equals(task.getType().getId())) {
       rootTemplateTaskId = task.getId();
     }
 
@@ -94,6 +117,10 @@ public class TemplateExecutionService {
         requestDto.getChildTaskParameters() == null
             ? Collections.emptyMap()
             : requestDto.getChildTaskParameters();
+
+    if (!mayAccessTask(task, coordinates)) {
+      return buildNoDataExecutionResponse(task);
+    }
 
     return executeTask(
         task,
@@ -105,11 +132,23 @@ public class TemplateExecutionService {
         false);
   }
 
+  private TemplateTaskExecutionResponseDto buildNoDataExecutionResponse(Task task) {
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status(COMPLETED)
+        .resultType(TABLE)
+        .context(buildChildNoDataContext())
+        .rows(Collections.emptyList())
+        .resourceUrl(null)
+        .build();
+  }
+
   @Transactional(readOnly = true)
   public MoreInfoAdvancedRenderResponseDto renderMoreInfoAdvanced(
       MoreInfoAdvancedRenderRequestDto requestDto) {
     List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
-    List<Integer> miaTaskIds = requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
+    List<Integer> miaTaskIds =
+        requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
     Map<String, Object> featureParameters =
         requestDto.getParameters() == null ? Collections.emptyMap() : requestDto.getParameters();
 
@@ -135,16 +174,17 @@ public class TemplateExecutionService {
         miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
     Map<String, Object> miaParameters = convertBasicParameters(properties);
     String visualizationMode =
-        "scroll".equals(miaParameters.get("visualizationMode"))
-                || "scroll".equals(properties.get("parentLayout"))
-            ? "scroll"
+        SCROLL.equals(miaParameters.get("visualizationMode"))
+                || SCROLL.equals(properties.get("parentLayout"))
+            ? SCROLL
             : "tabs";
     List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
+    RequestCoordinates coordinates = templateRequestCoordinatesService.build(miaTask.getId());
 
     String html =
         "tabs".equals(visualizationMode)
-            ? renderMiaChildrenAsTabs(miaTask, includedTasks, featureParameters)
-            : renderMiaChildrenAsScroll(miaTask, includedTasks, featureParameters);
+            ? renderMiaChildrenAsTabs(miaTask, includedTasks, featureParameters, coordinates)
+            : renderMiaChildrenAsScroll(includedTasks, featureParameters, coordinates);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -154,7 +194,10 @@ public class TemplateExecutionService {
   }
 
   private String renderMiaChildrenAsTabs(
-      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+      Task miaTask,
+      List<Map<String, Object>> includedTasks,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates) {
     String renderId = "mia-backend-" + miaTask.getId();
     StringBuilder tabs = new StringBuilder();
     StringBuilder panels = new StringBuilder();
@@ -171,13 +214,14 @@ public class TemplateExecutionService {
           .append("\">")
           .append(escapeHtml(resolveChildTitle(childDefinition, index)))
           .append("</button>");
-      panels.append("<div class=\"sitmun-mia-tab-panel\" data-mia-panel=\"")
+      panels
+          .append("<div class=\"sitmun-mia-tab-panel\" data-mia-panel=\"")
           .append(panelId)
           .append("\"")
           .append(hidden)
           .append(">")
-          .append(renderMiaChild(childDefinition, featureParameters))
-          .append("</div>");
+          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
+          .append(DIV_CLOSING_TAG);
     }
 
     return "<div class=\"sitmun-mia-tabs-bar\" data-mia-tabs=\""
@@ -186,26 +230,32 @@ public class TemplateExecutionService {
         + tabs
         + "</div><div class=\"sitmun-mia-body\">"
         + panels
-        + "</div>";
+        + DIV_CLOSING_TAG;
   }
 
   private String renderMiaChildrenAsScroll(
-      Task miaTask, List<Map<String, Object>> includedTasks, Map<String, Object> featureParameters) {
+      List<Map<String, Object>> includedTasks,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates) {
     StringBuilder sections = new StringBuilder();
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
       sections
-          .append("<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
+          .append(
+              "<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
           .append(escapeHtml(resolveChildTitle(childDefinition, index)))
-          .append("</div>")
-          .append(renderMiaChild(childDefinition, featureParameters))
-          .append("</div>");
+          .append(DIV_CLOSING_TAG)
+          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
+          .append(DIV_CLOSING_TAG);
     }
-    return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + "</div>";
+    return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + DIV_CLOSING_TAG;
   }
 
   @SuppressWarnings("unchecked")
-  private String renderMiaChild(Map<String, Object> childDefinition, Map<String, Object> featureParameters) {
+  private String renderMiaChild(
+      Map<String, Object> childDefinition,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates) {
     Integer childTaskId = parseTaskId(childDefinition.get("id"));
     if (childTaskId == null) {
       return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
@@ -215,15 +265,21 @@ public class TemplateExecutionService {
         taskRepository
             .findById(childTaskId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    if (!mayAccessTask(childTask, coordinates)) {
+      return renderNoDataHtml();
+    }
     Map<String, String> childParameters =
-        stringifyParameters(resolveMappedParameters(childDefinition.get("parameters"), featureParameters));
+        stringifyParameters(
+            resolveMappedParameters(childDefinition.get(PARAMETERS), featureParameters));
     if (childParameters.isEmpty()) {
       childParameters =
-          stringifyParameters(resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters));
+          stringifyParameters(
+              resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters));
     }
     Map<String, Map<String, Object>> childTaskParameters =
         new LinkedHashMap<>(
-            resolveMappedChildTaskParameters(childDefinition.get("childTaskParameters"), featureParameters));
+            resolveMappedChildTaskParameters(
+                childDefinition.get(CHILD_TASK_PARAMETERS), featureParameters));
     Integer rootTemplateTaskId =
         childTask.getType() != null
                 && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
@@ -233,13 +289,11 @@ public class TemplateExecutionService {
     if (rootTemplateTaskId != null) {
       mergeMappedTemplateChildTaskParameters(
           childTaskParameters,
-          childDefinition.get("templateChildTaskParameters"),
+          childDefinition.get(TEMPLATE_CHILD_TASK_PARAMETERS),
           rootTemplateTaskId,
           featureParameters);
       enrichTemplateChildTaskParameters(childTask, childTaskParameters, featureParameters, 0);
     }
-    RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
-
     TemplateTaskExecutionResponseDto result;
     boolean isTemplateChild = rootTemplateTaskId != null;
     try {
@@ -256,22 +310,29 @@ public class TemplateExecutionService {
       if (isTemplateChild || isTemplateNestingDepthExceeded(exception)) {
         throw exception;
       }
-      String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
-      return "<div class=\"sitmun-mia-error\">Error ejecutando tarea: " + escapeHtml(taskName) + "</div>";
+      String taskName =
+          childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
+      return "<div class=\"sitmun-mia-error\">Error ejecutando tarea: "
+          + escapeHtml(taskName)
+          + DIV_CLOSING_TAG;
     }
 
-    if ("template".equals(result.getResultType())) {
+    if (TEMPLATE.equals(result.getResultType())) {
       Object html = result.getContext() != null ? result.getContext().get("html") : null;
       return html == null ? "" : String.valueOf(html);
     }
-    if ("table".equals(result.getResultType())) {
+    if (TABLE.equals(result.getResultType())) {
       return renderRowsAsTable(result.getRows());
     }
     if (result.getResourceUrl() != null) {
       String url = escapeHtml(result.getResourceUrl());
-      return "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
+      return "<a href=\""
+          + url
+          + "\" target=\"_blank\" rel=\"noopener noreferrer\">"
+          + url
+          + "</a>";
     }
-    return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+    return renderNoDataHtml();
   }
 
   private void enrichTemplateChildTaskParameters(
@@ -289,11 +350,13 @@ public class TemplateExecutionService {
           resolveMappedParameters(readMiaChildParameterMappings(relatedTask), featureParameters);
       if (!resolvedParameters.isEmpty()) {
         Map<String, Object> existingParameters =
-            childTaskParameters.computeIfAbsent(String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
+            childTaskParameters.computeIfAbsent(
+                String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
         resolvedParameters.forEach(existingParameters::putIfAbsent);
       }
       if (isTemplateTask(relatedTask) && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
-        enrichTemplateChildTaskParameters(relatedTask, childTaskParameters, featureParameters, depth + 1);
+        enrichTemplateChildTaskParameters(
+            relatedTask, childTaskParameters, featureParameters, depth + 1);
       }
     }
   }
@@ -303,7 +366,8 @@ public class TemplateExecutionService {
       Object rawTemplateChildTaskParameters,
       Integer templateTaskId,
       Map<String, Object> featureParameters) {
-    Object rawInnerTaskParameters = selectTemplateChildTaskParameters(rawTemplateChildTaskParameters, templateTaskId);
+    Object rawInnerTaskParameters =
+        selectTemplateChildTaskParameters(rawTemplateChildTaskParameters, templateTaskId);
     Map<String, Map<String, Object>> resolvedParameters =
         resolveMappedChildTaskParameters(rawInnerTaskParameters, featureParameters);
     resolvedParameters.forEach(
@@ -314,7 +378,8 @@ public class TemplateExecutionService {
         });
   }
 
-  private Object selectTemplateChildTaskParameters(Object rawTemplateChildTaskParameters, Integer templateTaskId) {
+  private Object selectTemplateChildTaskParameters(
+      Object rawTemplateChildTaskParameters, Integer templateTaskId) {
     if (!(rawTemplateChildTaskParameters instanceof Map<?, ?> templateChildTaskParameters)) {
       return Collections.emptyMap();
     }
@@ -327,7 +392,8 @@ public class TemplateExecutionService {
 
   private boolean isTemplateTask(Task task) {
     return task.getType() != null
-        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId());
+        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+            .equals(task.getType().getId());
   }
 
   @SuppressWarnings("unchecked")
@@ -344,7 +410,8 @@ public class TemplateExecutionService {
       }
     }
     includedTasks.sort(
-        (left, right) -> Integer.compare(toInt(left.get("order"), 999), toInt(right.get("order"), 999)));
+        (left, right) ->
+            Integer.compare(toInt(left.get(ORDER), 999), toInt(right.get(ORDER), 999)));
     attachTemplateChildTaskParameters(miaTask, miaParameters, includedTasks);
     return includedTasks;
   }
@@ -354,20 +421,20 @@ public class TemplateExecutionService {
     Map<String, Object> properties =
         miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
     Object rawTemplateChildTaskParameters =
-        miaParameters.containsKey("templateChildTaskParameters")
-            ? miaParameters.get("templateChildTaskParameters")
-            : properties.get("templateChildTaskParameters");
+        miaParameters.containsKey(TEMPLATE_CHILD_TASK_PARAMETERS)
+            ? miaParameters.get(TEMPLATE_CHILD_TASK_PARAMETERS)
+            : properties.get(TEMPLATE_CHILD_TASK_PARAMETERS);
     if (!(rawTemplateChildTaskParameters instanceof Map<?, ?> templateChildTaskParameters)) {
       return;
     }
     for (Map<String, Object> includedTask : includedTasks) {
       Integer childTaskId = parseTaskId(includedTask.get("id"));
-      if (childTaskId == null || includedTask.containsKey("templateChildTaskParameters")) {
+      if (childTaskId == null || includedTask.containsKey(TEMPLATE_CHILD_TASK_PARAMETERS)) {
         continue;
       }
       Object templateMapping = getMapValueByTaskId(templateChildTaskParameters, childTaskId);
       if (templateMapping instanceof Map<?, ?> && !((Map<?, ?>) templateMapping).isEmpty()) {
-        includedTask.put("templateChildTaskParameters", templateMapping);
+        includedTask.put(TEMPLATE_CHILD_TASK_PARAMETERS, templateMapping);
       }
     }
   }
@@ -382,11 +449,11 @@ public class TemplateExecutionService {
     }
 
     Map<String, Object> adminChildTaskParameters =
-        properties.get("childTaskParameters") instanceof Map<?, ?> ctp
+        properties.get(CHILD_TASK_PARAMETERS) instanceof Map<?, ?> ctp
             ? (Map<String, Object>) ctp
             : Collections.emptyMap();
     Map<String, Object> adminTemplateChildTaskParameters =
-        properties.get("templateChildTaskParameters") instanceof Map<?, ?> tctp
+        properties.get(TEMPLATE_CHILD_TASK_PARAMETERS) instanceof Map<?, ?> tctp
             ? (Map<String, Object>) tctp
             : Collections.emptyMap();
 
@@ -404,25 +471,27 @@ public class TemplateExecutionService {
                 Map<String, Object> childDefinition = new LinkedHashMap<>();
                 childDefinition.put("id", childTask.getId());
                 childDefinition.put("name", childTask.getName());
-                childDefinition.put("order", order);
+                childDefinition.put(ORDER, order);
                 childDefinition.put(
                     "childType",
                     childTask.getType() != null
                             && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
                                 .equals(childTask.getType().getId())
-                        ? "template"
+                        ? TEMPLATE
                         : "query");
-                Object explicitMapping = getMapValueByTaskId(adminChildTaskParameters, childTask.getId());
-                if (explicitMapping instanceof Map<?, ?> && !((Map<?, ?>) explicitMapping).isEmpty()) {
-                  childDefinition.put("parameters", explicitMapping);
+                Object explicitMapping =
+                    getMapValueByTaskId(adminChildTaskParameters, childTask.getId());
+                if (explicitMapping instanceof Map<?, ?>
+                    && !((Map<?, ?>) explicitMapping).isEmpty()) {
+                  childDefinition.put(PARAMETERS, explicitMapping);
                 } else {
-                  childDefinition.put("parameters", readMiaChildParameterMappings(childTask));
+                  childDefinition.put(PARAMETERS, readMiaChildParameterMappings(childTask));
                 }
                 Object templateChildTaskMapping =
                     getMapValueByTaskId(adminTemplateChildTaskParameters, childTask.getId());
                 if (templateChildTaskMapping instanceof Map<?, ?>
                     && !((Map<?, ?>) templateChildTaskMapping).isEmpty()) {
-                  childDefinition.put("templateChildTaskParameters", templateChildTaskMapping);
+                  childDefinition.put(TEMPLATE_CHILD_TASK_PARAMETERS, templateChildTaskMapping);
                 }
                 includedTasks.add(childDefinition);
               });
@@ -458,7 +527,8 @@ public class TemplateExecutionService {
       Object name = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
       Object field = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
       if (name != null) {
-        mappings.put(String.valueOf(name), field != null ? String.valueOf(field) : String.valueOf(name));
+        mappings.put(
+            String.valueOf(name), field != null ? String.valueOf(field) : String.valueOf(name));
       }
     }
     return mappings;
@@ -484,13 +554,15 @@ public class TemplateExecutionService {
       if (rawName == null || rawType == null) {
         continue;
       }
-      converted.put(String.valueOf(rawName), convertTypedParameterValue(String.valueOf(rawType), rawValue));
+      converted.put(
+          String.valueOf(rawName), convertTypedParameterValue(String.valueOf(rawType), rawValue));
     }
     return converted;
   }
 
   private Map<String, Object> readTemplateDefaultParameters(Task task) {
-    Map<String, Object> properties = task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
+    Map<String, Object> properties =
+        task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
     Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
     if (!(rawParameters instanceof List<?> rawList)) {
       return Collections.emptyMap();
@@ -532,15 +604,26 @@ public class TemplateExecutionService {
     String stringValue = value == null ? null : String.valueOf(value);
     try {
       return switch (type) {
-        case DomainConstants.Tasks.TYPE_NUMBER -> stringValue == null ? null : objectMapper.readValue(stringValue, Number.class);
-        case DomainConstants.Tasks.TYPE_ARRAY -> stringValue == null ? List.of() : objectMapper.readValue(stringValue, ARRAY_TYPE_REFERENCE);
-        case DomainConstants.Tasks.TYPE_OBJECT -> stringValue == null ? Map.of() : objectMapper.readValue(stringValue, OBJECT_TYPE_REFERENCE);
-        case DomainConstants.Tasks.TYPE_BOOLEAN -> stringValue == null ? Boolean.FALSE : objectMapper.readValue(stringValue, Boolean.class);
+        case DomainConstants.Tasks.TYPE_NUMBER ->
+            stringValue == null ? null : objectMapper.readValue(stringValue, Number.class);
+        case DomainConstants.Tasks.TYPE_ARRAY ->
+            stringValue == null
+                ? List.of()
+                : objectMapper.readValue(stringValue, ARRAY_TYPE_REFERENCE);
+        case DomainConstants.Tasks.TYPE_OBJECT ->
+            stringValue == null
+                ? Map.of()
+                : objectMapper.readValue(stringValue, OBJECT_TYPE_REFERENCE);
+        case DomainConstants.Tasks.TYPE_BOOLEAN ->
+            stringValue == null
+                ? Boolean.FALSE
+                : objectMapper.readValue(stringValue, Boolean.class);
         case DomainConstants.Tasks.TYPE_NULL -> null;
         default -> stringValue == null ? "" : stringValue;
       };
     } catch (IOException exception) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid MIA parameter value", exception);
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Invalid MIA parameter value", exception);
     }
   }
 
@@ -573,7 +656,8 @@ public class TemplateExecutionService {
     Map<String, Map<String, Object>> resolved = new LinkedHashMap<>();
     childTaskParameters.forEach(
         (rawTaskId, rawParameterDefinitions) -> {
-          Map<String, Object> taskParameters = resolveMappedParameters(rawParameterDefinitions, featureParameters);
+          Map<String, Object> taskParameters =
+              resolveMappedParameters(rawParameterDefinitions, featureParameters);
           if (!taskParameters.isEmpty()) {
             resolved.put(String.valueOf(rawTaskId), taskParameters);
           }
@@ -585,7 +669,8 @@ public class TemplateExecutionService {
   private Object resolveMappedValue(
       Object rawName, Object rawDefinition, Map<String, Object> featureParameters) {
     if (rawDefinition instanceof Map<?, ?> definition) {
-      Object fieldPath = definition.get("value") != null ? definition.get("value") : definition.get("name");
+      Object fieldPath =
+          definition.get(VALUE) != null ? definition.get(VALUE) : definition.get("name");
       if (fieldPath == null) {
         fieldPath = rawName;
       }
@@ -647,12 +732,14 @@ public class TemplateExecutionService {
 
   private String resolveChildTitle(Map<String, Object> childDefinition, int index) {
     Object name = childDefinition.get("name");
-    return name == null || String.valueOf(name).isBlank() ? "Consulta " + (index + 1) : String.valueOf(name);
+    return name == null || String.valueOf(name).isBlank()
+        ? "Consulta " + (index + 1)
+        : String.valueOf(name);
   }
 
   private String renderRowsAsTable(List<Map<String, Object>> rows) {
     if (rows == null || rows.isEmpty()) {
-      return "<div class=\"sitmun-mia-empty\">Sense dades</div>";
+      return renderNoDataHtml();
     }
     Set<String> columns = new LinkedHashSet<>();
     rows.forEach(row -> columns.addAll(row.keySet()));
@@ -664,7 +751,8 @@ public class TemplateExecutionService {
       columns.forEach(
           column ->
               html.append("<td>")
-                  .append(escapeHtml(row.get(column) == null ? "" : String.valueOf(row.get(column))))
+                  .append(
+                      escapeHtml(row.get(column) == null ? "" : String.valueOf(row.get(column))))
                   .append("</td>"));
       html.append("</tr>");
     }
@@ -684,6 +772,94 @@ public class TemplateExecutionService {
         .replace("'", "&#39;");
   }
 
+  private boolean mayAccessTask(Task task, RequestCoordinates coordinates) {
+    if (coordinates == null) {
+      return true;
+    }
+    if (!currentUserIsAuthenticated()) {
+      return true;
+    }
+    String username = resolveAuthorizedUsername(coordinates);
+    Integer applicationId =
+        coordinates.getApplication() != null ? coordinates.getApplication().getId() : null;
+    Integer territoryId =
+        coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : null;
+    if (!StringUtils.hasText(username) || applicationId == null || territoryId == null) {
+      return false;
+    }
+
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            username, applicationId, territoryId);
+    return !roles.isEmpty()
+        && taskRepository.findByRolesAndTerritory(roles, territoryId).stream()
+            .anyMatch(accessibleTask -> task.getId().equals(accessibleTask.getId()));
+  }
+
+  private boolean currentUserHasRole(String roleName) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication != null
+        && authentication.getAuthorities() != null
+        && authentication.getAuthorities().stream()
+            .anyMatch(authority -> roleName.equals(authority.getAuthority()));
+  }
+
+  private boolean currentUserIsAuthenticated() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication != null
+        && authentication.isAuthenticated()
+        && StringUtils.hasText(authentication.getName())
+        && !"anonymousUser".equals(authentication.getName());
+  }
+
+  private String resolveAuthorizedUsername(RequestCoordinates coordinates) {
+    if (coordinates != null
+        && coordinates.getUser() != null
+        && StringUtils.hasText(coordinates.getUser().getUsername())) {
+      return coordinates.getUser().getUsername();
+    }
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !StringUtils.hasText(authentication.getName())) {
+      return null;
+    }
+    return authentication.getName();
+  }
+
+  private String renderNoDataHtml() {
+    return "<div class=\"sitmun-mia-empty\">"
+        + escapeHtml(resolveNoDataMessage())
+        + DIV_CLOSING_TAG;
+  }
+
+  private String resolveNoDataMessage() {
+    String language = resolveRequestLanguage();
+    if (!StringUtils.hasText(language)) {
+      return NO_DATA_LITERAL;
+    }
+    String normalized = language.trim().toLowerCase();
+    if (normalized.startsWith("es")) {
+      return "Sin datos";
+    }
+    if (normalized.startsWith("en")) {
+      return "No data";
+    }
+    if (normalized.startsWith("fr")) {
+      return "Aucune donnee";
+    }
+    return NO_DATA_LITERAL;
+  }
+
+  private String resolveRequestLanguage() {
+    if (RequestContextHolder.getRequestAttributes()
+        instanceof ServletRequestAttributes attributes) {
+      String language = attributes.getRequest().getParameter("lang");
+      if (StringUtils.hasText(language)) {
+        return language;
+      }
+    }
+    return null;
+  }
+
   private TemplateTaskExecutionResponseDto executeTask(
       Task task,
       Map<String, String> parameters,
@@ -694,11 +870,14 @@ public class TemplateExecutionService {
       boolean isolateTemplateChildFailures) {
     boolean isTemplateTask =
         task.getType() != null
-            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).equals(task.getType().getId());
+            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                .equals(task.getType().getId());
     if (isTemplateTask && depth >= MAX_TEMPLATE_NESTING_LEVEL) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
-          TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX + ". Maximum allowed is " + MAX_TEMPLATE_NESTING_LEVEL);
+          TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX
+              + ". Maximum allowed is "
+              + MAX_TEMPLATE_NESTING_LEVEL);
     }
 
     if (isTemplateTask) {
@@ -727,7 +906,8 @@ public class TemplateExecutionService {
       return resolveUrlTask(task, parameters, scope, coordinates);
     }
 
-    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported linked task scope: " + scope);
+    throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST, "Unsupported linked task scope: " + scope);
   }
 
   private TemplateTaskExecutionResponseDto executeTemplateTask(
@@ -741,7 +921,8 @@ public class TemplateExecutionService {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(task.getId());
     Map<String, Object> templateContext = new LinkedHashMap<>();
 
-    readTemplateDefaultParameters(task).forEach((key, value) -> templateContext.put("$" + key, value));
+    readTemplateDefaultParameters(task)
+        .forEach((key, value) -> templateContext.put("$" + key, value));
 
     if (templateParameters != null) {
       templateParameters.forEach((key, value) -> templateContext.put("$" + key, value));
@@ -754,9 +935,16 @@ public class TemplateExecutionService {
 
       Task childTask = relation.getRelatedTask();
       Map<String, Object> rawParams =
-          childTaskParameters.getOrDefault(String.valueOf(childTask.getId()), Collections.emptyMap());
+          childTaskParameters.getOrDefault(
+              String.valueOf(childTask.getId()), Collections.emptyMap());
       String referenceAlias = resolveReferenceAlias(relation);
       Map<String, Object> childContext;
+      if (!mayAccessTask(childTask, coordinates)) {
+        childContext = buildChildNoDataContext();
+        templateContext.put(referenceAlias, childContext);
+        templateContext.put(buildLegacyReferenceAlias(childTask), childContext);
+        continue;
+      }
       try {
         TemplateTaskExecutionResponseDto childResult =
             executeTask(
@@ -791,20 +979,23 @@ public class TemplateExecutionService {
 
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
-        .status("COMPLETED")
-        .resultType("template")
+        .status(COMPLETED)
+        .resultType(TEMPLATE)
         .context(Collections.singletonMap("html", rendered.getHtml()))
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
   }
 
-  private Map<String, Object> buildChildErrorContext(Task childTask, ResponseStatusException exception) {
+  private Map<String, Object> buildChildErrorContext(
+      Task childTask, ResponseStatusException exception) {
     Map<String, Object> context = new LinkedHashMap<>();
-    String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
+    String taskName =
+        childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
     String message =
         StringUtils.hasText(exception.getReason()) ? exception.getReason() : exception.getMessage();
-    String safeMessage = escapeHtml(StringUtils.hasText(message) ? message : "Error ejecutando tarea");
+    String safeMessage =
+        escapeHtml(StringUtils.hasText(message) ? message : "Error ejecutando tarea");
     context.put("taskId", childTask.getId());
     context.put("status", "ERROR");
     context.put("statusCode", exception.getStatusCode().value());
@@ -816,8 +1007,21 @@ public class TemplateExecutionService {
             + escapeHtml(taskName)
             + " - "
             + safeMessage
-            + "</div>");
-    context.put("value", "[error: " + safeMessage + "]");
+            + DIV_CLOSING_TAG);
+    context.put(VALUE, "[error: " + safeMessage + "]");
+    return context;
+  }
+
+  private Map<String, Object> buildChildNoDataContext() {
+    String noDataMessage = resolveNoDataMessage();
+    Map<String, Object> context = new LinkedHashMap<>();
+    context.put("status", "NO_DATA");
+    context.put("statusCode", HttpStatus.FORBIDDEN.value());
+    context.put("error", false);
+    context.put("message", noDataMessage);
+    context.put("html", renderNoDataHtml());
+    context.put(VALUE, noDataMessage);
+    context.put("rows", Collections.emptyList());
     return context;
   }
 
@@ -857,7 +1061,9 @@ public class TemplateExecutionService {
 
     List<Map<String, Object>> rows;
     try {
-      rows = databaseConnectionService.executeQuery(connection, payload.getSql(), payload.getParameters());
+      rows =
+          databaseConnectionService.executeQuery(
+              connection, payload.getSql(), payload.getParameters());
     } catch (DatabaseSQLException exception) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
@@ -868,8 +1074,8 @@ public class TemplateExecutionService {
     Map<String, Object> context = buildRowAndParameterContext(rows, parameters);
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
-        .status("COMPLETED")
-        .resultType("table")
+        .status(COMPLETED)
+        .resultType(TABLE)
         .context(context)
         .rows(rows)
         .resourceUrl(null)
@@ -904,7 +1110,8 @@ public class TemplateExecutionService {
       Request.Builder requestBuilder = new Request.Builder().url(requestUrl);
       applySecurity(payload.getSecurity(), requestBuilder);
 
-      String method = StringUtils.hasText(payload.getMethod()) ? payload.getMethod().toUpperCase() : "GET";
+      String method =
+          StringUtils.hasText(payload.getMethod()) ? payload.getMethod().toUpperCase() : "GET";
       if ("POST".equals(method)) {
         RequestBody requestBody =
             RequestBody.create(
@@ -957,19 +1164,21 @@ public class TemplateExecutionService {
         }
         Map<String, Object> bodyContext = normalizeBodyToContext(body);
         List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
-        Map<String, Object> context = buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
+        Map<String, Object> context =
+            buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
 
         return TemplateTaskExecutionResponseDto.builder()
             .taskId(task.getId())
-            .status("COMPLETED")
-            .resultType("table")
+            .status(COMPLETED)
+            .resultType(TABLE)
             .context(context)
             .rows(rows)
             .resourceUrl(null)
             .build();
       }
     } catch (IOException e) {
-      log.warn("Template API task {} failed while calling {}", task.getId(), sanitizedRequestUrl, e);
+      log.warn(
+          "Template API task {} failed while calling {}", task.getId(), sanitizedRequestUrl, e);
       throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to execute API task", e);
     }
   }
@@ -1005,7 +1214,8 @@ public class TemplateExecutionService {
 
   private String maskQueryParameterValues(String requestUrl) {
     int fragmentStart = requestUrl.indexOf('#');
-    String urlWithoutFragment = fragmentStart >= 0 ? requestUrl.substring(0, fragmentStart) : requestUrl;
+    String urlWithoutFragment =
+        fragmentStart >= 0 ? requestUrl.substring(0, fragmentStart) : requestUrl;
     String fragment = fragmentStart >= 0 ? requestUrl.substring(fragmentStart) : "";
     int queryStart = urlWithoutFragment.indexOf('?');
     if (queryStart < 0) {
@@ -1031,7 +1241,8 @@ public class TemplateExecutionService {
   private TemplateTaskExecutionResponseDto resolveUrlTask(
       Task task, Map<String, String> parameters, String scope, RequestCoordinates coordinates) {
     String command =
-        String.valueOf(task.getProperties().getOrDefault(DomainConstants.Tasks.PROPERTY_COMMAND, ""));
+        String.valueOf(
+            task.getProperties().getOrDefault(DomainConstants.Tasks.PROPERTY_COMMAND, ""));
     String resolved = resolveTemplateUrl(command, parameters, coordinates);
 
     Map<String, Object> context = new LinkedHashMap<>();
@@ -1040,7 +1251,7 @@ public class TemplateExecutionService {
 
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
-        .status("COMPLETED")
+        .status(COMPLETED)
         .resultType(
             DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
                     || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
@@ -1057,7 +1268,8 @@ public class TemplateExecutionService {
       return new LinkedHashMap<>();
     }
     Map<String, String> normalized = new LinkedHashMap<>();
-    parameters.forEach((key, value) -> normalized.put(key, value == null ? "" : String.valueOf(value)));
+    parameters.forEach(
+        (key, value) -> normalized.put(key, value == null ? "" : String.valueOf(value)));
     return normalized;
   }
 
@@ -1113,14 +1325,15 @@ public class TemplateExecutionService {
     context.put("binary", true);
     context.put("embeddable", StringUtils.hasText(contentUrl));
     if (!StringUtils.hasText(contentUrl)) {
-      context.put("accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
+      context.put(
+          "accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
     }
-    context.put("value", BINARY_VALUE_PLACEHOLDER);
+    context.put(VALUE, BINARY_VALUE_PLACEHOLDER);
 
     List<Map<String, Object>> rows = flattenContextToRows(context);
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
-        .status("COMPLETED")
+        .status(COMPLETED)
         .resultType("resource")
         .context(context)
         .rows(rows)
@@ -1138,7 +1351,8 @@ public class TemplateExecutionService {
 
   private String readConfiguredMimeType(Task task) {
     Map<String, Object> properties = task.getProperties();
-    Object mimeType = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE) : null;
+    Object mimeType =
+        properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE) : null;
     return mimeType != null ? String.valueOf(mimeType) : null;
   }
 
@@ -1197,7 +1411,7 @@ public class TemplateExecutionService {
     if (trimmed.startsWith("{")) {
       return objectMapper.readValue(trimmed, new TypeReference<Map<String, Object>>() {});
     }
-    return Collections.singletonMap("value", body);
+    return Collections.singletonMap(VALUE, body);
   }
 
   private List<Map<String, Object>> flattenContextToRows(Map<String, Object> context) {
@@ -1209,7 +1423,8 @@ public class TemplateExecutionService {
   private void flattenValue(String path, Object value, List<Map<String, Object>> rows) {
     if (value instanceof Map<?, ?> mapValue) {
       mapValue.forEach(
-          (key, nestedValue) -> flattenValue(appendPath(path, String.valueOf(key)), nestedValue, rows));
+          (key, nestedValue) ->
+              flattenValue(appendPath(path, String.valueOf(key)), nestedValue, rows));
       return;
     }
     if (value instanceof List<?> listValue) {
@@ -1221,7 +1436,7 @@ public class TemplateExecutionService {
     if (path != null) {
       Map<String, Object> row = new LinkedHashMap<>();
       row.put("field", path);
-      row.put("value", value);
+      row.put(VALUE, value);
       rows.add(row);
     }
   }
@@ -1241,10 +1456,12 @@ public class TemplateExecutionService {
     if (security.getHeaders() != null) {
       security.getHeaders().forEach(requestBuilder::addHeader);
     }
-    if (StringUtils.hasText(security.getUsername()) && StringUtils.hasText(security.getPassword())) {
+    if (StringUtils.hasText(security.getUsername())
+        && StringUtils.hasText(security.getPassword())) {
       requestBuilder.addHeader(
           "Authorization",
-          Credentials.basic(security.getUsername(), security.getPassword(), StandardCharsets.UTF_8));
+          Credentials.basic(
+              security.getUsername(), security.getPassword(), StandardCharsets.UTF_8));
     }
   }
 
@@ -1276,7 +1493,8 @@ public class TemplateExecutionService {
     return appendEncodedQueryParameters(resolvedUri, queryParameters);
   }
 
-  private String appendEncodedQueryParameters(String resolvedUri, Map<String, String> queryParameters) {
+  private String appendEncodedQueryParameters(
+      String resolvedUri, Map<String, String> queryParameters) {
     if (queryParameters.isEmpty()) {
       return resolvedUri;
     }
@@ -1291,7 +1509,8 @@ public class TemplateExecutionService {
   }
 
   private String encodeQueryComponent(String value) {
-    return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8).replace("+", "%20");
+    return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8)
+        .replace("+", "%20");
   }
 
   private String selectUriTemplateSource(String payloadUri, String taskCommand) {
@@ -1304,7 +1523,8 @@ public class TemplateExecutionService {
 
   private String readTaskCommand(Task task) {
     Map<String, Object> properties = task.getProperties();
-    Object command = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) : null;
+    Object command =
+        properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) : null;
     return command != null ? String.valueOf(command) : null;
   }
 
