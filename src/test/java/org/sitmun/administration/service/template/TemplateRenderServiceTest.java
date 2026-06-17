@@ -16,12 +16,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 class TemplateRenderServiceTest {
 
+  private TemplateRenderService createService(SystemVariableResolver resolver) {
+    return new TemplateRenderService(
+        resolver,
+        mock(TemplateRequestCoordinatesService.class),
+        new TemplateContextNormalizer());
+  }
+
   @Test
   void renderPreviewSupportsDottedFieldAndParameterLookups() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("SITMUN");
 
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -36,7 +43,7 @@ class TemplateRenderServiceTest {
   @Test
   void renderPreviewReturnsControlledErrorForInvalidHandlebarsSyntax() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of(), null))
         .isInstanceOf(ResponseStatusException.class)
@@ -47,7 +54,7 @@ class TemplateRenderServiceTest {
   void renderPreviewSupportsNestedJsonAccessWithArraySyntax() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
 
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -66,7 +73,7 @@ class TemplateRenderServiceTest {
   @Test
   void renderPreviewExpandsSitmunTableIterationAttributes() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -87,9 +94,83 @@ class TemplateRenderServiceTest {
   }
 
   @Test
+  void renderPreviewNormalizesRootEachBlocksToRowsWhenContextProvidesRows() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "{{#each consulta_sql}}<p>{{this.tui_name}}</p>{{/each}}",
+            Map.of(
+                "consulta_sql",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("tui_name", "sitna.layerCatalog"),
+                        Map.of("tui_name", "sitna.search")))),
+            null);
+
+    assertThat(response.getHtml())
+        .contains("<p>sitna.layerCatalog</p>")
+        .contains("<p>sitna.search</p>");
+  }
+
+  @Test
+  void renderPreviewExposesFirstNormalizedRowFieldsOnTaskAlias() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<p>{{FilteredHits.Player}} {{FilteredHits.AgeThatYear}} {{FilteredHits.Hits}} {{FilteredHits.id}}</p>",
+            Map.of(
+                "FilteredHits",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("field", "items[0].Player", "value", "Ichiro Suzuki"),
+                        Map.of("field", "items[0].AgeThatYear", "value", 30),
+                        Map.of("field", "items[0].Hits", "value", 262),
+                        Map.of("field", "items[0].id", "value", 1)))),
+            null,
+            List.of("FilteredHits"));
+
+    assertThat(response.getHtml()).contains("<p>Ichiro Suzuki 30 262 1</p>");
+  }
+
+  @Test
+  void renderPreviewNormalizesFlattenedRowsRecursivelyForEachBlocks() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "{{#each IcedCoffee}}<p>{{this.title}}</p>{{#each this.ingredients}}<span>{{this}}</span>{{/each}}{{/each}}",
+            Map.of(
+                "IcedCoffee",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("field", "items[0].title", "value", "Iced Coffee"),
+                        Map.of("field", "items[0].ingredients[0]", "value", "Coffee"),
+                        Map.of("field", "items[0].ingredients[1]", "value", "Ice"),
+                        Map.of("field", "items[1].title", "value", "Iced Espresso"),
+                        Map.of("field", "items[1].ingredients[0]", "value", "Espresso"),
+                        Map.of("field", "items[1].ingredients[1]", "value", "Ice")))),
+            null);
+
+    assertThat(response.getHtml())
+        .contains("<p>Iced Coffee</p>")
+        .contains("<span>Coffee</span>")
+        .contains("<span>Ice</span>")
+        .contains("<p>Iced Espresso</p>")
+        .contains("<span>Espresso</span>");
+  }
+
+  @Test
   void renderPreviewExpandsQuillTableBetterMarkupAfterHeaderEditing() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     String templateHtml = "<table class=\"ql-table-better\"><temporary class=\"ql-table-temporary\" data-class=\"ql-table-better\"></temporary>"
         + "<thead><tr><th data-row=\"1\"><p class=\"table-th-block\" data-cell=\"1\" data-sitmun-each=\"task_32281.rows\">tui_tooltip a</p></th></tr></thead>"
@@ -119,7 +200,7 @@ class TemplateRenderServiceTest {
   @Test
   void renderPreviewKeepsUnresolvedTaskPlaceholdersVisibleWithExecutionHint() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -139,7 +220,7 @@ class TemplateRenderServiceTest {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{APP_ID}"), any())).thenReturn("#{APP_ID}");
 
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of(), null);
 
@@ -149,7 +230,7 @@ class TemplateRenderServiceTest {
   @Test
   void renderPreviewInsertsNestedTemplateHtmlWithoutEscapingMarkup() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
   
     TemplatePreviewResponseDto response =
         service.renderPreview(
@@ -165,7 +246,7 @@ class TemplateRenderServiceTest {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{USER_NAME}"), any())).thenReturn("admin");
 
-    TemplateRenderService service = new TemplateRenderService(resolver, mock(TemplateRequestCoordinatesService.class));
+    TemplateRenderService service = createService(resolver);
 
     TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of(), null);
 

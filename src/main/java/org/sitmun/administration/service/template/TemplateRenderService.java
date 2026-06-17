@@ -30,23 +30,26 @@ public class TemplateRenderService {
 
   private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z_]+)}}");
   private static final Pattern PARAMETER_LOOKUP_PATTERN =
-      Pattern.compile("\\{\\{([A-Za-z_][A-Za-z0-9_]*)\\.(\\$[A-Za-z0-9_]+)}}");
+      Pattern.compile("\\{\\{([A-Za-z_][\\w]*)\\.(\\$[\\w]+)}}");
   private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{([^{}]+)}}");
-  private static final Pattern ARRAY_INDEX_PATTERN = Pattern.compile("([A-Za-z0-9_$.]+)\\[(\\d+)]");
+  private static final Pattern ARRAY_INDEX_PATTERN = Pattern.compile("([\\w$.]+)\\[(\\d+)]");
   private static final Pattern PATH_SEGMENT_PATTERN = Pattern.compile("([^.\\[\\]]+)|\\[(\\d+)]");
   private static final Pattern HTML_RESULT_PLACEHOLDER_PATTERN =
-      Pattern.compile("\\{\\{([A-Za-z_][A-Za-z0-9_]*\\.html)}}");
+      Pattern.compile("\\{\\{([A-Za-z_][\\w]*\\.html)}}");
   private static final Pattern SITMUN_TABLE_ITERATION_PATTERN =
       Pattern.compile("<table\\b[^>]*>[\\s\\S]*?</table>");
   private static final Pattern SITMUN_TABLE_EACH_ATTRIBUTE_PATTERN =
-      Pattern.compile("\\sdata-sitmun-each=\"([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\"");
+      Pattern.compile("\\sdata-sitmun-each=\"([A-Za-z_]\\w*(?:\\.[A-Za-z_][\\w]*)*)\"");
   private static final Pattern SITMUN_TEMPORARY_TABLE_PATTERN =
       Pattern.compile("<temporary\\b[^>]*>[\\s\\S]*?</temporary>");
   private static final Pattern TABLE_BODY_PATTERN =
       Pattern.compile("<tbody([^>]*)>([\\s\\S]*?)</tbody>");
+  private static final Pattern EACH_ROOT_PATTERN =
+      Pattern.compile("\\{\\{#each\\s+([A-Za-z_][\\w]*)\\s*}}");
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
+  private final TemplateContextNormalizer templateContextNormalizer;
   private final Handlebars handlebars = new Handlebars();
 
   public TemplatePreviewResponseDto renderPreview(
@@ -60,8 +63,9 @@ public class TemplateRenderService {
       Integer templateTaskId,
       List<String> knownTaskReferences) {
     String source = templateHtml == null ? "" : templateHtml;
-    Map<String, Object> safeContext = context == null ? Collections.emptyMap() : context;
-    String withTableIterations = expandSitmunTableIterations(source);
+    Map<String, Object> safeContext = templateContextNormalizer.normalize(context);
+    String withNormalizedEachBlocks = normalizeRootEachBlocks(source, safeContext);
+    String withTableIterations = expandSitmunTableIterations(withNormalizedEachBlocks);
     String withExecutionHints =
         annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
     String withBackendVars = replaceBackendVariables(withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
@@ -84,14 +88,36 @@ public class TemplateRenderService {
     }
   }
 
+  private String normalizeRootEachBlocks(String templateHtml, Map<String, Object> context) {
+    Matcher matcher = EACH_ROOT_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    StringBuilder sb = new StringBuilder();
+    while (matcher.find()) {
+      String rootKey = matcher.group(1);
+      if (hasRowsArray(context.get(rootKey))) {
+        matcher.appendReplacement(sb, Matcher.quoteReplacement("{{#each " + rootKey + ".rows}}"));
+        continue;
+      }
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
+    }
+    matcher.appendTail(sb);
+    return sb.toString();
+  }
+
+  private boolean hasRowsArray(Object value) {
+    if (!(value instanceof Map<?, ?> mapValue)) {
+      return false;
+    }
+    return mapValue.get("rows") instanceof List<?>;
+  }
+
   private String expandSitmunTableIterations(String templateHtml) {
     Matcher matcher = SITMUN_TABLE_ITERATION_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement(expandSitmunTableIteration(matcher.group())));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(expandSitmunTableIteration(matcher.group())));
     }
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private String expandSitmunTableIteration(String tableHtml) {
@@ -121,43 +147,42 @@ public class TemplateRenderService {
 
   private String replaceBackendVariables(String templateHtml, RequestCoordinates coordinates) {
     Matcher matcher = BACKEND_VARIABLE_PATTERN.matcher(templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String variableName = matcher.group(1);
       String replacement = systemVariableResolver.resolve("#{" + variableName + "}", coordinates);
       if (Objects.equals(replacement, "#{" + variableName + "}")) {
         replacement = escapeHandlebarsPlaceholder("#" + variableName);
       }
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
     }
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private String annotateUnresolvedTaskPlaceholders(
       String templateHtml, Map<String, Object> context, List<String> knownTaskReferences) {
-    Set<String> knownRoots = new LinkedHashSet<>();
-    knownRoots.addAll(context.keySet());
+    Set<String> knownRoots = new LinkedHashSet<>(context.keySet());
     if (knownTaskReferences != null) {
       knownRoots.addAll(knownTaskReferences);
     }
 
     Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String placeholderContent = matcher.group(1).trim();
       if (isKnownTaskPlaceholder(placeholderContent, knownRoots)
           && !isTaskPlaceholderResolved(placeholderContent, context)) {
         matcher.appendReplacement(
-            buffer,
+            sb,
             Matcher.quoteReplacement(
                 escapeHandlebarsPlaceholder(placeholderContent) + " (falta ejecutar tarea)"));
         continue;
       }
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement(matcher.group(0)));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
     }
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
@@ -230,49 +255,49 @@ public class TemplateRenderService {
 
   private String normalizeParameterLookups(String templateHtml) {
     Matcher matcher = PARAMETER_LOOKUP_PATTERN.matcher(templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement("{{lookup " + matcher.group(1) + " \"" + matcher.group(2) + "\"}}"));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement("{{lookup " + matcher.group(1) + " \"" + matcher.group(2) + "\"}}"));
     }
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private String normalizeArrayIndexes(String templateHtml) {
     Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (matcher.find()) {
       String placeholderContent = matcher.group(1);
       String normalizedPlaceholder = normalizeArrayIndexesInPlaceholder(placeholderContent);
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement("{{" + normalizedPlaceholder + "}}"));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement("{{" + normalizedPlaceholder + "}}"));
     }
 
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private String normalizeHtmlResultPlaceholders(String templateHtml) {
     Matcher matcher = HTML_RESULT_PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
-      matcher.appendReplacement(buffer, Matcher.quoteReplacement("{{{" + matcher.group(1) + "}}}"));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement("{{{" + matcher.group(1) + "}}}"));
     }
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private String normalizeArrayIndexesInPlaceholder(String placeholderContent) {
     Matcher matcher = ARRAY_INDEX_PATTERN.matcher(placeholderContent);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (matcher.find()) {
       matcher.appendReplacement(
-          buffer, Matcher.quoteReplacement(matcher.group(1) + ".[" + matcher.group(2) + "]"));
+          sb, Matcher.quoteReplacement(matcher.group(1) + ".[" + matcher.group(2) + "]"));
     }
 
-    matcher.appendTail(buffer);
-    return buffer.toString();
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   private List<String> extractPlaceholders(String templateHtml) {
