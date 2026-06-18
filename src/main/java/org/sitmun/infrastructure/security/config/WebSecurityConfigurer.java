@@ -308,6 +308,9 @@ public class WebSecurityConfigurer {
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
         .hasRole(USER.name())
+        .requestMatchers(
+            builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
+        .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasAnyRole(USER.name(), MOBILE_EDITION.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
