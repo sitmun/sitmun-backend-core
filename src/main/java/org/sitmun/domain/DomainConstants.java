@@ -32,6 +32,18 @@ public class DomainConstants {
     public static final String PROPERTY_DOWNLOAD_FORMAT = "downloadFormat";
 
     /**
+     * Task property {@code pageSize}: PDF page size used by document export tasks. Supported
+     * values: {@code "A4"}, {@code "A3"}.
+     */
+    public static final String PROPERTY_PAGE_SIZE = "pageSize";
+
+    /**
+     * Task property {@code pageOrientation}: PDF page orientation used by document export tasks.
+     * Supported values: {@code "portrait"}, {@code "landscape"}.
+     */
+    public static final String PROPERTY_PAGE_ORIENTATION = "pageOrientation";
+
+    /**
      * Task property {@code downloadSource}: path to a Jasper report file (.jrxml / .xml) relative
      * to the configured {@code sitmun.template.export.allowed-file-path-prefix} directory.
      * Only relevant when {@code downloadFormat} is {@code "xml"}.

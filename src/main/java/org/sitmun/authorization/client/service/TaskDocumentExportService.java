@@ -5,6 +5,8 @@ import static org.sitmun.domain.DomainConstants.Tasks.PROFILE_LAYER_ID_PREFIX;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_SOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_EXPORT_ENGINE;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_SIZE;
 import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_RESOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.TASK_PROFILE_ID_PREFIX;
 import static org.sitmun.domain.DomainConstants.Tasks.isDocumentExportTask;
@@ -35,6 +37,8 @@ public class TaskDocumentExportService implements TaskMapper {
       copyStringProperty(parameters, properties, PROPERTY_EXPORT_ENGINE);
       copyStringProperty(parameters, properties, PROPERTY_DOWNLOAD_FORMAT);
       copyStringProperty(parameters, properties, PROPERTY_DOWNLOAD_SOURCE);
+      copyStringProperty(parameters, properties, PROPERTY_PAGE_SIZE);
+      copyStringProperty(parameters, properties, PROPERTY_PAGE_ORIENTATION);
       copyStringProperty(parameters, properties, "output", PROPERTY_DOWNLOAD_FORMAT);
     }
 

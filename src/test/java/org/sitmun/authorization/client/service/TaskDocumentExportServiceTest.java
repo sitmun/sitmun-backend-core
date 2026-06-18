@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_SOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_EXPORT_ENGINE;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION;
+import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_SIZE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROFILE_LAYER_ID_PREFIX;
 import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_RESOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.TASK_PROFILE_ID_PREFIX;
@@ -52,7 +54,9 @@ class TaskDocumentExportServiceTest {
                 Map.of(
                     PROPERTY_EXPORT_ENGINE, "openhtmltopdf",
                     PROPERTY_DOWNLOAD_FORMAT, "pdf",
-                    PROPERTY_DOWNLOAD_SOURCE, "reports/export.jrxml"))
+                    PROPERTY_DOWNLOAD_SOURCE, "reports/export.jrxml",
+                    PROPERTY_PAGE_SIZE, "A3",
+                    PROPERTY_PAGE_ORIENTATION, "landscape"))
             .build();
 
     TaskDto result = service.map(task, Application.builder().build(), Territory.builder().build());
@@ -64,6 +68,8 @@ class TaskDocumentExportServiceTest {
     assertEquals("pdf", result.getParameters().get("output"));
     assertEquals("openhtmltopdf", result.getParameters().get(PROPERTY_EXPORT_ENGINE));
     assertEquals("reports/export.jrxml", result.getParameters().get(PROPERTY_DOWNLOAD_SOURCE));
+    assertEquals("A3", result.getParameters().get(PROPERTY_PAGE_SIZE));
+    assertEquals("landscape", result.getParameters().get(PROPERTY_PAGE_ORIENTATION));
   }
 
   @Test

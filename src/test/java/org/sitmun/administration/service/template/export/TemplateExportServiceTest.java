@@ -105,6 +105,50 @@ class TemplateExportServiceTest {
   }
 
   @Test
+  @DisplayName("wrapHtmlForPdf uses default A4 portrait config")
+  void wrapHtmlForPdfUsesDefaultA4PortraitConfig() {
+    String wrapped =
+        TemplateExportService.wrapHtmlForPdf(
+            "<div>content</div>",
+            new TemplateExportService.PdfPageConfig(
+                TemplateExportService.DEFAULT_PDF_PAGE_SIZE,
+                TemplateExportService.DEFAULT_PDF_PAGE_ORIENTATION));
+
+    assertThat(wrapped).contains("@page { size: A4 portrait; margin: 0; }");
+    assertThat(wrapped).contains("<div>content</div>");
+  }
+
+  @Test
+  @DisplayName("resolvePdfPageConfig reads configured A3 landscape properties")
+  void resolvePdfPageConfigReadsConfiguredA3LandscapeProperties() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    when(taskRepository.findById(403)).thenReturn(Optional.of(buildTask(403, Map.of(
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf",
+        DomainConstants.Tasks.PROPERTY_PAGE_SIZE, "A3",
+        DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION, "landscape"))));
+
+    TemplateExportService.PdfPageConfig config = service.resolvePdfPageConfig(403L);
+
+    assertThat(config.pageSize()).isEqualTo("A3");
+    assertThat(config.pageOrientation()).isEqualTo("landscape");
+  }
+
+  @Test
+  @DisplayName("resolvePdfPageConfig falls back to defaults for invalid values")
+  void resolvePdfPageConfigFallsBackToDefaultsForInvalidValues() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    when(taskRepository.findById(404)).thenReturn(Optional.of(buildTask(404, Map.of(
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf",
+        DomainConstants.Tasks.PROPERTY_PAGE_SIZE, "LETTER",
+        DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION, "diagonal"))));
+
+    TemplateExportService.PdfPageConfig config = service.resolvePdfPageConfig(404L);
+
+    assertThat(config.pageSize()).isEqualTo(TemplateExportService.DEFAULT_PDF_PAGE_SIZE);
+    assertThat(config.pageOrientation()).isEqualTo(TemplateExportService.DEFAULT_PDF_PAGE_ORIENTATION);
+  }
+
+  @Test
   @DisplayName("exportHtml allows pdf task without configured download source when runtime HTML exists")
   void exportHtmlAllowsPdfTaskWithoutConfiguredDownloadSourceWhenRuntimeHtmlExists() {
     TemplateExportService service = new TemplateExportService(taskRepository);

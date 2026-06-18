@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
@@ -36,6 +37,11 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class TemplateExportService {
 
+  static final String DEFAULT_PDF_PAGE_SIZE = "A4";
+  static final String DEFAULT_PDF_PAGE_ORIENTATION = "portrait";
+  private static final Set<String> ALLOWED_PDF_PAGE_SIZES = Set.of("A3", "A4");
+  private static final Set<String> ALLOWED_PDF_PAGE_ORIENTATIONS = Set.of("portrait", "landscape");
+
   private final TaskRepository taskRepository;
 
   @Value("${sitmun.template.export.allowed-file-path-prefix:}")
@@ -55,7 +61,7 @@ public class TemplateExportService {
     validateOutputAllowed(taskId, output);
     String effectiveSource = resolveEffectiveExportSource(html, taskId);
     if ("pdf".equalsIgnoreCase(output)) {
-      return convertHtmlToPdf(effectiveSource);
+      return convertHtmlToPdf(wrapHtmlForPdf(effectiveSource, resolvePdfPageConfig(taskId)));
     }
     return effectiveSource.getBytes(java.nio.charset.StandardCharsets.UTF_8);
   }
@@ -194,6 +200,57 @@ public class TemplateExportService {
     return value.replaceAll("[\\\\/:*?\"<>|]+", "_");
   }
 
+  PdfPageConfig resolvePdfPageConfig(Long taskId) {
+    if (taskId == null) {
+      return new PdfPageConfig(DEFAULT_PDF_PAGE_SIZE, DEFAULT_PDF_PAGE_ORIENTATION);
+    }
+
+    Task task = getTask(taskId);
+    Map<String, Object> properties = task.getProperties();
+    return new PdfPageConfig(
+        normalizePdfPageSize(properties == null ? null : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_SIZE)),
+        normalizePdfPageOrientation(
+            properties == null ? null : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION)));
+  }
+
+  static String wrapHtmlForPdf(String html, PdfPageConfig config) {
+    String pageSize = config == null ? DEFAULT_PDF_PAGE_SIZE : config.pageSize();
+    String pageOrientation = config == null ? DEFAULT_PDF_PAGE_ORIENTATION : config.pageOrientation();
+    return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset=\"UTF-8\">
+          <style>
+            @page { size: %s %s; margin: 0; }
+            table, tr { page-break-inside: avoid; }
+          </style>
+        </head>
+        <body>
+        %s
+        </body>
+        </html>
+        """.formatted(pageSize, pageOrientation, html == null ? "" : html);
+  }
+
+  static String normalizePdfPageSize(Object value) {
+    if (value == null) {
+      return DEFAULT_PDF_PAGE_SIZE;
+    }
+    String normalized = String.valueOf(value).trim().toUpperCase(Locale.ROOT);
+    return ALLOWED_PDF_PAGE_SIZES.contains(normalized) ? normalized : DEFAULT_PDF_PAGE_SIZE;
+  }
+
+  static String normalizePdfPageOrientation(Object value) {
+    if (value == null) {
+      return DEFAULT_PDF_PAGE_ORIENTATION;
+    }
+    String normalized = String.valueOf(value).trim().toLowerCase(Locale.ROOT);
+    return ALLOWED_PDF_PAGE_ORIENTATIONS.contains(normalized)
+        ? normalized
+        : DEFAULT_PDF_PAGE_ORIENTATION;
+  }
+
   private byte[] convertHtmlToPdf(String html) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       // Use Jsoup to parse arbitrary HTML (including HTML5 / non-XHTML content) and convert
@@ -214,4 +271,6 @@ public class TemplateExportService {
           "Failed to generate PDF");
     }
   }
+
+  record PdfPageConfig(String pageSize, String pageOrientation) {}
 }
