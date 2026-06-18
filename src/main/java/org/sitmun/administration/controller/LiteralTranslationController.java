@@ -6,6 +6,7 @@ import org.sitmun.administration.controller.dto.LiteralTranslationUpsertRequestD
 import org.sitmun.administration.service.i18n.LiteralTranslationCrudService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +32,12 @@ public class LiteralTranslationController {
       @RequestParam("lang") String language, Pageable pageable) {
     return ResponseEntity.ok(
         new PagedModel<>(literalTranslationCrudService.list(language, pageable)));
+  }
+
+  @GetMapping("/{lang}/completion")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<Double> getLanguageCompletionPct(@PathVariable final String lang) {
+    return new ResponseEntity<>(literalTranslationCrudService.getLanguageCompletionPct(lang), HttpStatus.OK);
   }
 
   @PostMapping
