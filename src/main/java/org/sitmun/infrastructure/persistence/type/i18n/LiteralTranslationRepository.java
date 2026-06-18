@@ -46,4 +46,7 @@ public interface LiteralTranslationRepository extends JpaRepository<LiteralTrans
       SELECT (select count(lang) from Language lang) = (select count(lv) from LiteralTranslationValue lv where lv.literalTranslation.literal = :literal)
       """)
   boolean isCompleteByLiteral(@Param("literal") String literal);
+
+  @Query(value = "SELECT count(id) FROM LiteralTranslation")
+  long countTotalTranslations();
 }

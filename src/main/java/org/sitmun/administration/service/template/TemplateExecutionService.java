@@ -773,6 +773,9 @@ public class TemplateExecutionService {
   }
 
   private boolean mayAccessTask(Task task, RequestCoordinates coordinates) {
+    if (task == null || currentUserHasRole("ROLE_ADMIN")) {
+      return true;
+    }
     if (coordinates == null) {
       return true;
     }
