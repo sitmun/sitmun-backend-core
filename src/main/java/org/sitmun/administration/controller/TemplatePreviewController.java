@@ -1,6 +1,8 @@
 package org.sitmun.administration.controller;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
@@ -16,6 +18,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
@@ -33,6 +36,7 @@ public class TemplatePreviewController {
   private final TemplateExecutionService templateExecutionService;
   private final TemplateRenderService templateRenderService;
   private final TemplateExportService templateExportService;
+  private final RequestLocaleResolutionService requestLocaleResolutionService;
 
   @PostMapping("/execute-child")
   @PreAuthorize("hasRole('ADMIN')")
@@ -44,20 +48,27 @@ public class TemplatePreviewController {
   @PostMapping("/more-info-advanced/render")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<MoreInfoAdvancedRenderResponseDto> renderMoreInfoAdvanced(
-      @RequestBody MoreInfoAdvancedRenderRequestDto requestDto) {
+      @RequestBody MoreInfoAdvancedRenderRequestDto requestDto,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    requestLocaleResolutionService.resolveLanguage(request, response, this, null);
     return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto));
   }
 
   @PostMapping("/preview")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<TemplatePreviewResponseDto> preview(
-      @RequestBody TemplatePreviewRequestDto requestDto) {
+      @RequestBody TemplatePreviewRequestDto requestDto,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
     return ResponseEntity.ok(
         templateRenderService.renderPreview(
             requestDto.getTemplateHtml(),
             requestDto.getContext(),
             requestDto.getTemplateTaskId(),
-            requestDto.getKnownTaskReferences()));
+            requestDto.getKnownTaskReferences(),
+            language));
   }
 
   /**

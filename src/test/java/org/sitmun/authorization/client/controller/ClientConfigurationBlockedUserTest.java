@@ -113,7 +113,8 @@ class ClientConfigurationBlockedUserTest {
   @WithMockUser(username = BLOCKED_USERNAME, roles = "USER")
   void deniesBlockedAuthenticatedOnApplicationTerritories() throws Exception {
     mockMvc
-        .perform(get(CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, APP_ID).contentType(APPLICATION_JSON))
+        .perform(
+            get(CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, APP_ID).contentType(APPLICATION_JSON))
         .andExpect(status().isForbidden());
   }
 

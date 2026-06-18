@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.rest.core.annotation.RestResource;
 @Tag(name = "language")
 @RepositoryRestResource(collectionResourceRel = "languages", path = "languages")
 public interface LanguageRepository extends JpaRepository<Language, Integer> {
+
+  Optional<Language> findByShortname(String shortname);
 
   @RestResource(path = "content", rel = "content")
   @Query(

@@ -36,7 +36,9 @@ class DatabaseConnectionServiceTest {
   private void setupDatabase() {
     try {
       Class.forName("org.h2.Driver");
-      try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:template_test;DB_CLOSE_DELAY=-1", "sa", null);
+      try (Connection connection =
+              DriverManager.getConnection(
+                  "jdbc:h2:mem:template_test;DB_CLOSE_DELAY=-1", "sa", null);
           Statement statement = connection.createStatement()) {
         statement.execute("DROP TABLE IF EXISTS sample");
         statement.execute("CREATE TABLE sample(id INT PRIMARY KEY, name VARCHAR(255))");

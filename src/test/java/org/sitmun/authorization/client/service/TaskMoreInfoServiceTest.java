@@ -84,10 +84,14 @@ class TaskMoreInfoServiceTest {
     when(task.getProperties())
         .thenReturn(
             Map.of(
-                "advancedTaskKind", "parent",
-                "parentLayout", "scroll",
-                "childTaskOrderIds", List.of(101, 102),
-                "moreInfoAdvanced", true));
+                "advancedTaskKind",
+                "parent",
+                "parentLayout",
+                "scroll",
+                "childTaskOrderIds",
+                List.of(101, 102),
+                "moreInfoAdvanced",
+                true));
     when(moreInfoTaskResolver.findRelatedQueryTask(task)).thenReturn(java.util.Optional.empty());
 
     TaskDto result = service.map(task, mock(Application.class), mock(Territory.class));
