@@ -973,7 +973,7 @@ public class TemplateExecutionService {
     }
 
     TemplatePreviewResponseDto rendered =
-        templateRenderService.renderPreview(
+        renderTemplatePreview(
             readTemplateHtml(task),
             templateContext,
             rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
@@ -986,6 +986,16 @@ public class TemplateExecutionService {
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
+  }
+
+  private TemplatePreviewResponseDto renderTemplatePreview(
+      String templateHtml, Map<String, Object> templateContext, Integer templateTaskId) {
+    String language = resolveRequestLanguage();
+    if (StringUtils.hasText(language)) {
+      return templateRenderService.renderPreview(
+          templateHtml, templateContext, templateTaskId, Collections.emptyList(), language);
+    }
+    return templateRenderService.renderPreview(templateHtml, templateContext, templateTaskId);
   }
 
   private Map<String, Object> buildChildErrorContext(
