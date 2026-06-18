@@ -192,7 +192,11 @@ class TemplateExecutionServiceTest {
                     .relatedTask(apiTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"), any(), eq(401)))
+            eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"),
+            any(),
+            eq(401),
+            eq(List.of()),
+            eq("en")))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -2380,6 +2384,86 @@ class TemplateExecutionServiceTest {
     assertThat(result.getResultType()).isEqualTo("template");
     assertThat(result.getContext())
         .containsEntry("html", "<div><p>https://example.com/abc</p></div>");
+  }
+
+  @Test
+  void executeLinkedTaskPassesRequestLanguageToNestedTemplateRenders() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task parentTemplate =
+        Task.builder()
+            .id(900)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<div>{{plantilla_hija.html}}</div>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task childTemplate =
+        Task.builder()
+            .id(901)
+            .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p><t>Hola</t></p>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(900)).thenReturn(Optional.of(parentTemplate));
+    when(taskRelationRepository.findByTaskId(900))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(parentTemplate)
+                    .relationType("template-nested")
+                    .referenceAlias("plantilla_hija")
+                    .relatedTask(childTemplate)
+                    .build()));
+    when(taskRelationRepository.findByTaskId(901)).thenReturn(List.of());
+    when(templateRenderService.renderPreview(
+            eq("<p><t>Hola</t></p>"), any(), eq(900), eq(List.of()), eq("fr")))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>Bonjour</p>").placeholders(List.of()).build());
+    when(templateRenderService.renderPreview(
+            eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(900), eq(List.of()), eq("fr")))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder()
+                .html("<div><p>Bonjour</p></div>")
+                .placeholders(List.of())
+                .build());
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(900);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setParameter("lang", "fr");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    try {
+      TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+      assertThat(result.getContext()).containsEntry("html", "<div><p>Bonjour</p></div>");
+      verify(templateRenderService)
+          .renderPreview(eq("<p><t>Hola</t></p>"), any(), eq(900), eq(List.of()), eq("fr"));
+      verify(templateRenderService)
+          .renderPreview(
+              eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(900), eq(List.of()), eq("fr"));
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+    }
   }
 
   @Test
