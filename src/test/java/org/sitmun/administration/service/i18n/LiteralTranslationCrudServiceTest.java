@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.sitmun.administration.controller.dto.LiteralTranslationListItemDto;
 import org.sitmun.administration.controller.dto.LiteralTranslationUpsertRequestDto;
 import org.sitmun.infrastructure.persistence.type.i18n.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 class LiteralTranslationCrudServiceTest {
@@ -29,7 +33,8 @@ class LiteralTranslationCrudServiceTest {
     valueRepository = mock(LiteralTranslationValueRepository.class);
     languageRepository = mock(LanguageRepository.class);
     service =
-        new LiteralTranslationCrudService(literalRepository, valueRepository, languageRepository);
+        new LiteralTranslationCrudService(
+            literalRepository, valueRepository, languageRepository, new ObjectMapper());
   }
 
   @Test
@@ -91,6 +96,86 @@ class LiteralTranslationCrudServiceTest {
     assertThatThrownBy(() -> service.update(7, request))
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Source language cannot be changed");
+  }
+
+  @Test
+  void listParsesSimpleBlankFilter() {
+    when(literalRepository.findPageByLanguage(anyString(), any(), any()))
+        .thenReturn(new PageImpl<>(java.util.List.of()));
+
+    service.list(
+        "bg",
+        """
+        {"translation":{"filterType":"text","type":"blank"}}
+        """,
+        PageRequest.of(0, 20));
+
+    ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
+        ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+
+    LiteralTranslationFilterModel.ColumnFilter columnFilter =
+        filterCaptor.getValue().columnFilter("translation");
+    assertThat(columnFilter).isNotNull();
+    assertThat(columnFilter.operator()).isEqualTo("AND");
+    assertThat(columnFilter.conditions())
+        .containsExactly(new LiteralTranslationFilterModel.Condition("blank", null));
+  }
+
+  @Test
+  void listParsesAgGridOrConditions() {
+    when(literalRepository.findPageByLanguage(anyString(), any(), any())).thenReturn(Page.empty());
+
+    service.list(
+        "bg",
+        """
+        {"translation":{"filterType":"text","operator":"OR","condition1":{"filterType":"text","type":"blank"},"condition2":{"filterType":"text","type":"contains","filter":"sdg"},"conditions":[{"filterType":"text","type":"blank"},{"filterType":"text","type":"contains","filter":"sdg"}]}}
+        """,
+        PageRequest.of(0, 100));
+
+    ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
+        ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+
+    LiteralTranslationFilterModel.ColumnFilter columnFilter =
+        filterCaptor.getValue().columnFilter("translation");
+    assertThat(columnFilter).isNotNull();
+    assertThat(columnFilter.operator()).isEqualTo("OR");
+    assertThat(columnFilter.conditions())
+        .containsExactly(
+            new LiteralTranslationFilterModel.Condition("blank", null),
+            new LiteralTranslationFilterModel.Condition("contains", "sdg"));
+  }
+
+  @Test
+  void listParsesAgGridConditionPairsWithoutConditionsArray() {
+    when(literalRepository.findPageByLanguage(anyString(), any(), any())).thenReturn(Page.empty());
+
+    service.list(
+        "bg",
+        """
+        {"translation":{"filterType":"text","operator":"OR","condition1":{"filterType":"text","type":"blank"},"condition2":{"filterType":"text","type":"contains","filter":"sdg"}}}
+        """,
+        PageRequest.of(0, 100));
+
+    ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
+        ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+
+    LiteralTranslationFilterModel.ColumnFilter columnFilter =
+        filterCaptor.getValue().columnFilter("translation");
+    assertThat(columnFilter.operator()).isEqualTo("OR");
+    assertThat(columnFilter.conditions())
+        .containsExactly(
+            new LiteralTranslationFilterModel.Condition("blank", null),
+            new LiteralTranslationFilterModel.Condition("contains", "sdg"));
+  }
+
+  @Test
+  void listRejectsInvalidFilterJson() {
+    assertThatThrownBy(() -> service.list("bg", "{not-json}", PageRequest.of(0, 20)))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("Invalid filter payload");
   }
 
   private LiteralTranslationUpsertRequestDto request(
