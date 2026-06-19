@@ -29,15 +29,18 @@ public class LiteralTranslationController {
   @GetMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<PagedModel<LiteralTranslationListItemDto>> list(
-      @RequestParam("lang") String language, Pageable pageable) {
+      @RequestParam("lang") String language,
+      Pageable pageable,
+      @RequestParam(value = "filter", required = false) String filter) {
     return ResponseEntity.ok(
-        new PagedModel<>(literalTranslationCrudService.list(language, pageable)));
+        new PagedModel<>(literalTranslationCrudService.list(language, filter, pageable)));
   }
 
   @GetMapping("/{lang}/completion")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Double> getLanguageCompletionPct(@PathVariable final String lang) {
-    return new ResponseEntity<>(literalTranslationCrudService.getLanguageCompletionPct(lang), HttpStatus.OK);
+    return new ResponseEntity<>(
+        literalTranslationCrudService.getLanguageCompletionPct(lang), HttpStatus.OK);
   }
 
   @PostMapping

@@ -2438,7 +2438,10 @@ class TemplateExecutionServiceTest {
     when(templateRenderService.renderPreview(
             eq("<p><t>Hola</t></p>"), any(), eq(900), eq(List.of()), eq("fr")))
         .thenReturn(
-            TemplatePreviewResponseDto.builder().html("<p>Bonjour</p>").placeholders(List.of()).build());
+            TemplatePreviewResponseDto.builder()
+                .html("<p>Bonjour</p>")
+                .placeholders(List.of())
+                .build());
     when(templateRenderService.renderPreview(
             eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(900), eq(List.of()), eq("fr")))
         .thenReturn(
