@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import org.sitmun.infrastructure.security.core.SecurityRole;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -146,8 +147,7 @@ public class TemplateExecutionService {
       MoreInfoAdvancedRenderRequestDto requestDto) {
     List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
     List<Integer> miaTaskIds = requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
-    Map<String, Object> featureParameters = requestDto.getParameters() == null ? Collections.emptyMap()
-        : requestDto.getParameters();
+    Map<String, Object> featureParameters = buildViewerParameters(requestDto);
 
     for (Integer miaTaskId : miaTaskIds) {
       renderedTasks.add(renderSingleMoreInfoAdvancedTask(miaTaskId, featureParameters));
@@ -178,7 +178,7 @@ public class TemplateExecutionService {
 
     String html = "tabs".equals(visualizationMode)
         ? renderMiaChildrenAsTabs(miaTask, renderableTasks, featureParameters, coordinates)
-        : renderMiaChildrenAsScroll(miaTask, renderableTasks, featureParameters, coordinates);
+        : renderMiaChildrenAsScroll(renderableTasks, featureParameters, coordinates);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -583,6 +583,45 @@ public class TemplateExecutionService {
     return converted;
   }
 
+  Map<String, Object> buildViewerParameters(MoreInfoAdvancedRenderRequestDto requestDto) {
+    Map<String, Object> viewerParameters = new LinkedHashMap<>();
+    if (requestDto == null) {
+      return viewerParameters;
+    }
+
+    if (requestDto.getParameters() != null) {
+      viewerParameters.putAll(requestDto.getParameters());
+    }
+
+    if (requestDto.getBbox() != null && requestDto.getBbox().size() >= 4) {
+      List<Double> bbox = requestDto.getBbox();
+      viewerParameters.put("bbox", new ArrayList<>(bbox.subList(0, 4)));
+      viewerParameters.put("bboxMinX", bbox.get(0));
+      viewerParameters.put("bboxMinY", bbox.get(1));
+      viewerParameters.put("bboxMaxX", bbox.get(2));
+      viewerParameters.put("bboxMaxY", bbox.get(3));
+    }
+
+    if (StringUtils.hasText(requestDto.getQueriedLayer())) {
+      viewerParameters.put("queriedLayer", requestDto.getQueriedLayer());
+      viewerParameters.put("queriedLayerId", extractLayerId(requestDto.getQueriedLayer()));
+    }
+
+    if (StringUtils.hasText(requestDto.getQueriedService())) {
+      viewerParameters.put("queriedService", requestDto.getQueriedService());
+    }
+
+    return viewerParameters;
+  }
+
+  private Integer extractLayerId(String layerRef) {
+    if (!StringUtils.hasText(layerRef)) {
+      return null;
+    }
+    Matcher matcher = Pattern.compile("(?:^|/)(\\d+)$").matcher(layerRef);
+    return matcher.find() ? Integer.valueOf(matcher.group(1)) : null;
+  }
+
   private Map<String, Object> readTemplateDefaultParameters(Task task) {
     Map<String, Object> properties = task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
     Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
@@ -801,6 +840,9 @@ public class TemplateExecutionService {
   }
 
   private boolean mayAccessTask(Task task, RequestCoordinates coordinates) {
+    if (task == null || SecurityRole.isAdmin()) {
+      return true;
+    }
     if (coordinates == null) {
       return true;
     }
@@ -984,10 +1026,11 @@ public class TemplateExecutionService {
       templateContext.put(buildLegacyReferenceAlias(childTask), childContext);
     }
 
-    TemplatePreviewResponseDto rendered = templateRenderService.renderPreview(
-        readTemplateHtml(task),
-        templateContext,
-        rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
+    TemplatePreviewResponseDto rendered =
+        renderTemplatePreview(
+            readTemplateHtml(task),
+            templateContext,
+            rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
 
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
@@ -997,6 +1040,16 @@ public class TemplateExecutionService {
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
+  }
+
+  private TemplatePreviewResponseDto renderTemplatePreview(
+      String templateHtml, Map<String, Object> templateContext, Integer templateTaskId) {
+    String language = resolveRequestLanguage();
+    if (StringUtils.hasText(language)) {
+      return templateRenderService.renderPreview(
+          templateHtml, templateContext, templateTaskId, Collections.emptyList(), language);
+    }
+    return templateRenderService.renderPreview(templateHtml, templateContext, templateTaskId);
   }
 
   private Map<String, Object> buildChildErrorContext(

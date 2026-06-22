@@ -25,4 +25,6 @@ public interface LiteralTranslationValueRepository
       """)
   Optional<String> findValueByLiteralIdAndLanguage(
       @Param("literalId") Integer literalId, @Param("language") String language);
+
+  long countByLanguage_Shortname(String shortname);
 }
