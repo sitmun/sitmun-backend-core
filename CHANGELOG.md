@@ -8,7 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Task projections**: `TaskProjection.typeTitle` and `TaskAvailabilityProjection.taskTypeTitle` expose the localized task-type label alongside internal `typeName`.
+- **i18n**: `TaskType` uses `I18nListener`; `TranslationCacheFilter` sets `LocaleContextHolder` during translation preload so `@I18n` fields resolve for the request language.
 - **Tests**: integration coverage for dashboard keyword search beyond the first unfiltered page.
+- **Tests**: projection integration tests assert `typeTitle` and `taskTypeTitle` in JSON responses.
 
 ### Fixed
 

@@ -32,7 +32,8 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.territoryId").value(1))
         .andExpect(jsonPath("$.territoryName").value("Provincia A"))
         .andExpect(jsonPath("$.taskId").value(1))
-        .andExpect(jsonPath("$.taskGroupName").value("Basic"));
+        .andExpect(jsonPath("$.taskGroupName").value("Basic"))
+        .andExpect(jsonPath("$.taskTypeTitle").value("Basic"));
   }
 
   @Test
@@ -159,7 +160,8 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.groupId").value(1))
         .andExpect(jsonPath("$.uiId").value(2))
         .andExpect(jsonPath("$.typeId").value(1))
-        .andExpect(jsonPath("$.typeName").value("básica"));
+        .andExpect(jsonPath("$.typeName").value("básica"))
+        .andExpect(jsonPath("$.typeTitle").value("Basic"));
   }
 
   @Test

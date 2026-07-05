@@ -15,11 +15,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 
 /** Task type. */
 @Entity
 @Table(name = "STM_TSK_TYP")
+@EntityListeners(I18nListener.class)
 @Builder
 @Getter
 @Setter
