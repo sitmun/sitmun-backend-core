@@ -189,11 +189,16 @@ public class ClientConfigurationController {
   @GetMapping(path = "/dashboard/applications", produces = APPLICATION_JSON_VALUE)
   @Transactional(readOnly = true)
   public PagedModel<DashboardApplicationDto> getDashboardApplications(
-      @CurrentSecurityContext SecurityContext context, Pageable pageable) {
+      @CurrentSecurityContext SecurityContext context,
+      Pageable pageable,
+      @RequestParam(required = false, defaultValue = "") String keywords) {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
-    Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
+    Page<Application> page =
+        keywords != null && keywords.trim().length() >= 2
+            ? authorizationService.findApplicationsByUser(username, keywords.trim(), pageable)
+            : authorizationService.findApplicationsByUser(username, pageable);
 
     List<Application> apps = page.getContent();
     Map<Integer, Integer> territoryCounts =

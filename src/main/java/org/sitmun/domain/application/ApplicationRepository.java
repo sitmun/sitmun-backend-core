@@ -119,4 +119,38 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     """)
   Optional<Application> findByPublicUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where (app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      and (lower(coalesce(app.title, app.name)) like lower(concat('%', ?2, '%'))
+        or lower(coalesce(app.description, '')) like lower(concat('%', ?2, '%'))
+        or lower(app.name) like lower(concat('%', ?2, '%')))
+  """)
+  Page<Application> findByUserAndKeywords(String username, String keywords, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select distinct app from Application app
+      where (app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      or app.id in (select distinct app.id from Application app, UserConfiguration uc
+        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      and app.appPrivate = false
+      and (lower(coalesce(app.title, app.name)) like lower(concat('%', ?2, '%'))
+        or lower(coalesce(app.description, '')) like lower(concat('%', ?2, '%'))
+        or lower(app.name) like lower(concat('%', ?2, '%')))
+  """)
+  Page<Application> findByPublicUserAndKeywords(
+      String username, String keywords, Pageable pageable);
 }

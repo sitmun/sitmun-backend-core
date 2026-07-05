@@ -143,6 +143,19 @@ public class AuthorizationService {
     return page;
   }
 
+  public Page<Application> findApplicationsByUser(
+      String username, String keywords, Pageable pageable) {
+    if (keywords == null || keywords.trim().length() < 2) {
+      return findApplicationsByUser(username, pageable);
+    }
+    String normalizedKeywords = keywords.trim();
+    if (isPublic() || isPublicPrincipal(username)) {
+      return applicationRepository.findByPublicUserAndKeywords(
+          username, normalizedKeywords, pageable);
+    }
+    return applicationRepository.findByUserAndKeywords(username, normalizedKeywords, pageable);
+  }
+
   /**
    * The list of territories for a user. The logic is as follows:
    *
@@ -165,6 +178,20 @@ public class AuthorizationService {
       page = territoryRepository.findByRestrictedUser(username, pageable);
     }
     return page;
+  }
+
+  public Page<Territory> findTerritoriesByUser(
+      String username, String keywords, Pageable pageable) {
+    if (keywords == null || keywords.trim().length() < 2) {
+      return findTerritoriesByUser(username, pageable);
+    }
+    String normalizedKeywords = keywords.trim();
+    if (isPublic() || isPublicPrincipal(username)) {
+      return territoryRepository.findByPublicUserAndKeywords(
+          username, normalizedKeywords, pageable);
+    }
+    return territoryRepository.findByRestrictedUserAndKeywords(
+        username, normalizedKeywords, pageable);
   }
 
   /**
@@ -263,35 +290,15 @@ public class AuthorizationService {
       return result;
     }
 
-    String normalizedKeywords = keywords.trim().toLowerCase();
+    String normalizedKeywords = keywords.trim();
 
-    // Find matching applications
     Pageable appPageable = PageRequest.of(0, maxResults);
-    Page<Application> apps = findApplicationsByUser(username, appPageable);
-    List<Application> filteredApps =
-        apps.getContent().stream()
-            .filter(
-                app -> {
-                  String title = (app.getTitle() != null ? app.getTitle() : app.getName());
-                  String description = app.getDescription();
-                  return (title != null && title.toLowerCase().contains(normalizedKeywords))
-                      || (description != null
-                          && description.toLowerCase().contains(normalizedKeywords));
-                })
-            .limit(maxResults)
-            .toList();
+    Page<Application> apps = findApplicationsByUser(username, normalizedKeywords, appPageable);
+    List<Application> filteredApps = apps.getContent();
 
-    // Find matching territories
     Pageable terrPageable = PageRequest.of(0, maxResults);
-    Page<Territory> terrs = findTerritoriesByUser(username, terrPageable);
-    List<Territory> filteredTerrs =
-        terrs.getContent().stream()
-            .filter(
-                terr ->
-                    terr.getName() != null
-                        && terr.getName().toLowerCase().contains(normalizedKeywords))
-            .limit(maxResults)
-            .toList();
+    Page<Territory> terrs = findTerritoriesByUser(username, normalizedKeywords, terrPageable);
+    List<Territory> filteredTerrs = terrs.getContent();
 
     result.put("applications", filteredApps);
     result.put("territories", filteredTerrs);

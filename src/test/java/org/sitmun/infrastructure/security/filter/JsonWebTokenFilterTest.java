@@ -140,7 +140,12 @@ class JsonWebTokenFilterTest {
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     UserDetailsImplementation activeDetails =
         UserDetailsImplementation.build(
-            User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build());
+            User.builder()
+                .id(2)
+                .username(ACTIVE_USERNAME)
+                .blocked(false)
+                .administrator(false)
+                .build());
     when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
     when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.empty());
 

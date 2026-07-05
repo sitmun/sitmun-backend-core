@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Tests**: integration coverage for dashboard keyword search beyond the first unfiltered page.
+
+### Fixed
+
+- **Dashboard API**: `GET /api/config/client/dashboard/applications` accepts optional `keywords` and returns keyword-filtered pages with full `DashboardApplicationDto` enrichment (`territoryCount`, `singleTerritoryId`, `hasTerritories`).
+- **Dashboard API**: `/dashboard/suggestions` keyword search queries authorized applications/territories in the database instead of filtering only the first page in memory.
+
 ## [1.2.7] - 2026-06-05
 
 ### Added
