@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
 import org.sitmun.authorization.client.dto.*;
+import org.sitmun.authorization.client.service.ApplicationBackgroundView;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.TaskMapper;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
-import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
@@ -46,16 +46,17 @@ public abstract class ProfileMapper {
   }
 
   /**
-   * Maps a Background entity to a BackgroundDto.
+   * Maps a resolved application background to a profile DTO.
    *
-   * @param background the Background entity to map
-   * @return the mapped BackgroundDto
+   * @param applicationBackground application background view with display order
+   * @return mapped background DTO
    */
-  BackgroundDto map(Background background) {
-    return BackgroundDto.builder()
-        .id(PROFILE_GROUP_ID_PREFIX + background.getCartographyGroup().getId())
-        .title(background.getName())
-        .thumbnail(background.getImage())
+  ApplicationBackgroundDto map(ApplicationBackgroundView applicationBackground) {
+    return ApplicationBackgroundDto.builder()
+        .id(applicationBackground.getId())
+        .title(applicationBackground.getTitle())
+        .thumbnail(applicationBackground.getThumbnail())
+        .order(applicationBackground.getOrder())
         .build();
   }
 

@@ -16,10 +16,16 @@ public interface BackgroundRepository
 
   @RestResource(exported = false)
   @Query(
-      "select ab.order, back from Application app, ApplicationBackground ab, Background back where"
-          + " app.id = ?1 and ab.application = app and ab.background = back and back.active = true "
-          + " order by ab.order ")
-  List<Object[]> findActiveByApplication(Integer appId);
+      """
+      select new org.sitmun.domain.background.OrderedBackground(ab.order, back)
+      from Application app, ApplicationBackground ab, Background back
+      where app.id = ?1
+      and ab.application = app
+      and ab.background = back
+      and back.active = true
+      order by ab.order
+      """)
+  List<OrderedBackground> findActiveByApplication(Integer appId);
 
   @RestResource(path = "content", rel = "content")
   @Query(

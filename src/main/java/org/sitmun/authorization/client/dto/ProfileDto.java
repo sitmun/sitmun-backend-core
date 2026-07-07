@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 public class ProfileDto {
   private ApplicationDto application;
-  private List<BackgroundDto> backgrounds;
+  private List<ApplicationBackgroundDto> backgrounds;
   private List<CartographyPermissionDto> groups;
   private List<CartographyDto> layers;
   private List<ServiceDto> services;

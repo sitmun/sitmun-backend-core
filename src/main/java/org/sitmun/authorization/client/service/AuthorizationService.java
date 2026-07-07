@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
-import org.sitmun.domain.background.Background;
 import org.sitmun.domain.background.BackgroundRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyBlockPolicy;
@@ -331,11 +330,15 @@ public class AuthorizationService {
             context.getUsername(), context.getAppId(), context.getTerritoryId());
     roles.forEach(translationService::updateInternationalization);
 
-    List<Background> backgrounds =
+    List<ApplicationBackgroundView> backgrounds =
         backgroundRepository.findActiveByApplication(context.getAppId()).stream()
-            .map(objects -> (Background) objects[1])
+            .map(
+                orderedBackground -> {
+                  translationService.updateInternationalization(orderedBackground.background());
+                  return ApplicationBackgroundView.of(
+                      orderedBackground.background(), orderedBackground.order());
+                })
             .toList();
-    backgrounds.forEach(translationService::updateInternationalization);
 
     List<CartographyPermission> cartographyPermissions =
         new ArrayList<>(
@@ -498,11 +501,14 @@ public class AuthorizationService {
   }
 
   private boolean groupRetainedInClientProfile(
-      CartographyPermission permission, List<Background> backgrounds, Integer situationMapId) {
+      CartographyPermission permission,
+      List<ApplicationBackgroundView> backgrounds,
+      Integer situationMapId) {
     boolean belongsToBackground =
         backgrounds.stream()
-            .flatMap(background -> Optional.ofNullable(background.getCartographyGroup()).stream())
-            .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
+            .map(ApplicationBackgroundView::getGroupId)
+            .filter(Objects::nonNull)
+            .anyMatch(groupId -> Objects.equals(groupId, permission.getId()));
     boolean isSituationMap = Objects.equals(permission.getId(), situationMapId);
     boolean retained = belongsToBackground || isSituationMap;
     log.info(
@@ -598,13 +604,7 @@ public class AuthorizationService {
 
     Set<Integer> backgroundLayerIds =
         profile.getBackgrounds().stream()
-            .flatMap(
-                background ->
-                    Optional.ofNullable(background.getCartographyGroup())
-                        .map(CartographyPermission::getMembers)
-                        .orElseGet(Collections::emptySet)
-                        .stream())
-            .map(Cartography::getId)
+            .flatMap(applicationBackground -> applicationBackground.getLayerIds().stream())
             .collect(Collectors.toUnmodifiableSet());
 
     List<Cartography> layersFiltered =

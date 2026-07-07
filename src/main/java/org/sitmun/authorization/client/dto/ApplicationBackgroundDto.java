@@ -7,8 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class BackgroundDto {
+public class ApplicationBackgroundDto {
   private String id;
   private String title;
   private String thumbnail;
+
+  /** Application-background order (`ABC_ORDER`). */
+  private Integer order;
 }
