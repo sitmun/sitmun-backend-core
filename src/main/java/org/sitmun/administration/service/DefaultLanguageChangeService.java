@@ -45,8 +45,7 @@ public class DefaultLanguageChangeService {
           new TranslatableField("Territory", "STM_TERRITORY", "TER_ID", "name", "TER_NAME"),
           // Background
           new TranslatableField("Background", "STM_BACKGRD", "BAC_ID", "name", "BAC_NAME"),
-          new TranslatableField(
-              "Background", "STM_BACKGRD", "BAC_ID", "description", "BAC_DESC"),
+          new TranslatableField("Background", "STM_BACKGRD", "BAC_ID", "description", "BAC_DESC"),
           // Cartography
           new TranslatableField("Cartography", "STM_GEOINFO", "GEO_ID", "name", "GEO_NAME"),
           new TranslatableField(
@@ -206,16 +205,16 @@ public class DefaultLanguageChangeService {
           sql,
           (ResultSetExtractor<Void>)
               rs -> {
-            while (rs.next()) {
-              missing.add(
-                  new MissingTranslationDto(
-                      field.entity(),
-                      rs.getInt(field.idColumn()),
-                      field.translationColumn(),
-                      rs.getString(field.column())));
-            }
-            return null;
-          },
+                while (rs.next()) {
+                  missing.add(
+                      new MissingTranslationDto(
+                          field.entity(),
+                          rs.getInt(field.idColumn()),
+                          field.translationColumn(),
+                          rs.getString(field.column())));
+                }
+                return null;
+              },
           field.translationColumn(),
           targetLang.getId());
     }
@@ -230,8 +229,7 @@ public class DefaultLanguageChangeService {
       count +=
           jdbcTemplate.queryForObject(
               String.format(
-                  "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL",
-                  field.table(), field.column()),
+                  "SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL", field.table(), field.column()),
               Integer.class);
     }
 
@@ -281,16 +279,17 @@ public class DefaultLanguageChangeService {
           sql,
           (ResultSetExtractor<Void>)
               rs -> {
-            while (rs.next()) {
-              Integer elementId = rs.getInt(field.idColumn());
-              String currentValue = rs.getString(field.column());
+                while (rs.next()) {
+                  Integer elementId = rs.getInt(field.idColumn());
+                  String currentValue = rs.getString(field.column());
 
-              if (currentValue != null && !currentValue.isBlank()) {
-                upsertTranslation(elementId, field.translationColumn(), sourceLang, currentValue);
-              }
-            }
-            return null;
-          });
+                  if (currentValue != null && !currentValue.isBlank()) {
+                    upsertTranslation(
+                        elementId, field.translationColumn(), sourceLang, currentValue);
+                  }
+                }
+                return null;
+              });
 
       count +=
           jdbcTemplate.queryForObject(
@@ -330,9 +329,7 @@ public class DefaultLanguageChangeService {
                     while (rs.next()) {
                       updated +=
                           jdbcTemplate.update(
-                              updateMainValue,
-                              rs.getString("TRA_NAME"),
-                              rs.getInt("TRA_ELEID"));
+                              updateMainValue, rs.getString("TRA_NAME"), rs.getInt("TRA_ELEID"));
                     }
                     return updated;
                   },

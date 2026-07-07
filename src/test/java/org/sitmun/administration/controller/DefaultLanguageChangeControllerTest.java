@@ -66,8 +66,7 @@ class DefaultLanguageChangeControllerTest extends BaseTest {
             post("/api/language-default/change")
                 .with(user("admin").roles("ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\"from\":\"en\",\"to\":\"ca\",\"continueOnMissingTranslations\":false}"))
+                .content("{\"from\":\"en\",\"to\":\"ca\",\"continueOnMissingTranslations\":false}"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.message").exists());
   }
@@ -85,8 +84,7 @@ class DefaultLanguageChangeControllerTest extends BaseTest {
             post("/api/language-default/change")
                 .with(user("admin").roles("ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\"from\":\"en\",\"to\":\"ca\",\"continueOnMissingTranslations\":true}"))
+                .content("{\"from\":\"en\",\"to\":\"ca\",\"continueOnMissingTranslations\":true}"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.previousDefault").value("en"))
         .andExpect(jsonPath("$.currentDefault").value("ca"))
@@ -107,8 +105,7 @@ class DefaultLanguageChangeControllerTest extends BaseTest {
             post("/api/language-default/change")
                 .with(user("admin").roles("ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\"from\":\"xx\",\"to\":\"ca\",\"continueOnMissingTranslations\":false}"))
+                .content("{\"from\":\"xx\",\"to\":\"ca\",\"continueOnMissingTranslations\":false}"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").exists());
   }

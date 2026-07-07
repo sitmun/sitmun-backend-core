@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing database default language changes.
  *
- * <p>Provides endpoints for previewing and applying lossless language migrations. Admin-only
- * access through existing /api/** security rules.
+ * <p>Provides endpoints for previewing and applying lossless language migrations. Admin-only access
+ * through existing /api/** security rules.
  */
 @RestController
 @RequestMapping("/api/language-default")

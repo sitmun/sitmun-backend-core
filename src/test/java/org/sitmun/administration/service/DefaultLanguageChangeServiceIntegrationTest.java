@@ -129,9 +129,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
     // Read the raw database value before migration
     String originalEnglishName =
         jdbcTemplate.queryForObject(
-            "SELECT LAN_NAME FROM STM_LANGUAGE WHERE LAN_ID = ?",
-            String.class,
-            english.getId());
+            "SELECT LAN_NAME FROM STM_LANGUAGE WHERE LAN_ID = ?", String.class, english.getId());
 
     // When: Change with continue flag
     DefaultLanguageChangeRequest request = new DefaultLanguageChangeRequest("en", "ca", true);
@@ -145,9 +143,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
     // Verify main table value unchanged (read raw database value to avoid i18n overlay)
     String currentEnglishName =
         jdbcTemplate.queryForObject(
-            "SELECT LAN_NAME FROM STM_LANGUAGE WHERE LAN_ID = ?",
-            String.class,
-            english.getId());
+            "SELECT LAN_NAME FROM STM_LANGUAGE WHERE LAN_ID = ?", String.class, english.getId());
     assertThat(currentEnglishName).isEqualTo(originalEnglishName);
   }
 

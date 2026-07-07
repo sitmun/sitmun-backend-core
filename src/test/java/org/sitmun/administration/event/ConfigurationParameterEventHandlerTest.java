@@ -10,7 +10,8 @@ import org.sitmun.domain.configuration.ConfigurationParameter;
 @DisplayName("ConfigurationParameter Protection Tests")
 class ConfigurationParameterEventHandlerTest {
 
-  private final ConfigurationParameterEventHandler handler = new ConfigurationParameterEventHandler();
+  private final ConfigurationParameterEventHandler handler =
+      new ConfigurationParameterEventHandler();
 
   @Test
   @DisplayName("Prevent creation of language.default parameter")

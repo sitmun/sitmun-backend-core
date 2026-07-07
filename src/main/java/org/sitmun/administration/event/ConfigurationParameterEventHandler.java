@@ -8,8 +8,8 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 /**
- * Event handler to protect critical configuration parameters from direct modification.
- * The language.default parameter can only be changed through the safe migration API.
+ * Event handler to protect critical configuration parameters from direct modification. The
+ * language.default parameter can only be changed through the safe migration API.
  */
 @Component
 @RepositoryEventHandler(ConfigurationParameter.class)
