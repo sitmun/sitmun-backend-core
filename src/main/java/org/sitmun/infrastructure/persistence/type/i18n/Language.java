@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
@@ -35,11 +36,18 @@ public class Language {
   @NotBlank
   private String shortname;
 
+  @JsonIgnore @Transient private String storedShortname;
+
   /** Language name. */
   @Column(name = "LAN_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @I18n
   private String name;
+
+  @PostLoad
+  public void postLoad() {
+    storedShortname = shortname;
+  }
 
   @Override
   public boolean equals(Object obj) {

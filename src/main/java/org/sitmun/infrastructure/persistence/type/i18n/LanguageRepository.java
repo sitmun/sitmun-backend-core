@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,12 @@ public interface LanguageRepository extends JpaRepository<Language, Integer> {
       or lower(language.name) like lower(concat('%', :q, '%'))
       """)
   Page<Language> findByContent(@Param("q") String q, Pageable pageable);
+
+  /**
+   * Find language by BCP-47 shortname.
+   *
+   * @param shortname BCP-47 language tag
+   * @return Language if found
+   */
+  Optional<Language> findByShortname(String shortname);
 }
