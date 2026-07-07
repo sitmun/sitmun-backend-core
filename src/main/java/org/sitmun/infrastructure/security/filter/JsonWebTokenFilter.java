@@ -70,6 +70,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
 
         Optional<User> user = this.userRepository.findByUsername(username);
         if (user.isEmpty()) {
+          clearStaleAccessTokenCookie(httpServletRequest, httpServletResponse);
           filterChain.doFilter(httpServletRequest, httpServletResponse);
           return;
         }
@@ -81,16 +82,25 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
           usernamePasswordAuthenticationToken.setDetails(
               new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        } else {
+          clearStaleAccessTokenCookie(httpServletRequest, httpServletResponse);
         }
       }
     } catch (IllegalArgumentException e) {
-      logger.error("Unable to fetch JWT Token");
+      logger.warn("Invalid JWT token");
+      clearStaleAccessTokenCookie(httpServletRequest, httpServletResponse);
     } catch (ExpiredJwtException e) {
-      logger.error("JWT Token is expired");
+      logger.debug("JWT token expired");
+      clearStaleAccessTokenCookie(httpServletRequest, httpServletResponse);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
     filterChain.doFilter(httpServletRequest, httpServletResponse);
+  }
+
+  private void clearStaleAccessTokenCookie(
+      HttpServletRequest request, HttpServletResponse response) {
+    cookieService.clearAccessTokenCookie(request, response);
   }
 
   private String getTokenFromRequest(HttpServletRequest request) {

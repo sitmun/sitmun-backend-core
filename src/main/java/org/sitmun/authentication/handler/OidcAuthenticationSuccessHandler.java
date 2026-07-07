@@ -14,7 +14,6 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,9 +33,6 @@ import org.springframework.util.StringUtils;
 @Component
 @RequiredArgsConstructor
 public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-  @Value("${sitmun.user.token-validity-in-milliseconds:36000000}")
-  private int validity;
 
   private final UserRepository userRepository;
   private final OidcRedirectService redirectService;
@@ -69,7 +65,7 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
           jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
       final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, jwtToken);
-      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), validity);
+      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
 
       response.addCookie(cookie);
     } catch (Exception e) {

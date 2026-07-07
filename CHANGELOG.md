@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
 - **Dashboard API**: `GET /api/config/client/dashboard/applications` accepts optional `keywords` and returns keyword-filtered pages with full `DashboardApplicationDto` enrichment (`territoryCount`, `singleTerritoryId`, `hasTerritories`).
 - **Dashboard API**: `/dashboard/suggestions` keyword search queries authorized applications/territories in the database instead of filtering only the first page in memory.
 

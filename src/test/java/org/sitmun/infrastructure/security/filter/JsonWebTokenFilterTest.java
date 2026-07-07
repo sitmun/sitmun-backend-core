@@ -152,12 +152,62 @@ class JsonWebTokenFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(filterChain).doFilter(request, response);
+    verify(cookieService).clearAccessTokenCookie(request, response);
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
-  @DisplayName("continues filter chain without authentication when JWT is expired")
-  void continuesFilterChainWhenJwtExpired() throws Exception {
+  @DisplayName("clears stale cookie and continues filter chain when token validation fails")
+  void clearsStaleCookieWhenTokenValidationFails() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(false);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    verify(cookieService).clearAccessTokenCookie(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("clears stale cookie and continues filter chain when JWT is malformed")
+  void clearsStaleCookieWhenJwtMalformed() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT))
+        .thenThrow(new IllegalArgumentException("invalid token"));
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    verify(cookieService).clearAccessTokenCookie(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("does not clear cookie when user details cannot be loaded")
+  void doesNotClearCookieOnTransientUserDetailsFailure() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME))
+        .thenThrow(new RuntimeException("database unavailable"));
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    verify(cookieService, never()).clearAccessTokenCookie(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+  }
+
+  @Test
+  @DisplayName("clears stale cookie and continues filter chain when JWT is expired")
+  void clearsStaleCookieWhenJwtExpired() throws Exception {
     request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT))
         .thenThrow(new ExpiredJwtException(null, null, "expired"));
@@ -165,6 +215,7 @@ class JsonWebTokenFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(filterChain).doFilter(request, response);
+    verify(cookieService).clearAccessTokenCookie(request, response);
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
