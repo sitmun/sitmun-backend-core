@@ -10,15 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - **Client profile**: `backgrounds[].order` exposes application-background display order from `ApplicationBackground.order` (`ABC_ORDER`).
 - **Task projections**: `TaskProjection.typeTitle` and `TaskAvailabilityProjection.taskTypeTitle` expose the localized task-type label alongside internal `typeName`.
-- **i18n**: `TaskType` uses `I18nListener`; `TranslationCacheFilter` sets `LocaleContextHolder` during translation preload so `@I18n` fields resolve for the request language.
-- **Tests**: integration coverage for dashboard keyword search beyond the first unfiltered page.
-- **Tests**: projection integration tests assert `typeTitle` and `taskTypeTitle` in JSON responses.
+- **i18n**: `TaskType` uses `I18nListener`; request-scoped translation preload resolves `@I18n` fields for the request language.
+- **Tests**: integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON responses.
 
 ### Fixed
 
+- **i18n**: reset `LocaleContextHolder` after each `TranslationCacheFilter` request so locale does not leak across servlet thread reuse.
 - **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
-- **Dashboard API**: `GET /api/config/client/dashboard/applications` accepts optional `keywords` and returns keyword-filtered pages with full `DashboardApplicationDto` enrichment (`territoryCount`, `singleTerritoryId`, `hasTerritories`).
-- **Dashboard API**: `/dashboard/suggestions` keyword search queries authorized applications/territories in the database instead of filtering only the first page in memory.
+- **Dashboard API**: keyword-aware `/dashboard/applications` (with full `DashboardApplicationDto` enrichment) and `/dashboard/suggestions` query the database instead of filtering only the first in-memory page.
 
 ## [1.2.7] - 2026-06-05
 
