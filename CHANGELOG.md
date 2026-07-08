@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
 - **Dashboard API**: keyword-aware `/dashboard/applications` (with full `DashboardApplicationDto` enrichment) and `/dashboard/suggestions` query the database instead of filtering only the first in-memory page.
 - **Client config**: `POST /api/config/client/territory/position` requires `ROLE_USER`; `ClientUserPositionService` enforces row ownership and returns **400**/**403**/**404** for invalid, foreign, or missing position ids.
+- **LDAP**: bind username now reads `sitmun.authentication.ldap.username`; the previously misspelled `sitmum.*` key was never resolved.
+- **Tests**: `DefaultLanguageChangeServiceIntegrationTest` runs in a transaction so its default-language migration rolls back and no longer pollutes `LocaleRepositoryDataRestTest` and `ProjectionsTest`.
+- **Security**: require `SITMUN_USER_SECRET` and `SITMUN_PROXY_MIDDLEWARE_SECRET` from the environment; removed the committed default secrets. `SecuritySecretValidator` fails startup when either secret is blank or shorter than 32 characters. The Gradle test tasks supply deterministic non-placeholder values.
 
 ## [1.2.7] - 2026-06-05
 
