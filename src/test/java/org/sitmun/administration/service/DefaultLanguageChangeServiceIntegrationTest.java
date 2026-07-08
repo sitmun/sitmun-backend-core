@@ -17,9 +17,9 @@ import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.test.BaseTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
 
   @Autowired private DefaultLanguageChangeService service;
