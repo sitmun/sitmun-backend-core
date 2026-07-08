@@ -182,6 +182,8 @@ tasks.withType(Test).configureEach {
   // Set system properties for test JVM
   systemProperty 'spring.profiles.active', 'test,h2'
   systemProperty 'java.awt.headless', 'true'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   
   // Test logging
   testLogging {
@@ -194,6 +196,9 @@ tasks.withType(Test).configureEach {
 tasks.register('testH2', Test) {
   group = 'verification'
   description = 'Run tests with H2 in-memory database'
+  systemProperty 'spring.profiles.active', 'test,h2'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   
   testLogging {
     events "passed", "skipped", "failed"
@@ -206,6 +211,8 @@ tasks.register('testPostgres', Test) {
   group = 'verification'
   description = 'Run tests with PostgreSQL database using Docker Compose'
   systemProperty 'spring.profiles.active', 'postgres'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
@@ -216,6 +223,8 @@ tasks.register('testOracle', Test) {
   group = 'verification'
   description = 'Run tests with OracleSQL database using Docker Compose'
   systemProperty 'spring.profiles.active', 'oracle'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
