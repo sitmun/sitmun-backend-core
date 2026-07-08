@@ -184,7 +184,10 @@ class ClientConfigurationProfileControllerTest {
             jsonPath("$.services[?(@.id=='service/1')].parameters.format", hasItem("image/jpeg")))
         .andExpect(
             jsonPath("$.services[?(@.id=='service/1')].parameters.matrixSet", hasItem("UTM25831")))
-        .andExpect(jsonPath("$.services[?(@.id=='service/1')].crs").exists());
+        .andExpect(jsonPath("$.services[?(@.id=='service/1')].crs").exists())
+        .andExpect(
+            jsonPath(
+                "$.services[?(@.id=='service/1')].title", hasItem("ICC Mapesmultibase")));
   }
 
   @Test

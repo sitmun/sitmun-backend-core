@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - **Client profile**: `backgrounds[].order` exposes application-background display order from `ApplicationBackground.order` (`ABC_ORDER`).
+- **Client profile**: each service may include `title` (from `Service.name`) and `description` (from `Service.description`, locale-resolved on profile fetch).
 - **Task projections**: `TaskProjection.typeTitle` and `TaskAvailabilityProjection.taskTypeTitle` expose the localized task-type label alongside internal `typeName`.
 - **i18n**: `TaskType` uses `I18nListener`; request-scoped translation preload resolves `@I18n` fields for the request language.
 - **Tests**: integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON responses.

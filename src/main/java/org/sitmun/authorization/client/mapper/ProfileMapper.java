@@ -120,6 +120,8 @@ public abstract class ProfileMapper {
   ServiceDto map(Service service) {
     return ServiceDto.builder()
         .id(PROFILE_SERVICE_ID_PREFIX + service.getId())
+        .title(service.getName())
+        .description(service.getDescription())
         .url(service.getServiceURL())
         .type(service.getType())
         .isProxied(service.getIsProxied())

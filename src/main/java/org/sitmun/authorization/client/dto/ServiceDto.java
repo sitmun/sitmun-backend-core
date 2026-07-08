@@ -11,6 +11,8 @@ import lombok.Setter;
 @Builder
 public class ServiceDto {
   private String id;
+  private String title;
+  private String description;
   private String url;
   private String type;
   private Boolean isProxied;
