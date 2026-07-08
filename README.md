@@ -472,15 +472,16 @@ curl -X POST http://localhost:8080/api/logout
 | `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                             | Yes (prod) |
 | `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                                     | Yes (prod) |
 | `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                                       | Yes (prod) |
-| `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                           | No |
+| `SITMUN_USER_SECRET`                     | JWT signing secret (min 32 chars; startup-validated) | -                            | Yes |
 | `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | JWT token validity in milliseconds | `36000000`                               | No |
 | `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `true`                                   | No |
 | `SITMUN_AUTHENTICATION_SAME_SITE_COOKIE` | SameSite attribute for JWT cookie | `Strict`                                 | No |
-| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                           | No |
+| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware shared secret (min 32 chars; startup-validated) | -                | Yes |
 | `SITMUN_PROXY_MIDDLEWARE_TOKEN_VALIDITY_IN_MILLISECONDS` | Proxy token validity in milliseconds | `900000` (15 min)                        | No |
-| `SITMUN_FRONTEND_REDIRECTURL`            | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
-| `SITMUN_FRONTEND_REDIRECTURLVIEWER`      | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
-| `SITMUN_FRONTEND_REDIRECTURLADMIN`       | Frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
+| `SITMUN_AUTH_OIDC_ENABLED`               | Enable OIDC authentication | `false`                                  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` | Default frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` | Viewer frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADMIN` | Admin frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
 | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | -                                        | If OIDC enabled |
 
 **Note:** OIDC providers are configured dynamically under `sitmun.authentication.oidc.providers.{providerId}`. See [OIDC Configuration](#oidcoauth2-configuration) for details.
@@ -514,13 +515,13 @@ sitmun:
   module: SITMUN Core
   version: 3.0-SNAPSHOT
   user:
-    secret: ${SITMUN_USER_SECRET:auto-generated}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
   authentication:
     http-only-cookie: true
     same-site-cookie: Strict
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     token-validity-in-milliseconds: 900000
     config-response-validity-in-seconds: 3600
 ```
@@ -741,7 +742,7 @@ The application provides comprehensive security features:
 ```yaml
 sitmun:
   user:
-    secret: ${SITMUN_USER_SECRET:auto-generated}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000  # JWT token lifetime in milliseconds (10 hours)
   authentication:
     http-only-cookie: true  # Whether to set HttpOnly flag on JWT cookie
@@ -755,7 +756,7 @@ JWT tokens are stored in an HTTP-only cookie (`access_token`) that is automatica
 ```yaml
 sitmun:
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     token-validity-in-milliseconds: 900000  # Proxy token lifetime (15 minutes default)
 ```
 
@@ -767,11 +768,15 @@ The proxy token is a short-lived JWT token generated via the `/api/authenticate/
 spring:
   profiles:
     active: ldap
-  ldap:
-    urls: ldap://ldap.example.com:389
-    base: dc=example,dc=com
-    username: cn=admin,dc=example,dc=com
-    password: admin_password
+
+sitmun:
+  authentication:
+    ldap:
+      url: ldap://ldap.example.com:389
+      base-dn: dc=example,dc=com
+      user-dn-pattern: uid={0}
+      username: cn=admin,dc=example,dc=com
+      password: admin_password
 ```
 
 #### OIDC/OAuth2 Configuration
@@ -817,8 +822,9 @@ sitmun:
 
 | Property | Environment Variable | Description |
 |----------|---------------------|-------------|
+| `sitmun.authentication.oidc.enabled` | `SITMUN_AUTH_OIDC_ENABLED` | Enables OIDC authentication |
 | `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` | Default frontend callback URL |
-| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADIN` | Admin frontend callback URL |
+| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADMIN` | Admin frontend callback URL |
 | `sitmun.authentication.oidc.frontend-redirect-url-viewer` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` | Viewer frontend callback URL |
 | `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` | HttpOnly flag for the `oidc_token` cookie. Default `false`. |
 | `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` | Provider identifier |
@@ -890,17 +896,19 @@ Before integrating the Backend Core with SITMUN, ensure you have:
 
 #### 1. Security Configuration
 
-Configure JWT and proxy middleware secrets:
+Configure JWT and proxy middleware secrets. Both are required with no fallback default, so the values come entirely from the environment:
 
 ```yaml
 sitmun:
   user:
-    secret: ${SITMUN_USER_SECRET:your-secret-key}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:your-proxy-secret}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     config-response-validity-in-seconds: 3600
 ```
+
+Startup is fail-fast: `SecuritySecretValidator` rejects a blank or shorter-than-32-character `sitmun.user.secret` or `sitmun.proxy-middleware.secret` with an `IllegalStateException`, and a missing environment variable fails placeholder resolution before the context starts. `SITMUN_PROXY_MIDDLEWARE_SECRET` must match the proxy's `SITMUN_BACKEND_CONFIG_SECRET`.
 
 #### 2. SITMUN Map Viewer Integration
 
