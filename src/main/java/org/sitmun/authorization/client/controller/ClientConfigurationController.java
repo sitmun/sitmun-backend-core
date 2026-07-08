@@ -21,12 +21,12 @@ import org.sitmun.authorization.client.mapper.ApplicationMapper;
 import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.mapper.TerritoryMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
+import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.authorization.client.service.ProfileContext;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
 import org.sitmun.domain.user.position.UserPositionDTO;
-import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.util.UriTemplateExpander;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
@@ -45,7 +45,7 @@ public class ClientConfigurationController {
 
   private final AuthorizationService authorizationService;
   private final ProfileMapper profileMapper;
-  private final UserPositionRepository userPositionRepository;
+  private final ClientUserPositionService clientUserPositionService;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
@@ -68,10 +68,10 @@ public class ClientConfigurationController {
   public ClientConfigurationController(
       AuthorizationService authorizationService,
       ProfileMapper profileMapper,
-      UserPositionRepository userPositionRepository) {
+      ClientUserPositionService clientUserPositionService) {
     this.authorizationService = authorizationService;
     this.profileMapper = profileMapper;
-    this.userPositionRepository = userPositionRepository;
+    this.clientUserPositionService = clientUserPositionService;
   }
 
   /**
@@ -106,9 +106,8 @@ public class ClientConfigurationController {
   public ResponseEntity<UserPositionDTO> editTerritoryPositions(
       @CurrentSecurityContext SecurityContext context, @RequestBody UserPositionDTO positionDTOs) {
     String username = context.getAuthentication().getName();
-    authorizationService.ensureMayUseClientConfigEndpoints(username);
-    userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);
-    return ResponseEntity.ok(positionDTOs);
+    UserPositionDTO updated = clientUserPositionService.updateOwnedPosition(username, positionDTOs);
+    return ResponseEntity.ok(updated);
   }
 
   /**

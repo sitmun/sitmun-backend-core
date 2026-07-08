@@ -14,8 +14,8 @@ import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
+import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.domain.application.Application;
-import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ class MbtilesConfigurationTest {
 
   @MockitoBean private AuthorizationService authorizationService;
 
-  @MockitoBean private UserPositionRepository userPositionRepository;
+  @MockitoBean private ClientUserPositionService clientUserPositionService;
 
   @MockitoBean private ProfileMapper profileMapper;
 

@@ -256,6 +256,7 @@ public class WebSecurityConfigurer {
    *   <li>/api/account: (GET, POST) User account management
    *   <li>/api/account/** (GET): User account information retrieval
    *   <li>/api/user-verification/** (POST): User verification processes
+   *   <li>/api/config/client/territory/position (POST): Territory position updates
    * </ul>
    *
    * @param authz The authorization configuration
@@ -278,13 +279,14 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
+        .hasRole(USER.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
         .hasRole(USER.name());
   }
 
   /**
    * Configures authorization for endpoints accessible by both USER and PUBLIC roles. These
-   * endpoints include: - /api/config/client/** (GET): Client configuration retrieval -
-   * /api/config/client/** (PUT): Client configuration updates
+   * endpoints include client configuration retrieval for anonymous and authenticated viewers.
    *
    * @param authz The authorization configuration
    * @return The updated authorization configuration
@@ -298,8 +300,6 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/languages"))
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
-        .hasAnyRole(USER.name(), PUBLIC.name())
-        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
         .hasAnyRole(USER.name(), PUBLIC.name());
   }
 
