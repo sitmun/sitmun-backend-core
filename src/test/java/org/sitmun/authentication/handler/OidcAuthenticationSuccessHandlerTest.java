@@ -52,7 +52,7 @@ class OidcAuthenticationSuccessHandlerTest {
   void setUp() {
     cookieService = new CookieService();
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", false);
-    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 36000000);
+    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 3_600_000);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
@@ -61,7 +61,6 @@ class OidcAuthenticationSuccessHandlerTest {
             userDetailsService,
             jsonWebTokenService,
             cookieService);
-    ReflectionTestUtils.setField(handler, "validity", 3600);
   }
 
   private static OAuth2AuthenticationToken oauth2TokenWithOidcUser(
