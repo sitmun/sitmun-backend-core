@@ -46,8 +46,6 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     boolean preload = shouldPreload(request);
-    Locale previousLocale = LocaleContextHolder.getLocale();
-    boolean localeApplied = false;
     log.debug(
         "TranslationCacheFilter.before uri={} queryString={} shouldPreload={}",
         request.getRequestURI(),
@@ -60,7 +58,6 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
       log.debug("TranslationCacheFilter.preload locale={}", locale);
       if (locale != null && !locale.isBlank()) {
         LocaleContextHolder.setLocale(Locale.forLanguageTag(locale));
-        localeApplied = true;
       }
       var rows = translationRepository.findAllByLocaleRows(locale);
       if (rows.isEmpty() && locale != null && locale.contains("-")) {
@@ -80,9 +77,7 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
         log.debug("TranslationCacheFilter.after uri={} clearing cache", request.getRequestURI());
         TranslationCache.removeRequestAttribute(request);
       }
-      if (localeApplied) {
-        LocaleContextHolder.setLocale(previousLocale);
-      }
+      LocaleContextHolder.resetLocaleContext();
     }
   }
 
