@@ -83,6 +83,8 @@ dependencies {
 
   // Apache Commons utilities
   implementation libs.commons.lang3
+  implementation libs.commons.io
+  implementation libs.opencsv
   
   // Google Guava utilities
   implementation libs.guava

@@ -5,11 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.sitmun.SitmunConstants;
-import org.sitmun.domain.configuration.ConfigurationParameter;
-import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,18 +31,15 @@ public class RequestLocaleResolutionService {
   private final LocaleResolver localeResolver;
   private final LocaleChangeInterceptor localeChangeInterceptor;
   private final LanguageRepository languageRepository;
-  private final ConfigurationParameterRepository configurationParameterRepository;
 
   /** Writable under test JVM (e.g. module build dir); fallback for workspace .cursor path. */
   public RequestLocaleResolutionService(
       LocaleResolver localeResolver,
       LocaleChangeInterceptor localeChangeInterceptor,
-      LanguageRepository languageRepository,
-      ConfigurationParameterRepository configurationParameterRepository) {
+      LanguageRepository languageRepository) {
     this.localeResolver = localeResolver;
     this.localeChangeInterceptor = localeChangeInterceptor;
     this.languageRepository = languageRepository;
-    this.configurationParameterRepository = configurationParameterRepository;
   }
 
   /**
@@ -141,11 +134,12 @@ public class RequestLocaleResolutionService {
       }
     }
 
-    // 5) Database default.language parameter
+    // 5) Database default language flag
     String dbDefaultLanguage = getDefaultLanguageFromDatabase();
     if (dbDefaultLanguage != null) {
       log.debug(
-          "RequestLocaleResolutionService source=database-parameter matched={}", dbDefaultLanguage);
+          "RequestLocaleResolutionService source=database-default-language matched={}",
+          dbDefaultLanguage);
       return dbDefaultLanguage;
     }
 
@@ -202,31 +196,27 @@ public class RequestLocaleResolutionService {
   }
 
   /**
-   * Gets default language from ConfigurationParameter table. Looks for parameter with name {@value
-   * SitmunConstants#LANGUAGE_DEFAULT_CONF_KEY}.
-   *
    * @return the default language shortname or null if not found
    */
   private String getDefaultLanguageFromDatabase() {
     try {
-      Optional<ConfigurationParameter> param =
-          configurationParameterRepository.findAll().stream()
-              .filter(p -> SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY.equals(p.getName()))
-              .findFirst();
-
-      if (param.isPresent() && param.get().getValue() != null) {
-        String value = param.get().getValue();
+      String value =
+          languageRepository
+              .findFirstByDefaultLanguageTrue()
+              .map(Language::getShortname)
+              .orElse(null);
+      if (value != null) {
         String matched = matchSupportedLanguage(value);
         if (matched != null) {
           log.debug(
-              "RequestLocaleResolutionService.defaultFromDb found param value={} matched={}",
+              "RequestLocaleResolutionService.defaultFromDb found language value={} matched={}",
               value,
               matched);
           return matched;
         }
       }
     } catch (Exception e) {
-      log.debug("RequestLocaleResolutionService.defaultFromDb error reading parameter", e);
+      log.debug("RequestLocaleResolutionService.defaultFromDb error reading default language", e);
     }
     return null;
   }

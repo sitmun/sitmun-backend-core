@@ -31,9 +31,11 @@ public class LiteralTranslationController {
   public ResponseEntity<PagedModel<LiteralTranslationListItemDto>> list(
       @RequestParam("lang") String language,
       Pageable pageable,
-      @RequestParam(value = "filter", required = false) String filter) {
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "searchText", required = false) String searchText) {
     return ResponseEntity.ok(
-        new PagedModel<>(literalTranslationCrudService.list(language, filter, pageable)));
+        new PagedModel<>(
+            literalTranslationCrudService.list(language, filter, searchText, pageable)));
   }
 
   @GetMapping("/{lang}/completion")
