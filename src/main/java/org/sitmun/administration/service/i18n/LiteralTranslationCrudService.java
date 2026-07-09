@@ -37,10 +37,10 @@ public class LiteralTranslationCrudService {
 
   @Transactional(readOnly = true)
   public Page<LiteralTranslationListItemDto> list(
-      String language, String filter, Pageable pageable) {
+      String language, String filter, String searchText, Pageable pageable) {
     String safeLanguage = requireLanguage(language);
     return literalTranslationRepository.findPageByLanguage(
-        safeLanguage, parseFilter(filter), pageable);
+        safeLanguage, parseFilter(filter), searchText, pageable);
   }
 
   public Double getLanguageCompletionPct(final String shortName) {

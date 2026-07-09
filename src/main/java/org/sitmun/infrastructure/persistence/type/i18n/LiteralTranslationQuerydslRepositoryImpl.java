@@ -31,9 +31,10 @@ public class LiteralTranslationQuerydslRepositoryImpl
 
   @Override
   public Page<LiteralTranslationListItemDto> findPageByLanguage(
-      String language, LiteralTranslationFilterModel filter, Pageable pageable) {
+      String language, LiteralTranslationFilterModel filter, String searchText, Pageable pageable) {
     QueryContext context = new QueryContext(language);
     BooleanBuilder where = buildWhereClause(filter, context);
+    appendSearchText(where, searchText, context);
 
     List<LiteralTranslationListItemDto> content =
         baseContentQuery(context)
@@ -104,6 +105,19 @@ public class LiteralTranslationQuerydslRepositoryImpl
     }
 
     where.and(group);
+  }
+
+  private void appendSearchText(BooleanBuilder where, String searchText, QueryContext context) {
+    if (searchText == null || searchText.isBlank()) {
+      return;
+    }
+    String trimmed = searchText.trim();
+    where.and(
+        context
+            .literalTranslation
+            .literal
+            .containsIgnoreCase(trimmed)
+            .or(context.translatedValue.containsIgnoreCase(trimmed)));
   }
 
   private Optional<BooleanExpression> stringPredicate(

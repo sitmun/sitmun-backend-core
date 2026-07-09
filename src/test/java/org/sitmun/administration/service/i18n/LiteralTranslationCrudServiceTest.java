@@ -100,7 +100,7 @@ class LiteralTranslationCrudServiceTest {
 
   @Test
   void listParsesSimpleBlankFilter() {
-    when(literalRepository.findPageByLanguage(anyString(), any(), any()))
+    when(literalRepository.findPageByLanguage(anyString(), any(), any(), any()))
         .thenReturn(new PageImpl<>(java.util.List.of()));
 
     service.list(
@@ -108,11 +108,12 @@ class LiteralTranslationCrudServiceTest {
         """
         {"translation":{"filterType":"text","type":"blank"}}
         """,
+        null,
         PageRequest.of(0, 20));
 
     ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
         ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
-    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any(), any());
 
     LiteralTranslationFilterModel.ColumnFilter columnFilter =
         filterCaptor.getValue().columnFilter("translation");
@@ -124,18 +125,20 @@ class LiteralTranslationCrudServiceTest {
 
   @Test
   void listParsesAgGridOrConditions() {
-    when(literalRepository.findPageByLanguage(anyString(), any(), any())).thenReturn(Page.empty());
+    when(literalRepository.findPageByLanguage(anyString(), any(), any(), any()))
+        .thenReturn(Page.empty());
 
     service.list(
         "bg",
         """
         {"translation":{"filterType":"text","operator":"OR","condition1":{"filterType":"text","type":"blank"},"condition2":{"filterType":"text","type":"contains","filter":"sdg"},"conditions":[{"filterType":"text","type":"blank"},{"filterType":"text","type":"contains","filter":"sdg"}]}}
         """,
+        null,
         PageRequest.of(0, 100));
 
     ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
         ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
-    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any(), any());
 
     LiteralTranslationFilterModel.ColumnFilter columnFilter =
         filterCaptor.getValue().columnFilter("translation");
@@ -149,18 +152,20 @@ class LiteralTranslationCrudServiceTest {
 
   @Test
   void listParsesAgGridConditionPairsWithoutConditionsArray() {
-    when(literalRepository.findPageByLanguage(anyString(), any(), any())).thenReturn(Page.empty());
+    when(literalRepository.findPageByLanguage(anyString(), any(), any(), any()))
+        .thenReturn(Page.empty());
 
     service.list(
         "bg",
         """
         {"translation":{"filterType":"text","operator":"OR","condition1":{"filterType":"text","type":"blank"},"condition2":{"filterType":"text","type":"contains","filter":"sdg"}}}
         """,
+        null,
         PageRequest.of(0, 100));
 
     ArgumentCaptor<LiteralTranslationFilterModel> filterCaptor =
         ArgumentCaptor.forClass(LiteralTranslationFilterModel.class);
-    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any());
+    verify(literalRepository).findPageByLanguage(eq("bg"), filterCaptor.capture(), any(), any());
 
     LiteralTranslationFilterModel.ColumnFilter columnFilter =
         filterCaptor.getValue().columnFilter("translation");
@@ -173,7 +178,7 @@ class LiteralTranslationCrudServiceTest {
 
   @Test
   void listRejectsInvalidFilterJson() {
-    assertThatThrownBy(() -> service.list("bg", "{not-json}", PageRequest.of(0, 20)))
+    assertThatThrownBy(() -> service.list("bg", "{not-json}", null, PageRequest.of(0, 20)))
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Invalid filter payload");
   }
