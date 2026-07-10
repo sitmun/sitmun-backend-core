@@ -281,7 +281,7 @@ spring.profiles.active=prod
 | `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
 | `/api/account/public/{id}` | GET | Get public user info | Public | UserController |
 | `/api/account/all` | GET | Get all users | Authenticated | UserController |
-| `/api/config/client/application` | GET | Client application configuration | Authenticated | ClientConfigurationController |
+| `/api/config/client/application` | GET | Client application configuration | Public or authenticated | ClientConfigurationController |
 | `/api/config/proxy` | POST | Proxy configuration | Authenticated | ProxyConfigurationController |
 | `/api/dashboard/health` | GET | Health check | Public | Actuator |
 | `/api/user-verification/verify-password` | POST | Verify user password | Public | VerificationController |
@@ -294,7 +294,7 @@ spring.profiles.active=prod
 | `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
 | `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
 | `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
-| `/api/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
+| `/api/authenticate/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
 
 ### Usage Examples
 
@@ -329,8 +329,7 @@ Generate a short-lived proxy token for the SITMUN Proxy Middleware:
 # Requires user authentication (the access_token cookie is automatically included)
 curl -X POST http://localhost:8080/api/authenticate/proxy
 
-# The response sets a short-lived JWT token in the 'proxy_token' cookie
-# This token is used by proxy middleware
+# The response body contains a short-lived JWT used by proxy middleware
 ```
 
 **Note:** The proxy token has a shorter expiration time (configured by `sitmun.proxy-middleware.token-validity-in-milliseconds`) than access token.
@@ -406,9 +405,21 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 
 ```bash
 # Logout - clears the authentication cookie and invalidates the session
-curl -X POST http://localhost:8080/api/logout
+curl -X POST http://localhost:8080/api/authenticate/logout
 
 ```
+
+#### Authentication and authorization status
+
+| Condition | Status | Problem type |
+| --- | --- | --- |
+| Missing, invalid, expired, revoked, or blocked authentication | `401` | `unauthorized` |
+| Identified principal lacks access to a resource | `403` | `forbidden` |
+| Malformed request | `400` | `bad-request` |
+| Authentication identity store unavailable | `503` | `service-unavailable` |
+| Unexpected authentication processing failure | `500` | `internal-server-error` |
+
+Security responses use `application/problem+json` with generic details. Invalid credentials clear the cookie. Authentication infrastructure and processing failures stop the request without clearing the cookie or falling through to the public principal. Client-configuration endpoints accept the `access_token` cookie when present and otherwise use the public principal.
 
 ### Request Parameters
 
@@ -760,7 +771,9 @@ sitmun:
     token-validity-in-milliseconds: 900000  # Proxy token lifetime (15 minutes default)
 ```
 
-The proxy token is a short-lived JWT token generated via the `/api/authenticate/proxy` endpoint for secure communication between the Backend Core and Proxy Middleware. It is stored in the `proxy_token` cookie and automatically included in requests to the Proxy Middleware. The token has a much shorter lifetime than the regular access token for additional security.
+The proxy token is a short-lived JWT returned by `/api/authenticate/proxy` for communication with Proxy Middleware. The viewer stores it in IndexedDB for its service worker, which adds it as a Bearer token only to configured middleware requests. It has a much shorter lifetime than the regular access token.
+
+The main `access_token` cookie defaults to `HttpOnly` and `SameSite=Strict`; its `Secure` attribute follows the request scheme. CSRF is currently disabled, so deployments must preserve the external HTTPS scheme and should not treat `SameSite` as a replacement for CSRF protection.
 
 #### LDAP Configuration
 
@@ -1029,11 +1042,12 @@ The Backend Core supports different service types that can be configured:
 2. **Authentication Failures**
 
    ```bash
-   # Check JWT token format
-   curl -H "Authorization: Bearer your-token" http://localhost:8080/api/account
+   # Check the authenticated account using a saved login cookie
+   curl -b cookies.txt http://localhost:8080/api/account
    
    # Verify user credentials
    curl -X POST http://localhost:8080/api/authenticate \
+     -c cookies.txt \
      -H "Content-Type: application/json" \
      -d '{"username":"admin","password":"admin"}'
    ```

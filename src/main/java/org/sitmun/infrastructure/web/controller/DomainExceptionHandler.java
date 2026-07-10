@@ -35,7 +35,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.validation.FieldError;
@@ -992,8 +991,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
 
   /**
    * Handles {@link org.springframework.security.access.AccessDeniedException} - Spring Security
-   * access denied. Returns 401 if a user is not authenticated (anonymous), 403 if authenticated but
-   * not authorized.
+   * access denied. Blocked principals receive 401; resource authorization denials receive 403.
    */
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
   public ResponseEntity<ProblemDetail> handleAccessDeniedException(
@@ -1005,18 +1003,18 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     Authentication authentication =
         org.springframework.security.core.context.SecurityContextHolder.getContext()
             .getAuthentication();
-    boolean isAnonymous = isAnonymousAuthentication(authentication);
+    boolean blocked = isBlocked(authentication);
 
-    clearAccessTokenIfBlockedAuthenticatedUser(authentication, request, response);
+    clearAccessTokenIfBlockedUser(blocked, request, response);
 
-    AccessDeniedMetadata metadata = AccessDeniedMetadata.forAnonymousPrincipal(isAnonymous);
+    AccessDeniedMetadata metadata = AccessDeniedMetadata.forBlockedPrincipal(blocked);
 
     ProblemDetail problem =
         ProblemDetail.builder()
             .type(metadata.problemType())
             .status(metadata.status().value())
             .title(metadata.title())
-            .detail(exception.getMessage())
+            .detail(metadata.detail())
             .instance(request.getRequestURI())
             .build();
 
@@ -1123,28 +1121,29 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     return "This operation violates database constraints";
   }
 
-  private static boolean isAnonymousAuthentication(Authentication authentication) {
-    return authentication == null
-        || !authentication.isAuthenticated()
-        || authentication instanceof AnonymousAuthenticationToken;
+  private boolean isBlocked(Authentication authentication) {
+    return authentication != null
+        && userApplicationAccessPolicy.isBlockedAccount(authentication.getName());
   }
 
-  private void clearAccessTokenIfBlockedAuthenticatedUser(
-      Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
-    if (isAnonymousAuthentication(authentication)) {
-      return;
-    }
-    if (userApplicationAccessPolicy.isBlockedAccount(authentication.getName())) {
+  private void clearAccessTokenIfBlockedUser(
+      boolean blocked, HttpServletRequest request, HttpServletResponse response) {
+    if (blocked) {
       cookieService.clearAccessTokenCookie(request, response);
     }
   }
 
-  private record AccessDeniedMetadata(HttpStatus status, String problemType, String title) {
-    private static AccessDeniedMetadata forAnonymousPrincipal(boolean anonymous) {
-      return anonymous
+  private record AccessDeniedMetadata(
+      HttpStatus status, String problemType, String title, String detail) {
+    private static AccessDeniedMetadata forBlockedPrincipal(boolean blocked) {
+      return blocked
           ? new AccessDeniedMetadata(
-              HttpStatus.UNAUTHORIZED, ProblemTypes.UNAUTHORIZED, "Unauthorized")
-          : new AccessDeniedMetadata(HttpStatus.FORBIDDEN, ProblemTypes.FORBIDDEN, "Access Denied");
+              HttpStatus.UNAUTHORIZED,
+              ProblemTypes.UNAUTHORIZED,
+              "Unauthorized",
+              "Authentication is required")
+          : new AccessDeniedMetadata(
+              HttpStatus.FORBIDDEN, ProblemTypes.FORBIDDEN, "Forbidden", "Access is denied");
     }
   }
 

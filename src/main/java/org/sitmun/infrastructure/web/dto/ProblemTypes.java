@@ -193,6 +193,9 @@ public final class ProblemTypes {
   /** Asynchronous request timed out. HTTP 503 Service Unavailable. */
   public static final String ASYNC_REQUEST_TIMEOUT = BASE_URI + "async-request-timeout";
 
+  /** A required application service is temporarily unavailable. HTTP 503 Service Unavailable. */
+  public static final String SERVICE_UNAVAILABLE = BASE_URI + "service-unavailable";
+
   // ============================================================================
   // GENERIC/FALLBACK
   // ============================================================================

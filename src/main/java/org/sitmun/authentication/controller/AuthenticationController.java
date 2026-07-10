@@ -13,9 +13,11 @@ import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,17 +52,21 @@ public class AuthenticationController {
 
   private final CookieService cookieService;
 
+  private final Rfc9457ResponseWriter responseWriter;
+
   public AuthenticationController(
       AuthenticationManager authenticationManager,
       UserDetailsService userDetailsService,
       JsonWebTokenService jsonWebTokenService,
       UserRepository userRepository,
-      CookieService cookieService) {
+      CookieService cookieService,
+      Rfc9457ResponseWriter responseWriter) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
     this.userRepository = userRepository;
     this.cookieService = cookieService;
+    this.responseWriter = responseWriter;
   }
 
   /**
@@ -71,7 +77,7 @@ public class AuthenticationController {
    */
   @PostMapping
   @SecurityRequirements
-  public ResponseEntity<AuthenticationResponse> authenticateUser(
+  public ResponseEntity<?> authenticateUser(
       @Valid @RequestBody UserPasswordAuthenticationRequest body,
       HttpServletRequest request,
       HttpServletResponse response) {
@@ -93,7 +99,9 @@ public class AuthenticationController {
       response.addCookie(cookie);
       return ResponseEntity.status(HttpStatus.OK).build();
     }
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(responseWriter.problem(request, HttpStatus.UNAUTHORIZED));
   }
 
   @PostMapping("/proxy")

@@ -9,6 +9,8 @@ import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.config.Profiles;
+import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
+import org.sitmun.infrastructure.security.core.SecurityAccessDeniedHandler;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
@@ -62,6 +64,8 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfigurer {
 
   private final SecurityEntryPoint unauthorizedHandler;
+  private final SecurityAccessDeniedHandler accessDeniedHandler;
+  private final Rfc9457ResponseWriter responseWriter;
 
   private final UserDetailsServiceImplementation userDetailsService;
 
@@ -79,12 +83,16 @@ public class WebSecurityConfigurer {
   public WebSecurityConfigurer(
       UserDetailsServiceImplementation userDetailsService,
       SecurityEntryPoint unauthorizedHandler,
+      SecurityAccessDeniedHandler accessDeniedHandler,
+      Rfc9457ResponseWriter responseWriter,
       JsonWebTokenService jsonWebTokenService,
       List<PasswordStorage> passwordStorageList,
       UserRepository userRepository,
       CookieService cookieService) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
+    this.accessDeniedHandler = accessDeniedHandler;
+    this.responseWriter = responseWriter;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
     this.userRepository = userRepository;
@@ -94,7 +102,7 @@ public class WebSecurityConfigurer {
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
     return new JsonWebTokenFilter(
-        userDetailsService, jsonWebTokenService, userRepository, cookieService);
+        userDetailsService, jsonWebTokenService, userRepository, cookieService, responseWriter);
   }
 
   @Bean
@@ -162,7 +170,10 @@ public class WebSecurityConfigurer {
         .csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .exceptionHandling(
-            exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+            exceptionHandling ->
+                exceptionHandling
+                    .authenticationEntryPoint(unauthorizedHandler)
+                    .accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
@@ -185,7 +196,10 @@ public class WebSecurityConfigurer {
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .anonymous(anonymous -> anonymous.authenticationFilter(anonymousAuthenticationFilter()))
         .exceptionHandling(
-            exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+            exceptionHandling ->
+                exceptionHandling
+                    .authenticationEntryPoint(unauthorizedHandler)
+                    .accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

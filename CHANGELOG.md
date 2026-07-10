@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **i18n**: `TaskType` uses `I18nListener`; request-scoped translation preload resolves `@I18n` fields for the request language.
 - **Tests**: integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON responses.
 
+### Security
+
+- **Authorization**: proxy configuration now reserves **401** for invalid or expired client JWTs, returns **403** for resource denial, and reports invalid proxy configuration as RFC 9457 **400**; unavailable or denied client profiles return RFC 9457 **403**.
+- **Authentication**: JWT processing now fails closed: invalid credentials return RFC 9457 **401** and clear the cookie, identity-store outages return **503**, and unexpected processing failures return **500** without falling through as the public principal; direct login and account denials also return Problem Details.
+
 ### Fixed
 
 - **i18n**: reset `LocaleContextHolder` after each `TranslationCacheFilter` request so locale does not leak across servlet thread reuse.

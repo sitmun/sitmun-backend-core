@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -84,7 +85,11 @@ class UserControllerTest {
   @Test
   @DisplayName("GET: Read user account without token should fail")
   void readAccountWithoutToken() throws Exception {
-    mvc.perform(get(URIConstants.ACCOUNT_URI)).andExpect(status().isUnauthorized());
+    mvc.perform(get(URIConstants.ACCOUNT_URI))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.type", equalTo(ProblemTypes.UNAUTHORIZED)))
+        .andExpect(jsonPath("$.instance", equalTo("/api/account")));
   }
 
   @Test
@@ -133,7 +138,13 @@ class UserControllerTest {
     User admin = userRepository.findByUsername("admin").orElseThrow();
     // validToken is for the non-admin "user"; accessing a different user account is forbidden
     mvc.perform(get("/api/account/" + admin.getId()).cookie(new Cookie(ACCESS_TOKEN, validToken)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.type", equalTo(ProblemTypes.FORBIDDEN)))
+        .andExpect(jsonPath("$.status", equalTo(403)))
+        .andExpect(jsonPath("$.title", equalTo("Forbidden")))
+        .andExpect(jsonPath("$.detail", equalTo("Access is denied")))
+        .andExpect(jsonPath("$.instance", equalTo("/api/account/" + admin.getId())));
   }
 
   @Test

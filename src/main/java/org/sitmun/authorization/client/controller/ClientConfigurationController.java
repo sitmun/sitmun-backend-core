@@ -28,10 +28,14 @@ import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.infrastructure.util.UriTemplateExpander;
+import org.sitmun.infrastructure.web.dto.ProblemDetail;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -297,14 +301,18 @@ public class ClientConfigurationController {
    */
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
   @Transactional(readOnly = true)
-  public ResponseEntity<ProfileDto> getProfile(
+  public ResponseEntity<?> getProfile(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer appId,
       @PathVariable Integer terrId,
       @RequestParam(value = "filter", defaultValue = "none") String filter) {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
-    authorizationService.ensureMayAccessApplication(appId, username);
+    try {
+      authorizationService.ensureMayAccessApplication(appId, username);
+    } catch (AccessDeniedException exception) {
+      return forbiddenProfile(appId, terrId);
+    }
 
     AtomicReference<ProfileContext.NodeSectionBehaviour> nodeSectionBehaviour =
         new AtomicReference<>(VIRTUAL_ROOT_ALL_NODES);
@@ -342,8 +350,23 @@ public class ClientConfigurationController {
         .map(decorateWithFilter(profileContext))
         .map(decorateWithProxy(profileContext))
         .map(decorateWithGlobalProxy())
-        .map(profile -> ResponseEntity.ok().body(profile))
-        .orElseGet(() -> ResponseEntity.status(UNAUTHORIZED).build());
+        .<ResponseEntity<?>>map(ResponseEntity::ok)
+        .orElseGet(() -> forbiddenProfile(appId, terrId));
+  }
+
+  private static ResponseEntity<ProblemDetail> forbiddenProfile(Integer appId, Integer terrId) {
+    String instance = "/api/config/client/profile/%d/%d".formatted(appId, terrId);
+    ProblemDetail problem =
+        ProblemDetail.builder()
+            .type(ProblemTypes.FORBIDDEN)
+            .status(FORBIDDEN.value())
+            .title(FORBIDDEN.getReasonPhrase())
+            .detail("Access is denied")
+            .instance(instance)
+            .build();
+    return ResponseEntity.status(FORBIDDEN)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
   }
 
   private static final Pattern NODE_PATTERN = Pattern.compile("node/(\\d+)");
