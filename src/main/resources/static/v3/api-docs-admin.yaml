@@ -23867,8 +23867,13 @@ components:
           type: string
         active:
           type: boolean
+          description: Load cartography leaf into working layers by default on map open.
+        visible:
+          type: boolean
+          description: Catalog visibility in the viewer layer tree.
         radio:
           type: boolean
+          description: Cartography-tree folder flag; radio folders may only contain cartography leaves with at most one active direct child.
         order:
           type: integer
           format: int32
@@ -25557,8 +25562,13 @@ components:
           type: string
         active:
           type: boolean
+          description: Load cartography leaf into working layers by default on map open.
+        visible:
+          type: boolean
+          description: Catalog visibility in the viewer layer tree.
         radio:
           type: boolean
+          description: Cartography-tree folder flag; radio folders may only contain cartography leaves with at most one active direct child.
         order:
           type: integer
           format: int32

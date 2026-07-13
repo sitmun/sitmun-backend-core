@@ -2,6 +2,7 @@ package org.sitmun.domain.tree;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Optional;
 import org.sitmun.domain.role.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,4 +44,7 @@ public interface TreeRepository extends JpaRepository<Tree, Integer> {
       where lower(tree.name) like lower(concat('%', :q, '%'))
       """)
   Page<Tree> findByContent(@Param("q") String q, Pageable pageable);
+
+  @Query(value = "SELECT TRE_TYPE FROM STM_TREE WHERE TRE_ID = ?1", nativeQuery = true)
+  Optional<String> findPersistedTypeById(Integer treeId);
 }

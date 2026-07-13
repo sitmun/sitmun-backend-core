@@ -14,18 +14,23 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 import javax.imageio.ImageIO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.persistence.type.image.ImageDataUri;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("Tree Node Repository Data REST test")
 class TreeNodeRepositoryDataRestTest {
 
@@ -35,6 +40,18 @@ class TreeNodeRepositoryDataRestTest {
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AQAAAACn+1GIAAAAIElEQVR4XmP4jwp+MIwKjAqMCowKjAqMCowKjAqQIAAAMVDFL8q1f5EAAAAASUVORK5CYII=";
 
   @Autowired private MockMvc mvc;
+
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  @BeforeEach
+  void resetSeedTreeNodeState() {
+    jdbcTemplate.update("DELETE FROM STM_TREE_NOD WHERE TNO_ID > 14");
+    jdbcTemplate.update(
+        "UPDATE STM_TREE_NOD SET TNO_ACTIVE = TRUE, TNO_DEFAULT = FALSE, TNO_RADIO = FALSE");
+    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_RADIO = TRUE WHERE TNO_ID = 7");
+    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_DEFAULT = TRUE WHERE TNO_ID = 9");
+    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_ACTIVE = FALSE WHERE TNO_ID IN (12, 13)");
+  }
 
   @Test
   @DisplayName("GET: Retrieve tree name from node")
@@ -260,6 +277,564 @@ class TreeNodeRepositoryDataRestTest {
     mvc.perform(delete(TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
         .andExpect(status().isNoContent())
         .andReturn();
+  }
+
+  @Test
+  @DisplayName("PATCH: active round-trips through projection=view on cartography leaf")
+  @WithMockUser(roles = "ADMIN")
+  void activeRoundTripsThroughProjection() throws Exception {
+    String patchContent =
+        """
+        {
+        "active": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 3).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(true));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 3))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: visible round-trips through projection=view")
+  @WithMockUser(roles = "ADMIN")
+  void visibleRoundTripsThroughProjection() throws Exception {
+    String patchContent =
+        """
+        {
+        "visible": false
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 3).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.visible").value(false));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 3))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.visible").value(false));
+  }
+
+  @Test
+  @DisplayName("POST: active is cleared on folder nodes without cartography")
+  @WithMockUser(roles = "ADMIN")
+  void activeClearedOnFolderWithoutCartography() throws Exception {
+    String content =
+        """
+        {
+        "name":"load-by-default-folder",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(false))
+            .andReturn();
+
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("POST: active is cleared when visible is false")
+  @WithMockUser(roles = "ADMIN")
+  void activeClearedWhenVisibleIsFalse() throws Exception {
+    String content =
+        """
+        {
+        "name":"hidden-load-by-default-leaf",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/7",
+        "cartography":"http://localhost/api/cartographies/8",
+        "visible": false,
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(false))
+            .andReturn();
+
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("POST: active is cleared on cartography+task malformed leaf")
+  @WithMockUser(roles = "ADMIN")
+  void activeClearedOnCartographyTaskMalformedLeaf() throws Exception {
+    String content =
+        """
+        {
+        "name":"cartography-task-malformed",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "cartography":"http://localhost/api/cartographies/8",
+        "task":"http://localhost/api/tasks/1",
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(false))
+            .andReturn();
+
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PATCH: active is cleared on cartography+task malformed leaf")
+  @WithMockUser(roles = "ADMIN")
+  void patchActiveClearedOnCartographyTaskMalformedLeaf() throws Exception {
+    String createContent =
+        """
+        {
+        "name":"cartography-task-malformed",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "cartography":"http://localhost/api/cartographies/8",
+        "task":"http://localhost/api/tasks/1"
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(createContent))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    String patchContent =
+        """
+        {
+        "active": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, id).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(false));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(false));
+
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void radioOnLeafIsRejected() throws Exception {
+    String content =
+        """
+        {
+        "name":"radio-leaf",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/7",
+        "cartography":"http://localhost/api/cartographies/8",
+        "radio": true
+        }
+        """;
+
+    mvc.perform(post(TREE_NODES_URI).content(content))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_SCOPE));
+  }
+
+  @Test
+  @DisplayName("POST: folder child under radio parent is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void folderChildUnderRadioParentIsRejected() throws Exception {
+    String content =
+        """
+        {
+        "name":"radio-folder-child",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/7"
+        }
+        """;
+
+    mvc.perform(post(TREE_NODES_URI).content(content))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+  }
+
+  @Test
+  @DisplayName("POST: task child under radio parent is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void taskChildUnderRadioParentIsRejected() throws Exception {
+    String content =
+        """
+        {
+        "name":"radio-task-child",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/7",
+        "task":"http://localhost/api/tasks/1"
+        }
+        """;
+
+    mvc.perform(post(TREE_NODES_URI).content(content))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+  }
+
+  @Test
+  @DisplayName("PATCH: enabling radio on folder with task child is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void enablingRadioOnFolderWithTaskChildIsRejected() throws Exception {
+    String createFolder =
+        """
+        {
+        "name":"radio-task-parent",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1"
+        }
+        """;
+
+    MvcResult folderResult =
+        mvc.perform(post(TREE_NODES_URI).content(createFolder))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Integer folderId =
+        JsonPath.parse(folderResult.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    String createTaskChild =
+        """
+        {
+        "name":"radio-task-child",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/%d",
+        "task":"http://localhost/api/tasks/1"
+        }
+        """
+            .formatted(folderId);
+
+    MvcResult taskResult =
+        mvc.perform(post(TREE_NODES_URI).content(createTaskChild))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Integer taskChildId =
+        JsonPath.parse(taskResult.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    String patchRadio =
+        """
+        {
+        "radio": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, folderId).content(patchRadio))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+
+    mvc.perform(delete(TREE_NODE_URI, taskChildId)).andExpect(status().isNoContent());
+    mvc.perform(delete(TREE_NODE_URI, folderId)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("POST: radio on non-cartography tree is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void radioOnNonCartographyTreeIsRejected() throws Exception {
+    String content =
+        """
+        {
+        "name":"touristic-radio-folder",
+        "tree":"http://localhost/api/trees/4",
+        "radio": true
+        }
+        """;
+
+    mvc.perform(post(TREE_NODES_URI).content(content))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_SCOPE));
+  }
+
+  @Test
+  @DisplayName("PATCH: two active siblings under non-radio parent are accepted")
+  @WithMockUser(roles = "ADMIN")
+  void twoActiveSiblingsUnderNonRadioParentAccepted() throws Exception {
+    String visiblePatch =
+        """
+        {
+        "visible": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 3).content(visiblePatch)).andExpect(status().isOk());
+    mvc.perform(patch(TREE_NODE_URI, 4).content(visiblePatch)).andExpect(status().isOk());
+
+    String patchContent =
+        """
+        {
+        "active": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 3).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(true));
+
+    mvc.perform(patch(TREE_NODE_URI, 4).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: radio folder round-trips through projection=view")
+  @WithMockUser(roles = "ADMIN")
+  void radioFolderRoundTripsThroughProjection() throws Exception {
+    String patchContent =
+        """
+        {
+        "radio": false
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 7).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(false));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 7))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(false));
+
+    String enableRadio =
+        """
+        {
+        "radio": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 7).content(enableRadio))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(true));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 7))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: visible false with active true clears active on existing leaf")
+  @WithMockUser(roles = "ADMIN")
+  void patchVisibleFalseClearsActiveOnExistingLeaf() throws Exception {
+    String patchContent =
+        """
+        {
+        "visible": false,
+        "active": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 3).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(false))
+        .andExpect(jsonPath("$.visible").value(false));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 3))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(false))
+        .andExpect(jsonPath("$.visible").value(false));
+  }
+
+  @Test
+  @DisplayName("PATCH: enabling radio on folder with direct subfolder is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void enablingRadioOnFolderWithDirectSubfolderIsRejected() throws Exception {
+    String createParentFolder =
+        """
+        {
+        "name":"radio-subfolder-parent",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1"
+        }
+        """;
+
+    MvcResult parentResult =
+        mvc.perform(post(TREE_NODES_URI).content(createParentFolder))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Integer parentId =
+        JsonPath.parse(parentResult.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    String createSubfolder =
+        """
+        {
+        "name":"radio-subfolder-child",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/%d"
+        }
+        """
+            .formatted(parentId);
+
+    MvcResult subfolderResult =
+        mvc.perform(post(TREE_NODES_URI).content(createSubfolder))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Integer subfolderId =
+        JsonPath.parse(subfolderResult.getResponse().getContentAsString())
+            .read("$.id", Integer.class);
+
+    String patchRadio =
+        """
+        {
+        "radio": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, parentId).content(patchRadio))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+
+    mvc.perform(delete(TREE_NODE_URI, subfolderId)).andExpect(status().isNoContent());
+    mvc.perform(delete(TREE_NODE_URI, parentId)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("GET: seed fixture preserves radio folder and default leaf state")
+  @WithMockUser(roles = "ADMIN")
+  void seedFixturePreservesRadioAndDefaultLeafState() throws Exception {
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 7))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(true));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 9))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: second active sibling under radio parent is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void secondActiveSiblingUnderRadioParentIsRejected() throws Exception {
+    String patchContent =
+        """
+        {
+        "active": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 8).content(patchContent))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_DEFAULT_CONFLICT));
+  }
+
+  @Test
+  @DisplayName("PUT /parent: moving folder node under radio parent via link is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void linkSaveParentFolderUnderRadioRejected() throws Exception {
+    // Node 5 is a folder (no cartography); node 7 is a radio folder.
+    mvc.perform(
+            put(TREE_NODE_PARENT_URI, 5)
+                .contentType("text/uri-list")
+                .content("http://localhost/api/tree-nodes/7"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+
+    mvc.perform(get(TREE_NODE_PARENT_URI, 5))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1));
+  }
+
+  @Test
+  @DisplayName(
+      "PUT /task: linking task to active cartography leaf (not under radio) via link clears active")
+  @WithMockUser(roles = "ADMIN")
+  void linkSaveTaskClearsActiveOnCartographyLeaf() throws Exception {
+    String createContent =
+        """
+        {
+        "name":"active-cartography-leaf",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "cartography":"http://localhost/api/cartographies/8",
+        "order": 98,
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(createContent))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(true))
+            .andReturn();
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    mvc.perform(
+            put(TREE_NODE_URI + "/task", id)
+                .contentType("text/uri-list")
+                .content("http://localhost/api/tasks/1"))
+        .andExpect(status().isNoContent());
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.active").value(false));
+
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PUT /task: linking task to cartography leaf under radio parent is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void linkSaveTaskOnRadioChildRejected() throws Exception {
+    // Node 8 is a cartography leaf under radio folder 7; linking a task violates radio structure.
+    mvc.perform(
+            put(TREE_NODE_URI + "/task", 8)
+                .contentType("text/uri-list")
+                .content("http://localhost/api/tasks/1"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_STRUCTURE));
+  }
+
+  @Test
+  @DisplayName("PUT /parent: moving active leaf under radio parent with active sibling is rejected")
+  @WithMockUser(roles = "ADMIN")
+  void linkSaveParentActiveLeafUnderRadioWithActiveSiblingRejected() throws Exception {
+    String createContent =
+        """
+        {
+        "name":"active-leaf",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "cartography":"http://localhost/api/cartographies/8",
+        "order": 99,
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(createContent))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(true))
+            .andReturn();
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    mvc.perform(
+            put(TREE_NODE_PARENT_URI, id)
+                .contentType("text/uri-list")
+                .content("http://localhost/api/tree-nodes/7"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_DEFAULT_CONFLICT));
+
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
   }
 
   private void validateSizeOfResponseImage(String response, int expectedWidth, int expectedHeight) {

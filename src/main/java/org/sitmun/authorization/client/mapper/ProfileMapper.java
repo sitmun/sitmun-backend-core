@@ -25,6 +25,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
+import org.sitmun.domain.tree.node.TreeNodeRadioPolicy;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -250,8 +251,9 @@ public abstract class ProfileMapper {
         NodeDto.builder()
             .title(it.getName())
             .description(it.getDescription())
-            .isRadio(it.getRadio())
+            .isRadio(resolveIsRadio(it))
             .loadData(it.getLoadData())
+            .loadByDefault(Boolean.TRUE.equals(it.getActive()))
             .type(it.getType())
             .image(it.getImage())
             .order(it.getOrder())
@@ -276,10 +278,18 @@ public abstract class ProfileMapper {
     return nodeDtoBuilder.build();
   }
 
+  private static Boolean resolveIsRadio(TreeNode node) {
+    if (!TreeNodeRadioPolicy.canExposeRadio(node)) {
+      return null;
+    }
+    return node.getRadio();
+  }
+
   private NodeDto createRootNode(Tree tree, List<TreeNode> allNodes) {
     return NodeDto.builder()
         .title(tree.getName())
         .loadData(false)
+        .loadByDefault(false)
         .children(
             allNodes.stream()
                 .filter(it1 -> it1.getParent() == null)

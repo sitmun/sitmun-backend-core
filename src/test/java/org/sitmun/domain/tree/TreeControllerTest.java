@@ -2,6 +2,8 @@ package org.sitmun.domain.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sitmun.test.URIConstants.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -9,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.Application;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,13 @@ class TreeControllerTest extends BaseTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private TreeRepository treeRepository;
+
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  @BeforeEach
+  void resetSeedTreeTypes() {
+    jdbcTemplate.update("UPDATE STM_TREE SET TRE_TYPE = 'cartography' WHERE TRE_ID IN (1, 2, 3)");
+  }
 
   @Test
   @DisplayName("PUT: Fail 400 when try save touristic tree with non touristic application")
@@ -121,7 +132,7 @@ class TreeControllerTest extends BaseTest {
         TreeTypeValidationRequest.builder().type("touristic").applicationIds(Set.of()).build();
 
     mvc.perform(
-            post("/api/trees/1/validate-type-change")
+            post("/api/trees/2/validate-type-change")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isNoContent());
@@ -138,7 +149,7 @@ class TreeControllerTest extends BaseTest {
             .build();
 
     mvc.perform(
-            post("/api/trees/1/validate-type-change")
+            post("/api/trees/2/validate-type-change")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isNoContent());
@@ -282,7 +293,7 @@ class TreeControllerTest extends BaseTest {
     String requestJson = "{\"type\": \"touristic\", \"applicationIds\": null}";
 
     mvc.perform(
-            post("/api/trees/1/validate-type-change")
+            post("/api/trees/2/validate-type-change")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
         .andExpect(status().isNoContent());
@@ -319,6 +330,72 @@ class TreeControllerTest extends BaseTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.type").value(ProblemTypes.NOT_FOUND));
+  }
+
+  @Test
+  @DisplayName("PATCH: cartography to edition with radio folders - returns 400")
+  @WithMockUser(roles = "ADMIN")
+  void patchCartographyToEditionWithRadioFoldersRejected() throws Exception {
+    mvc.perform(patch("/api/trees/1").content("{\"type\": \"edition\"}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT))
+        .andExpect(
+            jsonPath("$.detail")
+                .value(
+                    "Cartography tree type cannot be changed while radio folders are configured"));
+  }
+
+  @Test
+  @DisplayName("PUT: cartography to edition with radio folders - returns 400")
+  @WithMockUser(roles = "ADMIN")
+  void putCartographyToEditionWithRadioFoldersRejected() throws Exception {
+    String treeJson =
+        mvc.perform(get("/api/trees/1"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    String updatedTreeJson =
+        treeJson.replaceAll("\"type\"\\s*:\\s*\"cartography\"", "\"type\":\"edition\"");
+
+    mvc.perform(
+            put("/api/trees/1").contentType(MediaType.APPLICATION_JSON).content(updatedTreeJson))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT))
+        .andExpect(
+            jsonPath("$.detail")
+                .value(
+                    "Cartography tree type cannot be changed while radio folders are configured"));
+  }
+
+  @Test
+  @DisplayName("PATCH: cartography to edition without radio folders - returns 200")
+  @Transactional
+  @WithMockUser(roles = "ADMIN")
+  void patchCartographyToEditionWithoutRadioFoldersSucceeds() throws Exception {
+    mvc.perform(patch("/api/trees/2").content("{\"type\": \"edition\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.type").value("edition"));
+  }
+
+  @Test
+  @DisplayName("POST: cartography to edition with radio folders - returns 422")
+  @WithMockUser(roles = "ADMIN")
+  void validateCartographyToEditionWithRadioFoldersRejected() throws Exception {
+    TreeTypeValidationRequest request =
+        TreeTypeValidationRequest.builder().type("edition").applicationIds(Set.of(1)).build();
+
+    mvc.perform(
+            post("/api/trees/1/validate-type-change")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT))
+        .andExpect(
+            jsonPath("$.detail")
+                .value(
+                    "Cartography tree type cannot be changed while radio folders are configured"));
   }
 
   @Test

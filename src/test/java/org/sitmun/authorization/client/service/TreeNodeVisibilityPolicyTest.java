@@ -3,7 +3,6 @@ package org.sitmun.authorization.client.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.tree.node.TreeNode;
@@ -12,75 +11,90 @@ import org.sitmun.domain.tree.node.TreeNode;
 class TreeNodeVisibilityPolicyTest {
 
   @Test
-  @DisplayName("null active is visible")
-  void nullActiveNodeIsVisible() {
-    TreeNode node = TreeNode.builder().id(1).active(null).build();
-
-    assertThat(TreeNodeVisibilityPolicy.isActive(node)).isTrue();
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(node, Map.of(1, node))).isTrue();
-  }
-
-  @Test
-  @DisplayName("true active is visible")
-  void trueActiveNodeIsVisible() {
-    TreeNode node = TreeNode.builder().id(1).active(true).build();
-
-    assertThat(TreeNodeVisibilityPolicy.isActive(node)).isTrue();
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(node, Map.of(1, node))).isTrue();
-  }
-
-  @Test
-  @DisplayName("false active is hidden")
-  void falseActiveNodeIsHidden() {
-    TreeNode node = TreeNode.builder().id(1).active(false).build();
-
-    assertThat(TreeNodeVisibilityPolicy.isActive(node)).isFalse();
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(node, Map.of(1, node))).isFalse();
-  }
-
-  @Test
-  @DisplayName("active child under inactive parent is hidden")
-  void childOfInactiveParentIsHiddenEvenWhenChildActive() {
-    TreeNode parent = TreeNode.builder().id(1).active(false).build();
-    TreeNode child = TreeNode.builder().id(2).parent(parent).active(true).build();
-    Map<Integer, TreeNode> byId = Map.of(1, parent, 2, child);
-
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(child, byId)).isFalse();
-  }
-
-  @Test
-  @DisplayName("cycle in parent chain does not loop and treats node as hidden")
-  void cycleDoesNotLoopForeverAndTreatsCycleConservatively() {
-    TreeNode a = TreeNode.builder().id(1).active(true).build();
-    TreeNode b = TreeNode.builder().id(2).parent(a).active(true).build();
-    a.setParent(b);
-    Map<Integer, TreeNode> byId = Map.of(1, a, 2, b);
-
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(a, byId)).isFalse();
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(b, byId)).isFalse();
-  }
-
-  @Test
-  @DisplayName("missing parent id does not hide visible node")
-  void missingParentDoesNotHideNode() {
-    TreeNode parent = TreeNode.builder().id(1).active(true).build();
-    TreeNode child = TreeNode.builder().id(2).parent(parent).active(true).build();
-    Map<Integer, TreeNode> byId = Map.of(2, child);
-
-    assertThat(TreeNodeVisibilityPolicy.isVisibleInClientProfile(child, byId)).isTrue();
-  }
-
-  @Test
-  @DisplayName("filter keeps only visible nodes")
-  void filterVisibleInClientProfile() {
-    TreeNode visible = TreeNode.builder().id(1).active(true).build();
-    TreeNode hidden = TreeNode.builder().id(2).active(false).build();
-    TreeNode hiddenChild = TreeNode.builder().id(3).parent(hidden).active(true).build();
+  @DisplayName("includes visible nodes with visible ancestors")
+  void includesVisibleNodesWithVisibleAncestors() {
+    TreeNode root = node(1, null, true);
+    TreeNode child = node(2, root, true);
 
     List<TreeNode> filtered =
-        TreeNodeVisibilityPolicy.filterVisibleInClientProfile(
-            List.of(visible, hidden, hiddenChild));
+        TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(root, child));
 
-    assertThat(filtered).containsExactly(visible);
+    assertThat(filtered).containsExactly(root, child);
+  }
+
+  @Test
+  @DisplayName("excludes nodes when visible is false regardless of active")
+  void excludesNodesWhenVisibleIsFalse() {
+    TreeNode hiddenLeaf = node(12, null, false);
+    hiddenLeaf.setActive(true);
+
+    List<TreeNode> filtered =
+        TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(hiddenLeaf));
+
+    assertThat(filtered).isEmpty();
+  }
+
+  @Test
+  @DisplayName("includes visible inactive leaves in the catalog")
+  void includesVisibleInactiveLeaves() {
+    TreeNode visibleInactiveLeaf = node(3, null, true);
+    visibleInactiveLeaf.setActive(false);
+
+    List<TreeNode> filtered =
+        TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(visibleInactiveLeaf));
+
+    assertThat(filtered).containsExactly(visibleInactiveLeaf);
+  }
+
+  @Test
+  @DisplayName("excludes descendants of invisible folders")
+  void excludesDescendantsOfInvisibleFolders() {
+    TreeNode invisibleFolder = node(13, null, false);
+    TreeNode child = node(14, invisibleFolder, true);
+    child.setActive(true);
+
+    List<TreeNode> filtered =
+        TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(invisibleFolder, child));
+
+    assertThat(filtered).isEmpty();
+  }
+
+  @Test
+  @DisplayName("treats null visible as visible")
+  void treatsNullVisibleAsVisible() {
+    TreeNode node = node(5, null, null);
+
+    assertThat(TreeNodeVisibilityPolicy.isVisible(node)).isTrue();
+    assertThat(TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(node)))
+        .containsExactly(node);
+  }
+
+  @Test
+  @DisplayName("missing parent in lookup is permissive")
+  void missingParentIsPermissive() {
+    TreeNode child = node(20, null, true);
+    child.setParent(node(21, null, true));
+
+    assertThat(TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(child)))
+        .containsExactly(child);
+  }
+
+  @Test
+  @DisplayName("parent cycle is hidden")
+  void parentCycleIsHidden() {
+    TreeNode a = node(30, null, true);
+    TreeNode b = node(31, a, true);
+    a.setParent(b);
+
+    assertThat(TreeNodeVisibilityPolicy.filterVisibleInClientProfile(List.of(a, b))).isEmpty();
+  }
+
+  private static TreeNode node(int id, TreeNode parent, Boolean visible) {
+    TreeNode node = new TreeNode();
+    node.setId(id);
+    node.setParent(parent);
+    node.setVisible(visible);
+    node.setName("node-" + id);
+    return node;
   }
 }

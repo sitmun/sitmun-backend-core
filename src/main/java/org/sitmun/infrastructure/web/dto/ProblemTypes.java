@@ -111,6 +111,28 @@ public final class ProblemTypes {
   public static final String TREE_NODE_STYLE_REQUIRES_CARTOGRAPHY =
       BASE_URI + "tree-node-style-requires-cartography";
 
+  /**
+   * Radio is only allowed on cartography tree folder nodes. HTTP 400.
+   *
+   * @see org.sitmun.domain.tree.node.TreeNodeEventHandler
+   */
+  public static final String TREE_NODE_RADIO_SCOPE = BASE_URI + "tree-node-radio-scope";
+
+  /**
+   * Radio folders may only contain cartography leaf nodes. HTTP 400.
+   *
+   * @see org.sitmun.domain.tree.node.TreeNodeEventHandler
+   */
+  public static final String TREE_NODE_RADIO_STRUCTURE = BASE_URI + "tree-node-radio-structure";
+
+  /**
+   * Radio folders may only have one active direct child. HTTP 400.
+   *
+   * @see org.sitmun.domain.tree.node.TreeNodeEventHandler
+   */
+  public static final String TREE_NODE_RADIO_DEFAULT_CONFLICT =
+      BASE_URI + "tree-node-radio-default-conflict";
+
   // ============================================================================
   // JPA/HIBERNATE PERSISTENCE ERRORS
   // ============================================================================

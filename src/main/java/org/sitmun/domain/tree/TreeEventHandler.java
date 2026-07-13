@@ -1,10 +1,13 @@
 package org.sitmun.domain.tree;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.persistence.exception.RequirementException;
 import org.sitmun.infrastructure.persistence.type.image.ImageTransformer;
@@ -20,17 +23,45 @@ import org.springframework.transaction.annotation.Transactional;
 @RepositoryEventHandler
 public class TreeEventHandler {
 
-  final ImageTransformer imageTransformer;
+  private final ImageTransformer imageTransformer;
+  private final TreeRepository treeRepository;
+  private final TreeNodeRepository treeNodeRepository;
+  private final EntityManager entityManager;
 
-  TreeEventHandler(ImageTransformer imageTransformer) {
+  TreeEventHandler(
+      ImageTransformer imageTransformer,
+      TreeRepository treeRepository,
+      TreeNodeRepository treeNodeRepository,
+      EntityManager entityManager) {
     this.imageTransformer = imageTransformer;
+    this.treeRepository = treeRepository;
+    this.treeNodeRepository = treeNodeRepository;
+    this.entityManager = entityManager;
   }
 
   @HandleBeforeSave
   @HandleBeforeCreate
   @Transactional(rollbackFor = RequirementException.class)
-  public void handleTreeNodeCreate(@NotNull Tree tree) {
+  public void handleTreeSave(@NotNull Tree tree) {
+    if (tree.getId() != null) {
+      validateTypeChange(tree);
+    }
     tree.setImage(imageTransformer.scaleImage(tree.getImage(), tree.getType()));
+  }
+
+  private void validateTypeChange(Tree tree) {
+    FlushModeType previousFlushMode = entityManager.getFlushMode();
+    try {
+      entityManager.setFlushMode(FlushModeType.COMMIT);
+      treeRepository
+          .findPersistedTypeById(tree.getId())
+          .ifPresent(
+              priorType ->
+                  TreeRadioTypePolicy.validateRadioFoldersBeforeLeavingCartography(
+                      priorType, tree.getType(), tree.getId(), treeNodeRepository));
+    } finally {
+      entityManager.setFlushMode(previousFlushMode);
+    }
   }
 
   @HandleBeforeLinkSave
@@ -46,10 +77,10 @@ public class TreeEventHandler {
 
   private void validateTouristicTree(List<Application> apps) {
     if (apps.isEmpty()) {
-      return; // No applications linked, valid case
+      return;
     }
     if (apps.size() == 1 && DomainConstants.Applications.isTouristicApplication(apps.get(0))) {
-      return; // Valid case with one touristic application
+      return;
     }
     throw new BusinessRuleException(
         ProblemTypes.TOURISTIC_TREE_CONSTRAINT,

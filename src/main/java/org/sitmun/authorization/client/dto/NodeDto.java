@@ -17,6 +17,7 @@ public class NodeDto {
   String action;
   Boolean isRadio;
   Boolean loadData;
+  Boolean loadByDefault;
   String type;
   String viewMode;
   String image;

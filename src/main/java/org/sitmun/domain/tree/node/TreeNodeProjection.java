@@ -30,6 +30,9 @@ public interface TreeNodeProjection {
   @Value("#{target.active}")
   Boolean getActive();
 
+  @Value("#{target.visible}")
+  Boolean getVisible();
+
   @Value("#{target.radio}")
   Boolean getRadio();
 

@@ -72,9 +72,10 @@ public class TreeNode {
   @Column(name = "TNO_TOOLTIP", length = 100)
   private String tooltip;
 
-  /** Enabled by default. */
-  @Column(name = "TNO_ACTIVE")
-  private Boolean active;
+  /** Load by default: auto-add cartography leaf to working layers on map open in the viewer. */
+  @Builder.Default
+  @Column(name = "TNO_DEFAULT", nullable = false)
+  private Boolean active = false;
 
   /** Radio button type (only if the node is a folder). */
   @Column(name = "TNO_RADIO")
@@ -88,6 +89,11 @@ public class TreeNode {
   @Builder.Default
   @Column(name = "TNO_LOAD_DATA", nullable = false)
   private Boolean loadData = false;
+
+  /** Catalog visibility in the viewer layer tree. */
+  @Builder.Default
+  @Column(name = "TNO_ACTIVE", nullable = false)
+  private Boolean visible = true;
 
   /** Order of the node within the tree. */
   @Column(name = "TNO_ORDER", precision = 6)

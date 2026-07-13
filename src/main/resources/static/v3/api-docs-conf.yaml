@@ -539,6 +539,16 @@ paths:
                                 description: |-
                                   Si el nodo es una carpeta indica si el nodo es de selección única.
                                   Si el nodo es una hoja el valor es `null`.
+                              loadData:
+                                description: |-
+                                  Si el nodo es una carpeta indica si al pulsar el título se cargan todos los hijos.
+                                  Si el nodo es una hoja el valor es `null`.
+                                type: boolean
+                              loadByDefault:
+                                description: |-
+                                  Si el nodo es una hoja con cartografía, indica si la capa se carga automáticamente
+                                  en las capas de trabajo al abrir el mapa.
+                                type: boolean
                               children:
                                 description: |-
                                   Si el nodo es una carpeta indica los nodos hijos.

@@ -8,7 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- **Client profile**: `backgrounds[].order` exposes application-background display order from `ApplicationBackground.order` (`ABC_ORDER`).
+- **Client profile**: tree nodes expose `loadByDefault` derived from `TreeNode.active` (load-by-default) for cartography leaves that should auto-load into working layers on map open.
+- **Tree nodes**: `TNO_VISIBLE` catalog visibility column; admin REST and `TreeNodeProjection` expose `visible`; `active` is load-by-default (`TNO_ACTIVE`, default false).
+- **Tree nodes**: radio invariants enforced on save and on direct Spring Data REST association link saves (`/parent`, `/task`, `/cartography`) via `@HandleBeforeLinkSave`; `TREE_NODE_RADIO_SCOPE`, `TREE_NODE_RADIO_STRUCTURE`, and `TREE_NODE_RADIO_DEFAULT_CONFLICT` are raised for link mutations that would bypass entity-level validation; task nodes and folders are rejected under radio parents; tree type changes away from cartography are blocked while radio folders exist.
+- **Tree nodes**: Liquibase changeset 53 realigns legacy `TNO_LOAD_BY_DEFAULT`/`TNO_ACTIVE` visibility semantics into `TNO_VISIBLE` + load-by-default `TNO_ACTIVE`, halting on invalid radio structure until data is repaired; 53a also clears `TNO_ACTIVE` on rows with `TNO_TASKID` set.
+- **Tests**: `TreeNodeMigration53Test` covers migration 53 visibility/load combinations, radio-structure halt, resume-after-repair, cartography+task active normalization, task-child-under-radio halt, and dual-active halt/resume on isolated H2 databases.
+
+### Changed
+
+- **Tree nodes**: `TreeRadioTypePolicy` centralizes cartography-to-non-cartography tree type validation; enforced on `TreeController` and `TreeEventHandler` before save.
+
+- **Tree nodes**: client-profile catalog filtering uses `visible` (`TNO_VISIBLE`); `active` is independent and maps to profile `loadByDefault`.
+- **Client profile**: `isRadio` is omitted (null) on non-folder nodes; only cartography-tree folders expose the flag.
 - **Client profile**: each service may include `title` (from `Service.name`) and `description` (from `Service.description`, locale-resolved on profile fetch).
 - **Task projections**: `TaskProjection.typeTitle` and `TaskAvailabilityProjection.taskTypeTitle` expose the localized task-type label alongside internal `typeName`.
 - **i18n**: `TaskType` uses `I18nListener`; request-scoped translation preload resolves `@I18n` fields for the request language.
@@ -16,12 +27,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Auth**: dual session cookies — `viewer_access_token` and `admin_access_token` — replace the legacy `access_token`; the JWT filter selects the cookie based on the `X-SITMUN-Client: admin` request header so viewer and admin sessions coexist in the same browser without interfering.
+- **Auth**: `POST /api/authenticate` issues `viewer_access_token`; `POST /api/authenticate/admin` issues `admin_access_token`; both endpoints expire the legacy `access_token` cookie on success to force re-authentication from pre-migration sessions.
+- **Auth**: `POST /api/authenticate/logout` clears the caller-identified cookie (`admin_access_token` when `X-SITMUN-Client: admin` is present, `viewer_access_token` otherwise) and always expires the legacy `access_token`.
+- **Auth**: OIDC success handler issues `viewer_access_token` or `admin_access_token` based on the `client_type` session attribute set during the authorization redirect, and expires the legacy `access_token`.
 - **Authorization**: proxy configuration now reserves **401** for invalid or expired client JWTs, returns **403** for resource denial, and reports invalid proxy configuration as RFC 9457 **400**; unavailable or denied client profiles return RFC 9457 **403**.
 - **Authentication**: JWT processing now fails closed: invalid credentials return RFC 9457 **401** and clear the cookie, identity-store outages return **503**, and unexpected processing failures return **500** without falling through as the public principal; direct login and account denials also return Problem Details.
 
 ### Fixed
 
-- **i18n**: reset `LocaleContextHolder` after each `TranslationCacheFilter` request so locale does not leak across servlet thread reuse.
+- **Tree nodes**: `TreeNodeEventHandler.normalizeActive` clears `active` on non-cartography-leaf nodes (folders, task nodes, and cartography+task malformed rows); client profile `loadByDefault` stays false for those nodes.
 - **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
 - **Dashboard API**: keyword-aware `/dashboard/applications` (with full `DashboardApplicationDto` enrichment) and `/dashboard/suggestions` query the database instead of filtering only the first in-memory page.
 - **Client config**: `POST /api/config/client/territory/position` requires `ROLE_USER`; `ClientUserPositionService` enforces row ownership and returns **400**/**403**/**404** for invalid, foreign, or missing position ids.

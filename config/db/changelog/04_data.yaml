@@ -650,7 +650,7 @@ databaseChangeLog:
                   name: TNO_TOOLTIP
                   type: STRING
               - column:
-                  name: TNO_ACTIVE
+                  name: TNO_DEFAULT
                   type: BOOLEAN
               - column:
                   name: TNO_ORDER
@@ -663,6 +663,9 @@ databaseChangeLog:
                   type: NUMERIC
               - column:
                   name: TNO_RADIO
+                  type: BOOLEAN
+              - column:
+                  name: TNO_ACTIVE
                   type: BOOLEAN
         - sql:
             sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
