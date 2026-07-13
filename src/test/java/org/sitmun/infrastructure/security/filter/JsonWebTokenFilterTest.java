@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authentication.SitmunClientTypes;
 import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.User;
@@ -87,10 +88,95 @@ class JsonWebTokenFilterTest {
   }
 
   @Test
-  @DisplayName("rejects blocked account JWT with 401 and does not continue filter chain")
-  void rejectsBlockedAccountJwtWith401() throws Exception {
+  @DisplayName("no client header: reads viewer_access_token cookie")
+  void noClientHeaderReadsViewerCookie() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(true);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("X-SITMUN-Client: admin reads admin_access_token cookie")
+  void adminClientHeaderReadsAdminCookie() throws Exception {
+    request.addHeader(SitmunClientTypes.HEADER_NAME, "admin");
+    request.setCookies(new Cookie(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(true);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("both cookies present: admin header selects admin_access_token, ignores viewer")
+  void adminHeaderSelectsAdminCookieWhenBothPresent() throws Exception {
+    request.addHeader(SitmunClientTypes.HEADER_NAME, "admin");
     request.setCookies(
-        new jakarta.servlet.http.Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+        new Cookie(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME, JWT),
+        new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, "viewer.jwt.token"));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(true);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+    assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+        .isEqualTo(ACTIVE_USERNAME);
+  }
+
+  @Test
+  @DisplayName("both cookies present: no header selects viewer_access_token, ignores admin")
+  void noHeaderSelectsViewerCookieWhenBothPresent() throws Exception {
+    request.setCookies(
+        new Cookie(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME, "admin.jwt.token"),
+        new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
+    User active =
+        User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
+    UserDetailsImplementation activeDetails = UserDetailsImplementation.build(active);
+    when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME)).thenReturn(activeDetails);
+    when(userRepository.findByUsername(ACTIVE_USERNAME)).thenReturn(Optional.of(active));
+    when(jsonWebTokenService.validateToken(eq(JWT), eq(activeDetails), nullable(Date.class)))
+        .thenReturn(true);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(filterChain).doFilter(request, response);
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+    assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+        .isEqualTo(ACTIVE_USERNAME);
+  }
+
+  @Test
+  @DisplayName("rejects blocked account JWT with 401 and clears only the selected cookie")
+  void rejectsBlockedAccountJwtWith401() throws Exception {
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(BLOCKED_USERNAME);
     UserDetailsImplementation blockedDetails =
         UserDetailsImplementation.build(
@@ -105,13 +191,40 @@ class JsonWebTokenFilterTest {
     filter.doFilter(request, response, filterChain);
 
     assertUnauthorizedProblem();
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
     verify(filterChain, never()).doFilter(any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
-  @DisplayName("continues filter chain when cookie name does not match access_token")
+  @DisplayName("admin: rejects blocked account JWT with 401 and clears admin cookie")
+  void adminRejectsBlockedAccountJwtWith401() throws Exception {
+    request.addHeader(SitmunClientTypes.HEADER_NAME, "admin");
+    request.setCookies(new Cookie(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME, JWT));
+    when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(BLOCKED_USERNAME);
+    UserDetailsImplementation blockedDetails =
+        UserDetailsImplementation.build(
+            User.builder()
+                .id(1)
+                .username(BLOCKED_USERNAME)
+                .blocked(true)
+                .administrator(false)
+                .build());
+    when(userDetailsService.loadUserByUsername(BLOCKED_USERNAME)).thenReturn(blockedDetails);
+
+    filter.doFilter(request, response, filterChain);
+
+    assertUnauthorizedProblem();
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME), any(), any());
+    verify(filterChain, never()).doFilter(any(), any());
+  }
+
+  @Test
+  @DisplayName("continues filter chain when no viewer cookie matches (no client header)")
   void continuesFilterChainWhenCookieNameDoesNotMatch() throws Exception {
     request.setCookies(new Cookie("other_cookie", JWT));
 
@@ -125,19 +238,21 @@ class JsonWebTokenFilterTest {
   @Test
   @DisplayName("rejects empty JWT cookie with 401 and clears stale cookie")
   void rejectsEmptyJwtCookie() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, ""));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, ""));
 
     filter.doFilter(request, response, filterChain);
 
     assertUnauthorizedProblem();
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
   }
 
   @Test
   @DisplayName("authenticates valid unlocked user and continues filter chain")
   void authenticatesValidUnlockedUser() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     User active =
         User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
@@ -158,7 +273,7 @@ class JsonWebTokenFilterTest {
   @Test
   @DisplayName("rejects JWT with 401 when user is not in the database")
   void rejectsJwtWhenUserNotFound() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     UserDetailsImplementation activeDetails =
         UserDetailsImplementation.build(
@@ -175,14 +290,16 @@ class JsonWebTokenFilterTest {
 
     assertUnauthorizedProblem();
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
   @DisplayName("rejects invalid JWT with 401 and clears stale cookie")
   void rejectsJwtWhenTokenValidationFails() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     User active =
         User.builder().id(2).username(ACTIVE_USERNAME).blocked(false).administrator(false).build();
@@ -196,14 +313,16 @@ class JsonWebTokenFilterTest {
 
     assertUnauthorizedProblem();
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
   @DisplayName("rejects malformed JWT with 401 and clears stale cookie")
   void rejectsJwtWhenMalformed() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT))
         .thenThrow(new MalformedJwtException("invalid token"));
 
@@ -211,14 +330,16 @@ class JsonWebTokenFilterTest {
 
     assertUnauthorizedProblem();
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
   @DisplayName("returns 503 and preserves cookie when identity store is unavailable")
   void returnsServiceUnavailableOnTransientIdentityStoreFailure() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME))
         .thenThrow(new DataAccessResourceFailureException("database unavailable"));
@@ -231,14 +352,14 @@ class JsonWebTokenFilterTest {
         "Service Unavailable",
         "Authentication service is unavailable");
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService, never()).clearAccessTokenCookie(request, response);
+    verify(cookieService, never()).clearCookieByName(any(), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
   @DisplayName("returns 500 and preserves cookie on unexpected authentication failure")
   void returnsInternalServerErrorOnUnexpectedAuthenticationFailure() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
     when(userDetailsService.loadUserByUsername(ACTIVE_USERNAME))
         .thenThrow(new IllegalStateException("sensitive implementation detail"));
@@ -252,14 +373,14 @@ class JsonWebTokenFilterTest {
         "Authentication processing failed");
     assertThat(response.getContentAsString()).doesNotContain("sensitive implementation detail");
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService, never()).clearAccessTokenCookie(request, response);
+    verify(cookieService, never()).clearCookieByName(any(), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
   @Test
   @DisplayName("rejects expired JWT with 401 and clears stale cookie")
   void rejectsJwtWhenExpired() throws Exception {
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT))
         .thenThrow(new ExpiredJwtException(null, null, "expired"));
 
@@ -267,7 +388,9 @@ class JsonWebTokenFilterTest {
 
     assertUnauthorizedProblem();
     verify(filterChain, never()).doFilter(any(), any());
-    verify(cookieService).clearAccessTokenCookie(request, response);
+    verify(cookieService)
+        .clearCookieByName(
+            eq(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME), any(), any());
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 
@@ -277,7 +400,7 @@ class JsonWebTokenFilterTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken(ACTIVE_USERNAME, null, List.of()));
-    request.setCookies(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, JWT));
+    request.setCookies(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, JWT));
     when(jsonWebTokenService.getUsernameFromToken(JWT)).thenReturn(ACTIVE_USERNAME);
 
     filter.doFilter(request, response, filterChain);

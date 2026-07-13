@@ -142,12 +142,12 @@ class ClientConfigurationBlockedUserTest {
         .perform(
             get(CONFIG_CLIENT_APPLICATION_URI)
                 .contentType(APPLICATION_JSON)
-                .cookie(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, jwt)))
+                .cookie(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, jwt)))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.status").value(401))
         .andExpect(jsonPath("$.detail").value("Authentication is required"))
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 
   @Test
@@ -160,12 +160,12 @@ class ClientConfigurationBlockedUserTest {
         .perform(
             get(CONFIG_CLIENT_APPLICATION_URI)
                 .contentType(APPLICATION_JSON)
-                .cookie(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, jwt)))
+                .cookie(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, jwt)))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.status").value(401))
         .andExpect(jsonPath("$.detail").value("Authentication is required"))
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 
   private void blockPublicUser() {

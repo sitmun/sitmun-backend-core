@@ -56,7 +56,8 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse httpServletResponse,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    Optional<Cookie> accessTokenCookie = getAccessTokenCookie(httpServletRequest);
+    String cookieName = AuthenticationController.resolveSessionCookieName(httpServletRequest);
+    Optional<Cookie> accessTokenCookie = getNamedCookie(httpServletRequest, cookieName);
 
     if (accessTokenCookie.isEmpty()) {
       filterChain.doFilter(httpServletRequest, httpServletResponse);
@@ -65,27 +66,27 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
 
     String jwtToken = accessTokenCookie.get().getValue();
     if (StringUtils.isEmpty(jwtToken)) {
-      rejectAuthentication(httpServletRequest, httpServletResponse);
+      rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
       return;
     }
 
     try {
       String username = jsonWebTokenService.getUsernameFromToken(jwtToken);
       if (StringUtils.isEmpty(username)) {
-        rejectAuthentication(httpServletRequest, httpServletResponse);
+        rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
         return;
       }
       if (SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!userDetails.isAccountNonLocked()) {
-          rejectAuthentication(httpServletRequest, httpServletResponse);
+          rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
           return;
         }
 
         Optional<User> user = this.userRepository.findByUsername(username);
         if (user.isEmpty()) {
-          rejectAuthentication(httpServletRequest, httpServletResponse);
+          rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
           return;
         }
         Date lastPasswordChange = user.get().getLastPasswordChange();
@@ -97,21 +98,21 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
               new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         } else {
-          rejectAuthentication(httpServletRequest, httpServletResponse);
+          rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
           return;
         }
       }
     } catch (IllegalArgumentException e) {
       logger.warn("Invalid JWT token");
-      rejectAuthentication(httpServletRequest, httpServletResponse);
+      rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
       return;
     } catch (ExpiredJwtException e) {
       logger.debug("JWT token expired");
-      rejectAuthentication(httpServletRequest, httpServletResponse);
+      rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
       return;
     } catch (JwtException e) {
       logger.warn("Invalid JWT token");
-      rejectAuthentication(httpServletRequest, httpServletResponse);
+      rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
       return;
     } catch (DataAccessException | AuthenticationServiceException e) {
       logger.error("Authentication identity store is unavailable", e);
@@ -119,7 +120,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
       return;
     } catch (AuthenticationException e) {
       logger.warn("JWT credentials are no longer valid");
-      rejectAuthentication(httpServletRequest, httpServletResponse);
+      rejectAuthentication(httpServletRequest, httpServletResponse, cookieName);
       return;
     } catch (RuntimeException e) {
       logger.error("Unexpected JWT authentication failure", e);
@@ -129,15 +130,11 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
     filterChain.doFilter(httpServletRequest, httpServletResponse);
   }
 
-  private void clearStaleAccessTokenCookie(
-      HttpServletRequest request, HttpServletResponse response) {
-    cookieService.clearAccessTokenCookie(request, response);
-  }
-
-  private void rejectAuthentication(HttpServletRequest request, HttpServletResponse response)
+  private void rejectAuthentication(
+      HttpServletRequest request, HttpServletResponse response, String cookieName)
       throws IOException {
     SecurityContextHolder.clearContext();
-    clearStaleAccessTokenCookie(request, response);
+    cookieService.clearCookieByName(cookieName, request, response);
     responseWriter.writeUnauthorized(request, response);
   }
 
@@ -153,12 +150,10 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
     responseWriter.writeInternalServerError(request, response);
   }
 
-  private Optional<Cookie> getAccessTokenCookie(HttpServletRequest request) {
+  private Optional<Cookie> getNamedCookie(HttpServletRequest request, String name) {
     if (request.getCookies() == null) {
       return Optional.empty();
     }
-    return Arrays.stream(request.getCookies())
-        .filter(c -> AuthenticationController.ACCESS_TOKEN_COOKIE_NAME.equals(c.getName()))
-        .findFirst();
+    return Arrays.stream(request.getCookies()).filter(c -> name.equals(c.getName())).findFirst();
   }
 }

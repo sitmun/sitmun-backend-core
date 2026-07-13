@@ -31,10 +31,27 @@ public class CookieService {
     cookie.setMaxAge(maxAge);
   }
 
-  /** Expires the session JWT cookie (same attributes as login/logout). */
-  public void clearAccessTokenCookie(HttpServletRequest request, HttpServletResponse response) {
-    Cookie cookie = new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, null);
+  /** Expires a cookie by name with the same security attributes as the session cookies. */
+  public void clearCookieByName(
+      String name, HttpServletRequest request, HttpServletResponse response) {
+    Cookie cookie = new Cookie(name, null);
     customizeAccessTokenCookie(cookie, request.isSecure(), 0);
     response.addCookie(cookie);
+  }
+
+  /**
+   * Expires the viewer session cookie. Convenience for call sites that handle viewer-only paths
+   * with no client-selector header.
+   */
+  public void clearAccessTokenCookie(HttpServletRequest request, HttpServletResponse response) {
+    clearCookieByName(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, request, response);
+  }
+
+  /**
+   * Expires the legacy {@value AuthenticationController#ACCESS_TOKEN_COOKIE_NAME} cookie. Called on
+   * every login and logout to force re-authentication from pre-migration sessions.
+   */
+  public void expireLegacyCookie(HttpServletRequest request, HttpServletResponse response) {
+    clearCookieByName(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, request, response);
   }
 }

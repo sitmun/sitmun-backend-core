@@ -246,6 +246,8 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
         .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/admin"))
+        .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/logout"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/password-reset/**"))

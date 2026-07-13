@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authentication.SitmunClientTypes;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.test.TestUtils;
@@ -28,8 +29,8 @@ class AuthenticationControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Test
-  @DisplayName("POST: Admin user must login")
-  void successfulLogin() throws Exception {
+  @DisplayName("POST /authenticate: viewer login issues viewer_access_token cookie")
+  void viewerLoginIssuesViewerCookie() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
     login.setPassword("admin");
@@ -39,11 +40,58 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isOk())
-        .andExpect(cookie().exists(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
+        .andExpect(cookie().exists(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME))
+        .andExpect(cookie().doesNotExist(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME));
   }
 
   @Test
-  @DisplayName("POST: User with wrong credentials must fail")
+  @DisplayName("POST /authenticate: viewer login expires legacy access_token cookie")
+  void viewerLoginExpiresLegacyCookie() throws Exception {
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+    login.setUsername("admin");
+    login.setPassword("admin");
+
+    mvc.perform(
+            post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @DisplayName("POST /authenticate/admin: admin login issues admin_access_token cookie")
+  void adminLoginIssuesAdminCookie() throws Exception {
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+    login.setUsername("admin");
+    login.setPassword("admin");
+
+    mvc.perform(
+            post("/api/authenticate/admin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isOk())
+        .andExpect(cookie().exists(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME))
+        .andExpect(cookie().doesNotExist(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME));
+  }
+
+  @Test
+  @DisplayName("POST /authenticate/admin: admin login expires legacy access_token cookie")
+  void adminLoginExpiresLegacyCookie() throws Exception {
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+    login.setUsername("admin");
+    login.setPassword("admin");
+
+    mvc.perform(
+            post("/api/authenticate/admin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @DisplayName("POST /authenticate: wrong credentials returns 401")
   void loginFailure() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
@@ -92,8 +140,33 @@ class AuthenticationControllerTest {
   @WithMockUser(
       username = "admin",
       roles = {"ADMIN", "USER"})
-  @DisplayName("POST /logout: Authenticated user must logout successfully")
-  void logoutSuccess() throws Exception {
+  @DisplayName("POST /logout: without selector header clears viewer_access_token")
+  void logoutClearsViewerCookie() throws Exception {
+    mvc.perform(post("/api/authenticate/logout").secure(true))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @WithMockUser(
+      username = "admin",
+      roles = {"ADMIN", "USER"})
+  @DisplayName("POST /logout: with X-SITMUN-Client: admin clears admin_access_token")
+  void logoutWithAdminHeaderClearsAdminCookie() throws Exception {
+    mvc.perform(
+            post("/api/authenticate/logout")
+                .secure(true)
+                .header(SitmunClientTypes.HEADER_NAME, "admin"))
+        .andExpect(status().isOk())
+        .andExpect(cookie().maxAge(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME, 0));
+  }
+
+  @Test
+  @WithMockUser(
+      username = "admin",
+      roles = {"ADMIN", "USER"})
+  @DisplayName("POST /logout: always expires legacy access_token cookie")
+  void logoutExpiresLegacyCookie() throws Exception {
     mvc.perform(post("/api/authenticate/logout").secure(true))
         .andExpect(status().isOk())
         .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
@@ -107,7 +180,7 @@ class AuthenticationControllerTest {
   void logoutSuccessForStandardUser() throws Exception {
     mvc.perform(post("/api/authenticate/logout").secure(true))
         .andExpect(status().isOk())
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 
   @Test
@@ -121,6 +194,6 @@ class AuthenticationControllerTest {
   void logoutAllowedForAnonymous() throws Exception {
     mvc.perform(post("/api/authenticate/logout").secure(true))
         .andExpect(status().isOk())
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 }

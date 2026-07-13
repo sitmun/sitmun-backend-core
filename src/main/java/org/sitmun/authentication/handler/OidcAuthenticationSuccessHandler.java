@@ -1,13 +1,14 @@
 package org.sitmun.authentication.handler;
 
-import static org.sitmun.authentication.controller.AuthenticationController.ACCESS_TOKEN_COOKIE_NAME;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sitmun.authentication.OidcClientTypes;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authentication.service.OidcRedirectService;
 import org.sitmun.domain.user.User;
@@ -64,16 +65,26 @@ public class OidcAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
       final String jwtToken =
           jsonWebTokenService.generateToken(userDetails, user.getLastPasswordChange());
 
-      final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, jwtToken);
+      String cookieName = resolveOidcCookieName(request);
+      final Cookie cookie = new Cookie(cookieName, jwtToken);
       cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
-
       response.addCookie(cookie);
+      cookieService.expireLegacyCookie(request, response);
     } catch (Exception e) {
       log.error("OIDC authentication processing failed", e);
       log.error("Error message: {}", e.getMessage());
     } finally {
       getRedirectStrategy().sendRedirect(request, response, frontendRedirectUrl);
     }
+  }
+
+  private String resolveOidcCookieName(HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    Object clientType =
+        session != null ? session.getAttribute(OidcRedirectService.CLIENT_TYPE) : null;
+    return OidcClientTypes.ADMIN.equals(String.valueOf(clientType))
+        ? AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME
+        : AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME;
   }
 
   private OidcUser getOidcUser(Authentication authentication) {

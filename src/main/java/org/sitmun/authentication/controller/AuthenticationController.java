@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.Optional;
+import org.sitmun.authentication.OidcClientTypes;
+import org.sitmun.authentication.SitmunClientTypes;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
@@ -24,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +40,23 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AuthenticationController {
 
-  public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
+  /**
+   * Cookie name for viewer sessions. Default cookie when no {@code X-SITMUN-Client} header is
+   * present.
+   */
+  public static final String VIEWER_ACCESS_TOKEN_COOKIE_NAME = "viewer_access_token";
+
+  /** Cookie name for admin sessions. Set when {@code X-SITMUN-Client: admin} header is present. */
+  public static final String ADMIN_ACCESS_TOKEN_COOKIE_NAME = "admin_access_token";
+
+  /**
+   * Legacy cookie name from before session isolation. Expired on login and logout to force
+   * re-authentication from pre-migration sessions.
+   *
+   * @deprecated Use {@link #VIEWER_ACCESS_TOKEN_COOKIE_NAME} or {@link
+   *     #ADMIN_ACCESS_TOKEN_COOKIE_NAME}.
+   */
+  @Deprecated public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
 
   @Value("${sitmun.proxy-middleware.token-validity-in-milliseconds}")
   private int validity;
@@ -70,10 +89,8 @@ public class AuthenticationController {
   }
 
   /**
-   * Authenticate a user and obtain a JWT token.
-   *
-   * @param body user login and password
-   * @return JWT token
+   * Authenticate a viewer user and issue a {@value #VIEWER_ACCESS_TOKEN_COOKIE_NAME} cookie.
+   * Expires any legacy {@value #ACCESS_TOKEN_COOKIE_NAME} cookie.
    */
   @PostMapping
   @SecurityRequirements
@@ -81,27 +98,20 @@ public class AuthenticationController {
       @Valid @RequestBody UserPasswordAuthenticationRequest body,
       HttpServletRequest request,
       HttpServletResponse response) {
-    Authentication authentication =
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
-    if (authentication.isAuthenticated()) {
-      UserDetails userDetails = userDetailsService.loadUserByUsername(body.getUsername());
-      Optional<User> user = this.userRepository.findByUsername(body.getUsername());
-      if (user.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-      }
+    return authenticate(body, request, response, VIEWER_ACCESS_TOKEN_COOKIE_NAME);
+  }
 
-      String token =
-          jsonWebTokenService.generateToken(userDetails, user.get().getLastPasswordChange());
-
-      final Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, token);
-      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
-      response.addCookie(cookie);
-      return ResponseEntity.status(HttpStatus.OK).build();
-    }
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-        .body(responseWriter.problem(request, HttpStatus.UNAUTHORIZED));
+  /**
+   * Authenticate an admin user and issue an {@value #ADMIN_ACCESS_TOKEN_COOKIE_NAME} cookie.
+   * Expires any legacy {@value #ACCESS_TOKEN_COOKIE_NAME} cookie.
+   */
+  @PostMapping("/admin")
+  @SecurityRequirements
+  public ResponseEntity<?> authenticateAdmin(
+      @Valid @RequestBody UserPasswordAuthenticationRequest body,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    return authenticate(body, request, response, ADMIN_ACCESS_TOKEN_COOKIE_NAME);
   }
 
   @PostMapping("/proxy")
@@ -117,9 +127,58 @@ public class AuthenticationController {
     return ResponseEntity.status(HttpStatus.OK).body(authResponse);
   }
 
+  /**
+   * Logout. Clears the cookie selected by {@code X-SITMUN-Client} header (admin → {@value
+   * #ADMIN_ACCESS_TOKEN_COOKIE_NAME}; absent → {@value #VIEWER_ACCESS_TOKEN_COOKIE_NAME}). Also
+   * expires the legacy {@value #ACCESS_TOKEN_COOKIE_NAME} cookie.
+   */
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-    cookieService.clearAccessTokenCookie(request, response);
+    String cookieName = resolveSessionCookieName(request);
+    cookieService.clearCookieByName(cookieName, request, response);
+    cookieService.expireLegacyCookie(request, response);
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  /**
+   * Resolves the session cookie name from the {@code X-SITMUN-Client} header. Admin header → admin
+   * cookie; absent or unknown → viewer cookie.
+   */
+  public static String resolveSessionCookieName(HttpServletRequest request) {
+    String clientHeader = request.getHeader(SitmunClientTypes.HEADER_NAME);
+    if (StringUtils.hasText(clientHeader) && OidcClientTypes.ADMIN.equals(clientHeader.trim())) {
+      return ADMIN_ACCESS_TOKEN_COOKIE_NAME;
+    }
+    return VIEWER_ACCESS_TOKEN_COOKIE_NAME;
+  }
+
+  private ResponseEntity<?> authenticate(
+      UserPasswordAuthenticationRequest body,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      String cookieName) {
+    Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
+    if (authentication.isAuthenticated()) {
+      UserDetails userDetails = userDetailsService.loadUserByUsername(body.getUsername());
+      Optional<User> user = this.userRepository.findByUsername(body.getUsername());
+      if (user.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+
+      String token =
+          jsonWebTokenService.generateToken(userDetails, user.get().getLastPasswordChange());
+
+      final Cookie cookie = new Cookie(cookieName, token);
+      cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
+      response.addCookie(cookie);
+
+      cookieService.expireLegacyCookie(request, response);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(responseWriter.problem(request, HttpStatus.UNAUTHORIZED));
   }
 }

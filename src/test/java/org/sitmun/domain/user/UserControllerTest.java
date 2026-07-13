@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.sitmun.test.URIConstants;
@@ -36,7 +37,8 @@ class UserControllerTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = false;
-  public static final String ACCESS_TOKEN = "access_token";
+  private static final String ACCESS_TOKEN =
+      AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME;
   @Autowired JsonWebTokenService tokenProvider;
   @Autowired private MockMvc mvc;
   @Autowired private UserRepository userRepository;
