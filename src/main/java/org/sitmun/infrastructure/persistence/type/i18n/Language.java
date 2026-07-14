@@ -41,6 +41,15 @@ public class Language {
   @I18n
   private String name;
 
+  /** Display order. */
+  @Column(name = "LAN_ORDER")
+  private Integer order;
+
+  /** Whether this language is the system default. */
+  @Column(name = "LAN_DEFAULT", nullable = false)
+  @Builder.Default
+  private Boolean defaultLanguage = Boolean.FALSE;
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

@@ -83,6 +83,8 @@ dependencies {
 
   // Apache Commons utilities
   implementation libs.commons.lang3
+  implementation libs.commons.io
+  implementation libs.opencsv
   
   // Google Guava utilities
   implementation libs.guava
@@ -306,7 +308,7 @@ scmVersion {
   versionIncrementer('incrementPatch')
 }
 
-project.version = '1.2.7'
+project.version = '1.2.8-SNAPSHOT'
 
 // Git hooks setup
 tasks.register('setupGitHooks') {

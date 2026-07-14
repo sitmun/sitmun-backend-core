@@ -20,11 +20,22 @@ databaseChangeLog:
       file: 08_more_info_data.yaml
       relativeToChangelogFile: true
   - include:
-      file: config/db/changelog/09_task_relation_reference_alias.yaml
+      file: 09_task_relation_reference_alias.yaml
       relativeToChangelogFile: true
   - include:
       file: 09_driver_translation_data.yaml
       relativeToChangelogFile: true
   - include:
       file: 10_add_map_image_task_type.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 10_literal_translations.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 10_add_translation_sequences.sql
+  - include:
+      file: 11_literal_translation_source_language.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 12_language_admin_order.yaml
       relativeToChangelogFile: true

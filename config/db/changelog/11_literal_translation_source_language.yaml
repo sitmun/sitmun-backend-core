@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11-add-literal-translation-source-language
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - not:
+                columnExists:
+                  tableName: STM_LITERAL_TRANSLATION
+                  columnName: LTR_LANID
+      changes:
+        - addColumn:
+            tableName: STM_LITERAL_TRANSLATION
+            columns:
+              - column:
+                  name: LTR_LANID
+                  type: int
+
+  - changeSet:
+      id: 11-populate-literal-translation-source-language
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          columnExists:
+            tableName: STM_LITERAL_TRANSLATION
+            columnName: LTR_LANID
+      changes:
+        - sql: |
+            UPDATE STM_LITERAL_TRANSLATION
+            SET LTR_LANID = COALESCE(
+              (
+                SELECT MIN(lan.LAN_ID)
+                FROM STM_LANGUAGE lan
+                WHERE lan.LAN_SHORTNAME = (
+                  SELECT conf.CNF_VALUE
+                  FROM STM_CONF conf
+                  WHERE conf.CNF_NAME = 'language.default'
+                )
+              ),
+              (
+                SELECT MIN(lan.LAN_ID)
+                FROM STM_LANGUAGE lan
+              )
+            )
+            WHERE LTR_LANID IS NULL
+        - sql: |
+            UPDATE STM_LITERAL_TRANSLATION_VALUE ltv
+            SET LTV_VALUE = (
+              SELECT lt.LTR_LITERAL
+              FROM STM_LITERAL_TRANSLATION lt
+              WHERE lt.LTR_ID = ltv.LTV_LTRID
+                AND lt.LTR_LANID = ltv.LTV_LANID
+            )
+            WHERE EXISTS (
+              SELECT 1
+              FROM STM_LITERAL_TRANSLATION lt
+              WHERE lt.LTR_ID = ltv.LTV_LTRID
+                AND lt.LTR_LANID = ltv.LTV_LANID
+            )
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT base.NEXT_ID + ROW_NUMBER() OVER (ORDER BY lt.LTR_ID) - 1,
+                   lt.LTR_ID,
+                   lt.LTR_LANID,
+                   lt.LTR_LITERAL
+            FROM STM_LITERAL_TRANSLATION lt
+            CROSS JOIN (SELECT COALESCE(MAX(LTV_ID), 0) + 1 AS NEXT_ID FROM STM_LITERAL_TRANSLATION_VALUE) base
+            WHERE NOT EXISTS (
+              SELECT 1
+              FROM STM_LITERAL_TRANSLATION_VALUE existing
+              WHERE existing.LTV_LTRID = lt.LTR_ID
+                AND existing.LTV_LANID = lt.LTR_LANID
+            )
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 11-require-literal-translation-source-language
+      author: sitmun
+      preConditions:
+        - onFail: HALT
+          sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LANID IS NULL
+      changes:
+        - addNotNullConstraint:
+            tableName: STM_LITERAL_TRANSLATION
+            columnName: LTR_LANID
+            columnDataType: int
+
+  - changeSet:
+      id: 11-add-literal-translation-source-language-fk
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            foreignKeyConstraintExists:
+              foreignKeyName: STM_LTR_FK_LAN
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: STM_LITERAL_TRANSLATION
+            baseColumnNames: LTR_LANID
+            constraintName: STM_LTR_FK_LAN
+            referencedTableName: STM_LANGUAGE
+            referencedColumnNames: LAN_ID

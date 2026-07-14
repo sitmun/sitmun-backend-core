@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12-add-language-order-and-default
+      author: sitmun
+      changes:
+        - addColumn:
+            tableName: STM_LANGUAGE
+            columns:
+              - column:
+                  name: LAN_ORDER
+                  type: int
+              - column:
+                  name: LAN_DEFAULT
+                  type: boolean
+
+  - changeSet:
+      id: 12-populate-language-order
+      author: sitmun
+      dbms: postgresql,h2,oracle
+      changes:
+        - sql: |
+            UPDATE STM_LANGUAGE target
+            SET LAN_ORDER = (
+              SELECT COUNT(*) 
+              FROM STM_LANGUAGE sub 
+              WHERE sub.LAN_SHORTNAME < target.LAN_SHORTNAME 
+                 OR (sub.LAN_SHORTNAME = target.LAN_SHORTNAME AND sub.LAN_ID < target.LAN_ID)
+            )
+            WHERE target.LAN_ORDER IS NULL
+
+  - changeSet:
+      id: 12-populate-language-default
+      author: sitmun
+      dbms: postgresql,h2,oracle
+      changes:
+        - sql: |
+            UPDATE STM_LANGUAGE
+            SET LAN_DEFAULT = FALSE
+            WHERE LAN_DEFAULT IS NULL
+        - sql: |
+            UPDATE STM_LANGUAGE
+            SET LAN_DEFAULT = TRUE
+            WHERE LAN_SHORTNAME = (
+              SELECT MAX(conf.CNF_VALUE)
+              FROM STM_CONF conf
+              WHERE conf.CNF_NAME = 'language.default'
+            )
+        - sql: |
+            UPDATE STM_LANGUAGE
+            SET LAN_DEFAULT = TRUE
+            WHERE NOT EXISTS (SELECT 1 FROM STM_LANGUAGE WHERE LAN_DEFAULT = TRUE)
+              AND LAN_ORDER = (
+                SELECT MIN(lan.LAN_ORDER)
+                FROM STM_LANGUAGE lan
+              )
+
+  - changeSet:
+      id: 12-require-language-order-and-default
+      author: sitmun
+      changes:
+        - addNotNullConstraint:
+            tableName: STM_LANGUAGE
+            columnName: LAN_ORDER
+            columnDataType: int
+        - addNotNullConstraint:
+            tableName: STM_LANGUAGE
+            columnName: LAN_DEFAULT
+            columnDataType: boolean

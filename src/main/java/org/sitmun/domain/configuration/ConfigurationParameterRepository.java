@@ -1,6 +1,7 @@
 package org.sitmun.domain.configuration;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,8 @@ import org.springframework.data.rest.core.annotation.RestResource;
     path = "configuration-parameters")
 public interface ConfigurationParameterRepository
     extends JpaRepository<ConfigurationParameter, Integer> {
+
+  Optional<ConfigurationParameter> findByName(String name);
 
   @RestResource(path = "content", rel = "content")
   @Query(

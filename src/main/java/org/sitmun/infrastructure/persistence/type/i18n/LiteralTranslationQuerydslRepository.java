@@ -8,5 +8,5 @@ import org.springframework.data.domain.Pageable;
 public interface LiteralTranslationQuerydslRepository {
 
   Page<LiteralTranslationListItemDto> findPageByLanguage(
-      String language, LiteralTranslationFilterModel filter, Pageable pageable);
+      String language, LiteralTranslationFilterModel filter, String searchText, Pageable pageable);
 }
