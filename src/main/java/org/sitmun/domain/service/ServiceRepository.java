@@ -1,6 +1,7 @@
 package org.sitmun.domain.service;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,14 @@ public interface ServiceRepository extends JpaRepository<Service, Integer> {
       or lower(service.type) like lower(concat('%', :q, '%'))
       """)
   Page<Service> findByContent(@Param("q") String q, Pageable pageable);
+
+  @RestResource(path = "wms", rel = "wms")
+  @Query(
+      """
+      select service
+      from Service service
+      where upper(service.type) = 'WMS'
+      order by lower(service.name), service.id
+      """)
+  List<Service> findWms();
 }

@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10_map_image_task_type
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          sqlCheck:
+            expectedResult: 0
+            sql: "SELECT COUNT(*) FROM STM_TSK_TYP WHERE TTY_ID = 18"
+      changes:
+        - insert:
+            tableName: STM_TSK_TYP
+            columns:
+              - column: { name: TTY_ID, valueNumeric: 18 }
+              - column: { name: TTY_NAME, value: "mapImage" }
+              - column: { name: TTY_TITLE, value: "Map Image" }
+              - column: { name: TTY_ENABLED, valueBoolean: true }
+              - column: { name: TTY_ORDER, valueNumeric: 19 }
+        - update:
+            tableName: STM_TSK_TYP
+            columns:
+              - column:
+                  name: TTY_SPEC
+                  valueClobFile: 10_add_map_image_task_type/18_MapImageTaskDefinition.json
+            where: TTY_ID = 18
+      rollback:
+        - delete:
+            tableName: STM_TSK_TYP
+            where: TTY_ID = 18
+  - changeSet:
+      id: 10b_map_image_task_type_seq
+      author: sitmun
+      changes:
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TTY_ID), 0) + 1 FROM STM_TSK_TYP)
+              WHERE SEQ_NAME = 'TTY_ID';
+      rollback:
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TTY_ID), 0) + 1 FROM STM_TSK_TYP)
+              WHERE SEQ_NAME = 'TTY_ID';

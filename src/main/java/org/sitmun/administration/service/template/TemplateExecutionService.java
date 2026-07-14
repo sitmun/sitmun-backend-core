@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
+import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
@@ -31,6 +33,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
 import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
@@ -69,6 +72,10 @@ public class TemplateExecutionService {
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
   private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX = "Template nesting depth exceeded";
   private static final String NO_DATA_LITERAL = "Sense dades";
+  private static final double MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE = 150d;
+  private static final double MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE = 0.0015d;
+  private static final int DEFAULT_MAP_IMAGE_WIDTH = 1024;
+  private static final int DEFAULT_MAP_IMAGE_HEIGHT = 768;
   private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {
@@ -85,6 +92,11 @@ public class TemplateExecutionService {
   public static final String COMPLETED = "COMPLETED";
   public static final String ORDER = "order";
   public static final String SCROLL = "scroll";
+  private static final List<String> MAP_IMAGE_FEATURE_BBOX_PARAMETER_KEYS = List.of(
+      "featureBboxMinX",
+      "featureBboxMinY",
+      "featureBboxMaxX",
+      "featureBboxMaxY");
 
   private final TaskRepository taskRepository;
   private final RoleRepository roleRepository;
@@ -92,6 +104,7 @@ public class TemplateExecutionService {
   private final ProxyConfigurationService proxyConfigurationService;
   private final DatabaseConnectionService databaseConnectionService;
   private final HttpClientFactory httpClientFactory;
+  private final MapImageTaskExecutionService mapImageTaskExecutionService;
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRenderService templateRenderService;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
@@ -142,7 +155,7 @@ public class TemplateExecutionService {
         .build();
   }
 
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true, noRollbackFor = ResponseStatusException.class)
   public MoreInfoAdvancedRenderResponseDto renderMoreInfoAdvanced(
       MoreInfoAdvancedRenderRequestDto requestDto) {
     List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
@@ -261,12 +274,13 @@ public class TemplateExecutionService {
     if (!mayAccessTask(childTask, coordinates)) {
       return renderNoDataHtml();
     }
-    Map<String, String> childParameters = stringifyParameters(
-        resolveMappedParameters(childDefinition.get(PARAMETERS), featureParameters));
-    if (childParameters.isEmpty()) {
-      childParameters = stringifyParameters(
-          resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters));
+    Map<String, Object> resolvedChildParameters = resolveMappedParameters(
+        childDefinition.get(PARAMETERS), featureParameters);
+    if (resolvedChildParameters.isEmpty()) {
+      resolvedChildParameters = resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters);
     }
+    enrichMapImageViewerContextParameters(childTask, resolvedChildParameters, featureParameters);
+    Map<String, String> childParameters = stringifyParameters(resolvedChildParameters);
     Map<String, Map<String, Object>> childTaskParameters = new LinkedHashMap<>(
         resolveMappedChildTaskParameters(
             childDefinition.get(CHILD_TASK_PARAMETERS), featureParameters));
@@ -341,6 +355,7 @@ public class TemplateExecutionService {
       Task relatedTask = relation.getRelatedTask();
       Map<String, Object> resolvedParameters = resolveMappedParameters(readMiaChildParameterMappings(relatedTask),
           featureParameters);
+      enrichMapImageViewerContextParameters(relatedTask, resolvedParameters, featureParameters);
       if (!resolvedParameters.isEmpty()) {
         Map<String, Object> existingParameters = childTaskParameters.computeIfAbsent(
             String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
@@ -593,33 +608,15 @@ public class TemplateExecutionService {
       viewerParameters.putAll(requestDto.getParameters());
     }
 
-    if (requestDto.getBbox() != null && requestDto.getBbox().size() >= 4) {
-      List<Double> bbox = requestDto.getBbox();
-      viewerParameters.put("bbox", new ArrayList<>(bbox.subList(0, 4)));
-      viewerParameters.put("bboxMinX", bbox.get(0));
-      viewerParameters.put("bboxMinY", bbox.get(1));
-      viewerParameters.put("bboxMaxX", bbox.get(2));
-      viewerParameters.put("bboxMaxY", bbox.get(3));
-    }
-
-    if (StringUtils.hasText(requestDto.getQueriedLayer())) {
-      viewerParameters.put("queriedLayer", requestDto.getQueriedLayer());
-      viewerParameters.put("queriedLayerId", extractLayerId(requestDto.getQueriedLayer()));
-    }
-
-    if (StringUtils.hasText(requestDto.getQueriedService())) {
-      viewerParameters.put("queriedService", requestDto.getQueriedService());
+    if (requestDto.getFeatureBbox() != null && requestDto.getFeatureBbox().size() >= 4) {
+      List<Double> featureBbox = requestDto.getFeatureBbox();
+      viewerParameters.put("featureBboxMinX", featureBbox.get(0));
+      viewerParameters.put("featureBboxMinY", featureBbox.get(1));
+      viewerParameters.put("featureBboxMaxX", featureBbox.get(2));
+      viewerParameters.put("featureBboxMaxY", featureBbox.get(3));
     }
 
     return viewerParameters;
-  }
-
-  private Integer extractLayerId(String layerRef) {
-    if (!StringUtils.hasText(layerRef)) {
-      return null;
-    }
-    Matcher matcher = Pattern.compile("(?:^|/)(\\d+)$").matcher(layerRef);
-    return matcher.find() ? Integer.valueOf(matcher.group(1)) : null;
   }
 
   private Map<String, Object> readTemplateDefaultParameters(Task task) {
@@ -705,6 +702,22 @@ public class TemplateExecutionService {
           }
         });
     return resolved;
+  }
+
+  private void enrichMapImageViewerContextParameters(
+      Task task,
+      Map<String, Object> parameters,
+      Map<String, Object> featureParameters) {
+    if (!DomainConstants.Tasks.isMapImageTask(task)) {
+      return;
+    }
+    MAP_IMAGE_FEATURE_BBOX_PARAMETER_KEYS.forEach(
+        key -> {
+          Object value = featureParameters.get(key);
+          if (value != null) {
+            parameters.putIfAbsent(key, value);
+          }
+        });
   }
 
   @SuppressWarnings("unchecked")
@@ -946,6 +959,10 @@ public class TemplateExecutionService {
           coordinates,
           depth + 1,
           isolateTemplateChildFailures);
+    }
+
+    if (DomainConstants.Tasks.isMapImageTask(task)) {
+      return executeMapImageTask(task, parameters);
     }
 
     String scope = String.valueOf(task.getProperties().get(DomainConstants.Tasks.PROPERTY_SCOPE));
@@ -1235,6 +1252,202 @@ public class TemplateExecutionService {
           "Template API task {} failed while calling {}", task.getId(), sanitizedRequestUrl, e);
       throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to execute API task", e);
     }
+  }
+
+  private TemplateTaskExecutionResponseDto executeMapImageTask(Task task, Map<String, String> parameters) {
+    MapImageRenderRequestDto requestDto = new MapImageRenderRequestDto();
+    requestDto.setTaskId(task.getId());
+    List<Double> featureDrivenBbox = resolveFeatureDrivenMapImageBbox(task, parameters);
+    if (featureDrivenBbox != null) {
+      requestDto.setBbox(featureDrivenBbox);
+    }
+
+    byte[] content = mapImageTaskExecutionService.renderMapImage(requestDto);
+    String contentUrl = "data:" + MediaType.IMAGE_PNG_VALUE + ";base64," + Base64.getEncoder().encodeToString(content);
+    return buildMapImageBinaryResponse(task, contentUrl);
+  }
+
+  private List<Double> resolveFeatureDrivenMapImageBbox(Task task, Map<String, String> parameters) {
+    List<Double> featureBbox = readFeatureBbox(parameters);
+    if (featureBbox == null) {
+      return null;
+    }
+
+    List<Double> expandedBbox = expandDegenerateBbox(featureBbox, readMapImageDegenerateBboxSize(task));
+    List<Double> paddedBbox = applyBboxMargin(expandedBbox, readMapImageBboxMarginRatio(task));
+    return fitBboxToAspectRatio(
+        paddedBbox,
+        readPositiveTaskDimension(task, DomainConstants.Tasks.PROPERTY_WIDTH, DEFAULT_MAP_IMAGE_WIDTH),
+        readPositiveTaskDimension(task, DomainConstants.Tasks.PROPERTY_HEIGHT, DEFAULT_MAP_IMAGE_HEIGHT));
+  }
+
+  private double readMapImageBboxMarginRatio(Task task) {
+    if (task == null || task.getProperties() == null) {
+      return 0d;
+    }
+    Object rawValue = task.getProperties().get(DomainConstants.Tasks.PROPERTY_BBOX_MARGIN_PERCENT);
+    if (!(rawValue instanceof Number number)) {
+      return 0d;
+    }
+    return Math.max(0d, number.doubleValue()) / 100d;
+  }
+
+  private double readMapImageDegenerateBboxSize(Task task) {
+    if (task == null || task.getProperties() == null) {
+      return MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE;
+    }
+    Object rawSrs = task.getProperties().get(DomainConstants.Tasks.PROPERTY_SRS);
+    String srs = rawSrs instanceof String value ? value.trim() : "";
+    return isGeographicSrs(srs)
+        ? MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE
+        : MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE;
+  }
+
+  private boolean isGeographicSrs(String srs) {
+    return "EPSG:4326".equalsIgnoreCase(srs) || "CRS:84".equalsIgnoreCase(srs);
+  }
+
+  private List<Double> readFeatureBbox(Map<String, String> parameters) {
+    if (parameters == null || parameters.isEmpty()) {
+      return null;
+    }
+
+    boolean hasFeatureBboxParameter = parameters.containsKey("featureBboxMinX")
+        || parameters.containsKey("featureBboxMinY")
+        || parameters.containsKey("featureBboxMaxX")
+        || parameters.containsKey("featureBboxMaxY");
+    if (!hasFeatureBboxParameter) {
+      return null;
+    }
+
+    validateRequiredFeatureBboxParameters(parameters);
+
+    Double minX = readDoubleParameter(parameters, "featureBboxMinX");
+    Double minY = readDoubleParameter(parameters, "featureBboxMinY");
+    Double maxX = readDoubleParameter(parameters, "featureBboxMaxX");
+    Double maxY = readDoubleParameter(parameters, "featureBboxMaxY");
+    return List.of(minX, minY, maxX, maxY);
+  }
+
+  private void validateRequiredFeatureBboxParameters(Map<String, String> parameters) {
+    List<String> requiredKeys = List.of(
+        "featureBboxMinX",
+        "featureBboxMinY",
+        "featureBboxMaxX",
+        "featureBboxMaxY");
+    boolean missingParameter = requiredKeys.stream()
+        .anyMatch((key) -> !StringUtils.hasText(parameters.get(key)));
+    if (missingParameter) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "featureBbox parameters must include featureBboxMinX, featureBboxMinY, featureBboxMaxX and featureBboxMaxY together");
+    }
+  }
+
+  private Double readDoubleParameter(Map<String, String> parameters, String key) {
+    String rawValue = parameters.get(key);
+    if (!StringUtils.hasText(rawValue)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "featureBbox parameter " + key + " must be numeric");
+    }
+    try {
+      return Double.valueOf(rawValue.trim());
+    } catch (NumberFormatException exception) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "featureBbox parameter " + key + " must be numeric",
+          exception);
+    }
+  }
+
+  private List<Double> expandDegenerateBbox(List<Double> bbox, double minDegenerateBboxSize) {
+    double minX = bbox.get(0);
+    double minY = bbox.get(1);
+    double maxX = bbox.get(2);
+    double maxY = bbox.get(3);
+
+    if (Double.compare(minX, maxX) == 0) {
+      minX -= minDegenerateBboxSize / 2d;
+      maxX += minDegenerateBboxSize / 2d;
+    }
+    if (Double.compare(minY, maxY) == 0) {
+      minY -= minDegenerateBboxSize / 2d;
+      maxY += minDegenerateBboxSize / 2d;
+    }
+
+    return List.of(minX, minY, maxX, maxY);
+  }
+
+  private List<Double> applyBboxMargin(List<Double> bbox, double marginRatio) {
+    double width = bbox.get(2) - bbox.get(0);
+    double height = bbox.get(3) - bbox.get(1);
+    double horizontalMargin = width * marginRatio / 2d;
+    double verticalMargin = height * marginRatio / 2d;
+    return List.of(
+        bbox.get(0) - horizontalMargin,
+        bbox.get(1) - verticalMargin,
+        bbox.get(2) + horizontalMargin,
+        bbox.get(3) + verticalMargin);
+  }
+
+  private List<Double> fitBboxToAspectRatio(List<Double> bbox, int width, int height) {
+    double minX = bbox.get(0);
+    double minY = bbox.get(1);
+    double maxX = bbox.get(2);
+    double maxY = bbox.get(3);
+    double bboxWidth = maxX - minX;
+    double bboxHeight = maxY - minY;
+    if (bboxWidth <= 0d || bboxHeight <= 0d || width <= 0 || height <= 0) {
+      return bbox;
+    }
+
+    double bboxCenterX = (minX + maxX) / 2d;
+    double bboxCenterY = (minY + maxY) / 2d;
+    double bboxRatio = bboxWidth / bboxHeight;
+    double targetRatio = (double) width / (double) height;
+
+    if (bboxRatio < targetRatio) {
+      double fittedWidth = bboxHeight * targetRatio;
+      double halfWidth = fittedWidth / 2d;
+      return List.of(bboxCenterX - halfWidth, minY, bboxCenterX + halfWidth, maxY);
+    }
+
+    if (bboxRatio > targetRatio) {
+      double fittedHeight = bboxWidth / targetRatio;
+      double halfHeight = fittedHeight / 2d;
+      return List.of(minX, bboxCenterY - halfHeight, maxX, bboxCenterY + halfHeight);
+    }
+
+    return bbox;
+  }
+
+  private int readPositiveTaskDimension(Task task, String propertyKey, int defaultValue) {
+    if (task == null || task.getProperties() == null) {
+      return defaultValue;
+    }
+    Object rawValue = task.getProperties().get(propertyKey);
+    return rawValue instanceof Number number && number.intValue() > 0 ? number.intValue() : defaultValue;
+  }
+
+  private TemplateTaskExecutionResponseDto buildMapImageBinaryResponse(Task task, String contentUrl) {
+    Map<String, Object> context = new LinkedHashMap<>();
+    context.put("contentUrl", contentUrl);
+    context.put("url", contentUrl);
+    context.put("mimeType", MediaType.IMAGE_PNG_VALUE);
+    context.put("binary", true);
+    context.put("embeddable", true);
+    context.put(VALUE, BINARY_VALUE_PLACEHOLDER);
+
+    List<Map<String, Object>> rows = flattenContextToRows(context);
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status(COMPLETED)
+        .resultType("resource")
+        .context(context)
+        .rows(rows)
+        .resourceUrl(contentUrl)
+        .build();
   }
 
   private String sanitizeRequestUrlForLogging(

@@ -23,6 +23,12 @@ public class DomainConstants {
     public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
     public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
     public static final String PROPERTY_EXPORT_ENGINE = "exportEngine";
+    public static final String PROPERTY_FORMAT = "format";
+    public static final String PROPERTY_WIDTH = "width";
+    public static final String PROPERTY_HEIGHT = "height";
+    public static final String PROPERTY_SRS = "srs";
+    public static final String PROPERTY_BBOX_MARGIN_PERCENT = "bboxMarginPercent";
+    public static final String PROPERTY_MAP_SOURCES = "mapSources";
 
     /**
      * Task property {@code downloadFormat}: output format for the download button shown in the MIA
@@ -153,6 +159,7 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_LOCATOR = 4;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
+    public static final int TASK_TYPE_ID_MAP_IMAGE = 18;
     public static final int TASK_TYPE_ID_DOCUMENT_EXPORT = 17;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
     public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
@@ -194,6 +201,10 @@ public class DomainConstants {
 
     public static boolean isMoreInfoAdvancedTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
+    }
+
+    public static boolean isMapImageTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MAP_IMAGE).equals(taskTypeId(task));
     }
 
     /** Any task whose type id is {@link #TASK_TYPE_ID_QUERY} (scope/FK rules use other helpers). */

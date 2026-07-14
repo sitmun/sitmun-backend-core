@@ -2,6 +2,7 @@ package org.sitmun.administration.service.template;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
@@ -25,6 +26,8 @@ import okio.Okio;
 import okio.Source;
 import okio.Timeout;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
@@ -32,6 +35,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
@@ -70,6 +74,7 @@ class TemplateExecutionServiceTest {
             mock(ProxyConfigurationService.class),
             mock(DatabaseConnectionService.class),
             mock(HttpClientFactory.class),
+            mock(MapImageTaskExecutionService.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
             mock(TemplateRequestCoordinatesService.class),
@@ -77,20 +82,16 @@ class TemplateExecutionServiceTest {
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
     request.setParameters(Map.of("parcela", "ABC123"));
-    request.setBbox(List.of(1.0, 2.0, 3.0, 4.0));
-    request.setQueriedLayer("layer/7");
-    request.setQueriedService("turisme");
+    request.setFeatureBbox(List.of(5.0, 6.0, 7.0, 8.0));
 
     Map<String, Object> viewerParameters = service.buildViewerParameters(request);
 
     assertThat(viewerParameters).containsEntry("parcela", "ABC123");
-    assertThat(viewerParameters).containsEntry("bboxMinX", 1.0);
-    assertThat(viewerParameters).containsEntry("bboxMinY", 2.0);
-    assertThat(viewerParameters).containsEntry("bboxMaxX", 3.0);
-    assertThat(viewerParameters).containsEntry("bboxMaxY", 4.0);
-    assertThat(viewerParameters).containsEntry("queriedLayer", "layer/7");
-    assertThat(viewerParameters).containsEntry("queriedLayerId", 7);
-    assertThat(viewerParameters).containsEntry("queriedService", "turisme");
+    assertThat(viewerParameters).doesNotContainKey("featureBbox");
+    assertThat(viewerParameters).containsEntry("featureBboxMinX", 5.0);
+    assertThat(viewerParameters).containsEntry("featureBboxMinY", 6.0);
+    assertThat(viewerParameters).containsEntry("featureBboxMaxX", 7.0);
+    assertThat(viewerParameters).containsEntry("featureBboxMaxY", 8.0);
   }
 
   @Test
@@ -107,6 +108,7 @@ class TemplateExecutionServiceTest {
             mock(ProxyConfigurationService.class),
             mock(DatabaseConnectionService.class),
             mock(HttpClientFactory.class),
+            mock(MapImageTaskExecutionService.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
             coordinatesService,
@@ -282,6 +284,7 @@ class TemplateExecutionServiceTest {
             mock(ProxyConfigurationService.class),
             mock(DatabaseConnectionService.class),
             mock(HttpClientFactory.class),
+            mock(MapImageTaskExecutionService.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
             coordinatesService,
@@ -347,6 +350,7 @@ class TemplateExecutionServiceTest {
             mock(ProxyConfigurationService.class),
             mock(DatabaseConnectionService.class),
             mock(HttpClientFactory.class),
+            mock(MapImageTaskExecutionService.class),
             mock(SystemVariableResolver.class),
             mock(TemplateRenderService.class),
             coordinatesService,
@@ -381,12 +385,289 @@ class TemplateExecutionServiceTest {
     }
   }
 
+  @Test
+  void executeLinkedTaskReturnsEmbeddableMapImageResource() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of())
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getResultType()).isEqualTo("resource");
+    assertThat(result.getContext())
+        .containsEntry("binary", true)
+        .containsEntry("mimeType", "image/png");
+    assertThat(result.getResourceUrl()).startsWith("data:image/png;base64,");
+  }
+
+  @Test
+  void executeLinkedTaskPassesFeatureDrivenBboxToMapImageTask() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of(
+            DomainConstants.Tasks.PROPERTY_WIDTH, 200,
+            DomainConstants.Tasks.PROPERTY_HEIGHT, 100))
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+    requestDto.setParameters(Map.of(
+        "featureBboxMinX", "0",
+        "featureBboxMinY", "0",
+        "featureBboxMaxX", "0",
+        "featureBboxMaxY", "0"));
+
+    service.executeLinkedTask(requestDto);
+
+    ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
+    verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().getBbox()).containsExactly(-150.0, -75.0, 150.0, 75.0);
+  }
+
+  @Test
+  void executeLinkedTaskUsesConfiguredFeatureDrivenBboxMarginPercentForMapImageTask() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of(
+            DomainConstants.Tasks.PROPERTY_WIDTH, 200,
+            DomainConstants.Tasks.PROPERTY_HEIGHT, 100,
+            DomainConstants.Tasks.PROPERTY_BBOX_MARGIN_PERCENT, 15))
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+    requestDto.setParameters(Map.of(
+        "featureBboxMinX", "0",
+        "featureBboxMinY", "0",
+        "featureBboxMaxX", "0",
+        "featureBboxMaxY", "0"));
+
+    service.executeLinkedTask(requestDto);
+
+    ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
+    verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().getBbox()).containsExactly(-172.5, -86.25, 172.5, 86.25);
+  }
+
+  @Test
+  void executeLinkedTaskUsesGeographicDegenerateBboxSizeForMapImageTask() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of(
+            DomainConstants.Tasks.PROPERTY_WIDTH, 200,
+            DomainConstants.Tasks.PROPERTY_HEIGHT, 100,
+            DomainConstants.Tasks.PROPERTY_SRS, "EPSG:4326"))
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+    requestDto.setParameters(Map.of(
+        "featureBboxMinX", "2.17",
+        "featureBboxMinY", "41.38",
+        "featureBboxMaxX", "2.17",
+        "featureBboxMaxY", "41.38"));
+
+    service.executeLinkedTask(requestDto);
+
+    ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
+    verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
+    List<Double> bbox = requestCaptor.getValue().getBbox();
+    assertThat(bbox.get(0)).isCloseTo(2.1685, within(0.0000001));
+    assertThat(bbox.get(1)).isCloseTo(41.37925, within(0.0000001));
+    assertThat(bbox.get(2)).isCloseTo(2.1715, within(0.0000001));
+    assertThat(bbox.get(3)).isCloseTo(41.38075, within(0.0000001));
+  }
+
+  @Test
+  void executeLinkedTaskRejectsPartialFeatureBboxParameters() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of())
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+    requestDto.setParameters(Map.of("featureBboxMinX", "0"));
+
+    assertThatThrownBy(() -> service.executeLinkedTask(requestDto))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException =
+                  (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(responseStatusException.getReason())
+                  .isEqualTo("featureBbox parameters must include featureBboxMinX, featureBboxMinY, featureBboxMaxX and featureBboxMaxY together");
+            });
+  }
+
+  @Test
+  void executeLinkedTaskRejectsNonNumericFeatureBboxParameters() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            mock(TemplateRequestCoordinatesService.class),
+            new ObjectMapper());
+
+    Task task = Task.builder()
+        .id(18)
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of())
+        .build();
+    when(taskRepository.findById(18)).thenReturn(Optional.of(task));
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(18);
+    requestDto.setParameters(Map.of(
+        "featureBboxMinX", "abc",
+        "featureBboxMinY", "0",
+        "featureBboxMaxX", "1",
+        "featureBboxMaxY", "1"));
+
+    assertThatThrownBy(() -> service.executeLinkedTask(requestDto))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(
+            exception -> {
+              ResponseStatusException responseStatusException =
+                  (ResponseStatusException) exception;
+              assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(responseStatusException.getReason())
+                  .isEqualTo("featureBbox parameter featureBboxMinX must be numeric");
+            });
+  }
+
   private TemplateExecutionService newService(
       TaskRepository taskRepository,
       TaskRelationRepository taskRelationRepository,
       ProxyConfigurationService proxyConfigurationService,
       DatabaseConnectionService databaseConnectionService,
       HttpClientFactory httpClientFactory,
+      SystemVariableResolver systemVariableResolver,
+      TemplateRenderService templateRenderService,
+      TemplateRequestCoordinatesService coordinatesService,
+      ObjectMapper objectMapper) {
+    return newService(
+        taskRepository,
+        taskRelationRepository,
+        proxyConfigurationService,
+        databaseConnectionService,
+        httpClientFactory,
+        mock(MapImageTaskExecutionService.class),
+        systemVariableResolver,
+        templateRenderService,
+        coordinatesService,
+        objectMapper);
+  }
+
+  private TemplateExecutionService newService(
+      TaskRepository taskRepository,
+      TaskRelationRepository taskRelationRepository,
+      ProxyConfigurationService proxyConfigurationService,
+      DatabaseConnectionService databaseConnectionService,
+      HttpClientFactory httpClientFactory,
+      MapImageTaskExecutionService mapImageTaskExecutionService,
       SystemVariableResolver systemVariableResolver,
       TemplateRenderService templateRenderService,
       TemplateRequestCoordinatesService coordinatesService,
@@ -401,6 +682,7 @@ class TemplateExecutionServiceTest {
         proxyConfigurationService,
         databaseConnectionService,
         httpClientFactory,
+        mapImageTaskExecutionService,
         systemVariableResolver,
         templateRenderService,
         coordinatesService,
@@ -468,6 +750,57 @@ class TemplateExecutionServiceTest {
 
     assertThat(result.getTasks()).hasSize(1);
     assertThat(result.getTasks().get(0).getHtml()).contains("https://example.org/doc/A-1");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedPassesFeatureBboxToMapImageChildWithoutDeclaredParameters() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(101)));
+
+    Task mapImageTask = Task.builder()
+        .id(101)
+        .name("Map image")
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of(DomainConstants.Tasks.PROPERTY_MAP_SOURCES, List.of(Map.of("serviceId", 9, "layerNames", List.of("layer_a")))))
+        .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(101)).thenReturn(Optional.of(mapImageTask));
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setFeatureBbox(List.of(5.0, 6.0, 7.0, 8.0));
+
+    service.renderMoreInfoAdvanced(request);
+
+    ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
+    verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().getBbox()).hasSize(4);
   }
 
   @Test

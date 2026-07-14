@@ -196,6 +196,23 @@ class TemplateExportServiceTest {
   }
 
   @Test
+  @DisplayName("exportTaskFile returns configured file bytes for enabled output")
+  void exportTaskFileReturnsConfiguredFileBytesForEnabledOutput() throws Exception {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    ReflectionTestUtils.setField(service, "allowedFilePathPrefix", tempDir.toString());
+    Path xmlFile = tempDir.resolve("reports/export.xml");
+    Files.createDirectories(xmlFile.getParent());
+    Files.writeString(xmlFile, "<report>ok</report>", StandardCharsets.UTF_8);
+    when(taskRepository.findById(520)).thenReturn(Optional.of(buildTask(520, Map.of(
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "xml",
+        DomainConstants.Tasks.PROPERTY_DOWNLOAD_SOURCE, "reports/export.xml"))));
+
+    byte[] content = service.exportTaskFile(520L, "xml");
+
+    assertThat(new String(content, StandardCharsets.UTF_8)).isEqualTo("<report>ok</report>");
+  }
+
+  @Test
   @DisplayName("exportTaskFile fails when xml task lacks configured download source")
   void exportTaskFileFailsWhenXmlTaskLacksConfiguredDownloadSource() {
     TemplateExportService service = new TemplateExportService(taskRepository);
@@ -267,6 +284,21 @@ class TemplateExportServiceTest {
   }
 
   @Test
+  @DisplayName("exportTaskFile fails when task does not exist")
+  void exportTaskFileFailsWhenTaskDoesNotExist() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    when(taskRepository.findById(880)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.exportTaskFile(880L, "xml"))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(exception -> {
+          ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+          assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+          assertThat(responseStatusException.getReason()).isEqualTo("Task not found: 880");
+        });
+  }
+
+  @Test
   @DisplayName("resolveExportFilename prefers template task name and uses report fallback")
   void resolveExportFilenamePrefersTemplateTaskNameAndUsesReportFallback() {
     TemplateExportService service = new TemplateExportService(taskRepository);
@@ -278,6 +310,36 @@ class TemplateExportServiceTest {
     assertThat(service.resolveExportFilename(901L, "xml")).isEqualTo("Export task.xml");
     assertThat(service.resolveExportFilename(902L, "pdf")).isEqualTo("Quarterly_Report_.pdf");
     assertThat(service.resolveExportFilename(903L, 901L, "pdf")).isEqualTo("Plantilla territori.pdf");
+  }
+
+  @Test
+  @DisplayName("resolveExportFilename fails when selected task does not exist")
+  void resolveExportFilenameFailsWhenTaskDoesNotExist() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+    when(taskRepository.findById(990)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.resolveExportFilename(990L, "pdf"))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(exception -> {
+          ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+          assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+          assertThat(responseStatusException.getReason()).isEqualTo("Task not found: 990");
+        });
+  }
+
+  @Test
+  @DisplayName("exportHtml fails when html is blank and task id is missing")
+  void exportHtmlFailsWhenHtmlIsBlankAndTaskIdIsMissing() {
+    TemplateExportService service = new TemplateExportService(taskRepository);
+
+    assertThatThrownBy(() -> service.exportHtml("   ", "xml", null))
+        .isInstanceOf(ResponseStatusException.class)
+        .satisfies(exception -> {
+          ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+          assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+          assertThat(responseStatusException.getReason())
+              .isEqualTo("Either runtime HTML content or a task with configured XML source must be provided");
+        });
   }
 
   @Test
