@@ -37,6 +37,9 @@ public interface TaskAvailabilityProjection {
   @Value("#{target.task?.name}")
   String getTaskName();
 
+  @Value("#{target.task?.type?.id}")
+  Integer getTaskTypeId();
+
   @Value("#{target.task?.type?.name}")
   String getTaskTypeName();
 

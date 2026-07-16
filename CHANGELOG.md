@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- **Availability projections**: `CartographyAvailabilityProjection.cartographyServiceId` and `TaskAvailabilityProjection.taskTypeId` expose ids needed for admin relation-grid navigation.
 - **Tree nodes**: `TreeRadioTypePolicy` centralizes cartography-to-non-cartography tree type validation; enforced on `TreeController` and `TreeEventHandler` before save.
 
 - **Tree nodes**: client-profile catalog filtering uses `visible` (`TNO_VISIBLE`); `active` is independent and maps to profile `loadByDefault`.
