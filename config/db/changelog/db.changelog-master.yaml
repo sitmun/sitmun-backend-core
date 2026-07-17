@@ -24,8 +24,8 @@ databaseChangeLog:
       file: 06_params.yaml
       relativeToChangelogFile: true
   - include:
-      file: 07_sequences.sql
+      file: 08_more_info_data.yaml
       relativeToChangelogFile: true
   - include:
-      file: 08_more_info_data.yaml
+      file: 07_sequences.sql
       relativeToChangelogFile: true

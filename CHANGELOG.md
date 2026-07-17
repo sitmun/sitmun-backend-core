@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Database**: Liquibase initializes and realigns every Hibernate table generator above seeded primary keys, preventing duplicate-key failures on inserts after fresh installs and upgrades.
 - **Tree nodes**: `TreeNodeEventHandler.normalizeActive` clears `active` on non-cartography-leaf nodes (folders, task nodes, and cartography+task malformed rows); client profile `loadByDefault` stays false for those nodes.
 - **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
 - **Dashboard API**: keyword-aware `/dashboard/applications` (with full `DashboardApplicationDto` enrichment) and `/dashboard/suggestions` query the database instead of filtering only the first in-memory page.
