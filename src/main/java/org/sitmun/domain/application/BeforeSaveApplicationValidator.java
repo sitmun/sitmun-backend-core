@@ -8,7 +8,13 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class BeforeCreateApplicationValidator implements Validator {
+public class BeforeSaveApplicationValidator implements Validator {
+
+  private final ApplicationPointOfContactValidation pocValidation;
+
+  public BeforeSaveApplicationValidator(ApplicationPointOfContactValidation pocValidation) {
+    this.pocValidation = pocValidation;
+  }
 
   @Override
   public boolean supports(@NonNull Class<?> aClass) {
@@ -26,8 +32,7 @@ public class BeforeCreateApplicationValidator implements Validator {
           "situationMap.type.invalid",
           "It must be of type \"" + CartographyPermission.TYPE_SITUATION_MAP + "\".");
     }
-    var creator = application.getCreator();
-    if (creator != null && !ApplicationPointOfContactPolicy.isEligible(creator)) {
+    if (!pocValidation.isValidCreatorChange(application.getId(), application.getCreator())) {
       errors.rejectValue(
           "creator",
           "creator.invalidPointOfContact",

@@ -23149,6 +23149,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicationBackground'
+        responsibleInstitutionName:
+          type: string
+          nullable: true
+          maxLength: 250
+          description: Name of the institution responsible for this application.
     ApplicationBackground:
       required:
         - Administración

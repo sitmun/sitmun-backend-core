@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.*;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Length;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -163,6 +165,11 @@ public class Application {
   @JoinColumn(name = "APP_CREATORID")
   private User creator;
 
+  /** Name of the institution responsible for this application. */
+  @Column(name = "APP_RESPONSIBLE_INSTITUTION", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @Size(max = PersistenceConstants.SHORT_DESCRIPTION)
+  private String responsibleInstitutionName;
+
   /** Situation map when the application is internal. */
   @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GGI"))
@@ -235,6 +242,10 @@ public class Application {
                   "switchLanguage", visible(),
                   "profileButton", visible(),
                   "logoutButton", visible()));
+
+  public void setResponsibleInstitutionName(String value) {
+    this.responsibleInstitutionName = StringUtils.trimToNull(value);
+  }
 
   @Override
   public boolean equals(Object obj) {

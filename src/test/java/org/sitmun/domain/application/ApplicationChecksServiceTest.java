@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +106,89 @@ class ApplicationChecksServiceTest {
     List<String> warnings = applicationChecksService.getWarnings(app);
 
     assertThat(warnings).contains("entity.application.warning.external-url-required");
+  }
+
+  @Test
+  @DisplayName("Should warn when creator is built-in public (ineligible PoC)")
+  @WithMockUser(roles = "ADMIN")
+  void shouldWarnWhenCreatorIsBuiltInPublic() {
+    User publicUser =
+        User.builder().id(1).username("public").blocked(false).administrator(false).build();
+    Application app =
+        Application.builder().id(1).name("App").appPrivate(false).creator(publicUser).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings).contains("entity.application.warning.invalid-point-of-contact");
+  }
+
+  @Test
+  @DisplayName("Should warn when creator is blocked (ineligible PoC)")
+  @WithMockUser(roles = "ADMIN")
+  void shouldWarnWhenCreatorIsBlocked() {
+    User blocked =
+        User.builder()
+            .id(5)
+            .username("alice")
+            .blocked(true)
+            .administrator(true)
+            .email("alice@example.com")
+            .build();
+    Application app =
+        Application.builder().id(1).name("App").appPrivate(false).creator(blocked).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings).contains("entity.application.warning.invalid-point-of-contact");
+  }
+
+  @Test
+  @DisplayName("Should warn when eligible creator has no email")
+  @WithMockUser(roles = "ADMIN")
+  void shouldWarnWhenEligibleCreatorHasNoEmail() {
+    User noEmail =
+        User.builder().id(5).username("alice").blocked(false).administrator(true).build();
+    Application app =
+        Application.builder().id(1).name("App").appPrivate(false).creator(noEmail).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings).contains("entity.application.warning.point-of-contact-email-missing");
+  }
+
+  @Test
+  @DisplayName("Should not warn about PoC when creator is null")
+  @WithMockUser(roles = "ADMIN")
+  void shouldNotWarnAboutPocWhenCreatorIsNull() {
+    Application app = Application.builder().id(1).name("App").appPrivate(false).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings)
+        .doesNotContain("entity.application.warning.invalid-point-of-contact")
+        .doesNotContain("entity.application.warning.point-of-contact-email-missing");
+  }
+
+  @Test
+  @DisplayName("Should not warn about PoC when eligible creator has email")
+  @WithMockUser(roles = "ADMIN")
+  void shouldNotWarnAboutPocWhenEligibleCreatorHasEmail() {
+    User user =
+        User.builder()
+            .id(5)
+            .username("alice")
+            .blocked(false)
+            .administrator(true)
+            .email("alice@example.com")
+            .build();
+    Application app =
+        Application.builder().id(1).name("App").appPrivate(false).creator(user).build();
+
+    List<String> warnings = applicationChecksService.getWarnings(app);
+
+    assertThat(warnings)
+        .doesNotContain("entity.application.warning.invalid-point-of-contact")
+        .doesNotContain("entity.application.warning.point-of-contact-email-missing");
   }
 
   @Test

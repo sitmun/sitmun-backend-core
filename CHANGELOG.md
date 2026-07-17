@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Applications**: `responsibleInstitutionName` field on `Application` (DB column `APP_RESPONSIBLE_INSTITUTION VARCHAR(250)`); exposed via `ApplicationProjection`, `ApplicationDtoLittle`, and client profile. Value is trimmed; blank input stored as null. ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316))
+- **Applications**: point-of-contact (PoC) eligibility rule: creator is eligible when not a built-in principal (`public`/`admin`) and not blocked; email is not required for eligibility. `ApplicationPointOfContactPolicy` centralises `isEligible` and `hasPublishableEmail`.
+- **Applications**: `ApplicationChecksService` emits `entity.application.warning.invalid-point-of-contact` when creator is non-null and ineligible, and `entity.application.warning.point-of-contact-email-missing` when creator is eligible but has blank email.
+- **Applications**: `pointOfContact` in client profile (`ApplicationDtoLittle`) is set only when creator is eligible and has a non-blank email; `responsibleInstitutionName` is always mapped independently of creator state.
+- **Dashboard API**: `DashboardApplicationDto` exposes `responsibleInstitutionName`; dashboard `creator` email is published only when the PoC has a publishable email (same eligibility rules as `pointOfContact`).
+- **Applications**: `BeforeCreateApplicationValidator`, `BeforeSaveApplicationValidator` (new), and `BeforeLinkSaveApplicationValidator` reject new/replacement ineligible creators with `creator.invalidPointOfContact`; preserving an existing invalid creator on unrelated edits is allowed.
+- **Security**: `SecurityConstants.BUILT_IN_ADMIN_PRINCIPAL`, `isBuiltInAdminPrincipal`, and `isBuiltInPrincipal` helpers; `UserChecksService` and `UserEventHandler` now delegate to these instead of private literal constants.
+- **Migration**: Liquibase changeset `09_application_responsible_institution.yaml` adds `APP_RESPONSIBLE_INSTITUTION` column (H2/PostgreSQL and Oracle variants with rollback).
+- **Tests**: `ApplicationPointOfContactPolicyTest`, `ApplicationPointOfContactValidationTest`, `ApplicationMapperTest` (expanded), `ApplicationDtoLittleTest` (expanded), `ApplicationChecksServiceTest` (new PoC warning cases), `ApplicationRepositoryDataRestTest` (persistence + trim), `ProjectionsTest` (new field), `ApplicationContactMigrationTest` (column add idempotency).
+
 - **Client profile**: tree nodes expose `loadByDefault` derived from `TreeNode.active` (load-by-default) for cartography leaves that should auto-load into working layers on map open.
 - **Tree nodes**: `TNO_VISIBLE` catalog visibility column; admin REST and `TreeNodeProjection` expose `visible`; `active` is load-by-default (`TNO_ACTIVE`, default false).
 - **Tree nodes**: radio invariants enforced on save and on direct Spring Data REST association link saves (`/parent`, `/task`, `/cartography`) via `@HandleBeforeLinkSave`; `TREE_NODE_RADIO_SCOPE`, `TREE_NODE_RADIO_STRUCTURE`, and `TREE_NODE_RADIO_DEFAULT_CONFLICT` are raised for link mutations that would bypass entity-level validation; task nodes and folders are rejected under radio parents; tree type changes away from cartography are blocked while radio folders exist.

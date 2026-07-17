@@ -9,6 +9,13 @@ import org.springframework.validation.Validator;
 
 @Component
 public class BeforeLinkSaveApplicationValidator implements Validator {
+
+  private final ApplicationPointOfContactValidation pocValidation;
+
+  public BeforeLinkSaveApplicationValidator(ApplicationPointOfContactValidation pocValidation) {
+    this.pocValidation = pocValidation;
+  }
+
   @Override
   public boolean supports(@NonNull Class<?> aClass) {
     return Application.class.equals(aClass);
@@ -24,6 +31,12 @@ public class BeforeLinkSaveApplicationValidator implements Validator {
           "situationMap.type",
           "situationMap.type.invalid",
           "It must be of type \"" + CartographyPermission.TYPE_SITUATION_MAP + "\".");
+    }
+    if (!pocValidation.isValidCreatorChange(application.getId(), application.getCreator())) {
+      errors.rejectValue(
+          "creator",
+          "creator.invalidPointOfContact",
+          "Creator is not eligible as point of contact.");
     }
   }
 }

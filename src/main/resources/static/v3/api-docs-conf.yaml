@@ -826,6 +826,15 @@ components:
         title:
           type: string
           description: Nombre de la aplicación.
+        pointOfContact:
+          type: string
+          nullable: true
+          description: Email del contacto institucional; nulo cuando no hay contacto elegible con email.
+        responsibleInstitutionName:
+          type: string
+          nullable: true
+          maxLength: 250
+          description: Nombre de la institución responsable de la aplicación.
 
     Territory:
       type: object

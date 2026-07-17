@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 09_application_responsible_institution_h2_postgres
+      author: sitmun
+      dbms: h2,postgresql
+      changes:
+        - addColumn:
+            tableName: STM_APP
+            columns:
+              - column:
+                  name: APP_RESPONSIBLE_INSTITUTION
+                  type: VARCHAR(250)
+      rollback:
+        - dropColumn:
+            tableName: STM_APP
+            columnName: APP_RESPONSIBLE_INSTITUTION
+
+  - changeSet:
+      id: 09_application_responsible_institution_oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - addColumn:
+            tableName: STM_APP
+            columns:
+              - column:
+                  name: APP_RESPONSIBLE_INSTITUTION
+                  type: VARCHAR2(250 CHAR)
+      rollback:
+        - dropColumn:
+            tableName: STM_APP
+            columnName: APP_RESPONSIBLE_INSTITUTION

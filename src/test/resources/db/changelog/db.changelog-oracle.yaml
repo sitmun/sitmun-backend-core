@@ -22,3 +22,5 @@ databaseChangeLog:
   - include:
       file: 09_driver_translation_data.yaml
       relativeToChangelogFile: true
+  - include:
+      file: file:config/db/changelog/09_application_responsible_institution.yaml

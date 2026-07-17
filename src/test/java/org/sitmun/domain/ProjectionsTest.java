@@ -147,7 +147,8 @@ class ProjectionsTest {
   void applicationProjectionView() throws Exception {
     mvc.perform(get(APPLICATION_PROJECTION_VIEW, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.situationMapId").value(3));
+        .andExpect(jsonPath("$.situationMapId").value(3))
+        .andExpect(jsonPath("$.responsibleInstitutionName").isEmpty());
   }
 
   @Test
