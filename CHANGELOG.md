@@ -16,7 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Applications**: `BeforeCreateApplicationValidator`, `BeforeSaveApplicationValidator` (new), and `BeforeLinkSaveApplicationValidator` reject new/replacement ineligible creators with `creator.invalidPointOfContact`; preserving an existing invalid creator on unrelated edits is allowed.
 - **Security**: `SecurityConstants.BUILT_IN_ADMIN_PRINCIPAL`, `isBuiltInAdminPrincipal`, and `isBuiltInPrincipal` helpers; `UserChecksService` and `UserEventHandler` now delegate to these instead of private literal constants.
 - **Migration**: Liquibase changeset `09_application_responsible_institution.yaml` adds `APP_RESPONSIBLE_INSTITUTION` column (H2/PostgreSQL and Oracle variants with rollback).
+- **Startup**: `BuiltInUserStartupRepairer` soft-repairs built-in `admin`/`public` invariants without aborting the JVM; creates missing `public`; creates missing/passwordless `admin` only from `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`; deletes stale built-in positions; keeps `/api/dashboard/health` `DOWN` until repair succeeds (`BuiltInUserHealthIndicator`).
+- **Startup**: public `GET /api/dashboard/startup` returns only built-in-user `state` and a stable `reason` when blocked; development property dump redacts secret-bearing keys (including the bootstrap admin password).
 - **Tests**: `ApplicationPointOfContactPolicyTest`, `ApplicationPointOfContactValidationTest`, `ApplicationMapperTest` (expanded), `ApplicationDtoLittleTest` (expanded), `ApplicationChecksServiceTest` (new PoC warning cases), `ApplicationRepositoryDataRestTest` (persistence + trim), `ProjectionsTest` (new field), `ApplicationContactMigrationTest` (column add idempotency).
+- **Tests**: `BuiltInUserStartupRepairerTest`, `BuiltInUserHealthIndicatorTest`.
 
 - **Client profile**: tree nodes expose `loadByDefault` derived from `TreeNode.active` (load-by-default) for cartography leaves that should auto-load into working layers on map open.
 - **Tree nodes**: `TNO_VISIBLE` catalog visibility column; admin REST and `TreeNodeProjection` expose `visible`; `active` is load-by-default (`TNO_ACTIVE`, default false).

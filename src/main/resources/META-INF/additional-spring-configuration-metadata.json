@@ -190,6 +190,11 @@
       "name": "sitmun.authentication.oidc.providers",
       "type": "java.util.Map<java.lang.String, java.lang.Object>",
       "description": "OIDC providers configuration."
+    },
+    {
+      "name": "sitmun.startup.built-in-users.admin-password",
+      "type": "java.lang.String",
+      "description": "Optional bootstrap password used only to create a missing built-in admin user or restore an empty admin password at startup. Inject via SITMUN_BOOTSTRAP_ADMIN_PASSWORD. No default. Remove after /api/dashboard/health is UP and rotate via the admin UI."
     }
   ],
   "hints": [

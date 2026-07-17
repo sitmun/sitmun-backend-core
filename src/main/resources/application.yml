@@ -129,6 +129,10 @@ sitmun:
         where uc.role = r and r member of app.availableRoles
         group by app.name
   startup:
+    built-in-users:
+      # Optional. Used only to create missing admin or restore an empty admin password.
+      # No default. Inject via SITMUN_BOOTSTRAP_ADMIN_PASSWORD; remove after health is UP.
+      admin-password: ${SITMUN_BOOTSTRAP_ADMIN_PASSWORD:}
     code-lists:
       check-on-startup: true
       database-connection-drivers:
