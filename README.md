@@ -275,8 +275,9 @@ spring.profiles.active=prod
 
 | Endpoint | Method | Description | Access | Controller |
 | ---------- | --------- | ------------- | ---------- | ------------ |
-| `/api/authenticate` | POST | User authentication | Public | AuthenticationController |
-| `/api/authenticate/proxy` | POST | Generate short-lived proxy token | Authenticated | AuthenticationController |
+| `/api/authenticate` | POST | Viewer cookie authentication (no JSON token) | Public | AuthenticationController |
+| `/api/authenticate/mobile` | POST | Mobile edition Bearer JSON token | Public | AuthenticationController |
+| `/api/authenticate/proxy` | POST | Generate short-lived proxy token | USER or MOBILE_EDITION | AuthenticationController |
 | `/api/account` | GET | User account management | Authenticated | UserController |
 | `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
 | `/api/account/public/{id}` | GET | Get public user info | Public | UserController |
@@ -301,38 +302,33 @@ spring.profiles.active=prod
 #### Authentication
 
 ```bash
-# Login - JWT is automatically set as an HTTP cookie
+# Viewer login - empty 200 + httpOnly viewer_access_token cookie
 curl -X POST http://localhost:8080/api/authenticate \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
 
-# The response sets the JWT token in an HTTP-only cookie named 'access_token'
-# Future requests will automatically include the cookie
+# Mobile edition login - JSON Bearer token, no cookie (only JWT-returning password endpoint)
+curl -X POST http://localhost:8080/api/authenticate/mobile \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
 ```
 
-#### Using the Authentication Token
-
-Once authenticated, the JWT token is stored in the `access_token` cookie and automatically sent on requests:
-
-```bash
-# The cookie is automatically included by the browser/client
-# No need to manually add Authorization headers
-
-# The server validates the JWT token from the cookie
-```
+Browser clients use session cookies (`viewer_access_token` / `admin_access_token`). Mobile edition clients send `Authorization: Bearer <access_token>` to the three read-only client-config routes and to `/api/authenticate/proxy`.
 
 #### Proxy Authentication
 
 Generate a short-lived proxy token for the SITMUN Proxy Middleware:
 
 ```bash
-# Requires user authentication (the access_token cookie is automatically included)
+# Viewer: cookie session
 curl -X POST http://localhost:8080/api/authenticate/proxy
 
-# The response body contains a short-lived JWT used by proxy middleware
+# Mobile: Bearer edition access token
+curl -X POST http://localhost:8080/api/authenticate/proxy \
+  -H "Authorization: Bearer <mobile-access-token>"
 ```
 
-**Note:** The proxy token has a shorter expiration time (configured by `sitmun.proxy-middleware.token-validity-in-milliseconds`) than access token.
+**Note:** Proxy token lifetime uses `sitmun.proxy-middleware.token-validity-in-milliseconds`. Mobile access token lifetime uses `sitmun.mobile.token-validity-in-milliseconds`. Delegated credentials on `/api/config/proxy` are read from `Authorization: Bearer`, not from the request body.
 
 #### Health Check
 

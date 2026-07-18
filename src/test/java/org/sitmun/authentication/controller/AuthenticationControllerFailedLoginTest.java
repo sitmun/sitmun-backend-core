@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
@@ -35,7 +36,8 @@ class AuthenticationControllerFailedLoginTest {
             mock(JsonWebTokenService.class),
             mock(UserRepository.class),
             mock(CookieService.class),
-            new Rfc9457ResponseWriter(new ObjectMapper()));
+            new Rfc9457ResponseWriter(new ObjectMapper()),
+            mock(MobileEditionAccessService.class));
     var request = mock(HttpServletRequest.class);
     when(request.getRequestURI()).thenReturn("/api/authenticate");
     var login = new UserPasswordAuthenticationRequest();

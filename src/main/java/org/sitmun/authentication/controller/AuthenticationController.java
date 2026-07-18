@@ -11,13 +11,17 @@ import java.util.Optional;
 import org.sitmun.authentication.OidcClientTypes;
 import org.sitmun.authentication.SitmunClientTypes;
 import org.sitmun.authentication.dto.AuthenticationResponse;
+import org.sitmun.authentication.dto.MobileAuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
+import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,19 +77,23 @@ public class AuthenticationController {
 
   private final Rfc9457ResponseWriter responseWriter;
 
+  private final MobileEditionAccessService mobileEditionAccessService;
+
   public AuthenticationController(
       AuthenticationManager authenticationManager,
       UserDetailsService userDetailsService,
       JsonWebTokenService jsonWebTokenService,
       UserRepository userRepository,
       CookieService cookieService,
-      Rfc9457ResponseWriter responseWriter) {
+      Rfc9457ResponseWriter responseWriter,
+      MobileEditionAccessService mobileEditionAccessService) {
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
     this.userRepository = userRepository;
     this.cookieService = cookieService;
     this.responseWriter = responseWriter;
+    this.mobileEditionAccessService = mobileEditionAccessService;
   }
 
   /**
@@ -114,12 +122,58 @@ public class AuthenticationController {
     return authenticate(body, request, response, ADMIN_ACCESS_TOKEN_COOKIE_NAME);
   }
 
+  /**
+   * Authenticate a mobile edition client. Returns a Bearer access token in JSON and never sets a
+   * cookie. Requires at least one accessible ED application.
+   */
+  @PostMapping("/mobile")
+  @SecurityRequirements
+  public ResponseEntity<?> authenticateMobile(
+      @Valid @RequestBody UserPasswordAuthenticationRequest body, HttpServletRequest request) {
+    Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
+    if (!authentication.isAuthenticated()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+          .body(responseWriter.problem(request, HttpStatus.UNAUTHORIZED));
+    }
+
+    Optional<User> user = userRepository.findByUsername(body.getUsername());
+    if (user.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    if (!mobileEditionAccessService.hasAccessibleEditionApplication(body.getUsername())) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .header(HttpHeaders.CACHE_CONTROL, "no-store")
+          .header("Pragma", "no-cache")
+          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+          .body(responseWriter.problem(request, HttpStatus.FORBIDDEN));
+    }
+
+    String token =
+        jsonWebTokenService.generateEditionAccessToken(
+            body.getUsername(), user.get().getLastPasswordChange());
+    long expiresIn = jsonWebTokenService.getMobileTokenValidityMillis() / 1000L;
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .header(HttpHeaders.CACHE_CONTROL, "no-store")
+        .header("Pragma", "no-cache")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(MobileAuthenticationResponse.bearer(token, expiresIn));
+  }
+
   @PostMapping("/proxy")
   public ResponseEntity<AuthenticationResponse> authenticateProxy(Authentication authentication) {
     final String username = authentication.getName();
+    Optional<User> user = userRepository.findByUsername(username);
+    Date lastPasswordChange = user.map(User::getLastPasswordChange).orElse(null);
 
     final String shortLivedToken =
-        jsonWebTokenService.generateToken(username, new Date(), validity);
+        SecurityRole.isMobileEdition()
+            ? jsonWebTokenService.generateMobileProxyToken(username, lastPasswordChange)
+            : jsonWebTokenService.generateToken(username, new Date(), validity);
 
     AuthenticationResponse authResponse = new AuthenticationResponse();
     authResponse.setProxyToken(shortLivedToken);

@@ -1,14 +1,21 @@
 package org.sitmun.infrastructure.security.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.sitmun.infrastructure.security.jwt.MobileJwtClaims.*;
+import static org.sitmun.infrastructure.security.jwt.MobileTokenScopes.*;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,14 +23,30 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.config.Profiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles(Profiles.TEST)
+@Import(JsonWebTokenServiceTest.FixedClockConfig.class)
 @DisplayName("JsonWebTokenService Tests")
 class JsonWebTokenServiceTest {
+
+  private static final Instant FIXED_NOW = Instant.parse("2026-07-18T12:00:00Z");
+
+  @TestConfiguration
+  static class FixedClockConfig {
+    @Bean
+    @Primary
+    Clock fixedClock() {
+      return Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
+    }
+  }
 
   @Autowired private JsonWebTokenService jsonWebTokenService;
 
@@ -31,11 +54,13 @@ class JsonWebTokenServiceTest {
   private String validToken;
   private String expiredToken;
   private String futureToken;
+  private Date lastPasswordChange;
 
   @BeforeEach
   void setUp() {
     testUser =
         User.builder().username("testuser").password("password").authorities("ROLE_USER").build();
+    lastPasswordChange = Date.from(FIXED_NOW.minusSeconds(3600));
 
     // Generate valid token
     validToken = jsonWebTokenService.generateToken(testUser);
@@ -313,5 +338,62 @@ class JsonWebTokenServiceTest {
     assertThrows(
         ExpiredJwtException.class,
         () -> jsonWebTokenService.getExpirationDateFromToken(expiredToken));
+  }
+
+  @Test
+  @DisplayName("Edition access token has expected audience, use, types and scopes")
+  void editionAccessTokenClaims() {
+    String token =
+        jsonWebTokenService.generateEditionAccessToken("edition-user", lastPasswordChange);
+    Claims claims = jsonWebTokenService.parseClaims(token);
+
+    assertThat(claims.getSubject()).isEqualTo("edition-user");
+    assertThat(claims.getAudience()).containsExactly(AUDIENCE_MOBILE_API);
+    assertThat(claims.get(TOKEN_USE, String.class)).isEqualTo(TOKEN_USE_EDITION_ACCESS);
+    assertThat(claims.get(APPLICATION_TYPES, List.class)).containsExactly(APPLICATION_TYPE_EDITION);
+    assertThat(jsonWebTokenService.getScopes(claims))
+        .containsExactlyInAnyOrderElementsOf(EDITION_ACCESS);
+    assertThat(claims.getIssuedAt()).isEqualTo(Date.from(FIXED_NOW));
+    assertThat(claims.getExpiration())
+        .isEqualTo(
+            Date.from(FIXED_NOW.plusMillis(jsonWebTokenService.getMobileTokenValidityMillis())));
+    assertThat(jsonWebTokenService.validateEditionAccessToken(token, lastPasswordChange)).isTrue();
+  }
+
+  @Test
+  @DisplayName("Mobile proxy token has expected audience, use, types and scopes")
+  void mobileProxyTokenClaims() {
+    String token = jsonWebTokenService.generateMobileProxyToken("edition-user", lastPasswordChange);
+    Claims claims = jsonWebTokenService.parseClaims(token);
+
+    assertThat(claims.getSubject()).isEqualTo("edition-user");
+    assertThat(claims.getAudience()).containsExactly(AUDIENCE_PROXY);
+    assertThat(claims.get(TOKEN_USE, String.class)).isEqualTo(TOKEN_USE_MOBILE_PROXY_ACCESS);
+    assertThat(jsonWebTokenService.getScopes(claims))
+        .containsExactlyInAnyOrderElementsOf(MOBILE_PROXY_ACCESS);
+    assertThat(
+            jsonWebTokenService.validateMobileProxyAccessToken(
+                token, lastPasswordChange, List.of(MBTILES_ESTIMATE)))
+        .isTrue();
+  }
+
+  @Test
+  @DisplayName("Edition access validation rejects wrong password change")
+  void editionAccessRejectsPasswordChangeMismatch() {
+    String token =
+        jsonWebTokenService.generateEditionAccessToken("edition-user", lastPasswordChange);
+    Date otherChange = Date.from(FIXED_NOW.minusSeconds(10));
+    assertThat(jsonWebTokenService.validateEditionAccessToken(token, otherChange)).isFalse();
+  }
+
+  @Test
+  @DisplayName("Legacy proxy tokens remain valid without audience claims")
+  void legacyProxyTokenRemainsValid() {
+    String token = jsonWebTokenService.generateToken("admin", Date.from(FIXED_NOW), 900_000);
+    Claims claims = jsonWebTokenService.parseClaims(token);
+    assertThat(jsonWebTokenService.isLegacyProxyToken(claims)).isTrue();
+    assertThat(jsonWebTokenService.validateLegacyProxyToken(token)).isTrue();
+    assertThat(jsonWebTokenService.isEditionAccessToken(claims)).isFalse();
+    assertThat(jsonWebTokenService.isMobileProxyAccessToken(claims)).isFalse();
   }
 }

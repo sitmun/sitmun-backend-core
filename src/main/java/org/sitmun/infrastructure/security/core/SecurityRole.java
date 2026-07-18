@@ -15,7 +15,9 @@ public enum SecurityRole {
   /** A user with public access without authentication. */
   PUBLIC,
   /** A user with proxy permissions. */
-  PROXY;
+  PROXY,
+  /** Mobile edition client authenticated with a scoped Bearer access token. */
+  MOBILE_EDITION;
 
   public String authority() {
     return "ROLE_" + name();
@@ -52,5 +54,12 @@ public enum SecurityRole {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return auth != null
         && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(PROXY.authority()));
+  }
+
+  public static boolean isMobileEdition() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth != null
+        && auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals(MOBILE_EDITION.authority()));
   }
 }

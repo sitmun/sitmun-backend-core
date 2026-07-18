@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Auth**: `POST /api/authenticate/mobile` returns JSON `{access_token, token_type, expires_in}` (no cookie) for edition clients; requires an accessible `ED` application. Configured by `sitmun.mobile.token-validity-in-milliseconds` (default 1h).
+- **Auth**: `EditionBearerTokenFilter` authenticates mobile `edition_access` Bearer tokens as `ROLE_MOBILE_EDITION` plus `SCOPE_*` authorities (never `ROLE_USER`/`ROLE_ADMIN`).
+- **Auth**: mobile-derived `POST /api/authenticate/proxy` issues `mobile_proxy_access` JWTs (`aud=sitmun-proxy`) with MBTiles and proxy scopes.
+- **Proxy**: `POST /api/config/proxy/mbtiles` authorizes MBTiles estimate/create/status/file using `mobile_proxy_access` Bearer scopes and returns a canonical tile request rebuilt from authorized profile services/layers (no MBTiles host).
 - **Applications**: `responsibleInstitutionName` field on `Application` (DB column `APP_RESPONSIBLE_INSTITUTION VARCHAR(250)`); exposed via `ApplicationProjection`, `ApplicationDtoLittle`, and client profile. Value is trimmed; blank input stored as null. ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316))
 - **Applications**: point-of-contact (PoC) eligibility rule: creator is eligible when not a built-in principal (`public`/`admin`) and not blocked; email is not required for eligibility. `ApplicationPointOfContactPolicy` centralises `isEligible` and `hasPublishableEmail`.
 - **Applications**: `ApplicationChecksService` emits `entity.application.warning.invalid-point-of-contact` when creator is non-null and ineligible, and `entity.application.warning.point-of-contact-email-missing` when creator is eligible but has blank email.
@@ -27,8 +31,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tree nodes**: Liquibase changeset 53 realigns legacy `TNO_LOAD_BY_DEFAULT`/`TNO_ACTIVE` visibility semantics into `TNO_VISIBLE` + load-by-default `TNO_ACTIVE`, halting on invalid radio structure until data is repaired; 53a also clears `TNO_ACTIVE` on rows with `TNO_TASKID` set.
 - **Tests**: `TreeNodeMigration53Test` covers migration 53 visibility/load combinations, radio-structure halt, resume-after-repair, cartography+task active normalization, task-child-under-radio halt, and dual-active halt/resume on isolated H2 databases.
 
+### Fixed
+
+- **Proxy**: `POST /api/config/proxy/mbtiles` sets `ProfileContext.nodeSectionBehaviour` to `VIRTUAL_ROOT_ALL_NODES` before profile creation (avoids NPE when canonicalizing tile requests).
+
 ### Changed
 
+- **Proxy**: `POST /api/config/proxy` reads the delegated JWT from `Authorization: Bearer` only; `id_token` / token fields removed from `ConfigProxyRequestDto`.
+- **Client config**: application list responses no longer inject `config.mbtilesUrl`; `sitmun.mbtiles.url` removed from backend configuration.
 - **Availability projections**: `CartographyAvailabilityProjection.cartographyServiceId` and `TaskAvailabilityProjection.taskTypeId` expose ids needed for admin relation-grid navigation.
 - **Tree nodes**: `TreeRadioTypePolicy` centralizes cartography-to-non-cartography tree type validation; enforced on `TreeController` and `TreeEventHandler` before save.
 
@@ -41,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Auth**: mobile edition access is limited to `GET /api/config/client/application`, `.../application/*/territories`, `.../profile/*/*`, and `POST /api/authenticate/proxy`; proxy-config accepts legacy viewer proxy JWTs and `mobile_proxy_access` tokens, and rejects `edition_access` tokens.
 - **Auth**: dual session cookies — `viewer_access_token` and `admin_access_token` — replace the legacy `access_token`; the JWT filter selects the cookie based on the `X-SITMUN-Client: admin` request header so viewer and admin sessions coexist in the same browser without interfering.
 - **Auth**: `POST /api/authenticate` issues `viewer_access_token`; `POST /api/authenticate/admin` issues `admin_access_token`; both endpoints expire the legacy `access_token` cookie on success to force re-authentication from pre-migration sessions.
 - **Auth**: `POST /api/authenticate/logout` clears the caller-identified cookie (`admin_access_token` when `X-SITMUN-Client: admin` is present, `viewer_access_token` otherwise) and always expires the legacy `access_token`.

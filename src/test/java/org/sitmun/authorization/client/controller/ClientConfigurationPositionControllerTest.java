@@ -17,6 +17,7 @@ import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ClientUserPositionService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
@@ -27,14 +28,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 @WebMvcTest(ClientConfigurationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {"sitmun.mbtiles.url=https://test.example.com/mbtiles"})
 @DisplayName("Territory position endpoint controller contract")
 class ClientConfigurationPositionControllerTest {
 
@@ -45,6 +44,8 @@ class ClientConfigurationPositionControllerTest {
   @MockitoBean private AuthorizationService authorizationService;
 
   @MockitoBean private ClientUserPositionService clientUserPositionService;
+
+  @MockitoBean private MobileEditionAccessService mobileEditionAccessService;
 
   @MockitoBean private ProfileMapper profileMapper;
 

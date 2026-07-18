@@ -106,8 +106,9 @@ paths:
         - Autenticación
       summary: Accede con correo electrónico / contraseña.
       description: |-
-        Se solicita un JSON Web Token de acceso para que un usuario pueda operar con el resto de API.
-        La solicitud incluye el identificador de usuario y la contraseña.
+        Autenticación de visor/admin basada en cookie `httpOnly`.
+        En éxito responde `200` con cuerpo vacío y establece la cookie de sesión.
+        Este endpoint no devuelve JWT en JSON.
       operationId: authenticateUser
       requestBody:
         content:
@@ -117,16 +118,54 @@ paths:
         required: true
       responses:
         '200':
-          description: Un JSON Web Token de acceso.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthenticationResponse'
-
+          description: Autenticación correcta; cookie de sesión establecida.
         '401':
           description: No autorizado.
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/authenticate/mobile:
+    post:
+      tags:
+        - Autenticación
+      summary: Acceso móvil de edición (Bearer JSON).
+      description: |-
+        Único endpoint de contraseña que devuelve un JWT en el cuerpo.
+        Requiere que el usuario tenga al menos una aplicación accesible de tipo `ED`.
+        No establece cookies. El token tiene audiencia `sitmun-mobile-api` y uso `edition_access`.
+      operationId: authenticateMobile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPasswordAuthentication'
+        required: true
+      responses:
+        '200':
+          description: Token de acceso móvil.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileAuthenticationResponse'
+        '400':
+          description: Cuerpo malformado.
+        '401':
+          description: Credenciales inválidas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene aplicaciones ED accesibles.
+          content:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
@@ -374,6 +413,24 @@ components:
           $ref: "#/components/schemas/JSONWebToken"
       required:
         - id_token
+
+    MobileAuthenticationResponse:
+      type: object
+      description: Respuesta JSON de autenticación móvil (sin cookie).
+      properties:
+        access_token:
+          $ref: "#/components/schemas/JSONWebToken"
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Vida útil del token en segundos.
+          example: 3600
+      required:
+        - access_token
+        - token_type
+        - expires_in
 
     ErrorResponse:
       type: object

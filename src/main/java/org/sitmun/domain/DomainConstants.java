@@ -264,10 +264,17 @@ public class DomainConstants {
     /** Code used in DB (STM_APP.APP_TYPE) for touristic applications. */
     public static final String TYPE_TOURISTIC_CODE = "T";
 
+    /** Code used in DB (STM_APP.APP_TYPE) for edition applications. */
+    public static final String TYPE_EDITION_CODE = "ED";
+
     public static boolean isTouristicApplication(Application app) {
       if (app == null || app.getType() == null) return false;
       String t = app.getType();
       return TYPE_TOURISTIC_CODE.equalsIgnoreCase(t) || "Touristic".equalsIgnoreCase(t);
+    }
+
+    public static boolean isEditionApplication(Application app) {
+      return app != null && TYPE_EDITION_CODE.equalsIgnoreCase(app.getType());
     }
 
     private Applications() {

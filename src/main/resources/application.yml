@@ -73,6 +73,8 @@ sitmun:
   user:
     secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
+  mobile:
+    token-validity-in-milliseconds: 3600000
   proxy-middleware:
     secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     config-response-validity-in-seconds: 3600
@@ -87,8 +89,6 @@ sitmun:
     oidc:
       enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
       providers: { }
-  mbtiles:
-    url: https://localhost:8080/mbtiles
   ui:
     image:
       supportedFormats:

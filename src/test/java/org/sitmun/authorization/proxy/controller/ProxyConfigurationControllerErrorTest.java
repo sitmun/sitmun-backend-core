@@ -1,6 +1,7 @@
 package org.sitmun.authorization.proxy.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -10,21 +11,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import java.util.Date;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.controllers.ProxyConfigurationController;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
+import org.sitmun.authorization.proxy.mbtiles.MbtilesResourceAccessValidator;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
+import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator;
+import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.Failure;
+import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.Outcome;
+import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.Result;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
-import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,8 +45,7 @@ class ProxyConfigurationControllerErrorTest {
         "terId": 1,
         "type": "SQL",
         "typeId": 23,
-        "method": "GET",
-        "id_token": "proxy-jwt"
+        "method": "GET"
       }
       """;
 
@@ -48,7 +53,9 @@ class ProxyConfigurationControllerErrorTest {
 
   @MockitoBean private ProxyConfigurationService proxyConfigurationService;
 
-  @MockitoBean private JsonWebTokenService jsonWebTokenService;
+  @MockitoBean private ProxyDelegatedTokenAuthenticator delegatedTokenAuthenticator;
+
+  @MockitoBean private MbtilesResourceAccessValidator mbtilesResourceAccessValidator;
 
   @MockitoBean private TranslationRepository translationRepository;
 
@@ -58,12 +65,23 @@ class ProxyConfigurationControllerErrorTest {
 
   @MockitoBean private UserApplicationAccessPolicy userApplicationAccessPolicy;
 
+  @BeforeEach
+  void stubBearerExtraction() {
+    when(delegatedTokenAuthenticator.extractBearer("Bearer proxy-jwt"))
+        .thenReturn(Optional.of("proxy-jwt"));
+    when(delegatedTokenAuthenticator.extractBearer(null)).thenReturn(Optional.empty());
+  }
+
   @Test
   void returnsUnauthorizedProblemForInvalidProxyJwt() throws Exception {
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt"))
-        .thenThrow(new IllegalArgumentException("invalid JWT"));
+    when(delegatedTokenAuthenticator.authenticate(eq("proxy-jwt"), anyCollection()))
+        .thenReturn(new Outcome.Denied(Failure.INVALID));
 
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
+    mvc.perform(
+            post("/api/config/proxy")
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer proxy-jwt")
+                .content(REQUEST))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/unauthorized"))
@@ -74,33 +92,30 @@ class ProxyConfigurationControllerErrorTest {
 
   @Test
   void returnsUnauthorizedProblemForExpiredProxyJwt() throws Exception {
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt"))
-        .thenThrow(new ExpiredJwtException(null, null, "expired JWT", null));
+    when(delegatedTokenAuthenticator.authenticate(eq("proxy-jwt"), anyCollection()))
+        .thenReturn(new Outcome.Denied(Failure.EXPIRED));
 
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
+    mvc.perform(
+            post("/api/config/proxy")
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer proxy-jwt")
+                .content(REQUEST))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.status").value(401));
   }
 
   @Test
-  void doesNotClassifyUnexpectedJwtServiceFailureAsUnauthorized() throws Exception {
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt"))
-        .thenThrow(new IllegalStateException("unexpected failure"));
-
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
-        .andExpect(jsonPath("$.status").value(500));
-  }
-
-  @Test
   void returnsForbiddenProblemWhenIdentifiedPrincipalCannotAccessResource() throws Exception {
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt")).thenReturn("alice");
-    when(jsonWebTokenService.getExpirationDateFromToken("proxy-jwt")).thenReturn(new Date());
+    when(delegatedTokenAuthenticator.authenticate(eq("proxy-jwt"), anyCollection()))
+        .thenReturn(new Outcome.Success(new Result("alice", System.currentTimeMillis())));
     when(proxyConfigurationService.validateUserAccess(any(), eq("alice"))).thenReturn(false);
 
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
+    mvc.perform(
+            post("/api/config/proxy")
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer proxy-jwt")
+                .content(REQUEST))
         .andExpect(status().isForbidden())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/forbidden"))
@@ -111,11 +126,14 @@ class ProxyConfigurationControllerErrorTest {
 
   @Test
   void returnsUnauthorizedProblemWhenProxyJwtIdentifiesBlockedAccount() throws Exception {
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt")).thenReturn("alice");
-    when(jsonWebTokenService.getExpirationDateFromToken("proxy-jwt")).thenReturn(new Date());
-    when(userApplicationAccessPolicy.isBlockedAccount("alice")).thenReturn(true);
+    when(delegatedTokenAuthenticator.authenticate(eq("proxy-jwt"), anyCollection()))
+        .thenReturn(new Outcome.Denied(Failure.BLOCKED));
 
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
+    mvc.perform(
+            post("/api/config/proxy")
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer proxy-jwt")
+                .content(REQUEST))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/unauthorized"))
@@ -128,15 +146,19 @@ class ProxyConfigurationControllerErrorTest {
   @Test
   void returnsBadRequestProblemForInvalidProxyConfiguration() throws Exception {
     var coordinates = new RequestCoordinates();
-    when(jsonWebTokenService.getUsernameFromToken("proxy-jwt")).thenReturn("alice");
-    when(jsonWebTokenService.getExpirationDateFromToken("proxy-jwt")).thenReturn(new Date());
+    when(delegatedTokenAuthenticator.authenticate(eq("proxy-jwt"), anyCollection()))
+        .thenReturn(new Outcome.Success(new Result("alice", 1_700_000_000_000L)));
     when(proxyConfigurationService.validateUserAccess(any(), eq("alice"))).thenReturn(true);
     when(proxyConfigurationService.getRequestCoordinates(any(), eq("alice")))
         .thenReturn(coordinates);
     when(proxyConfigurationService.getConfiguration(any(), any(Long.class), eq(coordinates)))
         .thenThrow(new BadRequestException("Invalid proxy configuration"));
 
-    mvc.perform(post("/api/config/proxy").contentType(APPLICATION_JSON).content(REQUEST))
+    mvc.perform(
+            post("/api/config/proxy")
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer proxy-jwt")
+                .content(REQUEST))
         .andExpect(status().isBadRequest())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/bad-request"))

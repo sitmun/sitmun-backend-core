@@ -16,12 +16,6 @@
       "description": "Default language for the application."
     },
     {
-      "name": "sitmun.mbtiles.url",
-      "type": "java.lang.String",
-      "description": "URL for mbtiles service used to decorate applications with tile configuration.",
-      "defaultValue": ""
-    },
-    {
       "name": "sitmun.user.secret",
       "type": "java.lang.String",
       "description": "Secret key for user authentication."
@@ -30,6 +24,12 @@
       "name": "sitmun.user.token-validity-in-milliseconds",
       "type": "java.lang.Long",
       "description": "Token validity duration in milliseconds."
+    },
+    {
+      "name": "sitmun.mobile.token-validity-in-milliseconds",
+      "type": "java.lang.Long",
+      "description": "Mobile edition access token validity duration in milliseconds.",
+      "defaultValue": 3600000
     },
     {
       "name": "sitmun.proxy-middleware.secret",

@@ -1,6 +1,7 @@
 package org.sitmun.authorization.client.controller;
 
 import static org.sitmun.authorization.client.service.ProfileContext.NodeSectionBehaviour.*;
+import static org.sitmun.infrastructure.security.core.SecurityRole.isMobileEdition;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -22,6 +23,7 @@ import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.mapper.TerritoryMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ClientUserPositionService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.ProfileContext;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
@@ -50,6 +52,7 @@ public class ClientConfigurationController {
   private final AuthorizationService authorizationService;
   private final ProfileMapper profileMapper;
   private final ClientUserPositionService clientUserPositionService;
+  private final MobileEditionAccessService mobileEditionAccessService;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
@@ -60,9 +63,6 @@ public class ClientConfigurationController {
   @Value("${sitmun.backend.url:}")
   private String backendUrl;
 
-  @Value("${sitmun.mbtiles.url:}")
-  private String mbtilesUrl;
-
   /**
    * Constructor for ClientConfigurationController.
    *
@@ -72,10 +72,12 @@ public class ClientConfigurationController {
   public ClientConfigurationController(
       AuthorizationService authorizationService,
       ProfileMapper profileMapper,
-      ClientUserPositionService clientUserPositionService) {
+      ClientUserPositionService clientUserPositionService,
+      MobileEditionAccessService mobileEditionAccessService) {
     this.authorizationService = authorizationService;
     this.profileMapper = profileMapper;
     this.clientUserPositionService = clientUserPositionService;
+    this.mobileEditionAccessService = mobileEditionAccessService;
   }
 
   /**
@@ -95,6 +97,7 @@ public class ClientConfigurationController {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     authorizationService.ensureMayAccessApplication(appId, username);
+    ensureEditionApplicationForMobile(appId);
     pageable = ensureSortBy(pageable, "name");
     Page<Territory> page =
         authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
@@ -129,11 +132,16 @@ public class ClientConfigurationController {
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
+    List<Application> content =
+        isMobileEdition()
+            ? page.getContent().stream()
+                .filter(MobileEditionAccessService::isEditionApplication)
+                .toList()
+            : page.getContent();
     List<ApplicationDtoLittle> applications =
-        Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
-    decorateApplicationWithMbtiles(applications);
-    return new PagedModel<>(
-        new PageImpl<>(applications, page.getPageable(), page.getTotalElements()));
+        Mappers.getMapper(ApplicationMapper.class).map(content);
+    long total = isMobileEdition() ? content.size() : page.getTotalElements();
+    return new PagedModel<>(new PageImpl<>(applications, pageable, total));
   }
 
   /**
@@ -310,6 +318,7 @@ public class ClientConfigurationController {
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     try {
       authorizationService.ensureMayAccessApplication(appId, username);
+      ensureEditionApplicationForMobile(appId);
     } catch (AccessDeniedException exception) {
       return forbiddenProfile(appId, terrId);
     }
@@ -461,16 +470,10 @@ public class ClientConfigurationController {
     };
   }
 
-  private void decorateApplicationWithMbtiles(List<ApplicationDtoLittle> applications) {
-    applications.forEach(
-        app -> {
-          if (app.getConfig() == null) {
-            app.setConfig(new java.util.HashMap<>());
-            app.getConfig().put("mbtilesUrl", mbtilesUrl);
-          } else if (!app.getConfig().containsKey("mbtilesUrl")) {
-            app.getConfig().put("mbtilesUrl", mbtilesUrl);
-          }
-        });
+  private void ensureEditionApplicationForMobile(Integer appId) {
+    if (isMobileEdition() && !mobileEditionAccessService.isEditionApplicationId(appId)) {
+      throw new AccessDeniedException("Access denied to non-edition application");
+    }
   }
 
   private static @NotNull Pageable ensureSortBy(Pageable pageable, String title) {
