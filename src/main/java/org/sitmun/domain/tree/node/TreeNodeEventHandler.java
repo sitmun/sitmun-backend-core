@@ -37,6 +37,8 @@ public class TreeNodeEventHandler {
   public void handleTreeNodeLinkSave(
       @NotNull TreeNode treeNode, @SuppressWarnings("unused") Object linked) {
     normalizeActive(treeNode);
+    normalizeLoadData(treeNode);
+    normalizeQueryableActive(treeNode);
     validateRadio(treeNode);
   }
 
@@ -47,6 +49,8 @@ public class TreeNodeEventHandler {
     String type = treeNode.getParent() != null ? treeNode.getParent().getType() : "";
     treeNode.setImage(imageTransformer.scaleImage(treeNode.getImage(), type));
     normalizeActive(treeNode);
+    normalizeLoadData(treeNode);
+    normalizeQueryableActive(treeNode);
     validateRadio(treeNode);
 
     Cartography cartography = treeNode.getCartography();
@@ -78,6 +82,22 @@ public class TreeNodeEventHandler {
     boolean visible = treeNode.getVisible() == null || treeNode.getVisible();
     if (!visible || !TreeNodeRadioPolicy.isCartographyLeaf(treeNode)) {
       treeNode.setActive(false);
+    }
+  }
+
+  private static void normalizeLoadData(TreeNode treeNode) {
+    if (!TreeNodeRadioPolicy.isFolder(treeNode)) {
+      treeNode.setLoadData(false);
+    } else if (treeNode.getLoadData() == null) {
+      treeNode.setLoadData(false);
+    }
+  }
+
+  private static void normalizeQueryableActive(TreeNode treeNode) {
+    if (!TreeNodeRadioPolicy.isCartographyLeaf(treeNode)) {
+      treeNode.setQueryableActive(false);
+    } else if (treeNode.getQueryableActive() == null) {
+      treeNode.setQueryableActive(false);
     }
   }
 

@@ -36,6 +36,9 @@ public interface TreeNodeProjection {
   @Value("#{target.radio}")
   Boolean getRadio();
 
+  @Value("#{target.loadData}")
+  Boolean getLoadData();
+
   @Value("#{target.order}")
   Integer getOrder();
 

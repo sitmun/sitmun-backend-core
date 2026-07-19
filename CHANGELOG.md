@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Client profile**: tree nodes expose `queryableActive` from `TreeNode` so the viewer can show the SITNA-style GFI `i` marker on queryable leaves.
+- **Trees**: `queryableActive` is forced false on non–cartography-leaf nodes on create/save (same normalization pattern as `loadData`).
+- **Tree nodes**: `TreeNodeProjection` exposes `loadData`; create/save clears `loadData` on non-folder nodes; radio and loadData remain independent ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)). Radio folders that should activate on title click need `loadData=true` (tests set seed node 7 accordingly).
 - **Auth**: `POST /api/authenticate/mobile` returns JSON `{access_token, token_type, expires_in}` (no cookie) for edition clients; requires an accessible `ED` application. Configured by `sitmun.mobile.token-validity-in-milliseconds` (default 1h).
 - **Auth**: `EditionBearerTokenFilter` authenticates mobile `edition_access` Bearer tokens as `ROLE_MOBILE_EDITION` plus `SCOPE_*` authorities (never `ROLE_USER`/`ROLE_ADMIN`).
 - **Auth**: mobile-derived `POST /api/authenticate/proxy` issues `mobile_proxy_access` JWTs (`aud=sitmun-proxy`) with MBTiles and proxy scopes.

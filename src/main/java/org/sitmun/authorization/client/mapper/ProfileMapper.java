@@ -253,6 +253,7 @@ public abstract class ProfileMapper {
             .description(it.getDescription())
             .isRadio(resolveIsRadio(it))
             .loadData(it.getLoadData())
+            .queryableActive(Boolean.TRUE.equals(it.getQueryableActive()))
             .loadByDefault(Boolean.TRUE.equals(it.getActive()))
             .type(it.getType())
             .image(it.getImage())
@@ -289,6 +290,7 @@ public abstract class ProfileMapper {
     return NodeDto.builder()
         .title(tree.getName())
         .loadData(false)
+        .queryableActive(false)
         .loadByDefault(false)
         .children(
             allNodes.stream()

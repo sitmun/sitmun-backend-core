@@ -47,8 +47,10 @@ class TreeNodeRepositoryDataRestTest {
   void resetSeedTreeNodeState() {
     jdbcTemplate.update("DELETE FROM STM_TREE_NOD WHERE TNO_ID > 14");
     jdbcTemplate.update(
-        "UPDATE STM_TREE_NOD SET TNO_ACTIVE = TRUE, TNO_DEFAULT = FALSE, TNO_RADIO = FALSE");
-    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_RADIO = TRUE WHERE TNO_ID = 7");
+        "UPDATE STM_TREE_NOD SET TNO_ACTIVE = TRUE, TNO_DEFAULT = FALSE, TNO_RADIO = FALSE,"
+            + " TNO_LOAD_DATA = FALSE");
+    jdbcTemplate.update(
+        "UPDATE STM_TREE_NOD SET TNO_RADIO = TRUE, TNO_LOAD_DATA = TRUE WHERE TNO_ID = 7");
     jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_DEFAULT = TRUE WHERE TNO_ID = 9");
     jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_ACTIVE = FALSE WHERE TNO_ID IN (12, 13)");
   }
@@ -631,6 +633,69 @@ class TreeNodeRepositoryDataRestTest {
   }
 
   @Test
+  @DisplayName("PATCH: loadData folder round-trips through projection=view")
+  @WithMockUser(roles = "ADMIN")
+  void loadDataRoundTripsThroughProjection() throws Exception {
+    String enableLoadData =
+        """
+        {
+        "loadData": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 1).content(enableLoadData))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.loadData").value(true));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.loadData").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: radio and loadData both round-trip on the same folder")
+  @WithMockUser(roles = "ADMIN")
+  void radioAndLoadDataBothRoundTrip() throws Exception {
+    String patchContent =
+        """
+        {
+        "radio": true,
+        "loadData": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 7).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(true))
+        .andExpect(jsonPath("$.loadData").value(true));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 7))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.radio").value(true))
+        .andExpect(jsonPath("$.loadData").value(true));
+  }
+
+  @Test
+  @DisplayName("PATCH: loadData true on leaf is cleared to false")
+  @WithMockUser(roles = "ADMIN")
+  void loadDataOnLeafIsCleared() throws Exception {
+    String patchContent =
+        """
+        {
+        "loadData": true
+        }
+        """;
+
+    mvc.perform(patch(TREE_NODE_URI, 8).content(patchContent))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.loadData").value(false));
+
+    mvc.perform(get(TREE_NODE_URI_PROJECTION, 8))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.loadData").value(false));
+  }
+
+  @Test
   @DisplayName("PATCH: visible false with active true clears active on existing leaf")
   @WithMockUser(roles = "ADMIN")
   void patchVisibleFalseClearsActiveOnExistingLeaf() throws Exception {
@@ -712,7 +777,8 @@ class TreeNodeRepositoryDataRestTest {
   void seedFixturePreservesRadioAndDefaultLeafState() throws Exception {
     mvc.perform(get(TREE_NODE_URI_PROJECTION, 7))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.radio").value(true));
+        .andExpect(jsonPath("$.radio").value(true))
+        .andExpect(jsonPath("$.loadData").value(true));
 
     mvc.perform(get(TREE_NODE_URI_PROJECTION, 9))
         .andExpect(status().isOk())

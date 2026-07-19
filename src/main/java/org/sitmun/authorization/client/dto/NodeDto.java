@@ -17,6 +17,10 @@ public class NodeDto {
   String action;
   Boolean isRadio;
   Boolean loadData;
+
+  /** When true, leaf may show GFI (with cartography queryableFeatureEnabled). */
+  Boolean queryableActive;
+
   Boolean loadByDefault;
   String type;
   String viewMode;

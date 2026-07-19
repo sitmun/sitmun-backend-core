@@ -10,6 +10,7 @@ import static org.sitmun.test.URIConstants.TREE_NODE_URI;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -386,6 +387,103 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].isRadio", hasItem(true)));
+  }
+
+  @Test
+  @DisplayName("GET: cartography leaf exposes queryableActive on node/8")
+  void cartographyLeafExposesQueryableActive() throws Exception {
+    String enableQueryable =
+        """
+        {
+        "queryableActive": true
+        }
+        """;
+    String disableQueryable =
+        """
+        {
+        "queryableActive": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 8).content(enableQueryable).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath(
+                  "$.trees[?(@.id=='tree/1')].nodes['node/8'].queryableActive", hasItem(true)));
+      mvc.perform(
+              patch(TREE_NODE_URI, 8).content(disableQueryable).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath(
+                  "$.trees[?(@.id=='tree/1')].nodes['node/8'].queryableActive", hasItem(false)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 8).content(disableQueryable).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  @DisplayName("GET: folder with loadData true exposes loadData on node/1")
+  void folderExposesLoadDataWhenEnabled() throws Exception {
+    String enableLoadData =
+        """
+        {
+        "loadData": true
+        }
+        """;
+    String disableLoadData =
+        """
+        {
+        "loadData": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 1).content(enableLoadData).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/1'].loadData", hasItem(true)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 1).content(disableLoadData).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  @DisplayName("GET: radio folder with loadData true exposes both flags on node/7")
+  void radioFolderExposesLoadDataWhenEnabled() throws Exception {
+    String enableLoadData =
+        """
+        {
+        "loadData": true
+        }
+        """;
+    String disableLoadData =
+        """
+        {
+        "loadData": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 7).content(enableLoadData).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].isRadio", hasItem(true)))
+          .andExpect(
+              jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].loadData", hasItem(true)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 7).content(disableLoadData).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
   }
 
   @Test

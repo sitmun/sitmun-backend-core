@@ -82,9 +82,10 @@ public class TreeNode {
   private Boolean radio;
 
   /**
-   * Specifies the behavior of a folder node in the SITMUN viewer layer tree. False by default, when
-   * true all contained layers are loaded when (the user) clicks on the layer title (in the SITMUN
-   * viewer).
+   * Folder-title activation in the viewer catalog. When true, clicking the folder title loads
+   * children (all descendant leaves, or the first child when {@link #radio} is true). When false,
+   * the title only expands/collapses; child rows can still be loaded individually. Independent of
+   * {@link #radio}. Folder nodes only; cleared on leaves.
    */
   @Builder.Default
   @Column(name = "TNO_LOAD_DATA", nullable = false)

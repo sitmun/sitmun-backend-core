@@ -23879,6 +23879,9 @@ components:
         radio:
           type: boolean
           description: Cartography-tree folder flag; radio folders may only contain cartography leaves with at most one active direct child.
+        loadData:
+          type: boolean
+          description: Cartography-tree folder flag; when true, folder title click loads children in the viewer.
         order:
           type: integer
           format: int32
@@ -25574,6 +25577,9 @@ components:
         radio:
           type: boolean
           description: Cartography-tree folder flag; radio folders may only contain cartography leaves with at most one active direct child.
+        loadData:
+          type: boolean
+          description: Cartography-tree folder flag; when true, folder title click loads children in the viewer.
         order:
           type: integer
           format: int32
