@@ -57,9 +57,9 @@ public class AuthorizationService {
   // TODO: Fix cartesian product via @EntityGraph on multiple collections.
   //   Fixed in 29cdef6f, 6dcb5bbd: replaced @EntityGraph with @BatchSize in
   //   CartographyPermission and CartographyPermissionRepository.
+  //   Fixed for CartographyRepository.findById: multi-bag EntityGraph removed; bags use @BatchSize.
   //   Other locations are still potentially affected, ex.:
   //   - ApplicationTreeRepository.findByAppAndRoles (tree.availableRoles)
-  //   - CartographyRepository.findById            (permissions, availabilities, styles, filters…)
   //   - CartographyRepository.findAll             (service, styles…)
   //   - TaskRepository.findByRolesAndTerritory    (roles, ui, type)
 
