@@ -11,7 +11,7 @@ import org.hibernate.Length;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
-import org.sitmun.domain.application.Application;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.user.User;
@@ -94,16 +94,10 @@ public class Tree {
   @Builder.Default
   private Set<Role> availableRoles = new HashSet<>();
 
-  /** Applications that can use this three. */
-  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  @JoinTable(
-      name = "STM_APP_TREE",
-      joinColumns =
-          @JoinColumn(name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")),
-      inverseJoinColumns =
-          @JoinColumn(name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")))
+  /** Applications that can use this tree. */
+  @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  private Set<Application> availableApplications = new HashSet<>();
+  private Set<ApplicationTree> availableApplications = new HashSet<>();
 
   @Override
   public boolean equals(Object obj) {

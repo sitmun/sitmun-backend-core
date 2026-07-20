@@ -32,3 +32,6 @@ databaseChangeLog:
   - include:
       file: 09_application_responsible_institution.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 10_application_tree_order.yaml
+      relativeToChangelogFile: true

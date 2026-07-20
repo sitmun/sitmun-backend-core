@@ -582,6 +582,17 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Profile trees follow application association order")
+  void treeAssociationOrder() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[0].id", is("tree/1")))
+        .andExpect(jsonPath("$.trees[0].order", is(0)))
+        .andExpect(jsonPath("$.trees[1].id", is("tree/2")))
+        .andExpect(jsonPath("$.trees[1].order", is(2)));
+  }
+
+  @Test
   @DisplayName("GET: Get proxy details")
   void proxy() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))

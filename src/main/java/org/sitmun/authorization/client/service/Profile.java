@@ -26,7 +26,7 @@ public class Profile {
   private List<Service> services;
   private List<Cartography> layers;
   private List<Task> tasks;
-  private List<Tree> trees;
+  private List<ApplicationTreeView> trees;
   private Map<Tree, List<TreeNode>> treeNodes;
   private List<ConfigurationParameter> global;
   private ProfileContext context;

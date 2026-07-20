@@ -13,3 +13,4 @@ TNO_ID,TNO_PARENTID,TNO_NAME,TNO_TOOLTIP,TNO_DEFAULT,TNO_ORDER,TNO_TREEID,TNO_GI
 12,7,Inactive visible leaf,Inactive visible leaf,0,5,1,8,NULL,0
 13,1,Inactive folder subtree,Inactive folder subtree,0,3,1,NULL,0,0
 14,13,Child under inactive folder,Child under inactive folder,1,1,1,NULL,0,1
+15,NULL,Municipal root,Municipal root,0,0,2,NULL,0,1

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
 import org.sitmun.authorization.client.dto.*;
 import org.sitmun.authorization.client.service.ApplicationBackgroundView;
+import org.sitmun.authorization.client.service.ApplicationTreeView;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.TaskMapper;
 import org.sitmun.domain.application.Application;
@@ -153,6 +154,17 @@ public abstract class ProfileMapper {
       log.warn("No task mapper found for task id: {}", task.getId());
       return TaskDto.builder().id(TASK_PROFILE_ID_PREFIX + task.getId()).build();
     }
+  }
+
+  TreeDto map(ApplicationTreeView applicationTree) {
+    Tree tree = applicationTree.getTree();
+    return TreeDto.builder()
+        .id(PROFILE_TREE_ID_PREFIX + tree.getId())
+        .title(tree.getName())
+        .type(tree.getType())
+        .image(tree.getImage())
+        .order(applicationTree.getOrder())
+        .build();
   }
 
   TreeDto map(Tree tree) {

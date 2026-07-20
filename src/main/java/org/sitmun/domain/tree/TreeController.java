@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.tree.dto.TreeTypeValidationRequest;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
@@ -207,7 +208,8 @@ public class TreeController {
   private boolean validateTouristicApp(Application app, Tree currentTree) {
     List<Tree> trees =
         app.getTrees().stream()
-            .filter(t -> !t.getId().equals(currentTree.getId())) // Exclude current tree
+            .map(ApplicationTree::getTree)
+            .filter(t -> !t.getId().equals(currentTree.getId()))
             .toList();
     return trees.size() == 1 && DomainConstants.Trees.isTouristicTree(trees.get(0));
   }

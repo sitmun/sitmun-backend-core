@@ -15,4 +15,5 @@ public class TreeDto {
   private String image;
   private String rootNode;
   private Map<String, NodeDto> nodes;
+  private Integer order;
 }

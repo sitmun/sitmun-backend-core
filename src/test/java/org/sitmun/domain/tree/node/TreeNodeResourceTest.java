@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.*;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
+import org.sitmun.domain.application.tree.ApplicationTreeRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.style.CartographyStyle;
@@ -18,6 +19,7 @@ import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
+import org.sitmun.domain.tree.OrderedTree;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
@@ -39,6 +41,7 @@ class TreeNodeResourceTest {
   private static final String PUBLIC_TREE_NAME = "Tree";
   private static final String NON_PUBLIC_TREE_NAME = "Non-Tree Name";
   @Autowired TreeRepository treeRepository;
+  @Autowired ApplicationTreeRepository applicationTreeRepository;
   @Autowired TreeNodeRepository treeNodeRepository;
   @Autowired CartographyRepository cartographyRepository;
   @Autowired CartographyStyleRepository cartographyStyleRepository;
@@ -172,8 +175,11 @@ class TreeNodeResourceTest {
     List<Role> roles =
         roleRepository.findRolesByApplicationAndUserAndTerritory(
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
-    List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
+    List<Tree> tr =
+        applicationTreeRepository.findByAppAndRoles(1, roles).stream()
+            .map(OrderedTree::tree)
+            .toList();
     List<TreeNode> nodesFound = treeNodeRepository.findByTrees(tr);
-    assertThat(nodesFound).hasSize(14);
+    assertThat(nodesFound).hasSize(15);
   }
 }

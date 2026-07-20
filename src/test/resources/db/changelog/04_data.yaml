@@ -523,11 +523,19 @@ databaseChangeLog:
             usePreparedStatements: true
             columns:
               - column:
+                  name: ATR_ID
+                  type: NUMERIC
+              - column:
                   name: ATR_APPID
                   type: NUMERIC
               - column:
                   name: ATR_TREEID
                   type: NUMERIC
+              - column:
+                  name: ATR_ORDER
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATR_ID', 5);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_APP_ROL.csv

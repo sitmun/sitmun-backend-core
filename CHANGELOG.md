@@ -29,6 +29,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tests**: `BuiltInUserStartupRepairerTest`, `BuiltInUserHealthIndicatorTest`.
 
 - **Client profile**: tree nodes expose `loadByDefault` derived from `TreeNode.active` (load-by-default) for cartography leaves that should auto-load into working layers on map open.
+- **Client profile**: `trees[].order` reflects application–tree association order (`STM_APP_TREE.ATR_ORDER`); trees are sorted by that order in the profile response.
+- **Applications**: `ApplicationTree` entity (`STM_APP_TREE`) replaces the former `@ManyToMany` join; admin REST exposes `/api/application-trees` with order and projection view.
+- **Migration**: Liquibase changeset `10_application_tree_order.yaml` migrates legacy composite-key `STM_APP_TREE` rows to `ATR_ID`/`ATR_ORDER` (skipped when baseline schema already includes them).
 - **Tree nodes**: `TNO_VISIBLE` catalog visibility column; admin REST and `TreeNodeProjection` expose `visible`; `active` is load-by-default (`TNO_ACTIVE`, default false).
 - **Tree nodes**: radio invariants enforced on save and on direct Spring Data REST association link saves (`/parent`, `/task`, `/cartography`) via `@HandleBeforeLinkSave`; `TREE_NODE_RADIO_SCOPE`, `TREE_NODE_RADIO_STRUCTURE`, and `TREE_NODE_RADIO_DEFAULT_CONFLICT` are raised for link mutations that would bypass entity-level validation; task nodes and folders are rejected under radio parents; tree type changes away from cartography are blocked while radio folders exist.
 - **Tree nodes**: Liquibase changeset 53 realigns legacy `TNO_LOAD_BY_DEFAULT`/`TNO_ACTIVE` visibility semantics into `TNO_VISIBLE` + load-by-default `TNO_ACTIVE`, halting on invalid radio structure until data is repaired; 53a also clears `TNO_ACTIVE` on rows with `TNO_TASKID` set.
@@ -36,6 +39,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Applications**: `@HandleBeforeLinkSave` handlers for application–tree validation accept `Object` as the linked argument so PUT `/api/applications/{id}/situationMap` (and other non-tree associations) no longer fail with `argument type mismatch`.
+- **Tests**: Application association PUTs cover `situationMap`, `creator`, and `availableRoles` when trees are linked; Tree association PUTs cover `owner` and `availableRoles` when applications are linked.
 - **Proxy**: `POST /api/config/proxy/mbtiles` sets `ProfileContext.nodeSectionBehaviour` to `VIRTUAL_ROOT_ALL_NODES` before profile creation (avoids NPE when canonicalizing tile requests).
 
 ### Changed

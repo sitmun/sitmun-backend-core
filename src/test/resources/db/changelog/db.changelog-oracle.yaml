@@ -24,3 +24,5 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: file:config/db/changelog/09_application_responsible_institution.yaml
+  - include:
+      file: file:config/db/changelog/10_application_tree_order.yaml

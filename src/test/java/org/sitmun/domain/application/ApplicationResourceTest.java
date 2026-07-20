@@ -3,6 +3,7 @@ package org.sitmun.domain.application;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,6 +21,7 @@ import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.background.ApplicationBackgroundRepository;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
 import org.sitmun.domain.application.parameter.ApplicationParameterRepository;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.background.BackgroundRepository;
 import org.sitmun.domain.cartography.Cartography;
@@ -38,6 +40,8 @@ import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,10 +79,15 @@ class ApplicationResourceTest {
   @Autowired CartographyAvailabilityRepository cartographyAvailabilityRepository;
   @Autowired ApplicationParameterRepository applicationParameterRepository;
   @Autowired RoleRepository roleRepository;
+  @Autowired UserRepository userRepository;
 
   @Autowired private MockMvc mvc;
 
   private Integer backAppId;
+  private Integer publicApplicationId;
+  private Integer publicSituationMapId;
+  private Integer publicRoleId;
+  private User eligibleCreator;
   private Set<Tree> trees;
   private Set<Service> services;
   private Set<Cartography> cartographies;
@@ -103,6 +112,19 @@ class ApplicationResourceTest {
 
     publicRole = Role.builder().name("USUARIO_PUBLICO").build();
     roleRepository.save(publicRole);
+    publicRoleId = publicRole.getId();
+
+    eligibleCreator =
+        userRepository.save(
+            User.builder()
+                .username("app-resource-poc")
+                .password("unused")
+                .firstName("PoC")
+                .lastName("User")
+                .email("poc@example.com")
+                .administrator(false)
+                .blocked(false)
+                .build());
 
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
@@ -201,7 +223,10 @@ class ApplicationResourceTest {
     applications.add(application);
 
     CartographyPermission publicSituationMap =
-        CartographyPermission.builder().name(PUBLIC_SITUATION_MAP_NAME).build();
+        CartographyPermission.builder()
+            .name(PUBLIC_SITUATION_MAP_NAME)
+            .type(CartographyPermission.TYPE_SITUATION_MAP)
+            .build();
     publicSituationMap = cartographyPermissionRepository.save(publicSituationMap);
 
     publicSituationMap.getRoles().addAll(availableRoles);
@@ -209,6 +234,7 @@ class ApplicationResourceTest {
     cartographyPermissionRepository.save(publicSituationMap);
 
     cartographyPermissions.add(publicSituationMap);
+    publicSituationMapId = publicSituationMap.getId();
 
     Application publicApplication =
         Application.builder()
@@ -223,8 +249,11 @@ class ApplicationResourceTest {
     applicationRepository.saveAll(applications);
 
     publicApplication.getAvailableRoles().addAll(availableRoles);
-    publicApplication.getTrees().addAll(trees);
+    publicApplication
+        .getTrees()
+        .add(ApplicationTree.builder().application(publicApplication).tree(publicTree).build());
     applicationRepository.save(publicApplication);
+    publicApplicationId = publicApplication.getId();
 
     // application backgrounds
     ApplicationBackground publicApplicationBackground = new ApplicationBackground();
@@ -270,6 +299,9 @@ class ApplicationResourceTest {
     services.forEach(item -> serviceRepository.deleteById(item.getId()));
     territoryRepository.delete(territory);
     roleRepository.delete(publicRole);
+    if (eligibleCreator != null && eligibleCreator.getId() != null) {
+      userRepository.deleteById(eligibleCreator.getId());
+    }
   }
 
   @Test
@@ -279,6 +311,42 @@ class ApplicationResourceTest {
     mvc.perform(get(APPLICATION_BACKGROUNDS_URI + '/' + backAppId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.order").value(1));
+  }
+
+  @Test
+  @DisplayName("PUT: situationMap association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putSituationMapAssociationWhenApplicationHasTrees() throws Exception {
+    String content = CARTOGRAPHY_PERMISSION_URI.replace("{0}", publicSituationMapId.toString());
+    mvc.perform(
+            put(APPLICATION_URI_SITUATION_MAP, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PUT: creator association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putCreatorAssociationWhenApplicationHasTrees() throws Exception {
+    String content = USER_ITEM_URI.replace("{0}", eligibleCreator.getId().toString());
+    mvc.perform(
+            put(APPLICATION_URI_CREATOR, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PUT: availableRoles association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putAvailableRolesAssociationWhenApplicationHasTrees() throws Exception {
+    String content = ROLE_URI.replace("{0}", publicRoleId.toString());
+    mvc.perform(
+            put(APPLICATION_URI_AVAILABLE_ROLES, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
   }
 
   @Test

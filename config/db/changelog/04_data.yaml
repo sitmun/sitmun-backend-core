@@ -502,10 +502,16 @@ databaseChangeLog:
             usePreparedStatements: true
             columns:
               - column:
+                  name: ATR_ID
+                  type: NUMERIC
+              - column:
                   name: ATR_APPID
                   type: NUMERIC
               - column:
                   name: ATR_TREEID
+                  type: NUMERIC
+              - column:
+                  name: ATR_ORDER
                   type: NUMERIC
         - loadData:
             encoding: UTF-8

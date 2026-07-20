@@ -2,6 +2,7 @@ package org.sitmun.domain.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sitmun.test.URIConstants.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -10,11 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.Application;
+import org.sitmun.domain.application.tree.ApplicationTree;
+import org.sitmun.domain.application.tree.ApplicationTreeRepository;
 import org.sitmun.domain.tree.dto.TreeTypeValidationRequest;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.sitmun.test.BaseTest;
@@ -37,6 +41,8 @@ class TreeControllerTest extends BaseTest {
 
   @Autowired private TreeRepository treeRepository;
 
+  @Autowired private ApplicationTreeRepository applicationTreeRepository;
+
   @Autowired private JdbcTemplate jdbcTemplate;
 
   @BeforeEach
@@ -48,14 +54,15 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("PUT: Fail 400 when try save touristic tree with non touristic application")
   @WithMockUser(roles = "ADMIN")
   void saveTouristicTreeWithNonTouristicApplication() throws Exception {
-    // From
-    String applications = "http://localhost/api/applications/1";
-
     mockMvc
         .perform(
-            put(TREE_AVAILABLE_APPLICATIONS_URI, 4)
-                .content(applications)
-                .header("Content-Type", "text/uri-list"))
+            post(APPLICATION_TREES_COLLECTION_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"application":"%s","tree":"%s"}
+                    """
+                        .formatted(APPLICATION_URI.replace("{0}", "1"), TREE_URI + "/4")))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath("$.detail")
@@ -66,14 +73,15 @@ class TreeControllerTest extends BaseTest {
   @DisplayName("PUT: Fail 400 when try save non touristic tree with touristic application")
   @WithMockUser(roles = "ADMIN")
   void saveNoTouristicTreeWithTouristicApplication() throws Exception {
-    // From
-    String applications = "http://localhost/api/applications/6";
-
     mockMvc
         .perform(
-            put(TREE_AVAILABLE_APPLICATIONS_URI, 1)
-                .content(applications)
-                .header("Content-Type", "text/uri-list"))
+            post(APPLICATION_TREES_COLLECTION_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"application":"%s","tree":"%s"}
+                    """
+                        .formatted(APPLICATION_URI.replace("{0}", "6"), TREE_URI + "/1")))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath("$.detail")
@@ -83,45 +91,55 @@ class TreeControllerTest extends BaseTest {
 
   @Test
   @DisplayName("PUT: Check that updating and removing standard trees works as expected")
-  @Transactional
   @WithMockUser(roles = "ADMIN")
   void updateAndRemoveATree() throws Exception {
-    // From
-    String newApplication = "http://localhost/api/applications/2";
-    String oldApplication = "http://localhost/api/applications/1";
+    String treeUri = TREE_URI + "/1";
+    String app1Uri = APPLICATION_URI.replace("{0}", "1");
+    String app2Uri = APPLICATION_URI.replace("{0}", "2");
 
-    Tree tree = treeRepository.findOneWithEagerRelationships(1);
-    assertEquals(1, tree.getAvailableApplications().size());
-    tree.getAvailableApplications().forEach(app -> assertEquals(1, app.getId()));
+    assertEquals(1, linksForTree(1).size());
+    linksForTree(1).forEach(link -> assertEquals(1, link.getApplication().getId()));
 
-    mockMvc
-        .perform(
-            put(TREE_AVAILABLE_APPLICATIONS_URI, 1)
-                .content(newApplication)
-                .header("Content-Type", "text/uri-list"))
-        .andExpect(status().isNoContent());
-
-    tree = treeRepository.findOneWithEagerRelationships(1);
-    assertEquals(1, tree.getAvailableApplications().size());
-    tree.getAvailableApplications().forEach(app -> assertEquals(2, app.getId()));
-
-    mockMvc
-        .perform(put(TREE_AVAILABLE_APPLICATIONS_URI, 1).header("Content-Type", "text/uri-list"))
-        .andExpect(status().isNoContent());
-
-    tree = treeRepository.findOneWithEagerRelationships(1);
-    assertEquals(0, tree.getAvailableApplications().size());
+    mockMvc.perform(delete(APPLICATION_TREE_URI, 1)).andExpect(status().isNoContent());
 
     mockMvc
         .perform(
-            put(TREE_AVAILABLE_APPLICATIONS_URI, 1)
-                .content(oldApplication)
-                .header("Content-Type", "text/uri-list"))
-        .andExpect(status().isNoContent());
+            post(APPLICATION_TREES_COLLECTION_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"application":"%s","tree":"%s"}
+                    """
+                        .formatted(app2Uri, treeUri)))
+        .andExpect(status().isCreated());
 
-    tree = treeRepository.findOneWithEagerRelationships(1);
-    assertEquals(1, tree.getAvailableApplications().size());
-    tree.getAvailableApplications().forEach(app -> assertEquals(1, app.getId()));
+    assertEquals(1, linksForTree(1).size());
+    linksForTree(1).forEach(link -> assertEquals(2, link.getApplication().getId()));
+
+    Integer app2LinkId = linksForTree(1).stream().findFirst().orElseThrow().getId();
+    mockMvc.perform(delete(APPLICATION_TREE_URI, app2LinkId)).andExpect(status().isNoContent());
+
+    assertEquals(0, linksForTree(1).size());
+
+    mockMvc
+        .perform(
+            post(APPLICATION_TREES_COLLECTION_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"application":"%s","tree":"%s"}
+                    """
+                        .formatted(app1Uri, treeUri)))
+        .andExpect(status().isCreated());
+
+    assertEquals(1, linksForTree(1).size());
+    linksForTree(1).forEach(link -> assertEquals(1, link.getApplication().getId()));
+  }
+
+  private List<ApplicationTree> linksForTree(int treeId) {
+    return applicationTreeRepository.findAll().stream()
+        .filter(link -> link.getTree().getId() == treeId)
+        .toList();
   }
 
   @Test
