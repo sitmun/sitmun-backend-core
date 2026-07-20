@@ -96,8 +96,7 @@ class TreeAssociationResourceTest {
   @WithMockUser(roles = "ADMIN")
   void putOwnerAssociationWhenTreeHasApplicationLinks() throws Exception {
     String content = USER_ITEM_URI.replace("{0}", owner.getId().toString());
-    mvc.perform(
-            put(TREE_URI_OWNER, tree.getId()).content(content).contentType("text/uri-list"))
+    mvc.perform(put(TREE_URI_OWNER, tree.getId()).content(content).contentType("text/uri-list"))
         .andExpect(status().isNoContent());
   }
 
