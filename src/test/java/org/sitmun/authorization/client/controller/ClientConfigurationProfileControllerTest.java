@@ -19,6 +19,8 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.SitmunConstants;
+import org.sitmun.domain.configuration.ConfigurationParameter;
+import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,8 @@ import org.springframework.test.web.servlet.MvcResult;
 class ClientConfigurationProfileControllerTest {
 
   @Autowired private MockMvc mvc;
+
+  @Autowired private ConfigurationParameterRepository configurationParameterRepository;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
@@ -598,6 +602,30 @@ class ClientConfigurationProfileControllerTest {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.global." + SitmunConstants.PROXY_CONF_KEY, is(proxyUrl)));
+  }
+
+  @Test
+  @DisplayName("GET: DB proxy configuration parameter wins over Spring URL")
+  void proxyFromDatabaseWinsOverSpring() throws Exception {
+    String dbProxy = "https://cdn.example.com:443/middleware/";
+    String expected = "https://cdn.example.com/middleware";
+    ConfigurationParameter saved =
+        configurationParameterRepository.save(
+            ConfigurationParameter.builder()
+                .name(SitmunConstants.PROXY_CONF_KEY)
+                .value(dbProxy)
+                .build());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.global." + SitmunConstants.PROXY_CONF_KEY, is(expected)))
+          .andExpect(
+              jsonPath(
+                  "$.services[?(@.isProxied==true)].url",
+                  everyItem(startsWith(expected + "/proxy/"))));
+    } finally {
+      configurationParameterRepository.delete(saved);
+    }
   }
 
   @Test

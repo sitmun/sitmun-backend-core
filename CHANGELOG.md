@@ -39,6 +39,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Configuration**: Configuration Parameters `proxy` is applied at runtime again (non-blank valid `STM_CONF.proxy` wins over `sitmun.proxy-middleware.url` / `SITMUN_PROXY_MIDDLEWARE_URL`; blank, empty, or invalid values fall back to that config default); the stored value is always the normalized effective URL so admin shows what clients use ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
+- **Configuration**: create/save of `proxy` returns transient `warnings` i18n keys when the value was normalized or defaulted (not on GET).
 - **Applications**: `@HandleBeforeLinkSave` handlers for application–tree validation accept `Object` as the linked argument so PUT `/api/applications/{id}/situationMap` (and other non-tree associations) no longer fail with `argument type mismatch`.
 - **Tests**: Application association PUTs cover `situationMap`, `creator`, and `availableRoles` when trees are linked; Tree association PUTs cover `owner` and `availableRoles` when applications are linked.
 - **Proxy**: `POST /api/config/proxy/mbtiles` sets `ProfileContext.nodeSectionBehaviour` to `VIRTUAL_ROOT_ALL_NODES` before profile creation (avoids NPE when canonicalizing tile requests).

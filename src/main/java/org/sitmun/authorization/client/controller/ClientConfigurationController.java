@@ -25,6 +25,7 @@ import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.ProfileContext;
+import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
@@ -53,12 +54,10 @@ public class ClientConfigurationController {
   private final ProfileMapper profileMapper;
   private final ClientUserPositionService clientUserPositionService;
   private final MobileEditionAccessService mobileEditionAccessService;
+  private final ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
-
-  @Value("${sitmun.proxy-middleware.url:}")
-  private String proxyUrl;
 
   @Value("${sitmun.backend.url:}")
   private String backendUrl;
@@ -73,11 +72,13 @@ public class ClientConfigurationController {
       AuthorizationService authorizationService,
       ProfileMapper profileMapper,
       ClientUserPositionService clientUserPositionService,
-      MobileEditionAccessService mobileEditionAccessService) {
+      MobileEditionAccessService mobileEditionAccessService,
+      ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver) {
     this.authorizationService = authorizationService;
     this.profileMapper = profileMapper;
     this.clientUserPositionService = clientUserPositionService;
     this.mobileEditionAccessService = mobileEditionAccessService;
+    this.proxyMiddlewareUrlResolver = proxyMiddlewareUrlResolver;
   }
 
   /**
@@ -429,13 +430,14 @@ public class ClientConfigurationController {
   /** Decorate the profile with proxy information if necessary. */
   private Function<ProfileDto, ProfileDto> decorateWithProxy(ProfileContext context) {
     return profileDto -> {
+      String middlewareBase = proxyMiddlewareUrlResolver.resolve();
       profileDto
           .getServices()
           .forEach(
               service -> {
                 if (proxyForce || Boolean.TRUE.equals(service.getIsProxied())) {
                   service.setIsProxied(true);
-                  String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";
+                  String uriTemplate = middlewareBase + "/proxy/{appId}/{terId}/{type}/{typeId}";
                   log.info(
                       "Creating proxy URL for appId:{} terId:{} type:{} typeId:{} with template:{}",
                       context.getAppId(),
@@ -457,14 +459,17 @@ public class ClientConfigurationController {
     };
   }
 
-  /** Inject proxy middleware URL from Spring property into global config map. */
+  /** Publish the effective proxy middleware URL into global config map. */
   private Function<ProfileDto, ProfileDto> decorateWithGlobalProxy() {
     return profileDto -> {
-      if (!proxyUrl.isBlank()) {
-        if (profileDto.getGlobal() == null) {
-          profileDto.setGlobal(new java.util.HashMap<>());
-        }
-        profileDto.getGlobal().put(SitmunConstants.PROXY_CONF_KEY, proxyUrl);
+      if (profileDto.getGlobal() == null) {
+        profileDto.setGlobal(new java.util.HashMap<>());
+      }
+      String middlewareBase = proxyMiddlewareUrlResolver.resolve();
+      if (middlewareBase.isBlank()) {
+        profileDto.getGlobal().remove(SitmunConstants.PROXY_CONF_KEY);
+      } else {
+        profileDto.getGlobal().put(SitmunConstants.PROXY_CONF_KEY, middlewareBase);
       }
       return profileDto;
     };

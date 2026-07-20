@@ -80,7 +80,7 @@ sitmun:
     config-response-validity-in-seconds: 3600
     token-validity-in-milliseconds: 900000
     force: false
-    url: http://localhost:8080/middleware
+    url: ${SITMUN_PROXY_MIDDLEWARE_URL:http://localhost:8080/middleware}
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true
   authentication:
