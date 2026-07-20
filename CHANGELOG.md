@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Languages**: `LAN_ENABLED` / `enabled` on `Language` (default true); default language (`language.default`) cannot be disabled; startup re-enables it if found disabled; disabled languages are ignored by request locale matching; optional `GET /api/languages/search/enabled`.
+- **Languages**: `LAN_ORDER` / `order` on `Language`; `name` is the endonym (no `@I18n` overlay); read-only `translatedName` holds locale labels when `?lang=` is set; greenfield seeds use Guia endonyms and order (ca→fr); `GET /api/languages` defaults to that order; Liquibase `11_language_order_enabled_and_labels` (profile `56_language_order_enabled_and_labels`, postgres/oracle `09_language_order_enabled_and_labels`) for existing DBs.
+- **Languages**: HAL `LanguageProjection` (`projection=view`) exposes `enabled`, `order`, and `translatedName` for admin list/form clients.
 - **Client profile**: tree nodes expose `queryableActive` from `TreeNode` so the viewer can show the SITNA-style GFI `i` marker on queryable leaves.
 - **Trees**: `queryableActive` is forced false on non–cartography-leaf nodes on create/save (same normalization pattern as `loadData`).
 - **Tree nodes**: `TreeNodeProjection` exposes `loadData`; create/save clears `loadData` on non-folder nodes; radio and loadData remain independent ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)). Radio folders that should activate on title click need `loadData=true` (tests set seed node 7 accordingly).

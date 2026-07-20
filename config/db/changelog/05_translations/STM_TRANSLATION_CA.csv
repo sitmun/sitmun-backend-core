@@ -1,6 +1,6 @@
 TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
 301001,1,Language.name,3,Anglès
-301002,2,Language.name,3,Espanyol
+301002,2,Language.name,3,Castellà
 301003,3,Language.name,3,Català
 301004,4,Language.name,3,Aranès
 301005,5,Language.name,3,Francès

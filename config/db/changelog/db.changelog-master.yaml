@@ -35,3 +35,6 @@ databaseChangeLog:
   - include:
       file: 10_application_tree_order.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 11_language_order_enabled_and_labels.yaml
+      relativeToChangelogFile: true

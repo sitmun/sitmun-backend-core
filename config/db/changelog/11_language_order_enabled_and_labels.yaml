@@ -1,0 +1,127 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11_language_order_column_h2_postgres
+      author: sitmun
+      dbms: h2,postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_LANGUAGE
+                columnName: LAN_ORDER
+      changes:
+        - addColumn:
+            tableName: STM_LANGUAGE
+            columns:
+              - column:
+                  name: LAN_ORDER
+                  type: INT
+
+  - changeSet:
+      id: 11_language_order_column_oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_LANGUAGE
+                columnName: LAN_ORDER
+      changes:
+        - addColumn:
+            tableName: STM_LANGUAGE
+            columns:
+              - column:
+                  name: LAN_ORDER
+                  type: NUMBER(6, 0)
+
+  - changeSet:
+      id: 11_language_order_and_labels
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: STM_LANGUAGE
+      changes:
+        - sql:
+            sql: |
+              UPDATE STM_LANGUAGE SET LAN_ORDER = 1, LAN_NAME = 'Català' WHERE LAN_SHORTNAME = 'ca';
+              UPDATE STM_LANGUAGE SET LAN_ORDER = 2, LAN_NAME = 'Castellano' WHERE LAN_SHORTNAME = 'es';
+              UPDATE STM_LANGUAGE SET LAN_ORDER = 3, LAN_NAME = 'English' WHERE LAN_SHORTNAME = 'en';
+              UPDATE STM_LANGUAGE SET LAN_ORDER = 4, LAN_NAME = 'Occitan aranés' WHERE LAN_SHORTNAME = 'oc-aranes';
+              UPDATE STM_LANGUAGE SET LAN_ORDER = 5, LAN_NAME = 'Français' WHERE LAN_SHORTNAME = 'fr';
+              UPDATE STM_TRANSLATION SET TRA_NAME = 'Castellà'
+                WHERE TRA_COLUMN = 'Language.name' AND TRA_ELEID = 2 AND TRA_LANID = 3;
+              UPDATE STM_TRANSLATION SET TRA_NAME = 'Castellano'
+                WHERE TRA_COLUMN = 'Language.name' AND TRA_ELEID = 2 AND TRA_LANID = 2;
+              UPDATE STM_TRANSLATION SET TRA_NAME = 'Castelhan'
+                WHERE TRA_COLUMN = 'Language.name' AND TRA_ELEID = 2 AND TRA_LANID = 4;
+              UPDATE STM_TRANSLATION SET TRA_NAME = 'Occitan aranés'
+                WHERE TRA_COLUMN = 'Language.name' AND TRA_ELEID = 4 AND TRA_LANID = 4;
+              UPDATE STM_TRANSLATION SET TRA_NAME = 'Aranès'
+                WHERE TRA_COLUMN = 'Language.name' AND TRA_ELEID = 4 AND TRA_LANID = 3;
+
+  - changeSet:
+      id: 12_language_enabled_column_h2_postgres
+      author: sitmun
+      dbms: h2,postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_LANGUAGE
+                columnName: LAN_ENABLED
+      changes:
+        - addColumn:
+            tableName: STM_LANGUAGE
+            columns:
+              - column:
+                  name: LAN_ENABLED
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 12_language_enabled_column_oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_LANGUAGE
+                columnName: LAN_ENABLED
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_LANGUAGE ADD LAN_ENABLED NUMBER(1,0) DEFAULT 1 NOT NULL
+
+  - changeSet:
+      id: 12_language_enabled_backfill_h2_postgres
+      author: sitmun
+      dbms: h2,postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: STM_LANGUAGE
+            columnName: LAN_ENABLED
+      changes:
+        - sql:
+            sql: UPDATE STM_LANGUAGE SET LAN_ENABLED = TRUE WHERE LAN_ENABLED IS NULL
+
+  - changeSet:
+      id: 12_language_enabled_backfill_oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: STM_LANGUAGE
+            columnName: LAN_ENABLED
+      changes:
+        - sql:
+            sql: UPDATE STM_LANGUAGE SET LAN_ENABLED = 1 WHERE LAN_ENABLED IS NULL

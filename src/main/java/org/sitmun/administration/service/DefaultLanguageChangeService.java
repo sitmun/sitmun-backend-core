@@ -178,8 +178,12 @@ public class DefaultLanguageChangeService {
     if (languageRepository.findByShortname(from).isEmpty()) {
       throw new IllegalArgumentException("Source language not found: " + from);
     }
-    if (languageRepository.findByShortname(to).isEmpty()) {
-      throw new IllegalArgumentException("Target language not found: " + to);
+    Language target =
+        languageRepository
+            .findByShortname(to)
+            .orElseThrow(() -> new IllegalArgumentException("Target language not found: " + to));
+    if (Boolean.FALSE.equals(target.getEnabled())) {
+      throw new IllegalArgumentException("Target language is disabled: " + to);
     }
   }
 

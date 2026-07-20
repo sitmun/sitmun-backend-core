@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
@@ -38,11 +39,30 @@ public class Language {
 
   @JsonIgnore @Transient private String storedShortname;
 
-  /** Language name. */
+  /**
+   * Endonym ({@code LAN_NAME}). Not subject to {@code @I18n} overlay: database/UI language switch
+   * must not rewrite this value (toolbar and Languages form use it as the own name).
+   */
   @Column(name = "LAN_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
-  @I18n
   private String name;
+
+  /**
+   * Locale label for the current {@code ?lang=} (from {@code STM_TRANSLATION} / {@code
+   * Language.name} rows). Read-only; never persisted. Absent when {@code ?lang=} is not applied.
+   */
+  @Transient
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private String translatedName;
+
+  /** Display order in language selectors (lower first). */
+  @Column(name = "LAN_ORDER", precision = 6)
+  private Integer order;
+
+  /** Whether the language is available for UI locale selection. */
+  @Builder.Default
+  @Column(name = "LAN_ENABLED", nullable = false)
+  private Boolean enabled = true;
 
   @PostLoad
   public void postLoad() {
