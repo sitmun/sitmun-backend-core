@@ -63,6 +63,7 @@ public class TaskQuerySqlService implements TaskMapper {
     return TaskDto.builder()
         .id(TASK_PROFILE_ID_PREFIX + task.getId())
         .type(SIMPLE)
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .scope(SCOPE_SQL)
         .parameters(parametersDto)
         .url(url)

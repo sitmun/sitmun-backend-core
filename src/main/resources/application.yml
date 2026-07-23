@@ -299,3 +299,9 @@ sitmun:
       TERR_NAME: "#{#territory.name}"
       APP_ID: "#{#application.id}"
       APP_NAME: "#{#application.name}"
+
+# ===================================================================
+# Server properties
+# ===================================================================
+server:
+  max-http-request-header-size: 16384

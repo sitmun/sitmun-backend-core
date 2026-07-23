@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -148,6 +149,7 @@ public class WebSecurityConfigurer {
     config.setAllowCredentials(true);
     config.addAllowedOriginPattern("*");
     config.addAllowedHeader("*");
+    config.addExposedHeader(HttpHeaders.CONTENT_DISPOSITION);
     config.addAllowedMethod("OPTIONS");
     config.addAllowedMethod("GET");
     config.addAllowedMethod("POST");
@@ -348,6 +350,9 @@ public class WebSecurityConfigurer {
     var builder = PathPatternRequestMatcher.withDefaults();
     return authz
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/languages"))
+        .hasAnyRole(USER.name(), PUBLIC.name())
+        .requestMatchers(
+            builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name());

@@ -28,3 +28,16 @@ databaseChangeLog:
       file: file:config/db/changelog/10_application_tree_order.yaml
   - include:
       file: file:config/db/changelog/11_language_order_enabled_and_labels.yaml
+  - include:
+      file: file:config/db/changelog/12_task_relation_reference_alias.yaml
+  - include:
+      file: 13_literal_translations.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 13_add_translation_sequences.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 14_literal_translation_source_language.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: file:config/db/changelog/15_more_info_advanced_e2e.yaml

@@ -163,7 +163,7 @@ class JsonWebTokenServiceTest {
 
     // Then
     assertNotNull(expiration);
-    assertTrue(expiration.after(new Date()));
+    assertTrue(expiration.after(Date.from(FIXED_NOW)));
   }
 
   @Test

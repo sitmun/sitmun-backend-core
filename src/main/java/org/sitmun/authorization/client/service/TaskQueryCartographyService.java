@@ -75,6 +75,7 @@ public class TaskQueryCartographyService implements TaskMapper {
     return TaskDto.builder()
         .id(TASK_PROFILE_ID_PREFIX + task.getId())
         .type(SIMPLE)
+        .typeId(task.getType() != null ? task.getType().getId() : null)
         .cartographyId(cartographyId)
         .layer(PROFILE_LAYER_ID_PREFIX + cartography.getId())
         .parameters(parametersDto)

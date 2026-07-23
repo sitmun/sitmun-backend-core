@@ -83,6 +83,8 @@ dependencies {
 
   // Apache Commons utilities
   implementation libs.commons.lang3
+  implementation libs.commons.io
+  implementation libs.opencsv
   
   // Google Guava utilities
   implementation libs.guava
@@ -118,6 +120,7 @@ dependencies {
 
   // URI Templates
   implementation libs.handyUriTemplates
+  implementation libs.handlebars
 
   // Core annotation processing
   annotationProcessor libs.jakarta.annotation.api
@@ -437,4 +440,3 @@ tasks.register('removeGitHooks') {
 tasks.named('build') {
   dependsOn 'setupGitHooks'
 }
-

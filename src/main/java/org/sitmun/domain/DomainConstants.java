@@ -20,6 +20,8 @@ public class DomainConstants {
     public static final String PROPERTY_COMMAND = "command";
     public static final String PROPERTY_FIELDS = "fields";
     public static final String PROPERTY_SCOPE = "scope";
+    public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
+    public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
 
     // Parameter properties
     public static final String PARAMETERS_NAME = "name";
@@ -62,9 +64,12 @@ public class DomainConstants {
     public static final String SCOPE_WEB_API_QUERY = "web-api-query";
     public static final String SCOPE_WEB_API_QUERY_NO_PROXY = "web-api-query-no-proxy";
     public static final String SCOPE_URL_QUERY = "external-link";
+    public static final String SCOPE_RESOURCE_QUERY = "resource-query";
 
     // Task relation types
     public static final String RELATION_TYPE_QUERY_TASK = "query-task";
+    public static final String RELATION_TYPE_TEMPLATE_TASK = "template-task";
+    public static final String RELATION_TYPE_TEMPLATE_NESTED = "template-nested";
 
     /** Client profile task id prefix used in REST profile payloads (e.g. {@code task/42}). */
     public static final String TASK_PROFILE_ID_PREFIX = "task/";
@@ -121,6 +126,8 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_LOCATOR = 4;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
+    public static final int TASK_TYPE_ID_TEMPLATE = 15;
+    public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
 
     private static Integer taskTypeId(Task task) {
       if (task == null || task.getType() == null) {
@@ -151,6 +158,10 @@ public class DomainConstants {
 
     public static boolean isMoreInfoTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
+    }
+
+    public static boolean isMoreInfoAdvancedTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
     }
 
     /** Any task whose type id is {@link #TASK_TYPE_ID_QUERY} (scope/FK rules use other helpers). */

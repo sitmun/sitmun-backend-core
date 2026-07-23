@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 15_more_info_advanced_task_type
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TSK_TYP WHERE TTY_ID = 16
+      changes:
+        - insert:
+            tableName: STM_TSK_TYP
+            columns:
+              - column: { name: TTY_ID, valueNumeric: 16 }
+              - column: { name: TTY_NAME, value: moreInfoAdvanced }
+              - column: { name: TTY_TITLE, value: More Info Advanced }
+              - column: { name: TTY_ENABLED, valueBoolean: true }
+              - column: { name: TTY_ORDER, valueNumeric: 16 }
+
+  - changeSet:
+      id: 15_more_info_advanced_ui_control
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TSK_UI WHERE TUI_ID = 32
+      changes:
+        - insert:
+            tableName: STM_TSK_UI
+            columns:
+              - column: { name: TUI_ID, valueNumeric: 32 }
+              - column: { name: TUI_NAME, value: sitna.moreInfoAdvanced }
+              - column: { name: TUI_TOOLTIP, value: moreInfoAdvanced }
+              - column: { name: TUI_ORDER, valueNumeric: 32 }
+
+  - changeSet:
+      id: 15_more_info_advanced_control_and_parent_tasks
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 41
+      changes:
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 41 }
+              - column: { name: TAS_NAME, value: More Info Advanced }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TUIID, valueNumeric: 32 }
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 42 }
+              - column: { name: TAS_NAME, value: E2E MIA parent Toponimia }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 16 }
+              - column: { name: TAS_GIID, valueNumeric: 6 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"advancedTaskKind":"parent","parentLayout":"tabs","includedTasks":[]}'
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 41 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 42 }
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TTY_ID), 0) + 1 FROM STM_TSK_TYP) WHERE SEQ_NAME = 'TTY_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TUI_ID), 0) + 1 FROM STM_TSK_UI) WHERE SEQ_NAME = 'TUI_ID'

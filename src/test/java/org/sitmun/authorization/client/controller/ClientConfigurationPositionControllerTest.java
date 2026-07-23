@@ -18,6 +18,7 @@ import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
+import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.user.position.UserPositionDTO;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
@@ -56,6 +57,8 @@ class ClientConfigurationPositionControllerTest {
   @MockitoBean private CookieService cookieService;
 
   @MockitoBean private UserApplicationAccessPolicy userApplicationAccessPolicy;
+
+  @MockitoBean private ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   private UserPositionDTO validPositionDTO;
 
