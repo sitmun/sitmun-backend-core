@@ -61,7 +61,7 @@ databaseChangeLog:
               - column: { name: TAS_GIID, valueNumeric: 6 }
               - column:
                   name: TAS_PARAMS
-                  value: '{"advancedTaskKind":"parent","parentLayout":"tabs","includedTasks":[]}'
+                  value: '{"parentLayout":"tabs","moreInfoAdvanced":true,"childTaskOrderIds":[38],"parameters":[]}'
         - insert:
             tableName: STM_ROL_TSK
             columns:
