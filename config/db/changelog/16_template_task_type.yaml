@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 16_template_task_type
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TSK_TYP WHERE TTY_ID = 15
+      changes:
+        - insert:
+            tableName: STM_TSK_TYP
+            columns:
+              - column: { name: TTY_ID, valueNumeric: 15 }
+              - column: { name: TTY_NAME, value: template }
+              - column: { name: TTY_TITLE, value: Template }
+              - column: { name: TTY_ENABLED, valueBoolean: true }
+              - column: { name: TTY_ORDER, valueNumeric: 15 }
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TTY_ID), 0) + 1 FROM STM_TSK_TYP)
+              WHERE SEQ_NAME = 'TTY_ID'
+      rollback:
+        - delete:
+            tableName: STM_TSK_TYP
+            where: TTY_ID = 15
