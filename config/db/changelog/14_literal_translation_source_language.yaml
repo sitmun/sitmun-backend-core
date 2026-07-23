@@ -82,11 +82,42 @@ databaseChangeLog:
   - changeSet:
       id: 11-require-literal-translation-source-language
       author: sitmun
+      dbms: h2, postgresql
       preConditions:
-        - onFail: HALT
-          sqlCheck:
-            expectedResult: 0
-            sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LANID IS NULL
+        - onFail: MARK_RAN
+          and:
+            - columnExists:
+                tableName: STM_LITERAL_TRANSLATION
+                columnName: LTR_LANID
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LANID IS NULL
+      changes:
+        - addNotNullConstraint:
+            tableName: STM_LITERAL_TRANSLATION
+            columnName: LTR_LANID
+            columnDataType: int
+
+  - changeSet:
+      id: 11-require-literal-translation-source-language-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - columnExists:
+                tableName: STM_LITERAL_TRANSLATION
+                columnName: LTR_LANID
+            # Only when still nullable (greenfield 01_schema is already NOT NULL).
+            - sqlCheck:
+                expectedResult: Y
+                sql: >
+                  SELECT NULLABLE FROM USER_TAB_COLUMNS
+                  WHERE TABLE_NAME = 'STM_LITERAL_TRANSLATION'
+                    AND COLUMN_NAME = 'LTR_LANID'
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LANID IS NULL
       changes:
         - addNotNullConstraint:
             tableName: STM_LITERAL_TRANSLATION

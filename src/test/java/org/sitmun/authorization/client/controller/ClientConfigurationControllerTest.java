@@ -22,6 +22,7 @@ import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.Profile;
+import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.application.Application;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
@@ -58,6 +59,8 @@ class ClientConfigurationControllerTest {
   @MockitoBean private CookieService cookieService;
 
   @MockitoBean private UserApplicationAccessPolicy userApplicationAccessPolicy;
+
+  @MockitoBean private ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   @Test
   @DisplayName("GET: ED application config must not expose mbtilesUrl")

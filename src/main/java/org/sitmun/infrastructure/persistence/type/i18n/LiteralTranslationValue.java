@@ -19,6 +19,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Length;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
@@ -57,7 +60,8 @@ public class LiteralTranslationValue {
       foreignKey = @ForeignKey(name = "STM_LTV_FK_LAN"))
   private Language language;
 
-  @Column(name = "LTV_VALUE", nullable = false, columnDefinition = "TEXT")
+  @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+  @Column(name = "LTV_VALUE", nullable = false, length = Length.LOB_DEFAULT)
   @NotBlank
   private String value;
 }

@@ -7,5 +7,7 @@ import lombok.Data;
 @Data
 public class MoreInfoAdvancedRenderRequestDto {
   private List<Integer> miaTaskIds;
+  private Integer appId;
+  private Integer terId;
   private Map<String, Object> parameters;
 }

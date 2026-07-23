@@ -83,7 +83,7 @@ public class TemplateRenderService {
         annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
     String withBackendVars =
         replaceBackendVariables(
-            withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
+            withExecutionHints, templateRequestCoordinatesService.buildForCurrentUser());
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
     String normalized = normalizeParameterLookups(withHtmlResults);

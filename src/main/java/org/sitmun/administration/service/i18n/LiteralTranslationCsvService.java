@@ -156,7 +156,11 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
             RowOutcome outcome =
                 transactionTemplate.execute(
                     status ->
-                        processRow(row, targetLanguageEntity.getId(), existingByLiteral, existingTargetValues));
+                        processRow(
+                            row,
+                            targetLanguageEntity.getId(),
+                            existingByLiteral,
+                            existingTargetValues));
             if (outcome == null) {
               return;
             }
@@ -268,7 +272,11 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
   }
 
   private void addInspectionError(
-      CsvInspection inspection, long rowNumber, String sourceLanguage, String literal, String message) {
+      CsvInspection inspection,
+      long rowNumber,
+      String sourceLanguage,
+      String literal,
+      String message) {
     inspection.errors.add(
         new LiteralTranslationCsvImportErrorDto(rowNumber, sourceLanguage, literal, message));
   }
@@ -345,7 +353,8 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
 
   private LiteralTranslationCsvImportErrorDto toImportError(
       long rowNumber, String sourceLanguage, String literal, RuntimeException exception) {
-    String message = StringUtils.hasText(exception.getMessage()) ? exception.getMessage() : "Import error";
+    String message =
+        StringUtils.hasText(exception.getMessage()) ? exception.getMessage() : "Import error";
     return new LiteralTranslationCsvImportErrorDto(rowNumber, sourceLanguage, literal, message);
   }
 

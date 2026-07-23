@@ -310,9 +310,6 @@ public class WebSecurityConfigurer {
         .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/user/details"))
         .hasRole(USER.name())
-        .requestMatchers(
-            builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
-        .hasRole(USER.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasAnyRole(USER.name(), MOBILE_EDITION.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
@@ -353,6 +350,9 @@ public class WebSecurityConfigurer {
     var builder = PathPatternRequestMatcher.withDefaults();
     return authz
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/languages"))
+        .hasAnyRole(USER.name(), PUBLIC.name())
+        .requestMatchers(
+            builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name());

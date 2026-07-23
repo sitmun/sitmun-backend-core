@@ -7,6 +7,8 @@ import lombok.Data;
 public class TemplateTaskExecutionRequestDto {
   private Integer templateTaskId;
   private Integer linkedTaskId;
+  private Integer appId;
+  private Integer terId;
   private Map<String, Object> parameters;
   private Map<String, Map<String, Object>> childTaskParameters;
 }

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +34,9 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.template.childdata.InProcessTemplateChildDataAdapter;
+import org.sitmun.administration.service.template.childdata.TemplateChildDataPort;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
@@ -54,6 +59,7 @@ import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -66,8 +72,8 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
-    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -79,6 +85,9 @@ class TemplateExecutionServiceTest {
             mock(TemplateRenderService.class),
             coordinatesService,
             new ObjectMapper());
+    Task accessibleParent = Task.builder().id(16).build();
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7)))
+        .thenReturn(List.of(accessibleParent));
 
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
@@ -113,6 +122,8 @@ class TemplateExecutionServiceTest {
     try {
       MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
       renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setAppId(5);
+      renderRequest.setTerId(7);
       renderRequest.setParameters(Map.of("id", "A-1"));
 
       MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
@@ -132,7 +143,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -177,7 +189,8 @@ class TemplateExecutionServiceTest {
                     .build())
             .build();
     Task apiTask = Task.builder().id(402).build();
-    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of(templateTask));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7)))
+        .thenReturn(List.of(Task.builder().id(16).build(), templateTask));
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(401)).thenReturn(Optional.of(templateTask));
@@ -220,6 +233,8 @@ class TemplateExecutionServiceTest {
     try {
       MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
       renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setAppId(5);
+      renderRequest.setTerId(7);
       renderRequest.setParameters(Map.of());
 
       MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
@@ -236,13 +251,13 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
-  void renderMoreInfoAdvancedDeniesChildWhenAuthenticatedUserCannotBeResolved() {
+  void renderMoreInfoAdvancedDeniesParentWhenCoordinatesAreIncomplete() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     RequestCoordinates unresolvedCoordinates = new RequestCoordinates();
     unresolvedCoordinates.setTerritory(Territory.builder().id(7).build());
-    when(coordinatesService.build(any())).thenReturn(unresolvedCoordinates);
+    when(coordinatesService.build(any(), any())).thenReturn(unresolvedCoordinates);
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -257,46 +272,26 @@ class TemplateExecutionServiceTest {
 
     Task miaTask = mock(Task.class);
     when(miaTask.getId()).thenReturn(16);
-    when(miaTask.getName()).thenReturn("MIA parent");
     when(miaTask.getType())
         .thenReturn(
             TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
-    when(miaTask.getProperties())
-        .thenReturn(
-            Map.of(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                List.of(
-                    Map.of(
-                        "name",
-                        "includedTasks",
-                        "type",
-                        DomainConstants.Tasks.TYPE_ARRAY,
-                        "value",
-                        "[{\"id\":101,\"name\":\"Document\",\"order\":0,\"childType\":\"query\"}]"))));
-
-    Task childTask = mock(Task.class);
-    when(childTask.getId()).thenReturn(101);
-
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
-    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setParameter("lang", "en");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken("viewer@example.org", "n/a", List.of()));
     try {
       MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
       renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setAppId(5);
+      renderRequest.setTerId(7);
       renderRequest.setParameters(Map.of("id", "A-1"));
 
-      MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
-
-      assertThat(result.getTasks()).hasSize(1);
-      assertThat(result.getTasks().get(0).getHtml()).contains("No data").doesNotContain("A-1");
+      assertThatThrownBy(() -> service.renderMoreInfoAdvanced(renderRequest))
+          .isInstanceOf(ResponseStatusException.class)
+          .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+          .isEqualTo(HttpStatus.FORBIDDEN);
     } finally {
-      RequestContextHolder.resetRequestAttributes();
       SecurityContextHolder.clearContext();
     }
   }
@@ -306,8 +301,8 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
-    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -319,6 +314,7 @@ class TemplateExecutionServiceTest {
             mock(TemplateRenderService.class),
             coordinatesService,
             new ObjectMapper());
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
 
     Task task =
         Task.builder()
@@ -337,6 +333,8 @@ class TemplateExecutionServiceTest {
       TemplateTaskExecutionRequestDto executionRequest = new TemplateTaskExecutionRequestDto();
       executionRequest.setLinkedTaskId(13);
       executionRequest.setParameters(Map.of());
+      executionRequest.setAppId(5);
+      executionRequest.setTerId(7);
 
       TemplateTaskExecutionResponseDto result = service.executeLinkedTask(executionRequest);
 
@@ -349,6 +347,13 @@ class TemplateExecutionServiceTest {
     }
   }
 
+  private void authenticateAdmin() {
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "admin", "n/a", List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+  }
+
   private TemplateExecutionService newService(
       TaskRepository taskRepository,
       TaskRelationRepository taskRelationRepository,
@@ -359,19 +364,67 @@ class TemplateExecutionServiceTest {
       TemplateRenderService templateRenderService,
       TemplateRequestCoordinatesService coordinatesService,
       ObjectMapper objectMapper) {
+    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+      authenticateAdmin();
+    }
     RoleRepository roleRepository = mock(RoleRepository.class);
     when(roleRepository.findRolesByApplicationAndUserAndTerritory(any(), any(), any()))
         .thenReturn(List.of(Role.builder().id(3).build()));
+    // Permissive default for render tests that previously relied on ADMIN short-circuit.
+    // Includes findById stubs and relatedTask edges from TaskRelationRepository stubbings.
+    // Denial tests override with thenReturn(List.of()) / parent-only lists after newService.
+    lenient()
+        .when(taskRepository.findByRolesAndTerritory(any(), any()))
+        .thenAnswer(
+            invocation -> {
+              java.util.LinkedHashSet<Task> available = new java.util.LinkedHashSet<>();
+              for (org.mockito.stubbing.Stubbing stubbing :
+                  org.mockito.Mockito.mockingDetails(taskRepository).getStubbings()) {
+                if (!"findById".equals(stubbing.getInvocation().getMethod().getName())) {
+                  continue;
+                }
+                Object id = stubbing.getInvocation().getArgument(0);
+                if (id instanceof Integer taskId) {
+                  taskRepository.findById(taskId).ifPresent(available::add);
+                }
+              }
+              for (org.mockito.stubbing.Stubbing stubbing :
+                  org.mockito.Mockito.mockingDetails(taskRelationRepository).getStubbings()) {
+                if (!"findByTaskId".equals(stubbing.getInvocation().getMethod().getName())) {
+                  continue;
+                }
+                Object id = stubbing.getInvocation().getArgument(0);
+                if (!(id instanceof Integer taskId)) {
+                  continue;
+                }
+                for (TaskRelation relation : taskRelationRepository.findByTaskId(taskId)) {
+                  if (relation.getTask() != null) {
+                    available.add(relation.getTask());
+                  }
+                  if (relation.getRelatedTask() != null) {
+                    available.add(relation.getRelatedTask());
+                  }
+                }
+              }
+              return new java.util.ArrayList<>(available);
+            });
+    UserApplicationAccessPolicy accessPolicy = mock(UserApplicationAccessPolicy.class);
+    when(proxyConfigurationService.validateUserAccess(any(), any())).thenReturn(true);
+    TemplateChildDataPort childDataPort =
+        new InProcessTemplateChildDataAdapter(
+            proxyConfigurationService,
+            databaseConnectionService,
+            httpClientFactory,
+            systemVariableResolver,
+            objectMapper);
     return new TemplateExecutionService(
         taskRepository,
         roleRepository,
         taskRelationRepository,
-        proxyConfigurationService,
-        databaseConnectionService,
-        httpClientFactory,
-        systemVariableResolver,
         templateRenderService,
         coordinatesService,
+        accessPolicy,
+        childDataPort,
         objectMapper);
   }
 
@@ -390,7 +443,8 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -429,6 +483,8 @@ class TemplateExecutionServiceTest {
     when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("id", "A-1"));
 
@@ -443,7 +499,8 @@ class TemplateExecutionServiceTest {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -463,6 +520,8 @@ class TemplateExecutionServiceTest {
     when(taskRepository.findById(32306)).thenReturn(Optional.of(basicHookTask));
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(32306));
 
     assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
@@ -483,7 +542,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://www.google.com/search?q={dificultat}"), any()))
         .thenReturn("https://www.google.com/search?q={dificultat}");
     TemplateExecutionService service =
@@ -566,6 +626,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("dificultat", "Mitjana"));
 
@@ -584,7 +646,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://example.org/layers/{innerParam}"), any()))
         .thenReturn("https://example.org/layers/{innerParam}");
     TemplateExecutionService service =
@@ -668,6 +731,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("titleAttr", "Layer title", "layerid", "roads"));
 
@@ -685,7 +750,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -741,6 +807,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("Default title", "Wrong feature value"));
 
@@ -756,7 +824,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -819,6 +888,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(
         Map.of("featureTitle", "Mapped title", "Default title", "Wrong feature value"));
@@ -839,7 +910,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
         .thenReturn("https://example.org/items/{innerParam}");
     TemplateExecutionService service =
@@ -913,6 +985,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("featureCode", "abc"));
 
@@ -929,7 +1003,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://example.org/items/{innerParam}"), any()))
         .thenReturn("https://example.org/items/{innerParam}");
     TemplateExecutionService service =
@@ -1007,6 +1082,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("explicitAttr", "explicit-value", "nestedAttr", "nested-value"));
 
@@ -1025,7 +1102,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://www.google.com/search?q={dificultat}"), any()))
         .thenReturn("https://www.google.com/search?q={dificultat}");
     TemplateExecutionService service =
@@ -1142,6 +1220,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("dificultat", "Mitjana"));
 
@@ -1162,7 +1242,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://api.example.org/items"), any()))
         .thenReturn("https://api.example.org/items");
     TemplateExecutionService service =
@@ -1264,6 +1345,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of());
 
@@ -1284,7 +1367,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -1365,6 +1449,8 @@ class TemplateExecutionServiceTest {
             });
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of());
 
@@ -1387,7 +1473,8 @@ class TemplateExecutionServiceTest {
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -1418,6 +1505,8 @@ class TemplateExecutionServiceTest {
             .properties(Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, "unsupported-scope"))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(461);
 
     when(taskRepository.findById(461)).thenReturn(Optional.of(templateTask));
@@ -1450,7 +1539,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -1498,6 +1588,8 @@ class TemplateExecutionServiceTest {
         .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid template syntax"));
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of());
 
@@ -1517,7 +1609,8 @@ class TemplateExecutionServiceTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -1537,6 +1630,8 @@ class TemplateExecutionServiceTest {
                 Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32285);
 
     when(taskRepository.findById(32285)).thenReturn(Optional.of(task));
@@ -1560,7 +1655,8 @@ class TemplateExecutionServiceTest {
     DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1581,6 +1677,8 @@ class TemplateExecutionServiceTest {
                 Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32281);
     JdbcPayloadDto payload =
         JdbcPayloadDto.builder()
@@ -1617,7 +1715,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1640,6 +1739,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32292);
     LinkedHashMap<String, Object> requestParameters = new LinkedHashMap<>();
     requestParameters.put("capa", "agol_precio_m2");
@@ -1711,7 +1812,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1737,6 +1839,8 @@ class TemplateExecutionServiceTest {
                     command))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32282);
     LinkedHashMap<String, Object> requestParameters = new LinkedHashMap<>();
     requestParameters.put("longitud", "4.2429139999999999");
@@ -1786,7 +1890,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1809,6 +1914,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32282);
 
     WmsPayloadDto payload =
@@ -1850,7 +1957,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1873,6 +1981,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32282);
 
     WmsPayloadDto payload =
@@ -1911,7 +2021,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -1936,6 +2047,8 @@ class TemplateExecutionServiceTest {
                     "application/pdf"))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32315);
 
     WmsPayloadDto payload =
@@ -1982,7 +2095,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2005,6 +2119,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32317);
 
     WmsPayloadDto payload =
@@ -2049,7 +2165,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2074,6 +2191,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32317);
 
     WmsPayloadDto payload = WmsPayloadDto.builder().uri(imageUrl).method("GET").build();
@@ -2121,7 +2240,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2144,6 +2264,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32318);
 
     WmsPayloadDto payload =
@@ -2182,7 +2304,8 @@ class TemplateExecutionServiceTest {
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2205,6 +2328,8 @@ class TemplateExecutionServiceTest {
                     DomainConstants.Tasks.SCOPE_WEB_API_QUERY))
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(32319);
 
     WmsPayloadDto payload =
@@ -2291,7 +2416,8 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
     when(systemVariableResolver.resolve(eq("https://example.com/{slug}"), any()))
         .thenReturn("https://example.com/{slug}");
 
@@ -2341,6 +2467,8 @@ class TemplateExecutionServiceTest {
             .build();
 
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(200);
     requestDto.setChildTaskParameters(Map.of("202", Map.of("slug", "abc")));
 
@@ -2393,7 +2521,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2451,6 +2580,8 @@ class TemplateExecutionServiceTest {
                 .build());
 
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(900);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setParameter("lang", "fr");
@@ -2475,7 +2606,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2511,6 +2643,8 @@ class TemplateExecutionServiceTest {
                     .build())
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(801);
 
     when(taskRepository.findById(801)).thenReturn(Optional.of(templateTask));
@@ -2535,7 +2669,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2571,6 +2706,8 @@ class TemplateExecutionServiceTest {
                     .build())
             .build();
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(802);
     requestDto.setParameters(Map.of("title", "Mapped title"));
 
@@ -2597,7 +2734,8 @@ class TemplateExecutionServiceTest {
     TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
-    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
 
     TemplateExecutionService service =
         newService(
@@ -2649,6 +2787,8 @@ class TemplateExecutionServiceTest {
             .build();
 
     TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
     requestDto.setLinkedTaskId(301);
 
     when(taskRepository.findById(301)).thenReturn(Optional.of(template1));
@@ -2690,5 +2830,346 @@ class TemplateExecutionServiceTest {
                   .contains("Template nesting depth exceeded")
                   .contains("3");
             });
+  }
+
+  @Test
+  void renderMoreInfoAdvancedRequiresAppIdAndTerId() {
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenThrow(
+            new ResponseStatusException(HttpStatus.BAD_REQUEST, "appId and terId are required"));
+    TemplateExecutionService service =
+        newService(
+            mock(TaskRepository.class),
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(42));
+    request.setParameters(Map.of("featureId", "123"));
+
+    assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+        .isInstanceOf(ResponseStatusException.class)
+        .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+        .isEqualTo(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  void renderMoreInfoAdvancedReturnsForbiddenWhenParentIsDenied() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
+
+    Task miaTask =
+        Task.builder()
+            .id(42)
+            .type(
+                TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED)
+                    .build())
+            .properties(Map.of())
+            .build();
+    when(taskRepository.findById(42)).thenReturn(Optional.of(miaTask));
+
+    SecurityContextHolder.getContext()
+        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+    try {
+      MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+      request.setMiaTaskIds(List.of(42));
+      request.setAppId(5);
+      request.setTerId(7);
+      request.setParameters(Map.of());
+
+      assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+          .isInstanceOf(ResponseStatusException.class)
+          .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+          .isEqualTo(HttpStatus.FORBIDDEN);
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void renderMoreInfoAdvancedReturnsForbiddenForPublicPrivateApp() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    RoleRepository roleRepository = mock(RoleRepository.class);
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory(any(), any(), any()))
+        .thenReturn(List.of(Role.builder().id(3).build()));
+    UserApplicationAccessPolicy accessPolicy = mock(UserApplicationAccessPolicy.class);
+    when(accessPolicy.isPrivateAppDeniedForPublic(any(), eq(5))).thenReturn(true);
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    when(proxyConfigurationService.validateUserAccess(any(), any())).thenReturn(true);
+    TemplateChildDataPort childDataPort =
+        new InProcessTemplateChildDataAdapter(
+            proxyConfigurationService,
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            new ObjectMapper());
+    TemplateExecutionService service =
+        new TemplateExecutionService(
+            taskRepository,
+            roleRepository,
+            mock(TaskRelationRepository.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            accessPolicy,
+            childDataPort,
+            new ObjectMapper());
+
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "public", "n/a", List.of(new SimpleGrantedAuthority("ROLE_PUBLIC"))));
+    try {
+      MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+      request.setMiaTaskIds(List.of(42));
+      request.setAppId(5);
+      request.setTerId(7);
+
+      assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+          .isInstanceOf(ResponseStatusException.class)
+          .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+          .isEqualTo(HttpStatus.FORBIDDEN);
+      verify(taskRepository, never()).findById(any());
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void renderMoreInfoAdvancedAdminDeniedWhenParentNotAvailable() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
+
+    Task miaTask =
+        Task.builder()
+            .id(42)
+            .type(
+                TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED)
+                    .build())
+            .properties(Map.of())
+            .build();
+    when(taskRepository.findById(42)).thenReturn(Optional.of(miaTask));
+
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "admin", "n/a", List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    try {
+      MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+      request.setMiaTaskIds(List.of(42));
+      request.setAppId(5);
+      request.setTerId(7);
+
+      assertThatThrownBy(() -> service.renderMoreInfoAdvanced(request))
+          .isInstanceOf(ResponseStatusException.class)
+          .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+          .isEqualTo(HttpStatus.FORBIDDEN);
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void renderMoreInfoAdvancedAdminChildRespectsValidateUserAccess() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
+
+    Task childTask =
+        Task.builder()
+            .id(101)
+            .name("SQL child")
+            .properties(
+                Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
+            .build();
+    Task miaTask =
+        Task.builder()
+            .id(42)
+            .name("MIA parent")
+            .type(
+                TaskType.builder()
+                    .id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED)
+                    .build())
+            .properties(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(101)))
+            .build();
+    when(taskRepository.findById(42)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7)))
+        .thenReturn(List.of(miaTask, childTask));
+
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            proxyConfigurationService,
+            databaseConnectionService,
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+    // newService stubs VA=true; render path must still honor a later deny for ADMIN callers
+    when(proxyConfigurationService.validateUserAccess(any(), any())).thenReturn(false);
+
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "admin", "n/a", List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    try {
+      MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+      request.setMiaTaskIds(List.of(42));
+      request.setAppId(5);
+      request.setTerId(7);
+      request.setParameters(Map.of());
+
+      MoreInfoAdvancedRenderResponseDto response = service.renderMoreInfoAdvanced(request);
+
+      assertThat(response.getTasks()).hasSize(1);
+      assertThat(response.getTasks().get(0).getHtml()).contains("sitmun-mia-empty");
+      verify(proxyConfigurationService).validateUserAccess(any(), any());
+      verify(databaseConnectionService, never()).executeQuery(any(), any(), any());
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void executeLinkedTaskAdminIgnoresAvailability() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.buildForCurrentUser()).thenReturn(new RequestCoordinates());
+    when(taskRepository.findByRolesAndTerritory(any(), any())).thenReturn(List.of());
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    when(systemVariableResolver.resolve(any(), any())).thenReturn(null);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            systemVariableResolver,
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(13)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.org/{id}"))
+            .build();
+    when(taskRepository.findById(13)).thenReturn(Optional.of(task));
+
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "admin", "n/a", List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    try {
+      TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+      requestDto.setLinkedTaskId(13);
+      requestDto.setParameters(Map.of("id", "1"));
+
+      TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+      assertThat(result.getStatus()).isEqualTo("COMPLETED");
+      assertThat(result.getResourceUrl()).contains("https://example.org/");
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
+  }
+
+  @Test
+  void executeLinkedTaskWithoutCoordinatesUsesBuildForCurrentUser() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    RequestCoordinates previewCoordinates = new RequestCoordinates();
+    when(coordinatesService.buildForCurrentUser()).thenReturn(previewCoordinates);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            mock(TemplateRenderService.class),
+            coordinatesService,
+            new ObjectMapper());
+
+    Task task =
+        Task.builder()
+            .id(13)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.org/{id}"))
+            .build();
+    when(taskRepository.findById(13)).thenReturn(Optional.of(task));
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setLinkedTaskId(13);
+    requestDto.setParameters(Map.of("id", "1"));
+
+    TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+
+    assertThat(result.getStatus()).isEqualTo("COMPLETED");
+    verify(coordinatesService).buildForCurrentUser();
+    verify(coordinatesService, never()).build(any(), any());
   }
 }

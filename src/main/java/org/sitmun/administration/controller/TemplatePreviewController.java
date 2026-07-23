@@ -36,7 +36,7 @@ public class TemplatePreviewController {
   }
 
   @PostMapping("/more-info-advanced/render")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'PUBLIC')")
   public ResponseEntity<MoreInfoAdvancedRenderResponseDto> renderMoreInfoAdvanced(
       @RequestBody MoreInfoAdvancedRenderRequestDto requestDto,
       HttpServletRequest request,

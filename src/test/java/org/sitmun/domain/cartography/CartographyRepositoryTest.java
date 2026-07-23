@@ -114,10 +114,7 @@ class CartographyRepositoryTest {
 
     CartographyPermission permission =
         cartographyPermissionRepository.save(
-            CartographyPermission.builder()
-                .name("Permission for batch-size")
-                .type(CartographyPermission.TYPE_BACKGROUND_MAP)
-                .build());
+            CartographyPermission.builder().name("Permission for batch-size").type("X").build());
     cartography.setPermissions(new HashSet<>(Set.of(permission)));
     cartographyRepository.save(cartography);
 

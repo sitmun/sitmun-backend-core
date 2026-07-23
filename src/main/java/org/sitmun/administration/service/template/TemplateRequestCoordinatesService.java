@@ -1,75 +1,62 @@
 package org.sitmun.administration.service.template;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
-import org.sitmun.domain.task.availability.TaskAvailabilityRepository;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 public class TemplateRequestCoordinatesService {
 
   private final ApplicationRepository applicationRepository;
-  private final TaskAvailabilityRepository taskAvailabilityRepository;
+  private final TerritoryRepository territoryRepository;
   private final UserRepository userRepository;
 
-  public RequestCoordinates build(Integer templateTaskId) {
+  /** Preview-only: user principal for backend variables; no app/territory required. */
+  public RequestCoordinates buildForCurrentUser() {
     RequestCoordinates coordinates = new RequestCoordinates();
+    attachCurrentUser(coordinates);
+    return coordinates;
+  }
+
+  public RequestCoordinates build(Integer appId, Integer terId) {
+    if (appId == null || terId == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "appId and terId are required");
+    }
+
+    Application application =
+        applicationRepository
+            .findById(appId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+    Territory territory =
+        territoryRepository
+            .findById(terId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Territory not found"));
+
+    RequestCoordinates coordinates = new RequestCoordinates();
+    coordinates.setApplication(application);
+    coordinates.setTerritory(territory);
+    attachCurrentUser(coordinates);
+    return coordinates;
+  }
+
+  private void attachCurrentUser(RequestCoordinates coordinates) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null
         && authentication.isAuthenticated()
         && authentication.getName() != null) {
       userRepository.findByUsername(authentication.getName()).ifPresent(coordinates::setUser);
     }
-
-    if (templateTaskId == null) {
-      return coordinates;
-    }
-
-    List<Territory> territories =
-        taskAvailabilityRepository.findByTaskId(templateTaskId).stream()
-            .map(taskAvailability -> taskAvailability.getTerritory())
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
-    if (territories.size() == 1) {
-      coordinates.setTerritory(territories.get(0));
-    }
-
-    List<Application> applications = applicationRepository.findByTaskId(templateTaskId);
-    Application application = null;
-    if (!applications.isEmpty()) {
-      application =
-          applications.stream()
-              .sorted((left, right) -> left.getId().compareTo(right.getId()))
-              .findFirst()
-              .orElse(null);
-    } else {
-      application =
-          applicationRepository.findAll(PageRequest.of(0, 1, Sort.by("id"))).stream()
-              .findFirst()
-              .orElse(null);
-    }
-
-    if (application != null) {
-      coordinates.setApplication(application);
-      if (coordinates.getTerritory() == null
-          && application.getTerritories() != null
-          && application.getTerritories().size() == 1) {
-        coordinates.setTerritory(application.getTerritories().iterator().next().getTerritory());
-      }
-    }
-
-    return coordinates;
   }
 }
