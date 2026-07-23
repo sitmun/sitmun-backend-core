@@ -353,7 +353,8 @@ public class WebSecurityConfigurer {
         .hasAnyRole(USER.name(), PUBLIC.name())
         .requestMatchers(
             builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
-        .hasAnyRole(USER.name(), PUBLIC.name())
+        // Matches TemplatePreviewController @PreAuthorize (USER, ADMIN, PUBLIC).
+        .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
         .hasAnyRole(USER.name(), PUBLIC.name());
   }
