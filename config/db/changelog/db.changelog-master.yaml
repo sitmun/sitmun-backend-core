@@ -51,5 +51,8 @@ databaseChangeLog:
       file: 14_literal_translation_source_language.yaml
       relativeToChangelogFile: true
   - include:
+      file: 16_template_task_type.yaml
+      relativeToChangelogFile: true
+  - include:
       file: 15_more_info_advanced_e2e.yaml
       relativeToChangelogFile: true

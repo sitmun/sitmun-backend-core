@@ -113,6 +113,27 @@ class TemplatePreviewControllerWebMvcTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  @DisplayName("ADMIN principal can reach more-info-advanced/render")
+  void adminPrincipalCanReachRender() throws Exception {
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
+        .thenReturn("ca");
+    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+        .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
+
+    mvc.perform(
+            post("/api/tasks/template/more-info-advanced/render")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"miaTaskIds":[42],"appId":1,"terId":1,"parameters":{}}
+                    """))
+        .andExpect(status().isOk());
+
+    verify(templateExecutionService).renderMoreInfoAdvanced(any());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   @DisplayName("preview does not require appId/terId")
   void previewDoesNotRequireCoordinates() throws Exception {
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))

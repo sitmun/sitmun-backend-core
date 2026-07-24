@@ -17,6 +17,7 @@ databaseChangeLog:
               - column: { name: TTY_ENABLED, valueBoolean: true }
               - column: { name: TTY_ORDER, valueNumeric: 16 }
 
+  # TUI 32 is already "markup-welcome-panel" in the JUnit H2 CSV; use 34 for both chains.
   - changeSet:
       id: 15_more_info_advanced_ui_control
       author: sitmun
@@ -24,33 +25,55 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM STM_TSK_UI WHERE TUI_ID = 32
+            sql: SELECT COUNT(*) FROM STM_TSK_UI WHERE TUI_ID = 34
       changes:
         - insert:
             tableName: STM_TSK_UI
             columns:
-              - column: { name: TUI_ID, valueNumeric: 32 }
+              - column: { name: TUI_ID, valueNumeric: 34 }
               - column: { name: TUI_NAME, value: sitna.moreInfoAdvanced }
               - column: { name: TUI_TOOLTIP, value: moreInfoAdvanced }
-              - column: { name: TUI_ORDER, valueNumeric: 32 }
+              - column: { name: TUI_ORDER, valueNumeric: 34 }
 
+  # JUnit H2 CSV already has TAS_ID 41 (Events locator). Control uses 43; parent stays 42.
   - changeSet:
-      id: 15_more_info_advanced_control_and_parent_tasks
+      id: 15_more_info_advanced_control_task
       author: sitmun
       preConditions:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: 0
-            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 41
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 43
       changes:
         - insert:
             tableName: STM_TASK
             columns:
-              - column: { name: TAS_ID, valueNumeric: 41 }
+              - column: { name: TAS_ID, valueNumeric: 43 }
               - column: { name: TAS_NAME, value: More Info Advanced }
               - column: { name: TAS_GTASKID, valueNumeric: 1 }
               - column: { name: TAS_TTASKID, valueNumeric: 1 }
-              - column: { name: TAS_TUIID, valueNumeric: 32 }
+              - column: { name: TAS_TUIID, valueNumeric: 34 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 43 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 101 }
+              - column: { name: ATS_TERID, valueNumeric: 1 }
+              - column: { name: ATS_TASKID, valueNumeric: 43 }
+
+  - changeSet:
+      id: 15_more_info_advanced_parent_task
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 42
+      changes:
         - insert:
             tableName: STM_TASK
             columns:
@@ -61,20 +84,24 @@ databaseChangeLog:
               - column: { name: TAS_GIID, valueNumeric: 6 }
               - column:
                   name: TAS_PARAMS
-                  value: '{"advancedTaskKind":"parent","parentLayout":"tabs","includedTasks":[]}'
-        - insert:
-            tableName: STM_ROL_TSK
-            columns:
-              - column: { name: RTS_ROLEID, valueNumeric: 1 }
-              - column: { name: RTS_TASKID, valueNumeric: 41 }
+                  value: '{"parentLayout":"tabs","moreInfoAdvanced":true,"childTaskOrderIds":[38],"parameters":[]}'
         - insert:
             tableName: STM_ROL_TSK
             columns:
               - column: { name: RTS_ROLEID, valueNumeric: 1 }
               - column: { name: RTS_TASKID, valueNumeric: 42 }
+        # findByRolesAndTerritory requires territory availability (viewer setup also POSTs these).
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 100 }
+              - column: { name: ATS_TERID, valueNumeric: 1 }
+              - column: { name: ATS_TASKID, valueNumeric: 42 }
         - sql:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
         - sql:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TTY_ID), 0) + 1 FROM STM_TSK_TYP) WHERE SEQ_NAME = 'TTY_ID'
         - sql:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TUI_ID), 0) + 1 FROM STM_TSK_UI) WHERE SEQ_NAME = 'TUI_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATS_ID), 0) + 1 FROM STM_AVAIL_TSK) WHERE SEQ_NAME = 'ATS_ID'
