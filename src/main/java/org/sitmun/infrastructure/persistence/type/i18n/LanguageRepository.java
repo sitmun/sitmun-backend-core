@@ -1,6 +1,8 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,4 +72,7 @@ public interface LanguageRepository extends JpaRepository<Language, Integer> {
    * @return Language if found
    */
   Optional<Language> findByShortname(String shortname);
+
+  @RestResource(exported = false)
+  List<Language> findByShortnameIn(Collection<String> shortnames);
 }

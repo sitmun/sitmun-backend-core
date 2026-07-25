@@ -1,5 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import static org.sitmun.domain.PersistenceConstants.LONG_DESCRIPTION;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,15 +15,13 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Length;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
@@ -60,8 +60,8 @@ public class LiteralTranslationValue {
       foreignKey = @ForeignKey(name = "STM_LTV_FK_LAN"))
   private Language language;
 
-  @JdbcTypeCode(SqlTypes.LONGVARCHAR)
-  @Column(name = "LTV_VALUE", nullable = false, length = Length.LOB_DEFAULT)
+  @Column(name = "LTV_VALUE", nullable = false, length = LONG_DESCRIPTION)
   @NotBlank
+  @Size(max = LONG_DESCRIPTION)
   private String value;
 }

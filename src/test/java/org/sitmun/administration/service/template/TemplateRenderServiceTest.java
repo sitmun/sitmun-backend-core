@@ -21,22 +21,25 @@ class TemplateRenderServiceTest {
   private TemplateRenderService createService(SystemVariableResolver resolver) {
     TemplateLiteralProcessor literalProcessor =
         new TemplateLiteralProcessor((literal, language) -> literal);
-    return new TemplateRenderService(
-        resolver,
-        mock(TemplateRequestCoordinatesService.class),
-        new TemplateContextNormalizer(),
-        literalProcessor,
-        mock(CurrentRequestLanguageResolver.class));
+    return createService(resolver, literalProcessor, mock(CurrentRequestLanguageResolver.class));
   }
 
   private TemplateRenderService createService(
       SystemVariableResolver resolver, TemplateLiteralProcessor literalProcessor) {
+    return createService(resolver, literalProcessor, mock(CurrentRequestLanguageResolver.class));
+  }
+
+  private TemplateRenderService createService(
+      SystemVariableResolver resolver,
+      TemplateLiteralProcessor literalProcessor,
+      CurrentRequestLanguageResolver languageResolver) {
     return new TemplateRenderService(
         resolver,
         mock(TemplateRequestCoordinatesService.class),
         new TemplateContextNormalizer(),
         literalProcessor,
-        mock(CurrentRequestLanguageResolver.class));
+        languageResolver,
+        TemplateExecutionServiceTestFixtures.chromeLiteralResolver());
   }
 
   @Test
@@ -49,8 +52,7 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<h1>{{#APP_NAME}}</h1><p>{{pepe.nombre}}</p><span>{{pepe.$param1}}</span>",
-            Map.of("pepe", Map.of("nombre", "Parcela 23-A", "$param1", "foo")),
-            null);
+            Map.of("pepe", Map.of("nombre", "Parcela 23-A", "$param1", "foo")));
 
     assertThat(response.getHtml()).contains("SITMUN").contains("Parcela 23-A").contains("foo");
     assertThat(response.getPlaceholders())
@@ -62,7 +64,7 @@ class TemplateRenderServiceTest {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = createService(resolver);
 
-    assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of(), null))
+    assertThatThrownBy(() -> service.renderPreview("<p>tui name: {{task_</p>", Map.of()))
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Template preview contains invalid Handlebars syntax");
   }
@@ -76,8 +78,7 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<p>{{pepe.a[1].e}}</p><p>{{pepe.m}}</p>",
-            Map.of("pepe", Map.of("a", List.of(Map.of("c", 1), Map.of("e", 2)), "m", 1)),
-            null);
+            Map.of("pepe", Map.of("a", List.of(Map.of("c", 1), Map.of("e", 2)), "m", 1)));
 
     assertThat(response.getHtml()).contains("<p>2</p>").contains("<p>1</p>");
     assertThat(response.getPlaceholders()).containsExactly("pepe.a[1].e", "pepe.m");
@@ -97,8 +98,7 @@ class TemplateRenderServiceTest {
                     "rows",
                     List.of(
                         Map.of("tui_name", "sitna.layerCatalog"),
-                        Map.of("tui_name", "sitna.search")))),
-            null);
+                        Map.of("tui_name", "sitna.search")))));
 
     assertThat(response.getHtml())
         .contains("<td>sitna.layerCatalog</td>")
@@ -119,7 +119,7 @@ class TemplateRenderServiceTest {
                         : literal));
 
     TemplatePreviewResponseDto response =
-        service.renderPreview("<p><t>Hola món!</t></p>", Map.of(), null, List.of(), "es");
+        service.renderPreview("<p><t>Hola món!</t></p>", Map.of(), List.of(), "es");
 
     assertThat(response.getHtml()).isEqualTo("<p>Hola mundo!</p>");
   }
@@ -138,8 +138,7 @@ class TemplateRenderServiceTest {
                     "rows",
                     List.of(
                         Map.of("tui_name", "sitna.layerCatalog"),
-                        Map.of("tui_name", "sitna.search")))),
-            null);
+                        Map.of("tui_name", "sitna.search")))));
 
     assertThat(response.getHtml())
         .contains("<p>sitna.layerCatalog</p>")
@@ -163,7 +162,6 @@ class TemplateRenderServiceTest {
                         Map.of("field", "items[0].AgeThatYear", "value", 30),
                         Map.of("field", "items[0].Hits", "value", 262),
                         Map.of("field", "items[0].id", "value", 1)))),
-            null,
             List.of("FilteredHits"));
 
     assertThat(response.getHtml()).contains("<p>Ichiro Suzuki 30 262 1</p>");
@@ -187,8 +185,7 @@ class TemplateRenderServiceTest {
                         Map.of("field", "items[0].ingredients[1]", "value", "Ice"),
                         Map.of("field", "items[1].title", "value", "Iced Espresso"),
                         Map.of("field", "items[1].ingredients[0]", "value", "Espresso"),
-                        Map.of("field", "items[1].ingredients[1]", "value", "Ice")))),
-            null);
+                        Map.of("field", "items[1].ingredients[1]", "value", "Ice")))));
 
     assertThat(response.getHtml())
         .contains("<p>Iced Coffee</p>")
@@ -207,13 +204,35 @@ class TemplateRenderServiceTest {
         service.renderPreview(
             "<p>{{pepe.name}}</p><p>{{consulta.url}}</p>",
             Map.of("pepe", Map.of("name", "Parcela 23-A")),
-            null,
             List.of("pepe", "consulta"));
 
     assertThat(response.getHtml())
         .contains("<p>Parcela 23-A</p>")
+        .contains("class=\"sitmun-template-placeholder\"")
+        .contains("&#123;&#123;consulta.url&#125;&#125;")
+        .contains("(task not executed)")
+        .doesNotContain("style=");
+  }
+
+  @Test
+  void renderPreviewTranslatesUnresolvedTaskExecutionHint() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    CurrentRequestLanguageResolver languageResolver = mock(CurrentRequestLanguageResolver.class);
+    when(languageResolver.resolve(any())).thenReturn("en");
+    TemplateRenderService service =
+        createService(
+            resolver,
+            new TemplateLiteralProcessor((literal, language) -> literal),
+            languageResolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<p>{{consulta.url}}</p>", Map.of(), List.of("consulta"));
+
+    assertThat(response.getHtml())
+        .contains("class=\"sitmun-template-placeholder\"")
         .contains("consulta.url")
-        .contains("(falta ejecutar tarea)");
+        .contains("(task not executed)")
+        .doesNotContain("style=");
   }
 
   @Test
@@ -223,10 +242,12 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = createService(resolver);
 
-    TemplatePreviewResponseDto response =
-        service.renderPreview("<p>{{#APP_ID}}</p>", Map.of(), null);
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of());
 
-    assertThat(response.getHtml()).contains("#APP_ID");
+    assertThat(response.getHtml())
+        .contains("class=\"sitmun-template-placeholder\"")
+        .contains("&#123;&#123;#APP_ID&#125;&#125;")
+        .doesNotContain("style=");
   }
 
   @Test
@@ -237,8 +258,7 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response =
         service.renderPreview(
             "<section>{{pepe.html}}</section>",
-            Map.of("pepe", Map.of("html", "<p><strong>hola</strong></p>")),
-            null);
+            Map.of("pepe", Map.of("html", "<p><strong>hola</strong></p>")));
 
     assertThat(response.getHtml()).contains("<section><p><strong>hola</strong></p></section>");
   }
@@ -250,9 +270,36 @@ class TemplateRenderServiceTest {
 
     TemplateRenderService service = createService(resolver);
 
-    TemplatePreviewResponseDto response =
-        service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of(), null);
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#USER_NAME}}</p>", Map.of());
 
     assertThat(response.getHtml()).contains("<p>admin</p>");
+  }
+
+  @Test
+  void renderPreviewTreatsResolvedSystemVariableWithHandlebarsDelimitersAsOpaque() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("{{evil}}");
+
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_NAME}}</p>", Map.of());
+
+    assertThat(response.getHtml())
+        .isEqualTo("<p>&#123;&#123;evil&#125;&#125;</p>")
+        .doesNotContain("{{evil}}");
+  }
+
+  @Test
+  void renderPreviewEscapesHtmlInResolvedSystemVariableValues() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("<b>x</b>");
+
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_NAME}}</p>", Map.of());
+
+    assertThat(response.getHtml())
+        .isEqualTo("<p>&lt;b&gt;x&lt;/b&gt;</p>")
+        .doesNotContain("<b>x</b>");
   }
 }

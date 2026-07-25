@@ -30,7 +30,11 @@ class TreeNodeSchemaMetadataTest {
 
     try (Connection connection = dataSource.getConnection()) {
       DatabaseMetaData metadata = connection.getMetaData();
+      // H2 keeps uppercase identifiers; Postgres folds unquoted names to lowercase.
       Map<String, Integer> columns = readColumns(metadata, "STM_TREE_NOD");
+      if (columns.isEmpty()) {
+        columns = readColumns(metadata, "stm_tree_nod");
+      }
 
       assertThat(columns).containsKeys("TNO_ACTIVE", "TNO_DEFAULT");
       assertThat(columns.get("TNO_ACTIVE")).isEqualTo(DatabaseMetaData.columnNoNulls);

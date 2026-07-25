@@ -64,7 +64,7 @@ public class CartographyFilter {
   private String column;
 
   /** A row is part of the filter if the value of the column is one of these values. */
-  @Column(name = "FGI_VALUE", length = 4000)
+  @Column(name = "FGI_VALUE", length = PersistenceConstants.LONG_VALUE)
   @Convert(converter = StringListAttributeConverter.class)
   private List<String> values;
 

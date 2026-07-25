@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
@@ -31,24 +33,43 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-class InProcessTemplateChildDataAdapterTest {
+class TemplateChildDataServiceTest {
 
   @AfterEach
   void clearSecurity() {
     SecurityContextHolder.clearContext();
   }
 
+  private static TemplateChildDataService newService(
+      ProxyConfigurationService proxyConfigurationService,
+      DatabaseConnectionService databaseConnectionService,
+      HttpClientFactory httpClientFactory,
+      SystemVariableResolver systemVariableResolver) {
+    LiteralTranslationResolver literalTranslationResolver = mock(LiteralTranslationResolver.class);
+    when(literalTranslationResolver.resolve(any(), any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    CurrentRequestLanguageResolver languageResolver = mock(CurrentRequestLanguageResolver.class);
+    when(languageResolver.resolve(any())).thenReturn(null);
+    return new TemplateChildDataService(
+        proxyConfigurationService,
+        databaseConnectionService,
+        httpClientFactory,
+        systemVariableResolver,
+        literalTranslationResolver,
+        languageResolver,
+        new ObjectMapper());
+  }
+
   @Test
   void executeSqlPassesCoordinatesToGetConfiguration() throws Exception {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
-    InProcessTemplateChildDataAdapter adapter =
-        new InProcessTemplateChildDataAdapter(
+    TemplateChildDataService service =
+        newService(
             proxyConfigurationService,
             databaseConnectionService,
             mock(HttpClientFactory.class),
-            mock(SystemVariableResolver.class),
-            new ObjectMapper());
+            mock(SystemVariableResolver.class));
 
     authenticate("admin", "ROLE_ADMIN");
     Task task =
@@ -72,11 +93,8 @@ class InProcessTemplateChildDataAdapterTest {
         .thenReturn(List.of(Map.of("n", 1)));
 
     ChildDataResult result =
-        adapter.executeSql(
+        service.executeSql(
             ChildDataRequest.builder()
-                .appId(5)
-                .terId(7)
-                .taskId(task.getId())
                 .task(task)
                 .parameters(Map.of("featureId", "1"))
                 .principalKind(PrincipalKind.ADMIN)
@@ -97,13 +115,12 @@ class InProcessTemplateChildDataAdapterTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
-    InProcessTemplateChildDataAdapter adapter =
-        new InProcessTemplateChildDataAdapter(
+    TemplateChildDataService service =
+        newService(
             proxyConfigurationService,
             databaseConnectionService,
             httpClientFactory,
-            mock(SystemVariableResolver.class),
-            new ObjectMapper());
+            mock(SystemVariableResolver.class));
 
     authenticate("admin", "ROLE_ADMIN");
     Task task =
@@ -125,7 +142,7 @@ class InProcessTemplateChildDataAdapterTest {
     when(databaseConnectionService.executeQuery(any(), any(), any()))
         .thenReturn(List.of(Map.of("n", 1)));
 
-    ChildDataResult result = adapter.executeSql(sqlRequest(task, PrincipalKind.ADMIN));
+    ChildDataResult result = service.executeSql(sqlRequest(task, PrincipalKind.ADMIN));
 
     assertThat(result.getOutcome()).isEqualTo(ChildDataOutcome.OK);
     verify(proxyConfigurationService, never()).validateUserAccess(any(), any());
@@ -137,13 +154,12 @@ class InProcessTemplateChildDataAdapterTest {
     ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
     DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
     when(proxyConfigurationService.validateUserAccess(any(), any())).thenReturn(false);
-    InProcessTemplateChildDataAdapter adapter =
-        new InProcessTemplateChildDataAdapter(
+    TemplateChildDataService service =
+        newService(
             proxyConfigurationService,
             databaseConnectionService,
             mock(HttpClientFactory.class),
-            mock(SystemVariableResolver.class),
-            new ObjectMapper());
+            mock(SystemVariableResolver.class));
 
     authenticate("viewer", "ROLE_USER");
     Task task =
@@ -153,7 +169,7 @@ class InProcessTemplateChildDataAdapterTest {
                 Map.of(DomainConstants.Tasks.PROPERTY_SCOPE, DomainConstants.Tasks.SCOPE_SQL_QUERY))
             .build();
 
-    ChildDataResult result = adapter.executeSql(sqlRequest(task, PrincipalKind.USER));
+    ChildDataResult result = service.executeSql(sqlRequest(task, PrincipalKind.USER));
 
     assertThat(result.getOutcome()).isEqualTo(ChildDataOutcome.NO_DATA);
     verify(proxyConfigurationService).validateUserAccess(any(), any());
@@ -166,13 +182,12 @@ class InProcessTemplateChildDataAdapterTest {
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(systemVariableResolver.resolve(any(), any())).thenReturn(null);
-    InProcessTemplateChildDataAdapter adapter =
-        new InProcessTemplateChildDataAdapter(
+    TemplateChildDataService service =
+        newService(
             mock(ProxyConfigurationService.class),
             mock(DatabaseConnectionService.class),
             httpClientFactory,
-            systemVariableResolver,
-            new ObjectMapper());
+            systemVariableResolver);
 
     Task task =
         Task.builder()
@@ -186,9 +201,6 @@ class InProcessTemplateChildDataAdapterTest {
             .build();
     ChildDataRequest request =
         ChildDataRequest.builder()
-            .appId(5)
-            .terId(7)
-            .taskId(99)
             .task(task)
             .parameters(Map.of("id", "1"))
             .principalKind(PrincipalKind.USER)
@@ -196,7 +208,7 @@ class InProcessTemplateChildDataAdapterTest {
             .scope(DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY)
             .build();
 
-    ChildDataResult result = adapter.resolveDirect(request);
+    ChildDataResult result = service.resolveDirect(request);
 
     assertThat(result.getOutcome()).isEqualTo(ChildDataOutcome.OK);
     assertThat(result.getResourceUrl()).contains("https://example.org/resource/");
@@ -205,9 +217,6 @@ class InProcessTemplateChildDataAdapterTest {
 
   private ChildDataRequest sqlRequest(Task task, PrincipalKind principalKind) {
     return ChildDataRequest.builder()
-        .appId(5)
-        .terId(7)
-        .taskId(task.getId())
         .task(task)
         .parameters(Map.of())
         .principalKind(principalKind)

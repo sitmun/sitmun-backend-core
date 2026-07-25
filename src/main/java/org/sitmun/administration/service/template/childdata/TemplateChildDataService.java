@@ -24,6 +24,8 @@ import okhttp3.Response;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
@@ -40,24 +42,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
-public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort {
-
-  private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
+public class TemplateChildDataService {
+  private static final String BINARY_VALUE_PLACEHOLDER_LITERAL = "[binary content]";
+  private static final String BINARY_ACCESS_MESSAGE_LITERAL =
+      "Binary content cannot be embedded: server authentication required";
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
-  public static final String VALUE = "value";
   private static final String TABLE = "table";
-
   private final ProxyConfigurationService proxyConfigurationService;
   private final DatabaseConnectionService databaseConnectionService;
   private final HttpClientFactory httpClientFactory;
   private final SystemVariableResolver systemVariableResolver;
+  private final LiteralTranslationResolver literalTranslationResolver;
+  private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
   private final ObjectMapper objectMapper;
 
   private boolean mayExecuteDataPlane(
@@ -82,13 +85,11 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     return authentication.getName();
   }
 
-  @Override
   public ChildDataResult executeSql(ChildDataRequest request) {
     Task task = request.getTask();
     Map<String, String> parameters =
         request.getParameters() == null ? new LinkedHashMap<>() : request.getParameters();
     RequestCoordinates coordinates = request.getCoordinates();
-
     ConfigProxyRequestDto configRequest =
         ConfigProxyRequestDto.builder()
             .appId(coordinates.getApplication() != null ? coordinates.getApplication().getId() : 0)
@@ -97,11 +98,9 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
             .typeId(task.getId())
             .parameters(parameters)
             .build();
-
     if (!mayExecuteDataPlane(request, configRequest)) {
       return ChildDataResult.noData();
     }
-
     ConfigProxyDto config;
     try {
       config = proxyConfigurationService.getConfiguration(configRequest, 0, coordinates);
@@ -109,7 +108,6 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     } catch (BadRequestException exception) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
     }
-
     JdbcPayloadDto payload = (JdbcPayloadDto) config.getPayload();
     DatabaseConnection connection =
         DatabaseConnection.builder()
@@ -118,7 +116,6 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
             .user(payload.getUser())
             .password(payload.getPassword())
             .build();
-
     List<Map<String, Object>> rows;
     try {
       rows =
@@ -130,7 +127,6 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
           exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage(),
           exception);
     }
-
     Map<String, Object> context = buildRowAndParameterContext(rows, parameters);
     return ChildDataResult.builder()
         .outcome(ChildDataOutcome.OK)
@@ -141,13 +137,11 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
         .build();
   }
 
-  @Override
   public ChildDataResult executeApi(ChildDataRequest request) {
     Task task = request.getTask();
     Map<String, String> parameters =
         request.getParameters() == null ? new LinkedHashMap<>() : request.getParameters();
     RequestCoordinates coordinates = request.getCoordinates();
-
     ConfigProxyRequestDto configRequest =
         ConfigProxyRequestDto.builder()
             .appId(coordinates.getApplication() != null ? coordinates.getApplication().getId() : 0)
@@ -156,11 +150,9 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
             .typeId(task.getId())
             .parameters(parameters)
             .build();
-
     if (!mayExecuteDataPlane(request, configRequest)) {
       return ChildDataResult.noData();
     }
-
     ConfigProxyDto config;
     try {
       config = proxyConfigurationService.getConfiguration(configRequest, 0, coordinates);
@@ -168,16 +160,13 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     } catch (BadRequestException exception) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
     }
-
     WmsPayloadDto payload = (WmsPayloadDto) config.getPayload();
     String requestUrl =
         buildHttpRequestUrl(payload, parameters, coordinates, readTaskCommand(task));
     String sanitizedRequestUrl = sanitizeRequestUrlForLogging(requestUrl, parameters);
-
     try {
       Request.Builder requestBuilder = new Request.Builder().url(requestUrl);
       applySecurity(payload.getSecurity(), requestBuilder);
-
       String method =
           StringUtils.hasText(payload.getMethod()) ? payload.getMethod().toUpperCase() : "GET";
       if ("POST".equals(method)) {
@@ -189,19 +178,17 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
       } else {
         requestBuilder.get();
       }
-
-      log.info(
+      log.debug(
           "Executing template API task {} with method {} at {}",
           task.getId(),
           method,
           sanitizedRequestUrl);
-
       try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
         okhttp3.ResponseBody responseBody = response.body();
         okhttp3.MediaType contentType = responseBody != null ? responseBody.contentType() : null;
         String resolvedMimeType = resolveApiResponseMimeType(task, contentType);
         if (response.isSuccessful() && isBinaryMimeType(resolvedMimeType)) {
-          log.info(
+          log.debug(
               "Template API task {} returned HTTP {} binary content-type {} length {}",
               task.getId(),
               response.code(),
@@ -215,7 +202,7 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
               resolvedMimeType);
         }
         String body = responseBody != null ? responseBody.string() : "";
-        log.info(
+        log.debug(
             "Template API task {} returned HTTP {} content-type {} body length {}",
             task.getId(),
             response.code(),
@@ -234,7 +221,6 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
         List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
         Map<String, Object> context =
             buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
-
         return ChildDataResult.builder()
             .outcome(ChildDataOutcome.OK)
             .resultType(TABLE)
@@ -305,23 +291,19 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     return prefix + String.join("&", maskedParameters) + fragment;
   }
 
-  @Override
   public ChildDataResult resolveDirect(ChildDataRequest request) {
     Task task = request.getTask();
     Map<String, String> parameters =
         request.getParameters() == null ? new LinkedHashMap<>() : request.getParameters();
     String scope = request.getScope();
     RequestCoordinates coordinates = request.getCoordinates();
-
     String command =
         String.valueOf(
             task.getProperties().getOrDefault(DomainConstants.Tasks.PROPERTY_COMMAND, ""));
     String resolved = resolveTemplateUrl(command, parameters, coordinates);
-
     Map<String, Object> context = new LinkedHashMap<>();
     context.put("url", resolved);
     parameters.forEach((key, value) -> context.put("$" + key, value));
-
     String resultType =
         DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
                 || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
@@ -374,12 +356,13 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     context.put("mimeType", mimeType);
     context.put("binary", true);
     context.put("embeddable", StringUtils.hasText(contentUrl));
+    String language = currentRequestLanguageResolver.resolve(this);
     if (!StringUtils.hasText(contentUrl)) {
-      context.put(
-          "accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
+      context.put("accessMessage", resolveLiteral(BINARY_ACCESS_MESSAGE_LITERAL, language));
     }
-    context.put(VALUE, BINARY_VALUE_PLACEHOLDER);
-
+    context.put(
+        DomainConstants.Tasks.PARAMETERS_VALUE,
+        resolveLiteral(BINARY_VALUE_PLACEHOLDER_LITERAL, language));
     List<Map<String, Object>> rows = flattenContextToRows(context);
     return ChildDataResult.builder()
         .outcome(ChildDataOutcome.OK)
@@ -460,7 +443,7 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     if (trimmed.startsWith("{")) {
       return objectMapper.readValue(trimmed, new TypeReference<Map<String, Object>>() {});
     }
-    return Collections.singletonMap(VALUE, body);
+    return Collections.singletonMap(DomainConstants.Tasks.PARAMETERS_VALUE, body);
   }
 
   private List<Map<String, Object>> flattenContextToRows(Map<String, Object> context) {
@@ -485,7 +468,7 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     if (path != null) {
       Map<String, Object> row = new LinkedHashMap<>();
       row.put("field", path);
-      row.put(VALUE, value);
+      row.put(DomainConstants.Tasks.PARAMETERS_VALUE, value);
       rows.add(row);
     }
   }
@@ -526,10 +509,8 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
     if (executionParameters != null) {
       templateParameters.putAll(executionParameters);
     }
-
     String uriTemplateSource = selectUriTemplateSource(payload.getUri(), taskCommand);
     String resolvedUri = resolveTemplateUrl(uriTemplateSource, templateParameters, coordinates);
-
     Set<String> uriTemplateParameters = extractUriTemplateParameters(uriTemplateSource);
     Map<String, String> queryParameters = new LinkedHashMap<>();
     if (payload.getParameters() != null) {
@@ -601,5 +582,10 @@ public class InProcessTemplateChildDataAdapter implements TemplateChildDataPort 
       resolved = resolved.replace("${" + entry.getKey() + "}", encodedValue);
     }
     return resolved;
+  }
+
+  private String resolveLiteral(String key, String language) {
+    String resolved = literalTranslationResolver.resolve(key, language);
+    return StringUtils.hasText(resolved) ? resolved : key;
   }
 }

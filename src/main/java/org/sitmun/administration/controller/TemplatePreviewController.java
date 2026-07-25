@@ -41,8 +41,8 @@ public class TemplatePreviewController {
       @RequestBody MoreInfoAdvancedRenderRequestDto requestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
-    requestLocaleResolutionService.resolveLanguage(request, response, this, null);
-    return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto));
+    String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
+    return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto, language));
   }
 
   @PostMapping("/preview")
@@ -56,7 +56,6 @@ public class TemplatePreviewController {
         templateRenderService.renderPreview(
             requestDto.getTemplateHtml(),
             requestDto.getContext(),
-            requestDto.getTemplateTaskId(),
             requestDto.getKnownTaskReferences(),
             language));
   }

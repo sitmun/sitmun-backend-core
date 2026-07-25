@@ -9,9 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - **Templates**: Plantilla task execution and admin preview (`POST /api/tasks/template/execute-child`, `POST /api/tasks/template/preview`); recursive child-task orchestration with Handlebars rendering, reference aliases (`TAR_ALIAS` on `STM_TASKREL`), and nesting guard (max 3 levels).
-- **Templates**: More Info Advanced server-side render (`POST /api/tasks/template/more-info-advanced/render`) for `USER` and `PUBLIC`; requires request `appId`/`terId` (viewer map session); parent availability gate; child `validateUserAccess` before in-process SQL/API; `web-api-query-no-proxy` is not server-fetched. Child data goes through transitional `TemplateChildDataPort` / InProcess adapter (v2 may swap to proxy-http). Proxy is not a template engine.
-- **Templates**: Admin Plantilla `execute-child` / `preview` remain ADMIN god mode (coords optional; no availability / `validateUserAccess`).
-- **i18n**: Literal translation admin CRUD and completion (`/api/literal-translations`) plus CSV import/export (`/api/literal-translations/csv`); tables `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (Liquibase `13_*` / `14_*` after `11_language_order_enabled_and_labels`); `LTR_LITERAL` / `LTV_VALUE` map as `LONGVARCHAR` (Postgres TEXT / Oracle CLOB), not `@Lob` OID.
+- **Templates**: More Info Advanced server-side render (`POST /api/tasks/template/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC`; requires request `appId`/`terId` (viewer map session); parent availability gate; child `validateUserAccess` before in-process SQL/API; `web-api-query-no-proxy` is not server-fetched. Child data via `TemplateChildDataService`. MIA chrome HTML (tabs/scroll/empty/error/table/link) via classpath Handlebars `MiaHtmlRenderer` (`templates/mia/*.hbs`). Unresolved Plantilla placeholders use `sitmun-template-placeholder` (styled in admin/viewer CSS). Thymeleaf retained for email templates.
+- **Templates**: Admin Plantilla `execute-child` / `preview` remain ADMIN-only (coords optional; no availability / `validateUserAccess`).
+- **i18n**: Seed MIA/template chrome literals in one greenfield changelog (`19_mia_chrome_literals`): English keys `No data`, `Error executing task`, `Query`, `Invalid child task id`, `task not executed`, binary access message, `[binary content]` with ca/es/en/fr values; resolved in `TemplateExecutionService` / `TemplateRenderService` / `TemplateChildDataService` and passed into `MiaHtmlRenderer`. Blank-`lang` fallback is the English key.
+- **i18n**: Literal translation admin CRUD and completion (`/api/literal-translations`) plus CSV import/export (`/api/literal-translations/csv`); tables `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (Liquibase `13_*` / `14_*` after `11_language_order_enabled_and_labels`); `LTR_LITERAL` / `LTV_VALUE` are `VARCHAR(4000)`.
 - **Languages**: `LAN_ENABLED` / `enabled` on `Language` (default true); default language (`language.default`) cannot be disabled; startup re-enables it if found disabled; disabled languages are ignored by request locale matching; optional `GET /api/languages/search/enabled`.
 - **Languages**: `LAN_ORDER` / `order` on `Language`; `name` is the endonym (no `@I18n` overlay); read-only `translatedName` holds locale labels when `?lang=` is set; greenfield seeds use Guia endonyms and order (ca→fr); `GET /api/languages` defaults to that order; Liquibase `11_language_order_enabled_and_labels` (profile `56_language_order_enabled_and_labels`, postgres/oracle `09_language_order_enabled_and_labels`) for existing DBs.
 - **Languages**: HAL `LanguageProjection` (`projection=view`) exposes `enabled`, `order`, and `translatedName` for admin list/form clients.
@@ -46,6 +47,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Trees**: greenfield/test `tree.type` code list now includes `edition` and `touristic` (aligned with postgres/oracle profiles) so Data REST type changes pass `@CodeList` validation.
+- **Tests**: tree-node image POST no longer depends on fetching a remote GitHub avatar (uses an embedded PNG data URI).
 - **Cartography**: Replace multi-bag `@EntityGraph` on `findById` with `@BatchSize` to avoid cartesian product when loading fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).
 - **Configuration**: Configuration Parameters `proxy` is applied at runtime again (non-blank valid `STM_CONF.proxy` wins over `sitmun.proxy-middleware.url` / `SITMUN_PROXY_MIDDLEWARE_URL`; blank, empty, or invalid values fall back to that config default); the stored value is always the normalized effective URL so admin shows what clients use ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
 - **Configuration**: create/save of `proxy` returns transient `warnings` i18n keys when the value was normalized or defaulted (not on GET).
@@ -55,6 +58,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- **i18n**: `LTR_LITERAL` / `LTV_VALUE` bounded to `VARCHAR(4000)` (entity `@Size`, CSV rejects oversize rows); greenfield creates use varchar; MIA chrome seeds use plain `=` again.
+- **i18n**: Literal translation CSV import/export persists via JPA repositories (no JDBC / manual `STM_SEQUENCE`).
+- **i18n**: Greenfield `01_schema` creates `LTR_LITERAL` / `LTV_VALUE` as `VARCHAR(4000)` / `VARCHAR2(4000 CHAR)`; `18_literal_translations_varchar` remains as upgrade safety (H2/Postgres ALTER; Oracle CLOB→VARCHAR2 when needed).
 - **Proxy**: `POST /api/config/proxy` reads the delegated JWT from `Authorization: Bearer` only; `id_token` / token fields removed from `ConfigProxyRequestDto`.
 - **Client config**: application list responses no longer inject `config.mbtilesUrl`; `sitmun.mbtiles.url` removed from backend configuration.
 - **Availability projections**: `CartographyAvailabilityProjection.cartographyServiceId` and `TaskAvailabilityProjection.taskTypeId` expose ids needed for admin relation-grid navigation.

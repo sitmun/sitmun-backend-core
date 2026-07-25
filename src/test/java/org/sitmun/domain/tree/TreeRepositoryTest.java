@@ -65,6 +65,8 @@ class TreeRepositoryTest {
         applicationTreeRepository.findByAppAndRoles(1, roles).stream()
             .map(OrderedTree::tree)
             .toList();
+    // Seed oracle for app/ter 1: size ≠ 2 means another test polluted Liquibase seed — fix that
+    // class; do not weaken this assert.
     assertThat(tr).hasSize(2);
   }
 

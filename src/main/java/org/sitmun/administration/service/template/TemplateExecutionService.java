@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +18,13 @@ import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.administration.service.template.childdata.ChildDataOutcome;
 import org.sitmun.administration.service.template.childdata.ChildDataRequest;
 import org.sitmun.administration.service.template.childdata.ChildDataResult;
 import org.sitmun.administration.service.template.childdata.PrincipalKind;
-import org.sitmun.administration.service.template.childdata.TemplateChildDataPort;
+import org.sitmun.administration.service.template.childdata.TemplateChildDataService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
@@ -41,9 +41,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -53,22 +52,24 @@ public class TemplateExecutionService {
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
   private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX =
       "Template nesting depth exceeded";
-  private static final String NO_DATA_LITERAL = "Sense dades";
+  private static final String NO_DATA_LITERAL = "No data";
+  private static final String ERROR_EXECUTING_TASK_LITERAL = "Error executing task";
+  private static final String CONSULTA_LITERAL = "Query";
+  private static final String INVALID_CHILD_TASK_ID_LITERAL = "Invalid child task id";
   private static final Pattern REFERENCE_ALIAS_PATTERN =
       Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
   private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE =
       new TypeReference<>() {};
-  public static final String TEMPLATE_CHILD_TASK_PARAMETERS = "templateChildTaskParameters";
-  public static final String PARAMETERS = "parameters";
-  public static final String CHILD_TASK_PARAMETERS = "childTaskParameters";
-  public static final String VALUE = "value";
-  public static final String DIV_CLOSING_TAG = "</div>";
-  public static final String TEMPLATE = "template";
-  public static final String TABLE = "table";
-  public static final String COMPLETED = "COMPLETED";
-  public static final String ORDER = "order";
-  public static final String SCROLL = "scroll";
+  private static final String TEMPLATE_CHILD_TASK_PARAMETERS = "templateChildTaskParameters";
+  private static final String PARAMETERS = "parameters";
+  private static final String CHILD_TASK_PARAMETERS = "childTaskParameters";
+  private static final String VALUE = "value";
+  private static final String TEMPLATE = "template";
+  private static final String TABLE = "table";
+  private static final String COMPLETED = "COMPLETED";
+  private static final String ORDER = "order";
+  private static final String SCROLL = "scroll";
 
   private final TaskRepository taskRepository;
   private final RoleRepository roleRepository;
@@ -76,7 +77,10 @@ public class TemplateExecutionService {
   private final TemplateRenderService templateRenderService;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final UserApplicationAccessPolicy userApplicationAccessPolicy;
-  private final TemplateChildDataPort templateChildDataPort;
+  private final TemplateChildDataService templateChildDataService;
+  private final LiteralTranslationResolver literalTranslationResolver;
+  private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
+  private final MiaHtmlRenderer miaHtmlRenderer;
   private final ObjectMapper objectMapper;
 
   public TemplateTaskExecutionResponseDto executeLinkedTask(
@@ -131,7 +135,7 @@ public class TemplateExecutionService {
 
   @Transactional(readOnly = true)
   public MoreInfoAdvancedRenderResponseDto renderMoreInfoAdvanced(
-      MoreInfoAdvancedRenderRequestDto requestDto) {
+      MoreInfoAdvancedRenderRequestDto requestDto, String language) {
     RequestCoordinates coordinates =
         templateRequestCoordinatesService.build(requestDto.getAppId(), requestDto.getTerId());
     String username = resolveAuthorizedUsername(coordinates);
@@ -159,7 +163,8 @@ public class TemplateExecutionService {
         }
         continue;
       }
-      renderedTasks.add(renderSingleMoreInfoAdvancedTask(miaTask, featureParameters, coordinates));
+      renderedTasks.add(
+          renderSingleMoreInfoAdvancedTask(miaTask, featureParameters, coordinates, language));
     }
     if (renderedTasks.isEmpty() && !miaTaskIds.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -169,7 +174,10 @@ public class TemplateExecutionService {
   }
 
   private MoreInfoAdvancedRenderedTaskDto renderSingleMoreInfoAdvancedTask(
-      Task miaTask, Map<String, Object> featureParameters, RequestCoordinates coordinates) {
+      Task miaTask,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates,
+      String language) {
     Map<String, Object> properties =
         miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
     Map<String, Object> miaParameters = convertBasicParameters(properties);
@@ -182,8 +190,9 @@ public class TemplateExecutionService {
 
     String html =
         "tabs".equals(visualizationMode)
-            ? renderMiaChildrenAsTabs(miaTask, includedTasks, featureParameters, coordinates)
-            : renderMiaChildrenAsScroll(includedTasks, featureParameters, coordinates);
+            ? renderMiaChildrenAsTabs(
+                miaTask, includedTasks, featureParameters, coordinates, language)
+            : renderMiaChildrenAsScroll(includedTasks, featureParameters, coordinates, language);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -196,68 +205,49 @@ public class TemplateExecutionService {
       Task miaTask,
       List<Map<String, Object>> includedTasks,
       Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
+      RequestCoordinates coordinates,
+      String language) {
     String renderId = "mia-backend-" + miaTask.getId();
-    StringBuilder tabs = new StringBuilder();
-    StringBuilder panels = new StringBuilder();
-
+    List<MiaPanelView> panels = new ArrayList<>(includedTasks.size());
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
-      String panelId = renderId + "-" + index;
-      String active = index == 0 ? " sitmun-mia-tab-active" : "";
-      String hidden = index == 0 ? "" : " style=\"display:none\"";
-      tabs.append("<button class=\"sitmun-mia-tab")
-          .append(active)
-          .append("\" data-mia-tab=\"")
-          .append(panelId)
-          .append("\">")
-          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
-          .append("</button>");
-      panels
-          .append("<div class=\"sitmun-mia-tab-panel\" data-mia-panel=\"")
-          .append(panelId)
-          .append("\"")
-          .append(hidden)
-          .append(">")
-          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
-          .append(DIV_CLOSING_TAG);
+      panels.add(
+          new MiaPanelView(
+              renderId + "-" + index,
+              resolveChildTitle(childDefinition, index, language),
+              renderMiaChild(childDefinition, featureParameters, coordinates, language),
+              index == 0));
     }
-
-    return "<div class=\"sitmun-mia-tabs-bar\" data-mia-tabs=\""
-        + renderId
-        + "\">"
-        + tabs
-        + "</div><div class=\"sitmun-mia-body\">"
-        + panels
-        + DIV_CLOSING_TAG;
+    return miaHtmlRenderer.tabs(renderId, panels);
   }
 
   private String renderMiaChildrenAsScroll(
       List<Map<String, Object>> includedTasks,
       Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
-    StringBuilder sections = new StringBuilder();
+      RequestCoordinates coordinates,
+      String language) {
+    List<MiaPanelView> panels = new ArrayList<>(includedTasks.size());
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
-      sections
-          .append(
-              "<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
-          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
-          .append(DIV_CLOSING_TAG)
-          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
-          .append(DIV_CLOSING_TAG);
+      panels.add(
+          new MiaPanelView(
+              "scroll-" + index,
+              resolveChildTitle(childDefinition, index, language),
+              renderMiaChild(childDefinition, featureParameters, coordinates, language),
+              index == 0));
     }
-    return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + DIV_CLOSING_TAG;
+    return miaHtmlRenderer.scroll(panels);
   }
 
-  @SuppressWarnings("unchecked")
   private String renderMiaChild(
       Map<String, Object> childDefinition,
       Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
+      RequestCoordinates coordinates,
+      String language) {
     Integer childTaskId = parseTaskId(childDefinition.get("id"));
     if (childTaskId == null) {
-      return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
+      return miaHtmlRenderer.invalidChildTaskId(
+          resolveLiteral(INVALID_CHILD_TASK_ID_LITERAL, language));
     }
 
     Task childTask =
@@ -265,7 +255,7 @@ public class TemplateExecutionService {
             .findById(childTaskId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     if (!mayAccessTask(childTask, coordinates, false)) {
-      return renderNoDataHtml();
+      return renderNoDataHtml(language);
     }
     Map<String, String> childParameters =
         stringifyParameters(
@@ -312,9 +302,8 @@ public class TemplateExecutionService {
       }
       String taskName =
           childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
-      return "<div class=\"sitmun-mia-error\">Error ejecutando tarea: "
-          + escapeHtml(taskName)
-          + DIV_CLOSING_TAG;
+      return miaHtmlRenderer.executionError(
+          resolveLiteral(ERROR_EXECUTING_TASK_LITERAL, language), taskName);
     }
 
     if (TEMPLATE.equals(result.getResultType())) {
@@ -322,17 +311,12 @@ public class TemplateExecutionService {
       return html == null ? "" : String.valueOf(html);
     }
     if (TABLE.equals(result.getResultType())) {
-      return renderRowsAsTable(result.getRows());
+      return renderRowsAsTable(result.getRows(), language);
     }
     if (result.getResourceUrl() != null) {
-      String url = escapeHtml(result.getResourceUrl());
-      return "<a href=\""
-          + url
-          + "\" target=\"_blank\" rel=\"noopener noreferrer\">"
-          + url
-          + "</a>";
+      return miaHtmlRenderer.link(result.getResourceUrl());
     }
-    return renderNoDataHtml();
+    return renderNoDataHtml(language);
   }
 
   private void enrichTemplateChildTaskParameters(
@@ -342,7 +326,10 @@ public class TemplateExecutionService {
       int depth) {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(templateTask.getId());
     for (TaskRelation relation : relations) {
-      if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
+      if (!List.of(
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_TASK,
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_NESTED)
+          .contains(relation.getRelationType())) {
         continue;
       }
       Task relatedTask = relation.getRelatedTask();
@@ -730,46 +717,20 @@ public class TemplateExecutionService {
     }
   }
 
-  private String resolveChildTitle(Map<String, Object> childDefinition, int index) {
+  private String resolveChildTitle(
+      Map<String, Object> childDefinition, int index, String language) {
     Object name = childDefinition.get("name");
-    return name == null || String.valueOf(name).isBlank()
-        ? "Consulta " + (index + 1)
-        : String.valueOf(name);
+    if (name == null || String.valueOf(name).isBlank()) {
+      return resolveLiteral(CONSULTA_LITERAL, language) + " " + (index + 1);
+    }
+    return String.valueOf(name);
   }
 
-  private String renderRowsAsTable(List<Map<String, Object>> rows) {
+  private String renderRowsAsTable(List<Map<String, Object>> rows, String language) {
     if (rows == null || rows.isEmpty()) {
-      return renderNoDataHtml();
+      return renderNoDataHtml(language);
     }
-    Set<String> columns = new LinkedHashSet<>();
-    rows.forEach(row -> columns.addAll(row.keySet()));
-    StringBuilder html = new StringBuilder("<table class=\"sitmun-json-table\"><thead><tr>");
-    columns.forEach(column -> html.append("<th>").append(escapeHtml(column)).append("</th>"));
-    html.append("</tr></thead><tbody>");
-    for (Map<String, Object> row : rows) {
-      html.append("<tr>");
-      columns.forEach(
-          column ->
-              html.append("<td>")
-                  .append(
-                      escapeHtml(row.get(column) == null ? "" : String.valueOf(row.get(column))))
-                  .append("</td>"));
-      html.append("</tr>");
-    }
-    html.append("</tbody></table>");
-    return html.toString();
-  }
-
-  private String escapeHtml(String value) {
-    if (value == null) {
-      return "";
-    }
-    return value
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\"", "&quot;")
-        .replace("'", "&#39;");
+    return miaHtmlRenderer.table(rows);
   }
 
   private boolean mayAccessTask(Task task, RequestCoordinates coordinates, boolean adminGodMode) {
@@ -831,39 +792,17 @@ public class TemplateExecutionService {
     return authentication.getName();
   }
 
-  private String renderNoDataHtml() {
-    return "<div class=\"sitmun-mia-empty\">"
-        + escapeHtml(resolveNoDataMessage())
-        + DIV_CLOSING_TAG;
+  private String renderNoDataHtml(String language) {
+    return miaHtmlRenderer.empty(resolveNoDataMessage(language));
   }
 
-  private String resolveNoDataMessage() {
-    String language = resolveRequestLanguage();
-    if (!StringUtils.hasText(language)) {
-      return NO_DATA_LITERAL;
-    }
-    String normalized = language.trim().toLowerCase();
-    if (normalized.startsWith("es")) {
-      return "Sin datos";
-    }
-    if (normalized.startsWith("en")) {
-      return "No data";
-    }
-    if (normalized.startsWith("fr")) {
-      return "Aucune donnee";
-    }
-    return NO_DATA_LITERAL;
+  private String resolveNoDataMessage(String language) {
+    return resolveLiteral(NO_DATA_LITERAL, language);
   }
 
-  private String resolveRequestLanguage() {
-    if (RequestContextHolder.getRequestAttributes()
-        instanceof ServletRequestAttributes attributes) {
-      String language = attributes.getRequest().getParameter("lang");
-      if (StringUtils.hasText(language)) {
-        return language;
-      }
-    }
-    return null;
+  private String resolveLiteral(String key, String language) {
+    String resolved = literalTranslationResolver.resolve(key, language);
+    return StringUtils.hasText(resolved) ? resolved : key;
   }
 
   private TemplateTaskExecutionResponseDto executeTask(
@@ -903,17 +842,17 @@ public class TemplateExecutionService {
     ChildDataRequest childRequest =
         childDataRequest(task, parameters, coordinates, scope, adminGodMode);
     if (DomainConstants.Tasks.SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
-      return toExecutionResponse(task, templateChildDataPort.executeSql(childRequest));
+      return toExecutionResponse(task, templateChildDataService.executeSql(childRequest));
     }
     if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
-      return toExecutionResponse(task, templateChildDataPort.executeApi(childRequest));
+      return toExecutionResponse(task, templateChildDataService.executeApi(childRequest));
     }
     if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)) {
-      return toExecutionResponse(task, templateChildDataPort.resolveDirect(childRequest));
+      return toExecutionResponse(task, templateChildDataService.resolveDirect(childRequest));
     }
 
     throw new ResponseStatusException(
@@ -926,18 +865,7 @@ public class TemplateExecutionService {
       RequestCoordinates coordinates,
       String scope,
       boolean adminGodMode) {
-    Integer appId =
-        coordinates != null && coordinates.getApplication() != null
-            ? coordinates.getApplication().getId()
-            : null;
-    Integer terId =
-        coordinates != null && coordinates.getTerritory() != null
-            ? coordinates.getTerritory().getId()
-            : null;
     return ChildDataRequest.builder()
-        .appId(appId)
-        .terId(terId)
-        .taskId(task.getId())
         .parameters(parameters)
         .principalKind(resolvePrincipalKind(adminGodMode))
         .coordinates(coordinates)
@@ -961,12 +889,6 @@ public class TemplateExecutionService {
   private TemplateTaskExecutionResponseDto toExecutionResponse(Task task, ChildDataResult result) {
     if (result == null || result.getOutcome() == ChildDataOutcome.NO_DATA) {
       return buildNoDataExecutionResponse(task);
-    }
-    if (result.getOutcome() == ChildDataOutcome.UNSUPPORTED) {
-      Object unsupportedScope =
-          result.getContext() != null ? result.getContext().get("scope") : null;
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Unsupported linked task scope: " + unsupportedScope);
     }
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
@@ -998,7 +920,10 @@ public class TemplateExecutionService {
     }
 
     for (TaskRelation relation : relations) {
-      if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
+      if (!List.of(
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_TASK,
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_NESTED)
+          .contains(relation.getRelationType())) {
         continue;
       }
 
@@ -1042,10 +967,7 @@ public class TemplateExecutionService {
     }
 
     TemplatePreviewResponseDto rendered =
-        renderTemplatePreview(
-            readTemplateHtml(task),
-            templateContext,
-            rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
+        renderTemplatePreview(readTemplateHtml(task), templateContext);
 
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
@@ -1058,13 +980,10 @@ public class TemplateExecutionService {
   }
 
   private TemplatePreviewResponseDto renderTemplatePreview(
-      String templateHtml, Map<String, Object> templateContext, Integer templateTaskId) {
-    String language = resolveRequestLanguage();
-    if (StringUtils.hasText(language)) {
-      return templateRenderService.renderPreview(
-          templateHtml, templateContext, templateTaskId, Collections.emptyList(), language);
-    }
-    return templateRenderService.renderPreview(templateHtml, templateContext, templateTaskId);
+      String templateHtml, Map<String, Object> templateContext) {
+    String language = currentRequestLanguageResolver.resolve(this);
+    return templateRenderService.renderPreview(
+        templateHtml, templateContext, Collections.emptyList(), language);
   }
 
   private Map<String, Object> buildChildErrorContext(
@@ -1072,34 +991,31 @@ public class TemplateExecutionService {
     Map<String, Object> context = new LinkedHashMap<>();
     String taskName =
         childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
+    String language = currentRequestLanguageResolver.resolve(this);
     String message =
         StringUtils.hasText(exception.getReason()) ? exception.getReason() : exception.getMessage();
-    String safeMessage =
-        escapeHtml(StringUtils.hasText(message) ? message : "Error ejecutando tarea");
+    String errorPrefix = resolveLiteral(ERROR_EXECUTING_TASK_LITERAL, language);
+    String rawMessage = StringUtils.hasText(message) ? message : errorPrefix;
+    String safeMessage = HtmlUtils.htmlEscape(rawMessage);
     context.put("taskId", childTask.getId());
     context.put("status", "ERROR");
     context.put("statusCode", exception.getStatusCode().value());
     context.put("error", true);
     context.put("message", safeMessage);
-    context.put(
-        "html",
-        "<div class=\"sitmun-template-child-error\">Error ejecutando tarea: "
-            + escapeHtml(taskName)
-            + " - "
-            + safeMessage
-            + DIV_CLOSING_TAG);
+    context.put("html", miaHtmlRenderer.childError(errorPrefix, taskName, rawMessage));
     context.put(VALUE, "[error: " + safeMessage + "]");
     return context;
   }
 
   private Map<String, Object> buildChildNoDataContext() {
-    String noDataMessage = resolveNoDataMessage();
+    String language = currentRequestLanguageResolver.resolve(this);
+    String noDataMessage = resolveNoDataMessage(language);
     Map<String, Object> context = new LinkedHashMap<>();
     context.put("status", "NO_DATA");
     context.put("statusCode", HttpStatus.FORBIDDEN.value());
     context.put("error", false);
     context.put("message", noDataMessage);
-    context.put("html", renderNoDataHtml());
+    context.put("html", renderNoDataHtml(language));
     context.put(VALUE, noDataMessage);
     context.put("rows", Collections.emptyList());
     return context;

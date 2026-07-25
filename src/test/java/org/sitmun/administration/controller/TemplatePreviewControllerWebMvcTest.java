@@ -52,7 +52,7 @@ class TemplatePreviewControllerWebMvcTest {
   @WithMockUser(roles = "USER")
   @DisplayName("render without appId/terId returns 400")
   void renderRequiresAppIdAndTerId() throws Exception {
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenThrow(
             new ResponseStatusException(HttpStatus.BAD_REQUEST, "appId and terId are required"));
 
@@ -96,7 +96,7 @@ class TemplatePreviewControllerWebMvcTest {
   void publicPrincipalCanReachRender() throws Exception {
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
         .thenReturn("ca");
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
     mvc.perform(
@@ -108,7 +108,7 @@ class TemplatePreviewControllerWebMvcTest {
                     """))
         .andExpect(status().isOk());
 
-    verify(templateExecutionService).renderMoreInfoAdvanced(any());
+    verify(templateExecutionService).renderMoreInfoAdvanced(any(), any());
   }
 
   @Test
@@ -117,7 +117,7 @@ class TemplatePreviewControllerWebMvcTest {
   void adminPrincipalCanReachRender() throws Exception {
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
         .thenReturn("ca");
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
     mvc.perform(
@@ -129,7 +129,7 @@ class TemplatePreviewControllerWebMvcTest {
                     """))
         .andExpect(status().isOk());
 
-    verify(templateExecutionService).renderMoreInfoAdvanced(any());
+    verify(templateExecutionService).renderMoreInfoAdvanced(any(), any());
   }
 
   @Test
@@ -138,7 +138,7 @@ class TemplatePreviewControllerWebMvcTest {
   void previewDoesNotRequireCoordinates() throws Exception {
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
         .thenReturn("ca");
-    when(templateRenderService.renderPreview(any(), any(), any(), any(), any()))
+    when(templateRenderService.renderPreview(any(), any(), any(), any()))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<p>ok</p>").build());
 
     mvc.perform(
@@ -151,6 +151,6 @@ class TemplatePreviewControllerWebMvcTest {
         .andExpect(status().isOk());
 
     verify(templateExecutionService, never()).executeLinkedTask(any());
-    verify(templateExecutionService, never()).renderMoreInfoAdvanced(any());
+    verify(templateExecutionService, never()).renderMoreInfoAdvanced(any(), any());
   }
 }

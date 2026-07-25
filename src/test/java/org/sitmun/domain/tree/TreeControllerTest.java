@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,10 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -39,15 +42,40 @@ class TreeControllerTest extends BaseTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @Autowired private TreeRepository treeRepository;
-
   @Autowired private ApplicationTreeRepository applicationTreeRepository;
 
   @Autowired private JdbcTemplate jdbcTemplate;
 
+  @Autowired private PlatformTransactionManager transactionManager;
+
   @BeforeEach
   void resetSeedTreeTypes() {
-    jdbcTemplate.update("UPDATE STM_TREE SET TRE_TYPE = 'cartography' WHERE TRE_ID IN (1, 2, 3)");
+    restoreSeedTreeTypes();
+  }
+
+  /** Committed JDBC restore — Data REST handlers must see seed outside any test TX. */
+  private void restoreSeedTreeTypes() {
+    // Postgres tests disable Hikari auto-commit; commit the seed reset explicitly.
+    new TransactionTemplate(transactionManager)
+        .executeWithoutResult(
+            status -> {
+              jdbcTemplate.update(
+                  "UPDATE STM_TREE SET TRE_TYPE = 'cartography' WHERE TRE_ID IN (1, 2, 3)");
+              // Drop stray nodes left by other Data REST tests (seed tree 2 is only node 15).
+              jdbcTemplate.update(
+                  "DELETE FROM STM_TREE_NOD WHERE TNO_TREEID = 2 AND TNO_ID <> 15"
+                      + " AND TNO_PARENTID IS NOT NULL");
+              jdbcTemplate.update("DELETE FROM STM_TREE_NOD WHERE TNO_TREEID = 2 AND TNO_ID <> 15");
+              jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_RADIO = FALSE WHERE TNO_TREEID = 2");
+              // Seed: tree 1 radio folder is node 7 only.
+              jdbcTemplate.update(
+                  "UPDATE STM_TREE_NOD SET TNO_RADIO = FALSE WHERE TNO_TREEID = 1 AND TNO_ID <> 7");
+              jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_RADIO = TRUE WHERE TNO_ID = 7");
+            });
+  }
+
+  private static String withTreeType(String treeJson, String type) {
+    return JsonPath.parse(treeJson).set("$.type", type).jsonString();
   }
 
   @Test
@@ -351,19 +379,6 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("PATCH: cartography to edition with radio folders - returns 400")
-  @WithMockUser(roles = "ADMIN")
-  void patchCartographyToEditionWithRadioFoldersRejected() throws Exception {
-    mvc.perform(patch("/api/trees/1").content("{\"type\": \"edition\"}"))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT))
-        .andExpect(
-            jsonPath("$.detail")
-                .value(
-                    "Cartography tree type cannot be changed while radio folders are configured"));
-  }
-
-  @Test
   @DisplayName("PUT: cartography to edition with radio folders - returns 400")
   @WithMockUser(roles = "ADMIN")
   void putCartographyToEditionWithRadioFoldersRejected() throws Exception {
@@ -374,11 +389,10 @@ class TreeControllerTest extends BaseTest {
             .getResponse()
             .getContentAsString();
 
-    String updatedTreeJson =
-        treeJson.replaceAll("\"type\"\\s*:\\s*\"cartography\"", "\"type\":\"edition\"");
-
     mvc.perform(
-            put("/api/trees/1").contentType(MediaType.APPLICATION_JSON).content(updatedTreeJson))
+            put("/api/trees/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(withTreeType(treeJson, "edition")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT))
         .andExpect(
@@ -388,13 +402,38 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("PATCH: cartography to edition without radio folders - returns 200")
-  @Transactional
+  @DisplayName("PUT: cartography to edition without radio folders - returns 200")
   @WithMockUser(roles = "ADMIN")
-  void patchCartographyToEditionWithoutRadioFoldersSucceeds() throws Exception {
-    mvc.perform(patch("/api/trees/2").content("{\"type\": \"edition\"}"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.type").value("edition"));
+  void putCartographyToEditionWithoutRadioFoldersSucceeds() throws Exception {
+    // Mutates seed via Data REST (commits); must restore — test @Transactional cannot wrap this.
+    try {
+      Integer radioFolders =
+          jdbcTemplate.queryForObject(
+              "SELECT COUNT(*) FROM STM_TREE_NOD WHERE TNO_TREEID = 2 AND TNO_RADIO = TRUE",
+              Integer.class);
+      assertEquals(0, radioFolders, "tree 2 must have no radio folders before type change");
+
+      String treeJson =
+          mvc.perform(get("/api/trees/2"))
+              .andExpect(status().isOk())
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      assertEquals("cartography", JsonPath.parse(treeJson).read("$.type", String.class));
+
+      MvcResult putResult =
+          mvc.perform(
+                  put("/api/trees/2")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(withTreeType(treeJson, "edition")))
+              .andReturn();
+      String putBody = putResult.getResponse().getContentAsString();
+      assertEquals(
+          200, putResult.getResponse().getStatus(), "PUT /api/trees/2 type→edition: " + putBody);
+      assertEquals("edition", JsonPath.parse(putBody).read("$.type", String.class));
+    } finally {
+      restoreSeedTreeTypes();
+    }
   }
 
   @Test

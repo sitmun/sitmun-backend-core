@@ -204,6 +204,12 @@ class CodeListsTest {
   }
 
   @Test
+  @DisplayName("Verify tree.type code list values")
+  void checkTreeType() {
+    assertThat(select(TREE_TYPE)).containsExactlyInAnyOrder("cartography", "edition", "touristic");
+  }
+
+  @Test
   @DisplayName("Verify treenode.node.type code list values")
   void checkTreeNodeNodeType() {
     assertThat(select(TREE_NODE_TYPE))
