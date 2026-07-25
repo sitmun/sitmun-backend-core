@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.8] - 2026-07-25
+
 ### Added
 
 - **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
@@ -336,7 +338,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...HEAD
+[1.2.8]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...sitmun-backend-core/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...sitmun-backend-core/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.4...sitmun-backend-core/1.2.5
