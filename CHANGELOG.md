@@ -8,91 +8,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- **Templates**: Plantilla task execution and admin preview (`POST /api/tasks/template/execute-child`, `POST /api/tasks/template/preview`); recursive child-task orchestration with Handlebars rendering, reference aliases (`TAR_ALIAS` on `STM_TASKREL`), and nesting guard (max 3 levels).
-- **Templates**: More Info Advanced server-side render (`POST /api/tasks/template/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC`; requires request `appId`/`terId` (viewer map session); parent availability gate; child `validateUserAccess` before in-process SQL/API; `web-api-query-no-proxy` is not server-fetched. Child data via `TemplateChildDataService`. MIA chrome HTML (tabs/scroll/empty/error/table/link) via classpath Handlebars `MiaHtmlRenderer` (`templates/mia/*.hbs`). Unresolved Plantilla placeholders use `sitmun-template-placeholder` (styled in admin/viewer CSS). Thymeleaf retained for email templates.
-- **Templates**: Admin Plantilla `execute-child` / `preview` remain ADMIN-only (coords optional; no availability / `validateUserAccess`).
-- **i18n**: Seed MIA/template chrome literals in one greenfield changelog (`19_mia_chrome_literals`): English keys `No data`, `Error executing task`, `Query`, `Invalid child task id`, `task not executed`, binary access message, `[binary content]` with ca/es/en/fr values; resolved in `TemplateExecutionService` / `TemplateRenderService` / `TemplateChildDataService` and passed into `MiaHtmlRenderer`. Blank-`lang` fallback is the English key.
-- **i18n**: Literal translation admin CRUD and completion (`/api/literal-translations`) plus CSV import/export (`/api/literal-translations/csv`); tables `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (Liquibase `13_*` / `14_*` after `11_language_order_enabled_and_labels`); `LTR_LITERAL` / `LTV_VALUE` are `VARCHAR(4000)`.
-- **Languages**: `LAN_ENABLED` / `enabled` on `Language` (default true); default language (`language.default`) cannot be disabled; startup re-enables it if found disabled; disabled languages are ignored by request locale matching; optional `GET /api/languages/search/enabled`.
-- **Languages**: `LAN_ORDER` / `order` on `Language`; `name` is the endonym (no `@I18n` overlay); read-only `translatedName` holds locale labels when `?lang=` is set; greenfield seeds use Guia endonyms and order (ca→fr); `GET /api/languages` defaults to that order; Liquibase `11_language_order_enabled_and_labels` (profile `56_language_order_enabled_and_labels`, postgres/oracle `09_language_order_enabled_and_labels`) for existing DBs.
-- **Languages**: HAL `LanguageProjection` (`projection=view`) exposes `enabled`, `order`, and `translatedName` for admin list/form clients.
-- **Client profile**: tree nodes expose `queryableActive` from `TreeNode` so the viewer can show the SITNA-style GFI `i` marker on queryable leaves.
-- **Trees**: `queryableActive` is forced false on non–cartography-leaf nodes on create/save (same normalization pattern as `loadData`).
-- **Tree nodes**: `TreeNodeProjection` exposes `loadData`; create/save clears `loadData` on non-folder nodes; radio and loadData remain independent ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)). Radio folders that should activate on title click need `loadData=true` (tests set seed node 7 accordingly).
-- **Auth**: `POST /api/authenticate/mobile` returns JSON `{access_token, token_type, expires_in}` (no cookie) for edition clients; requires an accessible `ED` application. Configured by `sitmun.mobile.token-validity-in-milliseconds` (default 1h).
-- **Auth**: `EditionBearerTokenFilter` authenticates mobile `edition_access` Bearer tokens as `ROLE_MOBILE_EDITION` plus `SCOPE_*` authorities (never `ROLE_USER`/`ROLE_ADMIN`).
-- **Auth**: mobile-derived `POST /api/authenticate/proxy` issues `mobile_proxy_access` JWTs (`aud=sitmun-proxy`) with MBTiles and proxy scopes.
-- **Proxy**: `POST /api/config/proxy/mbtiles` authorizes MBTiles estimate/create/status/file using `mobile_proxy_access` Bearer scopes and returns a canonical tile request rebuilt from authorized profile services/layers (no MBTiles host).
-- **Applications**: `responsibleInstitutionName` field on `Application` (DB column `APP_RESPONSIBLE_INSTITUTION VARCHAR(250)`); exposed via `ApplicationProjection`, `ApplicationDtoLittle`, and client profile. Value is trimmed; blank input stored as null. ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316))
-- **Applications**: point-of-contact (PoC) eligibility rule: creator is eligible when not a built-in principal (`public`/`admin`) and not blocked; email is not required for eligibility. `ApplicationPointOfContactPolicy` centralises `isEligible` and `hasPublishableEmail`.
-- **Applications**: `ApplicationChecksService` emits `entity.application.warning.invalid-point-of-contact` when creator is non-null and ineligible, and `entity.application.warning.point-of-contact-email-missing` when creator is eligible but has blank email.
-- **Applications**: `pointOfContact` in client profile (`ApplicationDtoLittle`) is set only when creator is eligible and has a non-blank email; `responsibleInstitutionName` is always mapped independently of creator state.
-- **Dashboard API**: `DashboardApplicationDto` exposes `responsibleInstitutionName`; dashboard `creator` email is published only when the PoC has a publishable email (same eligibility rules as `pointOfContact`).
-- **Applications**: `BeforeCreateApplicationValidator`, `BeforeSaveApplicationValidator` (new), and `BeforeLinkSaveApplicationValidator` reject new/replacement ineligible creators with `creator.invalidPointOfContact`; preserving an existing invalid creator on unrelated edits is allowed.
-- **Security**: `SecurityConstants.BUILT_IN_ADMIN_PRINCIPAL`, `isBuiltInAdminPrincipal`, and `isBuiltInPrincipal` helpers; `UserChecksService` and `UserEventHandler` now delegate to these instead of private literal constants.
-- **Migration**: Liquibase changeset `09_application_responsible_institution.yaml` adds `APP_RESPONSIBLE_INSTITUTION` column (H2/PostgreSQL and Oracle variants with rollback).
-- **Startup**: `BuiltInUserStartupRepairer` soft-repairs built-in `admin`/`public` invariants without aborting the JVM; creates missing `public`; creates missing/passwordless `admin` only from `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`; deletes stale built-in positions; keeps `/api/dashboard/health` `DOWN` until repair succeeds (`BuiltInUserHealthIndicator`).
-- **Startup**: public `GET /api/dashboard/startup` returns only built-in-user `state` and a stable `reason` when blocked; development property dump redacts secret-bearing keys (including the bootstrap admin password).
-- **Tests**: `ApplicationPointOfContactPolicyTest`, `ApplicationPointOfContactValidationTest`, `ApplicationMapperTest` (expanded), `ApplicationDtoLittleTest` (expanded), `ApplicationChecksServiceTest` (new PoC warning cases), `ApplicationRepositoryDataRestTest` (persistence + trim), `ProjectionsTest` (new field), `ApplicationContactMigrationTest` (column add idempotency).
-- **Tests**: `BuiltInUserStartupRepairerTest`, `BuiltInUserHealthIndicatorTest`.
-
-- **Client profile**: tree nodes expose `loadByDefault` derived from `TreeNode.active` (load-by-default) for cartography leaves that should auto-load into working layers on map open.
-- **Client profile**: `trees[].order` reflects application–tree association order (`STM_APP_TREE.ATR_ORDER`); trees are sorted by that order in the profile response.
-- **Applications**: `ApplicationTree` entity (`STM_APP_TREE`) replaces the former `@ManyToMany` join; admin REST exposes `/api/application-trees` with order and projection view.
-- **Migration**: Liquibase changeset `10_application_tree_order.yaml` migrates legacy composite-key `STM_APP_TREE` rows to `ATR_ID`/`ATR_ORDER` (skipped when baseline schema already includes them).
-- **Tree nodes**: `TNO_VISIBLE` catalog visibility column; admin REST and `TreeNodeProjection` expose `visible`; `active` is load-by-default (`TNO_ACTIVE`, default false).
-- **Tree nodes**: radio invariants enforced on save and on direct Spring Data REST association link saves (`/parent`, `/task`, `/cartography`) via `@HandleBeforeLinkSave`; `TREE_NODE_RADIO_SCOPE`, `TREE_NODE_RADIO_STRUCTURE`, and `TREE_NODE_RADIO_DEFAULT_CONFLICT` are raised for link mutations that would bypass entity-level validation; task nodes and folders are rejected under radio parents; tree type changes away from cartography are blocked while radio folders exist.
-- **Tree nodes**: Liquibase changeset 53 realigns legacy `TNO_LOAD_BY_DEFAULT`/`TNO_ACTIVE` visibility semantics into `TNO_VISIBLE` + load-by-default `TNO_ACTIVE`, halting on invalid radio structure until data is repaired; 53a also clears `TNO_ACTIVE` on rows with `TNO_TASKID` set.
-- **Tests**: `TreeNodeMigration53Test` covers migration 53 visibility/load combinations, radio-structure halt, resume-after-repair, cartography+task active normalization, task-child-under-radio halt, and dual-active halt/resume on isolated H2 databases.
-
-### Fixed
-
-- **Trees**: greenfield/test `tree.type` code list now includes `edition` and `touristic` (aligned with postgres/oracle profiles) so Data REST type changes pass `@CodeList` validation.
-- **Tests**: tree-node image POST no longer depends on fetching a remote GitHub avatar (uses an embedded PNG data URI).
-- **Cartography**: Replace multi-bag `@EntityGraph` on `findById` with `@BatchSize` to avoid cartesian product when loading fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).
-- **Configuration**: Configuration Parameters `proxy` is applied at runtime again (non-blank valid `STM_CONF.proxy` wins over `sitmun.proxy-middleware.url` / `SITMUN_PROXY_MIDDLEWARE_URL`; blank, empty, or invalid values fall back to that config default); the stored value is always the normalized effective URL so admin shows what clients use ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
-- **Configuration**: create/save of `proxy` returns transient `warnings` i18n keys when the value was normalized or defaulted (not on GET).
-- **Applications**: `@HandleBeforeLinkSave` handlers for application–tree validation accept `Object` as the linked argument so PUT `/api/applications/{id}/situationMap` (and other non-tree associations) no longer fail with `argument type mismatch`.
-- **Tests**: Application association PUTs cover `situationMap`, `creator`, and `availableRoles` when trees are linked; Tree association PUTs cover `owner` and `availableRoles` when applications are linked.
-- **Proxy**: `POST /api/config/proxy/mbtiles` sets `ProfileContext.nodeSectionBehaviour` to `VIRTUAL_ROOT_ALL_NODES` before profile creation (avoids NPE when canonicalizing tile requests).
+- **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
+- **i18n**: Literal-translation CRUD/CSV (`/api/literal-translations`, `…/csv`) on `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (`VARCHAR(4000)`, Liquibase `13_*`/`14_*`). `Language` gains `enabled`/`order` (endonym `name`, locale `translatedName`); default language cannot be disabled; HAL `LanguageProjection` (`projection=view`); Liquibase `11_language_order_enabled_and_labels` (profile `56_…` / `09_…`). Lossless default-language migration via `POST /api/language-default/change-preview` and `…/change` (blocks direct REST edits of `language.default`).
+- **Trees** / **Client profile**: catalog visibility `visible` (`TNO_ACTIVE`) vs load-by-default `active` → profile `loadByDefault` (`TNO_DEFAULT`); `queryableActive` and `loadData` with create/save normalization; radio invariants on save and association link saves; profile exposes `trees[].order` from `STM_APP_TREE.ATR_ORDER` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Auth** / **Proxy**: `POST /api/authenticate/mobile` JSON Bearer for edition clients (`EditionBearerTokenFilter` → `ROLE_MOBILE_EDITION`); mobile-derived proxy JWTs; `POST /api/config/proxy/mbtiles` canonical tile authorization (no MBTiles host).
+- **Applications**: `responsibleInstitutionName` (`APP_RESPONSIBLE_INSTITUTION`); PoC eligibility policy, warnings, and validators; `/api/application-trees` ordered links replacing `@ManyToMany`; dashboard DTO exposes institution and publishable creator email only ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)). Liquibase `09_application_responsible_institution` / `10_application_tree_order`.
+- **Startup**: Soft built-in `admin`/`public` repair (`SITMUN_BOOTSTRAP_ADMIN_PASSWORD` for admin create/restore); `/api/dashboard/health` stays `DOWN` until repair succeeds; public `/api/dashboard/startup` returns stable state/reason; development dumps redact secret-bearing keys. Built-in principal helpers centralized in `SecurityConstants`.
+- **Tests**: Coverage for application PoC policy/validation/mapping, built-in user startup repair/health, tree-node schema/`TNO_ACTIVE`+`TNO_DEFAULT` metadata, and related projections.
 
 ### Changed
 
-- **i18n**: `LTR_LITERAL` / `LTV_VALUE` bounded to `VARCHAR(4000)` (entity `@Size`, CSV rejects oversize rows); greenfield creates use varchar; MIA chrome seeds use plain `=` again.
-- **i18n**: Literal translation CSV import/export persists via JPA repositories (no JDBC / manual `STM_SEQUENCE`).
-- **i18n**: Greenfield `01_schema` creates `LTR_LITERAL` / `LTV_VALUE` as `VARCHAR(4000)` / `VARCHAR2(4000 CHAR)`; `18_literal_translations_varchar` remains as upgrade safety (H2/Postgres ALTER; Oracle CLOB→VARCHAR2 when needed).
-- **Proxy**: `POST /api/config/proxy` reads the delegated JWT from `Authorization: Bearer` only; `id_token` / token fields removed from `ConfigProxyRequestDto`.
-- **Client config**: application list responses no longer inject `config.mbtilesUrl`; `sitmun.mbtiles.url` removed from backend configuration.
-- **Availability projections**: `CartographyAvailabilityProjection.cartographyServiceId` and `TaskAvailabilityProjection.taskTypeId` expose ids needed for admin relation-grid navigation.
-- **Tree nodes**: `TreeRadioTypePolicy` centralizes cartography-to-non-cartography tree type validation; enforced on `TreeController` and `TreeEventHandler` before save.
-
-- **Tree nodes**: client-profile catalog filtering uses `visible` (`TNO_VISIBLE`); `active` is independent and maps to profile `loadByDefault`.
-- **Client profile**: `isRadio` is omitted (null) on non-folder nodes; only cartography-tree folders expose the flag.
-- **Client profile**: each service may include `title` (from `Service.name`) and `description` (from `Service.description`, locale-resolved on profile fetch).
-- **Task projections**: `TaskProjection.typeTitle` and `TaskAvailabilityProjection.taskTypeTitle` expose the localized task-type label alongside internal `typeName`.
-- **i18n**: `TaskType` uses `I18nListener`; request-scoped translation preload resolves `@I18n` fields for the request language.
-- **Tests**: integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON responses.
-
-### Security
-
-- **Auth**: mobile edition access is limited to `GET /api/config/client/application`, `.../application/*/territories`, `.../profile/*/*`, and `POST /api/authenticate/proxy`; proxy-config accepts legacy viewer proxy JWTs and `mobile_proxy_access` tokens, and rejects `edition_access` tokens.
-- **Auth**: dual session cookies — `viewer_access_token` and `admin_access_token` — replace the legacy `access_token`; the JWT filter selects the cookie based on the `X-SITMUN-Client: admin` request header so viewer and admin sessions coexist in the same browser without interfering.
-- **Auth**: `POST /api/authenticate` issues `viewer_access_token`; `POST /api/authenticate/admin` issues `admin_access_token`; both endpoints expire the legacy `access_token` cookie on success to force re-authentication from pre-migration sessions.
-- **Auth**: `POST /api/authenticate/logout` clears the caller-identified cookie (`admin_access_token` when `X-SITMUN-Client: admin` is present, `viewer_access_token` otherwise) and always expires the legacy `access_token`.
-- **Auth**: OIDC success handler issues `viewer_access_token` or `admin_access_token` based on the `client_type` session attribute set during the authorization redirect, and expires the legacy `access_token`.
-- **Authorization**: proxy configuration now reserves **401** for invalid or expired client JWTs, returns **403** for resource denial, and reports invalid proxy configuration as RFC 9457 **400**; unavailable or denied client profiles return RFC 9457 **403**.
-- **Authentication**: JWT processing now fails closed: invalid credentials return RFC 9457 **401** and clear the cookie, identity-store outages return **503**, and unexpected processing failures return **500** without falling through as the public principal; direct login and account denials also return Problem Details.
+- **i18n**: Literal CSV import/export via JPA; greenfield `VARCHAR(4000)` columns with `18_literal_translations_varchar` upgrade safety. `TaskType` uses `I18nListener`; request-scoped preload resolves `@I18n` for the request language; task/availability projections expose localized `typeTitle` / `taskTypeTitle`.
+- **Client profile** / **Proxy**: Catalog filtering uses `visible`; `isRadio` omitted on non-folders; services may include locale-resolved `title`/`description`. `POST /api/config/proxy` reads Bearer only (`id_token` removed). Application list no longer injects `config.mbtilesUrl`.
+- **Tree nodes** / **Projections**: `TreeRadioTypePolicy` for cartography-to-non-cartography type changes; availability projections expose `cartographyServiceId` / `taskTypeId` for admin navigation.
+- **Tests**: Integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON.
 
 ### Fixed
 
-- **Database**: Liquibase initializes and realigns every Hibernate table generator above seeded primary keys, preventing duplicate-key failures on inserts after fresh installs and upgrades.
-- **Tree nodes**: `TreeNodeEventHandler.normalizeActive` clears `active` on non-cartography-leaf nodes (folders, task nodes, and cartography+task malformed rows); client profile `loadByDefault` stays false for those nodes.
-- **Authentication**: aligned OIDC `access_token` cookie lifetime with JWT expiry and clears stale JWT cookies to avoid repeated 401 responses.
-- **Dashboard API**: keyword-aware `/dashboard/applications` (with full `DashboardApplicationDto` enrichment) and `/dashboard/suggestions` query the database instead of filtering only the first in-memory page.
-- **Client config**: `POST /api/config/client/territory/position` requires `ROLE_USER`; `ClientUserPositionService` enforces row ownership and returns **400**/**403**/**404** for invalid, foreign, or missing position ids.
-- **LDAP**: bind username now reads `sitmun.authentication.ldap.username`; the previously misspelled `sitmum.*` key was never resolved.
-- **Tests**: `DefaultLanguageChangeServiceIntegrationTest` runs in a transaction so its default-language migration rolls back and no longer pollutes `LocaleRepositoryDataRestTest` and `ProjectionsTest`.
-- **Security**: require `SITMUN_USER_SECRET` and `SITMUN_PROXY_MIDDLEWARE_SECRET` from the environment; removed the committed default secrets. `SecuritySecretValidator` fails startup when either secret is blank or shorter than 32 characters. The Gradle test tasks supply deterministic non-placeholder values.
+- **Trees** / **Tree nodes**: Greenfield/test `tree.type` code list includes `edition`/`touristic`; `normalizeActive` clears `active` on non-cartography-leaf nodes so profile `loadByDefault` stays false.
+- **Configuration**: `proxy` Configuration Parameter applies at runtime again (valid `STM_CONF.proxy` wins over env default); stored value is the normalized effective URL; create/save returns transient `warnings` ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
+- **Cartography** / **Applications** / **Proxy**: `@BatchSize` replaces multi-bag `@EntityGraph` on fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)); application–tree `@HandleBeforeLinkSave` accepts `Object` so non-tree association PUTs no longer type-mismatch; MBTiles proxy config sets `VIRTUAL_ROOT_ALL_NODES` before profile creation.
+- **Auth** / **Client config** / **LDAP** / **Database**: OIDC cookie lifetime aligned with JWT expiry for dual cookies; territory position POST requires `ROLE_USER` with ownership checks; LDAP bind reads `sitmun.authentication.ldap.username`; Liquibase realigns Hibernate generators above seeded PKs.
+- **Dashboard API**: Keyword-aware `/dashboard/applications` and `/dashboard/suggestions` query the database instead of the first in-memory page.
+- **Tests**: Embedded PNG for tree-node image POST; association PUT coverage; `DefaultLanguageChangeServiceIntegrationTest` transactional rollback.
+
+### Security
+
+- **Auth**: Dual session cookies (`viewer_access_token` / `admin_access_token`) replace legacy `access_token`; authenticate/logout/OIDC issue and clear the caller-scoped cookie via `X-SITMUN-Client: admin`. Mobile edition API surface restricted; proxy-config accepts viewer and `mobile_proxy_access` tokens, rejects `edition_access`.
+- **Authorization** / **Authentication**: Proxy config uses **401** for invalid/expired JWTs, **403** for resource denial, RFC 9457 **400** for bad proxy config; JWT processing fails closed (**401**/**503**/**500**) without falling through as public.
+- **Security**: Require `SITMUN_USER_SECRET` and `SITMUN_PROXY_MIDDLEWARE_SECRET` from the environment (min 32 chars); committed defaults removed.
 
 ## [1.2.7] - 2026-06-05
 
