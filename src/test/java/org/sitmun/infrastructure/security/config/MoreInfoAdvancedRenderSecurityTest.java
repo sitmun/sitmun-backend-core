@@ -17,9 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
- * HTTP security for {@code POST /api/tasks/template/more-info-advanced/render} must match
- * {@code TemplatePreviewController}'s {@code @PreAuthorize} (USER, ADMIN, PUBLIC). Seeded H2 task
- * 42 (MIA parent with ATS on territory 1) is the render target.
+ * HTTP security for {@code POST /api/tasks/template/more-info-advanced/render} must match {@code
+ * TemplatePreviewController}'s {@code @PreAuthorize} (USER, ADMIN, PUBLIC). Seeded H2 task 42 (MIA
+ * parent with ATS on territory 1) is the render target.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

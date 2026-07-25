@@ -706,6 +706,9 @@ databaseChangeLog:
               - column:
                   name: TNO_ACTIVE
                   type: BOOLEAN
+              - column:
+                  name: TNO_LOAD_DATA
+                  type: BOOLEAN
         - sql:
             sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);
         - sql:

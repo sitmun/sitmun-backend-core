@@ -19,7 +19,7 @@ databaseChangeLog:
                     primaryKey: true
               - column:
                   name: LTR_LITERAL
-                  type: clob
+                  type: varchar(4000)
                   constraints:
                     nullable: false
 
@@ -53,7 +53,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: LTV_VALUE
-                  type: clob
+                  type: varchar(4000)
                   constraints:
                     nullable: false
 

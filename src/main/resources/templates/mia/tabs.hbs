@@ -1,0 +1,9 @@
+<div class="sitmun-mia-tabs-bar" data-mia-tabs="{{renderId}}">
+{{~#each panels~}}
+<button class="{{cssClass}}" data-mia-tab="{{panelId}}">{{title}}</button>
+{{~/each~}}
+</div><div class="sitmun-mia-body">
+{{~#each panels~}}
+<div class="sitmun-mia-tab-panel" data-mia-panel="{{panelId}}"{{{hiddenAttr}}}>{{{bodyHtml}}}</div>
+{{~/each~}}
+</div>

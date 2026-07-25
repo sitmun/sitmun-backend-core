@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
@@ -26,19 +27,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * HTTP / Data REST contracts for users. Handler rules live in {@link UserEventHandlerTest}.
+ * Fixtures are committed with a pre-encoded password (plain {@code save} does not fire
+ * {@code @HandleBeforeCreate}); cleaned in {@code @AfterEach}. No class {@code @Transactional} or
+ * {@code @DirtiesContext} for DB cleanup.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("User Resource Test")
 class UserResourceTest {
 
-  private static final String TERRITORY1_ADMIN_USERNAME = "territory1-admin";
-  private static final String TERRITORY1_USER_USERNAME = "territory1-user";
-  private static final String TERRITORY2_USER_USERNAME = "territory2-user";
   private static final String USER_PASSWORD = "admin";
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";
@@ -50,6 +53,7 @@ class UserResourceTest {
   @Autowired UserConfigurationRepository userConfigurationRepository;
   @Autowired RoleRepository roleRepository;
   @Autowired TerritoryRepository territoryRepository;
+  @Autowired PasswordEncoder passwordEncoder;
   @Autowired private MockMvc mockMvc;
   private User organizacionAdmin;
 
@@ -60,66 +64,78 @@ class UserResourceTest {
   private ArrayList<User> users;
   private ArrayList<UserConfiguration> userConfigurations;
 
-  @Autowired private UserEventHandler userEventHandler;
+  private String territory1AdminUsername;
+  private String territory1UserUsername;
+  private String territory2UserUsername;
 
   @BeforeEach
   void init() {
-    organizacionAdminRole = Role.builder().name("ADMIN_ORGANIZACION").build();
+    String suffix = UUID.randomUUID().toString().substring(0, 8);
+    territory1AdminUsername = "territory1-admin-" + suffix;
+    territory1UserUsername = "territory1-user-" + suffix;
+    territory2UserUsername = "territory2-user-" + suffix;
+    String encodedPassword = passwordEncoder.encode(USER_PASSWORD);
+
+    organizacionAdminRole = Role.builder().name("ADMIN_ORGANIZACION-" + suffix).build();
     roleRepository.save(organizacionAdminRole);
 
-    territorialRole = Role.builder().name("USUARIO_TERRITORIAL").build();
+    territorialRole = Role.builder().name("USUARIO_TERRITORIAL-" + suffix).build();
     roleRepository.save(territorialRole);
 
     territories = new ArrayList<>();
     users = new ArrayList<>();
     Territory territory1 =
-        Territory.builder().name("Territorio 1").code("TERRITORY1").blocked(false).build();
+        Territory.builder()
+            .name("Territorio 1-" + suffix)
+            .code("TERRITORY1-" + suffix)
+            .blocked(false)
+            .build();
 
     Territory territory2 =
-        Territory.builder().name("Territorio 2").code("TERRITORY2").blocked(false).build();
+        Territory.builder()
+            .name("Territorio 2-" + suffix)
+            .code("TERRITORY2-" + suffix)
+            .blocked(false)
+            .build();
     territories.add(territory1);
     territories.add(territory2);
 
     territoryRepository.saveAll(territories);
 
-    // Territory 1 Admin
     organizacionAdmin =
         User.builder()
             .administrator(USER_ADMINISTRATOR)
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(USER_PASSWORD)
-            .username(TERRITORY1_ADMIN_USERNAME)
+            .password(encodedPassword)
+            .username(territory1AdminUsername)
             .build();
 
-    userEventHandler.handleUserCreate(organizacionAdmin);
     organizacionAdmin = userRepository.save(organizacionAdmin);
     users.add(organizacionAdmin);
 
-    // Territory 1 user
     User territory1User =
         User.builder()
             .administrator(false)
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(USER_PASSWORD)
-            .username(TERRITORY1_USER_USERNAME)
+            .password(encodedPassword)
+            .username(territory1UserUsername)
             .build();
 
     territory1User = userRepository.save(territory1User);
     users.add(territory1User);
 
-    // Territory 2 user
     User territory2User =
         User.builder()
             .administrator(false)
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(USER_PASSWORD)
-            .username(TERRITORY2_USER_USERNAME)
+            .password(encodedPassword)
+            .username(territory2UserUsername)
             .build();
     territory2User = userRepository.save(territory2User);
     users.add(territory2User);
@@ -158,27 +174,54 @@ class UserResourceTest {
 
   @AfterEach
   void cleanup() {
-    userConfigurationRepository.deleteAll(userConfigurations);
-    userRepository.deleteAll(users);
-    territoryRepository.deleteAll(territories);
-    roleRepository.delete(territorialRole);
-    roleRepository.delete(organizacionAdminRole);
+    if (userConfigurations != null) {
+      userConfigurations.forEach(
+          conf -> {
+            if (conf.getId() != null) {
+              userConfigurationRepository.deleteById(conf.getId());
+            }
+          });
+    }
+    if (users != null) {
+      users.forEach(
+          user -> {
+            if (user.getId() != null) {
+              userRepository.deleteById(user.getId());
+            }
+          });
+    }
+    if (organizacionAdminRole != null && organizacionAdminRole.getId() != null) {
+      roleRepository.deleteById(organizacionAdminRole.getId());
+    }
+    if (territorialRole != null && territorialRole.getId() != null) {
+      roleRepository.deleteById(territorialRole.getId());
+    }
+    if (territories != null) {
+      territories.forEach(
+          territory -> {
+            if (territory.getId() != null) {
+              territoryRepository.deleteById(territory.getId());
+            }
+          });
+    }
   }
 
   @Test
   @DisplayName("POST: Create a new user")
   @WithMockUser(roles = "ADMIN")
   void createUser() throws Exception {
+    String username = "new-user-" + UUID.randomUUID().toString().substring(0, 8);
     String content =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "password":"new password",
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     String uri =
         mockMvc
@@ -194,7 +237,7 @@ class UserResourceTest {
         .perform(get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$.username", CoreMatchers.equalTo("new user")))
+        .andExpect(jsonPath("$.username", CoreMatchers.equalTo(username)))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     mockMvc.perform(delete(uri)).andExpect(status().isNoContent());
@@ -204,16 +247,18 @@ class UserResourceTest {
   @DisplayName("PUT: Reject empty password on an existing user")
   @WithMockUser(roles = "ADMIN")
   void rejectEmptyPasswordOnUpdate() throws Exception {
+    String username = "new-user-" + UUID.randomUUID().toString().substring(0, 8);
     String content =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "password":"new password",
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     String uri =
         mockMvc
@@ -234,13 +279,14 @@ class UserResourceTest {
     String withNullPassword =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "password": null,
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     mockMvc
         .perform(put(uri).content(withNullPassword))
@@ -251,12 +297,13 @@ class UserResourceTest {
     String withoutField =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     mockMvc
         .perform(put(uri).content(withoutField))
@@ -267,13 +314,14 @@ class UserResourceTest {
     String withEmptyPassword =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "password": "",
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     mockMvc.perform(put(uri).content(withEmptyPassword)).andExpect(status().isBadRequest());
 
@@ -285,13 +333,14 @@ class UserResourceTest {
     String withNonEmptyPassword =
         """
         {
-        "username":"new user",
+        "username":"%s",
         "firstName":"new name",
         "lastName":"new name",
         "password": "some value",
         "administrator": false,
         "blocked": false
-        }""";
+        }"""
+            .formatted(username);
 
     mockMvc
         .perform(put(uri).content(withNonEmptyPassword))
@@ -350,10 +399,14 @@ class UserResourceTest {
   @WithMockUser(roles = "ADMIN")
   void getUsersAsSitmunAdmin() throws Exception {
     mockMvc
-        .perform(get(USER_URI + "?size=10"))
+        .perform(get(USER_URI + "?size=100"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.users", Matchers.hasSize(8)));
+        .andExpect(
+            jsonPath(
+                "$._embedded.users[*].username",
+                Matchers.hasItems(
+                    territory1AdminUsername, territory1UserUsername, territory2UserUsername)));
   }
 
   @Test

@@ -1,5 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import static org.sitmun.domain.PersistenceConstants.LONG_DESCRIPTION;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,15 +14,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Length;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "STM_LITERAL_TRANSLATION")
@@ -43,9 +43,9 @@ public class LiteralTranslation {
   @Column(name = "LTR_ID")
   private Integer id;
 
-  @JdbcTypeCode(SqlTypes.LONGVARCHAR)
-  @Column(name = "LTR_LITERAL", nullable = false, length = Length.LOB_DEFAULT)
+  @Column(name = "LTR_LITERAL", nullable = false, length = LONG_DESCRIPTION)
   @NotBlank
+  @Size(max = LONG_DESCRIPTION)
   private String literal;
 
   @ManyToOne(fetch = FetchType.LAZY)

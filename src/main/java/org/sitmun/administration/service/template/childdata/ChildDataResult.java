@@ -22,12 +22,4 @@ public class ChildDataResult {
         .context(Collections.emptyMap())
         .build();
   }
-
-  public static ChildDataResult unsupported(String scope) {
-    return ChildDataResult.builder()
-        .outcome(ChildDataOutcome.UNSUPPORTED)
-        .rows(Collections.emptyList())
-        .context(Collections.singletonMap("scope", scope))
-        .build();
-  }
 }

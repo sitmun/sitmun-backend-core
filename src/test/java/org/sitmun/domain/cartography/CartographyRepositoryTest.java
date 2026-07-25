@@ -156,6 +156,7 @@ class CartographyRepositoryTest {
         roleRepository.findRolesByApplicationAndUserAndTerritory(
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
     List<Cartography> cp = cartographyRepository.findByRolesAndTerritory(roles, 1);
+    // Seed oracle for public app/ter 1: wrong size means another test polluted Liquibase seed.
     assertThat(cp).hasSize(11);
   }
 

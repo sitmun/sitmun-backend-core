@@ -29,7 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class LiteralTranslationCrudService {
 
-  public static final String FILTER = "filter";
+  private static final String FILTER = "filter";
   private final LiteralTranslationRepository literalTranslationRepository;
   private final LiteralTranslationValueRepository literalTranslationValueRepository;
   private final LanguageRepository languageRepository;

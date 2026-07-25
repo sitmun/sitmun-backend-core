@@ -1,0 +1,358 @@
+databaseChangeLog:
+  # Collapsed greenfield seed (replaces 17_mia_no_data_literal + 18_mia_chrome_literals + 19_mia_chrome_english_keys).
+  # Keys are English; LTR_LANID = en (1). Values: ca=3, es=2, en=1, fr=5.
+
+  - changeSet:
+      id: 17-seed-mia-chrome-no-data
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'No data'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'No data',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'Sense dades'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'No data'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'Sin datos'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'No data'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'No data'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'No data'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'Aucune donnee'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'No data'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-error-executing-task
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'Error executing task'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'Error executing task',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'Error executant la tasca'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Error executing task'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'Error ejecutando tarea'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Error executing task'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'Error executing task'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Error executing task'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'Erreur d execution de la tache'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Error executing task'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-query
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'Query'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'Query',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'Consulta'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Query'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'Consulta'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Query'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'Query'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Query'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'Requete'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Query'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-invalid-child-task-id
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'Invalid child task id'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'Invalid child task id',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'Identificador de tasca fill no valid'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Invalid child task id'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'Id de tarea hija no valido'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Invalid child task id'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'Invalid child task id'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Invalid child task id'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'Identifiant de tache enfant invalide'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'Invalid child task id'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-task-not-executed
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'task not executed'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'task not executed',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'cal executar la tasca'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'task not executed'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'falta ejecutar tarea'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'task not executed'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'task not executed'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'task not executed'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'tache non executee'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = 'task not executed'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-binary-access-message
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: "SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = 'Binary content cannot be embedded: server authentication required'"
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   'Binary content cannot be embedded: server authentication required',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, 'Contingut binari no incrustable: cal autenticacio de servidor'
+            FROM STM_LITERAL_TRANSLATION t
+            WHERE t.LTR_LITERAL = 'Binary content cannot be embedded: server authentication required'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, 'Contenido binario no embebible: requiere autenticacion de servidor'
+            FROM STM_LITERAL_TRANSLATION t
+            WHERE t.LTR_LITERAL = 'Binary content cannot be embedded: server authentication required'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, 'Binary content cannot be embedded: server authentication required'
+            FROM STM_LITERAL_TRANSLATION t
+            WHERE t.LTR_LITERAL = 'Binary content cannot be embedded: server authentication required'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, 'Contenu binaire non integrable: authentification serveur requise'
+            FROM STM_LITERAL_TRANSLATION t
+            WHERE t.LTR_LITERAL = 'Binary content cannot be embedded: server authentication required'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+
+  - changeSet:
+      id: 17-seed-mia-chrome-binary-placeholder
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+          and:
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION
+            - tableExists:
+                tableName: STM_LITERAL_TRANSLATION_VALUE
+            - sqlCheck:
+                expectedResult: 0
+                sql: SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION WHERE LTR_LITERAL = '[binary content]'
+      changes:
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID)
+            SELECT COALESCE((SELECT MAX(LTR_ID) FROM STM_LITERAL_TRANSLATION), 0) + 1,
+                   '[binary content]',
+                   1
+            FROM STM_LANGUAGE
+            WHERE LAN_ID = 1
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 3, '[contingut binari]'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = '[binary content]'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 2, '[contenido binario]'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = '[binary content]'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 1, '[binary content]'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = '[binary content]'
+        - sql: |
+            INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE)
+            SELECT COALESCE((SELECT MAX(LTV_ID) FROM STM_LITERAL_TRANSLATION_VALUE), 0) + 1,
+                   t.LTR_ID, 5, '[contenu binaire]'
+            FROM STM_LITERAL_TRANSLATION t WHERE t.LTR_LITERAL = '[binary content]'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTR_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION)
+            WHERE SEQ_NAME = 'LTR_ID'
+        - sql: |
+            UPDATE STM_SEQUENCE
+            SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
+            WHERE SEQ_NAME = 'LTV_ID'
+

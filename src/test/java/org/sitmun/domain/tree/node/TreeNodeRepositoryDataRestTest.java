@@ -14,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 import javax.imageio.ImageIO;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.infrastructure.persistence.type.image.ImageDataUri;
@@ -22,15 +21,25 @@ import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+/**
+ * Data REST + {@link TreeNodeEventHandler} persist in repository transactions that commit before
+ * the MockMvc response returns. Class-level {@code @Transactional} does <em>not</em> roll those
+ * writes back (identity values keep advancing; rows remain). Deleting created rows also does
+ * <em>not</em> rewind the identity/sequence — only Liquibase seed ids that were never deleted are
+ * stable absolute ids; never assert the next assigned id. Isolation is therefore:
+ *
+ * <ul>
+ *   <li>never JDBC {@code DELETE}/{@code UPDATE} Liquibase seed by id threshold;
+ *   <li>every successful POST/create must {@code DELETE} the <em>captured</em> id in the same test;
+ *   <li>seed-oracle GETs assume Liquibase seed is intact (other classes must not wipe it).
+ * </ul>
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("Tree Node Repository Data REST test")
 class TreeNodeRepositoryDataRestTest {
 
@@ -40,20 +49,6 @@ class TreeNodeRepositoryDataRestTest {
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AQAAAACn+1GIAAAAIElEQVR4XmP4jwp+MIwKjAqMCowKjAqMCowKjAqQIAAAMVDFL8q1f5EAAAAASUVORK5CYII=";
 
   @Autowired private MockMvc mvc;
-
-  @Autowired private JdbcTemplate jdbcTemplate;
-
-  @BeforeEach
-  void resetSeedTreeNodeState() {
-    jdbcTemplate.update("DELETE FROM STM_TREE_NOD WHERE TNO_ID > 14");
-    jdbcTemplate.update(
-        "UPDATE STM_TREE_NOD SET TNO_ACTIVE = TRUE, TNO_DEFAULT = FALSE, TNO_RADIO = FALSE,"
-            + " TNO_LOAD_DATA = FALSE");
-    jdbcTemplate.update(
-        "UPDATE STM_TREE_NOD SET TNO_RADIO = TRUE, TNO_LOAD_DATA = TRUE WHERE TNO_ID = 7");
-    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_DEFAULT = TRUE WHERE TNO_ID = 9");
-    jdbcTemplate.update("UPDATE STM_TREE_NOD SET TNO_ACTIVE = FALSE WHERE TNO_ID IN (12, 13)");
-  }
 
   @Test
   @DisplayName("GET: Retrieve tree name from node")
@@ -225,8 +220,9 @@ class TreeNodeRepositoryDataRestTest {
         {
         "name":"test",
         "tree":"http://localhost/api/trees/1",
-        "image":"https://avatars.githubusercontent.com/u/24718368?s=96&v=4"
-        }""";
+        "image":"%s"
+        }"""
+            .formatted(PNG_8X8_TRANSPARENT);
 
     MvcResult result =
         mvc.perform(post(TREE_NODES_URI).content(content))

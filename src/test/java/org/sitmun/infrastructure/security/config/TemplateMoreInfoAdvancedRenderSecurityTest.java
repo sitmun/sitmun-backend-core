@@ -43,7 +43,7 @@ class TemplateMoreInfoAdvancedRenderSecurityTest {
   @Test
   @DisplayName("POST render without Authorization is not rejected as unauthenticated")
   void renderWithoutBearerReachesServiceAsPublic() throws Exception {
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
     mvc.perform(
@@ -55,13 +55,13 @@ class TemplateMoreInfoAdvancedRenderSecurityTest {
                     """))
         .andExpect(status().isOk());
 
-    verify(templateExecutionService).renderMoreInfoAdvanced(any());
+    verify(templateExecutionService).renderMoreInfoAdvanced(any(), any());
   }
 
   @Test
   @DisplayName("POST render with viewer_access_token reaches service as USER")
   void renderWithViewerAccessTokenReachesServiceAsUser() throws Exception {
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
     String token = jsonWebTokenService.generateToken("admin", new Date());
@@ -76,7 +76,7 @@ class TemplateMoreInfoAdvancedRenderSecurityTest {
                     """))
         .andExpect(status().isOk());
 
-    verify(templateExecutionService).renderMoreInfoAdvanced(any());
+    verify(templateExecutionService).renderMoreInfoAdvanced(any(), any());
   }
 
   @Test

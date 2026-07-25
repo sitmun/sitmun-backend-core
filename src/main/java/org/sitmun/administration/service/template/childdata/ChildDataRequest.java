@@ -9,9 +9,6 @@ import org.sitmun.domain.task.Task;
 @Value
 @Builder
 public class ChildDataRequest {
-  Integer appId;
-  Integer terId;
-  Integer taskId;
   Map<String, String> parameters;
   PrincipalKind principalKind;
   RequestCoordinates coordinates;

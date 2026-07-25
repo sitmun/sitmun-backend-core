@@ -5,7 +5,6 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 
 import java.util.List;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,11 +33,6 @@ class TaskRepositoryTest {
     task = new Task();
   }
 
-  @AfterEach
-  void cleanup() {
-    taskRepository.delete(task);
-  }
-
   @Test
   @DisplayName("Save a new task to database")
   void saveTask() {
@@ -63,7 +57,9 @@ class TaskRepositoryTest {
     List<Role> roles =
         roleRepository.findRolesByApplicationAndUserAndTerritory(PUBLIC_PRINCIPAL, 1, 1);
     List<Task> cp = taskRepository.findByRolesAndTerritory(roles, 1);
-    assertThat(cp).hasSize(12);
+    // Seed oracle for public app/ter 1: wrong size or missing 42/43 means seed pollution.
+    assertThat(cp).hasSize(14);
+    assertThat(cp).extracting(Task::getId).contains(42, 43);
   }
 
   @TestConfiguration
