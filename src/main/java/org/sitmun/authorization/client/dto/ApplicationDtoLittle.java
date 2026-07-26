@@ -22,6 +22,9 @@ public class ApplicationDtoLittle {
   /** Institutional contact email for the application; null when no approved email is configured. */
   private String pointOfContact;
 
+  /** Name of the institution responsible for this application. */
+  private String responsibleInstitutionName;
+
   private Map<String, Object> headerParams;
   private Map<String, String> config;
 

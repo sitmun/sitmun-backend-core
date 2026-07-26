@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.*;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Length;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.CodeListsConstants;
@@ -15,9 +17,9 @@ import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.role.Role;
-import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.basic.Http;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
@@ -163,6 +165,11 @@ public class Application {
   @JoinColumn(name = "APP_CREATORID")
   private User creator;
 
+  /** Name of the institution responsible for this application. */
+  @Column(name = "APP_RESPONSIBLE_INSTITUTION", length = PersistenceConstants.SHORT_DESCRIPTION)
+  @Size(max = PersistenceConstants.SHORT_DESCRIPTION)
+  private String responsibleInstitutionName;
+
   /** Situation map when the application is internal. */
   @ManyToOne
   @JoinColumn(name = "APP_GGIID", foreignKey = @ForeignKey(name = "STM_APP_FK_GGI"))
@@ -191,15 +198,9 @@ public class Application {
   private Set<Role> availableRoles = new HashSet<>();
 
   /** Trees assigned to this application. */
-  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  @JoinTable(
-      name = "STM_APP_TREE",
-      joinColumns =
-          @JoinColumn(name = "ATR_APPID", foreignKey = @ForeignKey(name = "STM_ATR_FK_APP")),
-      inverseJoinColumns =
-          @JoinColumn(name = "ATR_TREEID", foreignKey = @ForeignKey(name = "STM_ATR_FK_TRE")))
+  @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  private Set<Tree> trees = new HashSet<>();
+  private Set<ApplicationTree> trees = new HashSet<>();
 
   /** Backgrounds maps. */
   @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -235,6 +236,10 @@ public class Application {
                   "switchLanguage", visible(),
                   "profileButton", visible(),
                   "logoutButton", visible()));
+
+  public void setResponsibleInstitutionName(String value) {
+    this.responsibleInstitutionName = StringUtils.trimToNull(value);
+  }
 
   @Override
   public boolean equals(Object obj) {

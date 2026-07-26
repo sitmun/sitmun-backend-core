@@ -68,17 +68,19 @@ management:
 
 sitmun:
   module: SITMUN 3 Backend Core
-  version: 1.2.7
+  version: 1.2.8
   language: en
   user:
-    secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
+  mobile:
+    token-validity-in-milliseconds: 3600000
   proxy-middleware:
-    secret: 9ef80c644166846897f6a87d3cf6ab204d144229
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     config-response-validity-in-seconds: 3600
     token-validity-in-milliseconds: 900000
     force: false
-    url: http://localhost:8080/middleware
+    url: ${SITMUN_PROXY_MIDDLEWARE_URL:http://localhost:8080/middleware}
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true
   authentication:
@@ -87,8 +89,6 @@ sitmun:
     oidc:
       enabled: ${SITMUN_AUTH_OIDC_ENABLED:false}
       providers: { }
-  mbtiles:
-    url: https://localhost:8080/mbtiles
   ui:
     image:
       supportedFormats:
@@ -129,6 +129,10 @@ sitmun:
         where uc.role = r and r member of app.availableRoles
         group by app.name
   startup:
+    built-in-users:
+      # Optional. Used only to create missing admin or restore an empty admin password.
+      # No default. Inject via SITMUN_BOOTSTRAP_ADMIN_PASSWORD; remove after health is UP.
+      admin-password: ${SITMUN_BOOTSTRAP_ADMIN_PASSWORD:}
     code-lists:
       check-on-startup: true
       database-connection-drivers:
@@ -295,3 +299,9 @@ sitmun:
       TERR_NAME: "#{#territory.name}"
       APP_ID: "#{#application.id}"
       APP_NAME: "#{#application.name}"
+
+# ===================================================================
+# Server properties
+# ===================================================================
+server:
+  max-http-request-header-size: 16384

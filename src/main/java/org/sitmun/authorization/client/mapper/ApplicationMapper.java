@@ -8,30 +8,26 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import org.sitmun.authorization.client.dto.ApplicationDtoLittle;
 import org.sitmun.domain.application.Application;
-import org.sitmun.domain.user.User;
+import org.sitmun.domain.application.ApplicationPointOfContactPolicy;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ApplicationMapper {
 
-  @Mapping(source = "creator", target = "pointOfContact")
+  @Mapping(target = "pointOfContact", ignore = true)
   ApplicationDtoLittle map(Application application);
 
   List<ApplicationDtoLittle> map(List<Application> applications);
 
   @AfterMapping
-  default void mapExternalUrl(Application source, @MappingTarget ApplicationDtoLittle target) {
+  default void mapDerivedFields(Application source, @MappingTarget ApplicationDtoLittle target) {
     if ("E".equals(source.getType())) {
       String url = source.getJspTemplate();
       if (url != null && !url.isBlank()) {
         target.setExternalUrl(url.trim());
       }
     }
-  }
-
-  default String map(User user) {
-    if (user == null) {
-      return null;
+    if (ApplicationPointOfContactPolicy.hasPublishableEmail(source.getCreator())) {
+      target.setPointOfContact(source.getCreator().getEmail());
     }
-    return user.getEmail();
   }
 }

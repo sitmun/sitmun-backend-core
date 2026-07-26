@@ -72,22 +72,29 @@ public class TreeNode {
   @Column(name = "TNO_TOOLTIP", length = 100)
   private String tooltip;
 
-  /** Enabled by default. */
-  @Column(name = "TNO_ACTIVE")
-  private Boolean active;
+  /** Load by default: auto-add cartography leaf to working layers on map open in the viewer. */
+  @Builder.Default
+  @Column(name = "TNO_DEFAULT", nullable = false)
+  private Boolean active = false;
 
   /** Radio button type (only if the node is a folder). */
   @Column(name = "TNO_RADIO")
   private Boolean radio;
 
   /**
-   * Specifies the behavior of a folder node in the SITMUN viewer layer tree. False by default, when
-   * true all contained layers are loaded when (the user) clicks on the layer title (in the SITMUN
-   * viewer).
+   * Folder-title activation in the viewer catalog. When true, clicking the folder title loads
+   * children (all descendant leaves, or the first child when {@link #radio} is true). When false,
+   * the title only expands/collapses; child rows can still be loaded individually. Independent of
+   * {@link #radio}. Folder nodes only; cleared on leaves.
    */
   @Builder.Default
   @Column(name = "TNO_LOAD_DATA", nullable = false)
   private Boolean loadData = false;
+
+  /** Catalog visibility in the viewer layer tree. */
+  @Builder.Default
+  @Column(name = "TNO_ACTIVE", nullable = false)
+  private Boolean visible = true;
 
   /** Order of the node within the tree. */
   @Column(name = "TNO_ORDER", precision = 6)

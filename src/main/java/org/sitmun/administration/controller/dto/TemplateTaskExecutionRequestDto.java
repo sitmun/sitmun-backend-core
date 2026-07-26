@@ -1,0 +1,14 @@
+package org.sitmun.administration.controller.dto;
+
+import java.util.Map;
+import lombok.Data;
+
+@Data
+public class TemplateTaskExecutionRequestDto {
+  private Integer templateTaskId;
+  private Integer linkedTaskId;
+  private Integer appId;
+  private Integer terId;
+  private Map<String, Object> parameters;
+  private Map<String, Map<String, Object>> childTaskParameters;
+}

@@ -9,18 +9,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sitmun.domain.tree.node.TreeNode;
 
-/** Client-profile visibility for {@link TreeNode#getActive()} (admin Visible / TNO_ACTIVE). */
+/**
+ * Client-profile visibility for {@link TreeNode#getVisible()} (catalog visibility / TNO_ACTIVE).
+ */
 final class TreeNodeVisibilityPolicy {
 
   private TreeNodeVisibilityPolicy() {}
 
-  static boolean isActive(TreeNode node) {
-    Boolean active = node.getActive();
-    return active == null || active;
+  static boolean isVisible(TreeNode node) {
+    Boolean visible = node.getVisible();
+    return visible == null || visible;
   }
 
   static boolean isVisibleInClientProfile(TreeNode node, Map<Integer, TreeNode> nodesById) {
-    if (!isActive(node)) {
+    if (!isVisible(node)) {
       return false;
     }
     Integer parentId = node.getParentId();
@@ -37,7 +39,7 @@ final class TreeNodeVisibilityPolicy {
       if (parent == null) {
         return true;
       }
-      if (!isActive(parent)) {
+      if (!isVisible(parent)) {
         return false;
       }
       parentId = parent.getParentId();

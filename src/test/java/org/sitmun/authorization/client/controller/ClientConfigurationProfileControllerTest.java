@@ -5,19 +5,29 @@ import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_API;
 import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_SQL;
 import static org.sitmun.domain.DomainConstants.Tasks.SCOPE_URL;
 import static org.sitmun.test.URIConstants.CONFIG_CLIENT_PROFILE_URI;
+import static org.sitmun.test.URIConstants.TREE_NODES_URI;
+import static org.sitmun.test.URIConstants.TREE_NODE_URI;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.SitmunConstants;
+import org.sitmun.domain.configuration.ConfigurationParameter;
+import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.test.URIConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -25,6 +35,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class ClientConfigurationProfileControllerTest {
 
   @Autowired private MockMvc mvc;
+
+  @Autowired private ConfigurationParameterRepository configurationParameterRepository;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
@@ -184,7 +196,9 @@ class ClientConfigurationProfileControllerTest {
             jsonPath("$.services[?(@.id=='service/1')].parameters.format", hasItem("image/jpeg")))
         .andExpect(
             jsonPath("$.services[?(@.id=='service/1')].parameters.matrixSet", hasItem("UTM25831")))
-        .andExpect(jsonPath("$.services[?(@.id=='service/1')].crs").exists());
+        .andExpect(jsonPath("$.services[?(@.id=='service/1')].crs").exists())
+        .andExpect(
+            jsonPath("$.services[?(@.id=='service/1')].title", hasItem("ICC Mapesmultibase")));
   }
 
   @Test
@@ -327,6 +341,165 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: visible inactive leaf exposes loadByDefault false on node/8")
+  void visibleInactiveLeafLoadByDefaultFalse() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/8'].loadByDefault", hasItem(false)));
+  }
+
+  @Test
+  @DisplayName("GET: cartography+task malformed node exposes loadByDefault false")
+  void cartographyTaskMalformedNodeLoadByDefaultFalse() throws Exception {
+    String content =
+        """
+        {
+        "name":"profile-malformed-active-leaf",
+        "tree":"http://localhost/api/trees/1",
+        "parent":"http://localhost/api/tree-nodes/1",
+        "cartography":"http://localhost/api/cartographies/8",
+        "task":"http://localhost/api/tasks/1",
+        "order": 99,
+        "active": true
+        }
+        """;
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(content).with(user("admin").roles("ADMIN")))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.active").value(false))
+            .andReturn();
+
+    Integer id =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Integer.class);
+
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/" + id + "'].loadByDefault",
+                hasItem(false)));
+
+    mvc.perform(delete(TREE_NODE_URI, id).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("GET: radio folder exposes isRadio on node/7")
+  void radioFolderExposesIsRadio() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].isRadio", hasItem(true)));
+  }
+
+  @Test
+  @DisplayName("GET: cartography leaf exposes queryableActive on node/8")
+  void cartographyLeafExposesQueryableActive() throws Exception {
+    String enableQueryable =
+        """
+        {
+        "queryableActive": true
+        }
+        """;
+    String disableQueryable =
+        """
+        {
+        "queryableActive": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 8).content(enableQueryable).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath(
+                  "$.trees[?(@.id=='tree/1')].nodes['node/8'].queryableActive", hasItem(true)));
+      mvc.perform(
+              patch(TREE_NODE_URI, 8).content(disableQueryable).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath(
+                  "$.trees[?(@.id=='tree/1')].nodes['node/8'].queryableActive", hasItem(false)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 8).content(disableQueryable).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  @DisplayName("GET: folder with loadData true exposes loadData on node/1")
+  void folderExposesLoadDataWhenEnabled() throws Exception {
+    String enableLoadData =
+        """
+        {
+        "loadData": true
+        }
+        """;
+    String disableLoadData =
+        """
+        {
+        "loadData": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 1).content(enableLoadData).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/1'].loadData", hasItem(true)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 1).content(disableLoadData).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  @DisplayName("GET: radio folder with loadData true exposes both flags on node/7")
+  void radioFolderExposesLoadDataWhenEnabled() throws Exception {
+    String enableLoadData =
+        """
+        {
+        "loadData": true
+        }
+        """;
+    String disableLoadData =
+        """
+        {
+        "loadData": false
+        }
+        """;
+    mvc.perform(patch(TREE_NODE_URI, 7).content(enableLoadData).with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].isRadio", hasItem(true)))
+          .andExpect(
+              jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/7'].loadData", hasItem(true)));
+    } finally {
+      mvc.perform(
+              patch(TREE_NODE_URI, 7).content(disableLoadData).with(user("admin").roles("ADMIN")))
+          .andExpect(status().isOk());
+    }
+  }
+
+  @Test
+  @DisplayName("GET: cartography leaf omits isRadio on node/8")
+  void cartographyLeafOmitsIsRadio() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/8'].isRadio", hasItem(nullValue())));
+  }
+
+  @Test
   @DisplayName("GET: Get tree details")
   void tree() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
@@ -344,13 +517,18 @@ class ClientConfigurationProfileControllerTest {
         .andExpect(
             jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].loadData", hasItem(false)))
         .andExpect(
+            jsonPath(
+                "$.trees[?(@.id=='tree/1')].nodes['node/tree/1'].loadByDefault", hasItem(false)))
+        .andExpect(
             jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].resource", hasItem("layer/9")))
-        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].loadData", hasItem(false)));
+        .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].loadData", hasItem(false)))
+        .andExpect(
+            jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/9'].loadByDefault", hasItem(true)));
   }
 
   @Test
-  @DisplayName("GET: Profile tree excludes inactive leaf nodes")
-  void treeExcludesInactiveLeaf() throws Exception {
+  @DisplayName("GET: Profile tree excludes not-visible leaf nodes")
+  void treeExcludesNotVisibleLeaf() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/12']").doesNotExist())
@@ -360,8 +538,8 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Profile tree excludes inactive folder and its descendants")
-  void treeExcludesInactiveFolderSubtree() throws Exception {
+  @DisplayName("GET: Profile tree excludes not-visible folder and its descendants")
+  void treeExcludesNotVisibleFolderSubtree() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.trees[?(@.id=='tree/1')].nodes['node/13']").doesNotExist())
@@ -408,11 +586,46 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
+  @DisplayName("GET: Profile trees follow application association order")
+  void treeAssociationOrder() throws Exception {
+    mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.trees[0].id", is("tree/1")))
+        .andExpect(jsonPath("$.trees[0].order", is(0)))
+        .andExpect(jsonPath("$.trees[1].id", is("tree/2")))
+        .andExpect(jsonPath("$.trees[1].order", is(2)));
+  }
+
+  @Test
   @DisplayName("GET: Get proxy details")
   void proxy() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.global." + SitmunConstants.PROXY_CONF_KEY, is(proxyUrl)));
+  }
+
+  @Test
+  @DisplayName("GET: DB proxy configuration parameter wins over Spring URL")
+  void proxyFromDatabaseWinsOverSpring() throws Exception {
+    String dbProxy = "https://cdn.example.com:443/middleware/";
+    String expected = "https://cdn.example.com/middleware";
+    ConfigurationParameter saved =
+        configurationParameterRepository.save(
+            ConfigurationParameter.builder()
+                .name(SitmunConstants.PROXY_CONF_KEY)
+                .value(dbProxy)
+                .build());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.global." + SitmunConstants.PROXY_CONF_KEY, is(expected)))
+          .andExpect(
+              jsonPath(
+                  "$.services[?(@.isProxied==true)].url",
+                  everyItem(startsWith(expected + "/proxy/"))));
+    } finally {
+      configurationParameterRepository.delete(saved);
+    }
   }
 
   @Test

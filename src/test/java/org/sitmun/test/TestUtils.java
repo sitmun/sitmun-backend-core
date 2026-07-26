@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import org.assertj.core.api.Assertions;
+import org.sitmun.authentication.SitmunClientTypes;
+import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.authentication.dto.AuthenticationResponse;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -29,18 +32,44 @@ public class TestUtils {
     }
   }
 
+  /**
+   * Returns pre-configured {@link HttpHeaders} for admin-authenticated integration tests. Includes
+   * {@code Cookie: admin_access_token=<token>} and {@code X-SITMUN-Client: admin} so the JWT filter
+   * selects the admin cookie.
+   */
+  public static HttpHeaders adminAuthHeaders(RestTemplate restTemplate, Integer port) {
+    String token = requestAdminToken(restTemplate, port);
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(
+        HttpHeaders.COOKIE, AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME + "=" + token);
+    headers.set(SitmunClientTypes.HEADER_NAME, "admin");
+    return headers;
+  }
+
+  /**
+   * Authenticates as admin via the admin login endpoint and returns the raw JWT token value from
+   * the {@code admin_access_token} cookie.
+   */
   public static String requestAuthorization(RestTemplate restTemplate, Integer port) {
+    return requestAdminToken(restTemplate, port);
+  }
+
+  private static String requestAdminToken(RestTemplate restTemplate, Integer port) {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername(ADMIN_USERNAME);
     login.setPassword(ADMIN_PASSWORD);
     ResponseEntity<AuthenticationResponse> loginResponse =
         restTemplate.postForEntity(
-            "http://localhost:{port}/api/authenticate", login, AuthenticationResponse.class, port);
+            "http://localhost:{port}/api/authenticate/admin",
+            login,
+            AuthenticationResponse.class,
+            port);
     Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    String accessTokenCookie = loginResponse.getHeaders().getFirst("Set-Cookie");
-    if (accessTokenCookie != null && accessTokenCookie.contains("access_token=")) {
-      return accessTokenCookie.split(";")[0].split("=")[1];
+    String cookieHeader = loginResponse.getHeaders().getFirst("Set-Cookie");
+    if (cookieHeader != null
+        && cookieHeader.contains(AuthenticationController.ADMIN_ACCESS_TOKEN_COOKIE_NAME + "=")) {
+      return cookieHeader.split(";")[0].split("=", 2)[1];
     }
 
     return null;

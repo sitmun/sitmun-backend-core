@@ -76,7 +76,12 @@ class RequestLocaleResolutionServiceTest {
   }
 
   private Language createLanguage(String shortname, String name) {
-    return Language.builder().id(shortname.hashCode()).shortname(shortname).name(name).build();
+    return Language.builder()
+        .id(shortname.hashCode())
+        .shortname(shortname)
+        .name(name)
+        .enabled(true)
+        .build();
   }
 
   @Nested
@@ -140,6 +145,25 @@ class RequestLocaleResolutionServiceTest {
 
       // Should fallback to sitmun.language since de is not supported
       assertThat(result).isEqualTo("en");
+    }
+
+    @Test
+    @DisplayName("ignores disabled languages when matching lang param")
+    void disabledLanguageIsNotMatched() {
+      when(languageRepository.findAll())
+          .thenReturn(
+              Arrays.asList(
+                  createLanguage("en", "English"),
+                  Language.builder().id(2).shortname("es").name("Spanish").enabled(false).build()));
+      when(request.getParameter("lang")).thenReturn("es");
+      when(request.getMethod()).thenReturn("GET");
+      when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
+      when(localeResolver.resolveLocale(request)).thenReturn(null);
+
+      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+
+      assertThat(result).isEqualTo("en");
+      verify(localeResolver, never()).setLocale(any(), any(), any());
     }
   }
 

@@ -52,4 +52,7 @@ public interface CartographyAvailabilityProjection {
 
   @Value("#{target.cartography?.service?.name}")
   String getCartographyServiceName();
+
+  @Value("#{target.cartography?.service?.id}")
+  Integer getCartographyServiceId();
 }

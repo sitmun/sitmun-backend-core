@@ -1,6 +1,6 @@
 TRA_ID,TRA_ELEID,TRA_COLUMN,TRA_LANID,TRA_NAME
 201001,1,Language.name,2,Inglés
-201002,2,Language.name,2,Español
+201002,2,Language.name,2,Castellano
 201003,3,Language.name,2,Catalán
 201004,4,Language.name,2,Aranés
 201005,5,Language.name,2,Francés

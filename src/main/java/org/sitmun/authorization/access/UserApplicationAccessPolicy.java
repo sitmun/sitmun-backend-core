@@ -31,9 +31,7 @@ public class UserApplicationAccessPolicy {
   public boolean isBlockedAccount(String username) {
     var user = userRepository.findByUsername(username);
     var blocked =
-        user
-            .filter(persistedUser -> Boolean.TRUE.equals(persistedUser.getBlocked()))
-            .isPresent();
+        user.filter(persistedUser -> Boolean.TRUE.equals(persistedUser.getBlocked())).isPresent();
     if (blocked) {
       log.warn("Access denied: user account is blocked - user={}", username);
     }

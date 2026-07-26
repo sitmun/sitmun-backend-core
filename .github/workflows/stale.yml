@@ -21,8 +21,8 @@ jobs:
           stale-pr-label: stale
 
           # Issues with these labels will never be considered stale
-          exempt-issue-labels: pinned,security,confirmed,planned
-          exempt-pr-labels: pinned,security,confirmed,planned
+          exempt-issue-labels: pinned,security,confirmed,planned,someday,question
+          exempt-pr-labels: pinned,security,confirmed,planned,someday,question
 
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had

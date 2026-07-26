@@ -87,4 +87,39 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
                      FROM Territory childTerritory, UserConfiguration uc, Application app
                      WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
   Page<Territory> findByPublicUser(String username, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      SELECT DISTINCT t
+      FROM Territory t
+      WHERE (t.id IN (SELECT uc.territory.id
+                     FROM UserConfiguration uc, Application app
+                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+         OR t.id IN (SELECT uc.territory.id
+                     FROM UserConfiguration uc, Application app
+                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+         OR t.id IN (SELECT childTerritory.id
+                     FROM Territory childTerritory, UserConfiguration uc, Application app
+                     WHERE childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      AND lower(t.name) like lower(concat('%', ?2, '%'))""")
+  Page<Territory> findByRestrictedUserAndKeywords(
+      String username, String keywords, Pageable pageable);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      SELECT DISTINCT t
+      FROM Territory t
+      WHERE (t.id IN (SELECT uc.territory.id
+                     FROM UserConfiguration uc, Application app
+                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+         OR t.id IN (SELECT uc.territory.id
+                     FROM UserConfiguration uc, Application app
+                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+         OR t.id IN (SELECT childTerritory.id
+                     FROM Territory childTerritory, UserConfiguration uc, Application app
+                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      AND lower(t.name) like lower(concat('%', ?2, '%'))""")
+  Page<Territory> findByPublicUserAndKeywords(String username, String keywords, Pageable pageable);
 }

@@ -52,7 +52,7 @@ class OidcAuthenticationSuccessHandlerTest {
   void setUp() {
     cookieService = new CookieService();
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", false);
-    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 36000000);
+    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 3_600_000);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
@@ -61,7 +61,6 @@ class OidcAuthenticationSuccessHandlerTest {
             userDetailsService,
             jsonWebTokenService,
             cookieService);
-    ReflectionTestUtils.setField(handler, "validity", 3600);
   }
 
   private static OAuth2AuthenticationToken oauth2TokenWithOidcUser(
@@ -96,13 +95,16 @@ class OidcAuthenticationSuccessHandlerTest {
     handler.onAuthenticationSuccess(request, response, token);
 
     assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
-    Cookie[] cookies = response.getCookies();
-    assertThat(cookies).isNotNull().hasSize(1);
-    assertThat(cookies[0].getName()).isEqualTo(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME);
-    assertThat(cookies[0].getValue()).isEqualTo(JWT_TOKEN);
-    assertThat(cookies[0].isHttpOnly()).isFalse();
-    assertThat(cookies[0].getPath()).isEqualTo("/");
-    assertThat(cookies[0].getMaxAge()).isEqualTo(3600);
+    Cookie sessionCookie =
+        response.getCookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME);
+    assertThat(sessionCookie).isNotNull();
+    assertThat(sessionCookie.getValue()).isEqualTo(JWT_TOKEN);
+    assertThat(sessionCookie.isHttpOnly()).isFalse();
+    assertThat(sessionCookie.getPath()).isEqualTo("/");
+    assertThat(sessionCookie.getMaxAge()).isEqualTo(3600);
+    Cookie legacyCookie = response.getCookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME);
+    assertThat(legacyCookie).isNotNull();
+    assertThat(legacyCookie.getMaxAge()).isEqualTo(0);
   }
 
   @Test
@@ -191,8 +193,9 @@ class OidcAuthenticationSuccessHandlerTest {
 
     handler.onAuthenticationSuccess(request, response, token);
 
-    Cookie[] cookies = response.getCookies();
-    assertThat(cookies).hasSize(1);
-    assertThat(cookies[0].isHttpOnly()).isTrue();
+    Cookie sessionCookie =
+        response.getCookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME);
+    assertThat(sessionCookie).isNotNull();
+    assertThat(sessionCookie.isHttpOnly()).isTrue();
   }
 }

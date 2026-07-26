@@ -91,6 +91,10 @@ public interface ApplicationProjection {
   @Value("#{target.creator?.id}")
   Integer getCreatorId();
 
+  /** Name of the institution responsible for this application. */
+  @Value("#{target.responsibleInstitutionName}")
+  String getResponsibleInstitutionName();
+
   /** Application privacy setting. */
   @Value("#{target.appPrivate}")
   Boolean getAppPrivate();

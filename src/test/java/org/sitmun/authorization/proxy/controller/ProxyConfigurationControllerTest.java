@@ -9,10 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Date;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,13 +25,23 @@ import org.springframework.test.web.servlet.MockMvc;
 class ProxyConfigurationControllerTest {
 
   @Autowired JsonWebTokenService jsonWebTokenService;
+  @Autowired UserRepository userRepository;
   @Autowired private MockMvc mvc;
 
   String getUserToken() {
     return jsonWebTokenService.generateToken("admin", new Date());
   }
 
-  /** Test a proxy configuration service for database connection with public user */
+  String getMobileProxyToken() {
+    User admin = userRepository.findByUsername("admin").orElseThrow();
+    return jsonWebTokenService.generateMobileProxyToken("admin", admin.getLastPasswordChange());
+  }
+
+  String getEditionAccessToken() {
+    User admin = userRepository.findByUsername("admin").orElseThrow();
+    return jsonWebTokenService.generateEditionAccessToken("admin", admin.getLastPasswordChange());
+  }
+
   @Test
   @DisplayName("POST: Get database connection details with public user")
   @WithMockUser(roles = "PROXY")
@@ -48,9 +61,8 @@ class ProxyConfigurationControllerTest {
         .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
-  /** Test a proxy configuration service for database connection with user token */
   @Test
-  @DisplayName("POST: Get database connection details with user with token")
+  @DisplayName("POST: Get database connection details with Authorization Bearer legacy token")
   @WithMockUser(roles = "PROXY")
   void readConnectionOtherUser() throws Exception {
     String content =
@@ -60,18 +72,67 @@ class ProxyConfigurationControllerTest {
           "terId": 1,
           "type": "SQL",
           "typeId": 23,
-          "method": "GET",
-          "token": "%s"
+          "method": "GET"
         }
-      """
-            .formatted(getUserToken());
+      """;
 
-    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getUserToken())
+                .content(content))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
   }
 
-  /** Test a proxy configuration service for service with public user */
+  @Test
+  @DisplayName("POST: Rejects edition access_token as delegated proxy credential")
+  @WithMockUser(roles = "PROXY")
+  void rejectsEditionAccessToken() throws Exception {
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET"
+        }
+      """;
+
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getEditionAccessToken())
+                .content(content))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
+  @DisplayName("POST: Accepts mobile_proxy_access Bearer for proxy configuration")
+  @WithMockUser(roles = "PROXY")
+  void acceptsMobileProxyToken() throws Exception {
+    String content =
+        """
+        {
+          "appId": 1,
+          "terId": 1,
+          "type": "SQL",
+          "typeId": 23,
+          "method": "GET"
+        }
+      """;
+
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getMobileProxyToken())
+                .content(content))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.uri").value("jdbc:database:@host:schema2"));
+  }
+
   @Test
   @DisplayName("POST: Get WMTS web service details with user with token")
   @WithMockUser(roles = "PROXY")
@@ -96,7 +157,6 @@ class ProxyConfigurationControllerTest {
         .andExpect(jsonPath("$.payload.parameters.matrixSet").value("UTM25831"));
   }
 
-  /** Test a proxy configuration service for database connection without sitmun proxy key */
   @Test
   @DisplayName("POST: Unauthorized request returns 401")
   @WithMockUser(roles = {"USER", "ADMIN", "PUBLIC"})
@@ -117,7 +177,6 @@ class ProxyConfigurationControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  /** Test a proxy configuration service for database connection with pagination */
   @Test
   @DisplayName("POST: Get database query with pagination")
   @WithMockUser(roles = "PROXY")
@@ -157,13 +216,15 @@ class ProxyConfigurationControllerTest {
           "terId": 1,
           "type": "SQL",
           "typeId": 28,
-          "method": "GET",
-          "id_token": "%s"
+          "method": "GET"
         }
-      """
-            .formatted(getUserToken());
+      """;
 
-    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getUserToken())
+                .content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")
@@ -213,13 +274,15 @@ class ProxyConfigurationControllerTest {
           "method": "GET",
           "parameters": {
             "columnA": "123"
-          },
-          "token": "%s"
+          }
         }
-      """
-            .formatted(getUserToken());
+      """;
 
-    mvc.perform(post(CONFIG_PROXY_URI).contentType(APPLICATION_JSON).content(content))
+    mvc.perform(
+            post(CONFIG_PROXY_URI)
+                .contentType(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getUserToken())
+                .content(content))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.payload.sql")

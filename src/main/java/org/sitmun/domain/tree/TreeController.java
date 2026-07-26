@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.tree.dto.TreeTypeValidationRequest;
+import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.web.dto.ProblemDetail;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
@@ -30,11 +32,15 @@ public class TreeController {
 
   private final TreeRepository treeRepository;
   private final ApplicationRepository applicationRepository;
+  private final TreeNodeRepository treeNodeRepository;
 
   public TreeController(
-      TreeRepository treeRepository, ApplicationRepository applicationRepository) {
+      TreeRepository treeRepository,
+      ApplicationRepository applicationRepository,
+      TreeNodeRepository treeNodeRepository) {
     this.treeRepository = treeRepository;
     this.applicationRepository = applicationRepository;
+    this.treeNodeRepository = treeNodeRepository;
   }
 
   /**
@@ -75,6 +81,8 @@ public class TreeController {
     List<Application> candidateApps = fetchApplications(appIds);
 
     // Validate the type change
+    TreeRadioTypePolicy.validateRadioFoldersBeforeLeavingCartography(
+        tree, request.getType(), treeNodeRepository);
     validateTypeAgainstApplications(request.getType(), candidateApps, tree);
 
     return ResponseEntity.noContent().build();
@@ -200,7 +208,8 @@ public class TreeController {
   private boolean validateTouristicApp(Application app, Tree currentTree) {
     List<Tree> trees =
         app.getTrees().stream()
-            .filter(t -> !t.getId().equals(currentTree.getId())) // Exclude current tree
+            .map(ApplicationTree::getTree)
+            .filter(t -> !t.getId().equals(currentTree.getId()))
             .toList();
     return trees.size() == 1 && DomainConstants.Trees.isTouristicTree(trees.get(0));
   }

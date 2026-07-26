@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10_application_tree_order_h2_postgres
+      author: sitmun
+      dbms: h2,postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_APP_TREE
+                columnName: ATR_ID
+      changes:
+        - addColumn:
+            tableName: STM_APP_TREE
+            columns:
+              - column:
+                  name: ATR_ID
+                  type: INT
+              - column:
+                  name: ATR_ORDER
+                  type: INT
+        - sql:
+            sql: |
+              UPDATE STM_APP_TREE SET ATR_ID = (
+                SELECT NEW_ID FROM (
+                  SELECT ATR_APPID, ATR_TREEID, ROW_NUMBER() OVER (ORDER BY ATR_APPID, ATR_TREEID) AS NEW_ID
+                  FROM STM_APP_TREE
+                ) S WHERE S.ATR_APPID = STM_APP_TREE.ATR_APPID AND S.ATR_TREEID = STM_APP_TREE.ATR_TREEID
+              );
+              UPDATE STM_APP_TREE SET ATR_ORDER = 0 WHERE ATR_ORDER IS NULL;
+        # Do not hardcode STM_ATR_PK: PostgreSQL names inline PKs stm_app_tree_pkey
+        - dropPrimaryKey:
+            tableName: STM_APP_TREE
+        - addNotNullConstraint:
+            tableName: STM_APP_TREE
+            columnName: ATR_ID
+            columnDataType: INT
+        - addPrimaryKey:
+            tableName: STM_APP_TREE
+            columnNames: ATR_ID
+            constraintName: STM_ATR_PK
+        - addUniqueConstraint:
+            tableName: STM_APP_TREE
+            columnNames: ATR_APPID, ATR_TREEID
+            constraintName: STM_ATR_UK
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATR_ID), 0) + 1 FROM STM_APP_TREE) WHERE SEQ_NAME = 'ATR_ID';
+              INSERT INTO STM_SEQUENCE (SEQ_NAME, SEQ_COUNT) SELECT 'ATR_ID', NEXT_SEQUENCE_VALUE FROM (SELECT COALESCE(MAX(ATR_ID), 0) + 1 AS NEXT_SEQUENCE_VALUE FROM STM_APP_TREE) SEQUENCE_VALUE WHERE NOT EXISTS (SELECT 1 FROM STM_SEQUENCE WHERE SEQ_NAME = 'ATR_ID');
+
+  - changeSet:
+      id: 10_application_tree_order_oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: STM_APP_TREE
+                columnName: ATR_ID
+      changes:
+        - addColumn:
+            tableName: STM_APP_TREE
+            columns:
+              - column:
+                  name: ATR_ID
+                  type: NUMBER(10, 0)
+              - column:
+                  name: ATR_ORDER
+                  type: NUMBER(10, 0)
+        - sql:
+            sql: |
+              MERGE INTO STM_APP_TREE t
+              USING (
+                SELECT ATR_APPID, ATR_TREEID, ROW_NUMBER() OVER (ORDER BY ATR_APPID, ATR_TREEID) AS NEW_ID
+                FROM STM_APP_TREE
+              ) s ON (t.ATR_APPID = s.ATR_APPID AND t.ATR_TREEID = s.ATR_TREEID)
+              WHEN MATCHED THEN UPDATE SET t.ATR_ID = s.NEW_ID;
+              UPDATE STM_APP_TREE SET ATR_ORDER = 0 WHERE ATR_ORDER IS NULL;
+        # Inline PRIMARY KEY is SYS_C… on Oracle, not STM_ATR_PK
+        - dropPrimaryKey:
+            tableName: STM_APP_TREE
+        - addNotNullConstraint:
+            tableName: STM_APP_TREE
+            columnName: ATR_ID
+            columnDataType: NUMBER(10, 0)
+        - addPrimaryKey:
+            tableName: STM_APP_TREE
+            columnNames: ATR_ID
+            constraintName: STM_ATR_PK
+        - addUniqueConstraint:
+            tableName: STM_APP_TREE
+            columnNames: ATR_APPID, ATR_TREEID
+            constraintName: STM_ATR_UK
+        - sql:
+            sql: "MERGE INTO STM_SEQUENCE t USING (SELECT 'ATR_ID' n, COALESCE(MAX(ATR_ID),0)+1 v FROM STM_APP_TREE) s ON (t.SEQ_NAME=s.n) WHEN MATCHED THEN UPDATE SET t.SEQ_COUNT=s.v WHEN NOT MATCHED THEN INSERT(SEQ_NAME,SEQ_COUNT) VALUES(s.n,s.v)"

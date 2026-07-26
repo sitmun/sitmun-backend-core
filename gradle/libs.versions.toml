@@ -21,9 +21,12 @@ guava = "33.4.8-jre"
 json = "20250517"
 mapstruct = "1.6.3"
 commons-lang3 = "3.18.0"
+commons-io = "2.18.0"
 querydsl = "5.0.0"
 jetbrains-annotations = "26.0.2"
 handy-uri-templates = "2.1.8"
+handlebars = "4.4.0"
+opencsv = "5.9"
 
 [libraries]
 # Spring Boot starters
@@ -63,9 +66,12 @@ mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.re
 
 # Utilities
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 handyUriTemplates = { module = "com.damnhandy:handy-uri-templates", version.ref = "handy-uri-templates" }
+handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
 
 # HTTP client
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }

@@ -36,6 +36,7 @@ public class ApplicationChecksService {
 
     checkPrivateApplicationWithPublicUser(app, warnings);
     checkExternalApplicationUrl(app, warnings);
+    checkPointOfContact(app, warnings);
 
     return warnings;
   }
@@ -53,6 +54,18 @@ public class ApplicationChecksService {
   private void checkPrivateApplicationWithPublicUser(Application app, List<String> warnings) {
     if (Boolean.TRUE.equals(app.getAppPrivate()) && hasPublicUserRole(app)) {
       warnings.add("entity.application.warning.private-application-with-public-user");
+    }
+  }
+
+  private void checkPointOfContact(Application app, List<String> warnings) {
+    var creator = app.getCreator();
+    if (creator == null) {
+      return;
+    }
+    if (!ApplicationPointOfContactPolicy.isEligible(creator)) {
+      warnings.add("entity.application.warning.invalid-point-of-contact");
+    } else if (!ApplicationPointOfContactPolicy.hasPublishableEmail(creator)) {
+      warnings.add("entity.application.warning.point-of-contact-email-missing");
     }
   }
 

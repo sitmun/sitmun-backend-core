@@ -78,11 +78,7 @@ public class TranslationService {
       Map<String, String> byProperty = cache.lookup(entityId, entity);
       List<String> updates = new ArrayList<>();
       for (Map.Entry<String, String> e : byProperty.entrySet()) {
-        if (!Strings.isEmpty(e.getValue())) {
-          Object oldValue = wrapper.getPropertyValue(e.getKey());
-          wrapper.setPropertyValue(e.getKey(), e.getValue());
-          updates.add(String.format("%s: '%s' -> '%s'", e.getKey(), oldValue, e.getValue()));
-        }
+        applyTranslationValue(target, wrapper, e.getKey(), e.getValue(), updates);
       }
       if (!updates.isEmpty()) {
         log.debug(
@@ -109,15 +105,39 @@ public class TranslationService {
         continue;
       }
       String property = translation.getColumn().replace(entity + ".", "");
-      if (!Strings.isEmpty(translation.getTranslation())) {
-        Object oldValue = wrapper.getPropertyValue(property);
-        wrapper.setPropertyValue(property, translation.getTranslation());
-        updates.add(
-            String.format("%s: '%s' -> '%s'", property, oldValue, translation.getTranslation()));
-      }
+      applyTranslationValue(target, wrapper, property, translation.getTranslation(), updates);
     }
     if (!updates.isEmpty()) {
       log.debug("Translations applied to {}:{} [{}]", entity, entityId, String.join(", ", updates));
     }
+  }
+
+  /**
+   * Language.endonym ({@code name}) must never be overwritten by {@code ?lang=}. Locale labels go
+   * to read-only {@link Language#getTranslatedName()}.
+   */
+  private static void applyTranslationValue(
+      Object target,
+      ConfigurablePropertyAccessor wrapper,
+      String property,
+      String value,
+      List<String> updates) {
+    if (Strings.isEmpty(value) || property == null) {
+      return;
+    }
+    String targetProperty = resolveTargetProperty(target, property);
+    if (targetProperty == null) {
+      return;
+    }
+    Object oldValue = wrapper.getPropertyValue(targetProperty);
+    wrapper.setPropertyValue(targetProperty, value);
+    updates.add(String.format("%s: '%s' -> '%s'", targetProperty, oldValue, value));
+  }
+
+  private static String resolveTargetProperty(Object target, String property) {
+    if (target instanceof Language) {
+      return "name".equals(property) ? "translatedName" : null;
+    }
+    return property;
   }
 }

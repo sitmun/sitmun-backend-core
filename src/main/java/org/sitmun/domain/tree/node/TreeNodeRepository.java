@@ -26,4 +26,20 @@ public interface TreeNodeRepository extends JpaRepository<TreeNode, Integer> {
       "SELECT CASE WHEN COUNT(tn) > 0 THEN true ELSE false END "
           + "FROM TreeNode tn WHERE tn.cartography.id = ?1")
   boolean existsByCartographyId(Integer cartographyId);
+
+  @Query(
+      "SELECT CASE WHEN COUNT(tn) > 0 THEN true ELSE false END "
+          + "FROM TreeNode tn WHERE tn.parent.id = ?1 "
+          + "AND (tn.cartography IS NULL OR tn.task IS NOT NULL)")
+  boolean existsDirectNonCartographyLeafChild(Integer parentId);
+
+  @Query(
+      "SELECT CASE WHEN COUNT(tn) > 0 THEN true ELSE false END "
+          + "FROM TreeNode tn WHERE tn.tree.id = ?1 AND tn.radio = true")
+  boolean existsRadioFolderInTree(Integer treeId);
+
+  @Query(
+      "SELECT COUNT(tn) FROM TreeNode tn WHERE tn.parent.id = ?1 "
+          + "AND tn.active = true AND (?2 IS NULL OR tn.id <> ?2)")
+  long countActiveDirectChildren(Integer parentId, Integer excludeNodeId);
 }

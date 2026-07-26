@@ -1,6 +1,7 @@
 databaseChangeLog:
   - include:
-      file: file:config/db/changelog/01_schema.h2.sql
+      file: 01_schema.h2.sql
+      relativeToChangelogFile: true
   - include:
       file: 02_codelists.yaml
       relativeToChangelogFile: true
@@ -17,8 +18,41 @@ databaseChangeLog:
       file: 06_params.yaml
       relativeToChangelogFile: true
   - include:
+      file: 07_driver_translation_data.yaml
+      relativeToChangelogFile: true
+  - include:
       file: 08_more_info_data.yaml
       relativeToChangelogFile: true
   - include:
-      file: 09_driver_translation_data.yaml
+      file: 09_application_responsible_institution.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 10_application_tree_order.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 11_language_order_enabled_and_labels.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 12_task_relation_reference_alias.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 13_literal_translations.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 14_add_translation_sequences.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 15_literal_translation_source_language.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 16_template_task_type.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 17_more_info_advanced_e2e.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 18_literal_translations_varchar.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 19_mia_chrome_literals.yaml
       relativeToChangelogFile: true

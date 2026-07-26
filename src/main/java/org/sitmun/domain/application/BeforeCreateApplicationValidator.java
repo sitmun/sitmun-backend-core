@@ -9,6 +9,7 @@ import org.springframework.validation.Validator;
 
 @Component
 public class BeforeCreateApplicationValidator implements Validator {
+
   @Override
   public boolean supports(@NonNull Class<?> aClass) {
     return Application.class.equals(aClass);
@@ -24,6 +25,13 @@ public class BeforeCreateApplicationValidator implements Validator {
           "situationMap.type",
           "situationMap.type.invalid",
           "It must be of type \"" + CartographyPermission.TYPE_SITUATION_MAP + "\".");
+    }
+    var creator = application.getCreator();
+    if (creator != null && !ApplicationPointOfContactPolicy.isEligible(creator)) {
+      errors.rejectValue(
+          "creator",
+          "creator.invalidPointOfContact",
+          "Creator is not eligible as point of contact.");
     }
   }
 }

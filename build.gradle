@@ -83,6 +83,8 @@ dependencies {
 
   // Apache Commons utilities
   implementation libs.commons.lang3
+  implementation libs.commons.io
+  implementation libs.opencsv
   
   // Google Guava utilities
   implementation libs.guava
@@ -118,6 +120,7 @@ dependencies {
 
   // URI Templates
   implementation libs.handyUriTemplates
+  implementation libs.handlebars
 
   // Core annotation processing
   annotationProcessor libs.jakarta.annotation.api
@@ -167,6 +170,26 @@ dependencies {
 // Configuration: docker/test-postgres-compose.yml
 // ============================================================================
 
+// Shared Liquibase steps live under config/; copy non-divergent files onto the test
+// classpath so dialect masters can use relativeToChangelogFile consistently (no file:config).
+tasks.named('processTestResources', Copy).configure {
+  from('config/db/changelog') {
+    include '01_schema.*.sql'
+    include '09_application_responsible_institution.yaml'
+    include '10_application_tree_order.yaml'
+    include '11_language_order_enabled_and_labels.yaml'
+    include '12_task_relation_reference_alias.yaml'
+    include '13_literal_translations.yaml'
+    include '14_add_translation_sequences.sql'
+    include '15_literal_translation_source_language.yaml'
+    include '16_template_task_type.yaml'
+    include '17_more_info_advanced_e2e.yaml'
+    include '18_literal_translations_varchar.yaml'
+    include '19_mia_chrome_literals.yaml'
+    into 'db/changelog'
+  }
+}
+
 // Test configuration
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
@@ -182,6 +205,10 @@ tasks.withType(Test).configureEach {
   // Set system properties for test JVM
   systemProperty 'spring.profiles.active', 'test,h2'
   systemProperty 'java.awt.headless', 'true'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
+  // Forward opt-in Liquibase seed sequence canary (exact STM_SEQUENCE baselines)
+  systemProperty 'sitmun.seed-canary.sequences', System.getProperty('sitmun.seed-canary.sequences', '')
   
   // Test logging
   testLogging {
@@ -194,6 +221,9 @@ tasks.withType(Test).configureEach {
 tasks.register('testH2', Test) {
   group = 'verification'
   description = 'Run tests with H2 in-memory database'
+  systemProperty 'spring.profiles.active', 'test,h2'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   
   testLogging {
     events "passed", "skipped", "failed"
@@ -206,6 +236,8 @@ tasks.register('testPostgres', Test) {
   group = 'verification'
   description = 'Run tests with PostgreSQL database using Docker Compose'
   systemProperty 'spring.profiles.active', 'postgres'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
@@ -216,6 +248,8 @@ tasks.register('testOracle', Test) {
   group = 'verification'
   description = 'Run tests with OracleSQL database using Docker Compose'
   systemProperty 'spring.profiles.active', 'oracle'
+  systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
+  systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
     events "passed", "skipped", "failed"
     exceptionFormat = 'full'
@@ -297,7 +331,7 @@ scmVersion {
   versionIncrementer('incrementPatch')
 }
 
-project.version = '1.2.7'
+project.version = '1.2.8'
 
 // Git hooks setup
 tasks.register('setupGitHooks') {
@@ -428,4 +462,3 @@ tasks.register('removeGitHooks') {
 tasks.named('build') {
   dependsOn 'setupGitHooks'
 }
-

@@ -1,5 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,10 +29,14 @@ class LocaleRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("GET: Obtain translated version Spa")
+  @DisplayName("GET: ?lang=es keeps endonym on name; locale label on translatedName")
   void obtainTranslatedVersionSpa() throws Exception {
     mvc.perform(get(URIConstants.LANGUAGES_URI + "?lang=es"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.languages[?(@.shortname == 'en')].name").value("Inglés"));
+        .andExpect(
+            jsonPath("$._embedded.languages[?(@.shortname == 'en')].name", hasItem("English")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.languages[?(@.shortname == 'en')].translatedName", hasItem("Inglés")));
   }
 }

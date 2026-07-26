@@ -1,16 +1,19 @@
 package org.sitmun.domain.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeSaveEvent;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -31,13 +34,18 @@ public class UserController {
 
   private final UserRepository userRepository;
   private final ApplicationEventPublisher publisher;
+  private final Rfc9457ResponseWriter responseWriter;
 
   /** Constructor. */
   public UserController(
-      Validator validator, UserRepository userRepository, ApplicationEventPublisher publisher) {
+      Validator validator,
+      UserRepository userRepository,
+      ApplicationEventPublisher publisher,
+      Rfc9457ResponseWriter responseWriter) {
     springValidator = new SpringValidatorAdapter(validator);
     this.userRepository = userRepository;
     this.publisher = publisher;
+    this.responseWriter = responseWriter;
   }
 
   private static User getUser(UserDTO updatedUser, User user) {
@@ -114,8 +122,8 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<UserDTO> getAccountById(
-      @PathVariable Integer id, Authentication authentication) {
+  public ResponseEntity<?> getAccountById(
+      @PathVariable Integer id, Authentication authentication, HttpServletRequest request) {
     Optional<User> foundUser = userRepository.findById(id);
     if (foundUser.isEmpty()) {
       return ResponseEntity.notFound().build();
@@ -125,7 +133,9 @@ public class UserController {
         authentication.getAuthorities().stream()
             .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     if (!isAdmin && !authentication.getName().equals(user.getUsername())) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+          .body(responseWriter.problem(request, HttpStatus.FORBIDDEN));
     }
     return ResponseEntity.ok(userToDto(user));
   }

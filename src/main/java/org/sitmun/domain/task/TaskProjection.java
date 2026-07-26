@@ -56,4 +56,7 @@ public interface TaskProjection {
 
   @Value("#{target.type?.name}")
   String getTypeName();
+
+  @Value("#{target.type?.title}")
+  String getTypeTitle();
 }

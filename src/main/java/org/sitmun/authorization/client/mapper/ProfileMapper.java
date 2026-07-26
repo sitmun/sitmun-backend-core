@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
 import org.sitmun.authorization.client.dto.*;
+import org.sitmun.authorization.client.service.ApplicationBackgroundView;
+import org.sitmun.authorization.client.service.ApplicationTreeView;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.TaskMapper;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
-import org.sitmun.domain.background.Background;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
@@ -25,6 +26,7 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.node.TreeNode;
+import org.sitmun.domain.tree.node.TreeNodeRadioPolicy;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.persistence.type.point.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,16 +48,17 @@ public abstract class ProfileMapper {
   }
 
   /**
-   * Maps a Background entity to a BackgroundDto.
+   * Maps a resolved application background to a profile DTO.
    *
-   * @param background the Background entity to map
-   * @return the mapped BackgroundDto
+   * @param applicationBackground application background view with display order
+   * @return mapped background DTO
    */
-  BackgroundDto map(Background background) {
-    return BackgroundDto.builder()
-        .id(PROFILE_GROUP_ID_PREFIX + background.getCartographyGroup().getId())
-        .title(background.getName())
-        .thumbnail(background.getImage())
+  ApplicationBackgroundDto map(ApplicationBackgroundView applicationBackground) {
+    return ApplicationBackgroundDto.builder()
+        .id(applicationBackground.getId())
+        .title(applicationBackground.getTitle())
+        .thumbnail(applicationBackground.getThumbnail())
+        .order(applicationBackground.getOrder())
         .build();
   }
 
@@ -119,6 +122,8 @@ public abstract class ProfileMapper {
   ServiceDto map(Service service) {
     return ServiceDto.builder()
         .id(PROFILE_SERVICE_ID_PREFIX + service.getId())
+        .title(service.getName())
+        .description(service.getDescription())
         .url(service.getServiceURL())
         .type(service.getType())
         .isProxied(service.getIsProxied())
@@ -149,6 +154,17 @@ public abstract class ProfileMapper {
       log.warn("No task mapper found for task id: {}", task.getId());
       return TaskDto.builder().id(TASK_PROFILE_ID_PREFIX + task.getId()).build();
     }
+  }
+
+  TreeDto map(ApplicationTreeView applicationTree) {
+    Tree tree = applicationTree.getTree();
+    return TreeDto.builder()
+        .id(PROFILE_TREE_ID_PREFIX + tree.getId())
+        .title(tree.getName())
+        .type(tree.getType())
+        .image(tree.getImage())
+        .order(applicationTree.getOrder())
+        .build();
   }
 
   TreeDto map(Tree tree) {
@@ -247,8 +263,10 @@ public abstract class ProfileMapper {
         NodeDto.builder()
             .title(it.getName())
             .description(it.getDescription())
-            .isRadio(it.getRadio())
+            .isRadio(resolveIsRadio(it))
             .loadData(it.getLoadData())
+            .queryableActive(Boolean.TRUE.equals(it.getQueryableActive()))
+            .loadByDefault(Boolean.TRUE.equals(it.getActive()))
             .type(it.getType())
             .image(it.getImage())
             .order(it.getOrder())
@@ -273,10 +291,19 @@ public abstract class ProfileMapper {
     return nodeDtoBuilder.build();
   }
 
+  private static Boolean resolveIsRadio(TreeNode node) {
+    if (!TreeNodeRadioPolicy.canExposeRadio(node)) {
+      return null;
+    }
+    return node.getRadio();
+  }
+
   private NodeDto createRootNode(Tree tree, List<TreeNode> allNodes) {
     return NodeDto.builder()
         .title(tree.getName())
         .loadData(false)
+        .queryableActive(false)
+        .loadByDefault(false)
         .children(
             allNodes.stream()
                 .filter(it1 -> it1.getParent() == null)
