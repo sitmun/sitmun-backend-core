@@ -1,12 +1,16 @@
 package org.sitmun.administration.controller.dto;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import org.sitmun.domain.DomainConstants;
 
-@JacksonXmlRootElement(localName = "templateExportRequest")
 public record TemplateExportRequestDto(
-    @NotBlank @JacksonXmlProperty(localName = "output") String output,
-    @JacksonXmlProperty(localName = "template") String template,
-    @JacksonXmlProperty(localName = "taskId") Long taskId,
-    @JacksonXmlProperty(localName = "templateTaskId") Long templateTaskId) {}
+    @NotBlank @Pattern(regexp = "(?i)\\s*pdf\\s*") String output,
+    @NotBlank @Size(max = DomainConstants.Tasks.MAX_TEMPLATE_EXPORT_SOURCE_CHARACTERS)
+        String template,
+    @Positive Integer taskId,
+    @Positive Integer templateTaskId,
+    @Positive Integer applicationId,
+    @Positive Integer territoryId) {}

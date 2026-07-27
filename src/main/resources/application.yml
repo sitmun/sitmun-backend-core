@@ -79,11 +79,6 @@ sitmun:
     token-validity-in-milliseconds: 900000
     force: false
   template:
-    export:
-      # Base directory from which Jasper/XML report files can be served.
-      # Leave blank (default) to disable file-based export.
-      # Example: /opt/sitmun/reports
-      allowed-file-path-prefix:
     url: http://localhost:8080/middleware
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true

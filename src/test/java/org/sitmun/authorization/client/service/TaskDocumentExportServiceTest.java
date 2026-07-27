@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_SOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_EXPORT_ENGINE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_SIZE;
@@ -54,7 +53,6 @@ class TaskDocumentExportServiceTest {
                 Map.of(
                     PROPERTY_EXPORT_ENGINE, "openhtmltopdf",
                     PROPERTY_DOWNLOAD_FORMAT, "pdf",
-                    PROPERTY_DOWNLOAD_SOURCE, "reports/export.jrxml",
                     PROPERTY_PAGE_SIZE, "A3",
                     PROPERTY_PAGE_ORIENTATION, "landscape"))
             .build();
@@ -67,13 +65,12 @@ class TaskDocumentExportServiceTest {
     assertEquals("pdf", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
     assertEquals("pdf", result.getParameters().get("output"));
     assertEquals("openhtmltopdf", result.getParameters().get(PROPERTY_EXPORT_ENGINE));
-    assertEquals("reports/export.jrxml", result.getParameters().get(PROPERTY_DOWNLOAD_SOURCE));
     assertEquals("A3", result.getParameters().get(PROPERTY_PAGE_SIZE));
     assertEquals("landscape", result.getParameters().get(PROPERTY_PAGE_ORIENTATION));
   }
 
   @Test
-  void mapOmitsDownloadSourceForPdfTasksWithoutConfiguredSource() {
+  void mapPublishesPdfOutputAlias() {
     Task task =
         Task.builder()
             .id(704)
@@ -89,7 +86,6 @@ class TaskDocumentExportServiceTest {
 
     assertEquals("pdf", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
     assertEquals("pdf", result.getParameters().get("output"));
-    assertFalse(result.getParameters().containsKey(PROPERTY_DOWNLOAD_SOURCE));
   }
 
   @Test
@@ -97,7 +93,7 @@ class TaskDocumentExportServiceTest {
     Task task =
         Task.builder()
             .id(702)
-            .name("Export XML")
+            .name("Export PDF")
             .type(TaskType.builder().id(TASK_TYPE_ID_DOCUMENT_EXPORT).build())
             .properties(null)
             .build();
@@ -112,33 +108,16 @@ class TaskDocumentExportServiceTest {
     Task task =
         Task.builder()
             .id(703)
-            .name("Export XML")
+            .name("Export PDF")
             .type(TaskType.builder().id(TASK_TYPE_ID_DOCUMENT_EXPORT).build())
             .cartography(Cartography.builder().id(88).build())
-            .properties(Map.of(PROPERTY_DOWNLOAD_FORMAT, "xml"))
+            .properties(Map.of(PROPERTY_DOWNLOAD_FORMAT, "pdf"))
             .build();
 
     TaskDto result = service.map(task, Application.builder().build(), Territory.builder().build());
 
     assertEquals(PROFILE_LAYER_ID_PREFIX + "88", result.getLayer());
-    assertEquals("xml", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
-    assertEquals("xml", result.getParameters().get("output"));
-  }
-
-  @Test
-  void mapLeavesMissingDownloadSourceAbsentForXmlTasks() {
-    Task task =
-        Task.builder()
-            .id(705)
-            .name("Export XML")
-            .type(TaskType.builder().id(TASK_TYPE_ID_DOCUMENT_EXPORT).build())
-            .properties(Map.of(PROPERTY_DOWNLOAD_FORMAT, "xml"))
-            .build();
-
-    TaskDto result = service.map(task, Application.builder().build(), Territory.builder().build());
-
-    assertEquals("xml", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
-    assertEquals("xml", result.getParameters().get("output"));
-    assertFalse(result.getParameters().containsKey(PROPERTY_DOWNLOAD_SOURCE));
+    assertEquals("pdf", result.getParameters().get(PROPERTY_DOWNLOAD_FORMAT));
+    assertEquals("pdf", result.getParameters().get("output"));
   }
 }

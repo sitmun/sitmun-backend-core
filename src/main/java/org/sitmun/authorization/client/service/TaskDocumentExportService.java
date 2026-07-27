@@ -3,7 +3,6 @@ package org.sitmun.authorization.client.service;
 import static org.sitmun.authorization.client.AuthorizationConstants.TaskDto.SIMPLE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROFILE_LAYER_ID_PREFIX;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT;
-import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_DOWNLOAD_SOURCE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_EXPORT_ENGINE;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION;
 import static org.sitmun.domain.DomainConstants.Tasks.PROPERTY_PAGE_SIZE;
@@ -35,11 +34,13 @@ public class TaskDocumentExportService implements TaskMapper {
 
     if (properties != null) {
       copyStringProperty(parameters, properties, PROPERTY_EXPORT_ENGINE);
-      copyStringProperty(parameters, properties, PROPERTY_DOWNLOAD_FORMAT);
-      copyStringProperty(parameters, properties, PROPERTY_DOWNLOAD_SOURCE);
       copyStringProperty(parameters, properties, PROPERTY_PAGE_SIZE);
       copyStringProperty(parameters, properties, PROPERTY_PAGE_ORIENTATION);
-      copyStringProperty(parameters, properties, "output", PROPERTY_DOWNLOAD_FORMAT);
+      Object downloadFormat = properties.get(PROPERTY_DOWNLOAD_FORMAT);
+      if (downloadFormat != null && "pdf".equalsIgnoreCase(String.valueOf(downloadFormat).trim())) {
+        parameters.put(PROPERTY_DOWNLOAD_FORMAT, "pdf");
+        parameters.put("output", "pdf");
+      }
     }
 
     String cartographyProfileId =

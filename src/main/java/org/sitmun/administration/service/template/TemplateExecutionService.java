@@ -23,9 +23,12 @@ import okhttp3.Credentials;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
-import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
@@ -69,6 +72,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class TemplateExecutionService {
 
+  private static final String TEMPLATE_TASK_ID_ATTRIBUTE = "data-mia-template-task-id";
+
   private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
   private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX = "Template nesting depth exceeded";
@@ -79,6 +84,8 @@ public class TemplateExecutionService {
   private static final int DEFAULT_MAP_IMAGE_HEIGHT = 768;
   private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
   private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
+  private static final Pattern FULL_HTML_DOCUMENT_PATTERN =
+      Pattern.compile("(?is)<\\s*html(?:\\s|>)|<!doctype(?:\\s|>)");
   private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {
   };
   private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE = new TypeReference<>() {
@@ -401,7 +408,8 @@ public class TemplateExecutionService {
             String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
         resolvedParameters.forEach(existingParameters::putIfAbsent);
       }
-      if (isTemplateTask(relatedTask) && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
+      if (DomainConstants.Tasks.isTemplateTask(relatedTask)
+          && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
         enrichTemplateChildTaskParameters(
             relatedTask, childTaskParameters, featureParameters, depth + 1);
       }
@@ -436,12 +444,6 @@ public class TemplateExecutionService {
     return rawTemplateChildTaskParameters;
   }
 
-  private boolean isTemplateTask(Task task) {
-    return task.getType() != null
-        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-            .equals(task.getType().getId());
-  }
-
   private List<Map<String, Object>> filterRenderableMiaChildren(List<Map<String, Object>> includedTasks) {
     return includedTasks.stream()
         .filter(childDefinition -> !"documentExport".equals(resolveMiaChildType(childDefinition)))
@@ -472,7 +474,7 @@ public class TemplateExecutionService {
               if (DomainConstants.Tasks.isDocumentExportTask(childTask)) {
                 return "documentExport";
               }
-              if (isTemplateTask(childTask)) {
+              if (DomainConstants.Tasks.isTemplateTask(childTask)) {
                 return "template";
               }
               return "query";
@@ -589,7 +591,7 @@ public class TemplateExecutionService {
 
   private Map<String, Object> readMiaChildParameterMappings(Task childTask) {
     Map<String, Object> mappings = new LinkedHashMap<>();
-    if (isTemplateTask(childTask)) {
+    if (DomainConstants.Tasks.isTemplateTask(childTask)) {
       return mappings;
     }
     Map<String, Object> properties = childTask.getProperties() == null ? Collections.emptyMap()
@@ -891,7 +893,9 @@ public class TemplateExecutionService {
    * authorized {@code documentExport} task.
    */
   private String wrapWithDownloadAnnotation(String content, Integer templateTaskId) {
-    String taskIdAttribute = templateTaskId == null ? "" : " data-mia-template-task-id=\"" + templateTaskId + "\"";
+    String taskIdAttribute = templateTaskId == null
+        ? ""
+        : " " + TEMPLATE_TASK_ID_ATTRIBUTE + "=\"" + templateTaskId + "\"";
     return "<div data-mia-export-template=\"true\"" + taskIdAttribute + ">" + content + "</div>";
   }
 
@@ -1096,14 +1100,42 @@ public class TemplateExecutionService {
             templateContext,
             rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
 
+    String pdfScope = depth == 1
+        ? PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE
+        : PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE;
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
         .status(COMPLETED)
         .resultType(TEMPLATE)
-        .context(Collections.singletonMap("html", rendered.getHtml()))
+        .context(Collections.singletonMap("html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
+  }
+
+  private String annotatePdfRegionScope(String html, String scope) {
+    if (!StringUtils.hasText(html)) {
+      return html;
+    }
+
+    boolean fullDocument = FULL_HTML_DOCUMENT_PATTERN.matcher(html).find();
+    Document document = fullDocument ? Jsoup.parse(html) : Jsoup.parseBodyFragment(html);
+    String selector = PdfRegionHtmlContract.REGION_CLASSES.stream()
+        .map(className -> "." + className)
+        .collect(Collectors.joining(", "));
+    List<Element> regions = document.select(selector);
+    if (regions.isEmpty()) {
+      return html;
+    }
+    if (PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE.equals(scope)) {
+      regions.forEach(
+          region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+    } else {
+      regions.stream()
+          .filter(region -> !region.hasAttr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE))
+          .forEach(region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+    }
+    return fullDocument ? document.outerHtml() : document.body().html();
   }
 
   private TemplatePreviewResponseDto renderTemplatePreview(

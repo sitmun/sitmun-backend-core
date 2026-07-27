@@ -13,20 +13,18 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.administration.service.template.TemplateRenderService;
+import org.sitmun.administration.service.template.export.TemplateExportAuthorizationService;
 import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/tasks/template")
@@ -35,6 +33,7 @@ public class TemplatePreviewController {
 
   private final TemplateExecutionService templateExecutionService;
   private final TemplateRenderService templateRenderService;
+  private final TemplateExportAuthorizationService templateExportAuthorizationService;
   private final TemplateExportService templateExportService;
   private final RequestLocaleResolutionService requestLocaleResolutionService;
 
@@ -46,9 +45,9 @@ public class TemplatePreviewController {
   }
 
   @PostMapping("/more-info-advanced/render")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'PUBLIC')")
   public ResponseEntity<MoreInfoAdvancedRenderResponseDto> renderMoreInfoAdvanced(
-      @RequestBody MoreInfoAdvancedRenderRequestDto requestDto,
+      @RequestBody @Valid MoreInfoAdvancedRenderRequestDto requestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
     requestLocaleResolutionService.resolveLanguage(request, response, this, null);
@@ -71,45 +70,33 @@ public class TemplatePreviewController {
             language));
   }
 
-  /**
-   * Exports a rendered MIA template to a downloadable file.
-   *
-   * <p>Source resolution priority:
-   * <ul>
-   *   <li>If {@code template} contains runtime HTML, it is used as the export source.
-   *   <li>Otherwise, when {@code taskId} is present, the server reads the configured
-   *       {@code downloadSource} property from the task and uses that server-side content.
-   * </ul>
-   */
-  @PostMapping("/export")
-  @PreAuthorize("isAuthenticated()")
+  /** Exports rendered MIA HTML to PDF. */
+  @PostMapping(
+      value = "/export",
+      consumes = MediaType.APPLICATION_XML_VALUE,
+      produces = MediaType.APPLICATION_PDF_VALUE)
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'PUBLIC')")
   public ResponseEntity<byte[]> export(@RequestBody @Valid TemplateExportRequestDto request) {
-    String output = request.output().toLowerCase();
-    if (!StringUtils.hasText(request.template()) && request.taskId() == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Either runtime HTML content or a taskId with configured source must be provided");
-    }
-
-    byte[] content = templateExportService.exportHtml(request.template(), output, request.taskId());
+    String output = TemplateExportService.normalizeOutput(request.output());
+    TemplateExportAuthorizationService.AuthorizedTasks authorizedTasks =
+        templateExportAuthorizationService.authorize(
+            request.taskId(),
+            request.templateTaskId(),
+            request.applicationId(),
+            request.territoryId());
+    byte[] content =
+        templateExportService.exportHtml(request.template(), output, authorizedTasks.exportTask());
 
     String filename =
-        templateExportService.resolveExportFilename(request.templateTaskId(), request.taskId(), output);
+        templateExportService.resolveExportFilename(
+            authorizedTasks.templateTask(), authorizedTasks.exportTask(), output);
     HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(resolveMediaType(output));
+    headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDisposition(
         ContentDisposition.attachment().filename(filename).build());
     headers.setContentLength(content.length);
 
     return ResponseEntity.ok().headers(headers).body(content);
-  }
-
-  private MediaType resolveMediaType(String output) {
-    return switch (output) {
-      case "pdf" -> MediaType.APPLICATION_PDF;
-      case "xml" -> MediaType.APPLICATION_XML;
-      default -> MediaType.APPLICATION_OCTET_STREAM;
-    };
   }
 }
 

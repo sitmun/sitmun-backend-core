@@ -2801,6 +2801,7 @@ class TemplateExecutionServiceTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void executeLinkedTaskRendersNestedTemplatesCompletelyInBackend() {
     TaskRepository taskRepository = mock(TaskRepository.class);
     TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
@@ -2885,22 +2886,47 @@ class TemplateExecutionServiceTest {
     when(templateRenderService.renderPreview(eq("<p>{{consulta_url.url}}</p>"), any(), eq(200)))
         .thenReturn(
             TemplatePreviewResponseDto.builder()
-                .html("<p>https://example.com/abc</p>")
+                .html(
+                    "<html-preview>Preview marker</html-preview>"
+                        + "<table class=\"sitmun-pdf-header\" "
+                        + "data-sitmun-pdf-template-scope=\"root\"><tbody><tr><td>Header</td></tr>"
+                        + "</tbody></table>")
                 .placeholders(List.of())
                 .build());
     when(templateRenderService.renderPreview(
             eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(200)))
-        .thenReturn(
-            TemplatePreviewResponseDto.builder()
-                .html("<div><p>https://example.com/abc</p></div>")
-                .placeholders(List.of())
-                .build());
+        .thenAnswer(invocation -> {
+          Map<String, Object> context = invocation.getArgument(1);
+          Map<String, Object> nested = (Map<String, Object>) context.get("plantilla_hija");
+          return TemplatePreviewResponseDto.builder()
+              .html("<!doctype html><html lang=\"ca\"><head><title>Informe</title></head>"
+                  + "<body class=\"report\"><div>" + nested.get("html") + "</div>"
+                  + "<p class=\"sitmun-pdf-footer\">Root footer</p></body></html>")
+              .placeholders(List.of())
+              .build();
+        });
 
     TemplateTaskExecutionResponseDto result = service.executeLinkedTask(requestDto);
+    ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderService).renderPreview(
+        eq("<div>{{plantilla_hija.html}}</div>"), contextCaptor.capture(), eq(200));
+    Map<String, Object> nestedTemplateContext = (Map<String, Object>)
+        contextCaptor.getValue().get("plantilla_hija");
 
     assertThat(result.getResultType()).isEqualTo("template");
-    assertThat(result.getContext())
-        .containsEntry("html", "<div><p>https://example.com/abc</p></div>");
+    assertThat(result.getContext().get("html").toString())
+        .contains("<!doctype html>")
+        .contains("<html lang=\"ca\">")
+        .contains("<title>Informe</title>")
+        .contains("<body class=\"report\">")
+        .contains("data-sitmun-pdf-template-scope=\"root\"")
+        .contains("data-sitmun-pdf-template-scope=\"nested\"")
+        .doesNotContain("data-mia-template-task-id");
+    assertThat(nestedTemplateContext.get("html").toString())
+        .contains("class=\"sitmun-pdf-header\"")
+        .contains("data-sitmun-pdf-template-scope=\"nested\"")
+        .doesNotContain("data-sitmun-pdf-template-scope=\"root\"", "<html>", "<head>", "<body>")
+        .doesNotContain("data-mia-template-task-id");
   }
 
   @Test

@@ -1,6 +1,8 @@
 package org.sitmun.administration.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
@@ -11,9 +13,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.administration.service.template.TemplateRenderService;
+import org.sitmun.administration.service.template.export.TemplateExportAuthorizationService;
 import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,14 +32,21 @@ import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("Template export XML endpoint")
-class TemplatePreviewControllerXmlExportIntegrationTest {
+@DisplayName("Template PDF export endpoint with XML requests")
+class TemplatePreviewControllerPdfExportIntegrationTest {
 
   @Autowired private MockMvc mvc;
 
   @MockBean private TemplateExecutionService templateExecutionService;
   @MockBean private TemplateRenderService templateRenderService;
+  @MockBean private TemplateExportAuthorizationService templateExportAuthorizationService;
   @MockBean private TemplateExportService templateExportService;
+
+  @BeforeEach
+  void authorizeExport() {
+    when(templateExportAuthorizationService.authorize(any(), any(), any(), any()))
+        .thenReturn(new TemplateExportAuthorizationService.AuthorizedTasks(null, null));
+  }
 
   @Test
   @DisplayName("POST /api/tasks/template/export accepts XML body with template")
@@ -55,9 +67,9 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
         </templateExportRequest>
         """;
 
-    when(templateExportService.exportHtml(eq("\n    <html>\n      <body>\n        <h1>Informe</h1>\n        <p>Contingut renderitzat</p>\n      </body>\n    </html>\n  "), eq("pdf"), eq(null)))
+    when(templateExportService.exportHtml(eq("\n    <html>\n      <body>\n        <h1>Informe</h1>\n        <p>Contingut renderitzat</p>\n      </body>\n    </html>\n  "), eq("pdf"), any()))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("pdf")))
+    when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
         .thenReturn("report.pdf");
 
     mvc.perform(
@@ -86,9 +98,9 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
         </templateExportRequest>
         """;
 
-    when(templateExportService.exportHtml(eq("\n    <html><body><h1>Informe</h1></body></html>\n  "), eq("pdf"), eq(201L)))
+    when(templateExportService.exportHtml(eq("\n    <html><body><h1>Informe</h1></body></html>\n  "), eq("pdf"), any()))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(301L), eq(201L), eq("pdf")))
+    when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
         .thenReturn("Plantilla territori.pdf");
 
     mvc.perform(
@@ -102,55 +114,12 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /api/tasks/template/export returns xml media type for xml output")
+  @DisplayName("POST /api/tasks/template/export rejects XML output")
   @WithMockUser(roles = "ADMIN")
-  void exportReturnsXmlMediaTypeForXmlOutput() throws Exception {
-    String xml = "<templateExportRequest><output>xml</output><template><![CDATA[<report/>]]></template></templateExportRequest>";
-
-    when(templateExportService.exportHtml(eq("<report/>"), eq("xml"), eq(null)))
-        .thenReturn("<report/>".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("xml")))
-        .thenReturn("report.xml");
-
-    mvc.perform(
-            post("/api/tasks/template/export")
-                .with(SecurityMockMvcRequestPostProcessors.csrf())
-                .contentType(APPLICATION_XML)
-                .content(xml))
-        .andExpect(status().isOk())
-        .andExpect(content().contentTypeCompatibleWith(APPLICATION_XML))
-        .andExpect(header().string("Content-Disposition", "attachment; filename=\"report.xml\""));
-  }
-
-  @Test
-  @DisplayName("POST /api/tasks/template/export forwards xml taskId-only request")
-  @WithMockUser(roles = "ADMIN")
-  void exportForwardsXmlTaskIdOnlyRequest() throws Exception {
-    String xml = "<templateExportRequest><output>xml</output><taskId>555</taskId></templateExportRequest>";
-
-    when(templateExportService.exportHtml(eq(null), eq("xml"), eq(555L)))
-        .thenReturn("<report/>".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq(555L), eq("xml")))
-        .thenReturn("Tasca exportar.xml");
-
-    mvc.perform(
-            post("/api/tasks/template/export")
-                .with(SecurityMockMvcRequestPostProcessors.csrf())
-                .contentType(APPLICATION_XML)
-                .content(xml))
-        .andExpect(status().isOk())
-        .andExpect(content().contentTypeCompatibleWith(APPLICATION_XML))
-        .andExpect(header().string("Content-Disposition", "attachment; filename=\"Tasca exportar.xml\""));
-  }
-
-  @Test
-  @DisplayName("POST /api/tasks/template/export returns bad request when xml task lacks download source")
-  @WithMockUser(roles = "ADMIN")
-  void exportReturnsBadRequestWhenXmlTaskLacksDownloadSource() throws Exception {
-    String xml = "<templateExportRequest><output>xml</output><taskId>556</taskId></templateExportRequest>";
-
-    when(templateExportService.exportHtml(eq(null), eq("xml"), eq(556L)))
-        .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task 556 does not have a downloadSource configured"));
+  void exportRejectsXmlOutput() throws Exception {
+    String xml =
+        "<templateExportRequest><output>xml</output>"
+            + "<template><![CDATA[<html/>]]></template></templateExportRequest>";
 
     mvc.perform(
             post("/api/tasks/template/export")
@@ -158,6 +127,8 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
                 .contentType(APPLICATION_XML)
                 .content(xml))
         .andExpect(status().isBadRequest());
+
+    verifyNoInteractions(templateExportService);
   }
 
   @Test
@@ -166,9 +137,9 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   void exportReturnsPdfMediaTypeForPdfOutput() throws Exception {
     String xml = "<templateExportRequest><output>pdf</output><template><![CDATA[<html><body>ok</body></html>]]></template></templateExportRequest>";
 
-    when(templateExportService.exportHtml(eq("<html><body>ok</body></html>"), eq("pdf"), eq(null)))
+    when(templateExportService.exportHtml(eq("<html><body>ok</body></html>"), eq("pdf"), any()))
         .thenReturn("ok".getBytes());
-    when(templateExportService.resolveExportFilename(eq(null), eq(null), eq("pdf")))
+    when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
         .thenReturn("report.pdf");
 
     mvc.perform(
@@ -178,6 +149,71 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
                 .content(xml))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(APPLICATION_PDF));
+  }
+
+  @Test
+  @DisplayName("POST /api/tasks/template/export authorizes user profile context")
+  @WithMockUser(roles = "USER")
+  void exportAuthorizesUserProfileContext() throws Exception {
+    String xml =
+        "<templateExportRequest><output> PDF </output><taskId>201</taskId>"
+            + "<templateTaskId>301</templateTaskId><applicationId>7</applicationId>"
+            + "<territoryId>11</territoryId><template><![CDATA[<html/>]]></template>"
+            + "</templateExportRequest>";
+    when(templateExportService.exportHtml(eq("<html/>"), eq("pdf"), any()))
+        .thenReturn("ok".getBytes());
+    when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
+        .thenReturn("report.pdf");
+
+    mvc.perform(
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PDF));
+
+    verify(templateExportAuthorizationService).authorize(201, 301, 7, 11);
+  }
+
+  @Test
+  @DisplayName("POST /api/tasks/template/export accepts authorized public profile context")
+  @WithMockUser(username = "public", roles = "PUBLIC")
+  void exportAcceptsPublicProfileContext() throws Exception {
+    String xml =
+        "<templateExportRequest><output>pdf</output><taskId>201</taskId>"
+            + "<applicationId>7</applicationId><territoryId>11</territoryId>"
+            + "<template><![CDATA[<html/>]]></template></templateExportRequest>";
+    when(templateExportService.exportHtml(eq("<html/>"), eq("pdf"), any()))
+        .thenReturn("ok".getBytes());
+    when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
+        .thenReturn("report.pdf");
+
+    mvc.perform(
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
+        .andExpect(status().isOk());
+
+    verify(templateExportAuthorizationService).authorize(201, null, 7, 11);
+  }
+
+  @Test
+  @DisplayName("POST MIA render accepts public profile role")
+  @WithMockUser(username = "public", roles = "PUBLIC")
+  void miaRenderAcceptsPublicProfileRole() throws Exception {
+    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+        .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(java.util.List.of()).build());
+
+    mvc.perform(
+            post("/api/tasks/template/more-info-advanced/render")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType("application/json")
+                .content(
+                    "{\"miaTaskIds\":[16],\"applicationId\":7,\"territoryId\":11,"
+                        + "\"parameters\":{}}"))
+        .andExpect(status().isOk());
   }
 
   @Test
@@ -197,10 +233,12 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /api/tasks/template/export rejects missing template and taskId")
+  @DisplayName("POST /api/tasks/template/export rejects missing template even with taskId")
   @WithMockUser(roles = "ADMIN")
   void exportRejectsMissingTemplateAndTaskId() throws Exception {
-    String xml = "<templateExportRequest><output>pdf</output></templateExportRequest>";
+    String xml =
+        "<templateExportRequest><output>pdf</output><taskId>201</taskId>"
+            + "</templateExportRequest>";
 
     mvc.perform(
             post("/api/tasks/template/export")
@@ -211,15 +249,17 @@ class TemplatePreviewControllerXmlExportIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /api/tasks/template/export requires authentication")
-  void exportRequiresAuthentication() throws Exception {
+  @DisplayName("POST /api/tasks/template/export requires task and profile context for public")
+  void exportRequiresTaskAndProfileContextForPublic() throws Exception {
     String xml = "<templateExportRequest><output>pdf</output><template><![CDATA[<html/>]]></template></templateExportRequest>";
+    when(templateExportAuthorizationService.authorize(null, null, null, null))
+        .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
 
     mvc.perform(
             post("/api/tasks/template/export")
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(APPLICATION_XML)
                 .content(xml))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isBadRequest());
   }
 }

@@ -281,7 +281,9 @@ public class WebSecurityConfigurer {
         .hasRole(USER.name())
         .requestMatchers(
             builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
-        .hasRole(USER.name())
+        .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/tasks/template/export"))
+        .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasRole(USER.name());
   }

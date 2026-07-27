@@ -96,7 +96,6 @@ dependencies {
 
   // JSON processing
   implementation libs.json
-  implementation libs.jackson.dataformat.xml
   
   // JWT token handling
   implementation libs.jjwt.api
