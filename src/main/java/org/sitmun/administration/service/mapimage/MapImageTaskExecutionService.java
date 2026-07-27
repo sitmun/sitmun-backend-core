@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -15,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.service.Service;
+import org.sitmun.domain.service.ServiceBlockPolicy;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
@@ -64,13 +64,19 @@ public class MapImageTaskExecutionService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only png output is supported for map image tasks");
     }
 
-    List<BufferedImage> images = new ArrayList<>();
-    for (MapImageSourceDefinition mapSource : mapSources) {
-      images.add(renderOverlaySource(mapSource, renderContext));
+    BufferedImage canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D graphics = canvas.createGraphics();
+    try {
+      graphics.setComposite(AlphaComposite.SrcOver);
+      for (MapImageSourceDefinition mapSource : mapSources) {
+        BufferedImage overlay = renderOverlaySource(mapSource, renderContext);
+        graphics.drawImage(overlay, 0, 0, width, height, null);
+        overlay.flush();
+      }
+    } finally {
+      graphics.dispose();
     }
-
-    BufferedImage composed = composeImages(images, width, height);
-    return encodePng(composed);
+    return encodePng(canvas);
   }
 
   private List<MapImageSourceDefinition> readMapSources(Map<String, Object> properties) {
@@ -83,13 +89,7 @@ public class MapImageTaskExecutionService {
   }
 
   private List<Double> resolveBbox(List<Double> requestBbox) {
-    List<Double> bbox = requestBbox != null && requestBbox.size() >= 4
-        ? requestBbox.subList(0, 4)
-        : List.of();
-    if (bbox.size() != 4) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "bbox must contain four numeric values");
-    }
-    return List.copyOf(bbox);
+    return MapImageBboxValidator.validate(requestBbox);
   }
 
   private int resolveDimension(Integer requestValue, Map<String, Object> properties, String propertyKey, int defaultValue) {
@@ -129,22 +129,11 @@ public class MapImageTaskExecutionService {
     if (!DomainConstants.Services.TYPE_WMS.equalsIgnoreCase(service.getType())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service " + mapSource.serviceId() + " is not WMS");
     }
+    if (!ServiceBlockPolicy.isAccessibleInClientProfile(service)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Service " + mapSource.serviceId() + " is blocked");
+    }
 
     return mapImageWmsRenderer.render(service, mapSource.layerNames(), renderContext);
-  }
-
-  private BufferedImage composeImages(List<BufferedImage> images, int width, int height) {
-    BufferedImage canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D graphics = canvas.createGraphics();
-    try {
-      graphics.setComposite(AlphaComposite.SrcOver);
-      for (BufferedImage image : images) {
-        graphics.drawImage(image, 0, 0, width, height, null);
-      }
-    } finally {
-      graphics.dispose();
-    }
-    return canvas;
   }
 
   private byte[] encodePng(BufferedImage image) {

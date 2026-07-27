@@ -692,6 +692,7 @@ class TemplateExecutionServiceTest {
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
     request.setMiaTaskIds(List.of(16));
     request.setParameters(Map.of("id", "A-1"));
+    request.setFeatureBbox(List.of(1d));
 
     MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
 
@@ -748,6 +749,89 @@ class TemplateExecutionServiceTest {
     ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
     verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
     assertThat(requestCaptor.getValue().getBbox()).hasSize(4);
+  }
+
+  @Test
+  void renderMoreInfoAdvancedPropagatesBboxThroughNestedTemplatesToMapImage() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    MapImageTaskExecutionService mapImageTaskExecutionService = mock(MapImageTaskExecutionService.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService = mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any())).thenReturn(new RequestCoordinates());
+    when(mapImageTaskExecutionService.renderMapImage(any())).thenReturn(new byte[] {1, 2, 3, 4});
+    when(templateRenderService.renderPreview(any(), any(), eq(201)))
+        .thenReturn(TemplatePreviewResponseDto.builder().html("<div>rendered</div>").placeholders(List.of()).build());
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mapImageTaskExecutionService,
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = Task.builder()
+        .id(16)
+        .name("MIA parent")
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build())
+        .properties(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(201)))
+        .build();
+    Task templateA = Task.builder()
+        .id(201)
+        .name("Template A")
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+        .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{template_b.html}}"))
+        .build();
+    Task templateB = Task.builder()
+        .id(202)
+        .name("Template B")
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+        .properties(Map.of(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "{{map_image.contentUrl}}"))
+        .build();
+    Task mapImageTask = Task.builder()
+        .id(203)
+        .name("Map image")
+        .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MAP_IMAGE).build())
+        .properties(Map.of(
+            DomainConstants.Tasks.PROPERTY_WIDTH, 200,
+            DomainConstants.Tasks.PROPERTY_HEIGHT, 100))
+        .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(201)).thenReturn(Optional.of(templateA));
+    when(taskRelationRepository.findByTaskId(201))
+        .thenReturn(List.of(TaskRelation.builder()
+            .task(templateA)
+            .relationType("template-nested")
+            .referenceAlias("template_b")
+            .relatedTask(templateB)
+            .build()));
+    when(taskRelationRepository.findByTaskId(202))
+        .thenReturn(List.of(TaskRelation.builder()
+            .task(templateB)
+            .relationType("template-task")
+            .referenceAlias("map_image")
+            .relatedTask(mapImageTask)
+            .build()));
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setMiaTaskIds(List.of(16));
+    request.setFeatureBbox(List.of(5d, 6d, 7d, 8d));
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request);
+    request.setFeatureBbox(List.of(8d, 6d, 5d, 8d));
+    MoreInfoAdvancedRenderResponseDto invalidBboxResult = service.renderMoreInfoAdvanced(request);
+
+    ArgumentCaptor<MapImageRenderRequestDto> requestCaptor = ArgumentCaptor.forClass(MapImageRenderRequestDto.class);
+    verify(mapImageTaskExecutionService).renderMapImage(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().getBbox()).containsExactly(4d, 6d, 8d, 8d);
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(invalidBboxResult.getTasks()).hasSize(1);
   }
 
   @Test

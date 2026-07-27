@@ -33,6 +33,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.mapimage.MapImageBboxValidator;
 import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
@@ -92,11 +93,13 @@ public class TemplateExecutionService {
   public static final String COMPLETED = "COMPLETED";
   public static final String ORDER = "order";
   public static final String SCROLL = "scroll";
+  private static final String MAP_IMAGE_FEATURE_BBOX_SIZE = "__featureBboxSize";
   private static final List<String> MAP_IMAGE_FEATURE_BBOX_PARAMETER_KEYS = List.of(
       "featureBboxMinX",
       "featureBboxMinY",
       "featureBboxMaxX",
-      "featureBboxMaxY");
+      "featureBboxMaxY",
+      MAP_IMAGE_FEATURE_BBOX_SIZE);
 
   private final TaskRepository taskRepository;
   private final TaskRelationRepository taskRelationRepository;
@@ -645,12 +648,15 @@ public class TemplateExecutionService {
       viewerParameters.putAll(requestDto.getParameters());
     }
 
-    if (requestDto.getFeatureBbox() != null && requestDto.getFeatureBbox().size() >= 4) {
+    if (requestDto.getFeatureBbox() != null) {
       List<Double> featureBbox = requestDto.getFeatureBbox();
-      viewerParameters.put("featureBboxMinX", featureBbox.get(0));
-      viewerParameters.put("featureBboxMinY", featureBbox.get(1));
-      viewerParameters.put("featureBboxMaxX", featureBbox.get(2));
-      viewerParameters.put("featureBboxMaxY", featureBbox.get(3));
+      viewerParameters.put(MAP_IMAGE_FEATURE_BBOX_SIZE, featureBbox.size());
+      if (featureBbox.size() >= 4) {
+        viewerParameters.put("featureBboxMinX", featureBbox.get(0));
+        viewerParameters.put("featureBboxMinY", featureBbox.get(1));
+        viewerParameters.put("featureBboxMaxX", featureBbox.get(2));
+        viewerParameters.put("featureBboxMaxY", featureBbox.get(3));
+      }
     }
 
     return viewerParameters;
@@ -1353,7 +1359,13 @@ public class TemplateExecutionService {
       return null;
     }
 
-    boolean hasFeatureBboxParameter = parameters.containsKey("featureBboxMinX")
+    if (parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
+        && !"4".equals(parameters.get(MAP_IMAGE_FEATURE_BBOX_SIZE))) {
+      throw MapImageBboxValidator.invalidBbox();
+    }
+
+    boolean hasFeatureBboxParameter = parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
+        || parameters.containsKey("featureBboxMinX")
         || parameters.containsKey("featureBboxMinY")
         || parameters.containsKey("featureBboxMaxX")
         || parameters.containsKey("featureBboxMaxY");
@@ -1367,7 +1379,7 @@ public class TemplateExecutionService {
     Double minY = readDoubleParameter(parameters, "featureBboxMinY");
     Double maxX = readDoubleParameter(parameters, "featureBboxMaxX");
     Double maxY = readDoubleParameter(parameters, "featureBboxMaxY");
-    return List.of(minX, minY, maxX, maxY);
+    return MapImageBboxValidator.validate(List.of(minX, minY, maxX, maxY));
   }
 
   private void validateRequiredFeatureBboxParameters(Map<String, String> parameters) {
