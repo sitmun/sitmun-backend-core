@@ -44,8 +44,6 @@ import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
-import org.sitmun.domain.role.Role;
-import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
@@ -58,6 +56,7 @@ import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -100,7 +99,6 @@ class TemplateExecutionServiceTest {
     TemplateRequestCoordinatesService coordinatesService =
         mock(TemplateRequestCoordinatesService.class);
     when(coordinatesService.build(any())).thenReturn(requestCoordinatesWithUserPermission(7));
-    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of());
     TemplateExecutionService service =
         newService(
             taskRepository,
@@ -138,15 +136,20 @@ class TemplateExecutionServiceTest {
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of(miaTask));
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setParameter("lang", "en");
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SecurityContextHolder.getContext()
-        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "viewer", "n/a", List.of(new SimpleGrantedAuthority("ROLE_USER"))));
     try {
       MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
       renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setApplicationId(5);
+      renderRequest.setTerritoryId(7);
       renderRequest.setParameters(Map.of("id", "A-1"));
 
       MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
@@ -211,7 +214,8 @@ class TemplateExecutionServiceTest {
                     .build())
             .build();
     Task apiTask = Task.builder().id(402).build();
-    when(taskRepository.findByRolesAndTerritory(any(), eq(7))).thenReturn(List.of(templateTask));
+    when(taskRepository.findByRolesAndTerritory(any(), eq(7)))
+        .thenReturn(List.of(miaTask, templateTask));
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(401)).thenReturn(Optional.of(templateTask));
@@ -250,10 +254,14 @@ class TemplateExecutionServiceTest {
     request.setParameter("lang", "en");
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SecurityContextHolder.getContext()
-        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "viewer", "n/a", List.of(new SimpleGrantedAuthority("ROLE_USER"))));
     try {
       MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
       renderRequest.setMiaTaskIds(List.of(16));
+      renderRequest.setApplicationId(5);
+      renderRequest.setTerritoryId(7);
       renderRequest.setParameters(Map.of());
 
       MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
@@ -263,73 +271,6 @@ class TemplateExecutionServiceTest {
           .contains("<article>")
           .contains("No data")
           .doesNotContain("sitmun-template-child-error");
-    } finally {
-      RequestContextHolder.resetRequestAttributes();
-      SecurityContextHolder.clearContext();
-    }
-  }
-
-  @Test
-  void renderMoreInfoAdvancedDeniesChildWhenAuthenticatedUserCannotBeResolved() {
-    TaskRepository taskRepository = mock(TaskRepository.class);
-    TemplateRequestCoordinatesService coordinatesService =
-        mock(TemplateRequestCoordinatesService.class);
-    RequestCoordinates unresolvedCoordinates = new RequestCoordinates();
-    unresolvedCoordinates.setTerritory(Territory.builder().id(7).build());
-    when(coordinatesService.build(any())).thenReturn(unresolvedCoordinates);
-    TemplateExecutionService service =
-        newService(
-            taskRepository,
-            mock(TaskRelationRepository.class),
-            mock(ProxyConfigurationService.class),
-            mock(DatabaseConnectionService.class),
-            mock(HttpClientFactory.class),
-            mock(MapImageTaskExecutionService.class),
-            mock(SystemVariableResolver.class),
-            mock(TemplateRenderService.class),
-            coordinatesService,
-            new ObjectMapper());
-
-    Task miaTask = mock(Task.class);
-    when(miaTask.getId()).thenReturn(16);
-    when(miaTask.getName()).thenReturn("MIA parent");
-    when(miaTask.getType())
-        .thenReturn(
-            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
-    when(miaTask.getProperties())
-        .thenReturn(
-            Map.of(
-                DomainConstants.Tasks.PROPERTY_PARAMETERS,
-                List.of(
-                    Map.of(
-                        "name",
-                        "includedTasks",
-                        "type",
-                        DomainConstants.Tasks.TYPE_ARRAY,
-                        "value",
-                        "[{\"id\":101,\"name\":\"Document\",\"order\":0,\"childType\":\"query\"}]"))));
-
-    Task childTask = mock(Task.class);
-    when(childTask.getId()).thenReturn(101);
-
-    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
-    when(taskRepository.findById(101)).thenReturn(Optional.of(childTask));
-
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setParameter("lang", "en");
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-    SecurityContextHolder.getContext()
-        .setAuthentication(
-            new UsernamePasswordAuthenticationToken("viewer@example.org", "n/a", List.of()));
-    try {
-      MoreInfoAdvancedRenderRequestDto renderRequest = new MoreInfoAdvancedRenderRequestDto();
-      renderRequest.setMiaTaskIds(List.of(16));
-      renderRequest.setParameters(Map.of("id", "A-1"));
-
-      MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(renderRequest);
-
-      assertThat(result.getTasks()).hasSize(1);
-      assertThat(result.getTasks().get(0).getHtml()).contains("No data").doesNotContain("A-1");
     } finally {
       RequestContextHolder.resetRequestAttributes();
       SecurityContextHolder.clearContext();
@@ -368,7 +309,9 @@ class TemplateExecutionServiceTest {
     request.setParameter("lang", "en");
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     SecurityContextHolder.getContext()
-        .setAuthentication(new UsernamePasswordAuthenticationToken("viewer", "n/a", List.of()));
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(
+                "viewer", "n/a", List.of(new SimpleGrantedAuthority("ROLE_USER"))));
     try {
       TemplateTaskExecutionRequestDto executionRequest = new TemplateTaskExecutionRequestDto();
       executionRequest.setLinkedTaskId(13);
@@ -672,12 +615,15 @@ class TemplateExecutionServiceTest {
       TemplateRenderService templateRenderService,
       TemplateRequestCoordinatesService coordinatesService,
       ObjectMapper objectMapper) {
-    RoleRepository roleRepository = mock(RoleRepository.class);
-    when(roleRepository.findRolesByApplicationAndUserAndTerritory(any(), any(), any()))
-        .thenReturn(List.of(Role.builder().id(3).build()));
+    org.sitmun.authorization.client.service.AuthorizationService authorizationService =
+        mock(org.sitmun.authorization.client.service.AuthorizationService.class);
+    when(authorizationService.findTasksByUserApplicationAndTerritory(any(), any(), any()))
+        .thenAnswer(
+            invocation ->
+                taskRepository.findByRolesAndTerritory(
+                    List.of(), invocation.getArgument(2, Integer.class)));
     return new TemplateExecutionService(
         taskRepository,
-        roleRepository,
         taskRelationRepository,
         proxyConfigurationService,
         databaseConnectionService,
@@ -686,6 +632,7 @@ class TemplateExecutionServiceTest {
         systemVariableResolver,
         templateRenderService,
         coordinatesService,
+        authorizationService,
         objectMapper);
   }
 

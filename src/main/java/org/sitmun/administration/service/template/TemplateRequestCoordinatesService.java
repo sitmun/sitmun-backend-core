@@ -8,6 +8,7 @@ import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.task.availability.TaskAvailabilityRepository;
 import org.sitmun.domain.territory.Territory;
+import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,9 +22,32 @@ public class TemplateRequestCoordinatesService {
 
   private final ApplicationRepository applicationRepository;
   private final TaskAvailabilityRepository taskAvailabilityRepository;
+  private final TerritoryRepository territoryRepository;
   private final UserRepository userRepository;
 
   public RequestCoordinates build(Integer templateTaskId) {
+    RequestCoordinates coordinates = buildCurrentUserCoordinates();
+    if (templateTaskId == null) {
+      return coordinates;
+    }
+
+    resolveTaskTerritory(templateTaskId, coordinates);
+    resolveTaskApplication(templateTaskId, coordinates);
+    return coordinates;
+  }
+
+  public RequestCoordinates buildForProfile(Integer applicationId, Integer territoryId) {
+    RequestCoordinates coordinates = buildCurrentUserCoordinates();
+    if (applicationId != null) {
+      applicationRepository.findById(applicationId).ifPresent(coordinates::setApplication);
+    }
+    if (territoryId != null) {
+      territoryRepository.findById(territoryId).ifPresent(coordinates::setTerritory);
+    }
+    return coordinates;
+  }
+
+  private RequestCoordinates buildCurrentUserCoordinates() {
     RequestCoordinates coordinates = new RequestCoordinates();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null
@@ -31,11 +55,10 @@ public class TemplateRequestCoordinatesService {
         && authentication.getName() != null) {
       userRepository.findByUsername(authentication.getName()).ifPresent(coordinates::setUser);
     }
+    return coordinates;
+  }
 
-    if (templateTaskId == null) {
-      return coordinates;
-    }
-
+  private void resolveTaskTerritory(Integer templateTaskId, RequestCoordinates coordinates) {
     List<Territory> territories =
         taskAvailabilityRepository.findByTaskId(templateTaskId).stream()
             .map(taskAvailability -> taskAvailability.getTerritory())
@@ -45,7 +68,9 @@ public class TemplateRequestCoordinatesService {
     if (territories.size() == 1) {
       coordinates.setTerritory(territories.get(0));
     }
+  }
 
+  private void resolveTaskApplication(Integer templateTaskId, RequestCoordinates coordinates) {
     List<Application> applications = applicationRepository.findByTaskId(templateTaskId);
     Application application = null;
     if (!applications.isEmpty()) {
@@ -69,7 +94,5 @@ public class TemplateRequestCoordinatesService {
         coordinates.setTerritory(application.getTerritories().iterator().next().getTerritory());
       }
     }
-
-    return coordinates;
   }
 }

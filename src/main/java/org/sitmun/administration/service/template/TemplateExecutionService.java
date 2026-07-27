@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
-import org.sitmun.infrastructure.security.core.SecurityRole;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -17,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Credentials;
@@ -34,7 +34,7 @@ import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
-import org.sitmun.administration.service.template.export.TemplateExportService;
+import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
@@ -45,15 +45,15 @@ import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.database.DatabaseConnection;
-import org.sitmun.domain.role.Role;
-import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
+import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -99,7 +99,6 @@ public class TemplateExecutionService {
       "featureBboxMaxY");
 
   private final TaskRepository taskRepository;
-  private final RoleRepository roleRepository;
   private final TaskRelationRepository taskRelationRepository;
   private final ProxyConfigurationService proxyConfigurationService;
   private final DatabaseConnectionService databaseConnectionService;
@@ -108,6 +107,7 @@ public class TemplateExecutionService {
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRenderService templateRenderService;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
+  private final AuthorizationService authorizationService;
 
   private final ObjectMapper objectMapper;
 
@@ -161,16 +161,50 @@ public class TemplateExecutionService {
     List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
     List<Integer> miaTaskIds = requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
     Map<String, Object> featureParameters = buildViewerParameters(requestDto);
+    Set<Integer> accessibleTaskIds = resolveAccessibleTaskIds(requestDto);
+    RequestCoordinates profileCoordinates =
+        requestDto.getApplicationId() != null && requestDto.getTerritoryId() != null
+            ? templateRequestCoordinatesService.buildForProfile(
+                requestDto.getApplicationId(), requestDto.getTerritoryId())
+            : null;
 
     for (Integer miaTaskId : miaTaskIds) {
-      renderedTasks.add(renderSingleMoreInfoAdvancedTask(miaTaskId, featureParameters));
+      if (accessibleTaskIds != null && !accessibleTaskIds.contains(miaTaskId)) {
+        throw new AccessDeniedException("Access denied to task " + miaTaskId);
+      }
+      renderedTasks.add(
+          renderSingleMoreInfoAdvancedTask(
+              miaTaskId, featureParameters, profileCoordinates, accessibleTaskIds));
     }
 
     return MoreInfoAdvancedRenderResponseDto.builder().tasks(renderedTasks).build();
   }
 
+  private Set<Integer> resolveAccessibleTaskIds(MoreInfoAdvancedRenderRequestDto requestDto) {
+    if (SecurityRole.isAdmin() || !currentUserIsAuthenticated()) {
+      return null;
+    }
+    if (requestDto.getApplicationId() == null || requestDto.getTerritoryId() == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "applicationId and territoryId are required");
+    }
+    String username = resolveAuthorizedUsername(null);
+    if (!StringUtils.hasText(username)) {
+      throw new AccessDeniedException("Authenticated user is required");
+    }
+    return authorizationService
+        .findTasksByUserApplicationAndTerritory(
+            username, requestDto.getApplicationId(), requestDto.getTerritoryId())
+        .stream()
+        .map(Task::getId)
+        .collect(Collectors.toSet());
+  }
+
   private MoreInfoAdvancedRenderedTaskDto renderSingleMoreInfoAdvancedTask(
-      Integer miaTaskId, Map<String, Object> featureParameters) {
+      Integer miaTaskId,
+      Map<String, Object> featureParameters,
+      RequestCoordinates requestProfileCoordinates,
+      Set<Integer> accessibleTaskIds) {
     Task miaTask = taskRepository
         .findById(miaTaskId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -187,11 +221,16 @@ public class TemplateExecutionService {
             : "tabs";
     List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
     List<Map<String, Object>> renderableTasks = filterRenderableMiaChildren(includedTasks);
-    RequestCoordinates coordinates = templateRequestCoordinatesService.build(miaTask.getId());
+    RequestCoordinates coordinates =
+        requestProfileCoordinates != null
+            ? requestProfileCoordinates
+            : templateRequestCoordinatesService.build(miaTask.getId());
+    MiaRenderContext renderContext =
+        new MiaRenderContext(featureParameters, coordinates, accessibleTaskIds);
 
     String html = "tabs".equals(visualizationMode)
-        ? renderMiaChildrenAsTabs(miaTask, renderableTasks, featureParameters, coordinates)
-        : renderMiaChildrenAsScroll(renderableTasks, featureParameters, coordinates);
+        ? renderMiaChildrenAsTabs(miaTask, renderableTasks, renderContext)
+        : renderMiaChildrenAsScroll(renderableTasks, renderContext);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -203,8 +242,7 @@ public class TemplateExecutionService {
   private String renderMiaChildrenAsTabs(
       Task miaTask,
       List<Map<String, Object>> includedTasks,
-      Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
+      MiaRenderContext renderContext) {
     String renderId = "mia-backend-" + miaTask.getId();
     StringBuilder tabs = new StringBuilder();
     StringBuilder panels = new StringBuilder();
@@ -227,7 +265,8 @@ public class TemplateExecutionService {
           .append("\"")
           .append(hidden)
           .append(">")
-          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
+          .append(
+              renderMiaChild(childDefinition, renderContext))
           .append(DIV_CLOSING_TAG);
     }
 
@@ -241,9 +280,7 @@ public class TemplateExecutionService {
   }
 
   private String renderMiaChildrenAsScroll(
-      List<Map<String, Object>> includedTasks,
-      Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
+      List<Map<String, Object>> includedTasks, MiaRenderContext renderContext) {
     StringBuilder sections = new StringBuilder();
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
@@ -252,17 +289,15 @@ public class TemplateExecutionService {
               "<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
           .append(escapeHtml(resolveChildTitle(childDefinition, index)))
           .append(DIV_CLOSING_TAG)
-          .append(renderMiaChild(childDefinition, featureParameters, coordinates))
+          .append(
+              renderMiaChild(childDefinition, renderContext))
           .append(DIV_CLOSING_TAG);
     }
     return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + DIV_CLOSING_TAG;
   }
 
   @SuppressWarnings("unchecked")
-  private String renderMiaChild(
-      Map<String, Object> childDefinition,
-      Map<String, Object> featureParameters,
-      RequestCoordinates coordinates) {
+  private String renderMiaChild(Map<String, Object> childDefinition, MiaRenderContext renderContext) {
     Integer childTaskId = parseTaskId(childDefinition.get("id"));
     if (childTaskId == null) {
       return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
@@ -271,19 +306,25 @@ public class TemplateExecutionService {
     Task childTask = taskRepository
         .findById(childTaskId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    if (!mayAccessTask(childTask, coordinates)) {
+    if ((renderContext.accessibleTaskIds() != null
+            && !renderContext.accessibleTaskIds().contains(childTaskId))
+        || (renderContext.accessibleTaskIds() == null
+            && !mayAccessTask(childTask, renderContext.coordinates()))) {
       return renderNoDataHtml();
     }
     Map<String, Object> resolvedChildParameters = resolveMappedParameters(
-        childDefinition.get(PARAMETERS), featureParameters);
+        childDefinition.get(PARAMETERS), renderContext.featureParameters());
     if (resolvedChildParameters.isEmpty()) {
-      resolvedChildParameters = resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters);
+      resolvedChildParameters =
+          resolveMappedParameters(
+              readMiaChildParameterMappings(childTask), renderContext.featureParameters());
     }
-    enrichMapImageViewerContextParameters(childTask, resolvedChildParameters, featureParameters);
+    enrichMapImageViewerContextParameters(
+        childTask, resolvedChildParameters, renderContext.featureParameters());
     Map<String, String> childParameters = stringifyParameters(resolvedChildParameters);
     Map<String, Map<String, Object>> childTaskParameters = new LinkedHashMap<>(
         resolveMappedChildTaskParameters(
-            childDefinition.get(CHILD_TASK_PARAMETERS), featureParameters));
+            childDefinition.get(CHILD_TASK_PARAMETERS), renderContext.featureParameters()));
     Integer rootTemplateTaskId = childTask.getType() != null
         && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
             .equals(childTask.getType().getId())
@@ -294,8 +335,9 @@ public class TemplateExecutionService {
           childTaskParameters,
           childDefinition.get(TEMPLATE_CHILD_TASK_PARAMETERS),
           rootTemplateTaskId,
-          featureParameters);
-      enrichTemplateChildTaskParameters(childTask, childTaskParameters, featureParameters, 0);
+          renderContext.featureParameters());
+      enrichTemplateChildTaskParameters(
+          childTask, childTaskParameters, renderContext.featureParameters(), 0);
     }
     TemplateTaskExecutionResponseDto result;
     boolean isTemplateChild = rootTemplateTaskId != null;
@@ -304,8 +346,8 @@ public class TemplateExecutionService {
           childTask,
           childParameters,
           childTaskParameters,
-          rootTemplateTaskId,
-          coordinates,
+        rootTemplateTaskId,
+        renderContext.coordinates(),
           0,
           isTemplateChild);
     } catch (ResponseStatusException exception) {
@@ -335,11 +377,6 @@ public class TemplateExecutionService {
           + "</a>";
     }
     return renderNoDataHtml();
-  }
-
-  private String renderMiaChildError(ResponseStatusException exception) {
-    String message = StringUtils.hasText(exception.getReason()) ? exception.getReason() : "Could not render task";
-    return "<div class=\"sitmun-mia-error\">" + escapeHtml(message) + "</div>";
   }
 
   private void enrichTemplateChildTaskParameters(
@@ -869,11 +906,10 @@ public class TemplateExecutionService {
       return false;
     }
 
-    List<Role> roles = roleRepository.findRolesByApplicationAndUserAndTerritory(
-        username, applicationId, territoryId);
-    return !roles.isEmpty()
-        && taskRepository.findByRolesAndTerritory(roles, territoryId).stream()
-            .anyMatch(accessibleTask -> task.getId().equals(accessibleTask.getId()));
+    return authorizationService
+        .findTasksByUserApplicationAndTerritory(username, applicationId, territoryId)
+        .stream()
+        .anyMatch(accessibleTask -> task.getId().equals(accessibleTask.getId()));
   }
 
   private boolean currentUserIsAuthenticated() {
@@ -881,7 +917,12 @@ public class TemplateExecutionService {
     return authentication != null
         && authentication.isAuthenticated()
         && StringUtils.hasText(authentication.getName())
-        && !"anonymousUser".equals(authentication.getName());
+        && authentication.getAuthorities().stream()
+            .anyMatch(
+                authority ->
+                    SecurityRole.USER.authority().equals(authority.getAuthority())
+                        || SecurityRole.ADMIN.authority().equals(authority.getAuthority())
+                        || SecurityRole.PUBLIC.authority().equals(authority.getAuthority()));
   }
 
   private String resolveAuthorizedUsername(RequestCoordinates coordinates) {
@@ -1821,4 +1862,9 @@ public class TemplateExecutionService {
     Object raw = task.getProperties().get(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML);
     return raw != null ? String.valueOf(raw) : "";
   }
+
+  private record MiaRenderContext(
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates,
+      Set<Integer> accessibleTaskIds) {}
 }

@@ -226,6 +226,30 @@ public class AuthorizationService {
     return application;
   }
 
+  /** Returns tasks available to a user in one authorized application/territory profile. */
+  @Transactional(readOnly = true)
+  public List<Task> findTasksByUserApplicationAndTerritory(
+      String username, Integer appId, Integer territoryId) {
+    ensureMayUseClientConfigEndpoints(username);
+    ensureMayAccessApplication(appId, username);
+    findApplicationByUserApplicationAndTerritory(username, appId, territoryId)
+        .orElseThrow(() -> new AccessDeniedException("Access denied to application territory"));
+
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(username, appId, territoryId);
+    if (roles.isEmpty()) {
+      throw new AccessDeniedException("Access denied to application territory");
+    }
+    return findProfileTasks(roles, territoryId);
+  }
+
+  private List<Task> findProfileTasks(List<Role> roles, Integer territoryId) {
+    return taskRepository.findByRolesAndTerritory(roles, territoryId).stream()
+        .filter(task -> task.getRoles() != null)
+        .filter(task -> ServiceBlockPolicy.isAccessibleInClientProfileOrNull(task.getService()))
+        .toList();
+  }
+
   /**
    * Enrich applications with territory count information in bulk.
    *
@@ -348,12 +372,7 @@ public class AuthorizationService {
                 .toList());
     layers.forEach(translationService::updateInternationalization);
 
-    List<Task> tasks = taskRepository.findByRolesAndTerritory(roles, context.getTerritoryId());
-    tasks =
-        tasks.stream()
-            .filter(t -> t.getRoles() != null)
-            .filter(t -> ServiceBlockPolicy.isAccessibleInClientProfileOrNull(t.getService()))
-            .toList();
+    List<Task> tasks = findProfileTasks(roles, context.getTerritoryId());
     tasks.forEach(translationService::updateInternationalization);
 
     List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
