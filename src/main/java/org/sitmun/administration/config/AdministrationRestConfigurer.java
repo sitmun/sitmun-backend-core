@@ -65,6 +65,10 @@ public class AdministrationRestConfigurer implements RepositoryRestConfigurer {
   public void configureRepositoryRestConfiguration(
       RepositoryRestConfiguration config, CorsRegistry cors) {
     config.setReturnBodyForPutAndPost(true);
+    // Default SDR returns a body after DELETE when Accept is present, which reassembles the
+    // deleted entity and trips LazyInitializationException on Cartography (and similar)
+    // associations.
+    config.setReturnBodyOnDelete(false);
     config.setBasePath("/api");
     config.exposeIdsFor(
         entityManager.getMetamodel().getEntities().stream()

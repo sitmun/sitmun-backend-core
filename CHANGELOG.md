@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Cartography** / **REST**: DELETE cartography returns **422** Problem Details when referenced by tree nodes or tasks (referencing-entity key no longer hardcoded to tree nodes); style-in-use delete returns **422** instead of **400**; SDR no longer returns a HAL body after DELETE (`returnBodyOnDelete=false`), fixing **500** `LazyInitializationException` on cartography delete when clients send `Accept`.
 - **Trees** / **Tree nodes**: Greenfield/test `tree.type` code list includes `edition`/`touristic`; `normalizeActive` clears `active` on non-cartography-leaf nodes so profile `loadByDefault` stays false.
 - **Configuration**: `proxy` Configuration Parameter applies at runtime again (valid `STM_CONF.proxy` wins over env default); stored value is the normalized effective URL; create/save returns transient `warnings` ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
 - **Cartography** / **Applications** / **Proxy**: `@BatchSize` replaces multi-bag `@EntityGraph` on fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)); application–tree `@HandleBeforeLinkSave` accepts `Object` so non-tree association PUTs no longer type-mismatch; MBTiles proxy config sets `VIRTUAL_ROOT_ALL_NODES` before profile creation.

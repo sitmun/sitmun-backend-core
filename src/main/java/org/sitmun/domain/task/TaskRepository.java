@@ -27,6 +27,15 @@ public interface TaskRepository
 
   Iterable<Task> findAllByTypeId(@NonNull Integer typeId);
 
+  @RestResource(exported = false)
+  @Query(
+      """
+      select case when count(task) > 0 then true else false end
+      from Task task
+      where task.cartography.id = :cartographyId
+      """)
+  boolean existsByCartographyId(@Param("cartographyId") @NonNull Integer cartographyId);
+
   @Query(
       """
         select task

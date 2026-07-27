@@ -106,8 +106,9 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
             .instance(request.getRequestURI())
             .build();
 
-    if (ProblemTypes.DATA_INTEGRITY_VIOLATION.equals(exception.getProblemType())) {
-      problem.addProperty("referencingEntityTranslationKey", "entity.tree-node.plural");
+    if (exception.getReferencingEntityTranslationKey() != null) {
+      problem.addProperty(
+          "referencingEntityTranslationKey", exception.getReferencingEntityTranslationKey());
     }
 
     return ResponseEntity.status(status)
