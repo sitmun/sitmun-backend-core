@@ -98,6 +98,7 @@ public class TaskDto {
   @JsonProperty("type")
   private String type;
 
+  /** Persisted task type id from {@code STM_TSK_TYP} (e.g. more-info advanced = 16). */
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private Integer typeId;
 

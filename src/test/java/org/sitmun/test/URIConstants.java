@@ -17,6 +17,10 @@ public class URIConstants {
 
   public static final String APPLICATION_URI_SITUATION_MAP = APPLICATION_URI + "/situationMap";
 
+  public static final String APPLICATION_URI_CREATOR = APPLICATION_URI + "/creator";
+
+  public static final String APPLICATION_URI_AVAILABLE_ROLES = APPLICATION_URI + "/availableRoles";
+
   public static final String APPLICATION_BACKGROUNDS_URI =
       "http://localhost/api/application-backgrounds";
 
@@ -124,6 +128,12 @@ public class URIConstants {
 
   public static final String TREE_URI = "http://localhost/api/trees";
 
+  public static final String TREE_ITEM_URI = TREE_URI + "/{0}";
+
+  public static final String TREE_URI_OWNER = TREE_ITEM_URI + "/owner";
+
+  public static final String TREE_URI_AVAILABLE_ROLES = TREE_ITEM_URI + "/availableRoles";
+
   public static final String TREE_ALL_NODES_URI =
       "http://localhost/api/trees/{0}/allNodes?projection=view";
 
@@ -142,7 +152,16 @@ public class URIConstants {
   public static final String TREE_AVAILABLE_APPLICATIONS_URI =
       "http://localhost/api/trees/{0}/availableApplications";
 
+  public static final String APPLICATION_TREES_URI = "http://localhost/api/applications/{0}/trees";
+
+  public static final String APPLICATION_TREE_URI = "http://localhost/api/application-trees/{0}";
+
+  public static final String APPLICATION_TREES_COLLECTION_URI =
+      "http://localhost/api/application-trees";
+
   public static final String USER_URI = "http://localhost/api/users";
+
+  public static final String USER_ITEM_URI = USER_URI + "/{0}";
 
   public static final String USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE =
       "/api/user-configurations?projection=view&{0}={1}";
@@ -157,8 +176,8 @@ public class URIConstants {
       WORKSPACE_URI + "/application/{0}/territory/{1}";
   public static final String TASK_URI = TASKS_URI + "/{0}";
   public static final String TASK_ROLE_URI = TASK_URI + "/roles";
-  private static final String ROLES_URI = "http://localhost/api/roles";
-  private static final String ROLE_URI = ROLES_URI + "/{0}";
+  public static final String ROLES_URI = "http://localhost/api/roles";
+  public static final String ROLE_URI = ROLES_URI + "/{0}";
   public static final String ROLE_TASKS_URI = ROLE_URI + "/tasks";
   public static final String ROLE_PERMISSIONS_URI = ROLE_URI + "/permissions";
   public static final String ROLE_APPLICATIONS_URI = ROLE_URI + "/applications";

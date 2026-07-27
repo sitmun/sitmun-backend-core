@@ -1,10 +1,12 @@
 package org.sitmun.domain.configuration;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -17,8 +19,6 @@ import org.springframework.data.rest.core.annotation.RestResource;
 public interface ConfigurationParameterRepository
     extends JpaRepository<ConfigurationParameter, Integer> {
 
-  Optional<ConfigurationParameter> findByName(String name);
-
   @RestResource(path = "content", rel = "content")
   @Query(
       """
@@ -28,4 +28,22 @@ public interface ConfigurationParameterRepository
       or lower(configParam.value) like lower(concat('%', :q, '%'))
       """)
   Page<ConfigurationParameter> findByContent(@Param("q") String q, Pageable pageable);
+
+  /**
+   * Find configuration parameter by name.
+   *
+   * @param name Parameter name
+   * @return Configuration parameter if found
+   */
+  Optional<ConfigurationParameter> findByName(String name);
+
+  /**
+   * Find configuration parameter by name with pessimistic write lock.
+   *
+   * @param name Parameter name
+   * @return Configuration parameter if found
+   */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select cp from ConfigurationParameter cp where cp.name = :name")
+  Optional<ConfigurationParameter> findByNameForUpdate(@Param("name") String name);
 }

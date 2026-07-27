@@ -161,7 +161,8 @@ public class RequestLocaleResolutionService {
       return null;
     }
 
-    List<Language> supportedLanguages = languageRepository.findAll();
+    List<Language> supportedLanguages =
+        languageRepository.findAll().stream().filter(this::isEnabledLanguage).toList();
 
     // First try exact match
     for (Language lang : supportedLanguages) {
@@ -193,6 +194,11 @@ public class RequestLocaleResolutionService {
         localeTag,
         supportedLanguages.size());
     return null;
+  }
+
+  /** Treats {@code null} enabled as enabled for safety. */
+  private boolean isEnabledLanguage(Language language) {
+    return !Boolean.FALSE.equals(language.getEnabled());
   }
 
   /**

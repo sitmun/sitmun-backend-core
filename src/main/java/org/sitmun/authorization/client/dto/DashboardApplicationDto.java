@@ -19,6 +19,7 @@ public class DashboardApplicationDto {
   private Boolean appPrivate;
   private Date lastUpdate;
   private String creator;
+  private String responsibleInstitutionName;
   private Map<String, Object> headerParams;
   private Map<String, String> config;
   private String externalUrl;

@@ -523,11 +523,19 @@ databaseChangeLog:
             usePreparedStatements: true
             columns:
               - column:
+                  name: ATR_ID
+                  type: NUMERIC
+              - column:
                   name: ATR_APPID
                   type: NUMERIC
               - column:
                   name: ATR_TREEID
                   type: NUMERIC
+              - column:
+                  name: ATR_ORDER
+                  type: NUMERIC
+        - sql:
+            sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('ATR_ID', 5);
         - loadData:
             encoding: UTF-8
             file: 04_data/STM_APP_ROL.csv
@@ -681,7 +689,7 @@ databaseChangeLog:
                   name: TNO_TOOLTIP
                   type: STRING
               - column:
-                  name: TNO_ACTIVE
+                  name: TNO_DEFAULT
                   type: BOOLEAN
               - column:
                   name: TNO_ORDER
@@ -694,6 +702,12 @@ databaseChangeLog:
                   type: NUMERIC
               - column:
                   name: TNO_RADIO
+                  type: BOOLEAN
+              - column:
+                  name: TNO_ACTIVE
+                  type: BOOLEAN
+              - column:
+                  name: TNO_LOAD_DATA
                   type: BOOLEAN
         - sql:
             sql: ALTER TABLE STM_TREE_NOD ADD CONSTRAINT STM_TNO_FK_TNO FOREIGN KEY (TNO_PARENTID) REFERENCES STM_TREE_NOD (TNO_ID);

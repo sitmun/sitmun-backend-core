@@ -5,10 +5,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -54,6 +56,9 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
       String locale =
           requestLocaleResolutionService.resolveLanguage(request, response, this, defaultLanguage);
       log.debug("TranslationCacheFilter.preload locale={}", locale);
+      if (locale != null && !locale.isBlank()) {
+        LocaleContextHolder.setLocale(Locale.forLanguageTag(locale));
+      }
       var rows = translationRepository.findAllByLocaleRows(locale);
       if (rows.isEmpty() && locale != null && locale.contains("-")) {
         String base = locale.substring(0, locale.indexOf('-'));
@@ -72,6 +77,7 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
         log.debug("TranslationCacheFilter.after uri={} clearing cache", request.getRequestURI());
         TranslationCache.removeRequestAttribute(request);
       }
+      LocaleContextHolder.resetLocaleContext();
     }
   }
 

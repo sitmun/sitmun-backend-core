@@ -1,6 +1,6 @@
-LAN_ID,LAN_SHORTNAME,LAN_NAME
-1,en,English
-2,es,Spanish
-3,ca,Catalan
-4,oc-aranes,Aranese
-5,fr,French
+LAN_ID,LAN_SHORTNAME,LAN_NAME,LAN_ORDER,LAN_ENABLED
+1,en,English,3,1
+2,es,Castellano,2,1
+3,ca,Català,1,1
+4,oc-aranes,Occitan aranés,4,1
+5,fr,Français,5,1

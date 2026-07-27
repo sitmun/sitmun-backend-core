@@ -18,6 +18,12 @@ databaseChangeLog:
               - column:
                   name: LAN_NAME
                   type: STRING
+              - column:
+                  name: LAN_ORDER
+                  type: NUMERIC
+              - column:
+                  name: LAN_ENABLED
+                  type: BOOLEAN
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('LAN_ID', 5);
         - loadData:

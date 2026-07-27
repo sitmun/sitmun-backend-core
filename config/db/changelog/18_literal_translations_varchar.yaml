@@ -1,0 +1,75 @@
+databaseChangeLog:
+  # Upgrade safety when tables predate VARCHAR(4000) greenfield schema:
+  # - Oracle: CLOB → VARCHAR2(4000 CHAR) (breaks LTR_LITERAL = in seeds)
+  # - H2/Postgres: unbounded / TEXT → VARCHAR(4000)
+  - changeSet:
+      id: 18-literal-translations-varchar-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: STM_LITERAL_TRANSLATION
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_LITERAL_TRANSLATION ALTER COLUMN LTR_LITERAL SET DATA TYPE VARCHAR(4000)
+        - sql:
+            sql: ALTER TABLE STM_LITERAL_TRANSLATION_VALUE ALTER COLUMN LTV_VALUE SET DATA TYPE VARCHAR(4000)
+
+  - changeSet:
+      id: 18-literal-translations-varchar-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: STM_LITERAL_TRANSLATION
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_LITERAL_TRANSLATION ALTER COLUMN LTR_LITERAL TYPE VARCHAR(4000)
+        - sql:
+            sql: ALTER TABLE STM_LITERAL_TRANSLATION_VALUE ALTER COLUMN LTV_VALUE TYPE VARCHAR(4000)
+
+  - changeSet:
+      id: 18-literal-translations-varchar-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: STM_LITERAL_TRANSLATION
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DECLARE
+                v_type VARCHAR2(30);
+              BEGIN
+                SELECT data_type INTO v_type
+                FROM user_tab_columns
+                WHERE table_name = 'STM_LITERAL_TRANSLATION' AND column_name = 'LTR_LITERAL';
+                IF v_type = 'CLOB' THEN
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION ADD (LTR_LITERAL_V VARCHAR2(4000 CHAR))';
+                  EXECUTE IMMEDIATE 'UPDATE STM_LITERAL_TRANSLATION SET LTR_LITERAL_V = DBMS_LOB.SUBSTR(LTR_LITERAL, 4000, 1)';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION DROP COLUMN LTR_LITERAL';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION RENAME COLUMN LTR_LITERAL_V TO LTR_LITERAL';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION MODIFY (LTR_LITERAL NOT NULL)';
+                END IF;
+              END;
+        - sql:
+            splitStatements: false
+            sql: |
+              DECLARE
+                v_type VARCHAR2(30);
+              BEGIN
+                SELECT data_type INTO v_type
+                FROM user_tab_columns
+                WHERE table_name = 'STM_LITERAL_TRANSLATION_VALUE' AND column_name = 'LTV_VALUE';
+                IF v_type = 'CLOB' THEN
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION_VALUE ADD (LTV_VALUE_V VARCHAR2(4000 CHAR))';
+                  EXECUTE IMMEDIATE 'UPDATE STM_LITERAL_TRANSLATION_VALUE SET LTV_VALUE_V = DBMS_LOB.SUBSTR(LTV_VALUE, 4000, 1)';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION_VALUE DROP COLUMN LTV_VALUE';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION_VALUE RENAME COLUMN LTV_VALUE_V TO LTV_VALUE';
+                  EXECUTE IMMEDIATE 'ALTER TABLE STM_LITERAL_TRANSLATION_VALUE MODIFY (LTV_VALUE NOT NULL)';
+                END IF;
+              END;

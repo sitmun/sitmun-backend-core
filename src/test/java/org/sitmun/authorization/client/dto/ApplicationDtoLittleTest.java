@@ -33,6 +33,7 @@ class ApplicationDtoLittleTest {
     dto.setAppPrivate(false);
     dto.setLastUpdate(testDate);
     dto.setPointOfContact("contact@example.com");
+    dto.setResponsibleInstitutionName("ACME Corp");
     dto.setHeaderParams(testHeaderParams);
     dto.setConfig(testConfig);
     dto.setExternalUrl("https://www.idee.es");
@@ -48,6 +49,7 @@ class ApplicationDtoLittleTest {
     assertThat(dto.getAppPrivate()).isFalse();
     assertThat(dto.getLastUpdate()).isEqualTo(testDate);
     assertThat(dto.getPointOfContact()).isEqualTo("contact@example.com");
+    assertThat(dto.getResponsibleInstitutionName()).isEqualTo("ACME Corp");
     assertThat(dto.getHeaderParams()).isEqualTo(testHeaderParams);
     assertThat(dto.getConfig()).isEqualTo(testConfig);
     assertThat(dto.getExternalUrl()).isEqualTo("https://www.idee.es");

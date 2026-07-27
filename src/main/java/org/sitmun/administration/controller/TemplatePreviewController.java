@@ -1,24 +1,24 @@
 package org.sitmun.administration.controller;
 
-import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
-import org.sitmun.administration.controller.dto.TemplateExportRequestDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewRequestDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
+import org.sitmun.administration.controller.dto.TemplateExportRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.administration.service.template.TemplateRenderService;
 import org.sitmun.administration.service.template.export.TemplateExportAuthorizationService;
 import org.sitmun.administration.service.template.export.TemplateExportService;
+import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,27 +50,10 @@ public class TemplatePreviewController {
       @RequestBody @Valid MoreInfoAdvancedRenderRequestDto requestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
-    requestLocaleResolutionService.resolveLanguage(request, response, this, null);
-    return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto));
-  }
-
-  @PostMapping("/preview")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<TemplatePreviewResponseDto> preview(
-      @RequestBody TemplatePreviewRequestDto requestDto,
-      HttpServletRequest request,
-      HttpServletResponse response) {
     String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
-    return ResponseEntity.ok(
-        templateRenderService.renderPreview(
-            requestDto.getTemplateHtml(),
-            requestDto.getContext(),
-            requestDto.getTemplateTaskId(),
-            requestDto.getKnownTaskReferences(),
-            language));
+    return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto, language));
   }
 
-  /** Exports rendered MIA HTML to PDF. */
   @PostMapping(
       value = "/export",
       consumes = MediaType.APPLICATION_XML_VALUE,
@@ -86,17 +69,28 @@ public class TemplatePreviewController {
             request.territoryId());
     byte[] content =
         templateExportService.exportHtml(request.template(), output, authorizedTasks.exportTask());
-
     String filename =
         templateExportService.resolveExportFilename(
             authorizedTasks.templateTask(), authorizedTasks.exportTask(), output);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
-    headers.setContentDisposition(
-        ContentDisposition.attachment().filename(filename).build());
+    headers.setContentDisposition(ContentDisposition.attachment().filename(filename).build());
     headers.setContentLength(content.length);
-
     return ResponseEntity.ok().headers(headers).body(content);
   }
-}
 
+  @PostMapping("/preview")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<TemplatePreviewResponseDto> preview(
+      @RequestBody TemplatePreviewRequestDto requestDto,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
+    return ResponseEntity.ok(
+        templateRenderService.renderPreview(
+            requestDto.getTemplateHtml(),
+            requestDto.getContext(),
+            requestDto.getKnownTaskReferences(),
+            language));
+  }
+}

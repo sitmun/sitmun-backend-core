@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.8] - 2026-07-25
+
+### Added
+
+- **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
+- **i18n**: Literal-translation CRUD/CSV (`/api/literal-translations`, `…/csv`) on `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (`VARCHAR(4000)`, Liquibase `13_*`/`14_*`). `Language` gains `enabled`/`order` (endonym `name`, locale `translatedName`); default language cannot be disabled; HAL `LanguageProjection` (`projection=view`); Liquibase `11_language_order_enabled_and_labels` (profile `56_…` / `09_…`). Lossless default-language migration via `POST /api/language-default/change-preview` and `…/change` (blocks direct REST edits of `language.default`).
+- **Trees** / **Client profile**: catalog visibility `visible` (`TNO_ACTIVE`) vs load-by-default `active` → profile `loadByDefault` (`TNO_DEFAULT`); `queryableActive` and `loadData` with create/save normalization; radio invariants on save and association link saves; profile exposes `trees[].order` from `STM_APP_TREE.ATR_ORDER` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Auth** / **Proxy**: `POST /api/authenticate/mobile` JSON Bearer for edition clients (`EditionBearerTokenFilter` → `ROLE_MOBILE_EDITION`); mobile-derived proxy JWTs; `POST /api/config/proxy/mbtiles` canonical tile authorization (no MBTiles host).
+- **Applications**: `responsibleInstitutionName` (`APP_RESPONSIBLE_INSTITUTION`); PoC eligibility policy, warnings, and validators; `/api/application-trees` ordered links replacing `@ManyToMany`; dashboard DTO exposes institution and publishable creator email only ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)). Liquibase `09_application_responsible_institution` / `10_application_tree_order`.
+- **Startup**: Soft built-in `admin`/`public` repair (`SITMUN_BOOTSTRAP_ADMIN_PASSWORD` for admin create/restore); `/api/dashboard/health` stays `DOWN` until repair succeeds; public `/api/dashboard/startup` returns stable state/reason; development dumps redact secret-bearing keys. Built-in principal helpers centralized in `SecurityConstants`.
+- **Tests**: Coverage for application PoC policy/validation/mapping, built-in user startup repair/health, tree-node schema/`TNO_ACTIVE`+`TNO_DEFAULT` metadata, and related projections.
+
+### Changed
+
+- **i18n**: Literal CSV import/export via JPA; greenfield `VARCHAR(4000)` columns with `18_literal_translations_varchar` upgrade safety. `TaskType` uses `I18nListener`; request-scoped preload resolves `@I18n` for the request language; task/availability projections expose localized `typeTitle` / `taskTypeTitle`.
+- **Client profile** / **Proxy**: Catalog filtering uses `visible`; `isRadio` omitted on non-folders; services may include locale-resolved `title`/`description`. `POST /api/config/proxy` reads Bearer only (`id_token` removed). Application list no longer injects `config.mbtilesUrl`.
+- **Tree nodes** / **Projections**: `TreeRadioTypePolicy` for cartography-to-non-cartography type changes; availability projections expose `cartographyServiceId` / `taskTypeId` for admin navigation.
+- **Tests**: Integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON.
+
+### Fixed
+
+- **Trees** / **Tree nodes**: Greenfield/test `tree.type` code list includes `edition`/`touristic`; `normalizeActive` clears `active` on non-cartography-leaf nodes so profile `loadByDefault` stays false.
+- **Configuration**: `proxy` Configuration Parameter applies at runtime again (valid `STM_CONF.proxy` wins over env default); stored value is the normalized effective URL; create/save returns transient `warnings` ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
+- **Cartography** / **Applications** / **Proxy**: `@BatchSize` replaces multi-bag `@EntityGraph` on fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)); application–tree `@HandleBeforeLinkSave` accepts `Object` so non-tree association PUTs no longer type-mismatch; MBTiles proxy config sets `VIRTUAL_ROOT_ALL_NODES` before profile creation.
+- **Auth** / **Client config** / **LDAP** / **Database**: OIDC cookie lifetime aligned with JWT expiry for dual cookies; territory position POST requires `ROLE_USER` with ownership checks; LDAP bind reads `sitmun.authentication.ldap.username`; Liquibase realigns Hibernate generators above seeded PKs.
+- **Dashboard API**: Keyword-aware `/dashboard/applications` and `/dashboard/suggestions` query the database instead of the first in-memory page.
+- **Tests**: Embedded PNG for tree-node image POST; association PUT coverage; `DefaultLanguageChangeServiceIntegrationTest` transactional rollback.
+
+### Security
+
+- **Auth**: Dual session cookies (`viewer_access_token` / `admin_access_token`) replace legacy `access_token`; authenticate/logout/OIDC issue and clear the caller-scoped cookie via `X-SITMUN-Client: admin`. Mobile edition API surface restricted; proxy-config accepts viewer and `mobile_proxy_access` tokens, rejects `edition_access`.
+- **Authorization** / **Authentication**: Proxy config uses **401** for invalid/expired JWTs, **403** for resource denial, RFC 9457 **400** for bad proxy config; JWT processing fails closed (**401**/**503**/**500**) without falling through as public.
+- **Security**: Require `SITMUN_USER_SECRET` and `SITMUN_PROXY_MIDDLEWARE_SECRET` from the environment (min 32 chars); committed defaults removed.
+
 ## [1.2.7] - 2026-06-05
 
 ### Added
@@ -304,7 +338,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...HEAD
+[1.2.8]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...sitmun-backend-core/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...sitmun-backend-core/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.4...sitmun-backend-core/1.2.5

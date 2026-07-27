@@ -7,9 +7,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.json.JSONObject;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.style.CartographyStyle;
@@ -20,24 +28,24 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
-import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Isolation follows Spring TestContext guidance: keep the ApplicationContext cached, wrap each test
+ * in a transaction that rolls back, and do not use {@code @DirtiesContext} for DB cleanup. Fixtures
+ * are owned by this class; assertions never depend on Liquibase seed rows.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class TreeNodeResourceTest {
 
-  private static final String NON_PUBLIC_TREENODE_NAME = "Non-Tree Node";
-  private static final String PUBLIC_TREENODE_NAME = "Tree Node";
-  private static final String PUBLIC_TREE_NAME = "Tree";
-  private static final String NON_PUBLIC_TREE_NAME = "Non-Tree Name";
   @Autowired TreeRepository treeRepository;
   @Autowired TreeNodeRepository treeNodeRepository;
   @Autowired CartographyRepository cartographyRepository;
@@ -46,43 +54,36 @@ class TreeNodeResourceTest {
   @Autowired ServiceRepository serviceRepository;
   @Autowired private MockMvc mvc;
 
-  private CartographyStyle style;
-  private ArrayList<Tree> trees;
-  private ArrayList<TreeNode> nodes;
-
+  private List<Tree> trees;
+  private List<TreeNode> nodes;
   private Cartography cartography;
-
-  private Set<Role> availableRoles;
-
-  private Service service;
 
   @BeforeEach
   void init() {
+    String suffix = UUID.randomUUID().toString().substring(0, 8);
     nodes = new ArrayList<>();
-    Role publicRole = Role.builder().name("USUARIO_PUBLICO_TEST").build();
-    roleRepository.save(publicRole);
-
-    availableRoles = new HashSet<>();
-    availableRoles.add(publicRole);
-
     trees = new ArrayList<>();
 
+    Role publicRole = Role.builder().name("USUARIO_PUBLICO_TEST-" + suffix).build();
+    roleRepository.save(publicRole);
+    Set<Role> availableRoles = new HashSet<>();
+    availableRoles.add(publicRole);
+
     Tree publicTree = new Tree();
-    publicTree.setName(PUBLIC_TREE_NAME);
+    publicTree.setName("Tree-" + suffix);
     treeRepository.save(publicTree);
     trees.add(publicTree);
-
     publicTree.getAvailableRoles().addAll(availableRoles);
     treeRepository.save(publicTree);
 
     Tree tree = new Tree();
-    tree.setName(NON_PUBLIC_TREE_NAME);
+    tree.setName("Non-Tree-" + suffix);
     treeRepository.save(tree);
     trees.add(tree);
 
-    service =
+    Service service =
         Service.builder()
-            .name("Service")
+            .name("Service-" + suffix)
             .serviceURL("http://localhost/api/services/1")
             .type("service-type")
             .blocked(false)
@@ -92,7 +93,7 @@ class TreeNodeResourceTest {
     cartography =
         Cartography.builder()
             .type("I")
-            .name("Carto")
+            .name("Carto-" + suffix)
             .layers(List.of("Layer 1", "Layer 2"))
             .queryableFeatureAvailable(false)
             .queryableFeatureEnabled(false)
@@ -102,36 +103,25 @@ class TreeNodeResourceTest {
             .build();
     cartography = cartographyRepository.save(cartography);
 
-    style =
+    cartographyStyleRepository.save(
         CartographyStyle.builder()
             .name("Style D")
             .cartography(cartography)
             .defaultStyle(true)
-            .build();
-    cartographyStyleRepository.save(style);
+            .build());
 
     TreeNode treeNode1 = new TreeNode();
-    treeNode1.setName(NON_PUBLIC_TREENODE_NAME);
+    treeNode1.setName("Non-Tree Node-" + suffix);
     treeNode1.setCartography(cartography);
     treeNode1.setTree(tree);
     nodes.add(treeNode1);
 
     TreeNode treeNode2 = new TreeNode();
-    treeNode2.setName(PUBLIC_TREENODE_NAME);
+    treeNode2.setName("Tree Node-" + suffix);
     treeNode2.setTree(publicTree);
-
     nodes.add(treeNode2);
-    treeNodeRepository.saveAll(nodes);
-  }
 
-  @AfterEach
-  void cleanup() {
-    treeNodeRepository.deleteAll(nodes);
-    cartographyStyleRepository.delete(style);
-    cartographyRepository.delete(cartography);
-    serviceRepository.delete(service);
-    treeRepository.deleteAll(trees);
-    roleRepository.deleteAll(availableRoles);
+    treeNodeRepository.saveAll(nodes);
   }
 
   @DisplayName("POST: Tree nodes cannot be created with non existent styles")
@@ -169,11 +159,7 @@ class TreeNodeResourceTest {
   @Test
   @DisplayName("GET: Find nodes based on a list of trees")
   void findNodesBasedOnTreeList() {
-    List<Role> roles =
-        roleRepository.findRolesByApplicationAndUserAndTerritory(
-            SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
-    List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
-    List<TreeNode> nodesFound = treeNodeRepository.findByTrees(tr);
-    assertThat(nodesFound).hasSize(14);
+    List<TreeNode> nodesFound = treeNodeRepository.findByTrees(trees);
+    assertThat(nodesFound).containsExactlyInAnyOrderElementsOf(nodes);
   }
 }

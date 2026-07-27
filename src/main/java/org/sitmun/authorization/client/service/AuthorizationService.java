@@ -6,6 +6,7 @@ import static org.sitmun.infrastructure.security.core.SecurityRole.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
-import org.sitmun.domain.background.Background;
+import org.sitmun.domain.application.tree.ApplicationTreeRepository;
 import org.sitmun.domain.background.BackgroundRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyBlockPolicy;
@@ -39,7 +40,6 @@ import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.tree.Tree;
-import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationService;
@@ -57,9 +57,9 @@ public class AuthorizationService {
   // TODO: Fix cartesian product via @EntityGraph on multiple collections.
   //   Fixed in 29cdef6f, 6dcb5bbd: replaced @EntityGraph with @BatchSize in
   //   CartographyPermission and CartographyPermissionRepository.
+  //   Fixed for CartographyRepository.findById: multi-bag EntityGraph removed; bags use @BatchSize.
   //   Other locations are still potentially affected, ex.:
-  //   - TreeRepository.findByAppAndRoles          (availableRoles + availableApplications)
-  //   - CartographyRepository.findById            (permissions, availabilities, styles, filters…)
+  //   - ApplicationTreeRepository.findByAppAndRoles (tree.availableRoles)
   //   - CartographyRepository.findAll             (service, styles…)
   //   - TaskRepository.findByRolesAndTerritory    (roles, ui, type)
 
@@ -71,7 +71,7 @@ public class AuthorizationService {
   private final CartographyRepository cartographyRepository;
   private final ConfigurationParameterRepository configurationParameterRepository;
   private final TaskRepository taskRepository;
-  private final TreeRepository treeRepository;
+  private final ApplicationTreeRepository applicationTreeRepository;
   private final TreeNodeRepository treeNodeRepository;
   private final TranslationService translationService;
   private final UserApplicationAccessPolicy userApplicationAccessPolicy;
@@ -85,7 +85,7 @@ public class AuthorizationService {
       CartographyRepository cartographyRepository,
       TaskRepository taskRepository,
       BackgroundRepository backgroundRepository,
-      TreeRepository treeRepository,
+      ApplicationTreeRepository applicationTreeRepository,
       TreeNodeRepository treeNodeRepository,
       TranslationService translationService,
       UserApplicationAccessPolicy userApplicationAccessPolicy) {
@@ -97,7 +97,7 @@ public class AuthorizationService {
     this.cartographyRepository = cartographyRepository;
     this.taskRepository = taskRepository;
     this.backgroundRepository = backgroundRepository;
-    this.treeRepository = treeRepository;
+    this.applicationTreeRepository = applicationTreeRepository;
     this.treeNodeRepository = treeNodeRepository;
     this.translationService = translationService;
     this.userApplicationAccessPolicy = userApplicationAccessPolicy;
@@ -143,6 +143,19 @@ public class AuthorizationService {
     return page;
   }
 
+  public Page<Application> findApplicationsByUser(
+      String username, String keywords, Pageable pageable) {
+    if (keywords == null || keywords.trim().length() < 2) {
+      return findApplicationsByUser(username, pageable);
+    }
+    String normalizedKeywords = keywords.trim();
+    if (isPublic() || isPublicPrincipal(username)) {
+      return applicationRepository.findByPublicUserAndKeywords(
+          username, normalizedKeywords, pageable);
+    }
+    return applicationRepository.findByUserAndKeywords(username, normalizedKeywords, pageable);
+  }
+
   /**
    * The list of territories for a user. The logic is as follows:
    *
@@ -165,6 +178,20 @@ public class AuthorizationService {
       page = territoryRepository.findByRestrictedUser(username, pageable);
     }
     return page;
+  }
+
+  public Page<Territory> findTerritoriesByUser(
+      String username, String keywords, Pageable pageable) {
+    if (keywords == null || keywords.trim().length() < 2) {
+      return findTerritoriesByUser(username, pageable);
+    }
+    String normalizedKeywords = keywords.trim();
+    if (isPublic() || isPublicPrincipal(username)) {
+      return territoryRepository.findByPublicUserAndKeywords(
+          username, normalizedKeywords, pageable);
+    }
+    return territoryRepository.findByRestrictedUserAndKeywords(
+        username, normalizedKeywords, pageable);
   }
 
   /**
@@ -287,35 +314,15 @@ public class AuthorizationService {
       return result;
     }
 
-    String normalizedKeywords = keywords.trim().toLowerCase();
+    String normalizedKeywords = keywords.trim();
 
-    // Find matching applications
     Pageable appPageable = PageRequest.of(0, maxResults);
-    Page<Application> apps = findApplicationsByUser(username, appPageable);
-    List<Application> filteredApps =
-        apps.getContent().stream()
-            .filter(
-                app -> {
-                  String title = (app.getTitle() != null ? app.getTitle() : app.getName());
-                  String description = app.getDescription();
-                  return (title != null && title.toLowerCase().contains(normalizedKeywords))
-                      || (description != null
-                          && description.toLowerCase().contains(normalizedKeywords));
-                })
-            .limit(maxResults)
-            .toList();
+    Page<Application> apps = findApplicationsByUser(username, normalizedKeywords, appPageable);
+    List<Application> filteredApps = apps.getContent();
 
-    // Find matching territories
     Pageable terrPageable = PageRequest.of(0, maxResults);
-    Page<Territory> terrs = findTerritoriesByUser(username, terrPageable);
-    List<Territory> filteredTerrs =
-        terrs.getContent().stream()
-            .filter(
-                terr ->
-                    terr.getName() != null
-                        && terr.getName().toLowerCase().contains(normalizedKeywords))
-            .limit(maxResults)
-            .toList();
+    Page<Territory> terrs = findTerritoriesByUser(username, normalizedKeywords, terrPageable);
+    List<Territory> filteredTerrs = terrs.getContent();
 
     result.put("applications", filteredApps);
     result.put("territories", filteredTerrs);
@@ -348,11 +355,15 @@ public class AuthorizationService {
             context.getUsername(), context.getAppId(), context.getTerritoryId());
     roles.forEach(translationService::updateInternationalization);
 
-    List<Background> backgrounds =
+    List<ApplicationBackgroundView> backgrounds =
         backgroundRepository.findActiveByApplication(context.getAppId()).stream()
-            .map(objects -> (Background) objects[1])
+            .map(
+                orderedBackground -> {
+                  translationService.updateInternationalization(orderedBackground.background());
+                  return ApplicationBackgroundView.of(
+                      orderedBackground.background(), orderedBackground.order());
+                })
             .toList();
-    backgrounds.forEach(translationService::updateInternationalization);
 
     List<CartographyPermission> cartographyPermissions =
         new ArrayList<>(
@@ -375,13 +386,16 @@ public class AuthorizationService {
     List<Task> tasks = findProfileTasks(roles, context.getTerritoryId());
     tasks.forEach(translationService::updateInternationalization);
 
-    List<Tree> trees = treeRepository.findByAppAndRoles(context.getAppId(), roles);
-    trees =
-        trees.stream()
-            .filter(t -> t.getAvailableRoles() != null)
-            .filter(t -> t.getAvailableApplications() != null)
+    List<ApplicationTreeView> treeViews =
+        applicationTreeRepository.findByAppAndRoles(context.getAppId(), roles).stream()
+            .map(orderedTree -> ApplicationTreeView.of(orderedTree.tree(), orderedTree.order()))
+            .filter(treeView -> treeView.getTree().getAvailableRoles() != null)
+            .filter(treeView -> treeView.getTree().getAvailableApplications() != null)
             .toList();
-    trees.forEach(translationService::updateInternationalization);
+    treeViews.forEach(
+        treeView -> translationService.updateInternationalization(treeView.getTree()));
+
+    List<Tree> trees = treeViews.stream().map(ApplicationTreeView::getTree).toList();
 
     List<TreeNode> nodes = treeNodeRepository.findByTrees(trees);
     nodes.forEach(translationService::updateInternationalization);
@@ -437,7 +451,7 @@ public class AuthorizationService {
             .layers(layers)
             .tasks(tasks)
             .services(filteredServices)
-            .trees(trees)
+            .trees(treeViews)
             .treeNodes(treeNodes)
             .context(context)
             .global(global)
@@ -510,11 +524,14 @@ public class AuthorizationService {
   }
 
   private boolean groupRetainedInClientProfile(
-      CartographyPermission permission, List<Background> backgrounds, Integer situationMapId) {
+      CartographyPermission permission,
+      List<ApplicationBackgroundView> backgrounds,
+      Integer situationMapId) {
     boolean belongsToBackground =
         backgrounds.stream()
-            .flatMap(background -> Optional.ofNullable(background.getCartographyGroup()).stream())
-            .anyMatch(group -> Objects.equals(group.getId(), permission.getId()));
+            .map(ApplicationBackgroundView::getGroupId)
+            .filter(Objects::nonNull)
+            .anyMatch(groupId -> Objects.equals(groupId, permission.getId()));
     boolean isSituationMap = Objects.equals(permission.getId(), situationMapId);
     boolean retained = belongsToBackground || isSituationMap;
     log.info(
@@ -576,8 +593,10 @@ public class AuthorizationService {
       }
     }
 
-    List<Tree> treesAfterPivot =
-        profile.getTrees().stream().filter(tree -> treeHasAnyNodes(tree, treeNodes)).toList();
+    List<ApplicationTreeView> treesAfterPivot =
+        profile.getTrees().stream()
+            .filter(treeView -> treeHasAnyNodes(treeView.getTree(), treeNodes))
+            .toList();
 
     // Prune cartography layers that either:
     // - Do not belong to a node
@@ -610,13 +629,7 @@ public class AuthorizationService {
 
     Set<Integer> backgroundLayerIds =
         profile.getBackgrounds().stream()
-            .flatMap(
-                background ->
-                    Optional.ofNullable(background.getCartographyGroup())
-                        .map(CartographyPermission::getMembers)
-                        .orElseGet(Collections::emptySet)
-                        .stream())
-            .map(Cartography::getId)
+            .flatMap(applicationBackground -> applicationBackground.getLayerIds().stream())
             .collect(Collectors.toUnmodifiableSet());
 
     List<Cartography> layersFiltered =
@@ -646,8 +659,15 @@ public class AuthorizationService {
                     .filter(node -> treeNodeCartographyStillInProfile(node, remainingLayerIds))
                     .toList()));
 
-    List<Tree> treesFiltered =
-        treesAfterPivot.stream().filter(tree -> treeHasAnyNodes(tree, treeNodesFiltered)).toList();
+    List<ApplicationTreeView> treesFiltered =
+        treesAfterPivot.stream()
+            .filter(treeView -> treeHasAnyNodes(treeView.getTree(), treeNodesFiltered))
+            .sorted(
+                Comparator.comparing(
+                        ApplicationTreeView::getOrder,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(treeView -> treeView.getTree().getId()))
+            .toList();
 
     List<CartographyPermission> groupsWithFilteredMembers =
         profile.getGroups().stream()

@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import jakarta.validation.constraints.NotNull;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
@@ -11,9 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RepositoryEventHandler
 public class UserEventHandler {
-
-  private static final String BUILT_IN_ADMIN_USERNAME = "admin";
-  private static final String BUILT_IN_PUBLIC_USERNAME = "public";
 
   static final String PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty";
 
@@ -32,22 +30,15 @@ public class UserEventHandler {
    * @return true if the user is the built-in admin
    */
   private boolean isBuiltInAdmin(User user) {
-    return user != null && BUILT_IN_ADMIN_USERNAME.equals(user.getUsername());
+    return user != null && SecurityConstants.isBuiltInAdminPrincipal(user.getUsername());
   }
 
-  /**
-   * Check if a user is the built-in public user.
-   *
-   * @param user the user to check
-   * @return true if the user is the built-in public user
-   */
   private boolean isBuiltInPublic(User user) {
-    return user != null && BUILT_IN_PUBLIC_USERNAME.equals(user.getUsername());
+    return user != null && SecurityConstants.isPublicPrincipal(user.getUsername());
   }
 
   /**
-   * If the password is null or empty, this method sets the password null, and otherwise encodes
-   * its.
+   * If the password is null or empty, this method sets the password null, and otherwise encodes it.
    *
    * @param user the new user
    */
@@ -75,7 +66,7 @@ public class UserEventHandler {
       User originalUser = userRepository.findById(user.getId()).orElse(null);
       if (isBuiltInAdmin(originalUser)) {
         // Prevent username change
-        if (!BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
+        if (!SecurityConstants.BUILT_IN_ADMIN_PRINCIPAL.equals(user.getUsername())) {
           throw new IllegalArgumentException("Cannot change username of built-in admin user");
         }
         // Prevent blocking
@@ -91,7 +82,7 @@ public class UserEventHandler {
       // Protect built-in public user invariants
       if (isBuiltInPublic(originalUser)) {
         // Prevent username change
-        if (!BUILT_IN_PUBLIC_USERNAME.equals(user.getUsername())) {
+        if (!SecurityConstants.PUBLIC_PRINCIPAL.equals(user.getUsername())) {
           throw new IllegalArgumentException("Cannot change username of built-in public user");
         }
         // Prevent promotion to administrator

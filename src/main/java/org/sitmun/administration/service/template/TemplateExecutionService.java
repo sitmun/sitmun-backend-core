@@ -3,129 +3,110 @@ package org.sitmun.administration.service.template;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Credentials;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
+import org.sitmun.administration.controller.dto.MapImageRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
-import org.sitmun.administration.service.database.DatabaseConnectionService;
-import org.sitmun.administration.service.database.tester.DatabaseSQLException;
-import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.administration.service.mapimage.MapImageBboxValidator;
 import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
-import org.sitmun.authorization.client.service.AuthorizationService;
-import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
-import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
-import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
-import org.sitmun.authorization.proxy.exception.BadRequestException;
-import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
-import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
-import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
+import org.sitmun.administration.service.template.childdata.ChildDataOutcome;
+import org.sitmun.administration.service.template.childdata.ChildDataRequest;
+import org.sitmun.administration.service.template.childdata.ChildDataResult;
+import org.sitmun.administration.service.template.childdata.PrincipalKind;
+import org.sitmun.administration.service.template.childdata.TemplateChildDataService;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.domain.DomainConstants;
-import org.sitmun.domain.database.DatabaseConnection;
+import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
-import org.sitmun.infrastructure.security.core.SecurityRole;
-import org.sitmun.infrastructure.variables.SystemVariableResolver;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateExecutionService {
 
-  private static final String TEMPLATE_TASK_ID_ATTRIBUTE = "data-mia-template-task-id";
-
-  private static final String BINARY_VALUE_PLACEHOLDER = "[contenido binario]";
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
-  private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX = "Template nesting depth exceeded";
-  private static final String NO_DATA_LITERAL = "Sense dades";
-  private static final double MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE = 150d;
-  private static final double MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE = 0.0015d;
+  private static final String TEMPLATE_TASK_ID_ATTRIBUTE = "data-mia-template-task-id";
+  private static final String MAP_IMAGE_FEATURE_BBOX_SIZE = "__featureBboxSize";
   private static final int DEFAULT_MAP_IMAGE_WIDTH = 1024;
   private static final int DEFAULT_MAP_IMAGE_HEIGHT = 768;
-  private static final Pattern REFERENCE_ALIAS_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
-  private static final Pattern URI_TEMPLATE_PARAMETER_PATTERN = Pattern.compile("\\{([^/{}]+)}");
+  private static final double MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE = 0.0001d;
+  private static final double MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE = 1d;
   private static final Pattern FULL_HTML_DOCUMENT_PATTERN =
       Pattern.compile("(?is)<\\s*html(?:\\s|>)|<!doctype(?:\\s|>)");
-  private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {
-  };
-  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE = new TypeReference<>() {
-  };
-  public static final String TEMPLATE_CHILD_TASK_PARAMETERS = "templateChildTaskParameters";
-  public static final String PARAMETERS = "parameters";
-  public static final String CHILD_TASK_PARAMETERS = "childTaskParameters";
-  public static final String VALUE = "value";
-  public static final String DIV_CLOSING_TAG = "</div>";
-  public static final String TEMPLATE = "template";
-  public static final String TABLE = "table";
-  public static final String COMPLETED = "COMPLETED";
-  public static final String ORDER = "order";
-  public static final String SCROLL = "scroll";
-  private static final String MAP_IMAGE_FEATURE_BBOX_SIZE = "__featureBboxSize";
-  private static final List<String> MAP_IMAGE_FEATURE_BBOX_PARAMETER_KEYS = List.of(
-      "featureBboxMinX",
-      "featureBboxMinY",
-      "featureBboxMaxX",
-      "featureBboxMaxY",
-      MAP_IMAGE_FEATURE_BBOX_SIZE);
+  private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX =
+      "Template nesting depth exceeded";
+  private static final String NO_DATA_LITERAL = "No data";
+  private static final String ERROR_EXECUTING_TASK_LITERAL = "Error executing task";
+  private static final String CONSULTA_LITERAL = "Query";
+  private static final String INVALID_CHILD_TASK_ID_LITERAL = "Invalid child task id";
+  private static final Pattern REFERENCE_ALIAS_PATTERN =
+      Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+  private static final TypeReference<List<Object>> ARRAY_TYPE_REFERENCE = new TypeReference<>() {};
+  private static final TypeReference<Map<String, Object>> OBJECT_TYPE_REFERENCE =
+      new TypeReference<>() {};
+  private static final String TEMPLATE_CHILD_TASK_PARAMETERS = "templateChildTaskParameters";
+  private static final String PARAMETERS = "parameters";
+  private static final String CHILD_TASK_PARAMETERS = "childTaskParameters";
+  private static final String VALUE = "value";
+  private static final String TEMPLATE = "template";
+  private static final String TABLE = "table";
+  private static final String COMPLETED = "COMPLETED";
+  private static final String ORDER = "order";
+  private static final String SCROLL = "scroll";
 
   private final TaskRepository taskRepository;
+  private final RoleRepository roleRepository;
   private final TaskRelationRepository taskRelationRepository;
-  private final ProxyConfigurationService proxyConfigurationService;
-  private final DatabaseConnectionService databaseConnectionService;
-  private final HttpClientFactory httpClientFactory;
-  private final MapImageTaskExecutionService mapImageTaskExecutionService;
-  private final SystemVariableResolver systemVariableResolver;
   private final TemplateRenderService templateRenderService;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
-  private final AuthorizationService authorizationService;
-
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
+  private final TemplateChildDataService templateChildDataService;
+  private final LiteralTranslationResolver literalTranslationResolver;
+  private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
+  private final MiaHtmlRenderer miaHtmlRenderer;
+  private final MapImageTaskExecutionService mapImageTaskExecutionService;
   private final ObjectMapper objectMapper;
 
   public TemplateTaskExecutionResponseDto executeLinkedTask(
       TemplateTaskExecutionRequestDto requestDto) {
-    Task task = taskRepository
-        .findById(requestDto.getLinkedTaskId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    Task task =
+        taskRepository
+            .findById(requestDto.getLinkedTaskId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     Integer rootTemplateTaskId = requestDto.getTemplateTaskId();
     if (rootTemplateTaskId == null
@@ -135,12 +116,16 @@ public class TemplateExecutionService {
       rootTemplateTaskId = task.getId();
     }
 
-    RequestCoordinates coordinates = templateRequestCoordinatesService.build(rootTemplateTaskId);
-    Map<String, Map<String, Object>> childTaskParameters = requestDto.getChildTaskParameters() == null
-        ? Collections.emptyMap()
-        : requestDto.getChildTaskParameters();
+    RequestCoordinates coordinates =
+        requestDto.getAppId() != null && requestDto.getTerId() != null
+            ? templateRequestCoordinatesService.build(requestDto.getAppId(), requestDto.getTerId())
+            : templateRequestCoordinatesService.buildForCurrentUser();
+    Map<String, Map<String, Object>> childTaskParameters =
+        requestDto.getChildTaskParameters() == null
+            ? Collections.emptyMap()
+            : requestDto.getChildTaskParameters();
 
-    if (!mayAccessTask(task, coordinates)) {
+    if (!mayAccessTask(task, coordinates, true)) {
       return buildNoDataExecutionResponse(task);
     }
 
@@ -151,7 +136,8 @@ public class TemplateExecutionService {
         rootTemplateTaskId,
         coordinates,
         0,
-        false);
+        false,
+        true);
   }
 
   private TemplateTaskExecutionResponseDto buildNoDataExecutionResponse(Task task) {
@@ -165,82 +151,66 @@ public class TemplateExecutionService {
         .build();
   }
 
-  @Transactional(readOnly = true, noRollbackFor = ResponseStatusException.class)
+  @Transactional(readOnly = true)
   public MoreInfoAdvancedRenderResponseDto renderMoreInfoAdvanced(
-      MoreInfoAdvancedRenderRequestDto requestDto) {
-    List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
-    List<Integer> miaTaskIds = requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
-    Map<String, Object> featureParameters = buildViewerParameters(requestDto);
-    Set<Integer> accessibleTaskIds = resolveAccessibleTaskIds(requestDto);
-    RequestCoordinates profileCoordinates =
-        requestDto.getApplicationId() != null && requestDto.getTerritoryId() != null
-            ? templateRequestCoordinatesService.buildForProfile(
-                requestDto.getApplicationId(), requestDto.getTerritoryId())
-            : null;
+      MoreInfoAdvancedRenderRequestDto requestDto, String language) {
+    RequestCoordinates coordinates =
+        templateRequestCoordinatesService.build(requestDto.getAppId(), requestDto.getTerId());
+    String username = resolveAuthorizedUsername(coordinates);
+    if (userApplicationAccessPolicy.isPrivateAppDeniedForPublic(username, requestDto.getAppId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
 
+    List<Integer> miaTaskIds =
+        requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
+    Map<String, Object> featureParameters = buildViewerParameters(requestDto);
+
+    List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
     for (Integer miaTaskId : miaTaskIds) {
-      if (accessibleTaskIds != null && !accessibleTaskIds.contains(miaTaskId)) {
-        throw new AccessDeniedException("Access denied to task " + miaTaskId);
+      Task miaTask =
+          taskRepository
+              .findById(miaTaskId)
+              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+      if (!DomainConstants.Tasks.isMoreInfoAdvancedTask(miaTask)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task is not a MIA task");
+      }
+      if (!mayAccessTask(miaTask, coordinates, false)) {
+        if (miaTaskIds.size() == 1) {
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        continue;
       }
       renderedTasks.add(
-          renderSingleMoreInfoAdvancedTask(
-              miaTaskId, featureParameters, profileCoordinates, accessibleTaskIds));
+          renderSingleMoreInfoAdvancedTask(miaTask, featureParameters, coordinates, language));
+    }
+    if (renderedTasks.isEmpty() && !miaTaskIds.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
     return MoreInfoAdvancedRenderResponseDto.builder().tasks(renderedTasks).build();
   }
 
-  private Set<Integer> resolveAccessibleTaskIds(MoreInfoAdvancedRenderRequestDto requestDto) {
-    if (SecurityRole.isAdmin() || !currentUserIsAuthenticated()) {
-      return null;
-    }
-    if (requestDto.getApplicationId() == null || requestDto.getTerritoryId() == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "applicationId and territoryId are required");
-    }
-    String username = resolveAuthorizedUsername(null);
-    if (!StringUtils.hasText(username)) {
-      throw new AccessDeniedException("Authenticated user is required");
-    }
-    return authorizationService
-        .findTasksByUserApplicationAndTerritory(
-            username, requestDto.getApplicationId(), requestDto.getTerritoryId())
-        .stream()
-        .map(Task::getId)
-        .collect(Collectors.toSet());
-  }
-
   private MoreInfoAdvancedRenderedTaskDto renderSingleMoreInfoAdvancedTask(
-      Integer miaTaskId,
+      Task miaTask,
       Map<String, Object> featureParameters,
-      RequestCoordinates requestProfileCoordinates,
-      Set<Integer> accessibleTaskIds) {
-    Task miaTask = taskRepository
-        .findById(miaTaskId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-    if (!DomainConstants.Tasks.isMoreInfoAdvancedTask(miaTask)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task is not a MIA task");
-    }
-
-    Map<String, Object> properties = miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+      RequestCoordinates coordinates,
+      String language) {
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
     Map<String, Object> miaParameters = convertBasicParameters(properties);
-    String visualizationMode = SCROLL.equals(miaParameters.get("visualizationMode"))
-        || SCROLL.equals(properties.get("parentLayout"))
+    String visualizationMode =
+        SCROLL.equals(miaParameters.get("visualizationMode"))
+                || SCROLL.equals(properties.get("parentLayout"))
             ? SCROLL
             : "tabs";
-    List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
-    List<Map<String, Object>> renderableTasks = filterRenderableMiaChildren(includedTasks);
-    RequestCoordinates coordinates =
-        requestProfileCoordinates != null
-            ? requestProfileCoordinates
-            : templateRequestCoordinatesService.build(miaTask.getId());
-    MiaRenderContext renderContext =
-        new MiaRenderContext(featureParameters, coordinates, accessibleTaskIds);
+    List<Map<String, Object>> includedTasks =
+        filterRenderableMiaChildren(readIncludedTasks(miaTask, miaParameters));
 
-    String html = "tabs".equals(visualizationMode)
-        ? renderMiaChildrenAsTabs(miaTask, renderableTasks, renderContext)
-        : renderMiaChildrenAsScroll(renderableTasks, renderContext);
+    String html =
+        "tabs".equals(visualizationMode)
+            ? renderMiaChildrenAsTabs(
+                miaTask, includedTasks, featureParameters, coordinates, language)
+            : renderMiaChildrenAsScroll(includedTasks, featureParameters, coordinates, language);
 
     return MoreInfoAdvancedRenderedTaskDto.builder()
         .taskId(miaTask.getId())
@@ -252,141 +222,119 @@ public class TemplateExecutionService {
   private String renderMiaChildrenAsTabs(
       Task miaTask,
       List<Map<String, Object>> includedTasks,
-      MiaRenderContext renderContext) {
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates,
+      String language) {
     String renderId = "mia-backend-" + miaTask.getId();
-    StringBuilder tabs = new StringBuilder();
-    StringBuilder panels = new StringBuilder();
-
+    List<MiaPanelView> panels = new ArrayList<>(includedTasks.size());
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
-      String panelId = renderId + "-" + index;
-      String active = index == 0 ? " sitmun-mia-tab-active" : "";
-      String hidden = index == 0 ? "" : " style=\"display:none\"";
-      tabs.append("<button class=\"sitmun-mia-tab")
-          .append(active)
-          .append("\" data-mia-tab=\"")
-          .append(panelId)
-          .append("\">")
-          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
-          .append("</button>");
-      panels
-          .append("<div class=\"sitmun-mia-tab-panel\" data-mia-panel=\"")
-          .append(panelId)
-          .append("\"")
-          .append(hidden)
-          .append(">")
-          .append(
-              renderMiaChild(childDefinition, renderContext))
-          .append(DIV_CLOSING_TAG);
+      panels.add(
+          new MiaPanelView(
+              renderId + "-" + index,
+              resolveChildTitle(childDefinition, index, language),
+              renderMiaChild(childDefinition, featureParameters, coordinates, language),
+              index == 0));
     }
-
-    return "<div class=\"sitmun-mia-tabs-bar\" data-mia-tabs=\""
-        + renderId
-        + "\">"
-        + tabs
-        + "</div><div class=\"sitmun-mia-body\">"
-        + panels
-        + DIV_CLOSING_TAG;
+    return miaHtmlRenderer.tabs(renderId, panels);
   }
 
   private String renderMiaChildrenAsScroll(
-      List<Map<String, Object>> includedTasks, MiaRenderContext renderContext) {
-    StringBuilder sections = new StringBuilder();
+      List<Map<String, Object>> includedTasks,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates,
+      String language) {
+    List<MiaPanelView> panels = new ArrayList<>(includedTasks.size());
     for (int index = 0; index < includedTasks.size(); index++) {
       Map<String, Object> childDefinition = includedTasks.get(index);
-      sections
-          .append(
-              "<div class=\"sitmun-mia-scroll-section\"><div class=\"sitmun-mia-section-title\">")
-          .append(escapeHtml(resolveChildTitle(childDefinition, index)))
-          .append(DIV_CLOSING_TAG)
-          .append(
-              renderMiaChild(childDefinition, renderContext))
-          .append(DIV_CLOSING_TAG);
+      panels.add(
+          new MiaPanelView(
+              "scroll-" + index,
+              resolveChildTitle(childDefinition, index, language),
+              renderMiaChild(childDefinition, featureParameters, coordinates, language),
+              index == 0));
     }
-    return "<div class=\"sitmun-mia-body sitmun-mia-scroll-body\">" + sections + DIV_CLOSING_TAG;
+    return miaHtmlRenderer.scroll(panels);
   }
 
-  @SuppressWarnings("unchecked")
-  private String renderMiaChild(Map<String, Object> childDefinition, MiaRenderContext renderContext) {
+  private String renderMiaChild(
+      Map<String, Object> childDefinition,
+      Map<String, Object> featureParameters,
+      RequestCoordinates coordinates,
+      String language) {
     Integer childTaskId = parseTaskId(childDefinition.get("id"));
     if (childTaskId == null) {
-      return "<div class=\"sitmun-mia-error\">Invalid child task id</div>";
+      return miaHtmlRenderer.invalidChildTaskId(
+          resolveLiteral(INVALID_CHILD_TASK_ID_LITERAL, language));
     }
 
-    Task childTask = taskRepository
-        .findById(childTaskId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    if ((renderContext.accessibleTaskIds() != null
-            && !renderContext.accessibleTaskIds().contains(childTaskId))
-        || (renderContext.accessibleTaskIds() == null
-            && !mayAccessTask(childTask, renderContext.coordinates()))) {
-      return renderNoDataHtml();
+    Task childTask =
+        taskRepository
+            .findById(childTaskId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    if (!mayAccessTask(childTask, coordinates, false)) {
+      return renderNoDataHtml(language);
     }
-    Map<String, Object> resolvedChildParameters = resolveMappedParameters(
-        childDefinition.get(PARAMETERS), renderContext.featureParameters());
+    Map<String, Object> resolvedChildParameters =
+        resolveMappedParameters(childDefinition.get(PARAMETERS), featureParameters);
     if (resolvedChildParameters.isEmpty()) {
       resolvedChildParameters =
-          resolveMappedParameters(
-              readMiaChildParameterMappings(childTask), renderContext.featureParameters());
+          resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters);
     }
-    enrichMapImageViewerContextParameters(
-        childTask, resolvedChildParameters, renderContext.featureParameters());
+    enrichMapImageViewerContextParameters(childTask, resolvedChildParameters, featureParameters);
     Map<String, String> childParameters = stringifyParameters(resolvedChildParameters);
-    Map<String, Map<String, Object>> childTaskParameters = new LinkedHashMap<>(
-        resolveMappedChildTaskParameters(
-            childDefinition.get(CHILD_TASK_PARAMETERS), renderContext.featureParameters()));
-    Integer rootTemplateTaskId = childTask.getType() != null
-        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-            .equals(childTask.getType().getId())
-                ? childTask.getId()
-                : null;
+    Map<String, Map<String, Object>> childTaskParameters =
+        new LinkedHashMap<>(
+            resolveMappedChildTaskParameters(
+                childDefinition.get(CHILD_TASK_PARAMETERS), featureParameters));
+    Integer rootTemplateTaskId =
+        childTask.getType() != null
+                && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                    .equals(childTask.getType().getId())
+            ? childTask.getId()
+            : null;
     if (rootTemplateTaskId != null) {
       mergeMappedTemplateChildTaskParameters(
           childTaskParameters,
           childDefinition.get(TEMPLATE_CHILD_TASK_PARAMETERS),
           rootTemplateTaskId,
-          renderContext.featureParameters());
-      enrichTemplateChildTaskParameters(
-          childTask, childTaskParameters, renderContext.featureParameters(), 0);
+          featureParameters);
+      enrichTemplateChildTaskParameters(childTask, childTaskParameters, featureParameters, 0);
     }
     TemplateTaskExecutionResponseDto result;
     boolean isTemplateChild = rootTemplateTaskId != null;
     try {
-      result = executeTask(
-          childTask,
-          childParameters,
-          childTaskParameters,
-        rootTemplateTaskId,
-        renderContext.coordinates(),
-          0,
-          isTemplateChild);
+      result =
+          executeTask(
+              childTask,
+              childParameters,
+              childTaskParameters,
+              rootTemplateTaskId,
+              coordinates,
+              0,
+              isTemplateChild,
+              false);
     } catch (ResponseStatusException exception) {
       if (isTemplateChild || isTemplateNestingDepthExceeded(exception)) {
         throw exception;
       }
-      String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
-      return "<div class=\"sitmun-mia-error\">Error ejecutando tarea: "
-          + escapeHtml(taskName)
-          + DIV_CLOSING_TAG;
+      String taskName =
+          childTask.getName() != null ? childTask.getName() : String.valueOf(childTaskId);
+      return miaHtmlRenderer.executionError(
+          resolveLiteral(ERROR_EXECUTING_TASK_LITERAL, language), taskName);
     }
 
     if (TEMPLATE.equals(result.getResultType())) {
       Object html = result.getContext() != null ? result.getContext().get("html") : null;
-      String content = html == null ? "" : String.valueOf(html);
-      return wrapWithDownloadAnnotation(content, childTaskId);
+      return wrapWithDownloadAnnotation(html == null ? "" : String.valueOf(html), childTaskId);
     }
     if (TABLE.equals(result.getResultType())) {
-      return renderRowsAsTable(result.getRows());
+      return renderRowsAsTable(result.getRows(), language);
     }
     if (result.getResourceUrl() != null) {
-      String url = escapeHtml(result.getResourceUrl());
-      return "<a href=\""
-          + url
-          + "\" target=\"_blank\" rel=\"noopener noreferrer\">"
-          + url
-          + "</a>";
+      return miaHtmlRenderer.link(result.getResourceUrl());
     }
-    return renderNoDataHtml();
+    return renderNoDataHtml(language);
   }
 
   private void enrichTemplateChildTaskParameters(
@@ -396,24 +344,90 @@ public class TemplateExecutionService {
       int depth) {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(templateTask.getId());
     for (TaskRelation relation : relations) {
-      if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
+      if (!List.of(
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_TASK,
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_NESTED)
+          .contains(relation.getRelationType())) {
         continue;
       }
       Task relatedTask = relation.getRelatedTask();
-      Map<String, Object> resolvedParameters = resolveMappedParameters(readMiaChildParameterMappings(relatedTask),
-          featureParameters);
+      Map<String, Object> resolvedParameters =
+          resolveMappedParameters(readMiaChildParameterMappings(relatedTask), featureParameters);
       enrichMapImageViewerContextParameters(relatedTask, resolvedParameters, featureParameters);
       if (!resolvedParameters.isEmpty()) {
-        Map<String, Object> existingParameters = childTaskParameters.computeIfAbsent(
-            String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
+        Map<String, Object> existingParameters =
+            childTaskParameters.computeIfAbsent(
+                String.valueOf(relatedTask.getId()), ignored -> new LinkedHashMap<>());
         resolvedParameters.forEach(existingParameters::putIfAbsent);
       }
-      if (DomainConstants.Tasks.isTemplateTask(relatedTask)
-          && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
+      if (isTemplateTask(relatedTask) && depth + 1 < MAX_TEMPLATE_NESTING_LEVEL) {
         enrichTemplateChildTaskParameters(
             relatedTask, childTaskParameters, featureParameters, depth + 1);
       }
     }
+  }
+
+  Map<String, Object> buildViewerParameters(MoreInfoAdvancedRenderRequestDto requestDto) {
+    Map<String, Object> viewerParameters = new LinkedHashMap<>();
+    if (requestDto.getParameters() != null) {
+      viewerParameters.putAll(requestDto.getParameters());
+    }
+    if (requestDto.getFeatureBbox() != null) {
+      List<Double> bbox = requestDto.getFeatureBbox();
+      viewerParameters.put(MAP_IMAGE_FEATURE_BBOX_SIZE, bbox.size());
+      if (bbox.size() >= 4) {
+        viewerParameters.put("featureBboxMinX", bbox.get(0));
+        viewerParameters.put("featureBboxMinY", bbox.get(1));
+        viewerParameters.put("featureBboxMaxX", bbox.get(2));
+        viewerParameters.put("featureBboxMaxY", bbox.get(3));
+      }
+    }
+    return viewerParameters;
+  }
+
+  private void enrichMapImageViewerContextParameters(
+      Task task, Map<String, Object> parameters, Map<String, Object> featureParameters) {
+    if (!DomainConstants.Tasks.isMapImageTask(task)) {
+      return;
+    }
+    List.of(
+            "featureBboxMinX",
+            "featureBboxMinY",
+            "featureBboxMaxX",
+            "featureBboxMaxY",
+            MAP_IMAGE_FEATURE_BBOX_SIZE)
+        .forEach(
+            key -> {
+              Object value = featureParameters.get(key);
+              if (value != null) {
+                parameters.putIfAbsent(key, value);
+              }
+            });
+  }
+
+  private List<Map<String, Object>> filterRenderableMiaChildren(
+      List<Map<String, Object>> includedTasks) {
+    return includedTasks.stream()
+        .filter(childDefinition -> !"documentExport".equals(resolveMiaChildType(childDefinition)))
+        .toList();
+  }
+
+  private String resolveMiaChildType(Map<String, Object> childDefinition) {
+    Object explicitType = childDefinition.get("childType");
+    if (explicitType != null && "documentExport".equals(String.valueOf(explicitType))) {
+      return "documentExport";
+    }
+    Integer taskId = parseTaskId(childDefinition.get("id"));
+    return taskId == null
+        ? "query"
+        : taskRepository
+            .findById(taskId)
+            .map(
+                task ->
+                    DomainConstants.Tasks.isDocumentExportTask(task)
+                        ? "documentExport"
+                        : "query")
+            .orElse("query");
   }
 
   private void mergeMappedTemplateChildTaskParameters(
@@ -421,13 +435,14 @@ public class TemplateExecutionService {
       Object rawTemplateChildTaskParameters,
       Integer templateTaskId,
       Map<String, Object> featureParameters) {
-    Object rawInnerTaskParameters = selectTemplateChildTaskParameters(rawTemplateChildTaskParameters, templateTaskId);
-    Map<String, Map<String, Object>> resolvedParameters = resolveMappedChildTaskParameters(rawInnerTaskParameters,
-        featureParameters);
+    Object rawInnerTaskParameters =
+        selectTemplateChildTaskParameters(rawTemplateChildTaskParameters, templateTaskId);
+    Map<String, Map<String, Object>> resolvedParameters =
+        resolveMappedChildTaskParameters(rawInnerTaskParameters, featureParameters);
     resolvedParameters.forEach(
         (taskId, parameters) -> {
-          Map<String, Object> existingParameters = childTaskParameters.computeIfAbsent(taskId,
-              ignored -> new LinkedHashMap<>());
+          Map<String, Object> existingParameters =
+              childTaskParameters.computeIfAbsent(taskId, ignored -> new LinkedHashMap<>());
           parameters.forEach(existingParameters::putIfAbsent);
         });
   }
@@ -444,42 +459,10 @@ public class TemplateExecutionService {
     return rawTemplateChildTaskParameters;
   }
 
-  private List<Map<String, Object>> filterRenderableMiaChildren(List<Map<String, Object>> includedTasks) {
-    return includedTasks.stream()
-        .filter(childDefinition -> !"documentExport".equals(resolveMiaChildType(childDefinition)))
-        .toList();
-  }
-
-  private String resolveMiaChildType(Map<String, Object> childDefinition) {
-    Object explicitChildType = childDefinition.get("childType");
-    if (explicitChildType != null) {
-      String childType = String.valueOf(explicitChildType);
-      if ("documentExport".equals(childType)) {
-        return childType;
-      }
-      if ("template".equals(childType)) {
-        return childType;
-      }
-    }
-
-    Integer childTaskId = parseTaskId(childDefinition.get("id"));
-    if (childTaskId == null) {
-      return "query";
-    }
-
-    return taskRepository
-        .findById(childTaskId)
-        .map(
-            childTask -> {
-              if (DomainConstants.Tasks.isDocumentExportTask(childTask)) {
-                return "documentExport";
-              }
-              if (DomainConstants.Tasks.isTemplateTask(childTask)) {
-                return "template";
-              }
-              return "query";
-            })
-        .orElse("query");
+  private boolean isTemplateTask(Task task) {
+    return task.getType() != null
+        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+            .equals(task.getType().getId());
   }
 
   @SuppressWarnings("unchecked")
@@ -496,17 +479,20 @@ public class TemplateExecutionService {
       }
     }
     includedTasks.sort(
-        (left, right) -> Integer.compare(toInt(left.get(ORDER), 999), toInt(right.get(ORDER), 999)));
+        (left, right) ->
+            Integer.compare(toInt(left.get(ORDER), 999), toInt(right.get(ORDER), 999)));
     attachTemplateChildTaskParameters(miaTask, miaParameters, includedTasks);
     return includedTasks;
   }
 
   private void attachTemplateChildTaskParameters(
       Task miaTask, Map<String, Object> miaParameters, List<Map<String, Object>> includedTasks) {
-    Map<String, Object> properties = miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
-    Object rawTemplateChildTaskParameters = miaParameters.containsKey(TEMPLATE_CHILD_TASK_PARAMETERS)
-        ? miaParameters.get(TEMPLATE_CHILD_TASK_PARAMETERS)
-        : properties.get(TEMPLATE_CHILD_TASK_PARAMETERS);
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+    Object rawTemplateChildTaskParameters =
+        miaParameters.containsKey(TEMPLATE_CHILD_TASK_PARAMETERS)
+            ? miaParameters.get(TEMPLATE_CHILD_TASK_PARAMETERS)
+            : properties.get(TEMPLATE_CHILD_TASK_PARAMETERS);
     if (!(rawTemplateChildTaskParameters instanceof Map<?, ?> templateChildTaskParameters)) {
       return;
     }
@@ -524,17 +510,19 @@ public class TemplateExecutionService {
 
   @SuppressWarnings("unchecked")
   private List<Map<String, Object>> readIncludedTasksFromChildOrder(Task miaTask) {
-    Map<String, Object> properties = miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
+    Map<String, Object> properties =
+        miaTask.getProperties() == null ? Collections.emptyMap() : miaTask.getProperties();
     Object rawChildOrder = properties.get("childTaskOrderIds");
     if (!(rawChildOrder instanceof List<?> childOrder) || childOrder.isEmpty()) {
       return Collections.emptyList();
     }
 
-    Map<String, Object> adminChildTaskParameters = properties.get(CHILD_TASK_PARAMETERS) instanceof Map<?, ?> ctp
-        ? (Map<String, Object>) ctp
-        : Collections.emptyMap();
-    Map<String, Object> adminTemplateChildTaskParameters = properties
-        .get(TEMPLATE_CHILD_TASK_PARAMETERS) instanceof Map<?, ?> tctp
+    Map<String, Object> adminChildTaskParameters =
+        properties.get(CHILD_TASK_PARAMETERS) instanceof Map<?, ?> ctp
+            ? (Map<String, Object>) ctp
+            : Collections.emptyMap();
+    Map<String, Object> adminTemplateChildTaskParameters =
+        properties.get(TEMPLATE_CHILD_TASK_PARAMETERS) instanceof Map<?, ?> tctp
             ? (Map<String, Object>) tctp
             : Collections.emptyMap();
 
@@ -556,19 +544,20 @@ public class TemplateExecutionService {
                 childDefinition.put(
                     "childType",
                     childTask.getType() != null
-                        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-                            .equals(childTask.getType().getId())
-                                ? TEMPLATE
-                                : "query");
-                Object explicitMapping = getMapValueByTaskId(adminChildTaskParameters, childTask.getId());
+                            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                                .equals(childTask.getType().getId())
+                        ? TEMPLATE
+                        : "query");
+                Object explicitMapping =
+                    getMapValueByTaskId(adminChildTaskParameters, childTask.getId());
                 if (explicitMapping instanceof Map<?, ?>
                     && !((Map<?, ?>) explicitMapping).isEmpty()) {
                   childDefinition.put(PARAMETERS, explicitMapping);
                 } else {
                   childDefinition.put(PARAMETERS, readMiaChildParameterMappings(childTask));
                 }
-                Object templateChildTaskMapping = getMapValueByTaskId(adminTemplateChildTaskParameters,
-                    childTask.getId());
+                Object templateChildTaskMapping =
+                    getMapValueByTaskId(adminTemplateChildTaskParameters, childTask.getId());
                 if (templateChildTaskMapping instanceof Map<?, ?>
                     && !((Map<?, ?>) templateChildTaskMapping).isEmpty()) {
                   childDefinition.put(TEMPLATE_CHILD_TASK_PARAMETERS, templateChildTaskMapping);
@@ -591,11 +580,11 @@ public class TemplateExecutionService {
 
   private Map<String, Object> readMiaChildParameterMappings(Task childTask) {
     Map<String, Object> mappings = new LinkedHashMap<>();
-    if (DomainConstants.Tasks.isTemplateTask(childTask)) {
+    if (isTemplateTask(childTask)) {
       return mappings;
     }
-    Map<String, Object> properties = childTask.getProperties() == null ? Collections.emptyMap()
-        : childTask.getProperties();
+    Map<String, Object> properties =
+        childTask.getProperties() == null ? Collections.emptyMap() : childTask.getProperties();
     Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
     if (!(rawParameters instanceof List<?> parameters)) {
       return mappings;
@@ -640,32 +629,9 @@ public class TemplateExecutionService {
     return converted;
   }
 
-  Map<String, Object> buildViewerParameters(MoreInfoAdvancedRenderRequestDto requestDto) {
-    Map<String, Object> viewerParameters = new LinkedHashMap<>();
-    if (requestDto == null) {
-      return viewerParameters;
-    }
-
-    if (requestDto.getParameters() != null) {
-      viewerParameters.putAll(requestDto.getParameters());
-    }
-
-    if (requestDto.getFeatureBbox() != null) {
-      List<Double> featureBbox = requestDto.getFeatureBbox();
-      viewerParameters.put(MAP_IMAGE_FEATURE_BBOX_SIZE, featureBbox.size());
-      if (featureBbox.size() >= 4) {
-        viewerParameters.put("featureBboxMinX", featureBbox.get(0));
-        viewerParameters.put("featureBboxMinY", featureBbox.get(1));
-        viewerParameters.put("featureBboxMaxX", featureBbox.get(2));
-        viewerParameters.put("featureBboxMaxY", featureBbox.get(3));
-      }
-    }
-
-    return viewerParameters;
-  }
-
   private Map<String, Object> readTemplateDefaultParameters(Task task) {
-    Map<String, Object> properties = task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
+    Map<String, Object> properties =
+        task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
     Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
     if (!(rawParameters instanceof List<?> rawList)) {
       return Collections.emptyMap();
@@ -694,9 +660,10 @@ public class TemplateExecutionService {
       }
 
       Object rawType = parameter.get(DomainConstants.Tasks.PARAMETERS_TYPE);
-      Object convertedValue = rawType == null
-          ? String.valueOf(rawValue)
-          : convertTypedParameterValue(String.valueOf(rawType), rawValue);
+      Object convertedValue =
+          rawType == null
+              ? String.valueOf(rawValue)
+              : convertTypedParameterValue(String.valueOf(rawType), rawValue);
       defaults.put(String.valueOf(rawName), convertedValue);
     }
     return defaults;
@@ -707,19 +674,19 @@ public class TemplateExecutionService {
     try {
       return switch (type) {
         case DomainConstants.Tasks.TYPE_NUMBER ->
-          stringValue == null ? null : objectMapper.readValue(stringValue, Number.class);
+            stringValue == null ? null : objectMapper.readValue(stringValue, Number.class);
         case DomainConstants.Tasks.TYPE_ARRAY ->
-          stringValue == null
-              ? List.of()
-              : objectMapper.readValue(stringValue, ARRAY_TYPE_REFERENCE);
+            stringValue == null
+                ? List.of()
+                : objectMapper.readValue(stringValue, ARRAY_TYPE_REFERENCE);
         case DomainConstants.Tasks.TYPE_OBJECT ->
-          stringValue == null
-              ? Map.of()
-              : objectMapper.readValue(stringValue, OBJECT_TYPE_REFERENCE);
+            stringValue == null
+                ? Map.of()
+                : objectMapper.readValue(stringValue, OBJECT_TYPE_REFERENCE);
         case DomainConstants.Tasks.TYPE_BOOLEAN ->
-          stringValue == null
-              ? Boolean.FALSE
-              : objectMapper.readValue(stringValue, Boolean.class);
+            stringValue == null
+                ? Boolean.FALSE
+                : objectMapper.readValue(stringValue, Boolean.class);
         case DomainConstants.Tasks.TYPE_NULL -> null;
         default -> stringValue == null ? "" : stringValue;
       };
@@ -749,22 +716,6 @@ public class TemplateExecutionService {
     return resolved;
   }
 
-  private void enrichMapImageViewerContextParameters(
-      Task task,
-      Map<String, Object> parameters,
-      Map<String, Object> featureParameters) {
-    if (!DomainConstants.Tasks.isMapImageTask(task)) {
-      return;
-    }
-    MAP_IMAGE_FEATURE_BBOX_PARAMETER_KEYS.forEach(
-        key -> {
-          Object value = featureParameters.get(key);
-          if (value != null) {
-            parameters.putIfAbsent(key, value);
-          }
-        });
-  }
-
   @SuppressWarnings("unchecked")
   private Map<String, Map<String, Object>> resolveMappedChildTaskParameters(
       Object rawChildTaskParameters, Map<String, Object> featureParameters) {
@@ -774,7 +725,8 @@ public class TemplateExecutionService {
     Map<String, Map<String, Object>> resolved = new LinkedHashMap<>();
     childTaskParameters.forEach(
         (rawTaskId, rawParameterDefinitions) -> {
-          Map<String, Object> taskParameters = resolveMappedParameters(rawParameterDefinitions, featureParameters);
+          Map<String, Object> taskParameters =
+              resolveMappedParameters(rawParameterDefinitions, featureParameters);
           if (!taskParameters.isEmpty()) {
             resolved.put(String.valueOf(rawTaskId), taskParameters);
           }
@@ -786,7 +738,8 @@ public class TemplateExecutionService {
   private Object resolveMappedValue(
       Object rawName, Object rawDefinition, Map<String, Object> featureParameters) {
     if (rawDefinition instanceof Map<?, ?> definition) {
-      Object fieldPath = definition.get(VALUE) != null ? definition.get(VALUE) : definition.get("name");
+      Object fieldPath =
+          definition.get(VALUE) != null ? definition.get(VALUE) : definition.get("name");
       if (fieldPath == null) {
         fieldPath = rawName;
       }
@@ -846,80 +799,66 @@ public class TemplateExecutionService {
     }
   }
 
-  private String resolveChildTitle(Map<String, Object> childDefinition, int index) {
+  private String resolveChildTitle(
+      Map<String, Object> childDefinition, int index, String language) {
     Object name = childDefinition.get("name");
-    return name == null || String.valueOf(name).isBlank()
-        ? "Consulta " + (index + 1)
-        : String.valueOf(name);
+    if (name == null || String.valueOf(name).isBlank()) {
+      return resolveLiteral(CONSULTA_LITERAL, language) + " " + (index + 1);
+    }
+    return String.valueOf(name);
   }
 
-  private String renderRowsAsTable(List<Map<String, Object>> rows) {
+  private String renderRowsAsTable(List<Map<String, Object>> rows, String language) {
     if (rows == null || rows.isEmpty()) {
-      return renderNoDataHtml();
+      return renderNoDataHtml(language);
     }
-    Set<String> columns = new LinkedHashSet<>();
-    rows.forEach(row -> columns.addAll(row.keySet()));
-    StringBuilder html = new StringBuilder("<table class=\"sitmun-json-table\"><thead><tr>");
-    columns.forEach(column -> html.append("<th>").append(escapeHtml(column)).append("</th>"));
-    html.append("</tr></thead><tbody>");
-    for (Map<String, Object> row : rows) {
-      html.append("<tr>");
-      columns.forEach(
-          column -> html.append("<td>")
-              .append(
-                  escapeHtml(row.get(column) == null ? "" : String.valueOf(row.get(column))))
-              .append("</td>"));
-      html.append("</tr>");
-    }
-    html.append("</tbody></table>");
-    return html.toString();
+    return miaHtmlRenderer.table(rows);
   }
 
-  private String escapeHtml(String value) {
-    if (value == null) {
-      return "";
-    }
-    return value
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\"", "&quot;")
-        .replace("'", "&#39;");
-  }
-
-  /**
-   * Wraps rendered template HTML with a marker that lets the viewer inject one
-   * button per
-   * authorized {@code documentExport} task.
-   */
   private String wrapWithDownloadAnnotation(String content, Integer templateTaskId) {
-    String taskIdAttribute = templateTaskId == null
-        ? ""
-        : " " + TEMPLATE_TASK_ID_ATTRIBUTE + "=\"" + templateTaskId + "\"";
+    String taskIdAttribute =
+        templateTaskId == null
+            ? ""
+            : " " + TEMPLATE_TASK_ID_ATTRIBUTE + "=\"" + templateTaskId + "\"";
     return "<div data-mia-export-template=\"true\"" + taskIdAttribute + ">" + content + "</div>";
   }
 
-  private boolean mayAccessTask(Task task, RequestCoordinates coordinates) {
-    if (task == null || SecurityRole.isAdmin()) {
+  private boolean mayAccessTask(Task task, RequestCoordinates coordinates, boolean adminGodMode) {
+    if (task == null) {
+      return true;
+    }
+    if (adminGodMode && currentUserHasRole("ROLE_ADMIN")) {
       return true;
     }
     if (coordinates == null) {
-      return true;
+      return false;
     }
     if (!currentUserIsAuthenticated()) {
-      return true;
+      return false;
     }
     String username = resolveAuthorizedUsername(coordinates);
-    Integer applicationId = coordinates.getApplication() != null ? coordinates.getApplication().getId() : null;
-    Integer territoryId = coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : null;
+    Integer applicationId =
+        coordinates.getApplication() != null ? coordinates.getApplication().getId() : null;
+    Integer territoryId =
+        coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : null;
     if (!StringUtils.hasText(username) || applicationId == null || territoryId == null) {
       return false;
     }
 
-    return authorizationService
-        .findTasksByUserApplicationAndTerritory(username, applicationId, territoryId)
-        .stream()
-        .anyMatch(accessibleTask -> task.getId().equals(accessibleTask.getId()));
+    List<Role> roles =
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            username, applicationId, territoryId);
+    return !roles.isEmpty()
+        && taskRepository.findByRolesAndTerritory(roles, territoryId).stream()
+            .anyMatch(accessibleTask -> task.getId().equals(accessibleTask.getId()));
+  }
+
+  private boolean currentUserHasRole(String roleName) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication != null
+        && authentication.getAuthorities() != null
+        && authentication.getAuthorities().stream()
+            .anyMatch(authority -> roleName.equals(authority.getAuthority()));
   }
 
   private boolean currentUserIsAuthenticated() {
@@ -927,12 +866,7 @@ public class TemplateExecutionService {
     return authentication != null
         && authentication.isAuthenticated()
         && StringUtils.hasText(authentication.getName())
-        && authentication.getAuthorities().stream()
-            .anyMatch(
-                authority ->
-                    SecurityRole.USER.authority().equals(authority.getAuthority())
-                        || SecurityRole.ADMIN.authority().equals(authority.getAuthority())
-                        || SecurityRole.PUBLIC.authority().equals(authority.getAuthority()));
+        && !"anonymousUser".equals(authentication.getName());
   }
 
   private String resolveAuthorizedUsername(RequestCoordinates coordinates) {
@@ -948,38 +882,17 @@ public class TemplateExecutionService {
     return authentication.getName();
   }
 
-  private String renderNoDataHtml() {
-    return "<div class=\"sitmun-mia-empty\">"
-        + escapeHtml(resolveNoDataMessage())
-        + DIV_CLOSING_TAG;
+  private String renderNoDataHtml(String language) {
+    return miaHtmlRenderer.empty(resolveNoDataMessage(language));
   }
 
-  private String resolveNoDataMessage() {
-    String language = resolveRequestLanguage();
-    if (!StringUtils.hasText(language)) {
-      return NO_DATA_LITERAL;
-    }
-    String normalized = language.trim().toLowerCase();
-    if (normalized.startsWith("es")) {
-      return "Sin datos";
-    }
-    if (normalized.startsWith("en")) {
-      return "No data";
-    }
-    if (normalized.startsWith("fr")) {
-      return "Aucune donnee";
-    }
-    return NO_DATA_LITERAL;
+  private String resolveNoDataMessage(String language) {
+    return resolveLiteral(NO_DATA_LITERAL, language);
   }
 
-  private String resolveRequestLanguage() {
-    if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes) {
-      String language = attributes.getRequest().getParameter("lang");
-      if (StringUtils.hasText(language)) {
-        return language;
-      }
-    }
-    return null;
+  private String resolveLiteral(String key, String language) {
+    String resolved = literalTranslationResolver.resolve(key, language);
+    return StringUtils.hasText(resolved) ? resolved : key;
   }
 
   private TemplateTaskExecutionResponseDto executeTask(
@@ -989,10 +902,12 @@ public class TemplateExecutionService {
       Integer rootTemplateTaskId,
       RequestCoordinates coordinates,
       int depth,
-      boolean isolateTemplateChildFailures) {
-    boolean isTemplateTask = task.getType() != null
-        && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
-            .equals(task.getType().getId());
+      boolean isolateTemplateChildFailures,
+      boolean adminGodMode) {
+    boolean isTemplateTask =
+        task.getType() != null
+            && Integer.valueOf(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE)
+                .equals(task.getType().getId());
     if (isTemplateTask && depth >= MAX_TEMPLATE_NESTING_LEVEL) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
@@ -1009,7 +924,8 @@ public class TemplateExecutionService {
           rootTemplateTaskId,
           coordinates,
           depth + 1,
-          isolateTemplateChildFailures);
+          isolateTemplateChildFailures,
+          adminGodMode);
     }
 
     if (DomainConstants.Tasks.isMapImageTask(task)) {
@@ -1017,22 +933,211 @@ public class TemplateExecutionService {
     }
 
     String scope = String.valueOf(task.getProperties().get(DomainConstants.Tasks.PROPERTY_SCOPE));
+    ChildDataRequest childRequest =
+        childDataRequest(task, parameters, coordinates, scope, adminGodMode);
     if (DomainConstants.Tasks.SCOPE_SQL_QUERY.equalsIgnoreCase(scope)) {
-      return executeSqlTask(task, parameters, coordinates);
+      return toExecutionResponse(task, templateChildDataService.executeSql(childRequest));
     }
-    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)
-        || DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)) {
-      return executeApiTask(task, parameters, coordinates);
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY.equalsIgnoreCase(scope)) {
+      return toExecutionResponse(task, templateChildDataService.executeApi(childRequest));
     }
-    if (DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)
+    if (DomainConstants.Tasks.SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)
+        || DomainConstants.Tasks.SCOPE_URL_QUERY.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_URL.equalsIgnoreCase(scope)
         || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)) {
-      return resolveUrlTask(task, parameters, scope, coordinates);
+      return toExecutionResponse(task, templateChildDataService.resolveDirect(childRequest));
     }
 
     throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST, "Unsupported linked task scope: " + scope);
+  }
+
+  private ChildDataRequest childDataRequest(
+      Task task,
+      Map<String, String> parameters,
+      RequestCoordinates coordinates,
+      String scope,
+      boolean adminGodMode) {
+    return ChildDataRequest.builder()
+        .parameters(parameters)
+        .principalKind(resolvePrincipalKind(adminGodMode))
+        .coordinates(coordinates)
+        .task(task)
+        .scope(scope)
+        .build();
+  }
+
+  private TemplateTaskExecutionResponseDto executeMapImageTask(
+      Task task, Map<String, String> parameters) {
+    MapImageRenderRequestDto request = new MapImageRenderRequestDto();
+    request.setTaskId(task.getId());
+    request.setBbox(resolveFeatureDrivenMapImageBbox(task, parameters));
+    byte[] content = mapImageTaskExecutionService.renderMapImage(request);
+    String contentUrl =
+        "data:"
+            + MediaType.IMAGE_PNG_VALUE
+            + ";base64,"
+            + Base64.getEncoder().encodeToString(content);
+    Map<String, Object> context = new LinkedHashMap<>();
+    context.put("contentUrl", contentUrl);
+    context.put("url", contentUrl);
+    context.put("mimeType", MediaType.IMAGE_PNG_VALUE);
+    context.put("binary", true);
+    context.put("embeddable", true);
+    context.put(VALUE, "[contenido binario]");
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status(COMPLETED)
+        .resultType("resource")
+        .context(context)
+        .rows(Collections.emptyList())
+        .resourceUrl(contentUrl)
+        .build();
+  }
+
+  private List<Double> resolveFeatureDrivenMapImageBbox(
+      Task task, Map<String, String> parameters) {
+    List<Double> bbox = readFeatureBbox(parameters);
+    if (bbox == null) {
+      return null;
+    }
+    bbox = expandDegenerateBbox(bbox, readMapImageDegenerateBboxSize(task));
+    bbox = applyBboxMargin(bbox, readMapImageBboxMarginRatio(task));
+    return fitBboxToAspectRatio(
+        bbox,
+        readPositiveTaskDimension(
+            task, DomainConstants.Tasks.PROPERTY_WIDTH, DEFAULT_MAP_IMAGE_WIDTH),
+        readPositiveTaskDimension(
+            task, DomainConstants.Tasks.PROPERTY_HEIGHT, DEFAULT_MAP_IMAGE_HEIGHT));
+  }
+
+  private List<Double> readFeatureBbox(Map<String, String> parameters) {
+    if (parameters == null || parameters.isEmpty()) {
+      return null;
+    }
+    if (parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
+        && !"4".equals(parameters.get(MAP_IMAGE_FEATURE_BBOX_SIZE))) {
+      throw MapImageBboxValidator.invalidBbox();
+    }
+    List<String> keys =
+        List.of("featureBboxMinX", "featureBboxMinY", "featureBboxMaxX", "featureBboxMaxY");
+    boolean hasBbox =
+        parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
+            || keys.stream().anyMatch(parameters::containsKey);
+    if (!hasBbox) {
+      return null;
+    }
+    if (keys.stream().anyMatch(key -> !StringUtils.hasText(parameters.get(key)))) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "featureBbox parameters must include featureBboxMinX, featureBboxMinY, featureBboxMaxX and featureBboxMaxY together");
+    }
+    return MapImageBboxValidator.validate(
+        keys.stream().map(key -> readDoubleParameter(parameters, key)).toList());
+  }
+
+  private Double readDoubleParameter(Map<String, String> parameters, String key) {
+    try {
+      return Double.valueOf(parameters.get(key).trim());
+    } catch (NumberFormatException exception) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "featureBbox parameter " + key + " must be numeric", exception);
+    }
+  }
+
+  private double readMapImageBboxMarginRatio(Task task) {
+    Object value =
+        task.getProperties() == null
+            ? null
+            : task.getProperties().get(DomainConstants.Tasks.PROPERTY_BBOX_MARGIN_PERCENT);
+    return value instanceof Number number ? Math.max(0d, number.doubleValue()) / 100d : 0d;
+  }
+
+  private double readMapImageDegenerateBboxSize(Task task) {
+    Object value =
+        task.getProperties() == null
+            ? null
+            : task.getProperties().get(DomainConstants.Tasks.PROPERTY_SRS);
+    String srs = value instanceof String string ? string.trim() : "";
+    return "EPSG:4326".equalsIgnoreCase(srs) || "CRS:84".equalsIgnoreCase(srs)
+        ? MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE
+        : MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE;
+  }
+
+  private List<Double> expandDegenerateBbox(List<Double> bbox, double minimumSize) {
+    double minX = bbox.get(0);
+    double minY = bbox.get(1);
+    double maxX = bbox.get(2);
+    double maxY = bbox.get(3);
+    if (Double.compare(minX, maxX) == 0) {
+      minX -= minimumSize / 2d;
+      maxX += minimumSize / 2d;
+    }
+    if (Double.compare(minY, maxY) == 0) {
+      minY -= minimumSize / 2d;
+      maxY += minimumSize / 2d;
+    }
+    return List.of(minX, minY, maxX, maxY);
+  }
+
+  private List<Double> applyBboxMargin(List<Double> bbox, double marginRatio) {
+    double horizontalMargin = (bbox.get(2) - bbox.get(0)) * marginRatio / 2d;
+    double verticalMargin = (bbox.get(3) - bbox.get(1)) * marginRatio / 2d;
+    return List.of(
+        bbox.get(0) - horizontalMargin,
+        bbox.get(1) - verticalMargin,
+        bbox.get(2) + horizontalMargin,
+        bbox.get(3) + verticalMargin);
+  }
+
+  private List<Double> fitBboxToAspectRatio(List<Double> bbox, int width, int height) {
+    double bboxWidth = bbox.get(2) - bbox.get(0);
+    double bboxHeight = bbox.get(3) - bbox.get(1);
+    double bboxRatio = bboxWidth / bboxHeight;
+    double targetRatio = (double) width / height;
+    if (bboxRatio < targetRatio) {
+      double halfWidth = bboxHeight * targetRatio / 2d;
+      double centerX = (bbox.get(0) + bbox.get(2)) / 2d;
+      return List.of(centerX - halfWidth, bbox.get(1), centerX + halfWidth, bbox.get(3));
+    }
+    if (bboxRatio > targetRatio) {
+      double halfHeight = bboxWidth / targetRatio / 2d;
+      double centerY = (bbox.get(1) + bbox.get(3)) / 2d;
+      return List.of(bbox.get(0), centerY - halfHeight, bbox.get(2), centerY + halfHeight);
+    }
+    return bbox;
+  }
+
+  private int readPositiveTaskDimension(Task task, String key, int fallback) {
+    Object value = task.getProperties() == null ? null : task.getProperties().get(key);
+    return value instanceof Number number && number.intValue() > 0 ? number.intValue() : fallback;
+  }
+
+  private PrincipalKind resolvePrincipalKind(boolean adminGodMode) {
+    if (adminGodMode && currentUserHasRole("ROLE_ADMIN")) {
+      return PrincipalKind.ADMIN;
+    }
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication != null ? authentication.getName() : null;
+    if (currentUserHasRole("ROLE_PUBLIC") || SecurityConstants.isPublicPrincipal(username)) {
+      return PrincipalKind.PUBLIC;
+    }
+    return PrincipalKind.USER;
+  }
+
+  private TemplateTaskExecutionResponseDto toExecutionResponse(Task task, ChildDataResult result) {
+    if (result == null || result.getOutcome() == ChildDataOutcome.NO_DATA) {
+      return buildNoDataExecutionResponse(task);
+    }
+    return TemplateTaskExecutionResponseDto.builder()
+        .taskId(task.getId())
+        .status(COMPLETED)
+        .resultType(result.getResultType())
+        .context(result.getContext())
+        .rows(result.getRows() == null ? Collections.emptyList() : result.getRows())
+        .resourceUrl(result.getResourceUrl())
+        .build();
   }
 
   private TemplateTaskExecutionResponseDto executeTemplateTask(
@@ -1042,7 +1147,8 @@ public class TemplateExecutionService {
       Integer rootTemplateTaskId,
       RequestCoordinates coordinates,
       int depth,
-      boolean isolateTemplateChildFailures) {
+      boolean isolateTemplateChildFailures,
+      boolean adminGodMode) {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(task.getId());
     Map<String, Object> templateContext = new LinkedHashMap<>();
 
@@ -1054,30 +1160,36 @@ public class TemplateExecutionService {
     }
 
     for (TaskRelation relation : relations) {
-      if (!List.of("template-task", "template-nested").contains(relation.getRelationType())) {
+      if (!List.of(
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_TASK,
+              DomainConstants.Tasks.RELATION_TYPE_TEMPLATE_NESTED)
+          .contains(relation.getRelationType())) {
         continue;
       }
 
       Task childTask = relation.getRelatedTask();
-      Map<String, Object> rawParams = childTaskParameters.getOrDefault(
-          String.valueOf(childTask.getId()), Collections.emptyMap());
+      Map<String, Object> rawParams =
+          childTaskParameters.getOrDefault(
+              String.valueOf(childTask.getId()), Collections.emptyMap());
       String referenceAlias = resolveReferenceAlias(relation);
       Map<String, Object> childContext;
-      if (!mayAccessTask(childTask, coordinates)) {
+      if (!mayAccessTask(childTask, coordinates, adminGodMode)) {
         childContext = buildChildNoDataContext();
         templateContext.put(referenceAlias, childContext);
         templateContext.put(buildLegacyReferenceAlias(childTask), childContext);
         continue;
       }
       try {
-        TemplateTaskExecutionResponseDto childResult = executeTask(
-            childTask,
-            stringifyParameters(rawParams),
-            childTaskParameters,
-            rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
-            coordinates,
-            depth,
-            isolateTemplateChildFailures);
+        TemplateTaskExecutionResponseDto childResult =
+            executeTask(
+                childTask,
+                stringifyParameters(rawParams),
+                childTaskParameters,
+                rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
+                coordinates,
+                depth,
+                isolateTemplateChildFailures,
+                adminGodMode);
         childContext = childResult.getContext();
       } catch (ResponseStatusException exception) {
         if (!isolateTemplateChildFailures || isTemplateNestingDepthExceeded(exception)) {
@@ -1095,19 +1207,19 @@ public class TemplateExecutionService {
     }
 
     TemplatePreviewResponseDto rendered =
-        renderTemplatePreview(
-            readTemplateHtml(task),
-            templateContext,
-            rootTemplateTaskId != null ? rootTemplateTaskId : task.getId());
+        renderTemplatePreview(readTemplateHtml(task), templateContext);
+    String pdfScope =
+        depth == 1
+            ? PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE
+            : PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE;
 
-    String pdfScope = depth == 1
-        ? PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE
-        : PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE;
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
         .status(COMPLETED)
         .resultType(TEMPLATE)
-        .context(Collections.singletonMap("html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
+        .context(
+            Collections.singletonMap(
+                "html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
@@ -1117,12 +1229,12 @@ public class TemplateExecutionService {
     if (!StringUtils.hasText(html)) {
       return html;
     }
-
     boolean fullDocument = FULL_HTML_DOCUMENT_PATTERN.matcher(html).find();
     Document document = fullDocument ? Jsoup.parse(html) : Jsoup.parseBodyFragment(html);
-    String selector = PdfRegionHtmlContract.REGION_CLASSES.stream()
-        .map(className -> "." + className)
-        .collect(Collectors.joining(", "));
+    String selector =
+        PdfRegionHtmlContract.REGION_CLASSES.stream()
+            .map(className -> "." + className)
+            .collect(Collectors.joining(", "));
     List<Element> regions = document.select(selector);
     if (regions.isEmpty()) {
       return html;
@@ -1133,51 +1245,49 @@ public class TemplateExecutionService {
     } else {
       regions.stream()
           .filter(region -> !region.hasAttr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE))
-          .forEach(region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+          .forEach(
+              region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
     }
     return fullDocument ? document.outerHtml() : document.body().html();
   }
 
   private TemplatePreviewResponseDto renderTemplatePreview(
-      String templateHtml, Map<String, Object> templateContext, Integer templateTaskId) {
-    String language = resolveRequestLanguage();
-    if (StringUtils.hasText(language)) {
-      return templateRenderService.renderPreview(
-          templateHtml, templateContext, templateTaskId, Collections.emptyList(), language);
-    }
-    return templateRenderService.renderPreview(templateHtml, templateContext, templateTaskId);
+      String templateHtml, Map<String, Object> templateContext) {
+    String language = currentRequestLanguageResolver.resolve(this);
+    return templateRenderService.renderPreview(
+        templateHtml, templateContext, Collections.emptyList(), language);
   }
 
   private Map<String, Object> buildChildErrorContext(
       Task childTask, ResponseStatusException exception) {
     Map<String, Object> context = new LinkedHashMap<>();
-    String taskName = childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
-    String message = StringUtils.hasText(exception.getReason()) ? exception.getReason() : exception.getMessage();
-    String safeMessage = escapeHtml(StringUtils.hasText(message) ? message : "Error ejecutando tarea");
+    String taskName =
+        childTask.getName() != null ? childTask.getName() : String.valueOf(childTask.getId());
+    String language = currentRequestLanguageResolver.resolve(this);
+    String message =
+        StringUtils.hasText(exception.getReason()) ? exception.getReason() : exception.getMessage();
+    String errorPrefix = resolveLiteral(ERROR_EXECUTING_TASK_LITERAL, language);
+    String rawMessage = StringUtils.hasText(message) ? message : errorPrefix;
+    String safeMessage = HtmlUtils.htmlEscape(rawMessage);
     context.put("taskId", childTask.getId());
     context.put("status", "ERROR");
     context.put("statusCode", exception.getStatusCode().value());
     context.put("error", true);
     context.put("message", safeMessage);
-    context.put(
-        "html",
-        "<div class=\"sitmun-template-child-error\">Error ejecutando tarea: "
-            + escapeHtml(taskName)
-            + " - "
-            + safeMessage
-            + DIV_CLOSING_TAG);
+    context.put("html", miaHtmlRenderer.childError(errorPrefix, taskName, rawMessage));
     context.put(VALUE, "[error: " + safeMessage + "]");
     return context;
   }
 
   private Map<String, Object> buildChildNoDataContext() {
-    String noDataMessage = resolveNoDataMessage();
+    String language = currentRequestLanguageResolver.resolve(this);
+    String noDataMessage = resolveNoDataMessage(language);
     Map<String, Object> context = new LinkedHashMap<>();
     context.put("status", "NO_DATA");
     context.put("statusCode", HttpStatus.FORBIDDEN.value());
     context.put("error", false);
     context.put("message", noDataMessage);
-    context.put("html", renderNoDataHtml());
+    context.put("html", renderNoDataHtml(language));
     context.put(VALUE, noDataMessage);
     context.put("rows", Collections.emptyList());
     return context;
@@ -1187,430 +1297,6 @@ public class TemplateExecutionService {
     return HttpStatus.BAD_REQUEST.equals(exception.getStatusCode())
         && StringUtils.hasText(exception.getReason())
         && exception.getReason().startsWith(TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX);
-  }
-
-  private TemplateTaskExecutionResponseDto executeSqlTask(
-      Task task, Map<String, String> parameters, RequestCoordinates coordinates) {
-    ConfigProxyRequestDto configRequest = ConfigProxyRequestDto.builder()
-        .appId(coordinates.getApplication() != null ? coordinates.getApplication().getId() : 0)
-        .terId(coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : 0)
-        .type(DomainConstants.Proxy.TYPE_SQL)
-        .typeId(task.getId())
-        .parameters(parameters)
-        .build();
-
-    ConfigProxyDto config;
-    try {
-      config = proxyConfigurationService.getConfiguration(configRequest, 0, coordinates);
-      proxyConfigurationService.applyDecorators(config, configRequest, coordinates);
-    } catch (BadRequestException exception) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-    }
-
-    JdbcPayloadDto payload = (JdbcPayloadDto) config.getPayload();
-    DatabaseConnection connection = DatabaseConnection.builder()
-        .driver(payload.getDriver())
-        .url(payload.getUri())
-        .user(payload.getUser())
-        .password(payload.getPassword())
-        .build();
-
-    List<Map<String, Object>> rows;
-    try {
-      rows = databaseConnectionService.executeQuery(
-          connection, payload.getSql(), payload.getParameters());
-    } catch (DatabaseSQLException exception) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage(),
-          exception);
-    }
-
-    Map<String, Object> context = buildRowAndParameterContext(rows, parameters);
-    return TemplateTaskExecutionResponseDto.builder()
-        .taskId(task.getId())
-        .status(COMPLETED)
-        .resultType(TABLE)
-        .context(context)
-        .rows(rows)
-        .resourceUrl(null)
-        .build();
-  }
-
-  private TemplateTaskExecutionResponseDto executeApiTask(
-      Task task, Map<String, String> parameters, RequestCoordinates coordinates) {
-    ConfigProxyRequestDto configRequest = ConfigProxyRequestDto.builder()
-        .appId(coordinates.getApplication() != null ? coordinates.getApplication().getId() : 0)
-        .terId(coordinates.getTerritory() != null ? coordinates.getTerritory().getId() : 0)
-        .type(DomainConstants.Proxy.TYPE_API)
-        .typeId(task.getId())
-        .parameters(parameters)
-        .build();
-
-    ConfigProxyDto config;
-    try {
-      config = proxyConfigurationService.getConfiguration(configRequest, 0, coordinates);
-      proxyConfigurationService.applyDecorators(config, configRequest, coordinates);
-    } catch (BadRequestException exception) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-    }
-
-    WmsPayloadDto payload = (WmsPayloadDto) config.getPayload();
-    String requestUrl = buildHttpRequestUrl(payload, parameters, coordinates, readTaskCommand(task));
-    String sanitizedRequestUrl = sanitizeRequestUrlForLogging(requestUrl, parameters);
-
-    try {
-      Request.Builder requestBuilder = new Request.Builder().url(requestUrl);
-      applySecurity(payload.getSecurity(), requestBuilder);
-
-      String method = StringUtils.hasText(payload.getMethod()) ? payload.getMethod().toUpperCase() : "GET";
-      if ("POST".equals(method)) {
-        RequestBody postBody = RequestBody.create(
-            payload.getBody() == null ? "" : payload.getBody(),
-            okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE));
-        requestBuilder.post(postBody);
-      } else {
-        requestBuilder.get();
-      }
-
-      log.info(
-          "Executing template API task {} with method {} at {}",
-          task.getId(),
-          method,
-          sanitizedRequestUrl);
-
-      try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
-        okhttp3.ResponseBody responseBody = response.body();
-        okhttp3.MediaType contentType = responseBody != null ? responseBody.contentType() : null;
-        String resolvedMimeType = resolveApiResponseMimeType(task, contentType);
-        if (response.isSuccessful() && isBinaryMimeType(resolvedMimeType)) {
-          log.info(
-              "Template API task {} returned HTTP {} binary content-type {} length {}",
-              task.getId(),
-              response.code(),
-              resolvedMimeType,
-              responseBody != null ? responseBody.contentLength() : 0);
-          return buildBinaryApiResponse(
-              task,
-              parameters,
-              payload.getParameters(),
-              hasServerSideHttpSecurity(payload.getSecurity()) ? null : requestUrl,
-              resolvedMimeType);
-        }
-        String body = responseBody != null ? responseBody.string() : "";
-        log.info(
-            "Template API task {} returned HTTP {} content-type {} body length {}",
-            task.getId(),
-            response.code(),
-            contentType,
-            body.length());
-        if (!response.isSuccessful()) {
-          log.warn(
-              "Template API task {} failed with HTTP {} body length {}",
-              task.getId(),
-              response.code(),
-              body.length());
-          throw new ResponseStatusException(
-              HttpStatus.BAD_GATEWAY, "API task returned HTTP " + response.code());
-        }
-        Map<String, Object> bodyContext = normalizeBodyToContext(body);
-        List<Map<String, Object>> rows = flattenContextToRows(bodyContext);
-        Map<String, Object> context = buildApiContext(bodyContext, rows, payload.getParameters(), parameters);
-
-        return TemplateTaskExecutionResponseDto.builder()
-            .taskId(task.getId())
-            .status(COMPLETED)
-            .resultType(TABLE)
-            .context(context)
-            .rows(rows)
-            .resourceUrl(null)
-            .build();
-      }
-    } catch (IOException e) {
-      log.warn(
-          "Template API task {} failed while calling {}", task.getId(), sanitizedRequestUrl, e);
-      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to execute API task", e);
-    }
-  }
-
-  private TemplateTaskExecutionResponseDto executeMapImageTask(Task task, Map<String, String> parameters) {
-    MapImageRenderRequestDto requestDto = new MapImageRenderRequestDto();
-    requestDto.setTaskId(task.getId());
-    List<Double> featureDrivenBbox = resolveFeatureDrivenMapImageBbox(task, parameters);
-    if (featureDrivenBbox != null) {
-      requestDto.setBbox(featureDrivenBbox);
-    }
-
-    byte[] content = mapImageTaskExecutionService.renderMapImage(requestDto);
-    String contentUrl = "data:" + MediaType.IMAGE_PNG_VALUE + ";base64," + Base64.getEncoder().encodeToString(content);
-    return buildMapImageBinaryResponse(task, contentUrl);
-  }
-
-  private List<Double> resolveFeatureDrivenMapImageBbox(Task task, Map<String, String> parameters) {
-    List<Double> featureBbox = readFeatureBbox(parameters);
-    if (featureBbox == null) {
-      return null;
-    }
-
-    List<Double> expandedBbox = expandDegenerateBbox(featureBbox, readMapImageDegenerateBboxSize(task));
-    List<Double> paddedBbox = applyBboxMargin(expandedBbox, readMapImageBboxMarginRatio(task));
-    return fitBboxToAspectRatio(
-        paddedBbox,
-        readPositiveTaskDimension(task, DomainConstants.Tasks.PROPERTY_WIDTH, DEFAULT_MAP_IMAGE_WIDTH),
-        readPositiveTaskDimension(task, DomainConstants.Tasks.PROPERTY_HEIGHT, DEFAULT_MAP_IMAGE_HEIGHT));
-  }
-
-  private double readMapImageBboxMarginRatio(Task task) {
-    if (task == null || task.getProperties() == null) {
-      return 0d;
-    }
-    Object rawValue = task.getProperties().get(DomainConstants.Tasks.PROPERTY_BBOX_MARGIN_PERCENT);
-    if (!(rawValue instanceof Number number)) {
-      return 0d;
-    }
-    return Math.max(0d, number.doubleValue()) / 100d;
-  }
-
-  private double readMapImageDegenerateBboxSize(Task task) {
-    if (task == null || task.getProperties() == null) {
-      return MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE;
-    }
-    Object rawSrs = task.getProperties().get(DomainConstants.Tasks.PROPERTY_SRS);
-    String srs = rawSrs instanceof String value ? value.trim() : "";
-    return isGeographicSrs(srs)
-        ? MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE
-        : MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE;
-  }
-
-  private boolean isGeographicSrs(String srs) {
-    return "EPSG:4326".equalsIgnoreCase(srs) || "CRS:84".equalsIgnoreCase(srs);
-  }
-
-  private List<Double> readFeatureBbox(Map<String, String> parameters) {
-    if (parameters == null || parameters.isEmpty()) {
-      return null;
-    }
-
-    if (parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
-        && !"4".equals(parameters.get(MAP_IMAGE_FEATURE_BBOX_SIZE))) {
-      throw MapImageBboxValidator.invalidBbox();
-    }
-
-    boolean hasFeatureBboxParameter = parameters.containsKey(MAP_IMAGE_FEATURE_BBOX_SIZE)
-        || parameters.containsKey("featureBboxMinX")
-        || parameters.containsKey("featureBboxMinY")
-        || parameters.containsKey("featureBboxMaxX")
-        || parameters.containsKey("featureBboxMaxY");
-    if (!hasFeatureBboxParameter) {
-      return null;
-    }
-
-    validateRequiredFeatureBboxParameters(parameters);
-
-    Double minX = readDoubleParameter(parameters, "featureBboxMinX");
-    Double minY = readDoubleParameter(parameters, "featureBboxMinY");
-    Double maxX = readDoubleParameter(parameters, "featureBboxMaxX");
-    Double maxY = readDoubleParameter(parameters, "featureBboxMaxY");
-    return MapImageBboxValidator.validate(List.of(minX, minY, maxX, maxY));
-  }
-
-  private void validateRequiredFeatureBboxParameters(Map<String, String> parameters) {
-    List<String> requiredKeys = List.of(
-        "featureBboxMinX",
-        "featureBboxMinY",
-        "featureBboxMaxX",
-        "featureBboxMaxY");
-    boolean missingParameter = requiredKeys.stream()
-        .anyMatch((key) -> !StringUtils.hasText(parameters.get(key)));
-    if (missingParameter) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "featureBbox parameters must include featureBboxMinX, featureBboxMinY, featureBboxMaxX and featureBboxMaxY together");
-    }
-  }
-
-  private Double readDoubleParameter(Map<String, String> parameters, String key) {
-    String rawValue = parameters.get(key);
-    if (!StringUtils.hasText(rawValue)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "featureBbox parameter " + key + " must be numeric");
-    }
-    try {
-      return Double.valueOf(rawValue.trim());
-    } catch (NumberFormatException exception) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "featureBbox parameter " + key + " must be numeric",
-          exception);
-    }
-  }
-
-  private List<Double> expandDegenerateBbox(List<Double> bbox, double minDegenerateBboxSize) {
-    double minX = bbox.get(0);
-    double minY = bbox.get(1);
-    double maxX = bbox.get(2);
-    double maxY = bbox.get(3);
-
-    if (Double.compare(minX, maxX) == 0) {
-      minX -= minDegenerateBboxSize / 2d;
-      maxX += minDegenerateBboxSize / 2d;
-    }
-    if (Double.compare(minY, maxY) == 0) {
-      minY -= minDegenerateBboxSize / 2d;
-      maxY += minDegenerateBboxSize / 2d;
-    }
-
-    return List.of(minX, minY, maxX, maxY);
-  }
-
-  private List<Double> applyBboxMargin(List<Double> bbox, double marginRatio) {
-    double width = bbox.get(2) - bbox.get(0);
-    double height = bbox.get(3) - bbox.get(1);
-    double horizontalMargin = width * marginRatio / 2d;
-    double verticalMargin = height * marginRatio / 2d;
-    return List.of(
-        bbox.get(0) - horizontalMargin,
-        bbox.get(1) - verticalMargin,
-        bbox.get(2) + horizontalMargin,
-        bbox.get(3) + verticalMargin);
-  }
-
-  private List<Double> fitBboxToAspectRatio(List<Double> bbox, int width, int height) {
-    double minX = bbox.get(0);
-    double minY = bbox.get(1);
-    double maxX = bbox.get(2);
-    double maxY = bbox.get(3);
-    double bboxWidth = maxX - minX;
-    double bboxHeight = maxY - minY;
-    if (bboxWidth <= 0d || bboxHeight <= 0d || width <= 0 || height <= 0) {
-      return bbox;
-    }
-
-    double bboxCenterX = (minX + maxX) / 2d;
-    double bboxCenterY = (minY + maxY) / 2d;
-    double bboxRatio = bboxWidth / bboxHeight;
-    double targetRatio = (double) width / (double) height;
-
-    if (bboxRatio < targetRatio) {
-      double fittedWidth = bboxHeight * targetRatio;
-      double halfWidth = fittedWidth / 2d;
-      return List.of(bboxCenterX - halfWidth, minY, bboxCenterX + halfWidth, maxY);
-    }
-
-    if (bboxRatio > targetRatio) {
-      double fittedHeight = bboxWidth / targetRatio;
-      double halfHeight = fittedHeight / 2d;
-      return List.of(minX, bboxCenterY - halfHeight, maxX, bboxCenterY + halfHeight);
-    }
-
-    return bbox;
-  }
-
-  private int readPositiveTaskDimension(Task task, String propertyKey, int defaultValue) {
-    if (task == null || task.getProperties() == null) {
-      return defaultValue;
-    }
-    Object rawValue = task.getProperties().get(propertyKey);
-    return rawValue instanceof Number number && number.intValue() > 0 ? number.intValue() : defaultValue;
-  }
-
-  private TemplateTaskExecutionResponseDto buildMapImageBinaryResponse(Task task, String contentUrl) {
-    Map<String, Object> context = new LinkedHashMap<>();
-    context.put("contentUrl", contentUrl);
-    context.put("url", contentUrl);
-    context.put("mimeType", MediaType.IMAGE_PNG_VALUE);
-    context.put("binary", true);
-    context.put("embeddable", true);
-    context.put(VALUE, BINARY_VALUE_PLACEHOLDER);
-
-    List<Map<String, Object>> rows = flattenContextToRows(context);
-    return TemplateTaskExecutionResponseDto.builder()
-        .taskId(task.getId())
-        .status(COMPLETED)
-        .resultType("resource")
-        .context(context)
-        .rows(rows)
-        .resourceUrl(contentUrl)
-        .build();
-  }
-
-  private String sanitizeRequestUrlForLogging(
-      String requestUrl, Map<String, String> executionParameters) {
-    if (!StringUtils.hasText(requestUrl)) {
-      return "";
-    }
-    return maskQueryParameterValues(maskExecutionParameterValues(requestUrl, executionParameters));
-  }
-
-  private String maskExecutionParameterValues(
-      String requestUrl, Map<String, String> executionParameters) {
-    if (executionParameters == null || executionParameters.isEmpty()) {
-      return requestUrl;
-    }
-    String sanitized = requestUrl;
-    List<Map.Entry<String, String>> entries = new ArrayList<>(executionParameters.entrySet());
-    entries.sort(Comparator.comparingInt(entry -> -String.valueOf(entry.getValue()).length()));
-    for (Map.Entry<String, String> entry : entries) {
-      if (!StringUtils.hasText(entry.getKey()) || !StringUtils.hasText(entry.getValue())) {
-        continue;
-      }
-      String placeholder = "{" + entry.getKey() + "}";
-      String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
-      sanitized = sanitized.replace(encodedValue.replace("+", "%20"), placeholder);
-      sanitized = sanitized.replace(encodedValue, placeholder);
-      sanitized = sanitized.replace(entry.getValue(), placeholder);
-    }
-    return sanitized;
-  }
-
-  private String maskQueryParameterValues(String requestUrl) {
-    int fragmentStart = requestUrl.indexOf('#');
-    String urlWithoutFragment = fragmentStart >= 0 ? requestUrl.substring(0, fragmentStart) : requestUrl;
-    String fragment = fragmentStart >= 0 ? requestUrl.substring(fragmentStart) : "";
-    int queryStart = urlWithoutFragment.indexOf('?');
-    if (queryStart < 0) {
-      return requestUrl;
-    }
-    String prefix = urlWithoutFragment.substring(0, queryStart + 1);
-    String query = urlWithoutFragment.substring(queryStart + 1);
-    if (query.isEmpty()) {
-      return requestUrl;
-    }
-    List<String> maskedParameters = new ArrayList<>();
-    for (String queryParameter : query.split("&", -1)) {
-      int valueStart = queryParameter.indexOf('=');
-      if (valueStart < 0) {
-        maskedParameters.add(queryParameter);
-      } else {
-        maskedParameters.add(queryParameter.substring(0, valueStart + 1) + "***");
-      }
-    }
-    return prefix + String.join("&", maskedParameters) + fragment;
-  }
-
-  private TemplateTaskExecutionResponseDto resolveUrlTask(
-      Task task, Map<String, String> parameters, String scope, RequestCoordinates coordinates) {
-    String command = String.valueOf(
-        task.getProperties().getOrDefault(DomainConstants.Tasks.PROPERTY_COMMAND, ""));
-    String resolved = resolveTemplateUrl(command, parameters, coordinates);
-
-    Map<String, Object> context = new LinkedHashMap<>();
-    context.put("url", resolved);
-    parameters.forEach((key, value) -> context.put("$" + key, value));
-
-    return TemplateTaskExecutionResponseDto.builder()
-        .taskId(task.getId())
-        .status(COMPLETED)
-        .resultType(
-            DomainConstants.Tasks.SCOPE_RESOURCE_QUERY.equalsIgnoreCase(scope)
-                || DomainConstants.Tasks.SCOPE_RESOURCE.equalsIgnoreCase(scope)
-                    ? "resource"
-                    : "url")
-        .context(context)
-        .rows(Collections.emptyList())
-        .resourceUrl(resolved)
-        .build();
   }
 
   private Map<String, String> stringifyParameters(Map<String, Object> parameters) {
@@ -1636,279 +1322,8 @@ public class TemplateExecutionService {
     return "task_" + relatedTask.getId();
   }
 
-  private Map<String, Object> buildRowAndParameterContext(
-      List<Map<String, Object>> rows, Map<String, String> parameters) {
-    Map<String, Object> context = new LinkedHashMap<>();
-    parameters.forEach((key, value) -> context.put("$" + key, value));
-    context.put("rows", rows);
-    if (!rows.isEmpty()) {
-      rows.get(0).forEach(context::put);
-    }
-    return context;
-  }
-
-  private Map<String, Object> buildApiContext(
-      Map<String, Object> bodyContext,
-      List<Map<String, Object>> rows,
-      Map<String, String> configuredParameters,
-      Map<String, String> executionParameters) {
-    Map<String, Object> context = new LinkedHashMap<>();
-    mergeTemplateParameterContext(context, configuredParameters, executionParameters);
-    context.put("rows", rows);
-    if (bodyContext != null) {
-      context.putAll(bodyContext);
-    }
-    return context;
-  }
-
-  private TemplateTaskExecutionResponseDto buildBinaryApiResponse(
-      Task task,
-      Map<String, String> executionParameters,
-      Map<String, String> configuredParameters,
-      String contentUrl,
-      String mimeType) {
-    Map<String, Object> context = new LinkedHashMap<>();
-    mergeTemplateParameterContext(context, configuredParameters, executionParameters);
-    context.put("contentUrl", contentUrl);
-    context.put("url", contentUrl);
-    context.put("mimeType", mimeType);
-    context.put("binary", true);
-    context.put("embeddable", StringUtils.hasText(contentUrl));
-    if (!StringUtils.hasText(contentUrl)) {
-      context.put(
-          "accessMessage", "Contenido binario no embebible: requiere autenticacion de servidor");
-    }
-    context.put(VALUE, BINARY_VALUE_PLACEHOLDER);
-
-    List<Map<String, Object>> rows = flattenContextToRows(context);
-    return TemplateTaskExecutionResponseDto.builder()
-        .taskId(task.getId())
-        .status(COMPLETED)
-        .resultType("resource")
-        .context(context)
-        .rows(rows)
-        .resourceUrl(contentUrl)
-        .build();
-  }
-
-  private String resolveApiResponseMimeType(Task task, okhttp3.MediaType contentType) {
-    String configuredMimeType = readConfiguredMimeType(task);
-    if (StringUtils.hasText(configuredMimeType)) {
-      return configuredMimeType.trim();
-    }
-    return contentType != null ? contentType.toString() : null;
-  }
-
-  private String readConfiguredMimeType(Task task) {
-    Map<String, Object> properties = task.getProperties();
-    Object mimeType = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_MIME_TYPE) : null;
-    return mimeType != null ? String.valueOf(mimeType) : null;
-  }
-
-  private boolean isBinaryMimeType(String mimeType) {
-    if (!StringUtils.hasText(mimeType)) {
-      return true;
-    }
-    String normalized = mimeType.toLowerCase().split(";", 2)[0].trim();
-    if (normalized.startsWith("text/")
-        || normalized.equals(MediaType.APPLICATION_JSON_VALUE)
-        || normalized.equals(MediaType.APPLICATION_XML_VALUE)
-        || normalized.equals(MediaType.TEXT_XML_VALUE)
-        || normalized.equals("application/xhtml+xml")
-        || normalized.equals("application/javascript")
-        || normalized.equals("application/x-javascript")
-        || normalized.equals("application/ecmascript")
-        || normalized.equals("application/x-www-form-urlencoded")
-        || normalized.equals("application/csv")
-        || normalized.endsWith("+json")
-        || normalized.endsWith("+xml")) {
-      return false;
-    }
-    return true;
-  }
-
-  private boolean hasServerSideHttpSecurity(HttpSecurityDto security) {
-    if (security == null) {
-      return false;
-    }
-    return (security.getHeaders() != null && !security.getHeaders().isEmpty())
-        || StringUtils.hasText(security.getUsername())
-        || StringUtils.hasText(security.getPassword());
-  }
-
-  private void mergeTemplateParameterContext(
-      Map<String, Object> context,
-      Map<String, String> configuredParameters,
-      Map<String, String> executionParameters) {
-    if (configuredParameters != null) {
-      configuredParameters.forEach((key, value) -> context.put("$" + key, value));
-    }
-    if (executionParameters != null) {
-      executionParameters.forEach((key, value) -> context.put("$" + key, value));
-    }
-  }
-
-  private Map<String, Object> normalizeBodyToContext(String body) throws IOException {
-    if (!StringUtils.hasText(body)) {
-      return Collections.emptyMap();
-    }
-    String trimmed = body.trim();
-    if (trimmed.startsWith("[")) {
-      List<?> values = objectMapper.readValue(trimmed, new TypeReference<List<?>>() {
-      });
-      return Collections.singletonMap("items", values);
-    }
-    if (trimmed.startsWith("{")) {
-      return objectMapper.readValue(trimmed, new TypeReference<Map<String, Object>>() {
-      });
-    }
-    return Collections.singletonMap(VALUE, body);
-  }
-
-  private List<Map<String, Object>> flattenContextToRows(Map<String, Object> context) {
-    List<Map<String, Object>> rows = new ArrayList<>();
-    flattenValue(null, context, rows);
-    return rows;
-  }
-
-  private void flattenValue(String path, Object value, List<Map<String, Object>> rows) {
-    if (value instanceof Map<?, ?> mapValue) {
-      mapValue.forEach(
-          (key, nestedValue) -> flattenValue(appendPath(path, String.valueOf(key)), nestedValue, rows));
-      return;
-    }
-    if (value instanceof List<?> listValue) {
-      for (int index = 0; index < listValue.size(); index++) {
-        flattenValue(appendIndex(path, index), listValue.get(index), rows);
-      }
-      return;
-    }
-    if (path != null) {
-      Map<String, Object> row = new LinkedHashMap<>();
-      row.put("field", path);
-      row.put(VALUE, value);
-      rows.add(row);
-    }
-  }
-
-  private String appendPath(String parent, String segment) {
-    return parent == null || parent.isEmpty() ? segment : parent + "." + segment;
-  }
-
-  private String appendIndex(String parent, int index) {
-    return (parent == null ? "" : parent) + "[" + index + "]";
-  }
-
-  private void applySecurity(HttpSecurityDto security, Request.Builder requestBuilder) {
-    if (security == null) {
-      return;
-    }
-    if (security.getHeaders() != null) {
-      security.getHeaders().forEach(requestBuilder::addHeader);
-    }
-    if (StringUtils.hasText(security.getUsername())
-        && StringUtils.hasText(security.getPassword())) {
-      requestBuilder.addHeader(
-          "Authorization",
-          Credentials.basic(
-              security.getUsername(), security.getPassword(), StandardCharsets.UTF_8));
-    }
-  }
-
-  private String buildHttpRequestUrl(
-      WmsPayloadDto payload,
-      Map<String, String> executionParameters,
-      RequestCoordinates coordinates,
-      String taskCommand) {
-    Map<String, String> templateParameters = new LinkedHashMap<>();
-    if (payload.getParameters() != null) {
-      templateParameters.putAll(payload.getParameters());
-    }
-    if (executionParameters != null) {
-      templateParameters.putAll(executionParameters);
-    }
-
-    String uriTemplateSource = selectUriTemplateSource(payload.getUri(), taskCommand);
-    String resolvedUri = resolveTemplateUrl(uriTemplateSource, templateParameters, coordinates);
-
-    Set<String> uriTemplateParameters = extractUriTemplateParameters(uriTemplateSource);
-    Map<String, String> queryParameters = new LinkedHashMap<>();
-    if (payload.getParameters() != null) {
-      queryParameters.putAll(payload.getParameters());
-    }
-    if (executionParameters != null) {
-      executionParameters.forEach(queryParameters::putIfAbsent);
-    }
-    uriTemplateParameters.forEach(queryParameters::remove);
-    return appendEncodedQueryParameters(resolvedUri, queryParameters);
-  }
-
-  private String appendEncodedQueryParameters(
-      String resolvedUri, Map<String, String> queryParameters) {
-    if (queryParameters.isEmpty()) {
-      return resolvedUri;
-    }
-    StringBuilder url = new StringBuilder(resolvedUri);
-    url.append(resolvedUri.contains("?") ? "&" : "?");
-    List<String> encodedParameters = new ArrayList<>();
-    queryParameters.forEach(
-        (key, value) -> encodedParameters.add(encodeQueryComponent(key) + "=" + encodeQueryComponent(value)));
-    url.append(String.join("&", encodedParameters));
-    return url.toString();
-  }
-
-  private String encodeQueryComponent(String value) {
-    return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8)
-        .replace("+", "%20");
-  }
-
-  private String selectUriTemplateSource(String payloadUri, String taskCommand) {
-    if (extractUriTemplateParameters(payloadUri).isEmpty()
-        && !extractUriTemplateParameters(taskCommand).isEmpty()) {
-      return taskCommand;
-    }
-    return payloadUri;
-  }
-
-  private String readTaskCommand(Task task) {
-    Map<String, Object> properties = task.getProperties();
-    Object command = properties != null ? properties.get(DomainConstants.Tasks.PROPERTY_COMMAND) : null;
-    return command != null ? String.valueOf(command) : null;
-  }
-
-  private Set<String> extractUriTemplateParameters(String uri) {
-    if (!StringUtils.hasText(uri)) {
-      return Collections.emptySet();
-    }
-    Matcher matcher = URI_TEMPLATE_PARAMETER_PATTERN.matcher(uri);
-    Set<String> placeholders = new LinkedHashSet<>();
-    while (matcher.find()) {
-      placeholders.add(matcher.group(1));
-    }
-    return placeholders;
-  }
-
-  private String resolveTemplateUrl(
-      String command, Map<String, String> parameters, RequestCoordinates coordinates) {
-    String resolved = systemVariableResolver.resolve(command, coordinates);
-    if (resolved == null) {
-      resolved = command;
-    }
-    for (Map.Entry<String, String> entry : parameters.entrySet()) {
-      String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
-      resolved = resolved.replace("{" + entry.getKey() + "}", encodedValue);
-      resolved = resolved.replace("${" + entry.getKey() + "}", encodedValue);
-    }
-    return resolved;
-  }
-
   private String readTemplateHtml(Task task) {
     Object raw = task.getProperties().get(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML);
     return raw != null ? String.valueOf(raw) : "";
   }
-
-  private record MiaRenderContext(
-      Map<String, Object> featureParameters,
-      RequestCoordinates coordinates,
-      Set<Integer> accessibleTaskIds) {}
 }

@@ -1,8 +1,10 @@
 package org.sitmun.domain.configuration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Objects;
 import lombok.*;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
@@ -50,6 +52,14 @@ public class ConfigurationParameter {
     ClientConfigurationViews.ApplicationTerritory.class
   })
   private String value;
+
+  /**
+   * Transient save-time info keys (i18n). Set only when create/save coerces the stored value; not
+   * populated on read.
+   */
+  @Transient
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<String> warnings;
 
   @Override
   public boolean equals(Object obj) {

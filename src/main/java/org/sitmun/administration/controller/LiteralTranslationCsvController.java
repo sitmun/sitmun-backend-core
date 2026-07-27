@@ -2,7 +2,6 @@ package org.sitmun.administration.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.controller.dto.LiteralTranslationCsvExportRequestDto;
 import org.sitmun.administration.controller.dto.LiteralTranslationCsvImportResponseDto;
 import org.sitmun.administration.service.i18n.LiteralTranslationCsvService;
@@ -22,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/literal-translations/csv")
 @RequiredArgsConstructor
-@Slf4j
 public class LiteralTranslationCsvController {
 
   private final LiteralTranslationCsvService literalTranslationCsvService;
@@ -33,11 +31,6 @@ public class LiteralTranslationCsvController {
     String targetLanguage = request.getTargetLanguage();
     String fileName =
         sanitizeFileName(request.getFileName(), targetLanguage, request.getLiteralIds());
-    log.info(
-        "CSV export requested - targetLanguage: {}, literalIds: {}, fileName: {}",
-        targetLanguage,
-        request.getLiteralIds() != null ? request.getLiteralIds().size() : "all",
-        fileName);
     byte[] content = literalTranslationCsvService.exportCsv(request);
 
     return ResponseEntity.ok()
@@ -53,22 +46,8 @@ public class LiteralTranslationCsvController {
   public ResponseEntity<LiteralTranslationCsvImportResponseDto> importCsv(
       @RequestParam("targetLanguage") String targetLanguage,
       @RequestPart("file") MultipartFile file) {
-    log.info(
-        "CSV import requested - targetLanguage: {}, fileName: {}",
-        targetLanguage,
-        file != null ? file.getOriginalFilename() : "null");
     LiteralTranslationCsvImportResponseDto response =
         literalTranslationCsvService.importCsv(targetLanguage, file);
-    log.info(
-        "CSV import completed - targetLanguage: {}, totalRows: {}, created: {}L/{}T, updated: {}, emptied: {}, unchanged: {}, failed: {}",
-        response.getTargetLanguage(),
-        response.getTotalRows(),
-        response.getCreatedLiterals(),
-        response.getCreatedTranslations(),
-        response.getUpdatedTranslations(),
-        response.getEmptiedTranslations(),
-        response.getUnchangedRows(),
-        response.getFailedRows());
     return ResponseEntity.ok(response);
   }
 

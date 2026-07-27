@@ -1,6 +1,7 @@
 package org.sitmun.authorization.client.controller;
 
 import static org.sitmun.authorization.client.service.ProfileContext.NodeSectionBehaviour.*;
+import static org.sitmun.infrastructure.security.core.SecurityRole.isMobileEdition;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -21,17 +22,23 @@ import org.sitmun.authorization.client.mapper.ApplicationMapper;
 import org.sitmun.authorization.client.mapper.ProfileMapper;
 import org.sitmun.authorization.client.mapper.TerritoryMapper;
 import org.sitmun.authorization.client.service.AuthorizationService;
+import org.sitmun.authorization.client.service.ClientUserPositionService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.ProfileContext;
+import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryDTO;
 import org.sitmun.domain.user.position.UserPositionDTO;
-import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.util.UriTemplateExpander;
+import org.sitmun.infrastructure.web.dto.ProblemDetail;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,19 +52,15 @@ public class ClientConfigurationController {
 
   private final AuthorizationService authorizationService;
   private final ProfileMapper profileMapper;
-  private final UserPositionRepository userPositionRepository;
+  private final ClientUserPositionService clientUserPositionService;
+  private final MobileEditionAccessService mobileEditionAccessService;
+  private final ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   @Value("${sitmun.proxy-middleware.force:false}")
   private boolean proxyForce;
 
-  @Value("${sitmun.proxy-middleware.url:}")
-  private String proxyUrl;
-
   @Value("${sitmun.backend.url:}")
   private String backendUrl;
-
-  @Value("${sitmun.mbtiles.url:}")
-  private String mbtilesUrl;
 
   /**
    * Constructor for ClientConfigurationController.
@@ -68,10 +71,14 @@ public class ClientConfigurationController {
   public ClientConfigurationController(
       AuthorizationService authorizationService,
       ProfileMapper profileMapper,
-      UserPositionRepository userPositionRepository) {
+      ClientUserPositionService clientUserPositionService,
+      MobileEditionAccessService mobileEditionAccessService,
+      ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver) {
     this.authorizationService = authorizationService;
     this.profileMapper = profileMapper;
-    this.userPositionRepository = userPositionRepository;
+    this.clientUserPositionService = clientUserPositionService;
+    this.mobileEditionAccessService = mobileEditionAccessService;
+    this.proxyMiddlewareUrlResolver = proxyMiddlewareUrlResolver;
   }
 
   /**
@@ -91,6 +98,7 @@ public class ClientConfigurationController {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     authorizationService.ensureMayAccessApplication(appId, username);
+    ensureEditionApplicationForMobile(appId);
     pageable = ensureSortBy(pageable, "name");
     Page<Territory> page =
         authorizationService.findTerritoriesByUserAndApplication(username, appId, pageable);
@@ -106,9 +114,8 @@ public class ClientConfigurationController {
   public ResponseEntity<UserPositionDTO> editTerritoryPositions(
       @CurrentSecurityContext SecurityContext context, @RequestBody UserPositionDTO positionDTOs) {
     String username = context.getAuthentication().getName();
-    authorizationService.ensureMayUseClientConfigEndpoints(username);
-    userPositionRepository.updatePosition(positionDTOs.getId(), positionDTOs);
-    return ResponseEntity.ok(positionDTOs);
+    UserPositionDTO updated = clientUserPositionService.updateOwnedPosition(username, positionDTOs);
+    return ResponseEntity.ok(updated);
   }
 
   /**
@@ -126,11 +133,16 @@ public class ClientConfigurationController {
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
     Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
+    List<Application> content =
+        isMobileEdition()
+            ? page.getContent().stream()
+                .filter(MobileEditionAccessService::isEditionApplication)
+                .toList()
+            : page.getContent();
     List<ApplicationDtoLittle> applications =
-        Mappers.getMapper(ApplicationMapper.class).map(page.getContent());
-    decorateApplicationWithMbtiles(applications);
-    return new PagedModel<>(
-        new PageImpl<>(applications, page.getPageable(), page.getTotalElements()));
+        Mappers.getMapper(ApplicationMapper.class).map(content);
+    long total = isMobileEdition() ? content.size() : page.getTotalElements();
+    return new PagedModel<>(new PageImpl<>(applications, pageable, total));
   }
 
   /**
@@ -189,11 +201,16 @@ public class ClientConfigurationController {
   @GetMapping(path = "/dashboard/applications", produces = APPLICATION_JSON_VALUE)
   @Transactional(readOnly = true)
   public PagedModel<DashboardApplicationDto> getDashboardApplications(
-      @CurrentSecurityContext SecurityContext context, Pageable pageable) {
+      @CurrentSecurityContext SecurityContext context,
+      Pageable pageable,
+      @RequestParam(required = false, defaultValue = "") String keywords) {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
     pageable = ensureSortBy(pageable, "title");
-    Page<Application> page = authorizationService.findApplicationsByUser(username, pageable);
+    Page<Application> page =
+        keywords != null && keywords.trim().length() >= 2
+            ? authorizationService.findApplicationsByUser(username, keywords.trim(), pageable)
+            : authorizationService.findApplicationsByUser(username, pageable);
 
     List<Application> apps = page.getContent();
     Map<Integer, Integer> territoryCounts =
@@ -293,14 +310,19 @@ public class ClientConfigurationController {
    */
   @GetMapping(path = "/profile/{appId}/{terrId}", produces = APPLICATION_JSON_VALUE)
   @Transactional(readOnly = true)
-  public ResponseEntity<ProfileDto> getProfile(
+  public ResponseEntity<?> getProfile(
       @CurrentSecurityContext SecurityContext context,
       @PathVariable Integer appId,
       @PathVariable Integer terrId,
       @RequestParam(value = "filter", defaultValue = "none") String filter) {
     String username = context.getAuthentication().getName();
     authorizationService.ensureMayUseClientConfigEndpoints(username);
-    authorizationService.ensureMayAccessApplication(appId, username);
+    try {
+      authorizationService.ensureMayAccessApplication(appId, username);
+      ensureEditionApplicationForMobile(appId);
+    } catch (AccessDeniedException exception) {
+      return forbiddenProfile(appId, terrId);
+    }
 
     AtomicReference<ProfileContext.NodeSectionBehaviour> nodeSectionBehaviour =
         new AtomicReference<>(VIRTUAL_ROOT_ALL_NODES);
@@ -338,8 +360,23 @@ public class ClientConfigurationController {
         .map(decorateWithFilter(profileContext))
         .map(decorateWithProxy(profileContext))
         .map(decorateWithGlobalProxy())
-        .map(profile -> ResponseEntity.ok().body(profile))
-        .orElseGet(() -> ResponseEntity.status(UNAUTHORIZED).build());
+        .<ResponseEntity<?>>map(ResponseEntity::ok)
+        .orElseGet(() -> forbiddenProfile(appId, terrId));
+  }
+
+  private static ResponseEntity<ProblemDetail> forbiddenProfile(Integer appId, Integer terrId) {
+    String instance = "/api/config/client/profile/%d/%d".formatted(appId, terrId);
+    ProblemDetail problem =
+        ProblemDetail.builder()
+            .type(ProblemTypes.FORBIDDEN)
+            .status(FORBIDDEN.value())
+            .title(FORBIDDEN.getReasonPhrase())
+            .detail("Access is denied")
+            .instance(instance)
+            .build();
+    return ResponseEntity.status(FORBIDDEN)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(problem);
   }
 
   private static final Pattern NODE_PATTERN = Pattern.compile("node/(\\d+)");
@@ -393,13 +430,14 @@ public class ClientConfigurationController {
   /** Decorate the profile with proxy information if necessary. */
   private Function<ProfileDto, ProfileDto> decorateWithProxy(ProfileContext context) {
     return profileDto -> {
+      String middlewareBase = proxyMiddlewareUrlResolver.resolve();
       profileDto
           .getServices()
           .forEach(
               service -> {
                 if (proxyForce || Boolean.TRUE.equals(service.getIsProxied())) {
                   service.setIsProxied(true);
-                  String uriTemplate = proxyUrl + "/proxy/{appId}/{terId}/{type}/{typeId}";
+                  String uriTemplate = middlewareBase + "/proxy/{appId}/{terId}/{type}/{typeId}";
                   log.info(
                       "Creating proxy URL for appId:{} terId:{} type:{} typeId:{} with template:{}",
                       context.getAppId(),
@@ -421,29 +459,26 @@ public class ClientConfigurationController {
     };
   }
 
-  /** Inject proxy middleware URL from Spring property into global config map. */
+  /** Publish the effective proxy middleware URL into global config map. */
   private Function<ProfileDto, ProfileDto> decorateWithGlobalProxy() {
     return profileDto -> {
-      if (!proxyUrl.isBlank()) {
-        if (profileDto.getGlobal() == null) {
-          profileDto.setGlobal(new java.util.HashMap<>());
-        }
-        profileDto.getGlobal().put(SitmunConstants.PROXY_CONF_KEY, proxyUrl);
+      if (profileDto.getGlobal() == null) {
+        profileDto.setGlobal(new java.util.HashMap<>());
+      }
+      String middlewareBase = proxyMiddlewareUrlResolver.resolve();
+      if (middlewareBase.isBlank()) {
+        profileDto.getGlobal().remove(SitmunConstants.PROXY_CONF_KEY);
+      } else {
+        profileDto.getGlobal().put(SitmunConstants.PROXY_CONF_KEY, middlewareBase);
       }
       return profileDto;
     };
   }
 
-  private void decorateApplicationWithMbtiles(List<ApplicationDtoLittle> applications) {
-    applications.forEach(
-        app -> {
-          if (app.getConfig() == null) {
-            app.setConfig(new java.util.HashMap<>());
-            app.getConfig().put("mbtilesUrl", mbtilesUrl);
-          } else if (!app.getConfig().containsKey("mbtilesUrl")) {
-            app.getConfig().put("mbtilesUrl", mbtilesUrl);
-          }
-        });
+  private void ensureEditionApplicationForMobile(Integer appId) {
+    if (isMobileEdition() && !mobileEditionAccessService.isEditionApplicationId(appId)) {
+      throw new AccessDeniedException("Access denied to non-edition application");
+    }
   }
 
   private static @NotNull Pageable ensureSortBy(Pageable pageable, String title) {

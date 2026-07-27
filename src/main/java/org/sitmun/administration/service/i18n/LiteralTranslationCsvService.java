@@ -1,5 +1,7 @@
 package org.sitmun.administration.service.i18n;
 
+import static org.sitmun.domain.PersistenceConstants.LONG_DESCRIPTION;
+
 import com.opencsv.CSVReader;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -15,10 +17,11 @@ import org.sitmun.administration.controller.dto.LiteralTranslationCsvImportRespo
 import org.sitmun.administration.service.csv.AbstractOpenCsvService;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslation;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationValue;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationValueRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +37,10 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
 
   private static final String[] HEADER = {"source_language", "literal", "translation"};
 
-  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-  private final JdbcTemplate jdbcTemplate;
-  private final PlatformTransactionManager transactionManager;
+  private final LiteralTranslationRepository literalTranslationRepository;
+  private final LiteralTranslationValueRepository literalTranslationValueRepository;
   private final LanguageRepository languageRepository;
+  private final PlatformTransactionManager transactionManager;
 
   @Transactional(readOnly = true)
   public byte[] exportCsv(LiteralTranslationCsvExportRequestDto request) {
@@ -99,7 +102,7 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
       log.info("CSV import - empty file (header only), language: {}", targetLanguage);
       return LiteralTranslationCsvImportResponseDto.builder()
           .targetLanguage(targetLanguage)
-          .existingKeysNotInCsv(countExistingLiterals())
+          .existingKeysNotInCsv(literalTranslationRepository.count())
           .sourceLanguages(List.of())
           .errors(List.of())
           .build();
@@ -112,13 +115,13 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
         inspection.sourceLanguages,
         inspection.literals.size());
 
-    final Map<String, Long> languageIds = resolveLanguageIds(inspection.sourceLanguages);
+    final Map<String, Integer> languageIds = resolveLanguageIds(inspection.sourceLanguages);
     final List<ValidatedCsvRow> processableRows = new ArrayList<>();
     final List<LiteralTranslationCsvImportErrorDto> errors = new ArrayList<>(inspection.errors);
 
     inspection.validRows.forEach(
         row -> {
-          final Long sourceLanguageId = languageIds.get(row.sourceLanguage());
+          final Integer sourceLanguageId = languageIds.get(row.sourceLanguage());
           if (sourceLanguageId == null) {
             errors.add(
                 new LiteralTranslationCsvImportErrorDto(
@@ -135,9 +138,9 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
 
     final Map<String, ExistingLiteral> existingByLiteral =
         loadExistingLiterals(processableLiterals);
-    final Map<Long, String> existingTargetValues =
+    final Map<Integer, String> existingTargetValues =
         loadExistingTargetValues(targetLanguageEntity.getId(), existingByLiteral.values());
-    long existingLiteralsBefore = countExistingLiterals();
+    long existingLiteralsBefore = literalTranslationRepository.count();
     long existingLiteralsMatchedBefore = existingByLiteral.size();
 
     log.info(
@@ -156,7 +159,8 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
             RowOutcome outcome =
                 transactionTemplate.execute(
                     status ->
-                        processRow(row, targetLanguageEntity.getId(), existingByLiteral, existingTargetValues));
+                        processRow(
+                            row, targetLanguageEntity, existingByLiteral, existingTargetValues));
             if (outcome == null) {
               return;
             }
@@ -251,6 +255,24 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
           "entity.literalTranslation.error.literal_required");
       return;
     }
+    if (literal.length() > LONG_DESCRIPTION) {
+      addInspectionError(
+          inspection,
+          rowNumber,
+          sourceLanguage,
+          literal,
+          "entity.literalTranslation.error.literal_too_long");
+      return;
+    }
+    if (translation != null && translation.length() > LONG_DESCRIPTION) {
+      addInspectionError(
+          inspection,
+          rowNumber,
+          sourceLanguage,
+          literal,
+          "entity.literalTranslation.error.translation_too_long");
+      return;
+    }
     if (!inspection.seenLiterals.add(literal)) {
       addInspectionError(
           inspection,
@@ -268,53 +290,68 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
   }
 
   private void addInspectionError(
-      CsvInspection inspection, long rowNumber, String sourceLanguage, String literal, String message) {
+      CsvInspection inspection,
+      long rowNumber,
+      String sourceLanguage,
+      String literal,
+      String message) {
     inspection.errors.add(
         new LiteralTranslationCsvImportErrorDto(rowNumber, sourceLanguage, literal, message));
   }
 
   private RowOutcome processRow(
       ValidatedCsvRow row,
-      long targetLanguageId,
+      Language targetLanguage,
       Map<String, ExistingLiteral> existingByLiteral,
-      Map<Long, String> existingTargetValues) {
+      Map<Integer, String> existingTargetValues) {
     ExistingLiteral existing = existingByLiteral.get(row.literal());
     boolean createdLiteral = existing == null;
     ExistingLiteral literal = createdLiteral ? createLiteral(row) : existing;
+    LiteralTranslation literalEntity =
+        literalTranslationRepository.findById(literal.id()).orElseThrow();
 
-    syncSourceTranslation(
-        literal.id(), literal.sourceLanguageId(), targetLanguageId, literal.literal());
+    syncSourceTranslation(literalEntity, targetLanguage.getId());
     return processTargetTranslation(
         literal,
-        targetLanguageId,
+        literalEntity,
+        targetLanguage,
         existingTargetValues.get(literal.id()),
         row.translation(),
         createdLiteral);
   }
 
   private ExistingLiteral createLiteral(ValidatedCsvRow row) {
-    long literalId = nextSequenceValue("LTR_ID");
-    insertLiteral(literalId, row.literal(), row.sourceLanguageId());
-    return new ExistingLiteral(
-        literalId, row.literal(), row.sourceLanguage(), row.sourceLanguageId());
+    Language sourceLanguage =
+        languageRepository
+            .findById(row.sourceLanguageId())
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Language not found"));
+    LiteralTranslation saved =
+        literalTranslationRepository.saveAndFlush(
+            LiteralTranslation.builder()
+                .literal(row.literal())
+                .sourceLanguage(sourceLanguage)
+                .build());
+    return toExisting(saved);
   }
 
   private RowOutcome processTargetTranslation(
       ExistingLiteral literal,
-      long targetLanguageId,
+      LiteralTranslation literalEntity,
+      Language targetLanguage,
       String currentValue,
       String translation,
       boolean createdLiteral) {
     if (!StringUtils.hasText(translation)) {
       if (currentValue != null) {
-        deleteTranslation(literal.id(), targetLanguageId);
+        deleteTranslation(literalEntity, targetLanguage.getShortname());
         return new RowOutcome(literal, null, RowAction.EMPTIED_TRANSLATION, createdLiteral, true);
       }
       return new RowOutcome(literal, null, RowAction.UNCHANGED, createdLiteral, true);
     }
 
     if (currentValue == null) {
-      insertTranslation(nextSequenceValue("LTV_ID"), literal.id(), targetLanguageId, translation);
+      upsertTranslation(literalEntity, targetLanguage, translation);
       return new RowOutcome(
           literal, translation, RowAction.CREATED_TRANSLATION, createdLiteral, false);
     }
@@ -323,7 +360,7 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
       return new RowOutcome(literal, currentValue, RowAction.UNCHANGED, createdLiteral, false);
     }
 
-    updateTranslation(literal.id(), targetLanguageId, translation);
+    upsertTranslation(literalEntity, targetLanguage, translation);
     return new RowOutcome(
         literal, translation, RowAction.UPDATED_TRANSLATION, createdLiteral, false);
   }
@@ -331,7 +368,7 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
   private void applyOutcome(
       Summary summary,
       Map<String, ExistingLiteral> existingByLiteral,
-      Map<Long, String> existingTargetValues,
+      Map<Integer, String> existingTargetValues,
       RowOutcome outcome) {
     existingByLiteral.put(outcome.literal().literal(), outcome.literal());
     summary.apply(outcome);
@@ -345,25 +382,19 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
 
   private LiteralTranslationCsvImportErrorDto toImportError(
       long rowNumber, String sourceLanguage, String literal, RuntimeException exception) {
-    String message = StringUtils.hasText(exception.getMessage()) ? exception.getMessage() : "Import error";
+    String message =
+        StringUtils.hasText(exception.getMessage()) ? exception.getMessage() : "Import error";
     return new LiteralTranslationCsvImportErrorDto(rowNumber, sourceLanguage, literal, message);
   }
 
-  private Map<String, Long> resolveLanguageIds(Collection<String> shortnames) {
+  private Map<String, Integer> resolveLanguageIds(Collection<String> shortnames) {
     if (shortnames.isEmpty()) {
       return Map.of();
     }
-    MapSqlParameterSource params = new MapSqlParameterSource("shortnames", shortnames);
-    return namedParameterJdbcTemplate.query(
-        "SELECT LAN_ID, LAN_SHORTNAME FROM STM_LANGUAGE WHERE LAN_SHORTNAME IN (:shortnames)",
-        params,
-        resultSet -> {
-          final Map<String, Long> langIdMap = new LinkedHashMap<>();
-          while (resultSet.next()) {
-            langIdMap.put(resultSet.getString("LAN_SHORTNAME"), resultSet.getLong("LAN_ID"));
-          }
-          return langIdMap;
-        });
+    return languageRepository.findByShortnameIn(shortnames).stream()
+        .collect(
+            Collectors.toMap(
+                Language::getShortname, Language::getId, (a, b) -> a, LinkedHashMap::new));
   }
 
   private Set<String> sourceLanguagesOf(List<ValidatedCsvRow> rows) {
@@ -382,154 +413,94 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
     if (literals.isEmpty()) {
       return new LinkedHashMap<>();
     }
-    MapSqlParameterSource params = new MapSqlParameterSource("literals", literals);
-    return namedParameterJdbcTemplate.query(
-        """
-        SELECT lt.LTR_ID, lt.LTR_LITERAL, lt.LTR_LANID, src.LAN_SHORTNAME AS SOURCE_LANGUAGE
-        FROM STM_LITERAL_TRANSLATION lt
-        JOIN STM_LANGUAGE src ON src.LAN_ID = lt.LTR_LANID
-        WHERE CAST(lt.LTR_LITERAL AS VARCHAR(4000)) IN (:literals)
-        """,
-        params,
-        resultSet -> {
-          Map<String, ExistingLiteral> literalsByName = new LinkedHashMap<>();
-          while (resultSet.next()) {
-            ExistingLiteral literal =
-                new ExistingLiteral(
-                    resultSet.getLong("LTR_ID"),
-                    resultSet.getString("LTR_LITERAL"),
-                    resultSet.getString("SOURCE_LANGUAGE"),
-                    resultSet.getLong("LTR_LANID"));
-            literalsByName.put(literal.literal(), literal);
-          }
-          return literalsByName;
-        });
+    Map<String, ExistingLiteral> literalsByName = new LinkedHashMap<>();
+    for (LiteralTranslation lt : literalTranslationRepository.findByLiteralIn(literals)) {
+      ExistingLiteral existing = toExisting(lt);
+      literalsByName.put(existing.literal(), existing);
+    }
+    return literalsByName;
   }
 
-  private Map<Long, String> loadExistingTargetValues(
-      long targetLanguageId, Collection<ExistingLiteral> literals) {
+  private Map<Integer, String> loadExistingTargetValues(
+      Integer targetLanguageId, Collection<ExistingLiteral> literals) {
     if (literals.isEmpty()) {
       return new LinkedHashMap<>();
     }
-    List<Long> literalIds = literals.stream().map(ExistingLiteral::id).toList();
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("targetLanguageId", targetLanguageId)
-            .addValue("literalIds", literalIds);
-    return namedParameterJdbcTemplate.query(
-        """
-        SELECT LTV_LTRID, LTV_VALUE
-        FROM STM_LITERAL_TRANSLATION_VALUE
-        WHERE LTV_LANID = :targetLanguageId
-        AND LTV_LTRID IN (:literalIds)
-        """,
-        params,
-        resultSet -> {
-          Map<Long, String> values = new LinkedHashMap<>();
-          while (resultSet.next()) {
-            values.put(resultSet.getLong("LTV_LTRID"), resultSet.getString("LTV_VALUE"));
-          }
-          return values;
-        });
-  }
-
-  private long countExistingLiterals() {
-    Long count =
-        jdbcTemplate.queryForObject("SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION", Long.class);
-    return count == null ? 0 : count;
-  }
-
-  private long nextSequenceValue(String sequenceName) {
-    Long current =
-        jdbcTemplate.queryForObject(
-            "SELECT SEQ_COUNT FROM STM_SEQUENCE WHERE SEQ_NAME = ? FOR UPDATE",
-            Long.class,
-            sequenceName);
-    if (current == null) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Sequence not found");
+    List<Integer> literalIds = literals.stream().map(ExistingLiteral::id).toList();
+    Map<Integer, String> values = new LinkedHashMap<>();
+    for (LiteralTranslationValue value :
+        literalTranslationValueRepository.findByLanguageIdAndLiteralTranslationIdIn(
+            targetLanguageId, literalIds)) {
+      values.put(value.getLiteralTranslation().getId(), value.getValue());
     }
-    jdbcTemplate.update(
-        "UPDATE STM_SEQUENCE SET SEQ_COUNT = ? WHERE SEQ_NAME = ?", current + 1, sequenceName);
-    return current;
+    return values;
   }
 
-  private void insertLiteral(long id, String literal, long sourceLanguageId) {
-    jdbcTemplate.update(
-        "INSERT INTO STM_LITERAL_TRANSLATION (LTR_ID, LTR_LITERAL, LTR_LANID) VALUES (?, ?, ?)",
-        id,
-        literal,
-        sourceLanguageId);
-  }
-
-  private void insertTranslation(long id, long literalId, long languageId, String value) {
-    jdbcTemplate.update(
-        "INSERT INTO STM_LITERAL_TRANSLATION_VALUE (LTV_ID, LTV_LTRID, LTV_LANID, LTV_VALUE) VALUES (?, ?, ?, ?)",
-        id,
-        literalId,
-        languageId,
-        value);
-  }
-
-  private void syncSourceTranslation(
-      long literalId, long sourceLanguageId, long targetLanguageId, String literal) {
-    if (sourceLanguageId == targetLanguageId) {
+  private void syncSourceTranslation(LiteralTranslation literalEntity, Integer targetLanguageId) {
+    Language sourceLanguage = literalEntity.getSourceLanguage();
+    if (sourceLanguage.getId().equals(targetLanguageId)) {
       return;
     }
-    Integer existingCount =
-        jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM STM_LITERAL_TRANSLATION_VALUE WHERE LTV_LTRID = ? AND LTV_LANID = ?",
-            Integer.class,
-            literalId,
-            sourceLanguageId);
-    if (existingCount == null || existingCount == 0) {
-      insertTranslation(nextSequenceValue("LTV_ID"), literalId, sourceLanguageId, literal);
-      return;
-    }
-    updateTranslation(literalId, sourceLanguageId, literal);
+    upsertTranslation(literalEntity, sourceLanguage, literalEntity.getLiteral());
   }
 
-  private void updateTranslation(long literalId, long languageId, String value) {
-    jdbcTemplate.update(
-        "UPDATE STM_LITERAL_TRANSLATION_VALUE SET LTV_VALUE = ? WHERE LTV_LTRID = ? AND LTV_LANID = ?",
-        value,
-        literalId,
-        languageId);
+  private void upsertTranslation(
+      LiteralTranslation literalEntity, Language language, String value) {
+    LiteralTranslationValue entity =
+        literalTranslationValueRepository
+            .findByLiteralTranslationIdAndLanguageShortname(
+                literalEntity.getId(), language.getShortname())
+            .orElseGet(LiteralTranslationValue::new);
+    entity.setLiteralTranslation(literalEntity);
+    entity.setLanguage(language);
+    entity.setValue(value);
+    literalTranslationValueRepository.saveAndFlush(entity);
   }
 
-  private void deleteTranslation(long literalId, long languageId) {
-    jdbcTemplate.update(
-        "DELETE FROM STM_LITERAL_TRANSLATION_VALUE WHERE LTV_LTRID = ? AND LTV_LANID = ?",
-        literalId,
-        languageId);
+  private void deleteTranslation(LiteralTranslation literalEntity, String languageShortname) {
+    literalTranslationValueRepository
+        .findByLiteralTranslationIdAndLanguageShortname(literalEntity.getId(), languageShortname)
+        .ifPresent(literalTranslationValueRepository::delete);
   }
 
   private String getCell(String[] row, int index) {
     return row != null && row.length > index ? row[index] : null;
   }
 
-  private List<ExportRow> loadExportRows(long targetLanguageId, List<Long> literalIds) {
-    StringBuilder sql =
-        new StringBuilder(
-            """
-        SELECT lt.LTR_ID, lt.LTR_LITERAL, src.LAN_SHORTNAME AS SOURCE_LANGUAGE, COALESCE(lv.LTV_VALUE, '') AS TRANSLATION
-        FROM STM_LITERAL_TRANSLATION lt
-        JOIN STM_LANGUAGE src ON src.LAN_ID = lt.LTR_LANID
-        LEFT JOIN STM_LITERAL_TRANSLATION_VALUE lv ON lv.LTV_LTRID = lt.LTR_ID AND lv.LTV_LANID = :targetLanguageId
-        """);
-    MapSqlParameterSource params = new MapSqlParameterSource("targetLanguageId", targetLanguageId);
+  private List<ExportRow> loadExportRows(Integer targetLanguageId, List<Long> literalIds) {
+    List<LiteralTranslation> literals;
     if (literalIds != null && !literalIds.isEmpty()) {
-      sql.append(" WHERE lt.LTR_ID IN (:literalIds)");
-      params.addValue("literalIds", literalIds);
+      List<Integer> ids = literalIds.stream().map(Long::intValue).toList();
+      literals = literalTranslationRepository.findByIdInWithSourceLanguageOrderByLiteral(ids);
+    } else {
+      literals = literalTranslationRepository.findAllWithSourceLanguageOrderByLiteral();
     }
-    sql.append(" ORDER BY lt.LTR_LITERAL ASC");
-    return namedParameterJdbcTemplate.query(
-        sql.toString(),
-        params,
-        (rs, rowNum) ->
-            new ExportRow(
-                rs.getString("SOURCE_LANGUAGE"),
-                rs.getString("LTR_LITERAL"),
-                rs.getString("TRANSLATION")));
+    if (literals.isEmpty()) {
+      return List.of();
+    }
+    List<Integer> ids = literals.stream().map(LiteralTranslation::getId).toList();
+    Map<Integer, String> translations = new HashMap<>();
+    for (LiteralTranslationValue value :
+        literalTranslationValueRepository.findByLanguageIdAndLiteralTranslationIdIn(
+            targetLanguageId, ids)) {
+      translations.put(value.getLiteralTranslation().getId(), value.getValue());
+    }
+    return literals.stream()
+        .map(
+            lt ->
+                new ExportRow(
+                    lt.getSourceLanguage().getShortname(),
+                    lt.getLiteral(),
+                    translations.getOrDefault(lt.getId(), "")))
+        .toList();
+  }
+
+  private static ExistingLiteral toExisting(LiteralTranslation lt) {
+    return new ExistingLiteral(
+        lt.getId(),
+        lt.getLiteral(),
+        lt.getSourceLanguage().getShortname(),
+        lt.getSourceLanguage().getId());
   }
 
   private record ValidatedCsvRow(
@@ -537,9 +508,9 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
       String sourceLanguage,
       String literal,
       String translation,
-      Long sourceLanguageId) {
+      Integer sourceLanguageId) {
 
-    private ValidatedCsvRow withSourceLanguageId(Long sourceLanguageId) {
+    private ValidatedCsvRow withSourceLanguageId(Integer sourceLanguageId) {
       return new ValidatedCsvRow(rowNumber, sourceLanguage, literal, translation, sourceLanguageId);
     }
   }
@@ -547,7 +518,7 @@ public class LiteralTranslationCsvService extends AbstractOpenCsvService {
   private record ExportRow(String sourceLanguage, String literal, String translation) {}
 
   private record ExistingLiteral(
-      long id, String literal, String sourceLanguage, long sourceLanguageId) {}
+      Integer id, String literal, String sourceLanguage, Integer sourceLanguageId) {}
 
   private enum RowAction {
     CREATED_TRANSLATION,

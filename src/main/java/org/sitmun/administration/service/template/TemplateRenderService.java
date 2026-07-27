@@ -16,12 +16,15 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
+import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -48,31 +51,29 @@ public class TemplateRenderService {
       Pattern.compile("<tbody([^>]*)>([\\s\\S]*?)</tbody>");
   private static final Pattern EACH_ROOT_PATTERN =
       Pattern.compile("\\{\\{#each\\s+([A-Za-z_][\\w]*)\\s*}}");
+  private static final String TASK_NOT_EXECUTED_LITERAL = "task not executed";
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final TemplateContextNormalizer templateContextNormalizer;
   private final TemplateLiteralProcessor templateLiteralProcessor;
   private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
+  private final LiteralTranslationResolver literalTranslationResolver;
   private final Handlebars handlebars = new Handlebars();
 
   public TemplatePreviewResponseDto renderPreview(
-      String templateHtml, Map<String, Object> context, Integer templateTaskId) {
-    return renderPreview(templateHtml, context, templateTaskId, Collections.emptyList(), null);
+      String templateHtml, Map<String, Object> context) {
+    return renderPreview(templateHtml, context, Collections.emptyList(), null);
+  }
+
+  public TemplatePreviewResponseDto renderPreview(
+      String templateHtml, Map<String, Object> context, List<String> knownTaskReferences) {
+    return renderPreview(templateHtml, context, knownTaskReferences, null);
   }
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml,
       Map<String, Object> context,
-      Integer templateTaskId,
-      List<String> knownTaskReferences) {
-    return renderPreview(templateHtml, context, templateTaskId, knownTaskReferences, null);
-  }
-
-  public TemplatePreviewResponseDto renderPreview(
-      String templateHtml,
-      Map<String, Object> context,
-      Integer templateTaskId,
       List<String> knownTaskReferences,
       String language) {
     String source = templateHtml == null ? "" : templateHtml;
@@ -83,7 +84,7 @@ public class TemplateRenderService {
         annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
     String withBackendVars =
         replaceBackendVariables(
-            withExecutionHints, templateRequestCoordinatesService.build(templateTaskId));
+            withExecutionHints, templateRequestCoordinatesService.buildForCurrentUser());
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
     String normalized = normalizeParameterLookups(withHtmlResults);
@@ -177,6 +178,8 @@ public class TemplateRenderService {
       String replacement = systemVariableResolver.resolve("#{" + variableName + "}", coordinates);
       if (Objects.equals(replacement, "#{" + variableName + "}")) {
         replacement = escapeHandlebarsPlaceholder("#" + variableName);
+      } else {
+        replacement = opaqueInline(replacement);
       }
       matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
     }
@@ -191,6 +194,8 @@ public class TemplateRenderService {
       knownRoots.addAll(knownTaskReferences);
     }
 
+    String language = currentRequestLanguageResolver.resolve(this);
+    String taskNotExecutedHint = opaqueInline(resolveLiteral(TASK_NOT_EXECUTED_LITERAL, language));
     Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
@@ -200,13 +205,21 @@ public class TemplateRenderService {
         matcher.appendReplacement(
             sb,
             Matcher.quoteReplacement(
-                escapeHandlebarsPlaceholder(placeholderContent) + " (falta ejecutar tarea)"));
+                escapeHandlebarsPlaceholder(placeholderContent)
+                    + " ("
+                    + taskNotExecutedHint
+                    + ")"));
         continue;
       }
       matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
     }
     matcher.appendTail(sb);
     return sb.toString();
+  }
+
+  private String resolveLiteral(String key, String language) {
+    String resolved = literalTranslationResolver.resolve(key, language);
+    return StringUtils.hasText(resolved) ? resolved : key;
   }
 
   private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
@@ -271,11 +284,16 @@ public class TemplateRenderService {
   }
 
   private String escapeHandlebarsPlaceholder(String placeholderContent) {
-    return "<span style=\"font-family:monospace;background:#dbeafe;color:#1d4ed8;padding:0.1rem 0.35rem;border-radius:0.25rem;\">"
-        + HANDLEBARS_OPEN
-        + placeholderContent
-        + HANDLEBARS_CLOSE
+    String content = placeholderContent == null ? "" : placeholderContent;
+    return "<span class=\"sitmun-template-placeholder\">"
+        + opaqueInline("{{" + content + "}}")
         + "</span>";
+  }
+
+  /** HTML-escape and neutralize Handlebars delimiters for safe splice into compileInline source. */
+  private static String opaqueInline(String value) {
+    String escaped = HtmlUtils.htmlEscape(value == null ? "" : value);
+    return escaped.replace("{{", HANDLEBARS_OPEN).replace("}}", HANDLEBARS_CLOSE);
   }
 
   private String normalizeParameterLookups(String templateHtml) {

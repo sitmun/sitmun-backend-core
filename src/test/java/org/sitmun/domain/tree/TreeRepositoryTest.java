@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.domain.application.tree.ApplicationTreeRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Import;
 class TreeRepositoryTest {
 
   @Autowired private TreeRepository treeRepository;
+
+  @Autowired private ApplicationTreeRepository applicationTreeRepository;
 
   @Autowired private RoleRepository roleRepository;
 
@@ -58,8 +61,13 @@ class TreeRepositoryTest {
     List<Role> roles =
         roleRepository.findRolesByApplicationAndUserAndTerritory(
             SecurityConstants.PUBLIC_PRINCIPAL, 1, 1);
-    List<Tree> tr = treeRepository.findByAppAndRoles(1, roles);
-    assertThat(tr).hasSize(1);
+    List<Tree> tr =
+        applicationTreeRepository.findByAppAndRoles(1, roles).stream()
+            .map(OrderedTree::tree)
+            .toList();
+    // Seed oracle for app/ter 1: size ≠ 2 means another test polluted Liquibase seed — fix that
+    // class; do not weaken this assert.
+    assertThat(tr).hasSize(2);
   }
 
   @TestConfiguration

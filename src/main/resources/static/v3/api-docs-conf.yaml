@@ -12,12 +12,9 @@ info:
     la información. Esta API se ha creado para que los **visores de mapas** y el **proxy** puedan configurarse.
     
     La **API de Configuración y Autorización** se compone de dos tipos de endpoints:
-    - **Configuración y Autorización de Visor de mapas**. La petición pueden autenticarse usando un esquema de 
-      *autenticación por portador* 
-      (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-      usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-      Si no se autentica, se asume que la petición se ha realizado por un usuario
-      que en el dominio de SITMUN se denomina *usuario público*.
+    - **Configuración y Autorización de Visor de mapas**. La petición puede usar la cookie
+      `access_token` obtenida mediante la **API de Autenticación**. Sin una cookie válida,
+      se asume el usuario público de SITMUN.
       
       **Control de Privacidad de Aplicaciones**: Las aplicaciones pueden configurarse como privadas para restringir 
       el acceso de usuarios públicos. Solo los usuarios autenticados pueden acceder a aplicaciones privadas.
@@ -42,7 +39,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://raw.githubusercontent.com/sitmun/sitmun-backend-core/master/LICENSE
-  version: 1.2.8-SNAPSHOT
+  version: 1.2.8
   contact:
     name: Comité técnico SITMUN
     url: https://sitmun.github.io/contacto/
@@ -65,15 +62,12 @@ paths:
       description: |-
         Este endpoint devuelve las aplicaciones que el visor de mapas puede mostrar.
 
-        La petición pueden autenticarse usando un esquema de 
-        *autenticación por portador* 
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
+        La sesión autenticada se recibe en la cookie `access_token`.
+        Sin una cookie válida, la petición usa el usuario público de SITMUN.
       operationId: applicationsList
       security:
-        - bearerAuth: [ ]
+        - cookieAuth: [ ]
+        - { }
       parameters:
         - name: size
           in: query
@@ -116,13 +110,17 @@ paths:
                     type: integer
                     format: int32
         '401':
-          description: |-
-            El cliente identificado por *autenticación por portador* no esta autorizado para 
-            realizar la petición.
+          description: La credencial de autenticación no es válida o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: El principal identificado no puede acceder a las aplicaciones solicitadas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
   /api/config/client/application/{appId}/territories:
     get:
@@ -133,15 +131,12 @@ paths:
       description: |-
         Este endpoint devuelve los territorios que el visor de mapas puede mostrar para una aplicación.
 
-        La petición pueden autenticarse usando un esquema de 
-        *autenticación por portador* 
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
+        La sesión autenticada se recibe en la cookie `access_token`.
+        Sin una cookie válida, la petición usa el usuario público de SITMUN.
       operationId: applicationTerritoriesList
       security:
-        - bearerAuth: [ ]
+        - cookieAuth: [ ]
+        - { }
       parameters:
         - name: appId
           in: path
@@ -190,13 +185,17 @@ paths:
                     type: integer
                     format: int32
         '401':
-          description: |-
-            El cliente identificado por *autenticación por portador* no esta autorizado para 
-            realizar la petición.
+          description: La credencial de autenticación no es válida o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: El principal identificado no puede acceder a los territorios solicitados.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
   /api/config/client/territory:
     get:
@@ -207,15 +206,12 @@ paths:
       description: |-
         Este endpoint devuelve los territorios que el visor de mapas puede mostrar.
 
-        La petición pueden autenticarse usando un esquema de 
-        *autenticación por portador* 
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
+        La sesión autenticada se recibe en la cookie `access_token`.
+        Sin una cookie válida, la petición usa el usuario público de SITMUN.
       operationId: territoriesList
       security:
-        - bearerAuth: [ ]
+        - cookieAuth: [ ]
+        - { }
       parameters:
         - name: size
           in: query
@@ -258,13 +254,17 @@ paths:
                     type: integer
                     format: int32
         '401':
-          description: |-
-            El cliente identificado por *autenticación por portador* no esta autorizado para 
-            realizar la petición.
+          description: La credencial de autenticación no es válida o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: El principal identificado no puede acceder a los territorios solicitados.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
   /api/config/client/territory/{terrId}/applications:
     get:
@@ -275,15 +275,12 @@ paths:
       description: |-
         Este endpoint devuelve las aplicaciones que el visor de mapas puede mostrar en un territorio.
 
-        La petición pueden autenticarse usando un esquema de 
-        *autenticación por portador* 
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
+        La sesión autenticada se recibe en la cookie `access_token`.
+        Sin una cookie válida, la petición usa el usuario público de SITMUN.
       operationId: territoryApplicationsList
       security:
-        - bearerAuth: [ ]
+        - cookieAuth: [ ]
+        - { }
       parameters:
         - name: terrId
           in: path
@@ -332,13 +329,17 @@ paths:
                     type: integer
                     format: int32
         '401':
-          description: |-
-            El cliente identificado por *autenticación por portador* no esta autorizado para 
-            realizar la petición.
+          description: La credencial de autenticación no es válida o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: El principal identificado no puede acceder a las aplicaciones solicitadas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
   /api/config/client/profile/{appId}/{terrId}:
     get:
@@ -349,15 +350,12 @@ paths:
       description: |-
         Este endpoint devuelve la configuración para un territorio y aplicación determinado.
 
-        La petición pueden autenticarse usando un esquema de 
-        *autenticación por portador* 
-        (*[Bearer authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/)*)
-        usando un token que se ha obtenido previamente mediante la **API de Autenticación**.
-        Si no se autentica, se asume que la petición se ha realizado por un usuario
-        que en el dominio de SITMUN se denomina *usuario público*.
+        La sesión autenticada se recibe en la cookie `access_token`.
+        Sin una cookie válida, la petición usa el usuario público de SITMUN.
       operationId: profile
       security:
-        - bearerAuth: [ ]
+        - cookieAuth: [ ]
+        - { }
       parameters:
         - name: appId
           in: path
@@ -541,6 +539,16 @@ paths:
                                 description: |-
                                   Si el nodo es una carpeta indica si el nodo es de selección única.
                                   Si el nodo es una hoja el valor es `null`.
+                              loadData:
+                                description: |-
+                                  Si el nodo es una carpeta indica si al pulsar el título se cargan todos los hijos.
+                                  Si el nodo es una hoja el valor es `null`.
+                                type: boolean
+                              loadByDefault:
+                                description: |-
+                                  Si el nodo es una hoja con cartografía, indica si la capa se carga automáticamente
+                                  en las capas de trabajo al abrir el mapa.
+                                type: boolean
                               children:
                                 description: |-
                                   Si el nodo es una carpeta indica los nodos hijos.
@@ -552,12 +560,18 @@ paths:
 
         '401':
           description: |-
-            El cliente identificado por *autenticación por portador* no esta autorizado para 
-            realizar la petición.
+            El token de autenticación no es válido o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: |-
+            El usuario identificado no puede acceder al perfil solicitado, o el perfil no está disponible.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
 
   /api/config/proxy:
@@ -603,15 +617,24 @@ paths:
                     "datasource": '#/components/schemas/DatasourceConfiguration'
         '401':
           description: |-
-            Representa dos casos:
-
-            - El proxy no está autorizado para realizar la petición.
-            - El cliente identificado por `id_token` no esta autorizado para 
-              realizar la petición.
+            La credencial del proxy no es válida, o el `id_token` no es válido o ha expirado.
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: |-
+            El principal identificado por `id_token` no puede acceder a la configuración solicitada.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: La configuración proxy solicitada no es válida.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
 
 components:
@@ -803,6 +826,15 @@ components:
         title:
           type: string
           description: Nombre de la aplicación.
+        pointOfContact:
+          type: string
+          nullable: true
+          description: Email del contacto institucional; nulo cuando no hay contacto elegible con email.
+        responsibleInstitutionName:
+          type: string
+          nullable: true
+          maxLength: 250
+          description: Nombre de la institución responsable de la aplicación.
 
     Territory:
       type: object
@@ -842,12 +874,34 @@ components:
         - path
         - timestamp
 
+    ProblemDetail:
+      type: object
+      description: Detalle de problema conforme a RFC 9457.
+      properties:
+        type:
+          type: string
+          format: uri
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+        - type
+        - status
+        - title
+        - detail
+        - instance
+
   securitySchemes:
     proxyAuth:
       type: apiKey
       in: header
       name: X-SITMUN-Proxy-Key
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token

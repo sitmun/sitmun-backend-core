@@ -34,16 +34,7 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
 
   @Override
   @EntityGraph(
-      attributePaths = {
-        "service",
-        "permissions",
-        "availabilities",
-        "styles",
-        "filters",
-        "parameters",
-        "spatialSelectionParameters",
-        "treeNodes"
-      })
+      attributePaths = {"service", "spatialSelectionService", "spatialSelectionConnection"})
   @NonNull
   Optional<Cartography> findById(@NonNull Integer id);
 

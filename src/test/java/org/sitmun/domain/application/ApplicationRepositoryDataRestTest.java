@@ -188,6 +188,46 @@ class ApplicationRepositoryDataRestTest {
         .andExpect(jsonPath("$._embedded.applications").isArray());
   }
 
+  @Test
+  @DisplayName("POST: responsibleInstitutionName is persisted and trimmed")
+  @WithMockUser(roles = "ADMIN")
+  void responsibleInstitutionNameIsPersistedAndTrimmed() throws Exception {
+    String content =
+        """
+        {
+          "name": "test-institution",
+          "jspTemplate": "test",
+          "type": "I",
+          "responsibleInstitutionName": "  ACME Corp  "
+        }""";
+    response =
+        mvc.perform(post(APPLICATIONS_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.responsibleInstitutionName").value("ACME Corp"))
+            .andReturn()
+            .getResponse();
+  }
+
+  @Test
+  @DisplayName("POST: blank responsibleInstitutionName is stored as null")
+  @WithMockUser(roles = "ADMIN")
+  void blankResponsibleInstitutionNameStoredAsNull() throws Exception {
+    String content =
+        """
+        {
+          "name": "test-blank-institution",
+          "jspTemplate": "test",
+          "type": "I",
+          "responsibleInstitutionName": "   "
+        }""";
+    response =
+        mvc.perform(post(APPLICATIONS_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.responsibleInstitutionName").isEmpty())
+            .andReturn()
+            .getResponse();
+  }
+
   @AfterEach
   @WithMockUser(roles = "ADMIN")
   void cleanup() throws Exception {

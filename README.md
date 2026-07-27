@@ -1,7 +1,7 @@
 # SITMUN Backend Core
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.8-SNAPSHOT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)
 
 Spring Boot service providing REST APIs for geospatial application management, authentication, and configuration in the [SITMUN](https://sitmun.github.io/) platform.
 
@@ -275,13 +275,14 @@ spring.profiles.active=prod
 
 | Endpoint | Method | Description | Access | Controller |
 | ---------- | --------- | ------------- | ---------- | ------------ |
-| `/api/authenticate` | POST | User authentication | Public | AuthenticationController |
-| `/api/authenticate/proxy` | POST | Generate short-lived proxy token | Authenticated | AuthenticationController |
+| `/api/authenticate` | POST | Viewer cookie authentication (no JSON token) | Public | AuthenticationController |
+| `/api/authenticate/mobile` | POST | Mobile edition Bearer JSON token | Public | AuthenticationController |
+| `/api/authenticate/proxy` | POST | Generate short-lived proxy token | USER or MOBILE_EDITION | AuthenticationController |
 | `/api/account` | GET | User account management | Authenticated | UserController |
 | `/api/account/{id}` | GET | Get user by ID | Authenticated | UserController |
 | `/api/account/public/{id}` | GET | Get public user info | Public | UserController |
 | `/api/account/all` | GET | Get all users | Authenticated | UserController |
-| `/api/config/client/application` | GET | Client application configuration | Authenticated | ClientConfigurationController |
+| `/api/config/client/application` | GET | Client application configuration | Public or authenticated | ClientConfigurationController |
 | `/api/config/proxy` | POST | Proxy configuration | Authenticated | ProxyConfigurationController |
 | `/api/dashboard/health` | GET | Health check | Public | Actuator |
 | `/api/user-verification/verify-password` | POST | Verify user password | Public | VerificationController |
@@ -294,46 +295,40 @@ spring.profiles.active=prod
 | `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
 | `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
 | `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
-| `/api/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
+| `/api/authenticate/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
 
 ### Usage Examples
 
 #### Authentication
 
 ```bash
-# Login - JWT is automatically set as an HTTP cookie
+# Viewer login - empty 200 + httpOnly viewer_access_token cookie
 curl -X POST http://localhost:8080/api/authenticate \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
 
-# The response sets the JWT token in an HTTP-only cookie named 'access_token'
-# Future requests will automatically include the cookie
+# Mobile edition login - JSON Bearer token, no cookie (only JWT-returning password endpoint)
+curl -X POST http://localhost:8080/api/authenticate/mobile \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}'
 ```
 
-#### Using the Authentication Token
-
-Once authenticated, the JWT token is stored in the `access_token` cookie and automatically sent on requests:
-
-```bash
-# The cookie is automatically included by the browser/client
-# No need to manually add Authorization headers
-
-# The server validates the JWT token from the cookie
-```
+Browser clients use session cookies (`viewer_access_token` / `admin_access_token`). Mobile edition clients send `Authorization: Bearer <access_token>` to the three read-only client-config routes and to `/api/authenticate/proxy`.
 
 #### Proxy Authentication
 
 Generate a short-lived proxy token for the SITMUN Proxy Middleware:
 
 ```bash
-# Requires user authentication (the access_token cookie is automatically included)
+# Viewer: cookie session
 curl -X POST http://localhost:8080/api/authenticate/proxy
 
-# The response sets a short-lived JWT token in the 'proxy_token' cookie
-# This token is used by proxy middleware
+# Mobile: Bearer edition access token
+curl -X POST http://localhost:8080/api/authenticate/proxy \
+  -H "Authorization: Bearer <mobile-access-token>"
 ```
 
-**Note:** The proxy token has a shorter expiration time (configured by `sitmun.proxy-middleware.token-validity-in-milliseconds`) than access token.
+**Note:** Proxy token lifetime uses `sitmun.proxy-middleware.token-validity-in-milliseconds`. Mobile access token lifetime uses `sitmun.mobile.token-validity-in-milliseconds`. Delegated credentials on `/api/config/proxy` are read from `Authorization: Bearer`, not from the request body.
 
 #### Health Check
 
@@ -406,9 +401,21 @@ curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.c
 
 ```bash
 # Logout - clears the authentication cookie and invalidates the session
-curl -X POST http://localhost:8080/api/logout
+curl -X POST http://localhost:8080/api/authenticate/logout
 
 ```
+
+#### Authentication and authorization status
+
+| Condition | Status | Problem type |
+| --- | --- | --- |
+| Missing, invalid, expired, revoked, or blocked authentication | `401` | `unauthorized` |
+| Identified principal lacks access to a resource | `403` | `forbidden` |
+| Malformed request | `400` | `bad-request` |
+| Authentication identity store unavailable | `503` | `service-unavailable` |
+| Unexpected authentication processing failure | `500` | `internal-server-error` |
+
+Security responses use `application/problem+json` with generic details. Invalid credentials clear the cookie. Authentication infrastructure and processing failures stop the request without clearing the cookie or falling through to the public principal. Client-configuration endpoints accept the `access_token` cookie when present and otherwise use the public principal.
 
 ### Request Parameters
 
@@ -472,15 +479,17 @@ curl -X POST http://localhost:8080/api/logout
 | `SPRING_DATASOURCE_URL`                  | Database connection URL | H2 in-memory                             | Yes (prod) |
 | `SPRING_DATASOURCE_USERNAME`             | Database username | `sa`                                     | Yes (prod) |
 | `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                                       | Yes (prod) |
-| `SITMUN_USER_SECRET`                     | JWT signing secret | Auto-generated                           | No |
+| `SITMUN_USER_SECRET`                     | JWT signing secret (min 32 chars; startup-validated) | -                            | Yes |
+| `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`        | Optional plaintext used only to create a missing built-in `admin` or restore an empty admin password at startup. No default. Remove after health is UP and rotate via the admin UI. | - | Only when admin is missing/passwordless |
 | `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | JWT token validity in milliseconds | `36000000`                               | No |
 | `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `true`                                   | No |
 | `SITMUN_AUTHENTICATION_SAME_SITE_COOKIE` | SameSite attribute for JWT cookie | `Strict`                                 | No |
-| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware secret | Auto-generated                           | No |
+| `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware shared secret (min 32 chars; startup-validated) | -                | Yes |
 | `SITMUN_PROXY_MIDDLEWARE_TOKEN_VALIDITY_IN_MILLISECONDS` | Proxy token validity in milliseconds | `900000` (15 min)                        | No |
-| `SITMUN_FRONTEND_REDIRECTURL`            | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
-| `SITMUN_FRONTEND_REDIRECTURLVIEWER`      | Frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
-| `SITMUN_FRONTEND_REDIRECTURLADMIN`       | Frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
+| `SITMUN_AUTH_OIDC_ENABLED`               | Enable OIDC authentication | `false`                                  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` | Default frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` | Viewer frontend callback URL for OIDC | `http://localhost:9000/viewer/callback`  | If OIDC enabled |
+| `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADMIN` | Admin frontend callback URL for OIDC | `http://localhost:9000/admin/#/callback` | If OIDC enabled |
 | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_*` | Dynamic OIDC provider configuration | -                                        | If OIDC enabled |
 
 **Note:** OIDC providers are configured dynamically under `sitmun.authentication.oidc.providers.{providerId}`. See [OIDC Configuration](#oidcoauth2-configuration) for details.
@@ -514,13 +523,13 @@ sitmun:
   module: SITMUN Core
   version: 3.0-SNAPSHOT
   user:
-    secret: ${SITMUN_USER_SECRET:auto-generated}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
   authentication:
     http-only-cookie: true
     same-site-cookie: Strict
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     token-validity-in-milliseconds: 900000
     config-response-validity-in-seconds: 3600
 ```
@@ -741,7 +750,7 @@ The application provides comprehensive security features:
 ```yaml
 sitmun:
   user:
-    secret: ${SITMUN_USER_SECRET:auto-generated}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000  # JWT token lifetime in milliseconds (10 hours)
   authentication:
     http-only-cookie: true  # Whether to set HttpOnly flag on JWT cookie
@@ -755,11 +764,13 @@ JWT tokens are stored in an HTTP-only cookie (`access_token`) that is automatica
 ```yaml
 sitmun:
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:auto-generated}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     token-validity-in-milliseconds: 900000  # Proxy token lifetime (15 minutes default)
 ```
 
-The proxy token is a short-lived JWT token generated via the `/api/authenticate/proxy` endpoint for secure communication between the Backend Core and Proxy Middleware. It is stored in the `proxy_token` cookie and automatically included in requests to the Proxy Middleware. The token has a much shorter lifetime than the regular access token for additional security.
+The proxy token is a short-lived JWT returned by `/api/authenticate/proxy` for communication with Proxy Middleware. The viewer stores it in IndexedDB for its service worker, which adds it as a Bearer token only to configured middleware requests. It has a much shorter lifetime than the regular access token.
+
+The main `access_token` cookie defaults to `HttpOnly` and `SameSite=Strict`; its `Secure` attribute follows the request scheme. CSRF is currently disabled, so deployments must preserve the external HTTPS scheme and should not treat `SameSite` as a replacement for CSRF protection.
 
 #### LDAP Configuration
 
@@ -767,11 +778,15 @@ The proxy token is a short-lived JWT token generated via the `/api/authenticate/
 spring:
   profiles:
     active: ldap
-  ldap:
-    urls: ldap://ldap.example.com:389
-    base: dc=example,dc=com
-    username: cn=admin,dc=example,dc=com
-    password: admin_password
+
+sitmun:
+  authentication:
+    ldap:
+      url: ldap://ldap.example.com:389
+      base-dn: dc=example,dc=com
+      user-dn-pattern: uid={0}
+      username: cn=admin,dc=example,dc=com
+      password: admin_password
 ```
 
 #### OIDC/OAuth2 Configuration
@@ -817,8 +832,9 @@ sitmun:
 
 | Property | Environment Variable | Description |
 |----------|---------------------|-------------|
+| `sitmun.authentication.oidc.enabled` | `SITMUN_AUTH_OIDC_ENABLED` | Enables OIDC authentication |
 | `sitmun.authentication.oidc.frontend-redirect-url` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURL` | Default frontend callback URL |
-| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADIN` | Admin frontend callback URL |
+| `sitmun.authentication.oidc.frontend-redirect-url-admin` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLADMIN` | Admin frontend callback URL |
 | `sitmun.authentication.oidc.frontend-redirect-url-viewer` | `SITMUN_AUTHENTICATION_OIDC_FRONTENDREDIRECTURLVIEWER` | Viewer frontend callback URL |
 | `sitmun.authentication.oidc.http-only-cookie` | `SITMUN_AUTHENTICATION_OIDC_HTTPONLYCOOKIE` | HttpOnly flag for the `oidc_token` cookie. Default `false`. |
 | `sitmun.authentication.oidc.providers.{id}.provider-name` | `SITMUN_AUTHENTICATION_OIDC_PROVIDERS_{ID}_PROVIDERNAME` | Provider identifier |
@@ -865,11 +881,31 @@ The current viewer frontend reads the `oidc_token` cookie with JavaScript. When 
 - **Error Tracking**: Detailed error logging and monitoring
 - **Performance Metrics**: Request timing and performance monitoring
 
+#### Built-in user startup repair
+
+On every start, `BuiltInUserStartupRepairer` soft-repairs the built-in `admin` and `public` accounts:
+
+- Restores required flags (`admin` must be administrator/unblocked; `public` must not be administrator/blocked).
+- Clears stale `public` personal data/password and deletes positions for both built-ins.
+- Creates a missing `public` automatically.
+- Creates a missing `admin`, or restores an empty admin password, only when `SITMUN_BOOTSTRAP_ADMIN_PASSWORD` is set. The value is BCrypt-encoded; plaintext is never logged or stored.
+- Never aborts the JVM. `/api/dashboard/health` stays `DOWN` (HTTP 503) until repair succeeds.
+- `/api/dashboard/startup` is a public, read-only diagnostic that returns only `{ "state": "ready|blocked|initializing" }` and, when blocked, a stable `"reason"` such as `admin-missing-bootstrap-password`. It never exposes secrets, hashes, or exception text. Do not enable global Actuator health details for this purpose — that would leak details from every health contributor.
+- Under the `dev` profile, property dump logging redacts keys containing `password`, `secret`, `token`, or `credential` (including `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`).
+
+Operator sequence when admin is missing or passwordless:
+
+1. Inject `SITMUN_BOOTSTRAP_ADMIN_PASSWORD` through the deployment secret mechanism (no committed default).
+2. Start the backend and wait for `/api/dashboard/health` to become `UP`. Use `GET /api/dashboard/startup` if you need the stable reason.
+3. Remove the bootstrap secret from deployment configuration.
+4. Rotate the password through the normal admin UI.
+
 #### Actuator Endpoints
 
 | Endpoint | Description | Access |
 |----------|-------------|--------|
-| `/api/dashboard/health` | Application health status | Public |
+| `/api/dashboard/health` | Application health / readiness status | Public |
+| `/api/dashboard/startup` | Built-in user startup state and stable reason | Public |
 | `/api/dashboard/info` | Application information | Public |
 | `/api/dashboard/metrics` | Application metrics | Authenticated |
 
@@ -890,17 +926,19 @@ Before integrating the Backend Core with SITMUN, ensure you have:
 
 #### 1. Security Configuration
 
-Configure JWT and proxy middleware secrets:
+Configure JWT and proxy middleware secrets. Both are required with no fallback default, so the values come entirely from the environment:
 
 ```yaml
 sitmun:
   user:
-    secret: ${SITMUN_USER_SECRET:your-secret-key}
+    secret: ${SITMUN_USER_SECRET}
     token-validity-in-milliseconds: 36000000
   proxy-middleware:
-    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET:your-proxy-secret}
+    secret: ${SITMUN_PROXY_MIDDLEWARE_SECRET}
     config-response-validity-in-seconds: 3600
 ```
+
+Startup is fail-fast: `SecuritySecretValidator` rejects a blank or shorter-than-32-character `sitmun.user.secret` or `sitmun.proxy-middleware.secret` with an `IllegalStateException`, and a missing environment variable fails placeholder resolution before the context starts. `SITMUN_PROXY_MIDDLEWARE_SECRET` must match the proxy's `SITMUN_BACKEND_CONFIG_SECRET`.
 
 #### 2. SITMUN Map Viewer Integration
 
@@ -1021,11 +1059,12 @@ The Backend Core supports different service types that can be configured:
 2. **Authentication Failures**
 
    ```bash
-   # Check JWT token format
-   curl -H "Authorization: Bearer your-token" http://localhost:8080/api/account
+   # Check the authenticated account using a saved login cookie
+   curl -b cookies.txt http://localhost:8080/api/account
    
    # Verify user credentials
    curl -X POST http://localhost:8080/api/authenticate \
+     -c cookies.txt \
      -H "Content-Type: application/json" \
      -d '{"username":"admin","password":"admin"}'
    ```

@@ -23,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserChecksService {
 
-  private static final String BUILT_IN_ADMIN_USERNAME = "admin";
-
   private final UserConfigurationRepository userConfigurationRepository;
   private final UserPositionRepository userPositionRepository;
 
@@ -59,8 +57,7 @@ public class UserChecksService {
   }
 
   private void checkPasswordSet(User user, List<String> warnings) {
-    if (SecurityConstants.isPublicPrincipal(user.getUsername())
-        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
+    if (SecurityConstants.isBuiltInPrincipal(user.getUsername())) {
       return;
     }
     if (!Boolean.TRUE.equals(user.getPasswordSet())) {
@@ -69,8 +66,7 @@ public class UserChecksService {
   }
 
   private void checkUserConfiguration(User user, List<String> warnings) {
-    if (SecurityConstants.isPublicPrincipal(user.getUsername())
-        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername())) {
+    if (SecurityConstants.isBuiltInPrincipal(user.getUsername())) {
       return;
     }
     List<UserConfiguration> configurations = userConfigurationRepository.findByUser(user);
@@ -148,7 +144,6 @@ public class UserChecksService {
   }
 
   private boolean skipsPositionChecks(User user) {
-    return SecurityConstants.isPublicPrincipal(user.getUsername())
-        || BUILT_IN_ADMIN_USERNAME.equals(user.getUsername());
+    return SecurityConstants.isBuiltInPrincipal(user.getUsername());
   }
 }

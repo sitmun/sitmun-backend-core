@@ -8,6 +8,7 @@ import static org.sitmun.infrastructure.security.core.SecurityConstants.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,8 +88,8 @@ class ClientConfigurationApplicationRestrictedTest {
   }
 
   @Test
-  @DisplayName("Should return 401 when public user tries to access private application")
-  void shouldReturn401WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
+  @DisplayName("Should return RFC 9457 403 when public user accesses private application")
+  void shouldReturn403WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).name("Private App").appPrivate(true).build();
@@ -99,7 +100,11 @@ class ClientConfigurationApplicationRestrictedTest {
     // Then
     mockMvc
         .perform(get(CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, 1).contentType(APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isForbidden())
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/forbidden"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.detail").value("Access is denied"));
   }
 
   @Test

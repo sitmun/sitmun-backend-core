@@ -27,7 +27,7 @@ public class LdapPasswordStorage implements PasswordStorage {
   @Value("${sitmun.authentication.ldap.user-dn-pattern}")
   private String userDNPattern;
 
-  @Value("${sitmum.authentication.ldap.username:}")
+  @Value("${sitmun.authentication.ldap.username:}")
   private String userLdap;
 
   @Value("${sitmun.authentication.ldap.password:}")

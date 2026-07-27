@@ -1,8 +1,9 @@
 package org.sitmun.domain.application;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasItems;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,6 +21,7 @@ import org.sitmun.domain.application.background.ApplicationBackground;
 import org.sitmun.domain.application.background.ApplicationBackgroundRepository;
 import org.sitmun.domain.application.parameter.ApplicationParameter;
 import org.sitmun.domain.application.parameter.ApplicationParameterRepository;
+import org.sitmun.domain.application.tree.ApplicationTree;
 import org.sitmun.domain.background.Background;
 import org.sitmun.domain.background.BackgroundRepository;
 import org.sitmun.domain.cartography.Cartography;
@@ -38,31 +40,26 @@ import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
+import org.sitmun.domain.user.User;
+import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Data REST association PUTs need committed fixtures visible outside the test method transaction.
+ * Do not use class {@code @Transactional} or {@code @DirtiesContext} for DB cleanup. Own UUID
+ * fixtures; delete them in {@code @AfterEach}; assert membership of owned applications, not
+ * absolute seed collection sizes or next ids.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Log
 @DisplayName("Application Repository Data REST test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ApplicationResourceTest {
 
-  private static final String NON_PUBLIC_APPLICATION_NAME = "Non-public Application";
-  private static final String PUBLIC_APPLICATION_NAME = "Public Application";
-  private static final String NON_PUBLIC_APPLICATION_PARAM_NAME = "Non-public Application Param";
-  private static final String PUBLIC_APPLICATION_PARAM_NAME = "Public Application Param";
-  private static final String PUBLIC_TREE_NAME = "Public tree";
-  private static final String PUBLIC_BACKGROUND_NAME = "Public Background Name";
-  private static final String PUBLIC_BACKGROUND_MAP_NAME = "Public Background Map Name";
-  private static final String PUBLIC_SITUATION_MAP_NAME = "Public Situation Map Name";
-  private static final String PUBLIC_CARTOGRAPHY_NAME = "Public Cartography Name";
-  private static final String PUBLIC_TREE_NODE_NAME = "Tree Node Name";
-  private static final String PUBLIC_SERVICE_NAME = "Public Service Name";
   @Autowired ApplicationRepository applicationRepository;
   @Autowired TreeRepository treeRepository;
   @Autowired TerritoryRepository territoryRepository;
@@ -75,10 +72,15 @@ class ApplicationResourceTest {
   @Autowired CartographyAvailabilityRepository cartographyAvailabilityRepository;
   @Autowired ApplicationParameterRepository applicationParameterRepository;
   @Autowired RoleRepository roleRepository;
+  @Autowired UserRepository userRepository;
 
   @Autowired private MockMvc mvc;
 
   private Integer backAppId;
+  private Integer publicApplicationId;
+  private Integer publicSituationMapId;
+  private Integer publicRoleId;
+  private User eligibleCreator;
   private Set<Tree> trees;
   private Set<Service> services;
   private Set<Cartography> cartographies;
@@ -90,27 +92,55 @@ class ApplicationResourceTest {
   private ArrayList<ApplicationParameter> applicationParameters;
   private Territory territory;
   private Role publicRole;
+  private String nonPublicApplicationName;
+  private String publicApplicationName;
 
   @BeforeEach
   @WithMockUser(roles = "ADMIN")
   void init() {
+    // Keep fixture names short: several STM_* name columns are VARCHAR(30).
+    String suffix = UUID.randomUUID().toString().substring(0, 8);
+    nonPublicApplicationName = "np-app-" + suffix;
+    publicApplicationName = "pub-app-" + suffix;
+    String nonPublicApplicationParamName = "np-param-" + suffix;
+    String publicApplicationParamName = "pub-param-" + suffix;
+    String publicTreeName = "pub-tree-" + suffix;
+    String publicBackgroundName = "pub-bg-" + suffix;
+    String publicBackgroundMapName = "pub-bmap-" + suffix;
+    String publicSituationMapName = "pub-smap-" + suffix;
+    String publicCartographyName = "pub-carto-" + suffix;
+    String publicTreeNodeName = "pub-node-" + suffix;
+    String publicServiceName = "pub-svc-" + suffix;
 
-    territory = Territory.builder().name("Territorio 1").code("some-code").blocked(false).build();
+    territory =
+        Territory.builder().name("terr-" + suffix).code("code-" + suffix).blocked(false).build();
     territoryRepository.save(territory);
 
     applications = new ArrayList<>();
     applicationParameters = new ArrayList<>();
 
-    publicRole = Role.builder().name("USUARIO_PUBLICO").build();
+    publicRole = Role.builder().name("pub-role-" + suffix).build();
     roleRepository.save(publicRole);
+    publicRoleId = publicRole.getId();
+
+    eligibleCreator =
+        userRepository.save(
+            User.builder()
+                .username("app-poc-" + suffix)
+                .password("unused")
+                .firstName("PoC")
+                .lastName("User")
+                .email("poc-" + suffix + "@example.com")
+                .administrator(false)
+                .blocked(false)
+                .build());
 
     Set<Role> availableRoles = new HashSet<>();
     availableRoles.add(publicRole);
 
-    // Trees
     trees = new HashSet<>();
     Tree publicTree = new Tree();
-    publicTree.setName(PUBLIC_TREE_NAME);
+    publicTree.setName(publicTreeName);
     trees.add(publicTree);
     treeRepository.saveAll(trees);
 
@@ -120,10 +150,9 @@ class ApplicationResourceTest {
     trees = new HashSet<>();
     trees.add(publicTree);
 
-    // Services
     Service publicService =
         Service.builder()
-            .name(PUBLIC_SERVICE_NAME)
+            .name(publicServiceName)
             .type("some-type")
             .serviceURL("http://some-service-url.com")
             .blocked(false)
@@ -133,10 +162,9 @@ class ApplicationResourceTest {
     services.add(publicService);
     serviceRepository.saveAll(services);
 
-    // Cartographies
     Cartography publicCartography =
         Cartography.builder()
-            .name(PUBLIC_CARTOGRAPHY_NAME)
+            .name(publicCartographyName)
             .service(publicService)
             .layers(List.of("Layer1", "Layer2"))
             .queryableFeatureAvailable(false)
@@ -149,7 +177,6 @@ class ApplicationResourceTest {
     cartographyRepository.saveAll(cartographies);
     publicCartography = cartographies.iterator().next();
 
-    // Cartography availabilities
     CartographyAvailability publicCartographyAvailability = new CartographyAvailability();
     publicCartographyAvailability.setCartography(publicCartography);
     publicCartographyAvailability.setTerritory(territory);
@@ -158,20 +185,18 @@ class ApplicationResourceTest {
     cartographyAvailabilities.add(publicCartographyAvailability);
     cartographyAvailabilityRepository.saveAll(cartographyAvailabilities);
 
-    // Tree nodes
     treeNodes = new HashSet<>();
     TreeNode publicTreeNode = new TreeNode();
-    publicTreeNode.setName(PUBLIC_TREE_NODE_NAME);
+    publicTreeNode.setName(publicTreeNodeName);
     publicTreeNode.setCartography(publicCartography);
     publicTreeNode.setTree(publicTree);
     treeNodes.add(publicTreeNode);
     treeNodeRepository.saveAll(treeNodes);
 
-    // Cartography group
     cartographyPermissions = new HashSet<>();
 
     CartographyPermission publicBackgroundMap =
-        CartographyPermission.builder().name(PUBLIC_BACKGROUND_MAP_NAME).build();
+        CartographyPermission.builder().name(publicBackgroundMapName).build();
     publicBackgroundMap = cartographyPermissionRepository.save(publicBackgroundMap);
 
     publicBackgroundMap.getRoles().addAll(availableRoles);
@@ -180,17 +205,16 @@ class ApplicationResourceTest {
 
     cartographyPermissions.add(publicBackgroundMap);
 
-    // backgrounds
     backgrounds = new HashSet<>();
     Background publicBackground = new Background();
-    publicBackground.setName(PUBLIC_BACKGROUND_NAME);
+    publicBackground.setName(publicBackgroundName);
     publicBackground.setCartographyGroup(publicBackgroundMap);
     backgrounds.add(publicBackground);
     backgroundRepository.saveAll(backgrounds);
     publicBackground = backgrounds.iterator().next();
 
     Application application =
-        Application.builder().name(NON_PUBLIC_APPLICATION_NAME).type("I").jspTemplate("").build();
+        Application.builder().name(nonPublicApplicationName).type("I").jspTemplate("").build();
     SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMM d, yyyy HH:mm:ss a");
     try {
       String dateInString = "Friday, Jun 7, 2013 12:10:56 PM";
@@ -201,7 +225,10 @@ class ApplicationResourceTest {
     applications.add(application);
 
     CartographyPermission publicSituationMap =
-        CartographyPermission.builder().name(PUBLIC_SITUATION_MAP_NAME).build();
+        CartographyPermission.builder()
+            .name(publicSituationMapName)
+            .type(CartographyPermission.TYPE_SITUATION_MAP)
+            .build();
     publicSituationMap = cartographyPermissionRepository.save(publicSituationMap);
 
     publicSituationMap.getRoles().addAll(availableRoles);
@@ -209,11 +236,12 @@ class ApplicationResourceTest {
     cartographyPermissionRepository.save(publicSituationMap);
 
     cartographyPermissions.add(publicSituationMap);
+    publicSituationMapId = publicSituationMap.getId();
 
     Application publicApplication =
         Application.builder()
             .type("I")
-            .name(PUBLIC_APPLICATION_NAME)
+            .name(publicApplicationName)
             .situationMap(publicSituationMap)
             .jspTemplate("")
             .createdDate(Date.from(Instant.now()))
@@ -223,10 +251,12 @@ class ApplicationResourceTest {
     applicationRepository.saveAll(applications);
 
     publicApplication.getAvailableRoles().addAll(availableRoles);
-    publicApplication.getTrees().addAll(trees);
+    publicApplication
+        .getTrees()
+        .add(ApplicationTree.builder().application(publicApplication).tree(publicTree).build());
     applicationRepository.save(publicApplication);
+    publicApplicationId = publicApplication.getId();
 
-    // application backgrounds
     ApplicationBackground publicApplicationBackground = new ApplicationBackground();
     publicApplicationBackground.setBackground(publicBackground);
     publicApplicationBackground.setApplication(publicApplication);
@@ -238,14 +268,14 @@ class ApplicationResourceTest {
     backAppId = publicApplicationBackground.getId();
 
     ApplicationParameter applicationParam1 = new ApplicationParameter();
-    applicationParam1.setName(NON_PUBLIC_APPLICATION_PARAM_NAME);
+    applicationParam1.setName(nonPublicApplicationParamName);
     applicationParam1.setApplication(application);
     applicationParam1.setValue("value");
     applicationParam1.setType("type");
     applicationParameters.add(applicationParam1);
 
     ApplicationParameter applicationParam2 = new ApplicationParameter();
-    applicationParam2.setName(PUBLIC_APPLICATION_PARAM_NAME);
+    applicationParam2.setName(publicApplicationParamName);
     applicationParam2.setApplication(publicApplication);
     applicationParam2.setValue("value");
     applicationParam2.setType("type");
@@ -257,19 +287,87 @@ class ApplicationResourceTest {
   @AfterEach
   @WithMockUser(roles = "ADMIN")
   void cleanup() {
-    applicationParameters.forEach(item -> applicationParameterRepository.deleteById(item.getId()));
-    applications.forEach(item -> applicationRepository.deleteById(item.getId()));
-    backgrounds.forEach(item -> backgroundRepository.deleteById(item.getId()));
-    cartographyPermissions.forEach(
-        item -> cartographyPermissionRepository.deleteById(item.getId()));
-    cartographyAvailabilities.forEach(
-        item -> cartographyAvailabilityRepository.deleteById(item.getId()));
-    treeNodes.forEach(item -> treeNodeRepository.deleteById(item.getId()));
-    trees.forEach(item -> treeRepository.deleteById(item.getId()));
-    cartographies.forEach(item -> cartographyRepository.deleteById(item.getId()));
-    services.forEach(item -> serviceRepository.deleteById(item.getId()));
-    territoryRepository.delete(territory);
-    roleRepository.delete(publicRole);
+    if (applicationParameters != null) {
+      applicationParameters.forEach(
+          item -> {
+            if (item.getId() != null) {
+              applicationParameterRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (applications != null) {
+      applications.forEach(
+          item -> {
+            if (item.getId() != null) {
+              applicationRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (backgrounds != null) {
+      backgrounds.forEach(
+          item -> {
+            if (item.getId() != null) {
+              backgroundRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (cartographyPermissions != null) {
+      cartographyPermissions.forEach(
+          item -> {
+            if (item.getId() != null) {
+              cartographyPermissionRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (cartographyAvailabilities != null) {
+      cartographyAvailabilities.forEach(
+          item -> {
+            if (item.getId() != null) {
+              cartographyAvailabilityRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (treeNodes != null) {
+      treeNodes.forEach(
+          item -> {
+            if (item.getId() != null) {
+              treeNodeRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (trees != null) {
+      trees.forEach(
+          item -> {
+            if (item.getId() != null) {
+              treeRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (cartographies != null) {
+      cartographies.forEach(
+          item -> {
+            if (item.getId() != null) {
+              cartographyRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (services != null) {
+      services.forEach(
+          item -> {
+            if (item.getId() != null) {
+              serviceRepository.deleteById(item.getId());
+            }
+          });
+    }
+    if (territory != null && territory.getId() != null) {
+      territoryRepository.deleteById(territory.getId());
+    }
+    if (publicRole != null && publicRole.getId() != null) {
+      roleRepository.deleteById(publicRole.getId());
+    }
+    if (eligibleCreator != null && eligibleCreator.getId() != null) {
+      userRepository.deleteById(eligibleCreator.getId());
+    }
   }
 
   @Test
@@ -279,6 +377,42 @@ class ApplicationResourceTest {
     mvc.perform(get(APPLICATION_BACKGROUNDS_URI + '/' + backAppId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.order").value(1));
+  }
+
+  @Test
+  @DisplayName("PUT: situationMap association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putSituationMapAssociationWhenApplicationHasTrees() throws Exception {
+    String content = CARTOGRAPHY_PERMISSION_URI.replace("{0}", publicSituationMapId.toString());
+    mvc.perform(
+            put(APPLICATION_URI_SITUATION_MAP, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PUT: creator association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putCreatorAssociationWhenApplicationHasTrees() throws Exception {
+    String content = USER_ITEM_URI.replace("{0}", eligibleCreator.getId().toString());
+    mvc.perform(
+            put(APPLICATION_URI_CREATOR, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("PUT: availableRoles association succeeds when application has trees")
+  @WithMockUser(roles = "ADMIN")
+  void putAvailableRolesAssociationWhenApplicationHasTrees() throws Exception {
+    String content = ROLE_URI.replace("{0}", publicRoleId.toString());
+    mvc.perform(
+            put(APPLICATION_URI_AVAILABLE_ROLES, publicApplicationId)
+                .content(content)
+                .contentType("text/uri-list"))
+        .andExpect(status().isNoContent());
   }
 
   @Test
@@ -293,9 +427,11 @@ class ApplicationResourceTest {
   @DisplayName("GET: information as administrator")
   @WithMockUser(roles = "ADMIN")
   void getApplicationsAsSitmunAdmin() throws Exception {
-    // ok is expected
-    mvc.perform(get(APPLICATIONS_URI))
+    mvc.perform(get(APPLICATIONS_URI + "?size=100"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.applications", hasSize(8)));
+        .andExpect(
+            jsonPath(
+                "$._embedded.applications[*].name",
+                hasItems(nonPublicApplicationName, publicApplicationName)));
   }
 }

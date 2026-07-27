@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,7 +50,7 @@ class DomainExceptionHandlerAccessDeniedTest {
   }
 
   @Test
-  @DisplayName("clears access_token cookie on 403 when authenticated principal is blocked")
+  @DisplayName("returns 401 and clears cookie when principal is blocked")
   void clearsCookieForBlockedAuthenticatedPrincipal() {
     SecurityContextHolder.getContext()
         .setAuthentication(
@@ -61,7 +62,14 @@ class DomainExceptionHandlerAccessDeniedTest {
         handler.handleAccessDeniedException(
             new AccessDeniedException("Access denied: user account is blocked"), request, response);
 
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    assertThat(result.getBody())
+        .satisfies(
+            problem -> {
+              assertThat(problem.getType()).isEqualTo(ProblemTypes.UNAUTHORIZED);
+              assertThat(problem.getTitle()).isEqualTo("Unauthorized");
+              assertThat(problem.getDetail()).isEqualTo("Authentication is required");
+            });
     verify(cookieService).clearAccessTokenCookie(request, response);
   }
 
@@ -83,8 +91,8 @@ class DomainExceptionHandlerAccessDeniedTest {
   }
 
   @Test
-  @DisplayName("does not clear cookie on 401 for anonymous principal")
-  void doesNotClearCookieForAnonymousPrincipal() {
+  @DisplayName("returns 403 for public principal resource denial")
+  void returnsForbiddenForPublicPrincipalResourceDenial() {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new AnonymousAuthenticationToken(
@@ -94,9 +102,15 @@ class DomainExceptionHandlerAccessDeniedTest {
         handler.handleAccessDeniedException(
             new AccessDeniedException("Access denied: user account is blocked"), request, response);
 
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(result.getBody())
+        .satisfies(
+            problem -> {
+              assertThat(problem.getType()).isEqualTo(ProblemTypes.FORBIDDEN);
+              assertThat(problem.getTitle()).isEqualTo("Forbidden");
+              assertThat(problem.getDetail()).isEqualTo("Access is denied");
+            });
     verify(cookieService, never()).clearAccessTokenCookie(request, response);
-    verify(userApplicationAccessPolicy, never())
-        .isBlockedAccount(org.mockito.ArgumentMatchers.any());
+    verify(userApplicationAccessPolicy).isBlockedAccount("public");
   }
 }

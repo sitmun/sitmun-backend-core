@@ -1,6 +1,8 @@
 package org.sitmun.authorization.client.controller;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,24 +12,53 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.authentication.service.CookieService;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
+import org.sitmun.authorization.client.mapper.ProfileMapper;
+import org.sitmun.authorization.client.service.AuthorizationService;
+import org.sitmun.authorization.client.service.ClientUserPositionService;
+import org.sitmun.authorization.client.service.MobileEditionAccessService;
+import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.user.position.UserPositionDTO;
+import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
+import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@DisplayName("API Authorization and Configuration - Territory Position endpoint")
-@Transactional
+@WebMvcTest(ClientConfigurationController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@DisplayName("Territory position endpoint controller contract")
 class ClientConfigurationPositionControllerTest {
 
   @Autowired private MockMvc mvc;
 
   @Autowired private ObjectMapper objectMapper;
+
+  @MockitoBean private AuthorizationService authorizationService;
+
+  @MockitoBean private ClientUserPositionService clientUserPositionService;
+
+  @MockitoBean private MobileEditionAccessService mobileEditionAccessService;
+
+  @MockitoBean private ProfileMapper profileMapper;
+
+  @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
+
+  @MockitoBean private CookieService cookieService;
+
+  @MockitoBean private UserApplicationAccessPolicy userApplicationAccessPolicy;
+
+  @MockitoBean private ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   private UserPositionDTO validPositionDTO;
 
@@ -41,7 +72,7 @@ class ClientConfigurationPositionControllerTest {
             .email("test@example.com")
             .createdDate(new Date())
             .lastModifiedDate(new Date())
-            .expirationDate(new Date(System.currentTimeMillis() + 86400000)) // 24 hours from now
+            .expirationDate(new Date(System.currentTimeMillis() + 86400000))
             .type("ADMIN")
             .userId(1)
             .territoryId(1)
@@ -49,9 +80,12 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Update territory position with valid data should return success")
-  @WithMockUser(roles = "USER")
+  @DisplayName("POST: owner update returns 200 with persisted body")
+  @WithMockUser(username = "alice", roles = "USER")
   void editTerritoryPositionsWithValidData() throws Exception {
+    when(clientUserPositionService.updateOwnedPosition(eq("alice"), any(UserPositionDTO.class)))
+        .thenReturn(validPositionDTO);
+
     mvc.perform(
             post("/api/config/client/territory/position")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -67,32 +101,8 @@ class ClientConfigurationPositionControllerTest {
   }
 
   @Test
-  @DisplayName(
-      "POST: Update territory position with internal user should return success and expected content")
-  void editTerritoryPositionsWithInternalUser() throws Exception {
-    mvc.perform(
-            post("/api/config/client/territory/position")
-                .with(user("internal"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validPositionDTO)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(validPositionDTO.getId()))
-        .andExpect(jsonPath("$.name").value(validPositionDTO.getName()));
-  }
-
-  @Test
-  @DisplayName("POST: Update territory position without authentication should return unauthorized")
-  void editTerritoryPositionsWithoutAuthentication() throws Exception {
-    mvc.perform(
-            post("/api/config/client/territory/position")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validPositionDTO)))
-        .andExpect(status().isOk()); // The endpoint doesn't require authentication
-  }
-
-  @Test
-  @DisplayName("POST: Update territory position with null ID should return bad request")
-  @WithMockUser(roles = "USER")
+  @DisplayName("POST: null id returns bad request")
+  @WithMockUser(username = "alice", roles = "USER")
   void editTerritoryPositionsWithNullId() throws Exception {
     UserPositionDTO positionWithNullId =
         UserPositionDTO.builder()
@@ -105,49 +115,42 @@ class ClientConfigurationPositionControllerTest {
             .territoryId(1)
             .build();
 
+    when(clientUserPositionService.updateOwnedPosition(eq("alice"), any(UserPositionDTO.class)))
+        .thenThrow(
+            new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserPosition id is required"));
+
     mvc.perform(
             post("/api/config/client/territory/position")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(positionWithNullId)))
-        .andExpect(status().isOk());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
-  @DisplayName("POST: Update territory position with empty name should return success")
-  @WithMockUser(roles = "USER")
-  void editTerritoryPositionsWithEmptyName() throws Exception {
-    UserPositionDTO positionWithEmptyName =
-        UserPositionDTO.builder()
-            .id(1)
-            .name("")
-            .organization("Test Organization")
-            .email("test@example.com")
-            .type("ADMIN")
-            .userId(1)
-            .territoryId(1)
-            .build();
+  @DisplayName("POST: missing position returns not found")
+  @WithMockUser(username = "alice", roles = "USER")
+  void editTerritoryPositionsWithMissingId() throws Exception {
+    when(clientUserPositionService.updateOwnedPosition(eq("alice"), any(UserPositionDTO.class)))
+        .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPosition not found"));
 
     mvc.perform(
             post("/api/config/client/territory/position")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(positionWithEmptyName)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value(""));
+                .content(objectMapper.writeValueAsString(validPositionDTO)))
+        .andExpect(status().isNotFound());
   }
 
   @Test
-  @DisplayName("POST: Update territory position with missing required fields should return success")
-  @WithMockUser(roles = "USER")
-  void editTerritoryPositionsWithMissingFields() throws Exception {
-    UserPositionDTO minimalPosition =
-        UserPositionDTO.builder().id(1).name("Minimal Position").build();
+  @DisplayName("POST: foreign owner returns forbidden")
+  @WithMockUser(username = "alice", roles = "USER")
+  void editTerritoryPositionsWithForeignOwner() throws Exception {
+    when(clientUserPositionService.updateOwnedPosition(eq("alice"), any(UserPositionDTO.class)))
+        .thenThrow(new AccessDeniedException("Access denied"));
 
     mvc.perform(
             post("/api/config/client/territory/position")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(minimalPosition)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("Minimal Position"));
+                .content(objectMapper.writeValueAsString(validPositionDTO)))
+        .andExpect(status().isForbidden());
   }
 }

@@ -22,31 +22,14 @@ public class DomainConstants {
     public static final String PROPERTY_SCOPE = "scope";
     public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
     public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
-    public static final String PROPERTY_EXPORT_ENGINE = "exportEngine";
     public static final String PROPERTY_FORMAT = "format";
     public static final String PROPERTY_WIDTH = "width";
     public static final String PROPERTY_HEIGHT = "height";
     public static final String PROPERTY_SRS = "srs";
     public static final String PROPERTY_BBOX_MARGIN_PERCENT = "bboxMarginPercent";
     public static final String PROPERTY_MAP_SOURCES = "mapSources";
-
-    /**
-     * Task property {@code downloadFormat}: output format for the download button shown in the MIA
-     * popup when this task is a template child. Supported value: {@code "pdf"}.
-     * If absent or blank, no download button is shown.
-     */
     public static final String PROPERTY_DOWNLOAD_FORMAT = "downloadFormat";
-
-    /**
-     * Task property {@code pageSize}: PDF page size used by document export tasks. Supported
-     * values: {@code "A4"}, {@code "A3"}.
-     */
     public static final String PROPERTY_PAGE_SIZE = "pageSize";
-
-    /**
-     * Task property {@code pageOrientation}: PDF page orientation used by document export tasks.
-     * Supported values: {@code "portrait"}, {@code "landscape"}.
-     */
     public static final String PROPERTY_PAGE_ORIENTATION = "pageOrientation";
 
     public static final int MAX_TEMPLATE_EXPORT_SOURCE_CHARACTERS = 2_000_000;
@@ -157,10 +140,10 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_LOCATOR = 4;
     public static final int TASK_TYPE_ID_QUERY = 5;
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
-    public static final int TASK_TYPE_ID_MAP_IMAGE = 18;
-    public static final int TASK_TYPE_ID_DOCUMENT_EXPORT = 17;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
     public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
+    public static final int TASK_TYPE_ID_DOCUMENT_EXPORT = 17;
+    public static final int TASK_TYPE_ID_MAP_IMAGE = 18;
 
     private static Integer taskTypeId(Task task) {
       if (task == null || task.getType() == null) {
@@ -193,16 +176,16 @@ public class DomainConstants {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO).equals(taskTypeId(task));
     }
 
-    public static boolean isDocumentExportTask(Task task) {
-      return Integer.valueOf(TASK_TYPE_ID_DOCUMENT_EXPORT).equals(taskTypeId(task));
+    public static boolean isMoreInfoAdvancedTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
     }
 
     public static boolean isTemplateTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_TEMPLATE).equals(taskTypeId(task));
     }
 
-    public static boolean isMoreInfoAdvancedTask(Task task) {
-      return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
+    public static boolean isDocumentExportTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_DOCUMENT_EXPORT).equals(taskTypeId(task));
     }
 
     public static boolean isMapImageTask(Task task) {
@@ -285,7 +268,7 @@ public class DomainConstants {
       if (properties != null) {
         Object scope = properties.get(PROPERTY_SCOPE);
         String scopeStr = String.valueOf(scope);
-        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr) || SCOPE_URL.equalsIgnoreCase(scopeStr);
+        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr);
       }
       return false;
     }
@@ -320,10 +303,17 @@ public class DomainConstants {
     /** Code used in DB (STM_APP.APP_TYPE) for touristic applications. */
     public static final String TYPE_TOURISTIC_CODE = "T";
 
+    /** Code used in DB (STM_APP.APP_TYPE) for edition applications. */
+    public static final String TYPE_EDITION_CODE = "ED";
+
     public static boolean isTouristicApplication(Application app) {
       if (app == null || app.getType() == null) return false;
       String t = app.getType();
       return TYPE_TOURISTIC_CODE.equalsIgnoreCase(t) || "Touristic".equalsIgnoreCase(t);
+    }
+
+    public static boolean isEditionApplication(Application app) {
+      return app != null && TYPE_EDITION_CODE.equalsIgnoreCase(app.getType());
     }
 
     private Applications() {

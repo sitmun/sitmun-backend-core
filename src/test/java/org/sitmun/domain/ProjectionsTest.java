@@ -32,7 +32,8 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.territoryId").value(1))
         .andExpect(jsonPath("$.territoryName").value("Provincia A"))
         .andExpect(jsonPath("$.taskId").value(1))
-        .andExpect(jsonPath("$.taskGroupName").value("Basic"));
+        .andExpect(jsonPath("$.taskGroupName").value("Basic"))
+        .andExpect(jsonPath("$.taskTypeTitle").value("Basic"));
   }
 
   @Test
@@ -146,7 +147,8 @@ class ProjectionsTest {
   void applicationProjectionView() throws Exception {
     mvc.perform(get(APPLICATION_PROJECTION_VIEW, 1))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.situationMapId").value(3));
+        .andExpect(jsonPath("$.situationMapId").value(3))
+        .andExpect(jsonPath("$.responsibleInstitutionName").isEmpty());
   }
 
   @Test
@@ -159,7 +161,8 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.groupId").value(1))
         .andExpect(jsonPath("$.uiId").value(2))
         .andExpect(jsonPath("$.typeId").value(1))
-        .andExpect(jsonPath("$.typeName").value("básica"));
+        .andExpect(jsonPath("$.typeName").value("básica"))
+        .andExpect(jsonPath("$.typeTitle").value("Basic"));
   }
 
   @Test
@@ -188,7 +191,7 @@ class ProjectionsTest {
         .andExpect(jsonPath("$.id").value(301001))
         .andExpect(jsonPath("$.element").value(1))
         .andExpect(jsonPath("$.column").value("Language.name"))
-        .andExpect(jsonPath("$.languageName").value("Catalan"))
+        .andExpect(jsonPath("$.languageName").value("Català"))
         .andExpect(jsonPath("$.languageShortname").value("ca"))
         .andExpect(jsonPath("$.translation").value("Anglès"));
   }

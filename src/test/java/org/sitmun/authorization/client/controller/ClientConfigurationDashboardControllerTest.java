@@ -88,6 +88,41 @@ class ClientConfigurationDashboardControllerTest {
   }
 
   @Test
+  @DisplayName("GET /dashboard/applications: Keywords return enriched dashboard card data")
+  void getDashboardApplicationsWithKeywordsReturnsEnrichedData() throws Exception {
+    mvc.perform(get(DASHBOARD_APPLICATIONS_URI + "?keywords=protegida").with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content", hasSize(1)))
+        .andExpect(jsonPath("$.content[0].title", is("SITMUN - Externa protegida")))
+        .andExpect(jsonPath("$.content[0].territoryCount", notNullValue()))
+        .andExpect(jsonPath("$.content[0].hasTerritories", notNullValue()));
+  }
+
+  @Test
+  @DisplayName("GET /dashboard/applications: Keyword search finds matches beyond first page")
+  void getDashboardApplicationsKeywordSearchBeyondFirstPage() throws Exception {
+    mvc.perform(get(DASHBOARD_APPLICATIONS_URI + "?size=1&page=0").with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].title", is("SITMUN - Externa")));
+
+    mvc.perform(get(DASHBOARD_APPLICATIONS_URI + "?keywords=protegida").with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
+  }
+
+  @Test
+  @DisplayName("GET /dashboard/suggestions: Keyword search finds matches beyond first page")
+  void getDashboardSuggestionsKeywordSearchBeyondFirstPage() throws Exception {
+    mvc.perform(get(DASHBOARD_SUGGESTIONS_URI + "?keywords=sitmun").with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.applications", hasSize(greaterThan(1))));
+
+    mvc.perform(get(DASHBOARD_SUGGESTIONS_URI + "?keywords=protegida").with(user("internal")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.applications[*].title", hasItem("SITMUN - Externa protegida")));
+  }
+
+  @Test
   @DisplayName("GET /dashboard/suggestions: Returns capped suggestions for keywords")
   void getDashboardSuggestionsWithKeywords() throws Exception {
     mvc.perform(get(DASHBOARD_SUGGESTIONS_URI + "?keywords=mun").with(user("internal")))

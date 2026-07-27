@@ -19,8 +19,8 @@ class ConfigProxyRequestTest {
           .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
   @Test
-  @DisplayName("Deserializes id_token JSON property into token field")
-  void deserializesIdTokenProperty() throws Exception {
+  @DisplayName("Deserializes proxy request without JWT fields")
+  void deserializesWithoutTokenFields() throws Exception {
     String json =
         """
         {
@@ -30,8 +30,7 @@ class ConfigProxyRequestTest {
           "typeId": 30,
           "method": "POST",
           "parameters": {"A":"1"},
-          "requestBody": "{\\"B\\":\\"2\\"}",
-          "id_token": "jwt-token-value"
+          "requestBody": "{\\"B\\":\\"2\\"}"
         }
         """;
 
@@ -44,12 +43,11 @@ class ConfigProxyRequestTest {
     assertEquals("POST", request.getMethod());
     assertEquals("1", request.getParameters().get("A"));
     assertEquals("{\"B\":\"2\"}", request.getRequestBody());
-    assertEquals("jwt-token-value", request.getToken());
   }
 
   @Test
-  @DisplayName("Serializes token field as id_token JSON property")
-  void serializesTokenAsIdTokenProperty() throws JsonProcessingException {
+  @DisplayName("Serializes without id_token or token fields")
+  void serializesWithoutTokenFields() throws JsonProcessingException {
     Map<String, String> params = new HashMap<>();
     params.put("X", "9");
     String requestBody = "{\"Y\":\"8\"}";
@@ -63,13 +61,12 @@ class ConfigProxyRequestTest {
             .method("GET")
             .parameters(params)
             .requestBody(requestBody)
-            .token("abc.def.ghi")
             .build();
 
     String json = objectMapper.writeValueAsString(request);
 
     JsonNode node = objectMapper.readTree(json);
-    assertEquals("abc.def.ghi", node.get("id_token").asText());
+    assertNull(node.get("id_token"));
     assertNull(node.get("token"));
     assertEquals(1, node.get("appId").asInt());
     assertEquals(2, node.get("terId").asInt());
@@ -81,8 +78,8 @@ class ConfigProxyRequestTest {
   }
 
   @Test
-  @DisplayName("Ignores legacy token JSON property (must use id_token)")
-  void ignoresLegacyTokenProperty() throws Exception {
+  @DisplayName("Ignores legacy id_token and token JSON properties")
+  void ignoresLegacyTokenProperties() throws Exception {
     String json =
         """
         {
@@ -91,11 +88,16 @@ class ConfigProxyRequestTest {
           "type": "SQL",
           "typeId": 1,
           "method": "GET",
-          "token": "legacy-token"
+          "token": "legacy-token",
+          "id_token": "jwt-token-value"
         }
         """;
 
     ConfigProxyRequestDto request = objectMapper.readValue(json, ConfigProxyRequestDto.class);
-    assertNull(request.getToken());
+    assertEquals(1, request.getAppId());
+    String serialized = objectMapper.writeValueAsString(request);
+    JsonNode node = objectMapper.readTree(serialized);
+    assertNull(node.get("id_token"));
+    assertNull(node.get("token"));
   }
 }

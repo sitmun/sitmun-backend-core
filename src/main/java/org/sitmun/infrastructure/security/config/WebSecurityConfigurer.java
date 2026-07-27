@@ -9,8 +9,11 @@ import org.sitmun.authentication.handler.OidcAuthenticationSuccessHandler;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.infrastructure.config.Profiles;
+import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
+import org.sitmun.infrastructure.security.core.SecurityAccessDeniedHandler;
 import org.sitmun.infrastructure.security.core.SecurityEntryPoint;
 import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
+import org.sitmun.infrastructure.security.filter.EditionBearerTokenFilter;
 import org.sitmun.infrastructure.security.filter.JsonWebTokenFilter;
 import org.sitmun.infrastructure.security.filter.ProxyTokenFilter;
 import org.sitmun.infrastructure.security.filter.SitmunClientFilter;
@@ -63,6 +66,8 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfigurer {
 
   private final SecurityEntryPoint unauthorizedHandler;
+  private final SecurityAccessDeniedHandler accessDeniedHandler;
+  private final Rfc9457ResponseWriter responseWriter;
 
   private final UserDetailsServiceImplementation userDetailsService;
 
@@ -80,12 +85,16 @@ public class WebSecurityConfigurer {
   public WebSecurityConfigurer(
       UserDetailsServiceImplementation userDetailsService,
       SecurityEntryPoint unauthorizedHandler,
+      SecurityAccessDeniedHandler accessDeniedHandler,
+      Rfc9457ResponseWriter responseWriter,
       JsonWebTokenService jsonWebTokenService,
       List<PasswordStorage> passwordStorageList,
       UserRepository userRepository,
       CookieService cookieService) {
     this.userDetailsService = userDetailsService;
     this.unauthorizedHandler = unauthorizedHandler;
+    this.accessDeniedHandler = accessDeniedHandler;
+    this.responseWriter = responseWriter;
     this.jsonWebTokenService = jsonWebTokenService;
     this.passwordStorageList = passwordStorageList;
     this.userRepository = userRepository;
@@ -95,7 +104,13 @@ public class WebSecurityConfigurer {
   @Bean
   public JsonWebTokenFilter authenticationJwtTokenFilter() {
     return new JsonWebTokenFilter(
-        userDetailsService, jsonWebTokenService, userRepository, cookieService);
+        userDetailsService, jsonWebTokenService, userRepository, cookieService, responseWriter);
+  }
+
+  @Bean
+  public EditionBearerTokenFilter editionBearerTokenFilter() {
+    return new EditionBearerTokenFilter(
+        jsonWebTokenService, userDetailsService, userRepository, responseWriter);
   }
 
   @Bean
@@ -164,7 +179,10 @@ public class WebSecurityConfigurer {
         .csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .exceptionHandling(
-            exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+            exceptionHandling ->
+                exceptionHandling
+                    .authenticationEntryPoint(unauthorizedHandler)
+                    .accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
@@ -187,7 +205,10 @@ public class WebSecurityConfigurer {
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .anonymous(anonymous -> anonymous.authenticationFilter(anonymousAuthenticationFilter()))
         .exceptionHandling(
-            exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+            exceptionHandling ->
+                exceptionHandling
+                    .authenticationEntryPoint(unauthorizedHandler)
+                    .accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -195,6 +216,7 @@ public class WebSecurityConfigurer {
             authz -> {
               authz = configurePermitAll(authz);
               authz = configureUser(authz);
+              authz = configureMobileEdition(authz);
               authz = configureUserOrPublic(authz);
               authz = configureProxy(authz);
               authz = configureAdmin(authz);
@@ -203,7 +225,8 @@ public class WebSecurityConfigurer {
 
     http.addFilterBefore(
         authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-    http.addFilterBefore(middlewareKeyFilter(), JsonWebTokenFilter.class);
+    http.addFilterBefore(editionBearerTokenFilter(), JsonWebTokenFilter.class);
+    http.addFilterBefore(middlewareKeyFilter(), EditionBearerTokenFilter.class);
 
     return http.build();
   }
@@ -232,7 +255,14 @@ public class WebSecurityConfigurer {
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/dashboard/health/**"))
         .permitAll()
+        // Safe built-in-user startup diagnostic (state + stable reason only)
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/dashboard/startup"))
+        .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate"))
+        .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/admin"))
+        .permitAll()
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/mobile"))
         .permitAll()
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/logout"))
         .permitAll()
@@ -258,6 +288,7 @@ public class WebSecurityConfigurer {
    *   <li>/api/account: (GET, POST) User account management
    *   <li>/api/account/** (GET): User account information retrieval
    *   <li>/api/user-verification/** (POST): User verification processes
+   *   <li>/api/config/client/territory/position (POST): Territory position updates
    * </ul>
    *
    * @param authz The authorization configuration
@@ -285,13 +316,34 @@ public class WebSecurityConfigurer {
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/tasks/template/export"))
         .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
+        .hasAnyRole(USER.name(), MOBILE_EDITION.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
         .hasRole(USER.name());
   }
 
   /**
+   * Mobile edition Bearer principal may read only the three client-configuration GET patterns
+   * below. Registered before the USER/PUBLIC catch-all so MOBILE_EDITION is not denied by later
+   * admin rules while still excluding other {@code /api/config/client/**} routes.
+   */
+  private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
+      configureMobileEdition(
+          AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
+              authz) {
+    var builder = PathPatternRequestMatcher.withDefaults();
+    return authz
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/application"))
+        .hasAnyRole(USER.name(), PUBLIC.name(), MOBILE_EDITION.name())
+        .requestMatchers(
+            builder.matcher(HttpMethod.GET, "/api/config/client/application/*/territories"))
+        .hasAnyRole(USER.name(), PUBLIC.name(), MOBILE_EDITION.name())
+        .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/profile/*/*"))
+        .hasAnyRole(USER.name(), PUBLIC.name(), MOBILE_EDITION.name());
+  }
+
+  /**
    * Configures authorization for endpoints accessible by both USER and PUBLIC roles. These
-   * endpoints include: - /api/config/client/** (GET): Client configuration retrieval -
-   * /api/config/client/** (PUT): Client configuration updates
+   * endpoints include client configuration retrieval for anonymous and authenticated viewers.
    *
    * @param authz The authorization configuration
    * @return The updated authorization configuration
@@ -304,9 +356,10 @@ public class WebSecurityConfigurer {
     return authz
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/languages"))
         .hasAnyRole(USER.name(), PUBLIC.name())
+        .requestMatchers(
+            builder.matcher(HttpMethod.POST, "/api/tasks/template/more-info-advanced/render"))
+        .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.GET, "/api/config/client/**"))
-        .hasAnyRole(USER.name(), PUBLIC.name())
-        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
         .hasAnyRole(USER.name(), PUBLIC.name());
   }
 

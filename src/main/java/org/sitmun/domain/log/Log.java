@@ -111,7 +111,7 @@ public class Log {
   private String email;
 
   /** Other information. */
-  @Column(name = "LOG_OTHER", length = 4000)
+  @Column(name = "LOG_OTHER", length = PersistenceConstants.LONG_DESCRIPTION)
   private String other;
 
   @Override

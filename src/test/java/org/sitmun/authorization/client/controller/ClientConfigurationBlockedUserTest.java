@@ -4,9 +4,12 @@ import static org.mockito.Mockito.when;
 import static org.sitmun.infrastructure.security.core.SecurityConstants.PUBLIC_PRINCIPAL;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import jakarta.servlet.http.Cookie;
@@ -77,27 +80,30 @@ class ClientConfigurationBlockedUserTest {
   }
 
   @Test
-  @DisplayName("denies public principal on private app profile with 401")
+  @DisplayName("denies public principal on private app profile with RFC 9457 403")
   void deniesPublicOnPrivateAppProfile() throws Exception {
     when(applicationRepository.findById(APP_ID))
         .thenReturn(Optional.of(Application.builder().id(APP_ID).appPrivate(true).build()));
 
     mockMvc
         .perform(get(CONFIG_CLIENT_PROFILE_URI, APP_ID, TER_ID).contentType(APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isForbidden())
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.type").value("https://sitmun.org/problems/forbidden"))
+        .andExpect(jsonPath("$.status").value(403));
   }
 
   @Test
-  @DisplayName("denies blocked authenticated user on application list with 403")
+  @DisplayName("denies blocked authenticated user on application list with 401")
   @WithMockUser(username = BLOCKED_USERNAME, roles = "USER")
   void deniesBlockedAuthenticatedOnApplicationList() throws Exception {
     mockMvc
         .perform(get(CONFIG_CLIENT_APPLICATION_URI).contentType(APPLICATION_JSON))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
-  @DisplayName("denies blocked authenticated user on territory position with 403")
+  @DisplayName("denies blocked authenticated user on territory position with 401")
   @WithMockUser(username = BLOCKED_USERNAME, roles = "USER")
   void deniesBlockedAuthenticatedOnTerritoryPosition() throws Exception {
     mockMvc
@@ -105,26 +111,26 @@ class ClientConfigurationBlockedUserTest {
             post(CONFIG_CLIENT_URI + "/territory/position")
                 .contentType(APPLICATION_JSON)
                 .content("{\"id\":1}"))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
-  @DisplayName("denies blocked authenticated user on application territories with 403")
+  @DisplayName("denies blocked authenticated user on application territories with 401")
   @WithMockUser(username = BLOCKED_USERNAME, roles = "USER")
   void deniesBlockedAuthenticatedOnApplicationTerritories() throws Exception {
     mockMvc
         .perform(
             get(CONFIG_CLIENT_APPLICATION_TERRITORIES_URI, APP_ID).contentType(APPLICATION_JSON))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
-  @DisplayName("denies blocked authenticated user on profile with 403")
+  @DisplayName("denies blocked authenticated user on profile with 401")
   @WithMockUser(username = BLOCKED_USERNAME, roles = "USER")
   void deniesBlockedAuthenticatedOnProfile() throws Exception {
     mockMvc
         .perform(get(CONFIG_CLIENT_PROFILE_URI, APP_ID, TER_ID).contentType(APPLICATION_JSON))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -136,9 +142,12 @@ class ClientConfigurationBlockedUserTest {
         .perform(
             get(CONFIG_CLIENT_APPLICATION_URI)
                 .contentType(APPLICATION_JSON)
-                .cookie(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, jwt)))
+                .cookie(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, jwt)))
         .andExpect(status().isUnauthorized())
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status").value(401))
+        .andExpect(jsonPath("$.detail").value("Authentication is required"))
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 
   @Test
@@ -151,9 +160,12 @@ class ClientConfigurationBlockedUserTest {
         .perform(
             get(CONFIG_CLIENT_APPLICATION_URI)
                 .contentType(APPLICATION_JSON)
-                .cookie(new Cookie(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, jwt)))
+                .cookie(new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, jwt)))
         .andExpect(status().isUnauthorized())
-        .andExpect(cookie().maxAge(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME, 0));
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status").value(401))
+        .andExpect(jsonPath("$.detail").value("Authentication is required"))
+        .andExpect(cookie().maxAge(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, 0));
   }
 
   private void blockPublicUser() {
