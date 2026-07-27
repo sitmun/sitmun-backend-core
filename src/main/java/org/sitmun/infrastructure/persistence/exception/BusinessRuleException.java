@@ -31,14 +31,33 @@ public class BusinessRuleException extends RequirementException {
   private final String problemType;
 
   /**
+   * Optional i18n key for the entity that references the resource being modified (e.g. {@code
+   * entity.tree-node.plural}). Copied into the Problem Detail when present.
+   */
+  private final String referencingEntityTranslationKey;
+
+  /**
    * Constructs a new BusinessRuleException with the specified problem type and detail message.
    *
    * @param problemType the RFC 9457 problem type URI (e.g., ProblemTypes.TOURISTIC_TREE_CONSTRAINT)
    * @param message the detail message explaining why the business rule was violated
    */
   public BusinessRuleException(String problemType, String message) {
+    this(problemType, message, null);
+  }
+
+  /**
+   * Constructs a new BusinessRuleException with problem type, detail, and referencing-entity key.
+   *
+   * @param problemType the RFC 9457 problem type URI
+   * @param message the detail message explaining why the business rule was violated
+   * @param referencingEntityTranslationKey optional translation key for the referencing entity
+   */
+  public BusinessRuleException(
+      String problemType, String message, String referencingEntityTranslationKey) {
     super(message);
     this.problemType = problemType;
+    this.referencingEntityTranslationKey = referencingEntityTranslationKey;
   }
 
   /**
@@ -48,5 +67,14 @@ public class BusinessRuleException extends RequirementException {
    */
   public String getProblemType() {
     return problemType;
+  }
+
+  /**
+   * Returns the optional translation key for the entity that references the resource.
+   *
+   * @return the referencing entity translation key, or {@code null}
+   */
+  public String getReferencingEntityTranslationKey() {
+    return referencingEntityTranslationKey;
   }
 }
