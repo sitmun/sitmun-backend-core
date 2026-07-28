@@ -22,6 +22,7 @@ public class DomainConstants {
     public static final String PROPERTY_SCOPE = "scope";
     public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
     public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
+    public static final String PROPERTY_EXPORT_ENGINE = "exportEngine";
     public static final String PROPERTY_FORMAT = "format";
     public static final String PROPERTY_WIDTH = "width";
     public static final String PROPERTY_HEIGHT = "height";
