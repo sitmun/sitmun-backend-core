@@ -59,6 +59,11 @@ public class Language {
   @Column(name = "LAN_ORDER", precision = 6)
   private Integer order;
 
+  /** Whether this language is the system default. */
+  @Builder.Default
+  @Column(name = "LAN_DEFAULT", nullable = false)
+  private Boolean defaultLanguage = Boolean.FALSE;
+
   /** Whether the language is available for UI locale selection. */
   @Builder.Default
   @Column(name = "LAN_ENABLED", nullable = false)
