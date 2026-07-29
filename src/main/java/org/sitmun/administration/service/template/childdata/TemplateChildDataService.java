@@ -576,6 +576,13 @@ public class TemplateChildDataService {
     if (resolved == null) {
       resolved = command;
     }
+    // Known system vars with no entity (admin Preview has no app/ter): #{APP_ID} → APP_ID.
+    Map<String, String> available = systemVariableResolver.getAvailableVariables();
+    if (available != null) {
+      for (String variableName : available.keySet()) {
+        resolved = resolved.replace("#{" + variableName + "}", variableName);
+      }
+    }
     for (Map.Entry<String, String> entry : parameters.entrySet()) {
       String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
       resolved = resolved.replace("{" + entry.getKey() + "}", encodedValue);
