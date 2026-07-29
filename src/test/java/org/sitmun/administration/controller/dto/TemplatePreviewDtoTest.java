@@ -31,4 +31,16 @@ class TemplatePreviewDtoTest {
     assertEquals(13, request.getLinkedTaskId());
     assertEquals(Map.of("param1", "value"), request.getParameters());
   }
+
+  @Test
+  void previewRequestRetainsOptionalAppAndTerritoryCoordinates() {
+    TemplatePreviewRequestDto request = new TemplatePreviewRequestDto();
+    request.setTemplateHtml("<p>{{#APP_NAME}}</p>");
+    request.setAppId(1);
+    request.setTerId(4);
+
+    assertEquals("<p>{{#APP_NAME}}</p>", request.getTemplateHtml());
+    assertEquals(1, request.getAppId());
+    assertEquals(4, request.getTerId());
+  }
 }

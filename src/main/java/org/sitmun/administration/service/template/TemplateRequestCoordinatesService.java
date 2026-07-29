@@ -51,6 +51,22 @@ public class TemplateRequestCoordinatesService {
     return coordinates;
   }
 
+  /**
+   * Preview-only: attach app/territory when present; missing IDs are skipped (no 404) so Render can
+   * still run and leave known system vars as bare names.
+   */
+  public RequestCoordinates buildOptional(Integer appId, Integer terId) {
+    RequestCoordinates coordinates = new RequestCoordinates();
+    if (appId != null) {
+      applicationRepository.findById(appId).ifPresent(coordinates::setApplication);
+    }
+    if (terId != null) {
+      territoryRepository.findById(terId).ifPresent(coordinates::setTerritory);
+    }
+    attachCurrentUser(coordinates);
+    return coordinates;
+  }
+
   private void attachCurrentUser(RequestCoordinates coordinates) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null

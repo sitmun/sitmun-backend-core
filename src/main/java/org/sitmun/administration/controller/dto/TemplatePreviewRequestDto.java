@@ -10,4 +10,9 @@ public class TemplatePreviewRequestDto {
   private String templateHtml;
   private Map<String, Object> context;
   private List<String> knownTaskReferences;
+
+  /** Optional Preview coordinates so APP_* / TERR_* system variables can resolve. */
+  private Integer appId;
+
+  private Integer terId;
 }
