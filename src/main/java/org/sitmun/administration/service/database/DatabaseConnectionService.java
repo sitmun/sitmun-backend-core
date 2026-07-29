@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.service.database.tester.DatabaseSQLException;
@@ -100,7 +101,9 @@ public class DatabaseConnectionService {
       Map<String, Object> row = new HashMap<>();
       for (int i = 1; i <= metadata.getColumnCount(); i++) {
         Object value = resultSet.getObject(i);
-        row.put(metadata.getColumnLabel(i), value);
+        // H2/Oracle uppercase unquoted aliases; Plantilla templates use lowercase keys (Postgres).
+        String label = metadata.getColumnLabel(i);
+        row.put(label == null ? null : label.toLowerCase(Locale.ROOT), value);
       }
       result.add(row);
     }
