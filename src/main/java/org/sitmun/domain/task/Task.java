@@ -16,13 +16,15 @@ import org.sitmun.domain.task.group.TaskGroup;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.type.TaskType;
 import org.sitmun.domain.task.ui.TaskUI;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /** Task. */
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, I18nListener.class})
 @Table(name = "STM_TASK")
 @Builder
 @Getter
@@ -48,6 +50,7 @@ public class Task {
   /** Name. */
   @Column(name = "TAS_NAME", length = 512)
   @NotBlank
+  @I18n
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 

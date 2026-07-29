@@ -97,6 +97,7 @@ public class Territory {
 
   /** Territory description. */
   @Column(name = "TER_DESCRIPTION", length = PersistenceConstants.LONG_DESCRIPTION)
+  @I18n
   @JsonView({
     ClientConfigurationViews.Base.class,
     ClientConfigurationViews.ApplicationTerritory.class

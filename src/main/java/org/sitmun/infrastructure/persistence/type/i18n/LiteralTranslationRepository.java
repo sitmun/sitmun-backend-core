@@ -62,9 +62,10 @@ public interface LiteralTranslationRepository
   @Query(
       value =
           """
-        SELECT (select count(lang) from Language lang) =
+        SELECT (select count(lang) from Language lang where lang.enabled is null or lang.enabled = true) =
                 (select count(lv) from LiteralTranslationValue lv
-                 where lv.literalTranslation.literal = :literal)
+                 where lv.literalTranslation.literal = :literal
+                 and (lv.language.enabled is null or lv.language.enabled = true))
         """)
   boolean isCompleteByLiteral(@Param("literal") String literal);
 

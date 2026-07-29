@@ -13,6 +13,8 @@ import java.util.List;
  * @param preservedValues Number of main-table values preserved because target translations were
  *     missing
  * @param preservedMissing List of preserved values (only populated when preservedValues > 0)
+ * @param literalContinuitySeeds Number of dictionary literals seeded with a continuity value for
+ *     the new default
  */
 public record DefaultLanguageChangeResult(
     String previousDefault,
@@ -20,4 +22,5 @@ public record DefaultLanguageChangeResult(
     int backupUpserts,
     int restoredValues,
     int preservedValues,
-    List<MissingTranslationDto> preservedMissing) {}
+    List<MissingTranslationDto> preservedMissing,
+    int literalContinuitySeeds) {}

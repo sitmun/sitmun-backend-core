@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TranslationService unit tests")
@@ -28,6 +27,7 @@ class TranslationServiceTest {
 
   @Mock private TranslationRepository translationRepository;
   @Mock private EntityManager entityManager;
+  @Mock private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
   @InjectMocks private TranslationService service;
 
   private Locale previousLocale;
@@ -47,7 +47,7 @@ class TranslationServiceTest {
 
   @BeforeEach
   void setUp() {
-    ReflectionTestUtils.setField(service, "defaultLanguage", "es");
+    when(databaseDefaultLanguageResolver.resolveShortname()).thenReturn("es");
     previousLocale = LocaleContextHolder.getLocale();
   }
 

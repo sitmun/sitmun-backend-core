@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **i18n** / **Templates**: On Task create/save, `TaskEventHandler` enrolls `<t>…</t>` keys from `properties.templateHtml` via `LiteralTranslationEnsureService` (self-translation for DB `language.default` at first ensure; exact inner HTML as dictionary key).
+- **i18n**: `DatabaseDefaultLanguageResolver` centralizes runtime `language.default` resolution (`STM_CONF`, property fallback) for overlay, locale resolution, and literal ensure.
+- **Tests**: Nested `<t>` extract/resolve/enroll; B3 ensure-failure aborts Task create; default-language resolver; literal continuity seeding (unit + integration).
+
+### Changed
+
+- **i18n**: `TranslationService` and `RequestLocaleResolutionService` gate on DB `language.default` through `DatabaseDefaultLanguageResolver` (property last resort).
+- **i18n**: Default-language apply seeds missing literal values for the new default from the previous default (continuity); does not rewrite `templateHtml` or `sourceLanguage`.
+- **i18n**: Literal completeness (`isCompleteByLiteral`) counts enabled languages only.
+- **i18n**: `@I18n` + default-language catalog extended for `Task.name`, `TaskGroup.name`, `TerritoryType.name`, `Service.name`, `Territory.description`, `Application.maintenanceInformation`.
+
 ## [1.2.8] - 2026-07-25
 
 ### Added

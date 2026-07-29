@@ -13,6 +13,8 @@ import java.util.List;
  * @param restoredValues Number of main-table values that will be restored from target translations
  * @param missingTranslations Number of target translations that are missing
  * @param missing Detailed list of missing target translations
+ * @param literalContinuitySeeds Number of dictionary literals that will receive a continuity value
+ *     for the new default language
  */
 public record DefaultLanguageChangePreview(
     String currentDefault,
@@ -21,4 +23,5 @@ public record DefaultLanguageChangePreview(
     int backupUpserts,
     int restoredValues,
     int missingTranslations,
-    List<MissingTranslationDto> missing) {}
+    List<MissingTranslationDto> missing,
+    int literalContinuitySeeds) {}
