@@ -6,14 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).
+- **E2E seed**: Plantilla self-JDBC `CON_ID` 90 uses `jdbc:h2:mem:sitmun-e2e` (same DB as `scripts/e2e-backend.mjs`).
+- **E2E seed**: Menorca GEO **1304** is available only on territory **4** (not ter **1**), so app **1/1** FeatureInfo is not polluted by `tu007rts_ccavalls`.
+- **Templates**: `data-sitmun-each` keeps TipTap `<th>` header rows (inside `<tbody>`) outside `{{#each}}` so preview headers are not repeated per data row.
+
 ### Added
 
+- **Tests**: `TemplateExecutionNestingTest` covers declared-only plantilla params, default⇒optional, empty nested plantilla without undeclared `$` injection, root defaults into declared nested SQL children, and `childTaskParameters` override.
+- **Tests** / **Seed**: Liquibase `20_menorca_solrustic_mia_e2e` — Menorca app **12** / territory **4**, GEO **1304** (`tu007rts_ccavalls`), node **12094**, MIA **9021** tabs over Plantillas **9020**/**9025**/**9026** (JDBC **9022–9024**, GFI `nomruta` → `$featureName`).
 - **i18n** / **Templates**: On Task create/save, `TaskEventHandler` enrolls `<t>…</t>` keys from `properties.templateHtml` via `LiteralTranslationEnsureService` (self-translation for DB `language.default` at first ensure; exact inner HTML as dictionary key).
 - **i18n**: `DatabaseDefaultLanguageResolver` centralizes runtime `language.default` resolution (`STM_CONF`, property fallback) for overlay, locale resolution, and literal ensure.
 - **Tests**: Nested `<t>` extract/resolve/enroll; B3 ensure-failure aborts Task create; default-language resolver; literal continuity seeding (unit + integration).
 
 ### Changed
 
+- **Templates**: Plantilla parameter contract — only **declared** names enter `$…` / child execute maps; blank/missing invoke values fall back to saved defaults; parent/root pipeline values pass to a child only when that child declares the name (undeclared keys dropped). Nested Plantilla Execute still merges `childTaskParameters[taskId]` last (wins) for declared names.
+- **Templates**: Nested Plantilla Execute merges child params as (1) saved Parameter defaults from `templateTaskId` (root Plantilla), (2) current plantilla execute `parameters`, (3) `childTaskParameters[taskId]` (wins). The same map seeds nested Handlebars `$…` (e.g. `{{$nameFilter}}`) and SQL/API/URL binds.
+- **Templates**: `TaskRelationRepository.findByTaskId` join-fetches related-task EAGER to-ones (`group`, `connection`, …) so PostgreSQL does not close the join ResultSet mid-hydration during Sources Execute (fix for nested SQL under fill).
+- **Templates**: Preview placeholders — resolved values; known unresolved system vars as bare `APP_NAME` (`.sitmun-template-known`); unknown/missing paths as colored original mustache (`.sitmun-template-error`). Optional `appId`/`terId` on `/api/tasks/template/preview` resolve softly (missing app/ter skipped, no 404).
+- **Templates**: Direct URL/external-link resolve turns leftover known `#{APP_ID}` into bare `APP_ID` when application/territory coords are absent (admin Preview).
 - **i18n**: `TranslationService` and `RequestLocaleResolutionService` gate on DB `language.default` through `DatabaseDefaultLanguageResolver` (property last resort).
 - **i18n**: Default-language apply seeds missing literal values for the new default from the previous default (continuity); does not rewrite `templateHtml` or `sourceLanguage`.
 - **i18n**: Literal completeness (`isCompleteByLiteral`) counts enabled languages only.

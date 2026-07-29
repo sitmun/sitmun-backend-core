@@ -1,0 +1,677 @@
+databaseChangeLog:
+  # Slim IDE Menorca surface for Playwright: tu007rts_ccavalls + node 12094 + MIA/Plantilla.
+  - changeSet:
+      id: 20_menorca_territory_4
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TERRITORY WHERE TER_ID = 4
+      changes:
+        - insert:
+            tableName: STM_TERRITORY
+            columns:
+              - column: { name: TER_ID, valueNumeric: 4 }
+              - column: { name: TER_CODTER, value: "07000" }
+              - column: { name: TER_NAME, value: Menorca }
+              - column: { name: TER_ADMNAME, value: Menorca }
+              - column: { name: TER_SCOPE, value: T }
+              - column: { name: TER_EXTENT, value: "568000 4405000 610000 4435000" }
+              - column: { name: TER_BLOCKED, valueBoolean: false }
+              - column: { name: TER_TYPID, valueNumeric: 8 }
+              - column: { name: TER_CENTER, value: "589000 4420000" }
+              - column: { name: TER_ZOOM, valueNumeric: 10 }
+              - column: { name: TER_PROJECT, value: "EPSG:25831" }
+
+  - changeSet:
+      id: 20_menorca_app_12
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_APP WHERE APP_ID = 12
+      changes:
+        - insert:
+            tableName: STM_APP
+            columns:
+              - column: { name: APP_ID, valueNumeric: 12 }
+              - column: { name: APP_NAME, value: "IDE genèric Menorca" }
+              - column: { name: APP_TYPE, value: I }
+              - column: { name: APP_TITLE, value: "IDE genèric Menorca" }
+              - column: { name: APP_THEME, value: sitmun-base }
+              - column: { name: APP_SCALES, value: "2000000,1000000,700000,600000,500000,250000,100000,75000,50000,25000,20000,15000,10000,5000,2000,1000,500" }
+              - column: { name: APP_PROJECT, value: "EPSG:25831" }
+              - column: { name: APP_TEMPLATE, value: " " }
+              - column: { name: APP_REFRESH, valueBoolean: true }
+              - column: { name: APP_GGIID, valueNumeric: 3 }
+        - insert:
+            tableName: STM_APP_TER
+            columns:
+              - column: { name: ATE_ID, valueNumeric: 120 }
+              - column: { name: ATE_APPID, valueNumeric: 12 }
+              - column: { name: ATE_TERID, valueNumeric: 4 }
+        - insert:
+            tableName: STM_APP_ROL
+            columns:
+              - column: { name: ARO_ROLEID, valueNumeric: 1 }
+              - column: { name: ARO_APPID, valueNumeric: 12 }
+        - insert:
+            tableName: STM_APP_TREE
+            columns:
+              - column: { name: ATR_ID, valueNumeric: 120 }
+              - column: { name: ATR_APPID, valueNumeric: 12 }
+              - column: { name: ATR_TREEID, valueNumeric: 1 }
+              - column: { name: ATR_ORDER, valueNumeric: 0 }
+        - insert:
+            tableName: STM_APP_BCKG
+            columns:
+              - column: { name: ABC_ID, valueNumeric: 120 }
+              - column: { name: ABC_APPID, valueNumeric: 12 }
+              - column: { name: ABC_BACKID, valueNumeric: 1 }
+              - column: { name: ABC_ORDER, valueNumeric: 1 }
+        - insert:
+            tableName: STM_USR_CONF
+            columns:
+              - column: { name: UCO_ID, valueNumeric: 120 }
+              - column: { name: UCO_USERID, valueNumeric: 1 }
+              - column: { name: UCO_TERID, valueNumeric: 4 }
+              - column: { name: UCO_ROLEID, valueNumeric: 1 }
+              - column: { name: UCO_ROLEM, valueBoolean: false }
+
+  # Idempotent fix when 20_menorca_app_12 already ran without APP_GGIID.
+  - changeSet:
+      id: 20_menorca_app_12_situation_map
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: SELECT COUNT(*) FROM STM_APP WHERE APP_ID = 12 AND (APP_GGIID IS NULL OR APP_GGIID <> 3)
+      changes:
+        - update:
+            tableName: STM_APP
+            columns:
+              - column: { name: APP_GGIID, valueNumeric: 3 }
+            where: APP_ID = 12
+
+  - changeSet:
+      id: 20_menorca_ter4_base_avail
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_AVAIL_GI WHERE AGI_TERID = 4 AND AGI_GIID = 1
+      changes:
+        # Background Map (GGI 2) layers must be available on territory 4 or the map refuses to start.
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4001 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 1 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4002 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 2 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4004 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 4 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4005 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 5 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4006 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 6 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4007 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 7 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4008 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 8 }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 4009 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 9 }
+
+  # Direct (non-proxied) WMS → Playwright stub. Avoids middleware /proxy/12/4/... for this leaf.
+  - changeSet:
+      id: 20_menorca_solrustic_direct_wms
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_SERVICE WHERE SER_ID = 9030
+      changes:
+        - insert:
+            tableName: STM_SERVICE
+            columns:
+              - column: { name: SER_ID, valueNumeric: 9030 }
+              - column: { name: SER_NAME, value: "E2E direct WMS tu007rts_ccavalls" }
+              - column: { name: SER_URL, value: "http://127.0.0.1:18093/wms" }
+              - column: { name: SER_PROTOCOL, value: WMS }
+              - column: { name: SER_BLOCKED, valueBoolean: false }
+              - column: { name: SER_PROXIED, valueBoolean: false }
+
+  - changeSet:
+      id: 20_menorca_solrustic_cartography
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_GEOINFO WHERE GEO_ID = 1304
+      changes:
+        - insert:
+            tableName: STM_GEOINFO
+            columns:
+              - column: { name: GEO_ID, valueNumeric: 1304 }
+              - column: { name: GEO_NAME, value: "Trams camí de cavalls" }
+              - column: { name: GEO_LAYERS, value: tu007rts_ccavalls }
+              - column: { name: GEO_ORDER, valueNumeric: 0 }
+              - column: { name: GEO_QUERYABL, valueBoolean: true }
+              - column: { name: GEO_QUERYACT, valueBoolean: true }
+              - column: { name: GEO_QUERYLAY, value: tu007rts_ccavalls }
+              - column: { name: GEO_SERID, valueNumeric: 9030 }
+              - column: { name: GEO_THEMATIC, valueBoolean: false }
+              - column: { name: GEO_BLOCKED, valueBoolean: false }
+              - column: { name: GEO_FILTER_GFI, valueBoolean: false }
+              - column: { name: GEO_FILTER_SS, valueBoolean: false }
+              - column: { name: GEO_STYUSEALL, valueBoolean: false }
+        - insert:
+            tableName: STM_AVAIL_GI
+            columns:
+              - column: { name: AGI_ID, valueNumeric: 1304 }
+              - column: { name: AGI_TERID, valueNumeric: 4 }
+              - column: { name: AGI_GIID, valueNumeric: 1304 }
+        # GGI 1 + role 1: Menorca (ter 4) only — do not AVAIL on ter 1 or app 1/1
+        # FeatureInfo will GFI this layer and break mia-gfi-click (expects 34_TOPO_TX).
+        - insert:
+            tableName: STM_GGI_GI
+            columns:
+              - column: { name: GGG_GGIID, valueNumeric: 1 }
+              - column: { name: GGG_GIID, valueNumeric: 1304 }
+
+  # Idempotent: cartography may already exist from an earlier SER_ID seed.
+  - changeSet:
+      id: 20_menorca_solrustic_use_direct_wms
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: SELECT COUNT(*) FROM STM_GEOINFO WHERE GEO_ID = 1304 AND GEO_SERID <> 9030
+      changes:
+        - update:
+            tableName: STM_GEOINFO
+            columns:
+              - column: { name: GEO_SERID, valueNumeric: 9030 }
+            where: GEO_ID = 1304
+
+  - changeSet:
+      id: 20_menorca_solrustic_ggi_member
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_GGI_GI WHERE GGG_GGIID = 1 AND GGG_GIID = 1304
+      changes:
+        - insert:
+            tableName: STM_GGI_GI
+            columns:
+              - column: { name: GGG_GGIID, valueNumeric: 1 }
+              - column: { name: GGG_GIID, valueNumeric: 1304 }
+
+  - changeSet:
+      id: 20_menorca_app_12_background
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_APP_BCKG WHERE ABC_APPID = 12 AND ABC_BACKID = 1
+      changes:
+        - insert:
+            tableName: STM_APP_BCKG
+            columns:
+              - column: { name: ABC_ID, valueNumeric: 120 }
+              - column: { name: ABC_APPID, valueNumeric: 12 }
+              - column: { name: ABC_BACKID, valueNumeric: 1 }
+              - column: { name: ABC_ORDER, valueNumeric: 1 }
+
+  - changeSet:
+      id: 20_menorca_solrustic_tree_nodes
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TREE_NOD WHERE TNO_ID = 12094
+      changes:
+        - insert:
+            tableName: STM_TREE_NOD
+            columns:
+              - column: { name: TNO_ID, valueNumeric: 12102 }
+              - column: { name: TNO_PARENTID, value: NULL }
+              - column: { name: TNO_NAME, value: "Turisme i patrimoni" }
+              - column: { name: TNO_TOOLTIP, value: "Turisme i patrimoni" }
+              - column: { name: TNO_DEFAULT, valueBoolean: false }
+              - column: { name: TNO_ORDER, valueNumeric: 8 }
+              - column: { name: TNO_TREEID, valueNumeric: 1 }
+              - column: { name: TNO_RADIO, valueBoolean: false }
+              - column: { name: TNO_ACTIVE, valueBoolean: true }
+              - column: { name: TNO_LOAD_DATA, valueBoolean: false }
+        - insert:
+            tableName: STM_TREE_NOD
+            columns:
+              - column: { name: TNO_ID, valueNumeric: 12062 }
+              - column: { name: TNO_PARENTID, valueNumeric: 12102 }
+              - column: { name: TNO_NAME, value: "Rutes turístiques" }
+              - column: { name: TNO_TOOLTIP, value: "Rutes turístiques" }
+              - column: { name: TNO_DEFAULT, valueBoolean: false }
+              - column: { name: TNO_ORDER, valueNumeric: 1 }
+              - column: { name: TNO_TREEID, valueNumeric: 1 }
+              - column: { name: TNO_RADIO, valueBoolean: false }
+              - column: { name: TNO_ACTIVE, valueBoolean: true }
+              - column: { name: TNO_LOAD_DATA, valueBoolean: false }
+        - insert:
+            tableName: STM_TREE_NOD
+            columns:
+              - column: { name: TNO_ID, valueNumeric: 12094 }
+              - column: { name: TNO_PARENTID, valueNumeric: 12062 }
+              - column: { name: TNO_NAME, value: "Trams del camí de cavalls" }
+              - column: { name: TNO_TOOLTIP, value: "Trams del camí de cavalls" }
+              - column: { name: TNO_DEFAULT, valueBoolean: false }
+              - column: { name: TNO_ORDER, valueNumeric: 1 }
+              - column: { name: TNO_TREEID, valueNumeric: 1 }
+              - column: { name: TNO_GIID, valueNumeric: 1304 }
+              - column: { name: TNO_RADIO, value: NULL }
+              - column: { name: TNO_ACTIVE, valueBoolean: true }
+              - column: { name: TNO_QUERYACT, valueBoolean: true }
+              - column: { name: TNO_LOAD_DATA, valueBoolean: false }
+
+  - changeSet:
+      id: 20_menorca_solrustic_mia_plantilla
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 9020
+      changes:
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9020 }
+              - column: { name: TAS_NAME, value: "Dev Plantilla tu007rts_ccavalls" }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 15 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"templateHtml":"<p data-e2e-seeded-plantilla=\"tu007rts-ccavalls\">E2E seeded Plantilla tu007rts_ccavalls <span data-e2e-gfi-name=\"{{$featureName}}\">{{$featureName}}</span></p>"}'
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9021 }
+              - column: { name: TAS_NAME, value: "Dev MIA tu007rts_ccavalls" }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 16 }
+              - column: { name: TAS_GIID, valueNumeric: 1304 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parentLayout":"tabs","moreInfoAdvanced":true,"childTaskOrderIds":[9020],"parameters":[{"label":"Route name","value":"nomruta","description":"GFI attribute nomruta"}],"childTaskParameters":{"9020":{"featureName":"nomruta"}}}'
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9020 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9021 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9020 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9020 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9021 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9021 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9043 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 43 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9008 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 8 }
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATS_ID), 0) + 1 FROM STM_AVAIL_TSK) WHERE SEQ_NAME = 'ATS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(AGI_ID), 0) + 1 FROM STM_AVAIL_GI) WHERE SEQ_NAME = 'AGI_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TNO_ID), 0) + 1 FROM STM_TREE_NOD) WHERE SEQ_NAME = 'TNO_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(APP_ID), 0) + 1 FROM STM_APP) WHERE SEQ_NAME = 'APP_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TER_ID), 0) + 1 FROM STM_TERRITORY) WHERE SEQ_NAME = 'TER_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(SER_ID), 0) + 1 FROM STM_SERVICE) WHERE SEQ_NAME = 'SER_ID'
+
+  # Idempotent: refresh Plantilla/MIA so GFI attr `nomruta` → `$featureName` on GEO 1304.
+  - changeSet:
+      id: 20_menorca_solrustic_gfi_attr_mapping
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 9020
+      changes:
+        - update:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_GIID, valueNumeric: 1304 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parentLayout":"tabs","moreInfoAdvanced":true,"childTaskOrderIds":[9020],"parameters":[{"label":"Route name","value":"nomruta","description":"GFI attribute nomruta"}],"childTaskParameters":{"9020":{"featureName":"nomruta"}}}'
+            where: TAS_ID = 9021
+
+  - changeSet:
+      id: 20_menorca_ccavalls_self_jdbc
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_CONNECT WHERE CON_ID = 90
+      changes:
+        - insert:
+            tableName: STM_CONNECT
+            columns:
+              - column: { name: CON_ID, valueNumeric: 90 }
+              - column: { name: CON_NAME, value: "E2E H2 self (Plantilla SQL)" }
+              - column: { name: CON_DRIVER, value: org.h2.Driver }
+              - column: { name: CON_USER, value: sa }
+              - column: { name: CON_PWD, value: "" }
+              # Must match scripts/e2e-backend.mjs spring.datasource.url (not application-h2 testdb).
+              - column: { name: CON_CONNECTION, value: "jdbc:h2:mem:sitmun-e2e;DB_CLOSE_DELAY=-1" }
+
+  - changeSet:
+      id: 20_menorca_ccavalls_plantilla_sql_sources
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 9022
+      changes:
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9022 }
+              - column: { name: TAS_NAME, value: "Dev SQL languages (ccavalls langs)" }
+              - column: { name: TAS_GTASKID, valueNumeric: 5 }
+              - column: { name: TAS_TTASKID, valueNumeric: 5 }
+              - column: { name: TAS_CONNID, valueNumeric: 90 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[],"scope":"sql-query","command":"SELECT LAN_ID AS lan_id, LAN_NAME AS lan_name, LAN_SHORTNAME AS lan_shortname FROM STM_LANGUAGE ORDER BY LAN_ID LIMIT 10"}'
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9023 }
+              - column: { name: TAS_NAME, value: "Dev SQL territories (ccavalls territories)" }
+              - column: { name: TAS_GTASKID, valueNumeric: 5 }
+              - column: { name: TAS_TTASKID, valueNumeric: 5 }
+              - column: { name: TAS_CONNID, valueNumeric: 90 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[],"scope":"sql-query","command":"SELECT TER_ID AS ter_id, TER_NAME AS ter_name, TER_CODTER AS ter_codter FROM STM_TERRITORY ORDER BY TER_ID LIMIT 8"}'
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9024 }
+              - column: { name: TAS_NAME, value: "Dev SQL GFI echo (ccavalls gfi_echo)" }
+              - column: { name: TAS_GTASKID, valueNumeric: 5 }
+              - column: { name: TAS_TTASKID, valueNumeric: 5 }
+              - column: { name: TAS_CONNID, valueNumeric: 90 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"scope":"sql-query","command":"SELECT CAST(${featureName} AS varchar) AS gfi_route, (SELECT COUNT(*) FROM STM_TSK_UI) AS ui_control_count, (SELECT COUNT(*) FROM STM_TASK) AS task_count"}'
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9022 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9023 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9024 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9022 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9022 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9023 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9023 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9024 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9024 }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9022 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9020 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9022 }
+              - column: { name: TAR_ALIAS, value: langs }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9023 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9020 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9023 }
+              - column: { name: TAR_ALIAS, value: territories }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9024 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9020 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9024 }
+              - column: { name: TAR_ALIAS, value: gfi_echo }
+        - update:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_NAME, value: "Dev Plantilla tu007rts_ccavalls" }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"childTaskOrderIds":[9022,9023,9024],"templateHtml":"<article data-e2e-seeded-plantilla=\"tu007rts-ccavalls\"><h2>Camí de cavalls — MIA Plantilla</h2><p>GFI <code>nomruta</code> → <code>$featureName</code>: <strong data-e2e-gfi-name=\"{{$featureName}}\">{{$featureName}}</strong></p><p data-e2e-system-vars=\"\">App <code>{{#APP_NAME}}</code> · Territory <code>{{#TERR_NAME}}</code> · User <code>{{#USER_NAME}}</code></p><section data-e2e-sql=\"langs\"><h3>Languages (JDBC)</h3><p>First: {{langs.lan_name}} (<code>{{langs.lan_shortname}}</code>)</p><table data-sitmun-each=\"langs.rows\"><thead><tr><th>lan_id</th><th>lan_name</th><th>lan_shortname</th></tr></thead><tbody><tr><td>{{lan_id}}</td><td>{{lan_name}}</td><td>{{lan_shortname}}</td></tr></tbody></table></section><section data-e2e-sql=\"territories\"><h3>Territories (JDBC)</h3><p>First: {{territories.ter_name}}</p><table data-sitmun-each=\"territories.rows\"><thead><tr><th>ter_id</th><th>ter_name</th><th>ter_codter</th></tr></thead><tbody><tr><td>{{ter_id}}</td><td>{{ter_name}}</td><td>{{ter_codter}}</td></tr></tbody></table></section><section data-e2e-sql=\"gfi_echo\"><h3>GFI echo + counts (JDBC bind)</h3><p>SQL saw route <code data-e2e-sql-gfi-route=\"\">{{gfi_echo.gfi_route}}</code>; UI controls {{gfi_echo.ui_control_count}}; tasks {{gfi_echo.task_count}}</p></section></article>"}'
+            where: TAS_ID = 9020
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATS_ID), 0) + 1 FROM STM_AVAIL_TSK) WHERE SEQ_NAME = 'ATS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAR_ID), 0) + 1 FROM STM_TASKREL) WHERE SEQ_NAME = 'TAR_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(CON_ID), 0) + 1 FROM STM_CONNECT) WHERE SEQ_NAME = 'CON_ID'
+
+  - changeSet:
+      id: 20_menorca_ccavalls_mia_multi_plantilla_tabs
+      author: sitmun
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM STM_TASK WHERE TAS_ID = 9025
+      changes:
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9025 }
+              - column: { name: TAS_NAME, value: "Dev Plantilla route (GFI)" }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 15 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"childTaskOrderIds":[9024],"templateHtml":"<section data-e2e-seeded-plantilla=\"tu007rts-ccavalls-route\"><h2>Route from GFI</h2><p><strong data-e2e-gfi-name=\"{{$featureName}}\">{{$featureName}}</strong></p><p>JDBC echo: <code data-e2e-sql-gfi-route=\"\">{{gfi_echo.gfi_route}}</code></p><p>UI controls {{gfi_echo.ui_control_count}} · tasks {{gfi_echo.task_count}}</p></section>"}'
+        - insert:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_ID, valueNumeric: 9026 }
+              - column: { name: TAS_NAME, value: "Dev Plantilla reference data" }
+              - column: { name: TAS_GTASKID, valueNumeric: 1 }
+              - column: { name: TAS_TTASKID, valueNumeric: 15 }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"childTaskOrderIds":[9022,9023],"templateHtml":"<section data-e2e-seeded-plantilla=\"tu007rts-ccavalls-ref\"><h2>Reference data</h2><p>GFI context: <span data-e2e-gfi-name=\"{{$featureName}}\">{{$featureName}}</span></p><section data-e2e-sql=\"langs\"><h3>Languages</h3><table data-sitmun-each=\"langs.rows\"><thead><tr><th>lan_id</th><th>lan_name</th><th>lan_shortname</th></tr></thead><tbody><tr><td>{{lan_id}}</td><td>{{lan_name}}</td><td>{{lan_shortname}}</td></tr></tbody></table></section><section data-e2e-sql=\"territories\"><h3>Territories</h3><table data-sitmun-each=\"territories.rows\"><thead><tr><th>ter_id</th><th>ter_name</th><th>ter_codter</th></tr></thead><tbody><tr><td>{{ter_id}}</td><td>{{ter_name}}</td><td>{{ter_codter}}</td></tr></tbody></table></section></section>"}'
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9025 }
+        - insert:
+            tableName: STM_ROL_TSK
+            columns:
+              - column: { name: RTS_ROLEID, valueNumeric: 1 }
+              - column: { name: RTS_TASKID, valueNumeric: 9026 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9025 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9025 }
+        - insert:
+            tableName: STM_AVAIL_TSK
+            columns:
+              - column: { name: ATS_ID, valueNumeric: 9026 }
+              - column: { name: ATS_TERID, valueNumeric: 4 }
+              - column: { name: ATS_TASKID, valueNumeric: 9026 }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9125 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9025 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9024 }
+              - column: { name: TAR_ALIAS, value: gfi_echo }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9126 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9026 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9022 }
+              - column: { name: TAR_ALIAS, value: langs }
+        - insert:
+            tableName: STM_TASKREL
+            columns:
+              - column: { name: TAR_ID, valueNumeric: 9127 }
+              - column: { name: TAR_TYPE, value: template-task }
+              - column: { name: TAR_TASKID, valueNumeric: 9026 }
+              - column: { name: TAR_TASKRELID, valueNumeric: 9023 }
+              - column: { name: TAR_ALIAS, value: territories }
+        - update:
+            tableName: STM_TASK
+            columns:
+              - column: { name: TAS_NAME, value: "Dev Plantilla tu007rts_ccavalls (full)" }
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parameters":[{"name":"featureName","label":"featureName","type":"string","required":false}],"childTaskOrderIds":[9022,9023,9024],"templateHtml":"<article data-e2e-seeded-plantilla=\"tu007rts-ccavalls\"><h2>Camí de cavalls — full report</h2><p>GFI <code>nomruta</code> → <code>$featureName</code>: <strong data-e2e-gfi-name=\"{{$featureName}}\">{{$featureName}}</strong></p><section data-e2e-system-vars=\"\"><h3>System variables</h3><ul><li>APP_NAME: <code>{{#APP_NAME}}</code></li><li>APP_ID: <code>{{#APP_ID}}</code></li><li>TERR_NAME: <code>{{#TERR_NAME}}</code></li><li>TERR_ID: <code>{{#TERR_ID}}</code></li><li>TERR_COD: <code>{{#TERR_COD}}</code></li><li>USER_NAME: <code>{{#USER_NAME}}</code></li><li>USER_ID: <code>{{#USER_ID}}</code></li></ul></section><section data-e2e-sql=\"langs\"><h3>Languages (JDBC)</h3><p>First: {{langs.lan_name}} (<code>{{langs.lan_shortname}}</code>)</p><table data-sitmun-each=\"langs.rows\"><thead><tr><th>lan_id</th><th>lan_name</th><th>lan_shortname</th></tr></thead><tbody><tr><td>{{lan_id}}</td><td>{{lan_name}}</td><td>{{lan_shortname}}</td></tr></tbody></table></section><section data-e2e-sql=\"territories\"><h3>Territories (JDBC)</h3><p>First: {{territories.ter_name}}</p><table data-sitmun-each=\"territories.rows\"><thead><tr><th>ter_id</th><th>ter_name</th><th>ter_codter</th></tr></thead><tbody><tr><td>{{ter_id}}</td><td>{{ter_name}}</td><td>{{ter_codter}}</td></tr></tbody></table></section><section data-e2e-sql=\"gfi_echo\"><h3>GFI echo + counts (JDBC bind)</h3><p>SQL saw route <code data-e2e-sql-gfi-route=\"\">{{gfi_echo.gfi_route}}</code>; UI controls {{gfi_echo.ui_control_count}}; tasks {{gfi_echo.task_count}}</p></section></article>"}'
+            where: TAS_ID = 9020
+        - update:
+            tableName: STM_TASK
+            columns:
+              - column:
+                  name: TAS_PARAMS
+                  value: '{"parentLayout":"tabs","moreInfoAdvanced":true,"childTaskOrderIds":[9020,9025,9026],"parameters":[{"label":"Route name","value":"nomruta","description":"GFI attribute nomruta"}],"childTaskParameters":{"9020":{"featureName":"nomruta"},"9025":{"featureName":"nomruta"},"9026":{"featureName":"nomruta"}}}'
+            where: TAS_ID = 9021
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATS_ID), 0) + 1 FROM STM_AVAIL_TSK) WHERE SEQ_NAME = 'ATS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAR_ID), 0) + 1 FROM STM_TASKREL) WHERE SEQ_NAME = 'TAR_ID'
+
+  # Keep STM_SEQUENCE ahead of high IDs seeded by this changelog (SequenceMigrationTest).
+  - changeSet:
+      id: 20_menorca_ccavalls_sync_sequences
+      author: sitmun
+      changes:
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ABC_ID), 0) + 1 FROM STM_APP_BCKG) WHERE SEQ_NAME = 'ABC_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATE_ID), 0) + 1 FROM STM_APP_TER) WHERE SEQ_NAME = 'ATE_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(GEO_ID), 0) + 1 FROM STM_GEOINFO) WHERE SEQ_NAME = 'GEO_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(UCO_ID), 0) + 1 FROM STM_USR_CONF) WHERE SEQ_NAME = 'UCO_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(AGI_ID), 0) + 1 FROM STM_AVAIL_GI) WHERE SEQ_NAME = 'AGI_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TNO_ID), 0) + 1 FROM STM_TREE_NOD) WHERE SEQ_NAME = 'TNO_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(APP_ID), 0) + 1 FROM STM_APP) WHERE SEQ_NAME = 'APP_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TER_ID), 0) + 1 FROM STM_TERRITORY) WHERE SEQ_NAME = 'TER_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(SER_ID), 0) + 1 FROM STM_SERVICE) WHERE SEQ_NAME = 'SER_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAS_ID), 0) + 1 FROM STM_TASK) WHERE SEQ_NAME = 'TAS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATS_ID), 0) + 1 FROM STM_AVAIL_TSK) WHERE SEQ_NAME = 'ATS_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAR_ID), 0) + 1 FROM STM_TASKREL) WHERE SEQ_NAME = 'TAR_ID'
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(CON_ID), 0) + 1 FROM STM_CONNECT) WHERE SEQ_NAME = 'CON_ID'
