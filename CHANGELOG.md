@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **i18n** / **Oracle**: Request preload caches `language.default` on `TranslationCache`; `DatabaseDefaultLanguageResolver` reads it so `@PostLoad` (e.g. `TaskGroup` while loading `/api/tasks?...&lang=`) does not query `STM_CONF` mid-ResultSet (ORA-17010 Closed ResultSet).
 - **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).
 - **E2E seed**: Plantilla self-JDBC `CON_ID` 90 uses `jdbc:h2:mem:sitmun-e2e` (same DB as `scripts/e2e-backend.mjs`).
 - **E2E seed**: Menorca GEO **1304** is available only on territory **4** (not ter **1**), so app **1/1** FeatureInfo is not polluted by `tu007rts_ccavalls`.
@@ -19,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Tests**: `OraclePostLoadNestedQueryIT` reproduces ORA-17010 on `GET /api/tasks?type.id=5&lang=en&projection=view` under `testOracle`.
 - **Tests**: `TemplateExecutionNestingTest` covers declared-only plantilla params, default⇒optional, empty nested plantilla without undeclared `$` injection, root defaults into declared nested SQL children, and `childTaskParameters` override.
 - **Tests** / **Seed**: Liquibase `20_menorca_solrustic_mia_e2e` — Menorca app **12** / territory **4**, GEO **1304** (`tu007rts_ccavalls`), node **12094**, MIA **9021** tabs over Plantillas **9020**/**9025**/**9026** (JDBC **9022–9024**, GFI `nomruta` → `$featureName`).
 - **i18n** / **Templates**: On Task create/save, `TaskEventHandler` enrolls `<t>…</t>` keys from `properties.templateHtml` via `LiteralTranslationEnsureService` (self-translation for DB `language.default` at first ensure; exact inner HTML as dictionary key).

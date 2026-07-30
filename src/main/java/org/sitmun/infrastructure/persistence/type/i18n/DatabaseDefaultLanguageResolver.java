@@ -27,8 +27,23 @@ public class DatabaseDefaultLanguageResolver {
     this.propertyDefaultLanguage = propertyDefaultLanguage;
   }
 
-  /** Shortname from {@code STM_CONF} {@code language.default}, else {@code sitmun.language}. */
+  /**
+   * Shortname from {@code STM_CONF} {@code language.default}, else {@code sitmun.language}.
+   *
+   * <p>When {@link TranslationCache} was preloaded for the request, returns the cached shortname
+   * without querying {@code STM_CONF} (avoids nested JDBC during {@code @PostLoad} hydration —
+   * ORA-17010 on Oracle).
+   */
   public String resolveShortname() {
+    TranslationCache cache = TranslationCache.fromRequest();
+    if (cache != null && StringUtils.hasText(cache.getDefaultLanguageShortname())) {
+      return cache.getDefaultLanguageShortname();
+    }
+    return resolveShortnameFromDatabase();
+  }
+
+  /** Always reads {@code STM_CONF} / property fallback (used by request preload). */
+  public String resolveShortnameFromDatabase() {
     return configurationParameterRepository
         .findByName(SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY)
         .map(param -> param.getValue())
