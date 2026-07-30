@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- **Startup**: Built-in repair deletes `UserPosition` rows for `public` only; if `admin` still has positions, they are preserved and a stable warning `admin-has-positions` is exposed on `/api/dashboard/startup` and health details (repair stays `READY`/`UP`). Aligns with admin-UI-repairable state ([#254](https://github.com/sitmun/sitmun-backend-core/issues/254)).
 - **Templates**: Plantilla parameter contract — only **declared** names enter `$…` / child execute maps; blank/missing invoke values fall back to saved defaults; parent/root pipeline values pass to a child only when that child declares the name (undeclared keys dropped). Nested Plantilla Execute still merges `childTaskParameters[taskId]` last (wins) for declared names.
 - **Templates**: Nested Plantilla Execute merges child params as (1) saved Parameter defaults from `templateTaskId` (root Plantilla), (2) current plantilla execute `parameters`, (3) `childTaskParameters[taskId]` (wins). The same map seeds nested Handlebars `$…` (e.g. `{{$nameFilter}}`) and SQL/API/URL binds.
 - **Templates**: `TaskRelationRepository.findByTaskId` join-fetches related-task EAGER to-ones (`group`, `connection`, …) so PostgreSQL does not close the join ResultSet mid-hydration during Sources Execute (fix for nested SQL under fill).
