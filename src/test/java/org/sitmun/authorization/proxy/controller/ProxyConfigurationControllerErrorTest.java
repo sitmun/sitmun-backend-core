@@ -25,6 +25,7 @@ import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.F
 import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.Outcome;
 import org.sitmun.authorization.proxy.service.ProxyDelegatedTokenAuthenticator.Result;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
+import org.sitmun.infrastructure.persistence.type.i18n.DatabaseDefaultLanguageResolver;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ class ProxyConfigurationControllerErrorTest {
   @MockitoBean private MbtilesResourceAccessValidator mbtilesResourceAccessValidator;
 
   @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 

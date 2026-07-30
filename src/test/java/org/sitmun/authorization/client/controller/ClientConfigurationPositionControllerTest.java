@@ -20,6 +20,7 @@ import org.sitmun.authorization.client.service.ClientUserPositionService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.user.position.UserPositionDTO;
+import org.sitmun.infrastructure.persistence.type.i18n.DatabaseDefaultLanguageResolver;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,8 @@ class ClientConfigurationPositionControllerTest {
   @MockitoBean private ProfileMapper profileMapper;
 
   @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 

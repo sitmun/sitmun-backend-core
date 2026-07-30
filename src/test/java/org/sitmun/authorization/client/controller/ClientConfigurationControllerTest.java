@@ -24,6 +24,7 @@ import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.ProxyMiddlewareUrlResolver;
 import org.sitmun.domain.application.Application;
+import org.sitmun.infrastructure.persistence.type.i18n.DatabaseDefaultLanguageResolver;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,8 @@ class ClientConfigurationControllerTest {
   @MockitoBean private MobileEditionAccessService mobileEditionAccessService;
 
   @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 

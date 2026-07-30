@@ -20,6 +20,7 @@ import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.administration.service.template.TemplateRenderService;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
+import org.sitmun.infrastructure.persistence.type.i18n.DatabaseDefaultLanguageResolver;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ class TemplatePreviewControllerWebMvcTest {
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 
   @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   @MockitoBean private CookieService cookieService;
 

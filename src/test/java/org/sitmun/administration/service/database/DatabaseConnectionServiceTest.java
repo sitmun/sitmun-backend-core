@@ -36,8 +36,7 @@ class DatabaseConnectionServiceTest {
 
     List<Map<String, Object>> rows =
         sut.executeQuery(
-            databaseConnection,
-            "SELECT LAN_ID AS lan_id, LAN_NAME AS lan_name FROM STM_LANGUAGE");
+            databaseConnection, "SELECT LAN_ID AS lan_id, LAN_NAME AS lan_name FROM STM_LANGUAGE");
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
