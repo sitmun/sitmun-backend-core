@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **Startup**: Built-in repair deletes `UserPosition` rows for `public` only; if `admin` still has positions, they are preserved and a stable warning `admin-has-positions` is exposed on `/api/dashboard/startup` and health details (repair stays `READY`/`UP`). Aligns with admin-UI-repairable state ([#254](https://github.com/sitmun/sitmun-backend-core/issues/254)).
+
 ### Fixed
 
 - **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).

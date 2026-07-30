@@ -32,10 +32,14 @@ public class BuiltInUserStartupRepairer implements ApplicationRunner {
     try {
       BuiltInUserRepairResult result = repairService.repair();
       if (result.success()) {
-        status.markReady();
-        log.info("Built-in user startup repair completed");
+        status.markReady(result.warnings());
+        if (result.warnings().isEmpty()) {
+          log.info("Built-in user startup repair completed");
+        } else {
+          log.warn("Built-in user startup repair completed with warnings: {}", result.warnings());
+        }
       } else {
-        status.markBlocked(result.blockedReason());
+        status.markBlocked(result.blockedReason(), result.warnings());
         log.error("Built-in user startup repair blocked: {}", result.blockedReason());
       }
     } catch (RuntimeException ex) {
