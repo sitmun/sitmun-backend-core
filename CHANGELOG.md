@@ -6,17 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Changed
-
-- **Startup**: Built-in repair deletes `UserPosition` rows for `public` only; if `admin` still has positions, they are preserved and a stable warning `admin-has-positions` is exposed on `/api/dashboard/startup` and health details (repair stays `READY`/`UP`). Aligns with admin-UI-repairable state ([#254](https://github.com/sitmun/sitmun-backend-core/issues/254)).
-
-### Fixed
-
-- **i18n** / **Oracle**: Request preload caches `language.default` on `TranslationCache`; `DatabaseDefaultLanguageResolver` reads it so `@PostLoad` (e.g. `TaskGroup` while loading `/api/tasks?...&lang=`) does not query `STM_CONF` mid-ResultSet (ORA-17010 Closed ResultSet).
-- **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).
-- **E2E seed**: Plantilla self-JDBC `CON_ID` 90 uses `jdbc:h2:mem:sitmun-e2e` (same DB as `scripts/e2e-backend.mjs`).
-- **E2E seed**: Menorca GEO **1304** is available only on territory **4** (not ter **1**), so app **1/1** FeatureInfo is not polluted by `tu007rts_ccavalls`.
-- **Templates**: `data-sitmun-each` keeps TipTap `<th>` header rows (inside `<tbody>`) outside `{{#each}}` so preview headers are not repeated per data row.
+## [1.2.8] - 2026-07-30
 
 ### Added
 
@@ -26,6 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **i18n** / **Templates**: On Task create/save, `TaskEventHandler` enrolls `<t>…</t>` keys from `properties.templateHtml` via `LiteralTranslationEnsureService` (self-translation for DB `language.default` at first ensure; exact inner HTML as dictionary key).
 - **i18n**: `DatabaseDefaultLanguageResolver` centralizes runtime `language.default` resolution (`STM_CONF`, property fallback) for overlay, locale resolution, and literal ensure.
 - **Tests**: Nested `<t>` extract/resolve/enroll; B3 ensure-failure aborts Task create; default-language resolver; literal continuity seeding (unit + integration).
+
+- **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
+- **i18n**: Literal-translation CRUD/CSV (`/api/literal-translations`, `…/csv`) on `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (`VARCHAR(4000)`, Liquibase `13_*`/`14_*`). `Language` gains `enabled`/`order` (endonym `name`, locale `translatedName`); default language cannot be disabled; HAL `LanguageProjection` (`projection=view`); Liquibase `11_language_order_enabled_and_labels` (profile `56_…` / `09_…`). Lossless default-language migration via `POST /api/language-default/change-preview` and `…/change` (blocks direct REST edits of `language.default`).
+- **Trees** / **Client profile**: catalog visibility `visible` (`TNO_ACTIVE`) vs load-by-default `active` → profile `loadByDefault` (`TNO_DEFAULT`); `queryableActive` and `loadData` with create/save normalization; radio invariants on save and association link saves; profile exposes `trees[].order` from `STM_APP_TREE.ATR_ORDER` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Auth** / **Proxy**: `POST /api/authenticate/mobile` JSON Bearer for edition clients (`EditionBearerTokenFilter` → `ROLE_MOBILE_EDITION`); mobile-derived proxy JWTs; `POST /api/config/proxy/mbtiles` canonical tile authorization (no MBTiles host).
+- **Applications**: `responsibleInstitutionName` (`APP_RESPONSIBLE_INSTITUTION`); PoC eligibility policy, warnings, and validators; `/api/application-trees` ordered links replacing `@ManyToMany`; dashboard DTO exposes institution and publishable creator email only ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)). Liquibase `09_application_responsible_institution` / `10_application_tree_order`.
+- **Startup**: Soft built-in `admin`/`public` repair (`SITMUN_BOOTSTRAP_ADMIN_PASSWORD` for admin create/restore); `/api/dashboard/health` stays `DOWN` until repair succeeds; public `/api/dashboard/startup` returns stable state/reason; development dumps redact secret-bearing keys. Built-in principal helpers centralized in `SecurityConstants`.
+- **Tests**: Coverage for application PoC policy/validation/mapping, built-in user startup repair/health, tree-node schema/`TNO_ACTIVE`+`TNO_DEFAULT` metadata, and related projections.
 
 ### Changed
 
@@ -39,26 +37,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **i18n**: Literal completeness (`isCompleteByLiteral`) counts enabled languages only.
 - **i18n**: `@I18n` + default-language catalog extended for `Task.name`, `TaskGroup.name`, `TerritoryType.name`, `Service.name`, `Territory.description`, `Application.maintenanceInformation`.
 
-## [1.2.8] - 2026-07-25
-
-### Added
-
-- **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
-- **i18n**: Literal-translation CRUD/CSV (`/api/literal-translations`, `…/csv`) on `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (`VARCHAR(4000)`, Liquibase `13_*`/`14_*`). `Language` gains `enabled`/`order` (endonym `name`, locale `translatedName`); default language cannot be disabled; HAL `LanguageProjection` (`projection=view`); Liquibase `11_language_order_enabled_and_labels` (profile `56_…` / `09_…`). Lossless default-language migration via `POST /api/language-default/change-preview` and `…/change` (blocks direct REST edits of `language.default`).
-- **Trees** / **Client profile**: catalog visibility `visible` (`TNO_ACTIVE`) vs load-by-default `active` → profile `loadByDefault` (`TNO_DEFAULT`); `queryableActive` and `loadData` with create/save normalization; radio invariants on save and association link saves; profile exposes `trees[].order` from `STM_APP_TREE.ATR_ORDER` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
-- **Auth** / **Proxy**: `POST /api/authenticate/mobile` JSON Bearer for edition clients (`EditionBearerTokenFilter` → `ROLE_MOBILE_EDITION`); mobile-derived proxy JWTs; `POST /api/config/proxy/mbtiles` canonical tile authorization (no MBTiles host).
-- **Applications**: `responsibleInstitutionName` (`APP_RESPONSIBLE_INSTITUTION`); PoC eligibility policy, warnings, and validators; `/api/application-trees` ordered links replacing `@ManyToMany`; dashboard DTO exposes institution and publishable creator email only ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)). Liquibase `09_application_responsible_institution` / `10_application_tree_order`.
-- **Startup**: Soft built-in `admin`/`public` repair (`SITMUN_BOOTSTRAP_ADMIN_PASSWORD` for admin create/restore); `/api/dashboard/health` stays `DOWN` until repair succeeds; public `/api/dashboard/startup` returns stable state/reason; development dumps redact secret-bearing keys. Built-in principal helpers centralized in `SecurityConstants`.
-- **Tests**: Coverage for application PoC policy/validation/mapping, built-in user startup repair/health, tree-node schema/`TNO_ACTIVE`+`TNO_DEFAULT` metadata, and related projections.
-
-### Changed
-
 - **i18n**: Literal CSV import/export via JPA; greenfield `VARCHAR(4000)` columns with `18_literal_translations_varchar` upgrade safety. `TaskType` uses `I18nListener`; request-scoped preload resolves `@I18n` for the request language; task/availability projections expose localized `typeTitle` / `taskTypeTitle`.
 - **Client profile** / **Proxy**: Catalog filtering uses `visible`; `isRadio` omitted on non-folders; services may include locale-resolved `title`/`description`. `POST /api/config/proxy` reads Bearer only (`id_token` removed). Application list no longer injects `config.mbtilesUrl`.
 - **Tree nodes** / **Projections**: `TreeRadioTypePolicy` for cartography-to-non-cartography type changes; availability projections expose `cartographyServiceId` / `taskTypeId` for admin navigation.
 - **Tests**: Integration coverage for dashboard keyword search and projection `typeTitle`/`taskTypeTitle` JSON.
 
 ### Fixed
+
+- **i18n** / **Oracle**: Request preload caches `language.default` on `TranslationCache`; `DatabaseDefaultLanguageResolver` reads it so `@PostLoad` (e.g. `TaskGroup` while loading `/api/tasks?...&lang=`) does not query `STM_CONF` mid-ResultSet (ORA-17010 Closed ResultSet).
+- **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).
+- **E2E seed**: Plantilla self-JDBC `CON_ID` 90 uses `jdbc:h2:mem:sitmun-e2e` (same DB as `scripts/e2e-backend.mjs`).
+- **E2E seed**: Menorca GEO **1304** is available only on territory **4** (not ter **1**), so app **1/1** FeatureInfo is not polluted by `tu007rts_ccavalls`.
+- **Templates**: `data-sitmun-each` keeps TipTap `<th>` header rows (inside `<tbody>`) outside `{{#each}}` so preview headers are not repeated per data row.
 
 - **Cartography** / **REST**: DELETE cartography returns **422** Problem Details when referenced by tree nodes or tasks (referencing-entity key no longer hardcoded to tree nodes); style-in-use delete returns **422** instead of **400**; SDR no longer returns a HAL body after DELETE (`returnBodyOnDelete=false`), fixing **500** `LazyInitializationException` on cartography delete when clients send `Accept`.
 - **Trees** / **Tree nodes**: Greenfield/test `tree.type` code list includes `edition`/`touristic`; `normalizeActive` clears `active` on non-cartography-leaf nodes so profile `loadByDefault` stays false.
