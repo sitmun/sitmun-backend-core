@@ -34,7 +34,7 @@ class DefaultLanguageChangeControllerTest extends BaseTest {
   void previewReturns200WithMissingTranslations() throws Exception {
     // Given
     var missing = List.of(new MissingTranslationDto("Application", 1, "Application.name", "Test"));
-    var preview = new DefaultLanguageChangePreview("en", "ca", 10, 10, 8, 2, missing);
+    var preview = new DefaultLanguageChangePreview("en", "ca", 10, 10, 8, 2, missing, 0);
 
     when(service.preview(eq("en"), eq("ca"))).thenReturn(preview);
 
@@ -74,7 +74,7 @@ class DefaultLanguageChangeControllerTest extends BaseTest {
   @Test
   void applyReturns200OnSuccess() throws Exception {
     // Given
-    var result = new DefaultLanguageChangeResult("en", "ca", 25, 23, 2, Collections.emptyList());
+    var result = new DefaultLanguageChangeResult("en", "ca", 25, 23, 2, Collections.emptyList(), 0);
 
     when(service.apply(any(DefaultLanguageChangeRequest.class))).thenReturn(result);
 

@@ -182,6 +182,7 @@ class TemplateChildDataServiceTest {
     HttpClientFactory httpClientFactory = mock(HttpClientFactory.class);
     SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
     when(systemVariableResolver.resolve(any(), any())).thenReturn(null);
+    when(systemVariableResolver.getAvailableVariables()).thenReturn(Map.of());
     TemplateChildDataService service =
         newService(
             mock(ProxyConfigurationService.class),
@@ -213,6 +214,45 @@ class TemplateChildDataServiceTest {
     assertThat(result.getOutcome()).isEqualTo(ChildDataOutcome.OK);
     assertThat(result.getResourceUrl()).contains("https://example.org/resource/");
     verify(httpClientFactory, never()).executeRequest(any());
+  }
+
+  @Test
+  void resolveDirectReplacesUnresolvedKnownSystemVarsWithBareName() throws Exception {
+    SystemVariableResolver systemVariableResolver = mock(SystemVariableResolver.class);
+    when(systemVariableResolver.resolve(any(), any()))
+        .thenReturn("https://example.com/demo?app=#{APP_ID}");
+    when(systemVariableResolver.getAvailableVariables())
+        .thenReturn(Map.of("APP_ID", "#{#application.id}"));
+    TemplateChildDataService service =
+        newService(
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            systemVariableResolver);
+
+    Task task =
+        Task.builder()
+            .id(9011)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_URL_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "https://example.com/demo?app=#{APP_ID}"))
+            .build();
+
+    ChildDataResult result =
+        service.resolveDirect(
+            ChildDataRequest.builder()
+                .task(task)
+                .parameters(Map.of())
+                .principalKind(PrincipalKind.ADMIN)
+                .coordinates(new RequestCoordinates())
+                .scope(DomainConstants.Tasks.SCOPE_URL_QUERY)
+                .build());
+
+    assertThat(result.getResourceUrl()).isEqualTo("https://example.com/demo?app=APP_ID");
+    assertThat(result.getContext()).containsEntry("url", "https://example.com/demo?app=APP_ID");
   }
 
   private ChildDataRequest sqlRequest(Task task, PrincipalKind principalKind) {

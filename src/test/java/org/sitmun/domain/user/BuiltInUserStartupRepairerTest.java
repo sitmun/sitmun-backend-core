@@ -58,8 +58,9 @@ class BuiltInUserStartupRepairerTest {
   }
 
   @Test
-  @DisplayName("valid built-ins: no user field save needed beyond flags; positions deleted; READY")
-  void validBuiltInsBecomeReadyAndDeletePositions() {
+  @DisplayName(
+      "valid built-ins: delete public positions only; warn and preserve admin positions; READY")
+  void validBuiltInsDeletePublicPositionsAndWarnOnAdminPositions() {
     User admin = validAdmin();
     User pub = validPublic();
     stubUsers(admin, pub);
@@ -73,10 +74,26 @@ class BuiltInUserStartupRepairerTest {
 
     assertThat(status.getState()).isEqualTo(BuiltInUserStartupStatus.State.READY);
     assertThat(status.getReason()).isNull();
-    verify(userPositionRepository).deleteAll(List.of(adminPos));
+    assertThat(status.getWarnings())
+        .containsExactly(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS);
     verify(userPositionRepository).deleteAll(List.of(publicPos));
+    verify(userPositionRepository, never()).deleteAll(List.of(adminPos));
     assertThat(admin.getPassword()).isEqualTo("existing-hash");
     assertThat(admin.getFirstName()).isEqualTo("Administrator");
+  }
+
+  @Test
+  @DisplayName("admin without positions: READY with no warnings")
+  void adminWithoutPositionsHasNoWarnings() {
+    stubUsers(validAdmin(), validPublic());
+    when(userPositionRepository.findByUser(any())).thenReturn(List.of());
+    when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    repairer.run(new DefaultApplicationArguments());
+
+    assertThat(status.getState()).isEqualTo(BuiltInUserStartupStatus.State.READY);
+    assertThat(status.getWarnings()).isEmpty();
+    verify(userPositionRepository, never()).deleteAll(anyList());
   }
 
   @Test

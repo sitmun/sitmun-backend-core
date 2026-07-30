@@ -12,6 +12,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /**
  * Request-scoped cache of translations keyed by element:column. Populated once per request by
  * TranslationCacheFilter; read by TranslationService during @PostLoad to avoid nested queries.
+ *
+ * <p>Also holds the resolved {@code language.default} shortname for the request so {@link
+ * DatabaseDefaultLanguageResolver} does not query {@code STM_CONF} during entity hydration.
  */
 public final class TranslationCache {
 
@@ -20,6 +23,17 @@ public final class TranslationCache {
 
   private final Map<String, String> byKey = new HashMap<>();
   private boolean initialized;
+  private String defaultLanguageShortname;
+
+  /** Runtime {@code language.default} shortname resolved once at request preload. */
+  public void setDefaultLanguageShortname(String defaultLanguageShortname) {
+    this.defaultLanguageShortname = defaultLanguageShortname;
+  }
+
+  /** {@code language.default} shortname when set by preload; otherwise {@code null}. */
+  public String getDefaultLanguageShortname() {
+    return defaultLanguageShortname;
+  }
 
   /** Index rows by element:column for lookup by entity. */
   public void populate(Iterable<TranslationRow> rows) {
@@ -85,6 +99,7 @@ public final class TranslationCache {
   public void clear() {
     byKey.clear();
     initialized = false;
+    defaultLanguageShortname = null;
   }
 
   private static String key(Integer element, String column) {

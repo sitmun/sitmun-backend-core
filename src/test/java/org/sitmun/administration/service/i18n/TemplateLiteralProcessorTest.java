@@ -31,4 +31,17 @@ class TemplateLiteralProcessorTest {
     assertThat(processor.process("<div><t>Hola\n món!</t></div>", "es"))
         .isEqualTo("<div>$1\\value</div>");
   }
+
+  @Test
+  void processResolvesNestedInnerHtmlExactKey() {
+    TemplateLiteralProcessor processor =
+        new TemplateLiteralProcessor(
+            (literal, language) ->
+                "<strong>Hola</strong>".equals(literal) && "ca".equals(language)
+                    ? "<strong>Hola CA</strong>"
+                    : literal);
+
+    assertThat(processor.process("<p><t><strong>Hola</strong></t></p>", "ca"))
+        .isEqualTo("<p><strong>Hola CA</strong></p>");
+  }
 }

@@ -33,12 +33,15 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
 
   private final TranslationRepository translationRepository;
   private final RequestLocaleResolutionService requestLocaleResolutionService;
+  private final DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   public TranslationCacheFilter(
       TranslationRepository translationRepository,
-      RequestLocaleResolutionService requestLocaleResolutionService) {
+      RequestLocaleResolutionService requestLocaleResolutionService,
+      DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver) {
     this.translationRepository = translationRepository;
     this.requestLocaleResolutionService = requestLocaleResolutionService;
+    this.databaseDefaultLanguageResolver = databaseDefaultLanguageResolver;
   }
 
   @Override
@@ -59,6 +62,9 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
       if (locale != null && !locale.isBlank()) {
         LocaleContextHolder.setLocale(Locale.forLanguageTag(locale));
       }
+      // Resolve once before entity hydration; @PostLoad must not query STM_CONF again.
+      String defaultLanguageShortname =
+          databaseDefaultLanguageResolver.resolveShortnameFromDatabase();
       var rows = translationRepository.findAllByLocaleRows(locale);
       if (rows.isEmpty() && locale != null && locale.contains("-")) {
         String base = locale.substring(0, locale.indexOf('-'));
@@ -66,6 +72,7 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
         rows = translationRepository.findAllByLocaleRows(base);
       }
       TranslationCache cache = new TranslationCache();
+      cache.setDefaultLanguageShortname(defaultLanguageShortname);
       cache.populate(rows);
       TranslationCache.setRequestAttribute(cache, request);
     }

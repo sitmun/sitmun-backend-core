@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import jakarta.servlet.FilterChain;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TranslationCacheFilter")
@@ -28,6 +31,7 @@ class TranslationCacheFilterTest {
 
   @Mock private TranslationRepository translationRepository;
   @Mock private RequestLocaleResolutionService requestLocaleResolutionService;
+  @Mock private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
   @Mock private FilterChain filterChain;
 
   private TranslationCacheFilter filter;
@@ -36,15 +40,20 @@ class TranslationCacheFilterTest {
 
   @BeforeEach
   void setUp() {
-    filter = new TranslationCacheFilter(translationRepository, requestLocaleResolutionService);
+    filter =
+        new TranslationCacheFilter(
+            translationRepository, requestLocaleResolutionService, databaseDefaultLanguageResolver);
     ReflectionTestUtils.setField(filter, "defaultLanguage", "ca");
     request = new MockHttpServletRequest();
     response = new MockHttpServletResponse();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     LocaleContextHolder.setLocale(Locale.forLanguageTag("en"));
   }
 
   @AfterEach
   void tearDown() {
+    TranslationCache.removeRequestAttribute(request);
+    RequestContextHolder.resetRequestAttributes();
     LocaleContextHolder.resetLocaleContext();
   }
 
@@ -54,6 +63,7 @@ class TranslationCacheFilterTest {
     request.setParameter("lang", "es");
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
         .thenReturn("es");
+    when(databaseDefaultLanguageResolver.resolveShortnameFromDatabase()).thenReturn("ca");
     when(translationRepository.findAllByLocaleRows("es")).thenReturn(Collections.emptyList());
     doAnswer(
             invocation -> {
@@ -78,5 +88,31 @@ class TranslationCacheFilterTest {
 
     assertThat(LocaleContextHolder.getLocaleContext()).isNull();
     verify(filterChain).doFilter(request, response);
+  }
+
+  @Test
+  @DisplayName("preload stores default language shortname on request translation cache")
+  void preloadStoresDefaultLanguageOnCache() throws Exception {
+    request.setParameter("lang", "es");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
+        .thenReturn("es");
+    when(databaseDefaultLanguageResolver.resolveShortnameFromDatabase()).thenReturn("ca");
+    when(translationRepository.findAllByLocaleRows("es")).thenReturn(Collections.emptyList());
+    AtomicReference<String> cachedDefault = new AtomicReference<>();
+    doAnswer(
+            invocation -> {
+              TranslationCache cache = TranslationCache.fromRequest();
+              assertThat(cache).isNotNull();
+              assertThat(cache.isPopulated()).isTrue();
+              cachedDefault.set(cache.getDefaultLanguageShortname());
+              return null;
+            })
+        .when(filterChain)
+        .doFilter(request, response);
+
+    filter.doFilter(request, response, filterChain);
+
+    assertThat(cachedDefault.get()).isEqualTo("ca");
+    verify(databaseDefaultLanguageResolver).resolveShortnameFromDatabase();
   }
 }

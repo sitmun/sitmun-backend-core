@@ -886,11 +886,12 @@ The current viewer frontend reads the `oidc_token` cookie with JavaScript. When 
 On every start, `BuiltInUserStartupRepairer` soft-repairs the built-in `admin` and `public` accounts:
 
 - Restores required flags (`admin` must be administrator/unblocked; `public` must not be administrator/blocked).
-- Clears stale `public` personal data/password and deletes positions for both built-ins.
+- Clears stale `public` personal data/password and deletes `public` positions only.
+- If built-in `admin` still has positions, keeps them and emits a stable warning `admin-has-positions` (remove via admin UI). Health stays `UP` when repair otherwise succeeds.
 - Creates a missing `public` automatically.
 - Creates a missing `admin`, or restores an empty admin password, only when `SITMUN_BOOTSTRAP_ADMIN_PASSWORD` is set. The value is BCrypt-encoded; plaintext is never logged or stored.
 - Never aborts the JVM. `/api/dashboard/health` stays `DOWN` (HTTP 503) until repair succeeds.
-- `/api/dashboard/startup` is a public, read-only diagnostic that returns only `{ "state": "ready|blocked|initializing" }` and, when blocked, a stable `"reason"` such as `admin-missing-bootstrap-password`. It never exposes secrets, hashes, or exception text. Do not enable global Actuator health details for this purpose — that would leak details from every health contributor.
+- `/api/dashboard/startup` is a public, read-only diagnostic that returns `{ "state": "ready|blocked|initializing" }`, when blocked a stable `"reason"` such as `admin-missing-bootstrap-password`, and optional `"warnings"` (e.g. `["admin-has-positions"]`). It never exposes secrets, hashes, or exception text. Do not enable global Actuator health details for this purpose — that would leak details from every health contributor.
 - Under the `dev` profile, property dump logging redacts keys containing `password`, `secret`, `token`, or `credential` (including `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`).
 
 Operator sequence when admin is missing or passwordless:

@@ -1,6 +1,7 @@
 package org.sitmun.domain.user;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,8 @@ public class BuiltInUserRepairService {
 
   @Transactional
   public BuiltInUserRepairResult repair() {
+    List<String> warnings = new ArrayList<>();
+
     User publicUser = loadOrCreatePublic();
     repairPublic(publicUser);
     userRepository.save(publicUser);
@@ -57,10 +60,10 @@ public class BuiltInUserRepairService {
           admin -> {
             repairAdminFlags(admin);
             userRepository.save(admin);
-            deletePositions(admin);
+            warnAdminPositions(admin, warnings);
           });
       return BuiltInUserRepairResult.blocked(
-          BuiltInUserStartupStatus.REASON_ADMIN_MISSING_BOOTSTRAP_PASSWORD);
+          BuiltInUserStartupStatus.REASON_ADMIN_MISSING_BOOTSTRAP_PASSWORD, warnings);
     }
 
     User admin = existingAdmin.orElseGet(this::newAdminShell);
@@ -71,9 +74,9 @@ public class BuiltInUserRepairService {
       admin.setLastPasswordChange(Date.from(clock.instant()));
     }
     userRepository.save(admin);
-    deletePositions(admin);
+    warnAdminPositions(admin, warnings);
 
-    return BuiltInUserRepairResult.succeeded();
+    return BuiltInUserRepairResult.succeeded(warnings);
   }
 
   private User loadOrCreatePublic() {
@@ -119,6 +122,18 @@ public class BuiltInUserRepairService {
     List<UserPosition> positions = userPositionRepository.findByUser(user);
     if (!positions.isEmpty()) {
       userPositionRepository.deleteAll(positions);
+    }
+  }
+
+  private void warnAdminPositions(User admin, List<String> warnings) {
+    List<UserPosition> positions = userPositionRepository.findByUser(admin);
+    if (!positions.isEmpty()) {
+      warnings.add(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS);
+      log.warn(
+          "Built-in admin user has {} UserPosition row(s); not deleted — remove via admin UI"
+              + " (warning={})",
+          positions.size(),
+          BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS);
     }
   }
 }

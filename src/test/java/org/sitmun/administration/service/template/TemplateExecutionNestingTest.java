@@ -3,6 +3,7 @@ package org.sitmun.administration.service.template;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -13,11 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionRequestDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.database.DatabaseConnectionService;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.authorization.proxy.dto.ConfigProxyDto;
+import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
+import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.task.Task;
@@ -119,14 +124,14 @@ class TemplateExecutionNestingTest extends TemplateExecutionServiceTestFixtures 
                     .relatedTask(childTemplate)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<p>{{consulta_url.url}}</p>"), any(), any(), any()))
+            eq("<p>{{consulta_url.url}}</p>"), any(), any(), any(), any(), any()))
         .thenReturn(
             TemplatePreviewResponseDto.builder()
                 .html("<p>https://example.com/abc</p>")
                 .placeholders(List.of())
                 .build());
     when(templateRenderService.renderPreview(
-            eq("<div>{{plantilla_hija.html}}</div>"), any(), any(), any()))
+            eq("<div>{{plantilla_hija.html}}</div>"), any(), any(), any(), any(), any()))
         .thenReturn(
             TemplatePreviewResponseDto.builder()
                 .html("<div><p>https://example.com/abc</p></div>")
@@ -191,14 +196,14 @@ class TemplateExecutionNestingTest extends TemplateExecutionServiceTestFixtures 
                     .build()));
     when(taskRelationRepository.findByTaskId(901)).thenReturn(List.of());
     when(templateRenderService.renderPreview(
-            eq("<p><t>Hola</t></p>"), any(), eq(List.of()), eq("fr")))
+            eq("<p><t>Hola</t></p>"), any(), eq(List.of()), eq("fr"), any(), any()))
         .thenReturn(
             TemplatePreviewResponseDto.builder()
                 .html("<p>Bonjour</p>")
                 .placeholders(List.of())
                 .build());
     when(templateRenderService.renderPreview(
-            eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(List.of()), eq("fr")))
+            eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(List.of()), eq("fr"), any(), any()))
         .thenReturn(
             TemplatePreviewResponseDto.builder()
                 .html("<div><p>Bonjour</p></div>")
@@ -217,9 +222,15 @@ class TemplateExecutionNestingTest extends TemplateExecutionServiceTestFixtures 
 
       assertThat(result.getContext()).containsEntry("html", "<div><p>Bonjour</p></div>");
       verify(templateRenderService)
-          .renderPreview(eq("<p><t>Hola</t></p>"), any(), eq(List.of()), eq("fr"));
+          .renderPreview(eq("<p><t>Hola</t></p>"), any(), eq(List.of()), eq("fr"), any(), any());
       verify(templateRenderService)
-          .renderPreview(eq("<div>{{plantilla_hija.html}}</div>"), any(), eq(List.of()), eq("fr"));
+          .renderPreview(
+              eq("<div>{{plantilla_hija.html}}</div>"),
+              any(),
+              eq(List.of()),
+              eq("fr"),
+              any(),
+              any());
     } finally {
       RequestContextHolder.resetRequestAttributes();
     }
@@ -328,5 +339,340 @@ class TemplateExecutionNestingTest extends TemplateExecutionServiceTestFixtures 
                   .contains("Template nesting depth exceeded")
                   .contains("3");
             });
+  }
+
+  @Test
+  void executeLinkedTaskForwardsRootTemplateDefaultsIntoNestedSqlChild() throws Exception {
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    stubSqlChildExecution(proxyConfigurationService, databaseConnectionService);
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>ok</p>").placeholders(List.of()).build());
+
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            proxyConfigurationService,
+            databaseConnectionService,
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    stubRootNestedSqlGraph(taskRepository, taskRelationRepository, true);
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
+    requestDto.setLinkedTaskId(201);
+    requestDto.setTemplateTaskId(100);
+    requestDto.setChildTaskParameters(Map.of());
+
+    service.executeLinkedTask(requestDto);
+
+    ArgumentCaptor<ConfigProxyRequestDto> requestCaptor =
+        ArgumentCaptor.forClass(ConfigProxyRequestDto.class);
+    verify(proxyConfigurationService).getConfiguration(requestCaptor.capture(), anyLong(), any());
+    assertThat(requestCaptor.getValue().getParameters()).containsEntry("nameFilter", "%sitna%");
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderService)
+        .renderPreview(any(), contextCaptor.capture(), any(), any(), any(), any());
+    assertThat(contextCaptor.getValue()).containsEntry("$nameFilter", "%sitna%");
+  }
+
+  @Test
+  void executeLinkedTaskChildTaskParametersOverrideRootTemplateDefaults() throws Exception {
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    stubSqlChildExecution(proxyConfigurationService, databaseConnectionService);
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>ok</p>").placeholders(List.of()).build());
+
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            proxyConfigurationService,
+            databaseConnectionService,
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    stubRootNestedSqlGraph(taskRepository, taskRelationRepository, true);
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
+    requestDto.setLinkedTaskId(201);
+    requestDto.setTemplateTaskId(100);
+    requestDto.setChildTaskParameters(Map.of("202", Map.of("nameFilter", "%other%")));
+
+    service.executeLinkedTask(requestDto);
+
+    ArgumentCaptor<ConfigProxyRequestDto> requestCaptor =
+        ArgumentCaptor.forClass(ConfigProxyRequestDto.class);
+    verify(proxyConfigurationService).getConfiguration(requestCaptor.capture(), anyLong(), any());
+    assertThat(requestCaptor.getValue().getParameters()).containsEntry("nameFilter", "%other%");
+  }
+
+  @Test
+  void executeLinkedTaskDropsUndeclaredParametersFromPlantillaContext() {
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>ok</p>").placeholders(List.of()).build());
+
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task rootTemplate =
+        Task.builder()
+            .id(100)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "nameFilter", "value", "%sitna%", "type", "string")),
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<p>{{$nameFilter}}</p>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    when(taskRepository.findById(100)).thenReturn(Optional.of(rootTemplate));
+    when(taskRelationRepository.findByTaskId(100)).thenReturn(List.of());
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
+    requestDto.setLinkedTaskId(100);
+    requestDto.setTemplateTaskId(100);
+    requestDto.setParameters(Map.of("nameFilter", "%x%", "undeclared", "nope"));
+
+    service.executeLinkedTask(requestDto);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderService)
+        .renderPreview(any(), contextCaptor.capture(), any(), any(), any(), any());
+    assertThat(contextCaptor.getValue())
+        .containsEntry("$nameFilter", "%x%")
+        .doesNotContainKey("$undeclared");
+  }
+
+  @Test
+  void executeLinkedTaskAppliesDefaultWhenInvokeValueBlank() {
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>ok</p>").placeholders(List.of()).build());
+
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task rootTemplate =
+        Task.builder()
+            .id(100)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "nameFilter", "value", "%sitna%", "type", "string")),
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<p>{{$nameFilter}}</p>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    when(taskRepository.findById(100)).thenReturn(Optional.of(rootTemplate));
+    when(taskRelationRepository.findByTaskId(100)).thenReturn(List.of());
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
+    requestDto.setLinkedTaskId(100);
+    requestDto.setTemplateTaskId(100);
+    requestDto.setParameters(Map.of("nameFilter", ""));
+
+    service.executeLinkedTask(requestDto);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderService)
+        .renderPreview(any(), contextCaptor.capture(), any(), any(), any(), any());
+    assertThat(contextCaptor.getValue()).containsEntry("$nameFilter", "%sitna%");
+  }
+
+  @Test
+  void executeLinkedTaskDoesNotInjectUndeclaredParentParamsIntoEmptyNestedPlantilla()
+      throws Exception {
+    ProxyConfigurationService proxyConfigurationService = mock(ProxyConfigurationService.class);
+    DatabaseConnectionService databaseConnectionService = mock(DatabaseConnectionService.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+    stubSqlChildExecution(proxyConfigurationService, databaseConnectionService);
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder().html("<p>ok</p>").placeholders(List.of()).build());
+
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TaskRelationRepository taskRelationRepository = mock(TaskRelationRepository.class);
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            taskRelationRepository,
+            proxyConfigurationService,
+            databaseConnectionService,
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    stubRootNestedSqlGraph(taskRepository, taskRelationRepository, false);
+
+    TemplateTaskExecutionRequestDto requestDto = new TemplateTaskExecutionRequestDto();
+    requestDto.setAppId(5);
+    requestDto.setTerId(7);
+    requestDto.setLinkedTaskId(201);
+    requestDto.setTemplateTaskId(100);
+    requestDto.setChildTaskParameters(Map.of());
+
+    service.executeLinkedTask(requestDto);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Map<String, Object>> contextCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderService)
+        .renderPreview(any(), contextCaptor.capture(), any(), any(), any(), any());
+    assertThat(contextCaptor.getValue()).doesNotContainKey("$nameFilter");
+
+    ArgumentCaptor<ConfigProxyRequestDto> requestCaptor =
+        ArgumentCaptor.forClass(ConfigProxyRequestDto.class);
+    verify(proxyConfigurationService).getConfiguration(requestCaptor.capture(), anyLong(), any());
+    // SQL child still declares nameFilter, so parent default may bind there.
+    assertThat(requestCaptor.getValue().getParameters()).containsEntry("nameFilter", "%sitna%");
+  }
+
+  private static void stubSqlChildExecution(
+      ProxyConfigurationService proxyConfigurationService,
+      DatabaseConnectionService databaseConnectionService)
+      throws Exception {
+    JdbcPayloadDto payload =
+        JdbcPayloadDto.builder()
+            .driver("org.h2.Driver")
+            .uri("jdbc:h2:mem:nesting-inherit")
+            .user("sa")
+            .password("")
+            .sql("select 1")
+            .build();
+    when(proxyConfigurationService.getConfiguration(any(), anyLong(), any()))
+        .thenReturn(ConfigProxyDto.builder().type("JDBC").payload(payload).build());
+    when(databaseConnectionService.executeQuery(any(), any(), any())).thenReturn(List.of());
+  }
+
+  private static void stubRootNestedSqlGraph(
+      TaskRepository taskRepository,
+      TaskRelationRepository taskRelationRepository,
+      boolean nestedDeclaresNameFilter) {
+    Task rootTemplate =
+        Task.builder()
+            .id(100)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "nameFilter", "value", "%sitna%", "type", "string")),
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<div>{{fill.html}}</div>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Map<String, Object> nestedProperties = new java.util.LinkedHashMap<>();
+    nestedProperties.put(DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML, "<p>{{$nameFilter}}</p>");
+    if (nestedDeclaresNameFilter) {
+      nestedProperties.put(
+          DomainConstants.Tasks.PROPERTY_PARAMETERS,
+          List.of(Map.of("name", "nameFilter", "type", "string")));
+    } else {
+      nestedProperties.put(DomainConstants.Tasks.PROPERTY_PARAMETERS, List.of());
+    }
+    Task nestedTemplate =
+        Task.builder()
+            .id(201)
+            .properties(nestedProperties)
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+    Task sqlChild =
+        Task.builder()
+            .id(202)
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(Map.of("name", "nameFilter", "type", "query")),
+                    DomainConstants.Tasks.PROPERTY_SCOPE,
+                    DomainConstants.Tasks.SCOPE_SQL_QUERY,
+                    DomainConstants.Tasks.PROPERTY_COMMAND,
+                    "SELECT 1 WHERE name ILIKE ${nameFilter}"))
+            .build();
+
+    when(taskRepository.findById(100)).thenReturn(Optional.of(rootTemplate));
+    when(taskRepository.findById(201)).thenReturn(Optional.of(nestedTemplate));
+    when(taskRelationRepository.findByTaskId(201))
+        .thenReturn(
+            List.of(
+                TaskRelation.builder()
+                    .id(1)
+                    .task(nestedTemplate)
+                    .relationType("template-task")
+                    .referenceAlias("nested_sql")
+                    .relatedTask(sqlChild)
+                    .build()));
   }
 }

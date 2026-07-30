@@ -2,6 +2,7 @@ package org.sitmun.infrastructure.security.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,18 @@ class BuiltInUserHealthIndicatorTest {
     Health health = indicator.health();
     assertThat(health.getStatus()).isEqualTo(Status.UP);
     assertThat(health.getDetails()).containsEntry("builtInUsers", "ready");
+    assertThat(health.getDetails()).doesNotContainKey("warnings");
+  }
+
+  @Test
+  @DisplayName("ready with admin-has-positions warning stays UP and exposes stable warning code")
+  void readyWithAdminPositionsWarningIsUp() {
+    status.markReady(List.of(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS));
+    Health health = indicator.health();
+    assertThat(health.getStatus()).isEqualTo(Status.UP);
+    assertThat(health.getDetails()).containsEntry("builtInUsers", "ready");
+    assertThat(health.getDetails())
+        .containsEntry("warnings", List.of(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS));
   }
 
   @Test

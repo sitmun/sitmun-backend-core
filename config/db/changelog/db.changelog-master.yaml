@@ -62,3 +62,6 @@ databaseChangeLog:
   - include:
       file: 19_mia_chrome_literals.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 20_menorca_solrustic_mia_e2e.yaml
+      relativeToChangelogFile: true

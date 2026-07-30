@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.ConfigurablePropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -16,20 +15,23 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TranslationService {
 
-  @Value("${sitmun.language}")
-  private String defaultLanguage;
-
   private final TranslationRepository translationRepository;
   private final EntityManager entityManager;
+  private final DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
-  TranslationService(TranslationRepository translationRepository, EntityManager entityManager) {
+  TranslationService(
+      TranslationRepository translationRepository,
+      EntityManager entityManager,
+      DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver) {
     this.translationRepository = translationRepository;
     this.entityManager = entityManager;
+    this.databaseDefaultLanguageResolver = databaseDefaultLanguageResolver;
   }
 
   public void updateInternationalization(Object target) {
     // Use full BCP-47 tag (e.g. "oc-aranes"), not getLanguage() which strips variants to "oc".
     String languageTag = LocaleContextHolder.getLocale().toLanguageTag();
+    String defaultLanguage = databaseDefaultLanguageResolver.resolveShortname();
     log.debug(
         "TranslationService.updateInternationalization targetClass={} languageTag={} defaultLanguage={}",
         target != null ? target.getClass().getName() : "null",

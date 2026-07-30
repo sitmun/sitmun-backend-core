@@ -50,6 +50,7 @@ public class Service {
   /** Service name. */
   @Column(name = "SER_NAME", length = 60)
   @NotBlank
+  @I18n
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 

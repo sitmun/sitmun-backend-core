@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,21 @@ class DashboardHealthSecurityTest {
     mvc.perform(get("/api/dashboard/startup"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.state").value("ready"))
-        .andExpect(jsonPath("$.reason").doesNotExist());
+        .andExpect(jsonPath("$.reason").doesNotExist())
+        .andExpect(jsonPath("$.warnings").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("GET: /api/dashboard/startup ready with admin-has-positions warning stays ready")
+  void startupReadyExposesAdminPositionsWarning() throws Exception {
+    builtInUserStartupStatus.markReady(
+        List.of(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS));
+    mvc.perform(get("/api/dashboard/startup"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.state").value("ready"))
+        .andExpect(jsonPath("$.reason").doesNotExist())
+        .andExpect(
+            jsonPath("$.warnings[0]").value(BuiltInUserStartupStatus.WARNING_ADMIN_HAS_POSITIONS));
   }
 
   @Test
