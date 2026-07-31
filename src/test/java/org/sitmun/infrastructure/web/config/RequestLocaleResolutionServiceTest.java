@@ -22,6 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.SitmunConstants;
+import org.sitmun.domain.configuration.ConfigurationParameter;
+import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -38,6 +41,7 @@ class RequestLocaleResolutionServiceTest {
   @Mock private LocaleResolver localeResolver;
   @Mock private LocaleChangeInterceptor localeChangeInterceptor;
   @Mock private LanguageRepository languageRepository;
+  @Mock private ConfigurationParameterRepository configurationParameterRepository;
 
   private RequestLocaleResolutionService service;
   private static final String DEFAULT_LANGUAGE = "en";
@@ -49,7 +53,10 @@ class RequestLocaleResolutionServiceTest {
     LocaleContextHolder.resetLocaleContext();
     service =
         new RequestLocaleResolutionService(
-            localeResolver, localeChangeInterceptor, languageRepository);
+            localeResolver,
+            localeChangeInterceptor,
+            languageRepository,
+            configurationParameterRepository);
 
     ReflectionTestUtils.setField(service, "sitmunLanguage", "en");
 
@@ -63,9 +70,7 @@ class RequestLocaleResolutionServiceTest {
             createLanguage("oc-aranes", "Occitan Aranese"));
 
     lenient().when(languageRepository.findAll()).thenReturn(supportedLanguages);
-    lenient()
-        .when(languageRepository.findFirstByDefaultLanguageTrue())
-        .thenReturn(java.util.Optional.empty());
+    lenient().when(configurationParameterRepository.findAll()).thenReturn(Collections.emptyList());
     lenient().when(localeChangeInterceptor.getParamName()).thenReturn("lang");
     lenient().when(localeChangeInterceptor.getHttpMethods()).thenReturn(null);
     lenient().when(localeChangeInterceptor.isIgnoreInvalidLocale()).thenReturn(true);
@@ -243,17 +248,25 @@ class RequestLocaleResolutionServiceTest {
     }
 
     @Test
-    @DisplayName("falls back to default language flag when resolver returns unsupported")
-    void fallbackToDatabaseDefaultLanguage() {
+    @DisplayName(
+        "falls back to database language.default parameter when resolver returns unsupported")
+    void fallbackToDatabaseDefaultParameter() {
       when(request.getParameter("lang")).thenReturn(null);
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.forLanguageTag("de"));
 
+      ConfigurationParameter defaultLangParam =
+          ConfigurationParameter.builder()
+              .name(SitmunConstants.LANGUAGE_DEFAULT_CONF_KEY)
+              .value("es")
+              .build();
+
       // Reset and setup mocks for this test
+      reset(configurationParameterRepository);
       reset(languageRepository);
+      when(configurationParameterRepository.findAll())
+          .thenReturn(Collections.singletonList(defaultLangParam));
       when(languageRepository.findAll()).thenReturn(supportedLanguages);
-      when(languageRepository.findFirstByDefaultLanguageTrue())
-          .thenReturn(java.util.Optional.of(createLanguage("es", "Spanish")));
 
       // Ensure step 4 (context holder) does not return early: JVM default locale (e.g. "en")
       // would otherwise match and we would never reach the database default.
