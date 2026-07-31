@@ -203,7 +203,7 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
   @DisplayName("POST MIA render accepts public profile role")
   @WithMockUser(username = "public", roles = "PUBLIC")
   void miaRenderAcceptsPublicProfileRole() throws Exception {
-    when(templateExecutionService.renderMoreInfoAdvanced(any()))
+    when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(java.util.List.of()).build());
 
     mvc.perform(

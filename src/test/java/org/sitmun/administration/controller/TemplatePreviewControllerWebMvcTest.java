@@ -16,6 +16,8 @@ import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto;
 import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.administration.service.template.TemplateRenderService;
+import org.sitmun.administration.service.template.export.TemplateExportAuthorizationService;
+import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
@@ -39,6 +41,10 @@ class TemplatePreviewControllerWebMvcTest {
   @MockitoBean private TemplateExecutionService templateExecutionService;
 
   @MockitoBean private TemplateRenderService templateRenderService;
+
+  @MockitoBean private TemplateExportAuthorizationService templateExportAuthorizationService;
+
+  @MockitoBean private TemplateExportService templateExportService;
 
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 

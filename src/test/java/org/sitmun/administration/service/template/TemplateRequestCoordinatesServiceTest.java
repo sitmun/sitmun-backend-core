@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
-import org.sitmun.domain.task.availability.TaskAvailabilityRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.User;
@@ -39,12 +38,9 @@ class TemplateRequestCoordinatesServiceTest {
         .setAuthentication(new TestingAuthenticationToken("public", null, "ROLE_PUBLIC"));
     TemplateRequestCoordinatesService service =
         new TemplateRequestCoordinatesService(
-            applicationRepository,
-            mock(TaskAvailabilityRepository.class),
-            territoryRepository,
-            userRepository);
+            applicationRepository, territoryRepository, userRepository);
 
-    var coordinates = service.buildForProfile(7, 11);
+    var coordinates = service.build(7, 11);
 
     assertThat(coordinates.getApplication()).isSameAs(application);
     assertThat(coordinates.getTerritory()).isSameAs(territory);

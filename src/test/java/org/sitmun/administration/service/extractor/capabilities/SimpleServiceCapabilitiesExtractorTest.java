@@ -89,7 +89,7 @@ class SimpleServiceCapabilitiesExtractorTest {
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertNotNull(doc.getReason());
-    assertTrue(doc.getReason().startsWith("UnknownHostException: fake"));
+    assertThat(doc.getReason()).startsWith("UnknownHostException:").contains("fake");
     assertNull(doc.getAsText());
     assertNull(doc.getAsJson());
   }
