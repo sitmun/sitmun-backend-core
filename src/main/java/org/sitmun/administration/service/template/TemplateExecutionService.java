@@ -63,8 +63,8 @@ public class TemplateExecutionService {
   private static final String MAP_IMAGE_FEATURE_BBOX_SIZE = "__featureBboxSize";
   private static final int DEFAULT_MAP_IMAGE_WIDTH = 1024;
   private static final int DEFAULT_MAP_IMAGE_HEIGHT = 768;
-  private static final double MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE = 0.0001d;
-  private static final double MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE = 1d;
+  private static final double MAP_IMAGE_GEOGRAPHIC_MIN_DEGENERATE_BBOX_SIZE = 0.0015d;
+  private static final double MAP_IMAGE_PROJECTED_MIN_DEGENERATE_BBOX_SIZE = 150d;
   private static final Pattern FULL_HTML_DOCUMENT_PATTERN =
       Pattern.compile("(?is)<\\s*html(?:\\s|>)|<!doctype(?:\\s|>)");
   private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX =
