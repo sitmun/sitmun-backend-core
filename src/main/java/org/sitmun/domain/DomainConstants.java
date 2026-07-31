@@ -269,7 +269,7 @@ public class DomainConstants {
       if (properties != null) {
         Object scope = properties.get(PROPERTY_SCOPE);
         String scopeStr = String.valueOf(scope);
-        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr);
+        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr) || SCOPE_URL.equalsIgnoreCase(scopeStr);
       }
       return false;
     }
