@@ -3,17 +3,25 @@ package org.sitmun.infrastructure.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
-import liquibase.integration.spring.SpringLiquibase;
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.DirectoryResourceAccessor;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 class SequenceMigrationTest {
+
+  private static final Path PROJECT_ROOT = Path.of(".").toAbsolutePath().normalize();
+  private static final String CHANGELOG = "config/db/changelog/db.changelog-master.yaml";
 
   private static final List<Generator> GENERATORS =
       List.of(
@@ -59,11 +67,7 @@ class SequenceMigrationTest {
   void productionChangelogInitializesEveryTableGeneratorAboveSeededIds() throws Exception {
     var dataSource = createDataSource();
 
-    var liquibase = new SpringLiquibase();
-    liquibase.setDataSource(dataSource);
-    liquibase.setChangeLog("file:./config/db/changelog/db.changelog-master.yaml");
-    liquibase.setDropFirst(true);
-    liquibase.afterPropertiesSet();
+    applyLiquibase(dataSource);
 
     try (var connection = dataSource.getConnection()) {
       assertSoftly(
@@ -99,6 +103,19 @@ class SequenceMigrationTest {
     dataSource.setURL("jdbc:h2:mem:sequence-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1");
     dataSource.setUser("sa");
     return dataSource;
+  }
+
+  private static void applyLiquibase(DataSource dataSource) throws Exception {
+    try (var connection = dataSource.getConnection()) {
+      var database =
+          DatabaseFactory.getInstance()
+              .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      try (var liquibase =
+          new Liquibase(CHANGELOG, new DirectoryResourceAccessor(PROJECT_ROOT), database)) {
+        liquibase.dropAll();
+        liquibase.update(new Contexts());
+      }
+    }
   }
 
   private static long selectNextId(Connection connection, Generator generator) throws SQLException {
