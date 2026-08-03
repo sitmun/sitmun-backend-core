@@ -91,6 +91,8 @@ public class TemplatePreviewController {
             requestDto.getTemplateHtml(),
             requestDto.getContext(),
             requestDto.getKnownTaskReferences(),
-            language));
+            language,
+            requestDto.getAppId(),
+            requestDto.getTerId()));
   }
 }

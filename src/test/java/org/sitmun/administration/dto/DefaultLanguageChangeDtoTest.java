@@ -43,7 +43,7 @@ class DefaultLanguageChangeDtoTest {
             new MissingTranslationDto("Application", 1, "Application.name", "Test App"),
             new MissingTranslationDto("Language", 2, "Language.name", "English"));
 
-    var preview = new DefaultLanguageChangePreview("en", "ca", 25, 25, 20, 2, missing);
+    var preview = new DefaultLanguageChangePreview("en", "ca", 25, 25, 20, 2, missing, 0);
 
     var json = previewTester.write(preview);
     assertThat(json).extractingJsonPathStringValue("$.currentDefault").isEqualTo("en");
@@ -69,7 +69,7 @@ class DefaultLanguageChangeDtoTest {
     var preserved =
         List.of(new MissingTranslationDto("Service", 5, "Service.description", "WMS Service"));
 
-    var result = new DefaultLanguageChangeResult("en", "ca", 30, 28, 2, preserved);
+    var result = new DefaultLanguageChangeResult("en", "ca", 30, 28, 2, preserved, 0);
 
     var json = resultTester.write(result);
     assertThat(json).extractingJsonPathStringValue("$.previousDefault").isEqualTo("en");

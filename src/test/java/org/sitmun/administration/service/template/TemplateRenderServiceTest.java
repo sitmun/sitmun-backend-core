@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -13,33 +14,65 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
 import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
+import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.web.server.ResponseStatusException;
 
 class TemplateRenderServiceTest {
 
+  private static final Map<String, String> CONFIGURED_SYSTEM_VARS =
+      Map.of(
+          "USER_ID", "#{#user.id}",
+          "USER_NAME", "#{#user.username}",
+          "TERR_ID", "#{#territory.id}",
+          "TERR_COD", "#{#territory.code}",
+          "TERR_NAME", "#{#territory.name}",
+          "APP_ID", "#{#application.id}",
+          "APP_NAME", "#{#application.name}");
+
   private TemplateRenderService createService(SystemVariableResolver resolver) {
     TemplateLiteralProcessor literalProcessor =
         new TemplateLiteralProcessor((literal, language) -> literal);
-    return createService(resolver, literalProcessor, mock(CurrentRequestLanguageResolver.class));
+    return createService(
+        resolver,
+        mock(TemplateRequestCoordinatesService.class),
+        literalProcessor,
+        mock(CurrentRequestLanguageResolver.class));
   }
 
   private TemplateRenderService createService(
       SystemVariableResolver resolver, TemplateLiteralProcessor literalProcessor) {
-    return createService(resolver, literalProcessor, mock(CurrentRequestLanguageResolver.class));
+    return createService(
+        resolver,
+        mock(TemplateRequestCoordinatesService.class),
+        literalProcessor,
+        mock(CurrentRequestLanguageResolver.class));
   }
 
   private TemplateRenderService createService(
       SystemVariableResolver resolver,
       TemplateLiteralProcessor literalProcessor,
       CurrentRequestLanguageResolver languageResolver) {
-    return new TemplateRenderService(
+    return createService(
         resolver,
         mock(TemplateRequestCoordinatesService.class),
+        literalProcessor,
+        languageResolver);
+  }
+
+  private TemplateRenderService createService(
+      SystemVariableResolver resolver,
+      TemplateRequestCoordinatesService coordinatesService,
+      TemplateLiteralProcessor literalProcessor,
+      CurrentRequestLanguageResolver languageResolver) {
+    when(resolver.getAvailableVariables()).thenReturn(CONFIGURED_SYSTEM_VARS);
+    when(coordinatesService.buildForCurrentUser()).thenReturn(new RequestCoordinates());
+    return new TemplateRenderService(
+        resolver,
+        coordinatesService,
         new TemplateContextNormalizer(),
         literalProcessor,
-        languageResolver,
-        TemplateExecutionServiceTestFixtures.chromeLiteralResolver());
+        languageResolver);
   }
 
   @Test
@@ -104,6 +137,38 @@ class TemplateRenderServiceTest {
         .contains("<td>sitna.layerCatalog</td>")
         .contains("<td>sitna.search</td>")
         .doesNotContain("data-sitmun-each");
+  }
+
+  @Test
+  void renderPreviewKeepsTipTapHeaderRowOutsideSitmunEach() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    // TipTap serializes header cells as <th> rows inside <tbody> (no <thead>).
+    String tipTapTable =
+        "<table data-sitmun-each=\"consulta_sql.rows\">"
+            + "<tbody>"
+            + "<tr><th><p>tui_name</p></th></tr>"
+            + "<tr><td><p>{{tui_name}}</p></td></tr>"
+            + "</tbody></table>";
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            tipTapTable,
+            Map.of(
+                "consulta_sql",
+                Map.of(
+                    "rows",
+                    List.of(
+                        Map.of("tui_name", "sitna.layerCatalog"),
+                        Map.of("tui_name", "sitna.search")))));
+
+    String html = response.getHtml();
+    assertThat(html)
+        .contains("sitna.layerCatalog")
+        .contains("sitna.search")
+        .doesNotContain("data-sitmun-each");
+    assertThat(html.split("tui_name", -1)).hasSize(2);
   }
 
   @Test
@@ -196,7 +261,7 @@ class TemplateRenderServiceTest {
   }
 
   @Test
-  void renderPreviewKeepsUnresolvedTaskPlaceholdersVisibleWithExecutionHint() {
+  void renderPreviewMarksUnresolvedTaskPlaceholdersAsColoredOriginalMustache() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     TemplateRenderService service = createService(resolver);
 
@@ -208,35 +273,14 @@ class TemplateRenderServiceTest {
 
     assertThat(response.getHtml())
         .contains("<p>Parcela 23-A</p>")
-        .contains("class=\"sitmun-template-placeholder\"")
+        .contains("class=\"sitmun-template-error\"")
         .contains("&#123;&#123;consulta.url&#125;&#125;")
-        .contains("(task not executed)")
-        .doesNotContain("style=");
+        .doesNotContain("task not executed")
+        .doesNotContain("sitmun-template-placeholder");
   }
 
   @Test
-  void renderPreviewTranslatesUnresolvedTaskExecutionHint() {
-    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
-    CurrentRequestLanguageResolver languageResolver = mock(CurrentRequestLanguageResolver.class);
-    when(languageResolver.resolve(any())).thenReturn("en");
-    TemplateRenderService service =
-        createService(
-            resolver,
-            new TemplateLiteralProcessor((literal, language) -> literal),
-            languageResolver);
-
-    TemplatePreviewResponseDto response =
-        service.renderPreview("<p>{{consulta.url}}</p>", Map.of(), List.of("consulta"));
-
-    assertThat(response.getHtml())
-        .contains("class=\"sitmun-template-placeholder\"")
-        .contains("consulta.url")
-        .contains("(task not executed)")
-        .doesNotContain("style=");
-  }
-
-  @Test
-  void renderPreviewKeepsSystemVariablePlaceholderWhenValueCannotBeResolved() {
+  void renderPreviewUsesBareNameForKnownUnresolvedSystemVariable() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{APP_ID}"), any())).thenReturn("#{APP_ID}");
 
@@ -245,9 +289,50 @@ class TemplateRenderServiceTest {
     TemplatePreviewResponseDto response = service.renderPreview("<p>{{#APP_ID}}</p>", Map.of());
 
     assertThat(response.getHtml())
-        .contains("class=\"sitmun-template-placeholder\"")
-        .contains("&#123;&#123;#APP_ID&#125;&#125;")
-        .doesNotContain("style=");
+        .contains("class=\"sitmun-template-known\"")
+        .contains(">APP_ID<")
+        .doesNotContain("{{#APP_ID}}")
+        .doesNotContain("sitmun-template-error")
+        .doesNotContain("sitmun-template-placeholder");
+  }
+
+  @Test
+  void renderPreviewMarksUnknownSystemVariableAsColoredOriginalMustache() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{NOT_A_VAR}"), any())).thenReturn("#{NOT_A_VAR}");
+
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{#NOT_A_VAR}}</p>", Map.of());
+
+    assertThat(response.getHtml())
+        .contains("class=\"sitmun-template-error\"")
+        .contains("&#123;&#123;#NOT_A_VAR&#125;&#125;")
+        .doesNotContain("<p>NOT_A_VAR</p>");
+  }
+
+  @Test
+  void renderPreviewUsesAppAndTerritoryCoordinatesWhenProvided() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("Sitmun");
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    RequestCoordinates withApp = new RequestCoordinates();
+    when(coordinatesService.buildOptional(12, 4)).thenReturn(withApp);
+    when(coordinatesService.buildForCurrentUser()).thenReturn(new RequestCoordinates());
+
+    TemplateRenderService service =
+        createService(
+            resolver,
+            coordinatesService,
+            new TemplateLiteralProcessor((literal, language) -> literal),
+            mock(CurrentRequestLanguageResolver.class));
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<p>{{#APP_NAME}}</p>", Map.of(), List.of(), null, 12, 4);
+
+    assertThat(response.getHtml()).contains("<p>Sitmun</p>");
+    verify(coordinatesService).buildOptional(12, 4);
   }
 
   @Test

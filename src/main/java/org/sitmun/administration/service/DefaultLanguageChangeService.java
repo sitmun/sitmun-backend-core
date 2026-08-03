@@ -12,12 +12,17 @@ import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Language;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslation;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationRepository;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationValue;
+import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationValueRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Translation;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /** Service for managing database default language changes with lossless translation migration. */
 @Service
@@ -27,6 +32,8 @@ public class DefaultLanguageChangeService {
   private final LanguageRepository languageRepository;
   private final TranslationRepository translationRepository;
   private final ConfigurationParameterRepository configurationParameterRepository;
+  private final LiteralTranslationRepository literalTranslationRepository;
+  private final LiteralTranslationValueRepository literalTranslationValueRepository;
   private final JdbcTemplate jdbcTemplate;
 
   /** Catalog of translatable fields across all entities with @I18n annotations. */
@@ -39,10 +46,21 @@ public class DefaultLanguageChangeService {
           new TranslatableField(
               "Application", "STM_APP", "APP_ID", "description", "APP_DESCRIPTION"),
           new TranslatableField("Application", "STM_APP", "APP_ID", "title", "APP_TITLE"),
+          new TranslatableField(
+              "Application",
+              "STM_APP",
+              "APP_ID",
+              "maintenanceInformation",
+              "APP_MAINTENANCE_INFORMATION"),
           // Service
+          new TranslatableField("Service", "STM_SERVICE", "SER_ID", "name", "SER_NAME"),
           new TranslatableField("Service", "STM_SERVICE", "SER_ID", "description", "SER_ABSTRACT"),
           // Territory
           new TranslatableField("Territory", "STM_TERRITORY", "TER_ID", "name", "TER_NAME"),
+          new TranslatableField(
+              "Territory", "STM_TERRITORY", "TER_ID", "description", "TER_DESCRIPTION"),
+          // TerritoryType
+          new TranslatableField("TerritoryType", "STM_TER_TYP", "TET_ID", "name", "TET_NAME"),
           // Background
           new TranslatableField("Background", "STM_BACKGRD", "BAC_ID", "name", "BAC_NAME"),
           new TranslatableField("Background", "STM_BACKGRD", "BAC_ID", "description", "BAC_DESC"),
@@ -60,6 +78,10 @@ public class DefaultLanguageChangeService {
           // CodeListValue
           new TranslatableField(
               "CodeListValue", "STM_CODELIST", "COD_ID", "description", "COD_DESCRIPTION"),
+          // Task
+          new TranslatableField("Task", "STM_TASK", "TAS_ID", "name", "TAS_NAME"),
+          // TaskGroup
+          new TranslatableField("TaskGroup", "STM_GRP_TSK", "GTS_ID", "name", "GTS_NAME"),
           // TaskType
           new TranslatableField("TaskType", "STM_TSK_TYP", "TTY_ID", "title", "TTY_TITLE"));
 
@@ -67,10 +89,14 @@ public class DefaultLanguageChangeService {
       LanguageRepository languageRepository,
       TranslationRepository translationRepository,
       ConfigurationParameterRepository configurationParameterRepository,
+      LiteralTranslationRepository literalTranslationRepository,
+      LiteralTranslationValueRepository literalTranslationValueRepository,
       DataSource dataSource) {
     this.languageRepository = languageRepository;
     this.translationRepository = translationRepository;
     this.configurationParameterRepository = configurationParameterRepository;
+    this.literalTranslationRepository = literalTranslationRepository;
+    this.literalTranslationValueRepository = literalTranslationValueRepository;
     this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
@@ -84,6 +110,10 @@ public class DefaultLanguageChangeService {
   public DefaultLanguageChangePreview preview(String from, String to) {
     validateLanguages(from, to);
 
+    Language sourceLang =
+        languageRepository
+            .findByShortname(from)
+            .orElseThrow(() -> new IllegalArgumentException("Source language not found: " + from));
     Language targetLang =
         languageRepository
             .findByShortname(to)
@@ -91,6 +121,7 @@ public class DefaultLanguageChangeService {
     List<MissingTranslationDto> missingTranslations = checkMissingTranslations(targetLang);
     int affectedValues = countAffectedValues();
     int restoredValues = countRestorableValues(targetLang);
+    int literalContinuitySeeds = countLiteralContinuitySeeds(sourceLang, targetLang);
 
     return new DefaultLanguageChangePreview(
         from,
@@ -99,7 +130,8 @@ public class DefaultLanguageChangeService {
         affectedValues,
         restoredValues,
         missingTranslations.size(),
-        missingTranslations);
+        missingTranslations,
+        literalContinuitySeeds);
   }
 
   /**
@@ -153,17 +185,20 @@ public class DefaultLanguageChangeService {
     // Restore target language translations to main tables
     int restoredValues = restoreTargetValues(targetLang, !missingTranslations.isEmpty());
 
+    int literalContinuitySeeds = seedLiteralContinuityValues(sourceLang, targetLang);
+
     // Update configuration
     defaultLangParam.setValue(request.to());
     configurationParameterRepository.save(defaultLangParam);
 
     log.info(
-        "Changed default language from {} to {}: backup={}, restored={}, preserved={}",
+        "Changed default language from {} to {}: backup={}, restored={}, preserved={}, literalSeeds={}",
         request.from(),
         request.to(),
         backupUpserts,
         restoredValues,
-        missingTranslations.size());
+        missingTranslations.size(),
+        literalContinuitySeeds);
 
     return new DefaultLanguageChangeResult(
         request.from(),
@@ -171,7 +206,8 @@ public class DefaultLanguageChangeService {
         backupUpserts,
         restoredValues,
         missingTranslations.size(),
-        missingTranslations);
+        missingTranslations,
+        literalContinuitySeeds);
   }
 
   private void validateLanguages(String from, String to) {
@@ -359,5 +395,62 @@ public class DefaultLanguageChangeService {
 
     translation.setTranslation(value);
     translationRepository.save(translation);
+  }
+
+  private int countLiteralContinuitySeeds(Language sourceLang, Language targetLang) {
+    int count = 0;
+    for (LiteralTranslation literal :
+        literalTranslationRepository.findAllWithSourceLanguageOrderByLiteral()) {
+      if (resolveContinuitySeedValue(literal, sourceLang, targetLang) != null) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  private int seedLiteralContinuityValues(Language sourceLang, Language targetLang) {
+    int seeded = 0;
+    for (LiteralTranslation literal :
+        literalTranslationRepository.findAllWithSourceLanguageOrderByLiteral()) {
+      String value = resolveContinuitySeedValue(literal, sourceLang, targetLang);
+      if (value == null) {
+        continue;
+      }
+      LiteralTranslationValue row = new LiteralTranslationValue();
+      row.setLiteralTranslation(literal);
+      row.setLanguage(targetLang);
+      row.setValue(value);
+      literalTranslationValueRepository.save(row);
+      seeded++;
+    }
+    return seeded;
+  }
+
+  /**
+   * Returns the continuity value to seed for {@code targetLang}, or null when target already has a
+   * value or no previous value can be resolved.
+   */
+  private String resolveContinuitySeedValue(
+      LiteralTranslation literal, Language sourceLang, Language targetLang) {
+    if (literalTranslationValueRepository
+        .findByLiteralTranslationIdAndLanguageShortname(literal.getId(), targetLang.getShortname())
+        .isPresent()) {
+      return null;
+    }
+    return literalTranslationValueRepository
+        .findValueByLiteralIdAndLanguage(literal.getId(), sourceLang.getShortname())
+        .filter(StringUtils::hasText)
+        .or(
+            () -> {
+              Language sourceLanguage = literal.getSourceLanguage();
+              if (sourceLanguage == null || !StringUtils.hasText(sourceLanguage.getShortname())) {
+                return java.util.Optional.empty();
+              }
+              return literalTranslationValueRepository.findValueByLiteralIdAndLanguage(
+                  literal.getId(), sourceLanguage.getShortname());
+            })
+        .filter(StringUtils::hasText)
+        .or(() -> java.util.Optional.ofNullable(literal.getLiteral()).filter(StringUtils::hasText))
+        .orElse(null);
   }
 }

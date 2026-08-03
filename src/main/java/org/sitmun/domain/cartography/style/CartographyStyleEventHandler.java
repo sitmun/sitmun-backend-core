@@ -9,7 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
-import org.sitmun.infrastructure.persistence.exception.RequirementException;
+import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
+import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -32,7 +33,7 @@ public class CartographyStyleEventHandler {
   }
 
   @HandleBeforeDelete
-  @Transactional(rollbackFor = RequirementException.class)
+  @Transactional(rollbackFor = BusinessRuleException.class)
   public void handleCartographyStyleDelete(@NotNull CartographyStyle cartographyStyle) {
     String name = cartographyStyle.getName();
     Integer cartographyId = cartographyStyle.getCartography().getId();
@@ -41,7 +42,10 @@ public class CartographyStyleEventHandler {
     boolean inUse = treeNodeRepository.existsByCartographyIdAndStyle(cartographyId, name);
 
     if (inUse) {
-      throw new RequirementException("Cartography Style in use in a the tree node");
+      throw new BusinessRuleException(
+          ProblemTypes.DATA_INTEGRITY_VIOLATION,
+          "Cartography Style in use in a the tree node",
+          "entity.tree-node.plural");
     }
   }
 

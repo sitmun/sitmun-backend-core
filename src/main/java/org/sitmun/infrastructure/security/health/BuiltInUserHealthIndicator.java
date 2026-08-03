@@ -21,11 +21,20 @@ public class BuiltInUserHealthIndicator implements HealthIndicator {
   @Override
   public Health health() {
     return switch (status.getState()) {
-      case READY -> Health.up().withDetail("builtInUsers", "ready").build();
+      case READY -> {
+        Health.Builder builder = Health.up().withDetail("builtInUsers", "ready");
+        if (!status.getWarnings().isEmpty()) {
+          builder.withDetail("warnings", status.getWarnings());
+        }
+        yield builder.build();
+      }
       case BLOCKED -> {
         Health.Builder builder = Health.down().withDetail("builtInUsers", "blocked");
         if (status.getReason() != null) {
           builder.withDetail("reason", status.getReason());
+        }
+        if (!status.getWarnings().isEmpty()) {
+          builder.withDetail("warnings", status.getWarnings());
         }
         yield builder.build();
       }

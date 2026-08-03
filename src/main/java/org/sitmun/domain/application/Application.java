@@ -144,6 +144,7 @@ public class Application {
   private Boolean accessChildrenTerritory = false;
 
   @Column(name = "APP_MAINTENANCE_INFORMATION", length = PersistenceConstants.LONG_DESCRIPTION)
+  @I18n
   private String maintenanceInformation;
 
   @Column(name = "APP_UNAVAILABLE")

@@ -1,6 +1,7 @@
 package org.sitmun.domain.cartography;
 
 import jakarta.validation.constraints.NotNull;
+import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.persistence.exception.BusinessRuleException;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
@@ -14,21 +15,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartographyEventHandler {
 
   private final TreeNodeRepository treeNodeRepository;
+  private final TaskRepository taskRepository;
 
-  public CartographyEventHandler(TreeNodeRepository treeNodeRepository) {
+  public CartographyEventHandler(
+      TreeNodeRepository treeNodeRepository, TaskRepository taskRepository) {
     this.treeNodeRepository = treeNodeRepository;
+    this.taskRepository = taskRepository;
   }
 
   @HandleBeforeDelete
   @Transactional(rollbackFor = BusinessRuleException.class)
   public void handleCartographyDelete(@NotNull Cartography cartography) {
-    // Check if any tree nodes reference this cartography
-    boolean hasTreeNodes = treeNodeRepository.existsByCartographyId(cartography.getId());
+    Integer id = cartography.getId();
 
-    if (hasTreeNodes) {
+    if (treeNodeRepository.existsByCartographyId(id)) {
       throw new BusinessRuleException(
           ProblemTypes.DATA_INTEGRITY_VIOLATION,
-          "Cartography is in use by tree nodes and cannot be deleted");
+          "Cartography is in use by tree nodes and cannot be deleted",
+          "entity.tree-node.plural");
+    }
+
+    if (taskRepository.existsByCartographyId(id)) {
+      throw new BusinessRuleException(
+          ProblemTypes.DATA_INTEGRITY_VIOLATION,
+          "Cartography is in use by tasks and cannot be deleted",
+          "entity.task.plural");
     }
   }
 }

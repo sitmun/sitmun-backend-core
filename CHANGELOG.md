@@ -6,9 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.2.8] - 2026-07-25
+## [1.2.8] - 2026-07-30
 
 ### Added
+
+- **Tests**: `OraclePostLoadNestedQueryIT` reproduces ORA-17010 on `GET /api/tasks?type.id=5&lang=en&projection=view` under `testOracle`.
+- **Tests**: `TemplateExecutionNestingTest` covers declared-only plantilla params, default⇒optional, empty nested plantilla without undeclared `$` injection, root defaults into declared nested SQL children, and `childTaskParameters` override.
+- **Tests** / **Seed**: Liquibase `20_menorca_solrustic_mia_e2e` — Menorca app **12** / territory **4**, GEO **1304** (`tu007rts_ccavalls`), node **12094**, MIA **9021** tabs over Plantillas **9020**/**9025**/**9026** (JDBC **9022–9024**, GFI `nomruta` → `$featureName`).
+- **i18n** / **Templates**: On Task create/save, `TaskEventHandler` enrolls `<t>…</t>` keys from `properties.templateHtml` via `LiteralTranslationEnsureService` (self-translation for DB `language.default` at first ensure; exact inner HTML as dictionary key).
+- **i18n**: `DatabaseDefaultLanguageResolver` centralizes runtime `language.default` resolution (`STM_CONF`, property fallback) for overlay, locale resolution, and literal ensure.
+- **Tests**: Nested `<t>` extract/resolve/enroll; B3 ensure-failure aborts Task create; default-language resolver; literal continuity seeding (unit + integration).
 
 - **Templates**: Template execution/preview (`POST /api/tasks/template/execute-child`, `…/preview`) with recursive Handlebars child orchestration, `TAR_ALIAS` aliases, and max nesting 3; ADMIN-only admin preview (coords optional). More Info Advanced render (`…/more-info-advanced/render`) for `USER`/`ADMIN`/`PUBLIC` with map-session `appId`/`terId`, availability/`validateUserAccess` gates, `TemplateChildDataService`, and classpath `MiaHtmlRenderer` chrome; unresolved placeholders use `sitmun-template-placeholder`. Seeded MIA chrome literals in `19_mia_chrome_literals`.
 - **i18n**: Literal-translation CRUD/CSV (`/api/literal-translations`, `…/csv`) on `STM_LITERAL_TRANSLATION` / `STM_LITERAL_TRANSLATION_VALUE` (`VARCHAR(4000)`, Liquibase `13_*`/`14_*`). `Language` gains `enabled`/`order` (endonym `name`, locale `translatedName`); default language cannot be disabled; HAL `LanguageProjection` (`projection=view`); Liquibase `11_language_order_enabled_and_labels` (profile `56_…` / `09_…`). Lossless default-language migration via `POST /api/language-default/change-preview` and `…/change` (blocks direct REST edits of `language.default`).
@@ -20,6 +27,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- **Startup**: Built-in repair deletes `UserPosition` rows for `public` only; if `admin` still has positions, they are preserved and a stable warning `admin-has-positions` is exposed on `/api/dashboard/startup` and health details (repair stays `READY`/`UP`). Aligns with admin-UI-repairable state ([#254](https://github.com/sitmun/sitmun-backend-core/issues/254)).
+- **Templates**: Plantilla parameter contract — only **declared** names enter `$…` / child execute maps; blank/missing invoke values fall back to saved defaults; parent/root pipeline values pass to a child only when that child declares the name (undeclared keys dropped). Nested Plantilla Execute still merges `childTaskParameters[taskId]` last (wins) for declared names.
+- **Templates**: Nested Plantilla Execute merges child params as (1) saved Parameter defaults from `templateTaskId` (root Plantilla), (2) current plantilla execute `parameters`, (3) `childTaskParameters[taskId]` (wins). The same map seeds nested Handlebars `$…` (e.g. `{{$nameFilter}}`) and SQL/API/URL binds.
+- **Templates**: `TaskRelationRepository.findByTaskId` join-fetches related-task EAGER to-ones (`group`, `connection`, …) so PostgreSQL does not close the join ResultSet mid-hydration during Sources Execute (fix for nested SQL under fill).
+- **Templates**: Preview placeholders — resolved values; known unresolved system vars as bare `APP_NAME` (`.sitmun-template-known`); unknown/missing paths as colored original mustache (`.sitmun-template-error`). Optional `appId`/`terId` on `/api/tasks/template/preview` resolve softly (missing app/ter skipped, no 404).
+- **Templates**: Direct URL/external-link resolve turns leftover known `#{APP_ID}` into bare `APP_ID` when application/territory coords are absent (admin Preview).
+- **i18n**: `TranslationService` and `RequestLocaleResolutionService` gate on DB `language.default` through `DatabaseDefaultLanguageResolver` (property last resort).
+- **i18n**: Default-language apply seeds missing literal values for the new default from the previous default (continuity); does not rewrite `templateHtml` or `sourceLanguage`.
+- **i18n**: Literal completeness (`isCompleteByLiteral`) counts enabled languages only.
+- **i18n**: `@I18n` + default-language catalog extended for `Task.name`, `TaskGroup.name`, `TerritoryType.name`, `Service.name`, `Territory.description`, `Application.maintenanceInformation`.
+
 - **i18n**: Literal CSV import/export via JPA; greenfield `VARCHAR(4000)` columns with `18_literal_translations_varchar` upgrade safety. `TaskType` uses `I18nListener`; request-scoped preload resolves `@I18n` for the request language; task/availability projections expose localized `typeTitle` / `taskTypeTitle`.
 - **Client profile** / **Proxy**: Catalog filtering uses `visible`; `isRadio` omitted on non-folders; services may include locale-resolved `title`/`description`. `POST /api/config/proxy` reads Bearer only (`id_token` removed). Application list no longer injects `config.mbtilesUrl`.
 - **Tree nodes** / **Projections**: `TreeRadioTypePolicy` for cartography-to-non-cartography type changes; availability projections expose `cartographyServiceId` / `taskTypeId` for admin navigation.
@@ -27,6 +45,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **i18n** / **Oracle**: Request preload caches `language.default` on `TranslationCache`; `DatabaseDefaultLanguageResolver` reads it so `@PostLoad` (e.g. `TaskGroup` while loading `/api/tasks?...&lang=`) does not query `STM_CONF` mid-ResultSet (ORA-17010 Closed ResultSet).
+- **Templates** / **SQL**: JDBC `executeQuery` lowercases column labels so H2/Oracle unquoted aliases match Plantilla lowercase keys (Postgres already lowercases).
+- **E2E seed**: Plantilla self-JDBC `CON_ID` 90 uses `jdbc:h2:mem:sitmun-e2e` (same DB as `scripts/e2e-backend.mjs`).
+- **E2E seed**: Menorca GEO **1304** is available only on territory **4** (not ter **1**), so app **1/1** FeatureInfo is not polluted by `tu007rts_ccavalls`.
+- **Templates**: `data-sitmun-each` keeps TipTap `<th>` header rows (inside `<tbody>`) outside `{{#each}}` so preview headers are not repeated per data row.
+
+- **Cartography** / **REST**: DELETE cartography returns **422** Problem Details when referenced by tree nodes or tasks (referencing-entity key no longer hardcoded to tree nodes); style-in-use delete returns **422** instead of **400**; SDR no longer returns a HAL body after DELETE (`returnBodyOnDelete=false`), fixing **500** `LazyInitializationException` on cartography delete when clients send `Accept`.
 - **Trees** / **Tree nodes**: Greenfield/test `tree.type` code list includes `edition`/`touristic`; `normalizeActive` clears `active` on non-cartography-leaf nodes so profile `loadByDefault` stays false.
 - **Configuration**: `proxy` Configuration Parameter applies at runtime again (valid `STM_CONF.proxy` wins over env default); stored value is the normalized effective URL; create/save returns transient `warnings` ([sitmun-admin-app#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
 - **Cartography** / **Applications** / **Proxy**: `@BatchSize` replaces multi-bag `@EntityGraph` on fat layers ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)); application–tree `@HandleBeforeLinkSave` accepts `Object` so non-tree association PUTs no longer type-mismatch; MBTiles proxy config sets `VIRTUAL_ROOT_ALL_NODES` before profile creation.

@@ -333,7 +333,9 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
             eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"),
             any(),
             eq(List.of()),
-            eq("en")))
+            eq("en"),
+            any(),
+            any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -598,7 +600,7 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(urlTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any()))
+            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -671,7 +673,16 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
             .properties(
                 Map.of(
                     DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
-                    "<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"))
+                    "<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(
+                        Map.of(
+                            "name",
+                            "title",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "required",
+                            false))))
             .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
             .build();
     Task urlTask =
@@ -682,7 +693,16 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     DomainConstants.Tasks.PROPERTY_SCOPE,
                     DomainConstants.Tasks.SCOPE_URL_QUERY,
                     DomainConstants.Tasks.PROPERTY_COMMAND,
-                    "https://example.org/layers/{innerParam}"))
+                    "https://example.org/layers/{innerParam}",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(
+                        Map.of(
+                            "name",
+                            "innerParam",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "required",
+                            false))))
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -698,7 +718,12 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(urlTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"), any(), any(), any()))
+            eq("<h1>{{$title}}</h1><a>{{consulta_url.url}}</a>"),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -726,6 +751,82 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
     assertThat(result.getTasks().get(0).getHtml())
         .contains("<h1>Layer title</h1>")
         .contains("https://example.org/layers/roads");
+  }
+
+  @Test
+  void renderMoreInfoAdvancedPassesAppAndTerritoryIdsIntoTemplateSystemVarRender() {
+    TaskRepository taskRepository = mock(TaskRepository.class);
+    TemplateRenderService templateRenderService = mock(TemplateRenderService.class);
+    TemplateRequestCoordinatesService coordinatesService =
+        mock(TemplateRequestCoordinatesService.class);
+    when(coordinatesService.build(any(), any()))
+        .thenReturn(requestCoordinatesWithUserPermission(7));
+
+    TemplateExecutionService service =
+        newService(
+            taskRepository,
+            mock(TaskRelationRepository.class),
+            mock(ProxyConfigurationService.class),
+            mock(DatabaseConnectionService.class),
+            mock(HttpClientFactory.class),
+            mock(SystemVariableResolver.class),
+            templateRenderService,
+            coordinatesService,
+            new ObjectMapper());
+
+    Task miaTask = mock(Task.class);
+    when(miaTask.getId()).thenReturn(16);
+    when(miaTask.getName()).thenReturn("MIA parent");
+    when(miaTask.getType())
+        .thenReturn(
+            TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_MORE_INFO_ADVANCED).build());
+    when(miaTask.getProperties())
+        .thenReturn(Map.of("parentLayout", "scroll", "childTaskOrderIds", List.of(705)));
+
+    Task templateTask =
+        Task.builder()
+            .id(705)
+            .name("Plantilla")
+            .properties(
+                Map.of(
+                    DomainConstants.Tasks.PROPERTY_TEMPLATE_HTML,
+                    "<p>App {{#APP_NAME}} · Territory {{#TERR_NAME}}</p>"))
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .build();
+
+    when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
+    when(taskRepository.findById(705)).thenReturn(Optional.of(templateTask));
+    when(templateRenderService.renderPreview(
+            eq("<p>App {{#APP_NAME}} · Territory {{#TERR_NAME}}</p>"),
+            any(),
+            any(),
+            any(),
+            eq(5),
+            eq(7)))
+        .thenReturn(
+            TemplatePreviewResponseDto.builder()
+                .html("<p>App Sitmun · Territory Menorca</p>")
+                .placeholders(List.of())
+                .build());
+
+    MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();
+    request.setAppId(5);
+    request.setTerId(7);
+    request.setMiaTaskIds(List.of(16));
+    request.setParameters(Map.of());
+
+    MoreInfoAdvancedRenderResponseDto result = service.renderMoreInfoAdvanced(request, "en");
+
+    assertThat(result.getTasks()).hasSize(1);
+    assertThat(result.getTasks().get(0).getHtml()).contains("App Sitmun · Territory Menorca");
+    verify(templateRenderService)
+        .renderPreview(
+            eq("<p>App {{#APP_NAME}} · Territory {{#TERR_NAME}}</p>"),
+            any(),
+            eq(List.of()),
+            any(),
+            eq(5),
+            eq(7));
   }
 
   @Test
@@ -780,7 +881,8 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(701)).thenReturn(Optional.of(templateTask));
-    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), any(), any()))
+    when(templateRenderService.renderPreview(
+            eq("<h1>{{$title}}</h1>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -861,7 +963,8 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(702)).thenReturn(Optional.of(templateTask));
-    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), any(), any()))
+    when(templateRenderService.renderPreview(
+            eq("<h1>{{$title}}</h1>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -942,7 +1045,16 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     DomainConstants.Tasks.PROPERTY_SCOPE,
                     DomainConstants.Tasks.SCOPE_URL_QUERY,
                     DomainConstants.Tasks.PROPERTY_COMMAND,
-                    "https://example.org/items/{innerParam}"))
+                    "https://example.org/items/{innerParam}",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(
+                        Map.of(
+                            "name",
+                            "innerParam",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "required",
+                            false))))
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -958,7 +1070,7 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(urlTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any()))
+            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1040,7 +1152,16 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     DomainConstants.Tasks.PROPERTY_SCOPE,
                     DomainConstants.Tasks.SCOPE_URL_QUERY,
                     DomainConstants.Tasks.PROPERTY_COMMAND,
-                    "https://example.org/items/{innerParam}"))
+                    "https://example.org/items/{innerParam}",
+                    DomainConstants.Tasks.PROPERTY_PARAMETERS,
+                    List.of(
+                        Map.of(
+                            "name",
+                            "innerParam",
+                            "type",
+                            DomainConstants.Tasks.TYPE_STRING,
+                            "required",
+                            false))))
             .build();
 
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
@@ -1056,7 +1177,7 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(urlTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any()))
+            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1183,7 +1304,7 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(urlTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any()))
+            eq("<a>{{consulta_url.url}}</a>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1194,7 +1315,7 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                   .build();
             });
     when(templateRenderService.renderPreview(
-            eq("<section>{{plantilla_hija.html}}</section>"), any(), any(), any()))
+            eq("<section>{{plantilla_hija.html}}</section>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1318,6 +1439,8 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
             eq("<article>{{consulta_api.html}} {{consulta_api.value}}</article>"),
             any(),
             any(),
+            any(),
+            any(),
             any()))
         .thenAnswer(
             invocation -> {
@@ -1422,7 +1545,12 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
                     .relatedTask(unsupportedTask)
                     .build()));
     when(templateRenderService.renderPreview(
-            eq("<article>{{bad_child.html}} {{bad_child.value}}</article>"), any(), any(), any()))
+            eq("<article>{{bad_child.html}} {{bad_child.value}}</article>"),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1509,7 +1637,8 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
     when(taskRepository.findById(16)).thenReturn(Optional.of(miaTask));
     when(taskRepository.findById(471)).thenReturn(Optional.of(templateTask));
     when(taskRelationRepository.findByTaskId(471)).thenReturn(List.of());
-    when(templateRenderService.renderPreview(eq("{{#if broken}}"), any(), any(), any()))
+    when(templateRenderService.renderPreview(
+            eq("{{#if broken}}"), any(), any(), any(), any(), any()))
         .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid template syntax"));
 
     MoreInfoAdvancedRenderRequestDto request = new MoreInfoAdvancedRenderRequestDto();

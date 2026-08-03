@@ -7,45 +7,42 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.database.DatabaseConnection;
 
+@DisplayName("Database Connection Service")
 class DatabaseConnectionServiceTest {
 
-  private final DatabaseConnectionService service = new DatabaseConnectionService();
+  private final DatabaseConnectionService sut = new DatabaseConnectionService();
 
   @Test
-  void executeQueryBindsPreparedStatementParameters() {
-    setupDatabase();
+  @DisplayName("executeQuery lowercases H2 column labels for template aliases")
+  void executeQueryLowercasesH2ColumnLabels() throws Exception {
+    String url = "jdbc:h2:mem:db-conn-label-case;DB_CLOSE_DELAY=-1";
+    try (Connection connection = DriverManager.getConnection(url, "sa", "");
+        Statement statement = connection.createStatement()) {
+      statement.execute("CREATE TABLE STM_LANGUAGE (LAN_ID INT, LAN_NAME VARCHAR(64))");
+      statement.execute("INSERT INTO STM_LANGUAGE VALUES (1, 'Catalan')");
+    }
 
-    DatabaseConnection connection =
+    DatabaseConnection databaseConnection =
         DatabaseConnection.builder()
             .driver("org.h2.Driver")
-            .url("jdbc:h2:mem:template_test;DB_CLOSE_DELAY=-1")
+            .url(url)
             .user("sa")
-            .password(null)
+            .password("")
             .build();
 
     List<Map<String, Object>> rows =
-        service.executeQuery(connection, "SELECT name FROM sample WHERE id = ?", List.of("1"));
+        sut.executeQuery(
+            databaseConnection, "SELECT LAN_ID AS lan_id, LAN_NAME AS lan_name FROM STM_LANGUAGE");
 
     assertThat(rows).hasSize(1);
-    assertThat(rows.get(0)).containsEntry("NAME", "Parcela 23-A");
-  }
-
-  private void setupDatabase() {
-    try {
-      Class.forName("org.h2.Driver");
-      try (Connection connection =
-              DriverManager.getConnection(
-                  "jdbc:h2:mem:template_test;DB_CLOSE_DELAY=-1", "sa", null);
-          Statement statement = connection.createStatement()) {
-        statement.execute("DROP TABLE IF EXISTS sample");
-        statement.execute("CREATE TABLE sample(id INT PRIMARY KEY, name VARCHAR(255))");
-        statement.execute("INSERT INTO sample(id, name) VALUES (1, 'Parcela 23-A')");
-      }
-    } catch (Exception exception) {
-      throw new RuntimeException(exception);
-    }
+    assertThat(rows.get(0))
+        .containsEntry("lan_id", 1)
+        .containsEntry("lan_name", "Catalan")
+        .doesNotContainKey("LAN_ID")
+        .doesNotContainKey("LAN_NAME");
   }
 }

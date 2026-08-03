@@ -990,7 +990,8 @@ class TemplateExecutionLinkedTaskTest extends TemplateExecutionServiceTestFixtur
     requestDto.setLinkedTaskId(801);
 
     when(taskRepository.findById(801)).thenReturn(Optional.of(templateTask));
-    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), any(), any()))
+    when(templateRenderService.renderPreview(
+            eq("<h1>{{$title}}</h1>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);
@@ -1054,7 +1055,8 @@ class TemplateExecutionLinkedTaskTest extends TemplateExecutionServiceTestFixtur
     requestDto.setParameters(Map.of("title", "Mapped title"));
 
     when(taskRepository.findById(802)).thenReturn(Optional.of(templateTask));
-    when(templateRenderService.renderPreview(eq("<h1>{{$title}}</h1>"), any(), any(), any()))
+    when(templateRenderService.renderPreview(
+            eq("<h1>{{$title}}</h1>"), any(), any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
               Map<String, Object> context = invocation.getArgument(1);

@@ -57,5 +57,5 @@ databaseChangeLog:
       file: 19_mia_chrome_literals.yaml
       relativeToChangelogFile: true
   - include:
-      file: 10_add_map_image_task_type.yaml
+      file: 21_add_map_image_task_type.yaml
       relativeToChangelogFile: true

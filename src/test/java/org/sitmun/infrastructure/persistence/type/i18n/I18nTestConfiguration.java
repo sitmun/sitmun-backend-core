@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Import;
  * Test configuration that provides i18n beans for @DataJpaTest (TranslationService, I18nListener).
  */
 @Configuration
-@Import({TranslationService.class, I18nListener.class})
+@Import({TranslationService.class, I18nListener.class, DatabaseDefaultLanguageResolver.class})
 public class I18nTestConfiguration {}

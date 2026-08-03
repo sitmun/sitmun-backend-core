@@ -20,7 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TranslationService unit tests")
@@ -28,9 +30,11 @@ class TranslationServiceTest {
 
   @Mock private TranslationRepository translationRepository;
   @Mock private EntityManager entityManager;
+  @Mock private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
   @InjectMocks private TranslationService service;
 
   private Locale previousLocale;
+  private MockHttpServletRequest request;
 
   /** Minimal entity used to exercise translation field replacement. */
   static class TranslatableEntity {
@@ -47,12 +51,16 @@ class TranslationServiceTest {
 
   @BeforeEach
   void setUp() {
-    ReflectionTestUtils.setField(service, "defaultLanguage", "es");
+    when(databaseDefaultLanguageResolver.resolveShortname()).thenReturn("es");
     previousLocale = LocaleContextHolder.getLocale();
+    request = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
   }
 
   @AfterEach
   void restoreLocale() {
+    TranslationCache.removeRequestAttribute(request);
+    RequestContextHolder.resetRequestAttributes();
     LocaleContextHolder.setLocale(previousLocale);
   }
 
@@ -122,5 +130,22 @@ class TranslationServiceTest {
 
     assertThat(entity.name).isEqualTo("Nom en aranés");
     verify(translationRepository).findTranslation(1, "TranslatableEntity", "oc-aranes");
+  }
+
+  @Test
+  @DisplayName("populated request cache applies translations without per-entity repository queries")
+  void populatedCacheSkipsPerEntityRepositoryQuery() {
+    LocaleContextHolder.setLocale(Locale.forLanguageTag("ca"));
+    TranslationCache cache = new TranslationCache();
+    cache.setDefaultLanguageShortname("es");
+    cache.populate(List.of(new TranslationRow(1, "TranslatableEntity.name", "Nom des del cache")));
+    TranslationCache.setRequestAttribute(cache, request);
+
+    var entity = new TranslatableEntity(1, "Original Name", "Original Desc");
+
+    service.updateInternationalization(entity);
+
+    assertThat(entity.name).isEqualTo("Nom des del cache");
+    verify(translationRepository, never()).findTranslation(any(), any(), any());
   }
 }

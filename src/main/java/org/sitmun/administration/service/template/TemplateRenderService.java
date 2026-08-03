@@ -16,13 +16,11 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
-import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 
@@ -49,26 +47,29 @@ public class TemplateRenderService {
       Pattern.compile("<temporary\\b[^>]*>[\\s\\S]*?</temporary>");
   private static final Pattern TABLE_BODY_PATTERN =
       Pattern.compile("<tbody([^>]*)>([\\s\\S]*?)</tbody>");
+  private static final Pattern TABLE_ROW_PATTERN = Pattern.compile("<tr\\b[^>]*>[\\s\\S]*?</tr>");
+  private static final Pattern TABLE_HEADER_CELL_PATTERN = Pattern.compile("(?i)<th\\b");
+  private static final Pattern TABLE_DATA_CELL_PATTERN = Pattern.compile("(?i)<td\\b");
   private static final Pattern EACH_ROOT_PATTERN =
       Pattern.compile("\\{\\{#each\\s+([A-Za-z_][\\w]*)\\s*}}");
-  private static final String TASK_NOT_EXECUTED_LITERAL = "task not executed";
+  private static final String TEMPLATE_ERROR_CLASS = "sitmun-template-error";
+  private static final String TEMPLATE_KNOWN_CLASS = "sitmun-template-known";
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final TemplateContextNormalizer templateContextNormalizer;
   private final TemplateLiteralProcessor templateLiteralProcessor;
   private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
-  private final LiteralTranslationResolver literalTranslationResolver;
   private final Handlebars handlebars = new Handlebars();
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context) {
-    return renderPreview(templateHtml, context, Collections.emptyList(), null);
+    return renderPreview(templateHtml, context, Collections.emptyList(), null, null, null);
   }
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context, List<String> knownTaskReferences) {
-    return renderPreview(templateHtml, context, knownTaskReferences, null);
+    return renderPreview(templateHtml, context, knownTaskReferences, null, null, null);
   }
 
   public TemplatePreviewResponseDto renderPreview(
@@ -76,15 +77,27 @@ public class TemplateRenderService {
       Map<String, Object> context,
       List<String> knownTaskReferences,
       String language) {
+    return renderPreview(templateHtml, context, knownTaskReferences, language, null, null);
+  }
+
+  public TemplatePreviewResponseDto renderPreview(
+      String templateHtml,
+      Map<String, Object> context,
+      List<String> knownTaskReferences,
+      String language,
+      Integer appId,
+      Integer terId) {
     String source = templateHtml == null ? "" : templateHtml;
     Map<String, Object> safeContext = templateContextNormalizer.normalize(context);
     String withNormalizedEachBlocks = normalizeRootEachBlocks(source, safeContext);
     String withTableIterations = expandSitmunTableIterations(withNormalizedEachBlocks);
     String withExecutionHints =
         annotateUnresolvedTaskPlaceholders(withTableIterations, safeContext, knownTaskReferences);
-    String withBackendVars =
-        replaceBackendVariables(
-            withExecutionHints, templateRequestCoordinatesService.buildForCurrentUser());
+    RequestCoordinates coordinates =
+        appId != null || terId != null
+            ? templateRequestCoordinatesService.buildOptional(appId, terId)
+            : templateRequestCoordinatesService.buildForCurrentUser();
+    String withBackendVars = replaceBackendVariables(withExecutionHints, coordinates);
     String withArrayIndexes = normalizeArrayIndexes(withBackendVars);
     String withHtmlResults = normalizeHtmlResultPlaceholders(withArrayIndexes);
     String normalized = normalizeParameterLookups(withHtmlResults);
@@ -159,15 +172,65 @@ public class TemplateRenderService {
       return normalizedTable;
     }
 
+    String bodyContent = bodyMatcher.group(2);
     String bodyReplacement =
         "<tbody"
             + bodyMatcher.group(1)
-            + ">{{#each "
-            + eachPath
-            + "}}"
-            + bodyMatcher.group(2)
-            + "{{/each}}</tbody>";
+            + ">"
+            + wrapDataRowsInEach(bodyContent, eachPath)
+            + "</tbody>";
     return bodyMatcher.replaceFirst(Matcher.quoteReplacement(bodyReplacement));
+  }
+
+  /**
+   * TipTap emits header cells as {@code <th>} rows inside {@code <tbody>} (no {@code <thead>}).
+   * Keep those leading header rows outside {@code #each} so headers are not repeated per data row.
+   */
+  private String wrapDataRowsInEach(String bodyContent, String eachPath) {
+    Matcher rowMatcher = TABLE_ROW_PATTERN.matcher(bodyContent == null ? "" : bodyContent);
+    StringBuilder headerRows = new StringBuilder();
+    StringBuilder dataRows = new StringBuilder();
+    boolean seenDataRow = false;
+    int lastMatchEnd = 0;
+
+    while (rowMatcher.find()) {
+      if (rowMatcher.start() > lastMatchEnd) {
+        String between = bodyContent.substring(lastMatchEnd, rowMatcher.start());
+        if (seenDataRow) {
+          dataRows.append(between);
+        } else {
+          headerRows.append(between);
+        }
+      }
+      String row = rowMatcher.group();
+      if (!seenDataRow && isHeaderRow(row)) {
+        headerRows.append(row);
+      } else {
+        seenDataRow = true;
+        dataRows.append(row);
+      }
+      lastMatchEnd = rowMatcher.end();
+    }
+
+    if (lastMatchEnd < bodyContent.length()) {
+      String trailing = bodyContent.substring(lastMatchEnd);
+      if (seenDataRow) {
+        dataRows.append(trailing);
+      } else {
+        headerRows.append(trailing);
+      }
+    }
+
+    if (dataRows.isEmpty()) {
+      return "{{#each " + eachPath + "}}" + bodyContent + "{{/each}}";
+    }
+
+    return headerRows + "{{#each " + eachPath + "}}" + dataRows + "{{/each}}";
+  }
+
+  private boolean isHeaderRow(String rowHtml) {
+    return TABLE_HEADER_CELL_PATTERN.matcher(rowHtml).find()
+        && !TABLE_DATA_CELL_PATTERN.matcher(rowHtml).find();
   }
 
   private String replaceBackendVariables(String templateHtml, RequestCoordinates coordinates) {
@@ -177,7 +240,17 @@ public class TemplateRenderService {
       String variableName = matcher.group(1);
       String replacement = systemVariableResolver.resolve("#{" + variableName + "}", coordinates);
       if (Objects.equals(replacement, "#{" + variableName + "}")) {
-        replacement = escapeHandlebarsPlaceholder("#" + variableName);
+        if (isKnownSystemVariable(variableName)) {
+          // Recognized var but no coords/value: bare name proves recognition.
+          replacement =
+              "<span class=\""
+                  + TEMPLATE_KNOWN_CLASS
+                  + "\">"
+                  + opaqueInline(variableName)
+                  + "</span>";
+        } else {
+          replacement = markUnknownPlaceholder("#" + variableName);
+        }
       } else {
         replacement = opaqueInline(replacement);
       }
@@ -187,6 +260,11 @@ public class TemplateRenderService {
     return sb.toString();
   }
 
+  private boolean isKnownSystemVariable(String variableName) {
+    Map<String, String> available = systemVariableResolver.getAvailableVariables();
+    return available != null && available.containsKey(variableName);
+  }
+
   private String annotateUnresolvedTaskPlaceholders(
       String templateHtml, Map<String, Object> context, List<String> knownTaskReferences) {
     Set<String> knownRoots = new LinkedHashSet<>(context.keySet());
@@ -194,8 +272,6 @@ public class TemplateRenderService {
       knownRoots.addAll(knownTaskReferences);
     }
 
-    String language = currentRequestLanguageResolver.resolve(this);
-    String taskNotExecutedHint = opaqueInline(resolveLiteral(TASK_NOT_EXECUTED_LITERAL, language));
     Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
@@ -203,23 +279,13 @@ public class TemplateRenderService {
       if (isKnownTaskPlaceholder(placeholderContent, knownRoots)
           && !isTaskPlaceholderResolved(placeholderContent, context)) {
         matcher.appendReplacement(
-            sb,
-            Matcher.quoteReplacement(
-                escapeHandlebarsPlaceholder(placeholderContent)
-                    + " ("
-                    + taskNotExecutedHint
-                    + ")"));
+            sb, Matcher.quoteReplacement(markUnknownPlaceholder(placeholderContent)));
         continue;
       }
       matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
     }
     matcher.appendTail(sb);
     return sb.toString();
-  }
-
-  private String resolveLiteral(String key, String language) {
-    String resolved = literalTranslationResolver.resolve(key, language);
-    return StringUtils.hasText(resolved) ? resolved : key;
   }
 
   private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
@@ -283,9 +349,11 @@ public class TemplateRenderService {
     return placeholderContent.substring(0, endIndex);
   }
 
-  private String escapeHandlebarsPlaceholder(String placeholderContent) {
+  private String markUnknownPlaceholder(String placeholderContent) {
     String content = placeholderContent == null ? "" : placeholderContent;
-    return "<span class=\"sitmun-template-placeholder\">"
+    return "<span class=\""
+        + TEMPLATE_ERROR_CLASS
+        + "\">"
         + opaqueInline("{{" + content + "}}")
         + "</span>";
   }

@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -630,43 +632,94 @@ public class TemplateExecutionService {
   }
 
   private Map<String, Object> readTemplateDefaultParameters(Task task) {
-    Map<String, Object> properties =
-        task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
-    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
-    if (!(rawParameters instanceof List<?> rawList)) {
-      return Collections.emptyMap();
-    }
-
     Map<String, Object> defaults = new LinkedHashMap<>();
-    for (Object rawParameter : rawList) {
-      if (!(rawParameter instanceof Map<?, ?> parameter)) {
+    for (Map<?, ?> parameter : readRawParameterMaps(task)) {
+      String name = parameterName(parameter);
+      if (name == null) {
         continue;
       }
-
-      Object rawName = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
-      if (rawName == null) {
-        rawName = parameter.get("variable");
-      }
-      if (rawName == null) {
-        rawName = parameter.get("label");
-      }
-      if (rawName == null) {
-        continue;
-      }
-
       Object rawValue = parameter.get(DomainConstants.Tasks.PARAMETERS_VALUE);
       if (rawValue == null) {
         continue;
       }
-
       Object rawType = parameter.get(DomainConstants.Tasks.PARAMETERS_TYPE);
       Object convertedValue =
           rawType == null
               ? String.valueOf(rawValue)
               : convertTypedParameterValue(String.valueOf(rawType), rawValue);
-      defaults.put(String.valueOf(rawName), convertedValue);
+      defaults.put(name, convertedValue);
     }
     return defaults;
+  }
+
+  private Set<String> readDeclaredParameterNames(Task task) {
+    Set<String> names = new LinkedHashSet<>();
+    for (Map<?, ?> parameter : readRawParameterMaps(task)) {
+      String name = parameterName(parameter);
+      if (name != null) {
+        names.add(name);
+      }
+    }
+    return names;
+  }
+
+  private List<Map<?, ?>> readRawParameterMaps(Task task) {
+    Map<String, Object> properties =
+        task.getProperties() == null ? Collections.emptyMap() : task.getProperties();
+    Object rawParameters = properties.get(DomainConstants.Tasks.PROPERTY_PARAMETERS);
+    if (!(rawParameters instanceof List<?> rawList)) {
+      return List.of();
+    }
+    List<Map<?, ?>> parameters = new ArrayList<>();
+    for (Object rawParameter : rawList) {
+      if (rawParameter instanceof Map<?, ?> parameter) {
+        parameters.add(parameter);
+      }
+    }
+    return parameters;
+  }
+
+  private String parameterName(Map<?, ?> parameter) {
+    Object rawName = parameter.get(DomainConstants.Tasks.PARAMETERS_NAME);
+    if (rawName == null) {
+      rawName = parameter.get("variable");
+    }
+    if (rawName == null) {
+      rawName = parameter.get("label");
+    }
+    return rawName == null ? null : String.valueOf(rawName);
+  }
+
+  /**
+   * Declared-only parameters: saved defaults, then non-blank parentInherited, then non-blank
+   * incoming. Undeclared keys are dropped.
+   */
+  private Map<String, String> resolveEffectiveParameters(
+      Task task, Map<String, String> incoming, Map<String, String> parentInherited) {
+    Set<String> declared = readDeclaredParameterNames(task);
+    if (declared.isEmpty()) {
+      return new LinkedHashMap<>();
+    }
+    Map<String, String> effective = new LinkedHashMap<>();
+    readTemplateDefaultParameters(task)
+        .forEach((key, value) -> effective.put(key, value == null ? "" : String.valueOf(value)));
+    if (parentInherited != null) {
+      parentInherited.forEach(
+          (key, value) -> {
+            if (declared.contains(key) && StringUtils.hasText(value)) {
+              effective.put(key, value);
+            }
+          });
+    }
+    if (incoming != null) {
+      incoming.forEach(
+          (key, value) -> {
+            if (declared.contains(key) && StringUtils.hasText(value)) {
+              effective.put(key, value);
+            }
+          });
+    }
+    return effective;
   }
 
   private Object convertTypedParameterValue(String type, Object value) {
@@ -1151,13 +1204,10 @@ public class TemplateExecutionService {
       boolean adminGodMode) {
     List<TaskRelation> relations = taskRelationRepository.findByTaskId(task.getId());
     Map<String, Object> templateContext = new LinkedHashMap<>();
-
-    readTemplateDefaultParameters(task)
-        .forEach((key, value) -> templateContext.put("$" + key, value));
-
-    if (templateParameters != null) {
-      templateParameters.forEach((key, value) -> templateContext.put("$" + key, value));
-    }
+    Map<String, String> pipeline =
+        resolveInheritedParameters(rootTemplateTaskId, templateParameters);
+    Map<String, String> effective = resolveEffectiveParameters(task, null, pipeline);
+    effective.forEach((key, value) -> templateContext.put("$" + key, value));
 
     for (TaskRelation relation : relations) {
       if (!List.of(
@@ -1171,6 +1221,8 @@ public class TemplateExecutionService {
       Map<String, Object> rawParams =
           childTaskParameters.getOrDefault(
               String.valueOf(childTask.getId()), Collections.emptyMap());
+      Map<String, String> childParams =
+          resolveEffectiveParameters(childTask, stringifyParameters(rawParams), pipeline);
       String referenceAlias = resolveReferenceAlias(relation);
       Map<String, Object> childContext;
       if (!mayAccessTask(childTask, coordinates, adminGodMode)) {
@@ -1183,7 +1235,7 @@ public class TemplateExecutionService {
         TemplateTaskExecutionResponseDto childResult =
             executeTask(
                 childTask,
-                stringifyParameters(rawParams),
+                childParams,
                 childTaskParameters,
                 rootTemplateTaskId != null ? rootTemplateTaskId : task.getId(),
                 coordinates,
@@ -1207,7 +1259,7 @@ public class TemplateExecutionService {
     }
 
     TemplatePreviewResponseDto rendered =
-        renderTemplatePreview(readTemplateHtml(task), templateContext);
+        renderTemplatePreview(readTemplateHtml(task), templateContext, coordinates);
     String pdfScope =
         depth == 1
             ? PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE
@@ -1252,10 +1304,18 @@ public class TemplateExecutionService {
   }
 
   private TemplatePreviewResponseDto renderTemplatePreview(
-      String templateHtml, Map<String, Object> templateContext) {
+      String templateHtml, Map<String, Object> templateContext, RequestCoordinates coordinates) {
     String language = currentRequestLanguageResolver.resolve(this);
+    Integer appId =
+        coordinates != null && coordinates.getApplication() != null
+            ? coordinates.getApplication().getId()
+            : null;
+    Integer terId =
+        coordinates != null && coordinates.getTerritory() != null
+            ? coordinates.getTerritory().getId()
+            : null;
     return templateRenderService.renderPreview(
-        templateHtml, templateContext, Collections.emptyList(), language);
+        templateHtml, templateContext, Collections.emptyList(), language, appId, terId);
   }
 
   private Map<String, Object> buildChildErrorContext(
@@ -1297,6 +1357,23 @@ public class TemplateExecutionService {
     return HttpStatus.BAD_REQUEST.equals(exception.getStatusCode())
         && StringUtils.hasText(exception.getReason())
         && exception.getReason().startsWith(TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX);
+  }
+
+  private Map<String, String> resolveInheritedParameters(
+      Integer rootTemplateTaskId, Map<String, String> templateParameters) {
+    Map<String, String> inherited = new LinkedHashMap<>();
+    if (rootTemplateTaskId != null) {
+      taskRepository
+          .findById(rootTemplateTaskId)
+          .ifPresent(
+              root ->
+                  readTemplateDefaultParameters(root)
+                      .forEach((key, value) -> inherited.put(key, String.valueOf(value))));
+    }
+    if (templateParameters != null) {
+      inherited.putAll(templateParameters);
+    }
+    return inherited;
   }
 
   private Map<String, String> stringifyParameters(Map<String, Object> parameters) {

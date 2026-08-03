@@ -1,6 +1,8 @@
 package org.sitmun.administration.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +22,7 @@ import org.sitmun.administration.service.template.export.TemplateExportAuthoriza
 import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
+import org.sitmun.infrastructure.persistence.type.i18n.DatabaseDefaultLanguageResolver;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +52,8 @@ class TemplatePreviewControllerWebMvcTest {
   @MockitoBean private RequestLocaleResolutionService requestLocaleResolutionService;
 
   @MockitoBean private TranslationRepository translationRepository;
+
+  @MockitoBean private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   @MockitoBean private CookieService cookieService;
 
@@ -144,7 +149,7 @@ class TemplatePreviewControllerWebMvcTest {
   void previewDoesNotRequireCoordinates() throws Exception {
     when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
         .thenReturn("ca");
-    when(templateRenderService.renderPreview(any(), any(), any(), any()))
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<p>ok</p>").build());
 
     mvc.perform(
@@ -158,5 +163,27 @@ class TemplatePreviewControllerWebMvcTest {
 
     verify(templateExecutionService, never()).executeLinkedTask(any());
     verify(templateExecutionService, never()).renderMoreInfoAdvanced(any(), any());
+    verify(templateRenderService).renderPreview(any(), any(), any(), eq("ca"), isNull(), isNull());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("preview forwards optional appId/terId")
+  void previewForwardsOptionalCoordinates() throws Exception {
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
+        .thenReturn("ca");
+    when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
+        .thenReturn(TemplatePreviewResponseDto.builder().html("<p>ok</p>").build());
+
+    mvc.perform(
+            post("/api/tasks/template/preview")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"templateHtml":"<p>{{#APP_NAME}}</p>","context":{},"appId":12,"terId":4}
+                    """))
+        .andExpect(status().isOk());
+
+    verify(templateRenderService).renderPreview(any(), any(), any(), eq("ca"), eq(12), eq(4));
   }
 }

@@ -7,9 +7,12 @@ import java.util.Objects;
 import lombok.*;
 import org.sitmun.authorization.client.dto.ClientConfigurationViews;
 import org.sitmun.domain.PersistenceConstants;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
 /** Task group. */
 @Entity
+@EntityListeners(I18nListener.class)
 @Table(name = "STM_GRP_TSK")
 @Builder
 @Getter
@@ -35,6 +38,7 @@ public class TaskGroup {
   /** Task group name. */
   @Column(name = "GTS_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
+  @I18n
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private String name;
 
