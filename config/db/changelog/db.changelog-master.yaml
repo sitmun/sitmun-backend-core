@@ -65,3 +65,9 @@ databaseChangeLog:
   - include:
       file: 20_menorca_solrustic_mia_e2e.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 21_align_schema_dialects.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 22_align_nullability.yaml
+      relativeToChangelogFile: true
