@@ -234,22 +234,21 @@ public class TemplateRenderService {
   }
 
   private String replaceBackendVariables(String templateHtml, RequestCoordinates coordinates) {
-    Matcher matcher = BACKEND_VARIABLE_PATTERN.matcher(templateHtml);
+    String html = templateHtml == null ? "" : templateHtml;
+    Matcher matcher = BACKEND_VARIABLE_PATTERN.matcher(html);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String variableName = matcher.group(1);
+      boolean attributeOrComment = isHtmlAttributeOrCommentContext(html, matcher.start());
       String replacement = systemVariableResolver.resolve("#{" + variableName + "}", coordinates);
       if (Objects.equals(replacement, "#{" + variableName + "}")) {
         if (isKnownSystemVariable(variableName)) {
           // Recognized var but no coords/value: bare name proves recognition.
-          replacement =
-              "<span class=\""
-                  + TEMPLATE_KNOWN_CLASS
-                  + "\">"
-                  + opaqueInline(variableName)
-                  + "</span>";
+          replacement = annotateForPreview(variableName, TEMPLATE_KNOWN_CLASS, attributeOrComment);
         } else {
-          replacement = markUnknownPlaceholder("#" + variableName);
+          replacement =
+              annotateForPreview(
+                  "{{#" + variableName + "}}", TEMPLATE_ERROR_CLASS, attributeOrComment);
         }
       } else {
         replacement = opaqueInline(replacement);
@@ -272,20 +271,74 @@ public class TemplateRenderService {
       knownRoots.addAll(knownTaskReferences);
     }
 
-    Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    String html = templateHtml == null ? "" : templateHtml;
+    Matcher matcher = PLACEHOLDER_PATTERN.matcher(html);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String placeholderContent = matcher.group(1).trim();
       if (isKnownTaskPlaceholder(placeholderContent, knownRoots)
           && !isTaskPlaceholderResolved(placeholderContent, context)) {
         matcher.appendReplacement(
-            sb, Matcher.quoteReplacement(markUnknownPlaceholder(placeholderContent)));
+            sb,
+            Matcher.quoteReplacement(
+                markUnknownPlaceholder(
+                    placeholderContent, isHtmlAttributeOrCommentContext(html, matcher.start()))));
         continue;
       }
       matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
     }
     matcher.appendTail(sb);
     return sb.toString();
+  }
+
+  /**
+   * True when {@code index} lies inside an HTML attribute value or comment. Highlight spans must
+   * not be spliced there — nested quotes terminate the attribute and spill markup into the
+   * document.
+   */
+  static boolean isHtmlAttributeOrCommentContext(String html, int index) {
+    if (html == null || index <= 0 || index > html.length()) {
+      return false;
+    }
+
+    boolean inComment = false;
+    boolean inTag = false;
+    char attrQuote = 0;
+
+    for (int i = 0; i < index; i++) {
+      char c = html.charAt(i);
+      if (inComment) {
+        if (c == '-' && i + 2 < html.length() && html.startsWith("-->", i)) {
+          inComment = false;
+          i += 2;
+        }
+        continue;
+      }
+      if (!inTag) {
+        if (c == '<' && i + 3 < html.length() && html.startsWith("<!--", i)) {
+          inComment = true;
+          i += 3;
+        } else if (c == '<') {
+          inTag = true;
+        }
+        continue;
+      }
+      if (attrQuote != 0) {
+        if (c == attrQuote) {
+          attrQuote = 0;
+        }
+        continue;
+      }
+      if (c == '"' || c == '\'') {
+        attrQuote = c;
+        continue;
+      }
+      if (c == '>') {
+        inTag = false;
+      }
+    }
+
+    return inComment || attrQuote != 0;
   }
 
   private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
@@ -349,13 +402,22 @@ public class TemplateRenderService {
     return placeholderContent.substring(0, endIndex);
   }
 
-  private String markUnknownPlaceholder(String placeholderContent) {
+  private String markUnknownPlaceholder(String placeholderContent, boolean attributeOrComment) {
     String content = placeholderContent == null ? "" : placeholderContent;
-    return "<span class=\""
-        + TEMPLATE_ERROR_CLASS
-        + "\">"
-        + opaqueInline("{{" + content + "}}")
-        + "</span>";
+    return annotateForPreview("{{" + content + "}}", TEMPLATE_ERROR_CLASS, attributeOrComment);
+  }
+
+  /**
+   * Preview highlight span for text nodes; attribute/comment contexts get opaque text only (nested
+   * quotes in spans break HTML attributes).
+   */
+  private static String annotateForPreview(
+      String displayText, String cssClass, boolean attributeOrComment) {
+    String opaque = opaqueInline(displayText);
+    if (attributeOrComment) {
+      return opaque;
+    }
+    return "<span class=\"" + cssClass + "\">" + opaque + "</span>";
   }
 
   /** HTML-escape and neutralize Handlebars delimiters for safe splice into compileInline source. */

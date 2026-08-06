@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **Templates / Preview**: Known unresolved system vars (`{{#APP_NAME}}`) and unresolved task placeholders no longer inject highlight `<span>` chrome into HTML **attributes** (that broke quoting and spilled `APP_NAME">` into the document). Text nodes keep `.sitmun-template-known` / `.sitmun-template-error` spans; attributes get opaque bare text.
+
 ## [1.2.8] - 2026-07-30
 
 ### Added
