@@ -57,5 +57,11 @@ databaseChangeLog:
       file: 19_mia_chrome_literals.yaml
       relativeToChangelogFile: true
   - include:
+      file: 21_align_schema_dialects.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 22_align_nullability.yaml
+      relativeToChangelogFile: true
+  - include:
       file: 21_add_map_image_task_type.yaml
       relativeToChangelogFile: true

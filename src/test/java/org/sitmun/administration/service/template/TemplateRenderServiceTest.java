@@ -297,6 +297,40 @@ class TemplateRenderServiceTest {
   }
 
   @Test
+  void renderPreviewKeepsKnownUnresolvedSystemVariableAttributeSafe() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("#{APP_NAME}");
+
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<img src=\"https://example.test/x.png\" title=\"{{#APP_NAME}}\" alt=\"{{#APP_NAME}}\">",
+            Map.of());
+
+    assertThat(response.getHtml())
+        .contains("title=\"APP_NAME\"")
+        .contains("alt=\"APP_NAME\"")
+        .doesNotContain("title=\"<span")
+        .doesNotContain("sitmun-template-known")
+        .doesNotContain("{{#APP_NAME}}");
+  }
+
+  @Test
+  void renderPreviewKeepsUnresolvedTaskPlaceholderAttributeSafe() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<img src=\"{{foto.url}}\">", Map.of(), List.of("foto"));
+
+    assertThat(response.getHtml())
+        .contains("src=\"&#123;&#123;foto.url&#125;&#125;\"")
+        .doesNotContain("src=\"<span")
+        .doesNotContain("sitmun-template-error");
+  }
+
+  @Test
   void renderPreviewMarksUnknownSystemVariableAsColoredOriginalMustache() {
     SystemVariableResolver resolver = mock(SystemVariableResolver.class);
     when(resolver.resolve(eq("#{NOT_A_VAR}"), any())).thenReturn("#{NOT_A_VAR}");

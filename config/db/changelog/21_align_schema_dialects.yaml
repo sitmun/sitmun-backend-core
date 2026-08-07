@@ -1,0 +1,410 @@
+databaseChangeLog:
+  # Align h2/postgresql/oracle lengths (widen-only) and add STM_LOG FKs.
+  # Do not rewrite sitmun:1.
+  # Avoid columnExists / foreignKeyConstraintExists: Liquibase JDBC metadata
+  # snapshots can hang on Oracle/PostgreSQL during Spring test startups.
+  # FK idempotency uses cheap dialect sqlCheck; widens rely on changeset IDs.
+
+  # ── Length widens: h2 ──────────────────────────────────────────────────────
+  - changeSet:
+      id: 21-align-bac-name-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - modifyDataType:
+            tableName: STM_BACKGRD
+            columnName: BAC_NAME
+            newDataType: VARCHAR(50)
+
+  - changeSet:
+      id: 21-align-pap-name-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - modifyDataType:
+            tableName: STM_PAR_APP
+            columnName: PAP_NAME
+            newDataType: VARCHAR(50)
+
+  # ── Length widens: postgresql ──────────────────────────────────────────────
+  - changeSet:
+      id: 21-align-app-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - modifyDataType:
+            tableName: STM_APP
+            columnName: APP_NAME
+            newDataType: VARCHAR(80)
+
+  - changeSet:
+      id: 21-align-app-project-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - modifyDataType:
+            tableName: STM_APP
+            columnName: APP_PROJECT
+            newDataType: VARCHAR(250)
+
+  - changeSet:
+      id: 21-align-app-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - modifyDataType:
+            tableName: STM_APP
+            columnName: APP_TYPE
+            newDataType: VARCHAR(250)
+
+  - changeSet:
+      id: 21-align-geo-source-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - modifyDataType:
+            tableName: STM_GEOINFO
+            columnName: GEO_SOURCE
+            newDataType: VARCHAR(80)
+
+  - changeSet:
+      id: 21-align-tet-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - modifyDataType:
+            tableName: STM_TER_TYP
+            columnName: TET_NAME
+            newDataType: VARCHAR(250)
+
+  # ── Length widens: oracle ──────────────────────────────────────────────────
+  - changeSet:
+      id: 21-align-bac-name-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - modifyDataType:
+            tableName: STM_BACKGRD
+            columnName: BAC_NAME
+            newDataType: VARCHAR2(50 CHAR)
+
+  - changeSet:
+      id: 21-align-pap-name-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - modifyDataType:
+            tableName: STM_PAR_APP
+            columnName: PAP_NAME
+            newDataType: VARCHAR2(50 CHAR)
+
+  - changeSet:
+      id: 21-align-pgi-type-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - modifyDataType:
+            tableName: STM_PAR_GI
+            columnName: PGI_TYPE
+            newDataType: VARCHAR2(250 CHAR)
+
+  # ── STM_LOG FKs ────────────────────────────────────────────────────────────
+  - changeSet:
+      id: 21-align-stm-log-fk-appid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+              WHERE UPPER(CONSTRAINT_NAME) = 'STM_LOG_FK_APPID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_APPID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_APPID
+            referencedTableName: STM_APP
+            referencedColumnNames: APP_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-giid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+              WHERE UPPER(CONSTRAINT_NAME) = 'STM_LOG_FK_GIID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_GIID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_GIID
+            referencedTableName: STM_GEOINFO
+            referencedColumnNames: GEO_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-taskid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+              WHERE UPPER(CONSTRAINT_NAME) = 'STM_LOG_FK_TASKID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TASKID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TASKID
+            referencedTableName: STM_TASK
+            referencedColumnNames: TAS_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+              WHERE UPPER(CONSTRAINT_NAME) = 'STM_LOG_FK_TERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TERID
+            referencedTableName: STM_TERRITORY
+            referencedColumnNames: TER_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-userid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+              WHERE UPPER(CONSTRAINT_NAME) = 'STM_LOG_FK_USERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_USERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_USERID
+            referencedTableName: STM_USER
+            referencedColumnNames: USE_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-appid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM pg_constraint
+              WHERE upper(conname) = 'STM_LOG_FK_APPID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_APPID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_APPID
+            referencedTableName: STM_APP
+            referencedColumnNames: APP_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-giid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM pg_constraint
+              WHERE upper(conname) = 'STM_LOG_FK_GIID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_GIID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_GIID
+            referencedTableName: STM_GEOINFO
+            referencedColumnNames: GEO_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-taskid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM pg_constraint
+              WHERE upper(conname) = 'STM_LOG_FK_TASKID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TASKID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TASKID
+            referencedTableName: STM_TASK
+            referencedColumnNames: TAS_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM pg_constraint
+              WHERE upper(conname) = 'STM_LOG_FK_TERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TERID
+            referencedTableName: STM_TERRITORY
+            referencedColumnNames: TER_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-userid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM pg_constraint
+              WHERE upper(conname) = 'STM_LOG_FK_USERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_USERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_USERID
+            referencedTableName: STM_USER
+            referencedColumnNames: USE_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-appid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_CONSTRAINTS
+              WHERE CONSTRAINT_NAME = 'STM_LOG_FK_APPID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_APPID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_APPID
+            referencedTableName: STM_APP
+            referencedColumnNames: APP_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-giid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_CONSTRAINTS
+              WHERE CONSTRAINT_NAME = 'STM_LOG_FK_GIID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_GIID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_GIID
+            referencedTableName: STM_GEOINFO
+            referencedColumnNames: GEO_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-taskid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_CONSTRAINTS
+              WHERE CONSTRAINT_NAME = 'STM_LOG_FK_TASKID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TASKID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TASKID
+            referencedTableName: STM_TASK
+            referencedColumnNames: TAS_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_CONSTRAINTS
+              WHERE CONSTRAINT_NAME = 'STM_LOG_FK_TERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_TERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_TERID
+            referencedTableName: STM_TERRITORY
+            referencedColumnNames: TER_ID
+
+  - changeSet:
+      id: 21-align-stm-log-fk-userid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_CONSTRAINTS
+              WHERE CONSTRAINT_NAME = 'STM_LOG_FK_USERID'
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: STM_LOG_FK_USERID
+            baseTableName: STM_LOG
+            baseColumnNames: LOG_USERID
+            referencedTableName: STM_USER
+            referencedColumnNames: USE_ID
