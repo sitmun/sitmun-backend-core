@@ -21,7 +21,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: TTY_SPEC
-                   valueClobFile: 21_add_map_image_task_type/18_MapImageTaskDefinition.json
+                  valueClobFile: 21_add_map_image_task_type/18_MapImageTaskDefinition.json
             where: TTY_ID = 18
       rollback:
         - delete:
