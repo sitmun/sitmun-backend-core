@@ -89,6 +89,11 @@ class TemplateExportServiceTest {
         .contains("@bottom-center { content: element(sitmunPdfFooter); vertical-align: bottom; }");
     assertThat(css)
         .contains(
+            ".sitmun-pdf-running-footer .sitmun-pdf-page-number { margin: 0; font-size: 0; }")
+        .contains(
+            ".sitmun-pdf-running-footer .sitmun-pdf-page-number::before { content: counter(page); font-size: 10pt; }");
+    assertThat(css)
+        .contains(
             ".sitmun-pdf-running-header { position: running(sitmunPdfHeader) !important;"
                 + " margin-top: 5mm !important; }");
     assertThat(css)
@@ -594,40 +599,40 @@ class TemplateExportServiceTest {
   @Test
   @DisplayName("PDF resources allow data and public web schemes only")
   void pdfResourcesAllowDataAndPublicWebSchemesOnly() {
-    TemplateExportService service = newService();
+    PdfExternalResourceLoader loader = newResourceLoader();
 
-    assertThat(service.isAllowedResource("data:image/png;base64,AA==")).isTrue();
-    assertThat(service.isAllowedResource("http://example.org/logo.png")).isTrue();
-    assertThat(service.isAllowedResource("https://example.org/logo.png")).isTrue();
-    assertThat(service.isAllowedResource("HTTPS://cdn.example.org/font.woff2")).isTrue();
-    assertThat(service.isAllowedResource("file:///etc/passwd")).isFalse();
-    assertThat(service.isAllowedResource("ftp://example.org/logo.png")).isFalse();
-    assertThat(service.isAllowedResource("not a uri")).isFalse();
+    assertThat(loader.isAllowed("data:image/png;base64,AA==")).isTrue();
+    assertThat(loader.isAllowed("http://example.org/logo.png")).isTrue();
+    assertThat(loader.isAllowed("https://example.org/logo.png")).isTrue();
+    assertThat(loader.isAllowed("HTTPS://cdn.example.org/font.woff2")).isTrue();
+    assertThat(loader.isAllowed("file:///etc/passwd")).isFalse();
+    assertThat(loader.isAllowed("ftp://example.org/logo.png")).isFalse();
+    assertThat(loader.isAllowed("not a uri")).isFalse();
   }
 
   @Test
   @DisplayName("PDF resources decode bounded base64 data URLs")
   void pdfResourcesDecodeBase64DataUrls() {
-    TemplateExportService service = newService();
+    PdfExternalResourceLoader.Session session = newResourceLoader().newSession();
 
-    assertThat(service.fetchExternalResource("data:image/png;base64,aW1hZ2U="))
+    assertThat(session.fetch("data:image/png;base64,aW1hZ2U="))
         .isEqualTo("image".getBytes(StandardCharsets.UTF_8));
-    assertThat(service.fetchExternalResource("data:image/svg+xml,%3Csvg%3E%2B%3C%2Fsvg%3E"))
+    assertThat(session.fetch("data:image/svg+xml,%3Csvg%3E%2B%3C%2Fsvg%3E"))
         .isEqualTo("<svg>+</svg>".getBytes(StandardCharsets.UTF_8));
-    assertThat(service.fetchExternalResource("data:image/png,%89PNG"))
+    assertThat(session.fetch("data:image/png,%89PNG"))
         .isEqualTo(new byte[] {(byte) 0x89, 'P', 'N', 'G'});
-    assertThat(service.fetchExternalResource("data:image/png;base64,not-base64")).isEmpty();
+    assertThat(session.fetch("data:image/png;base64,not-base64")).isEmpty();
   }
 
   @Test
   @DisplayName("PDF resources load a hostname only when every resolved IP is public")
   void pdfResourcesRequireEveryResolvedIpToBePublic() throws Exception {
     AtomicInteger requests = new AtomicInteger();
-    TemplateExportService publicService =
+    PdfExternalResourceLoader publicService =
         serviceWith(
             host -> List.of(InetAddress.getByName("93.184.216.34")),
             request -> successResponse(request, "image"));
-    TemplateExportService mixedService =
+    PdfExternalResourceLoader mixedService =
         serviceWith(
             host ->
                 List.of(
@@ -638,9 +643,9 @@ class TemplateExportServiceTest {
               return successResponse(request, "blocked");
             });
 
-    assertThat(publicService.fetchExternalResource("https://public.test/image"))
+    assertThat(publicService.newSession().fetch("https://public.test/image"))
         .isEqualTo("image".getBytes(StandardCharsets.UTF_8));
-    assertThat(mixedService.fetchExternalResource("https://mixed.test/image")).isEmpty();
+    assertThat(mixedService.newSession().fetch("https://mixed.test/image")).isEmpty();
     assertThat(requests).hasValue(0);
   }
 
@@ -648,7 +653,7 @@ class TemplateExportServiceTest {
   @DisplayName("PDF resources block direct loopback and private DNS results")
   void pdfResourcesBlockLoopbackAndPrivateDnsResults() throws Exception {
     AtomicInteger requests = new AtomicInteger();
-    TemplateExportService service =
+    PdfExternalResourceLoader service =
         serviceWith(
             host -> List.of(InetAddress.getByName("10.0.0.5")),
             request -> {
@@ -656,8 +661,8 @@ class TemplateExportServiceTest {
               return successResponse(request, "blocked");
             });
 
-    assertThat(service.fetchExternalResource("http://private.test/image")).isEmpty();
-    assertThat(newService().fetchExternalResource("http://127.0.0.1/image")).isEmpty();
+    assertThat(service.newSession().fetch("http://private.test/image")).isEmpty();
+    assertThat(newResourceLoader().newSession().fetch("http://127.0.0.1/image")).isEmpty();
     assertThat(requests).hasValue(0);
   }
 
@@ -670,7 +675,7 @@ class TemplateExportServiceTest {
             List.of(
                 InetAddress.getByName(
                     "private.test".equals(host) ? "192.168.1.10" : "93.184.216.34"));
-    TemplateExportService service =
+    PdfExternalResourceLoader service =
         serviceWith(
             dns,
             request -> {
@@ -678,7 +683,7 @@ class TemplateExportServiceTest {
               return redirectResponse(request, "http://private.test/secret");
             });
 
-    assertThat(service.fetchExternalResource("https://public.test/start")).isEmpty();
+    assertThat(service.newSession().fetch("https://public.test/start")).isEmpty();
     assertThat(requests).hasValue(1);
   }
 
@@ -686,7 +691,7 @@ class TemplateExportServiceTest {
   @DisplayName("PDF resources stop after the explicit redirect limit")
   void pdfResourcesStopAfterRedirectLimit() throws Exception {
     AtomicInteger requests = new AtomicInteger();
-    TemplateExportService service =
+    PdfExternalResourceLoader service =
         serviceWith(
             host -> List.of(InetAddress.getByName("93.184.216.34")),
             request -> {
@@ -694,28 +699,28 @@ class TemplateExportServiceTest {
               return redirectResponse(request, "/again");
             });
 
-    assertThat(service.fetchExternalResource("https://public.test/start")).isEmpty();
+    assertThat(service.newSession().fetch("https://public.test/start")).isEmpty();
     assertThat(requests).hasValue(6);
   }
 
   @Test
   @DisplayName("PDF resource policy blocks reserved IPv4 and IPv6 ranges")
   void pdfResourcePolicyBlocksReservedIpRanges() throws Exception {
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("8.8.8.8")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("8.8.8.8")))
         .isTrue();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("100.64.0.1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("100.64.0.1")))
         .isFalse();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("192.0.2.1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("192.0.2.1")))
         .isFalse();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("2001:4860:4860::8888")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("2001:4860:4860::8888")))
         .isTrue();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("fc00::1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("fc00::1")))
         .isFalse();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("2001:db8::1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("2001:db8::1")))
         .isFalse();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("64:ff9b::a00:1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b::a00:1")))
         .isFalse();
-    assertThat(TemplateExportService.isPubliclyRoutable(InetAddress.getByName("64:ff9b:1::a00:1")))
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b:1::a00:1")))
         .isFalse();
 
     byte[] mapped = new byte[16];
@@ -726,7 +731,7 @@ class TemplateExportServiceTest {
     mapped[14] = 8;
     mapped[15] = 8;
     InetAddress mappedAddress = Inet6Address.getByAddress(null, mapped, -1);
-    assertThat(TemplateExportService.isPubliclyRoutable(mappedAddress)).isFalse();
+    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(mappedAddress)).isFalse();
   }
 
   @Test
@@ -751,13 +756,17 @@ class TemplateExportServiceTest {
     return new TemplateExportService();
   }
 
-  private TemplateExportService serviceWith(
+  private PdfExternalResourceLoader newResourceLoader() {
+    return new PdfExternalResourceLoader(Dns.SYSTEM, new OkHttpClient());
+  }
+
+  private PdfExternalResourceLoader serviceWith(
       Dns dns, java.util.function.Function<okhttp3.Request, Response> responder) {
     OkHttpClient client =
         new OkHttpClient.Builder()
             .addInterceptor(chain -> responder.apply(chain.request()))
             .build();
-    return new TemplateExportService(dns, client);
+    return new PdfExternalResourceLoader(dns, client);
   }
 
   private static Response successResponse(okhttp3.Request request, String body) {

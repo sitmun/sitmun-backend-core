@@ -31,15 +31,15 @@ final class PdfDocumentPreparer {
   private PdfDocumentPreparer() {}
 
   static Document prepare(
-      String html, TemplateExportService.PdfPageConfig pageConfig, PdfRegionDimensions dimensions) {
+      String html, PdfPageConfig pageConfig, PdfRegionDimensions dimensions) {
     return prepare(Jsoup.parse(html == null ? "" : html), pageConfig, dimensions);
   }
 
   static Document prepare(
       Document document,
-      TemplateExportService.PdfPageConfig pageConfig,
+      PdfPageConfig pageConfig,
       PdfRegionDimensions dimensions) {
-    TemplateExportService.PdfPageConfig effectivePageConfig = effectivePageConfig(pageConfig);
+    PdfPageConfig effectivePageConfig = effectivePageConfig(pageConfig);
     PdfRegionDimensions effectiveDimensions =
         dimensions == null ? new PdfRegionDimensions(0, 0) : dimensions;
     RunningRegions regions = extractRunningRegions(document);
@@ -49,12 +49,12 @@ final class PdfDocumentPreparer {
   }
 
   static MeasurementDocument prepareForMeasurement(
-      String html, TemplateExportService.PdfPageConfig pageConfig) {
+      String html, PdfPageConfig pageConfig) {
     return prepareForMeasurement(Jsoup.parse(html == null ? "" : html), pageConfig);
   }
 
   static MeasurementDocument prepareForMeasurement(
-      Document document, TemplateExportService.PdfPageConfig pageConfig) {
+      Document document, PdfPageConfig pageConfig) {
     RunningRegions regions = extractRunningRegions(document);
     document.body().select("style, link[rel=stylesheet]").stream()
         .map(Element::clone)
@@ -76,12 +76,10 @@ final class PdfDocumentPreparer {
         regions.header() != null && !regions.header().fullBleed());
   }
 
-  private static TemplateExportService.PdfPageConfig effectivePageConfig(
-      TemplateExportService.PdfPageConfig pageConfig) {
+  private static PdfPageConfig effectivePageConfig(PdfPageConfig pageConfig) {
     return pageConfig == null
-        ? new TemplateExportService.PdfPageConfig(
-            TemplateExportService.DEFAULT_PDF_PAGE_SIZE,
-            TemplateExportService.DEFAULT_PDF_PAGE_ORIENTATION)
+        ? new PdfPageConfig(PdfPageOptionsPolicy.DEFAULT_PAGE_SIZE,
+            PdfPageOptionsPolicy.DEFAULT_ORIENTATION)
         : pageConfig;
   }
 
@@ -244,7 +242,7 @@ final class PdfDocumentPreparer {
   }
 
   private static String buildMeasurementCss(
-      TemplateExportService.PdfPageConfig pageConfig, RunningRegions regions) {
+      PdfPageConfig pageConfig, RunningRegions regions) {
     return "@page { size: %s %s; margin: 0; }%n"
             .formatted(pageConfig.pageSize(), pageConfig.pageOrientation())
         + "html, body { margin: 0 !important; padding: 0 !important; }\n"
@@ -253,7 +251,7 @@ final class PdfDocumentPreparer {
   }
 
   private static String buildFinalCss(
-      TemplateExportService.PdfPageConfig pageConfig,
+      PdfPageConfig pageConfig,
       PdfRegionDimensions dimensions,
       RunningRegions regions) {
     if (regions.header() == null && regions.footer() == null) {
@@ -312,6 +310,16 @@ final class PdfDocumentPreparer {
         css.append("position: running(sitmunPdfFooter) !important; ");
       }
       css.append("}\n");
+      css.append('.')
+          .append(RUNNING_FOOTER_CLASS)
+          .append(" .")
+          .append(PdfRegionHtmlContract.PAGE_NUMBER_CLASS)
+          .append(" { margin: 0; font-size: 0; }\n")
+          .append('.')
+          .append(RUNNING_FOOTER_CLASS)
+          .append(" .")
+          .append(PdfRegionHtmlContract.PAGE_NUMBER_CLASS)
+          .append("::before { content: counter(page); font-size: 10pt; }\n");
     }
     if ((regions.header() != null && regions.header().fullBleed())
         || (regions.footer() != null && regions.footer().fullBleed())) {

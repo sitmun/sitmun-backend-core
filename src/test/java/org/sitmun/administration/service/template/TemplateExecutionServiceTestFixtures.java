@@ -19,6 +19,7 @@ import org.sitmun.administration.service.extractor.HttpClientFactory;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
 import org.sitmun.administration.service.i18n.LiteralTranslationResolver;
 import org.sitmun.administration.service.template.childdata.TemplateChildDataService;
+import org.sitmun.administration.service.mapimage.MapImageTaskExecutionService;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.proxy.service.ProxyConfigurationService;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
@@ -126,6 +127,8 @@ class TemplateExecutionServiceTestFixtures {
             literalTranslationResolver,
             currentRequestLanguageResolver,
             objectMapper);
+    MapImageTaskExecutionService mapImageTaskExecutionService =
+        mock(MapImageTaskExecutionService.class);
     return new TemplateExecutionService(
         taskRepository,
         roleRepository,
@@ -137,7 +140,8 @@ class TemplateExecutionServiceTestFixtures {
         literalTranslationResolver,
         currentRequestLanguageResolver,
         new MiaHtmlRenderer(),
-        mock(org.sitmun.administration.service.mapimage.MapImageTaskExecutionService.class),
+        new MapImageTemplateTaskExecutor(
+            new MapImageFeatureBboxResolver(), mapImageTaskExecutionService),
         objectMapper);
   }
 

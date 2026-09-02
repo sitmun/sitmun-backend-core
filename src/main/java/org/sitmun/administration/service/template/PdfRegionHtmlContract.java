@@ -7,6 +7,7 @@ public final class PdfRegionHtmlContract {
 
   public static final String HEADER_CLASS = "sitmun-pdf-header";
   public static final String FOOTER_CLASS = "sitmun-pdf-footer";
+  public static final String PAGE_NUMBER_CLASS = "sitmun-pdf-page-number";
   public static final String FULL_BLEED_HEADER_CLASS = "sitmun-pdf-header-full-bleed";
   public static final String FULL_BLEED_FOOTER_CLASS = "sitmun-pdf-footer-full-bleed";
   public static final String TEMPLATE_SCOPE_ATTRIBUTE = "data-sitmun-pdf-template-scope";
