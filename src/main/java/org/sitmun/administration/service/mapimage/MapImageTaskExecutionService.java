@@ -19,7 +19,6 @@ import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,7 +37,6 @@ public class MapImageTaskExecutionService {
   private final MapImageWmsRenderer mapImageWmsRenderer;
   private final ObjectMapper objectMapper;
 
-  @Transactional(readOnly = true, noRollbackFor = ResponseStatusException.class)
   public byte[] renderMapImage(MapImageRenderRequestDto requestDto) {
     Task task = taskRepository.findById(requestDto.getTaskId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found: " + requestDto.getTaskId()));
@@ -84,8 +82,12 @@ public class MapImageTaskExecutionService {
     if (rawMapSources == null) {
       return List.of();
     }
-    List<MapImageSourceDefinition> mapSources = objectMapper.convertValue(rawMapSources, MAP_SOURCE_TYPE);
-    return mapSources == null ? List.of() : mapSources;
+    try {
+      List<MapImageSourceDefinition> mapSources = objectMapper.convertValue(rawMapSources, MAP_SOURCE_TYPE);
+      return mapSources == null ? List.of() : mapSources;
+    } catch (IllegalArgumentException exception) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed map sources", exception);
+    }
   }
 
   private List<Double> resolveBbox(List<Double> requestBbox) {
@@ -119,7 +121,9 @@ public class MapImageTaskExecutionService {
     if (mapSource.serviceId() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Map source lacks serviceId");
     }
-    if (mapSource.layerNames() == null || mapSource.layerNames().isEmpty()) {
+    if (mapSource.layerNames() == null
+        || mapSource.layerNames().isEmpty()
+        || mapSource.layerNames().stream().noneMatch(StringUtils::hasText)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Map source lacks layerNames");
     }
 

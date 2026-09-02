@@ -3,6 +3,7 @@ package org.sitmun.administration.service.mapimage;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 class MapImageWmsRenderer {
 
   private static final String WMS_VERSION = "1.1.1";
+  private static final int MAX_RESPONSE_BYTES = 16_000_000;
 
   private final HttpClientFactory httpClientFactory;
   private final SystemVariableResolver systemVariableResolver;
@@ -36,7 +38,9 @@ class MapImageWmsRenderer {
     if (!DomainConstants.Services.TYPE_WMS.equalsIgnoreCase(service.getType())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service " + service.getId() + " is not WMS");
     }
-    if (layerNames == null || layerNames.isEmpty()) {
+    if (layerNames == null
+        || layerNames.isEmpty()
+        || layerNames.stream().noneMatch(StringUtils::hasText)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Map source lacks layerNames");
     }
 
@@ -56,7 +60,13 @@ class MapImageWmsRenderer {
         throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WMS response is empty");
       }
 
-      byte[] bytes = body.bytes();
+      byte[] bytes;
+      try (InputStream input = body.byteStream()) {
+        bytes = input.readNBytes(MAX_RESPONSE_BYTES + 1);
+      }
+      if (bytes.length > MAX_RESPONSE_BYTES) {
+        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WMS response is too large");
+      }
       BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
       if (image == null) {
         throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WMS response is not a valid image");
