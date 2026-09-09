@@ -34,6 +34,7 @@ public class ApplicationDto {
   private Integer defaultZoomLevel;
   private PointOfInterestDto pointOfInterest;
   private Double[] initialExtent;
+  private Integer territoryId;
   private String territoryCode;
   private String territoryName;
   private String territoryDescription;

@@ -12,16 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.administration.config.AdministrationRestConfigurer;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
+import org.sitmun.test.AdditiveActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @DisplayName("Application Default Values Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles(Profiles.TEST)
+@AdditiveActiveProfiles(Profiles.TEST)
 @Import(AdministrationRestConfigurer.class)
 class ApplicationDefaultValuesTest {
 

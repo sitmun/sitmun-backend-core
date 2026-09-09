@@ -2820,4 +2820,3 @@ databaseChangeLog:
             tableName: STM_USR_CONF
             columnName: UCO_USERID
             columnDataType: NUMBER(10)
-

@@ -1,0 +1,27 @@
+{
+  "form": {
+    "label": "entity.task.mapImage.label",
+    "elements": {
+      "type": {
+        "hidden": true,
+        "value": 18,
+        "required": true
+      },
+      "name": {
+        "label": "tasksEntity.name",
+        "control": "input",
+        "required": true
+      },
+      "group": {
+        "label": "tasksEntity.group",
+        "control": "selector",
+        "selector": {
+          "data": "taskGroup",
+          "name": "name",
+          "value": "id"
+        },
+        "required": true
+      }
+    }
+  }
+}

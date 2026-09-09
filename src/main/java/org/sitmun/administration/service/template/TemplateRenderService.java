@@ -2,8 +2,12 @@ package org.sitmun.administration.service.template;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.HandlebarsException;
+import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -13,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
 import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
@@ -25,7 +28,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 
 @Service
-@RequiredArgsConstructor
 public class TemplateRenderService {
 
   private static final String HANDLEBARS_OPEN = "&#123;&#123;";
@@ -54,13 +56,34 @@ public class TemplateRenderService {
       Pattern.compile("\\{\\{#each\\s+([A-Za-z_][\\w]*)\\s*}}");
   private static final String TEMPLATE_ERROR_CLASS = "sitmun-template-error";
   private static final String TEMPLATE_KNOWN_CLASS = "sitmun-template-known";
+  private static final DateTimeFormatter CURRENT_DATE_FORMAT =
+      DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final TemplateContextNormalizer templateContextNormalizer;
   private final TemplateLiteralProcessor templateLiteralProcessor;
   private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
+  private final Clock clock;
   private final Handlebars handlebars = new Handlebars();
+
+  public TemplateRenderService(
+      SystemVariableResolver systemVariableResolver,
+      TemplateRequestCoordinatesService templateRequestCoordinatesService,
+      TemplateContextNormalizer templateContextNormalizer,
+      TemplateLiteralProcessor templateLiteralProcessor,
+      CurrentRequestLanguageResolver currentRequestLanguageResolver,
+      Clock clock) {
+    this.systemVariableResolver = systemVariableResolver;
+    this.templateRequestCoordinatesService = templateRequestCoordinatesService;
+    this.templateContextNormalizer = templateContextNormalizer;
+    this.templateLiteralProcessor = templateLiteralProcessor;
+    this.currentRequestLanguageResolver = currentRequestLanguageResolver;
+    this.clock = clock;
+    handlebars.registerHelper(
+        "currentDate",
+        (Helper<Object>) (context, options) -> CURRENT_DATE_FORMAT.format(LocalDate.now(clock)));
+  }
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context) {

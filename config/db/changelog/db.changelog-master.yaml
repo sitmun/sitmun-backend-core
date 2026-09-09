@@ -71,3 +71,6 @@ databaseChangeLog:
   - include:
       file: 22_align_nullability.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 21_add_map_image_task_type.yaml
+      relativeToChangelogFile: true

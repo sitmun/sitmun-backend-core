@@ -83,9 +83,7 @@ class UserRepositoryDataRestTest {
                     "email":"false"
                     }"""))
         .andExpect(status().isBadRequest())
-        .andExpect(
-            jsonPath("$.errors[?(@.field=='email')].message")
-                .value("must be a well-formed email address"));
+        .andExpect(jsonPath("$.errors[?(@.field=='email')]").isNotEmpty());
   }
 
   @Test

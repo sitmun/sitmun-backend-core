@@ -61,6 +61,31 @@ class TaskQueryUrlServiceTest {
   }
 
   @Test
+  @DisplayName("accept returns true for legacy URL query task scope")
+  void acceptReturnsTrueForLegacyUrlQueryTask() {
+    // Given
+    Task task = mock(Task.class);
+    when(task.getId()).thenReturn(1);
+    when(task.getConnection()).thenReturn(null);
+    when(task.getCartography()).thenReturn(null);
+
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(PROPERTY_SCOPE, SCOPE_URL);
+    properties.put(PROPERTY_COMMAND, "https://www.example.com/document.pdf");
+    when(task.getProperties()).thenReturn(properties);
+
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_QUERY);
+    when(task.getType()).thenReturn(taskType);
+
+    // When
+    boolean result = service.accept(task);
+
+    // Then
+    assertTrue(result);
+  }
+
+  @Test
   @DisplayName("accept returns false for non-external-link query task")
   void acceptReturnsFalseForNonExternalLinkTask() {
     // Given
