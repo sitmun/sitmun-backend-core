@@ -10,8 +10,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.Locale;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -52,6 +54,9 @@ public class ImageTransformer {
 
       if (scheme.startsWith("http")) {
         URL url = uri.toURL();
+        if (isSvgPath(url)) {
+          return storeSvgFromUrl(url);
+        }
         imageFormat = getImageFormat(url);
         validateFormat(imageFormat);
         scaledImage = scaleImageFromURL(url, width, height);
@@ -59,6 +64,9 @@ public class ImageTransformer {
         ImageDataUri dataUri = ImageDataUri.parse(image);
         imageFormat = dataUri.getFormat();
         validateFormat(imageFormat);
+        if (isSvgFormat(imageFormat)) {
+          return storeSvgDataUri(dataUri);
+        }
         scaledImage = scaleImageFromBase64(dataUri.getData(), width, height);
       } else {
         log.error("Unsupported image URI scheme: {}", scheme);
@@ -147,7 +155,51 @@ public class ImageTransformer {
       if (format.equalsIgnoreCase(supportedFormat)) {
         return;
       }
+      if (isSvgFormat(format) && isSvgFormat(supportedFormat)) {
+        return;
+      }
     }
     throw new IllegalImageException("Image format not supported (" + format + ")");
+  }
+
+  private static boolean isSvgFormat(String format) {
+    return format != null && (format.equalsIgnoreCase("svg") || format.equalsIgnoreCase("svg+xml"));
+  }
+
+  private static boolean isSvgPath(URL url) {
+    String path = url.getPath();
+    return path != null && path.toLowerCase(Locale.ROOT).endsWith(".svg");
+  }
+
+  private String storeSvgDataUri(ImageDataUri dataUri) {
+    ensureSvgPayload(Base64.getDecoder().decode(dataUri.getData()));
+    return ImageDataUri.builder().format("svg+xml").data(dataUri.getData()).build().toDataUri();
+  }
+
+  private String storeSvgFromUrl(URL url) {
+    validateFormat("svg");
+    try (InputStream is = url.openStream()) {
+      byte[] bytes = is.readAllBytes();
+      ensureSvgPayload(bytes);
+      return ImageDataUri.builder()
+          .format("svg+xml")
+          .data(Base64.getEncoder().encodeToString(bytes))
+          .build()
+          .toDataUri();
+    } catch (IOException e) {
+      log.error("Failed to read SVG from URL {}", url, e);
+      throw new IllegalImageException("IOException: " + e.getMessage());
+    }
+  }
+
+  private static void ensureSvgPayload(byte[] bytes) {
+    if (bytes.length == 0) {
+      throw new IllegalImageException("Image file not valid");
+    }
+    int length = Math.min(bytes.length, 256);
+    String head = new String(bytes, 0, length, StandardCharsets.UTF_8).stripLeading();
+    if (!(head.startsWith("<svg") || head.startsWith("<?xml"))) {
+      throw new IllegalImageException("Image file not valid");
+    }
   }
 }

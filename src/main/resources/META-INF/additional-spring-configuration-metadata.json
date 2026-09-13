@@ -106,7 +106,7 @@
     {
       "name": "sitmun.ui.image.supported-formats",
       "type": "java.util.List<java.lang.String>",
-      "description": "Supported image formats for UI."
+      "description": "Supported image formats for UI (png, jpg, jpeg, svg). SVG is stored as a data URI without raster scaling."
     },
     {
       "name": "sitmun.ui.image.default-width",

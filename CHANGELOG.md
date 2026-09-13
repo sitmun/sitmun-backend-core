@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
+- **Trees** / **Images**: Tree and tree-node `image` fields accept SVG (`sitmun.ui.image.supportedFormats` includes `svg`). SVG is stored as `data:image/svg+xml;base64,...` without ImageIO raster scaling so vector icons stay sharp ([sitmun-admin-app#330](https://github.com/sitmun/sitmun-admin-app/issues/330)).
 
 ### Fixed
 
