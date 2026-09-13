@@ -16,6 +16,11 @@
       "description": "Default language for the application."
     },
     {
+      "name": "sitmun.variables.system",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "System variable names to SpEL expressions. Placeholders #{NAME} in proxied SQL/HTTP resolve from user, territory, application, request clock (#now), and locale (#language)."
+    },
+    {
       "name": "sitmun.user.secret",
       "type": "java.lang.String",
       "description": "Secret key for user authentication."
