@@ -23,10 +23,9 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
   }
 
   @Override
-  public ExtractedMetadata extract(String url) {
+  public ExtractedMetadata extract(Request request) {
     ExtractedMetadataBuilder builder = new ExtractedMetadataBuilder();
 
-    Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
     try (Response response = httpClientFactory.executeRequest(request)) {
       processResponse(builder, response);
     } catch (Exception e) {
@@ -37,6 +36,17 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
 
   private void processResponse(ExtractedMetadataBuilder builder, Response response)
       throws IOException {
+    if (response.code() == 401) {
+      builder.success(false).reason("Unauthorized");
+      ResponseBody unauthorizedBody = response.body();
+      if (unauthorizedBody != null) {
+        String text = unauthorizedBody.string();
+        if (!text.isBlank()) {
+          builder.asText(text);
+        }
+      }
+      return;
+    }
     builder.success(response.code() == 200 && response.body() != null);
     ResponseBody body = response.body();
     if (body != null) {

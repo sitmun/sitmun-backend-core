@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
+
 ### Fixed
 
 - **Users**: Saving a `UserConfiguration` no longer auto-creates a `UserPosition` for built-in `admin` or `public`. Direct `POST /api/user-positions` is unchanged.

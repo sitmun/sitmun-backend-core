@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import okhttp3.Request;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
@@ -20,7 +21,8 @@ class SimpleServiceCapabilitiesExtractorTest {
   @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
   void extractKnownWMSService130() {
     ExtractedMetadata doc =
-        extractor.extract("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities");
+        extractor.extract(
+            request("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"));
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("OGC:WMS 1.3.0", doc.getType());
@@ -36,7 +38,8 @@ class SimpleServiceCapabilitiesExtractorTest {
   void extractKnownWMSService111() {
     ExtractedMetadata doc =
         extractor.extract(
-            "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1");
+            request(
+                "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"));
     assertNotNull(doc);
     assertTrue(doc.getSuccess());
     assertEquals("OGC:WMS 1.1.1", doc.getType());
@@ -50,7 +53,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a bad request to a WMS")
   void extractFailedService() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wms-inspire/ign-base?");
+    ExtractedMetadata doc = extractor.extract(request("https://www.ign.es/wms-inspire/ign-base?"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a standard OGC:WMS Capabilities response", doc.getReason());
@@ -63,7 +66,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to HTML page")
   void extractHtmlPage() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/");
+    ExtractedMetadata doc = extractor.extract(request("https://www.ign.es/"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a standard OGC:WMS Capabilities response", doc.getReason());
@@ -74,7 +77,7 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to a not found page")
   void extract404Page() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/not-found");
+    ExtractedMetadata doc = extractor.extract(request("https://www.ign.es/not-found"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a well formed XML", doc.getReason());
@@ -85,12 +88,16 @@ class SimpleServiceCapabilitiesExtractorTest {
   @Test
   @DisplayName("Extract from a request to an nonexistent domain")
   void extractNonExistentDomain() {
-    ExtractedMetadata doc = extractor.extract("https://fake");
+    ExtractedMetadata doc = extractor.extract(request("https://fake"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertNotNull(doc.getReason());
     assertTrue(doc.getReason().startsWith("UnknownHostException: fake"));
     assertNull(doc.getAsText());
     assertNull(doc.getAsJson());
+  }
+
+  private static Request request(String url) {
+    return new Request.Builder().url(url).header("Accept", "*/*").build();
   }
 }
