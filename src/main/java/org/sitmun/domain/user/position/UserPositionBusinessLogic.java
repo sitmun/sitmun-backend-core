@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.configuration.UserConfiguration;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,8 @@ public class UserPositionBusinessLogic {
   /**
    * Creates a UserPosition if the tuple (user, territory) doesn't exist.
    *
+   * <p>No-op for built-in admin and public. Direct {@code POST /api/user-positions} is unchanged.
+   *
    * @param userConfiguration the user configuration
    */
   @Transactional(propagation = Propagation.REQUIRED)
@@ -34,6 +37,11 @@ public class UserPositionBusinessLogic {
 
     if (user == null || territory == null) {
       log.warn("Cannot create UserPosition: user or territory is null");
+      return;
+    }
+
+    if (SecurityConstants.isBuiltInPrincipal(user.getUsername())) {
+      log.debug("Skipping derived UserPosition for built-in principal {}", user.getUsername());
       return;
     }
 

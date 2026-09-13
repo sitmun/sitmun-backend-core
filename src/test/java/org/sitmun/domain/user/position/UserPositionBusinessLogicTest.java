@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.territory.Territory;
@@ -17,6 +19,7 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -121,6 +124,28 @@ class UserPositionBusinessLogicTest {
     // Ensure database content is the same after each test
     long finalUserPositionCount = userPositionRepository.count();
     Assertions.assertThat(finalUserPositionCount).isEqualTo(initialUserPositionCount);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {SecurityConstants.BUILT_IN_ADMIN_PRINCIPAL, SecurityConstants.PUBLIC_PRINCIPAL})
+  @DisplayName("Does not create user position for built-in principal")
+  void doesNotCreateUserPositionForBuiltInPrincipal(String username) {
+    User builtIn = userRepository.findByUsername(username).orElseThrow();
+    UserConfiguration config =
+        UserConfiguration.builder()
+            .user(builtIn)
+            .territory(territory)
+            .role(role)
+            .appliesToChildrenTerritories(false)
+            .build();
+    Assertions.assertThat(userPositionRepository.findByUserAndTerritory(builtIn, territory))
+        .isEmpty();
+
+    userPositionBusinessLogic.createUserPositionIfNotExists(config);
+
+    Assertions.assertThat(userPositionRepository.findByUserAndTerritory(builtIn, territory))
+        .isEmpty();
   }
 
   @Test
