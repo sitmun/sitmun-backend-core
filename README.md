@@ -292,7 +292,7 @@ spring.profiles.active=prod
 | `/api/recover-password` | PUT | Reset password with token | Public | RecoverPasswordController |
 | `/api/connections/{id}/test` | GET | Test database connection | Admin | DatabaseConnectionController |
 | `/api/connections/test` | POST | Test database connection config | Admin | DatabaseConnectionController |
-| `/api/helpers/capabilities` | GET | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
+| `/api/helpers/capabilities` | POST | Extract service capabilities | Admin | ServiceCapabilitiesExtractorController |
 | `/api/helpers/feature-type` | GET | Extract feature type info | Admin | FeatureTypeExtractorController |
 | `/swagger-ui/index.html` | GET | API documentation | Public | OpenAPI |
 | `/api/authenticate/logout` | POST | Logout user and clear authentication cookie | Authenticated | AuthenticationController |
@@ -390,8 +390,10 @@ curl -X POST http://localhost:8080/api/connections/test \
 #### Service Capabilities Extraction
 
 ```bash
-# Extract WMS capabilities
-curl -X GET "http://localhost:8080/api/helpers/capabilities?url=http://example.com/wms"
+# Extract WMS capabilities (backend adds request=GetCapabilities&service=WMS)
+curl -X POST "http://localhost:8080/api/helpers/capabilities" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"http://example.com/wms","type":"WMS"}'
 
 # Extract feature type information
 curl -X GET "http://localhost:8080/api/helpers/feature-type?url=http://example.com/wfs"
