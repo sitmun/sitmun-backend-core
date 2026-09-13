@@ -18,7 +18,9 @@ import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 import org.springframework.stereotype.Component;
 
-/** Publishes document export tasks in the client profile so the viewer can discover them globally. */
+/**
+ * Publishes document export tasks in the client profile so the viewer can discover them globally.
+ */
 @Component
 public class TaskDocumentExportService implements TaskMapper {
 
@@ -65,10 +67,7 @@ public class TaskDocumentExportService implements TaskMapper {
   }
 
   private void copyStringProperty(
-      Map<String, Object> target,
-      Map<String, Object> source,
-      String targetKey,
-      String sourceKey) {
+      Map<String, Object> target, Map<String, Object> source, String targetKey, String sourceKey) {
     Object value = source.get(sourceKey);
     if (value != null) {
       target.put(targetKey, String.valueOf(value));

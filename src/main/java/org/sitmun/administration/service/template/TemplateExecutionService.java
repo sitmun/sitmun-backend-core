@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderedTaskDto;
@@ -38,9 +41,6 @@ import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -417,9 +417,7 @@ public class TemplateExecutionService {
             .findById(taskId)
             .map(
                 task ->
-                    DomainConstants.Tasks.isDocumentExportTask(task)
-                        ? "documentExport"
-                        : "query")
+                    DomainConstants.Tasks.isDocumentExportTask(task) ? "documentExport" : "query")
             .orElse("query");
   }
 
@@ -1115,8 +1113,7 @@ public class TemplateExecutionService {
         .status(COMPLETED)
         .resultType(TEMPLATE)
         .context(
-            Collections.singletonMap(
-                "html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
+            Collections.singletonMap("html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
@@ -1137,13 +1134,11 @@ public class TemplateExecutionService {
       return html;
     }
     if (PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE.equals(scope)) {
-      regions.forEach(
-          region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+      regions.forEach(region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
     } else {
       regions.stream()
           .filter(region -> !region.hasAttr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE))
-          .forEach(
-              region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+          .forEach(region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
     }
     return fullDocument ? document.outerHtml() : document.body().html();
   }

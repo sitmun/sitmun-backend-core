@@ -97,8 +97,7 @@ public class TemplateExportXmlConfigurer implements WebMvcConfigurer {
     }
 
     @Override
-    protected void writeInternal(
-        TemplateExportRequestDto request, HttpOutputMessage outputMessage)
+    protected void writeInternal(TemplateExportRequestDto request, HttpOutputMessage outputMessage)
         throws HttpMessageNotWritableException {
       throw new HttpMessageNotWritableException("Template export XML responses are not supported");
     }
