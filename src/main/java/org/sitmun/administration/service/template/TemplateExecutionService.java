@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderRequestDto;
@@ -37,6 +38,9 @@ import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.task.relation.TaskRelation;
 import org.sitmun.domain.task.relation.TaskRelationRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +56,10 @@ import org.springframework.web.util.HtmlUtils;
 public class TemplateExecutionService {
 
   private static final int MAX_TEMPLATE_NESTING_LEVEL = 3;
+  private static final String TEMPLATE_TASK_ID_ATTRIBUTE = "data-mia-template-task-id";
+  private static final String MAP_IMAGE_FEATURE_BBOX_SIZE = "__featureBboxSize";
+  private static final Pattern FULL_HTML_DOCUMENT_PATTERN =
+      Pattern.compile("(?is)<\\s*html(?:\\s|>)|<!doctype(?:\\s|>)");
   private static final String TEMPLATE_NESTING_DEPTH_EXCEEDED_PREFIX =
       "Template nesting depth exceeded";
   private static final String NO_DATA_LITERAL = "No data";
@@ -83,6 +91,7 @@ public class TemplateExecutionService {
   private final LiteralTranslationResolver literalTranslationResolver;
   private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
   private final MiaHtmlRenderer miaHtmlRenderer;
+  private final MapImageTemplateTaskExecutor mapImageTemplateTaskExecutor;
   private final ObjectMapper objectMapper;
 
   public TemplateTaskExecutionResponseDto executeLinkedTask(
@@ -147,8 +156,7 @@ public class TemplateExecutionService {
 
     List<Integer> miaTaskIds =
         requestDto.getMiaTaskIds() == null ? List.of() : requestDto.getMiaTaskIds();
-    Map<String, Object> featureParameters =
-        requestDto.getParameters() == null ? Collections.emptyMap() : requestDto.getParameters();
+    Map<String, Object> featureParameters = buildViewerParameters(requestDto);
 
     List<MoreInfoAdvancedRenderedTaskDto> renderedTasks = new ArrayList<>();
     for (Integer miaTaskId : miaTaskIds) {
@@ -188,7 +196,8 @@ public class TemplateExecutionService {
                 || SCROLL.equals(properties.get("parentLayout"))
             ? SCROLL
             : "tabs";
-    List<Map<String, Object>> includedTasks = readIncludedTasks(miaTask, miaParameters);
+    List<Map<String, Object>> includedTasks =
+        filterRenderableMiaChildren(readIncludedTasks(miaTask, miaParameters));
 
     String html =
         "tabs".equals(visualizationMode)
@@ -259,14 +268,14 @@ public class TemplateExecutionService {
     if (!mayAccessTask(childTask, coordinates, false)) {
       return renderNoDataHtml(language);
     }
-    Map<String, String> childParameters =
-        stringifyParameters(
-            resolveMappedParameters(childDefinition.get(PARAMETERS), featureParameters));
-    if (childParameters.isEmpty()) {
-      childParameters =
-          stringifyParameters(
-              resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters));
+    Map<String, Object> resolvedChildParameters =
+        resolveMappedParameters(childDefinition.get(PARAMETERS), featureParameters);
+    if (resolvedChildParameters.isEmpty()) {
+      resolvedChildParameters =
+          resolveMappedParameters(readMiaChildParameterMappings(childTask), featureParameters);
     }
+    enrichMapImageViewerContextParameters(childTask, resolvedChildParameters, featureParameters);
+    Map<String, String> childParameters = stringifyParameters(resolvedChildParameters);
     Map<String, Map<String, Object>> childTaskParameters =
         new LinkedHashMap<>(
             resolveMappedChildTaskParameters(
@@ -310,7 +319,7 @@ public class TemplateExecutionService {
 
     if (TEMPLATE.equals(result.getResultType())) {
       Object html = result.getContext() != null ? result.getContext().get("html") : null;
-      return html == null ? "" : String.valueOf(html);
+      return wrapWithDownloadAnnotation(html == null ? "" : String.valueOf(html), childTaskId);
     }
     if (TABLE.equals(result.getResultType())) {
       return renderRowsAsTable(result.getRows(), language);
@@ -337,6 +346,7 @@ public class TemplateExecutionService {
       Task relatedTask = relation.getRelatedTask();
       Map<String, Object> resolvedParameters =
           resolveMappedParameters(readMiaChildParameterMappings(relatedTask), featureParameters);
+      enrichMapImageViewerContextParameters(relatedTask, resolvedParameters, featureParameters);
       if (!resolvedParameters.isEmpty()) {
         Map<String, Object> existingParameters =
             childTaskParameters.computeIfAbsent(
@@ -348,6 +358,69 @@ public class TemplateExecutionService {
             relatedTask, childTaskParameters, featureParameters, depth + 1);
       }
     }
+  }
+
+  Map<String, Object> buildViewerParameters(MoreInfoAdvancedRenderRequestDto requestDto) {
+    Map<String, Object> viewerParameters = new LinkedHashMap<>();
+    if (requestDto.getParameters() != null) {
+      viewerParameters.putAll(requestDto.getParameters());
+    }
+    if (requestDto.getFeatureBbox() != null) {
+      List<Double> bbox = requestDto.getFeatureBbox();
+      viewerParameters.put(MAP_IMAGE_FEATURE_BBOX_SIZE, bbox.size());
+      if (bbox.size() >= 4) {
+        viewerParameters.put("featureBboxMinX", bbox.get(0));
+        viewerParameters.put("featureBboxMinY", bbox.get(1));
+        viewerParameters.put("featureBboxMaxX", bbox.get(2));
+        viewerParameters.put("featureBboxMaxY", bbox.get(3));
+      }
+    }
+    return viewerParameters;
+  }
+
+  private void enrichMapImageViewerContextParameters(
+      Task task, Map<String, Object> parameters, Map<String, Object> featureParameters) {
+    if (!DomainConstants.Tasks.isMapImageTask(task)) {
+      return;
+    }
+    List.of(
+            "featureBboxMinX",
+            "featureBboxMinY",
+            "featureBboxMaxX",
+            "featureBboxMaxY",
+            MAP_IMAGE_FEATURE_BBOX_SIZE)
+        .forEach(
+            key -> {
+              Object value = featureParameters.get(key);
+              if (value != null) {
+                parameters.putIfAbsent(key, value);
+              }
+            });
+  }
+
+  private List<Map<String, Object>> filterRenderableMiaChildren(
+      List<Map<String, Object>> includedTasks) {
+    return includedTasks.stream()
+        .filter(childDefinition -> !"documentExport".equals(resolveMiaChildType(childDefinition)))
+        .toList();
+  }
+
+  private String resolveMiaChildType(Map<String, Object> childDefinition) {
+    Object explicitType = childDefinition.get("childType");
+    if (explicitType != null && "documentExport".equals(String.valueOf(explicitType))) {
+      return "documentExport";
+    }
+    Integer taskId = parseTaskId(childDefinition.get("id"));
+    return taskId == null
+        ? "query"
+        : taskRepository
+            .findById(taskId)
+            .map(
+                task ->
+                    DomainConstants.Tasks.isDocumentExportTask(task)
+                        ? "documentExport"
+                        : "query")
+            .orElse("query");
   }
 
   private void mergeMappedTemplateChildTaskParameters(
@@ -786,6 +859,14 @@ public class TemplateExecutionService {
     return miaHtmlRenderer.table(rows);
   }
 
+  private String wrapWithDownloadAnnotation(String content, Integer templateTaskId) {
+    String taskIdAttribute =
+        templateTaskId == null
+            ? ""
+            : " " + TEMPLATE_TASK_ID_ATTRIBUTE + "=\"" + templateTaskId + "\"";
+    return "<div data-mia-export-template=\"true\"" + taskIdAttribute + ">" + content + "</div>";
+  }
+
   private boolean mayAccessTask(Task task, RequestCoordinates coordinates, boolean adminGodMode) {
     if (task == null) {
       return true;
@@ -889,6 +970,10 @@ public class TemplateExecutionService {
           depth + 1,
           isolateTemplateChildFailures,
           adminGodMode);
+    }
+
+    if (DomainConstants.Tasks.isMapImageTask(task)) {
+      return mapImageTemplateTaskExecutor.execute(task, parameters);
     }
 
     String scope = String.valueOf(task.getProperties().get(DomainConstants.Tasks.PROPERTY_SCOPE));
@@ -1020,15 +1105,47 @@ public class TemplateExecutionService {
 
     TemplatePreviewResponseDto rendered =
         renderTemplatePreview(readTemplateHtml(task), templateContext, coordinates);
+    String pdfScope =
+        depth == 1
+            ? PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE
+            : PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE;
 
     return TemplateTaskExecutionResponseDto.builder()
         .taskId(task.getId())
         .status(COMPLETED)
         .resultType(TEMPLATE)
-        .context(Collections.singletonMap("html", rendered.getHtml()))
+        .context(
+            Collections.singletonMap(
+                "html", annotatePdfRegionScope(rendered.getHtml(), pdfScope)))
         .rows(Collections.emptyList())
         .resourceUrl(null)
         .build();
+  }
+
+  private String annotatePdfRegionScope(String html, String scope) {
+    if (!StringUtils.hasText(html)) {
+      return html;
+    }
+    boolean fullDocument = FULL_HTML_DOCUMENT_PATTERN.matcher(html).find();
+    Document document = fullDocument ? Jsoup.parse(html) : Jsoup.parseBodyFragment(html);
+    String selector =
+        PdfRegionHtmlContract.REGION_CLASSES.stream()
+            .map(className -> "." + className)
+            .collect(Collectors.joining(", "));
+    List<Element> regions = document.select(selector);
+    if (regions.isEmpty()) {
+      return html;
+    }
+    if (PdfRegionHtmlContract.NESTED_TEMPLATE_SCOPE.equals(scope)) {
+      regions.forEach(
+          region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+    } else {
+      regions.stream()
+          .filter(region -> !region.hasAttr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE))
+          .forEach(
+              region -> region.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE, scope));
+    }
+    return fullDocument ? document.outerHtml() : document.body().html();
   }
 
   private TemplatePreviewResponseDto renderTemplatePreview(

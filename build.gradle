@@ -118,6 +118,13 @@ dependencies {
   // Rate limiting
   implementation libs.bucket4j.core
 
+  // HTML parsing (used by template export to convert HTML to W3C DOM)
+  implementation libs.jsoup
+
+  // PDF generation from HTML (template export)
+  implementation libs.openhtmltopdf.core
+  implementation libs.openhtmltopdf.pdfbox
+
   // URI Templates
   implementation libs.handyUriTemplates
   implementation libs.handlebars

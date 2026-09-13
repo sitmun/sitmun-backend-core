@@ -350,6 +350,7 @@ public abstract class ProfileMapper {
     copyDefaultZoomLevelFromTerritory(applicationDto, profile);
     copyPointFromTerritory(applicationDto, profile);
     copySrsFromTerritory(applicationDto, profile);
+    applicationDto.setTerritoryId(profile.getTerritory().getId());
     copyTerritoryCodeFromTerritory(applicationDto, profile);
     copyTerritoryNameFromTerritory(applicationDto, profile);
     copyTerritoryDetailsFromTerritory(applicationDto, profile);

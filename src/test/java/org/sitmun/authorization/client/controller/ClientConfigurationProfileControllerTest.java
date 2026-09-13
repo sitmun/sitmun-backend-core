@@ -66,6 +66,7 @@ class ClientConfigurationProfileControllerTest {
   void applicationExposesTerritoryMetadata() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.application.territoryId", is(1)))
         .andExpect(jsonPath("$.application.territoryCode", is("60001")))
         .andExpect(jsonPath("$.application.territoryName", is("Provincia A")))
         .andExpect(jsonPath("$.application.territorialAuthorityName", is("Provincia A")));

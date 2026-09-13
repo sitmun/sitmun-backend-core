@@ -55,6 +55,17 @@ public interface CartographyRepository extends JpaRepository<Cartography, Intege
       """)
   Page<Cartography> findByContent(@Param("q") String q, Pageable pageable);
 
+  @RestResource(path = "byService", rel = "byService")
+  @EntityGraph(attributePaths = {"service"})
+  @Query(
+      """
+      select cartography
+      from Cartography cartography
+      where cartography.service.id = :serviceId
+      order by lower(cartography.name), cartography.id
+      """)
+  List<Cartography> findByService(@Param("serviceId") Integer serviceId);
+
   @Query(
       """
       select distinct cartography

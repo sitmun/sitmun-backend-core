@@ -242,4 +242,21 @@ class DomainConstantsTaskAcceptTest {
 
     assertTrue(isLegacyBasicTask(task));
   }
+
+  @Test
+  @DisplayName("isDocumentExportTask returns true for task type 17")
+  void isDocumentExportTaskReturnsTrueForDocumentExportType() {
+    Task task = mock(Task.class);
+    TaskType taskType = mock(TaskType.class);
+    when(taskType.getId()).thenReturn(TASK_TYPE_ID_DOCUMENT_EXPORT);
+    when(task.getType()).thenReturn(taskType);
+
+    assertTrue(isDocumentExportTask(task));
+  }
+
+  @Test
+  @DisplayName("isDocumentExportTask returns false for null task")
+  void isDocumentExportTaskReturnsFalseForNullTask() {
+    assertFalse(isDocumentExportTask(null));
+  }
 }

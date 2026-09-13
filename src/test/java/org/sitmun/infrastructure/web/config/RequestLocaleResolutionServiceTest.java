@@ -49,6 +49,7 @@ class RequestLocaleResolutionServiceTest {
 
   @BeforeEach
   void setUp() {
+    LocaleContextHolder.resetLocaleContext();
     service =
         new RequestLocaleResolutionService(
             localeResolver,
@@ -135,17 +136,23 @@ class RequestLocaleResolutionServiceTest {
     }
 
     @Test
-    @DisplayName("falls back to database default when lang param not in supported languages")
+    @DisplayName("falls back to sitmun.language when lang param is unsupported")
     void unsupportedLangFallsBackToDefault() {
       when(request.getParameter("lang")).thenReturn("de");
       when(request.getMethod()).thenReturn("GET");
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(null);
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      Locale previousLocale = LocaleContextHolder.getLocale();
+      try {
+        LocaleContextHolder.setLocale(Locale.GERMANY);
+        String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
 
-      // Should fallback to sitmun.language since de is not supported
-      assertThat(result).isEqualTo("en");
+        // Should fallback to sitmun.language since de is not supported
+        assertThat(result).isEqualTo("en");
+      } finally {
+        LocaleContextHolder.setLocale(previousLocale);
+      }
     }
 
     @Test
@@ -274,9 +281,15 @@ class RequestLocaleResolutionServiceTest {
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(null);
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      Locale previousLocale = LocaleContextHolder.getLocale();
+      try {
+        LocaleContextHolder.setLocale(Locale.GERMANY);
+        String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
 
-      assertThat(result).isEqualTo("en");
+        assertThat(result).isEqualTo("en");
+      } finally {
+        LocaleContextHolder.setLocale(previousLocale);
+      }
     }
   }
 }

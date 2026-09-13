@@ -16,6 +16,8 @@ public final class CodeListsConstants {
       "cartographySpatialSelectionParameter.type";
   public static final String CARTOGRAPHY_PERMISSION_TYPE = "cartographyPermission.type";
   public static final String DATABASE_CONNECTION_DRIVER = "databaseConnection.driver";
+  public static final String DOCUMENT_EXPORT_ENGINE = "documentExport.engine";
+  public static final String DOCUMENT_EXPORT_OUTPUT = "documentExport.output";
   public static final String DOWNLOAD_TASK_SCOPE = "downloadTask.scope";
   public static final String SERVICE_NATIVE_PROTOCOL = "service.nativeProtocol";
   public static final String SERVICE_AUTHENTICATION_MODE = "service.authenticationMode";

@@ -10,6 +10,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
@@ -72,7 +75,17 @@ class TemplateRenderServiceTest {
         coordinatesService,
         new TemplateContextNormalizer(),
         literalProcessor,
-        languageResolver);
+        languageResolver,
+        Clock.fixed(Instant.parse("2026-08-31T12:00:00Z"), ZoneOffset.UTC));
+  }
+
+  @Test
+  void renderPreviewResolvesCurrentDateHelper() {
+    TemplateRenderService service = createService(mock(SystemVariableResolver.class));
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{currentDate}}</p>", Map.of());
+
+    assertThat(response.getHtml()).isEqualTo("<p>31/08/2026</p>");
   }
 
   @Test
