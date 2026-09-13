@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
 - **Trees** / **Images**: Tree and tree-node `image` fields accept SVG (`sitmun.ui.image.supportedFormats` includes `svg`). SVG is stored as `data:image/svg+xml;base64,...` without ImageIO raster scaling so vector icons stay sharp ([sitmun-admin-app#330](https://github.com/sitmun/sitmun-admin-app/issues/330)).
+- **Variables**: YAML `sitmun.variables.system` publishes SITMUN 2 session aliases (`APP_CODIGO`, `TER_CODIGO`, `USU_CODIGO`, `USUARIO`, `MUN_INE`, `MUN_INES`, `PROYECCION`, `EXTENSION_MAX_*`) plus `DATE` (server `Clock`, `dd/MM/yyyy HH:mm:ss`) and `LANG`/`LANGUAGE` (`LocaleContextHolder`). `#{NAME}` placeholders allow digits. `MUN_INES` joins member codes only when `accessChildrenTerritory` is true. Proxy config requests now preload locale so `#{LANG}` can resolve. Admin `GET /api/config/system/variables` lists the new names ([#212](https://github.com/sitmun/sitmun-backend-core/issues/212)).
 
 ### Fixed
 
