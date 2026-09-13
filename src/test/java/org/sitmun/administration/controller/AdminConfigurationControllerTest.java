@@ -22,7 +22,7 @@ class AdminConfigurationControllerTest extends BaseTest {
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.imageUpload.tree.supportedFormats")
-                .value(containsInAnyOrder("png", "jpg", "jpeg")))
+                .value(containsInAnyOrder("png", "jpg", "jpeg", "svg")))
         .andExpect(jsonPath("$.imageUpload.tree.maxBytes").value(2097152))
         .andExpect(jsonPath("$.imageUpload.tree.defaultSize.width").value(125))
         .andExpect(jsonPath("$.imageUpload.tree.defaultSize.height").value(125))
