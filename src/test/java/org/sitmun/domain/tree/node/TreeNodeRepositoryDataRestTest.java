@@ -12,6 +12,7 @@ import com.jayway.jsonpath.JsonPath;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +48,8 @@ class TreeNodeRepositoryDataRestTest {
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII";
   private static final String PNG_125X125_TRANSPARENT =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AQAAAACn+1GIAAAAIElEQVR4XmP4jwp+MIwKjAqMCowKjAqMCowKjAqQIAAAMVDFL8q1f5EAAAAASUVORK5CYII=";
+  private static final String SVG_10X10 =
+      "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjAwIi8+PC9zdmc+";
 
   @Autowired private MockMvc mvc;
 
@@ -178,6 +181,38 @@ class TreeNodeRepositoryDataRestTest {
     mvc.perform(delete(TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
         .andExpect(status().isNoContent())
         .andReturn();
+  }
+
+  @Test
+  @DisplayName("POST: SVG data URI is stored without raster scaling")
+  @WithMockUser(roles = "ADMIN")
+  void newTreeNodesWithSvgDataUriAreNotRasterized() throws Exception {
+    String content =
+        """
+        {
+        "name":"test-svg",
+        "tree":"http://localhost/api/trees/1",
+        "image":"%s"
+        }"""
+            .formatted(SVG_10X10);
+
+    MvcResult result =
+        mvc.perform(post(TREE_NODES_URI).content(content))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.image").value(startsWith("data:image/svg+xml;base64,")))
+            .andExpect(jsonPath("$.name").value("test-svg"))
+            .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String stored = JsonPath.parse(response).read("$.image", String.class);
+    ImageDataUri dataUri = ImageDataUri.parse(stored);
+    assertNotNull(dataUri);
+    String markup =
+        new String(Base64.getDecoder().decode(dataUri.getData()), StandardCharsets.UTF_8);
+    assertTrue(markup.contains("<svg"));
+
+    mvc.perform(delete(TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
+        .andExpect(status().isNoContent());
   }
 
   @Test
