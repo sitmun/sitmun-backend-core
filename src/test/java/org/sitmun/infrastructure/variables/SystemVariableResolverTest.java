@@ -4,8 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
@@ -13,9 +19,13 @@ import org.sitmun.domain.application.Application;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.User;
 import org.sitmun.infrastructure.config.SystemVariableProperties;
+import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 /** Tests for SystemVariableResolver ensuring proper SpEL-based variable resolution. */
 class SystemVariableResolverTest {
+
+  private static final Instant FIXED_INSTANT = Instant.parse("2026-09-13T16:54:00Z");
 
   private SystemVariableResolver resolver;
   private SystemVariableProperties properties;
@@ -26,21 +36,27 @@ class SystemVariableResolverTest {
 
   @BeforeEach
   void setUp() {
-    // Set up mock entities
     user = mock(User.class);
     when(user.getId()).thenReturn(100);
     when(user.getUsername()).thenReturn("testuser");
 
+    Envelope extent = Envelope.builder().minX(1.0).minY(2.0).maxX(3.0).maxY(4.0).build();
+    Territory child = mock(Territory.class);
+    when(child.getCode()).thenReturn("08021");
+
     territory = mock(Territory.class);
     when(territory.getId()).thenReturn(200);
-    when(territory.getCode()).thenReturn("TERR_CODE");
+    when(territory.getCode()).thenReturn("08019");
     when(territory.getName()).thenReturn("Test Territory");
+    when(territory.getExtent()).thenReturn(extent);
+    when(territory.getMembers()).thenReturn(Set.of(child));
 
     application = mock(Application.class);
     when(application.getId()).thenReturn(300);
     when(application.getName()).thenReturn("Test App");
+    when(application.getSrs()).thenReturn("EPSG:23031");
+    when(application.getAccessChildrenTerritory()).thenReturn(false);
 
-    // Set up properties with standard variable definitions
     properties = new SystemVariableProperties();
     Map<String, String> systemVars = new HashMap<>();
     systemVars.put("USER_ID", "#{#user.id}");
@@ -50,9 +66,33 @@ class SystemVariableResolverTest {
     systemVars.put("TERR_NAME", "#{#territory.name}");
     systemVars.put("APP_ID", "#{#application.id}");
     systemVars.put("APP_NAME", "#{#application.name}");
+    systemVars.put("APP_CODIGO", "#{#application.id}");
+    systemVars.put("TER_CODIGO", "#{#territory.id}");
+    systemVars.put("USU_CODIGO", "#{#user.id}");
+    systemVars.put("USUARIO", "#{#user.username}");
+    systemVars.put("MUN_INE", "#{#territory.code}");
+    systemVars.put(
+        "MUN_INES",
+        "#{T(org.sitmun.infrastructure.variables.SystemVariableSupport).munInes(#application, #territory)}");
+    systemVars.put("PROYECCION", "#{#application.srs}");
+    systemVars.put("EXTENSION_MAX_X0", "#{#territory.extent.minX}");
+    systemVars.put("EXTENSION_MAX_Y0", "#{#territory.extent.minY}");
+    systemVars.put("EXTENSION_MAX_X1", "#{#territory.extent.maxX}");
+    systemVars.put("EXTENSION_MAX_Y1", "#{#territory.extent.maxY}");
+    systemVars.put(
+        "DATE",
+        "#{#now.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm:ss'))}");
+    systemVars.put("LANG", "#{#language}");
+    systemVars.put("LANGUAGE", "#{#language}");
     properties.setSystem(systemVars);
 
-    resolver = new SystemVariableResolver(properties);
+    resolver = new SystemVariableResolver(properties, Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC));
+    LocaleContextHolder.setLocale(Locale.forLanguageTag("ca"));
+  }
+
+  @AfterEach
+  void tearDown() {
+    LocaleContextHolder.resetLocaleContext();
   }
 
   private static RequestCoordinates coords(
@@ -79,7 +119,7 @@ class SystemVariableResolverTest {
 
     String result = resolver.resolve(template, coords(user, territory, application));
 
-    assertThat(result).isEqualTo("SELECT * FROM data WHERE territory = 'TERR_CODE'");
+    assertThat(result).isEqualTo("SELECT * FROM data WHERE territory = '08019'");
   }
 
   @Test
@@ -207,9 +247,9 @@ class SystemVariableResolverTest {
     Map<String, String> available = resolver.getAvailableVariables();
 
     assertThat(available)
-        .containsKeys(
-            "USER_ID", "USER_NAME", "TERR_ID", "TERR_COD", "TERR_NAME", "APP_ID", "APP_NAME");
+        .containsKeys("USER_ID", "APP_CODIGO", "MUN_INE", "MUN_INES", "DATE", "LANG", "LANGUAGE");
     assertThat(available.get("USER_ID")).isEqualTo("#{#user.id}");
+    assertThat(available.get("LANG")).isEqualTo("#{#language}");
   }
 
   @Test
@@ -229,6 +269,11 @@ class SystemVariableResolverTest {
   @Test
   void containsSystemVariables_withNull_returnsFalse() {
     assertThat(SystemVariableResolver.containsSystemVariables(null)).isFalse();
+  }
+
+  @Test
+  void containsSystemVariables_withDigitInName_returnsTrue() {
+    assertThat(SystemVariableResolver.containsSystemVariables("#{EXTENSION_MAX_X0}")).isTrue();
   }
 
   @Test
@@ -264,5 +309,62 @@ class SystemVariableResolverTest {
     String result = resolver.resolve(template, coords(user, territory, application));
 
     assertThat(result).isEqualTo("Value: 100");
+  }
+
+  @Test
+  void resolve_sitmun2Aliases_matchExistingContextFields() {
+    String template =
+        "#{APP_CODIGO} #{TER_CODIGO} #{USU_CODIGO} #{USUARIO} #{MUN_INE} #{PROYECCION}";
+
+    String result = resolver.resolve(template, coords(user, territory, application));
+
+    assertThat(result).isEqualTo("300 200 100 testuser 08019 EPSG:23031");
+  }
+
+  @Test
+  void resolve_munInes_withoutChildrenAccess_isCurrentCodeOnly() {
+    String result = resolver.resolve("#{MUN_INES}", coords(user, territory, application));
+
+    assertThat(result).isEqualTo("08019");
+  }
+
+  @Test
+  void resolve_munInes_withChildrenAccess_joinsSelfAndMembers() {
+    when(application.getAccessChildrenTerritory()).thenReturn(true);
+
+    String result = resolver.resolve("#{MUN_INES}", coords(user, territory, application));
+
+    assertThat(result).isEqualTo("08019,08021");
+  }
+
+  @Test
+  void resolve_territoryExtent_matchesSitmun2MaxTokens() {
+    String template =
+        "#{EXTENSION_MAX_X0} #{EXTENSION_MAX_Y0} #{EXTENSION_MAX_X1} #{EXTENSION_MAX_Y1}";
+
+    String result = resolver.resolve(template, coords(user, territory, application));
+
+    assertThat(result).isEqualTo("1.0 2.0 3.0 4.0");
+  }
+
+  @Test
+  void resolve_date_usesRequestClockNotEntity() {
+    String result = resolver.resolve("at #{DATE}", coords(user, territory, application));
+
+    assertThat(result).isEqualTo("at 13/09/2026 16:54:00");
+  }
+
+  @Test
+  void resolve_langAndLanguage_useLocaleContextHolder() {
+    String result = resolver.resolve("#{LANG}/#{LANGUAGE}", coords(user, territory, application));
+
+    assertThat(result).isEqualTo("ca/ca");
+  }
+
+  @Test
+  void resolve_dateAndLang_withoutCoordinates() {
+    String result = resolver.resolve("#{DATE} #{LANG}", null);
+
+    assertThat(result).isEqualTo("13/09/2026 16:54:00 ca");
   }
 }

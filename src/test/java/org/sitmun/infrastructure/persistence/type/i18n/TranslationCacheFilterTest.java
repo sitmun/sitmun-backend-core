@@ -115,4 +115,14 @@ class TranslationCacheFilterTest {
     assertThat(cachedDefault.get()).isEqualTo("ca");
     verify(databaseDefaultLanguageResolver).resolveShortnameFromDatabase();
   }
+
+  @Test
+  @DisplayName("preloads locale for proxy configuration requests")
+  void shouldPreload_clientConfigAndProxyAndLangParam() {
+    assertThat(TranslationCacheFilter.shouldPreload("/api/config/client/profile", null)).isTrue();
+    assertThat(TranslationCacheFilter.shouldPreload("/api/config/proxy", null)).isTrue();
+    assertThat(TranslationCacheFilter.shouldPreload("/api/config/proxy", "ca")).isTrue();
+    assertThat(TranslationCacheFilter.shouldPreload("/api/tasks/1", "en")).isTrue();
+    assertThat(TranslationCacheFilter.shouldPreload("/api/tasks/1", null)).isFalse();
+  }
 }

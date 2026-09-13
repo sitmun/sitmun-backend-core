@@ -89,11 +89,15 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
   }
 
   private boolean shouldPreload(HttpServletRequest request) {
-    String langParam = request.getParameter("lang");
+    return shouldPreload(request.getRequestURI(), request.getParameter("lang"));
+  }
+
+  /** Client profile, proxy config, or an explicit {@code lang} query param. */
+  static boolean shouldPreload(String path, String langParam) {
     if (langParam != null && !langParam.isEmpty()) {
       return true;
     }
-    String path = request.getRequestURI();
-    return path != null && path.contains("/api/config/client");
+    return path != null
+        && (path.contains("/api/config/client") || path.contains("/api/config/proxy"));
   }
 }

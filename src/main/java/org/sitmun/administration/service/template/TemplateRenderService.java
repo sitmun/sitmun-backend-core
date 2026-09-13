@@ -31,7 +31,7 @@ public class TemplateRenderService {
   private static final String HANDLEBARS_OPEN = "&#123;&#123;";
   private static final String HANDLEBARS_CLOSE = "&#125;&#125;";
 
-  private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z_]+)}}");
+  private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z0-9_]+)}}");
   private static final Pattern PARAMETER_LOOKUP_PATTERN =
       Pattern.compile("\\{\\{([A-Za-z_][\\w]*)\\.(\\$[\\w]+)}}");
   private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{([^{}]+)}}");
