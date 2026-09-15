@@ -28,7 +28,20 @@
     {
       "name": "sitmun.user.token-validity-in-milliseconds",
       "type": "java.lang.Long",
-      "description": "Token validity duration in milliseconds."
+      "description": "User session JWT validity duration in milliseconds.",
+      "defaultValue": 900000
+    },
+    {
+      "name": "sitmun.user.cookie-max-age-in-seconds",
+      "type": "java.lang.Integer",
+      "description": "Max-Age in seconds for viewer and admin session cookies. Must not exceed the user JWT TTL.",
+      "defaultValue": 900
+    },
+    {
+      "name": "sitmun.user.max-session-duration-milliseconds",
+      "type": "java.lang.Long",
+      "description": "Hard cap from auth_time after which POST /api/authenticate/refresh is refused.",
+      "defaultValue": 28800000
     },
     {
       "name": "sitmun.mobile.token-validity-in-milliseconds",

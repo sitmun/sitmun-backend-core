@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import org.sitmun.authentication.OidcClientTypes;
@@ -17,7 +18,9 @@ import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
+import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.sitmun.infrastructure.security.core.SecurityRole;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,11 +68,16 @@ public class AuthenticationController {
   @Value("${sitmun.proxy-middleware.token-validity-in-milliseconds}")
   private int validity;
 
+  @Value("${sitmun.user.max-session-duration-milliseconds:28800000}")
+  private long maxSessionDurationMillis;
+
   private final AuthenticationManager authenticationManager;
 
   private final UserDetailsService userDetailsService;
 
   private final UserRepository userRepository;
+
+  private final UserPositionRepository userPositionRepository;
 
   private final JsonWebTokenService jsonWebTokenService;
 
@@ -84,6 +92,7 @@ public class AuthenticationController {
       UserDetailsService userDetailsService,
       JsonWebTokenService jsonWebTokenService,
       UserRepository userRepository,
+      UserPositionRepository userPositionRepository,
       CookieService cookieService,
       Rfc9457ResponseWriter responseWriter,
       MobileEditionAccessService mobileEditionAccessService) {
@@ -91,6 +100,7 @@ public class AuthenticationController {
     this.userDetailsService = userDetailsService;
     this.jsonWebTokenService = jsonWebTokenService;
     this.userRepository = userRepository;
+    this.userPositionRepository = userPositionRepository;
     this.cookieService = cookieService;
     this.responseWriter = responseWriter;
     this.mobileEditionAccessService = mobileEditionAccessService;
@@ -164,6 +174,49 @@ public class AuthenticationController {
         .body(MobileAuthenticationResponse.bearer(token, expiresIn));
   }
 
+  /**
+   * Sliding refresh of the caller-scoped session cookie while the JWT is still valid and {@code
+   * auth_time} is inside the session cap. Viewer cookies also require at least one active {@code
+   * UserPosition}. Admin cookies skip that check. Does not mint a cookie for mobile edition.
+   */
+  @PostMapping("/refresh")
+  public ResponseEntity<?> refreshSession(
+      Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    String cookieName = resolveSessionCookieName(request);
+    if (SecurityRole.isMobileEdition()) {
+      return unauthorizedRefresh(request, response, cookieName);
+    }
+
+    Optional<Cookie> sessionCookie = namedCookie(request, cookieName);
+    if (sessionCookie.isEmpty() || !StringUtils.hasText(sessionCookie.get().getValue())) {
+      return unauthorizedRefresh(request, response, cookieName);
+    }
+
+    String previousToken = sessionCookie.get().getValue();
+    if (!jsonWebTokenService.isSessionWithinCap(previousToken, maxSessionDurationMillis)) {
+      return unauthorizedRefresh(request, response, cookieName);
+    }
+
+    boolean adminCookie = ADMIN_ACCESS_TOKEN_COOKIE_NAME.equals(cookieName);
+    if (!adminCookie && !hasAnyActivePosition(authentication.getName())) {
+      return unauthorizedRefresh(request, response, cookieName);
+    }
+
+    UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
+    Optional<User> user = userRepository.findByUsername(authentication.getName());
+    if (user.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    String token =
+        jsonWebTokenService.generateTokenCopyingAuthTime(
+            userDetails, user.get().getLastPasswordChange(), previousToken);
+    Cookie cookie = new Cookie(cookieName, token);
+    cookieService.customizeAccessTokenCookie(cookie, request.isSecure(), null);
+    response.addCookie(cookie);
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
   @PostMapping("/proxy")
   public ResponseEntity<AuthenticationResponse> authenticateProxy(Authentication authentication) {
     final String username = authentication.getName();
@@ -204,6 +257,27 @@ public class AuthenticationController {
       return ADMIN_ACCESS_TOKEN_COOKIE_NAME;
     }
     return VIEWER_ACCESS_TOKEN_COOKIE_NAME;
+  }
+
+  private boolean hasAnyActivePosition(String username) {
+    return SecurityConstants.isBuiltInPrincipal(username)
+        || userPositionRepository.hasAnyActivePosition(username);
+  }
+
+  private static Optional<Cookie> namedCookie(HttpServletRequest request, String name) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return Optional.empty();
+    }
+    return Arrays.stream(cookies).filter(cookie -> name.equals(cookie.getName())).findFirst();
+  }
+
+  private ResponseEntity<?> unauthorizedRefresh(
+      HttpServletRequest request, HttpServletResponse response, String cookieName) {
+    cookieService.clearCookieByName(cookieName, request, response);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(responseWriter.problem(request, HttpStatus.UNAUTHORIZED));
   }
 
   private ResponseEntity<?> authenticate(

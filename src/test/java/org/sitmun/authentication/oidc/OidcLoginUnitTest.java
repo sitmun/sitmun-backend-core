@@ -35,7 +35,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @DisplayName("OIDC unit tests")
 class OidcLoginUnitTest {
 
-  private static final int TOKEN_VALIDITY_MILLIS = 36_000_000;
+  private static final int COOKIE_MAX_AGE_SECONDS = 900;
 
   @Mock private OidcRedirectService redirectService;
 
@@ -52,7 +52,7 @@ class OidcLoginUnitTest {
   @BeforeEach
   void setUp() {
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", Boolean.TRUE);
-    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", TOKEN_VALIDITY_MILLIS);
+    ReflectionTestUtils.setField(cookieService, "cookieMaxAgeSeconds", COOKIE_MAX_AGE_SECONDS);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
 
     successHandler =
@@ -189,8 +189,8 @@ class OidcLoginUnitTest {
   }
 
   @Test
-  @DisplayName("OIDC cookie max-age matches JWT validity in seconds")
-  void oidcCookieMaxAgeUsesSecondsFromConfiguredTokenValidity() throws Exception {
+  @DisplayName("OIDC cookie max-age uses sitmun.user.cookie-max-age-in-seconds")
+  void oidcCookieMaxAgeUsesConfiguredCookieMaxAge() throws Exception {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     final OidcUser oidcUser = mock(OidcUser.class);
@@ -225,8 +225,8 @@ class OidcLoginUnitTest {
         .findFirst()
         .ifPresent(
             cookie -> {
-              assertThat(cookie.getMaxAge()).isEqualTo(TOKEN_VALIDITY_MILLIS / 1000);
-              assertThat(cookie.getMaxAge()).isNotEqualTo(TOKEN_VALIDITY_MILLIS);
+              assertThat(cookie.getMaxAge()).isEqualTo(COOKIE_MAX_AGE_SECONDS);
+              assertThat(cookie.getMaxAge()).isNotEqualTo(COOKIE_MAX_AGE_SECONDS * 1000);
             });
   }
 

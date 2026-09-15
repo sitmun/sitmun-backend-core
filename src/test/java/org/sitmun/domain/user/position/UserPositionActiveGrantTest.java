@@ -158,6 +158,25 @@ class UserPositionActiveGrantTest {
     assertThat(applications.getTotalElements()).isGreaterThan(0);
   }
 
+  @Test
+  @DisplayName(
+      "hasAnyActivePosition is true for a live cargo and false when every cargo is expired")
+  void hasAnyActivePositionMatchesInterval() {
+    Fixture fx = persistTwoTerritories();
+    persistPosition(fx.user, fx.live, null, atStartOfDay(1));
+    persistPosition(fx.user, fx.expired, null, atStartOfDay(-1));
+    assertThat(userPositionRepository.hasAnyActivePosition(fx.user.getUsername())).isTrue();
+
+    userPositionRepository
+        .findByUser(fx.user)
+        .forEach(
+            position -> {
+              position.setExpirationDate(atStartOfDay(-1));
+              userPositionRepository.save(position);
+            });
+    assertThat(userPositionRepository.hasAnyActivePosition(fx.user.getUsername())).isFalse();
+  }
+
   private Fixture persistTwoTerritories() {
     TerritoryType type = persistType();
     Territory live = persistTerritory(type, "live");

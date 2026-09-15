@@ -72,7 +72,9 @@ sitmun:
   language: en
   user:
     secret: ${SITMUN_USER_SECRET}
-    token-validity-in-milliseconds: 36000000
+    token-validity-in-milliseconds: 900000
+    cookie-max-age-in-seconds: 900
+    max-session-duration-milliseconds: 28800000
   mobile:
     token-validity-in-milliseconds: 3600000
   proxy-middleware:

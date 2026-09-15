@@ -483,7 +483,9 @@ Security responses use `application/problem+json` with generic details. Invalid 
 | `SPRING_DATASOURCE_PASSWORD`             | Database password | ``                                       | Yes (prod) |
 | `SITMUN_USER_SECRET`                     | JWT signing secret (min 32 chars; startup-validated) | -                            | Yes |
 | `SITMUN_BOOTSTRAP_ADMIN_PASSWORD`        | Optional plaintext used only to create a missing built-in `admin` or restore an empty admin password at startup. No default. Remove after health is UP and rotate via the admin UI. | - | Only when admin is missing/passwordless |
-| `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | JWT token validity in milliseconds | `36000000`                               | No |
+| `SITMUN_USER_TOKEN_VALIDITY_IN_MILLISECONDS` | User session JWT validity in milliseconds | `900000` (15 min)                        | No |
+| `SITMUN_USER_COOKIE_MAX_AGE_IN_SECONDS` | Max-Age for viewer/admin session cookies | `900`                                    | No |
+| `SITMUN_USER_MAX_SESSION_DURATION_MILLISECONDS` | Hard cap from `auth_time` for `/api/authenticate/refresh` | `28800000` (8 h)                         | No |
 | `SITMUN_AUTHENTICATION_HTTP_ONLY_COOKIE` | HttpOnly flag for JWT cookie | `true`                                   | No |
 | `SITMUN_AUTHENTICATION_SAME_SITE_COOKIE` | SameSite attribute for JWT cookie | `Strict`                                 | No |
 | `SITMUN_PROXY_MIDDLEWARE_SECRET`         | Proxy middleware shared secret (min 32 chars; startup-validated) | -                | Yes |
@@ -753,13 +755,15 @@ The application provides comprehensive security features:
 sitmun:
   user:
     secret: ${SITMUN_USER_SECRET}
-    token-validity-in-milliseconds: 36000000  # JWT token lifetime in milliseconds (10 hours)
+    token-validity-in-milliseconds: 900000  # user JWT lifetime (15 minutes)
+    cookie-max-age-in-seconds: 900          # cookie Max-Age; must not outlive the JWT
+    max-session-duration-milliseconds: 28800000  # auth_time cap (8 hours)
   authentication:
     http-only-cookie: true  # Whether to set HttpOnly flag on JWT cookie
     same-site-cookie: Strict  # SameSite attribute for CSRF protection
 ```
 
-JWT tokens are stored in an HTTP-only cookie (`access_token`) that is automatically set during authentication. The cookie's `max-age` is automatically derived from `token-validity-in-milliseconds` to keep both values synchronized. The `http-only-cookie` setting controls whether the cookie can be accessed by JavaScript.
+JWT tokens are stored in an HTTP-only cookie (`viewer_access_token` or `admin_access_token`) set during authentication. `POST /api/authenticate/refresh` reissues that cookie while the JWT is valid and `auth_time` is inside the session cap. The cookie's `max-age` comes from `cookie-max-age-in-seconds`, not from the JWT TTL property. The `http-only-cookie` setting controls whether the cookie can be accessed by JavaScript.
 
 #### Proxy Token Configuration
 

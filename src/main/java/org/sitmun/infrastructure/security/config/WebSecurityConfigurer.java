@@ -315,6 +315,8 @@ public class WebSecurityConfigurer {
         .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/tasks/template/export"))
         .hasAnyRole(USER.name(), ADMIN.name(), PUBLIC.name())
+        .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/refresh"))
+        .hasAnyRole(USER.name(), ADMIN.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/authenticate/proxy"))
         .hasAnyRole(USER.name(), MOBILE_EDITION.name())
         .requestMatchers(builder.matcher(HttpMethod.POST, "/api/config/client/territory/position"))
