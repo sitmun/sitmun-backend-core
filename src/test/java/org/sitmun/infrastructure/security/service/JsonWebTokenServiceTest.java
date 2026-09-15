@@ -86,6 +86,7 @@ class JsonWebTokenServiceTest {
     assertNotNull(token);
     assertFalse(token.isEmpty());
     assertEquals("testuser", jsonWebTokenService.getUsernameFromToken(token));
+    assertEquals(FIXED_NOW.toEpochMilli(), jsonWebTokenService.getAuthTimeMillis(token));
   }
 
   @Test
@@ -358,6 +359,7 @@ class JsonWebTokenServiceTest {
         .isEqualTo(
             Date.from(FIXED_NOW.plusMillis(jsonWebTokenService.getMobileTokenValidityMillis())));
     assertThat(jsonWebTokenService.validateEditionAccessToken(token, lastPasswordChange)).isTrue();
+    assertThat(jsonWebTokenService.getAuthTimeMillis(token)).isNull();
   }
 
   @Test
@@ -375,6 +377,7 @@ class JsonWebTokenServiceTest {
             jsonWebTokenService.validateMobileProxyAccessToken(
                 token, lastPasswordChange, List.of(MBTILES_ESTIMATE)))
         .isTrue();
+    assertThat(jsonWebTokenService.getAuthTimeMillis(token)).isNull();
   }
 
   @Test
@@ -395,5 +398,31 @@ class JsonWebTokenServiceTest {
     assertThat(jsonWebTokenService.validateLegacyProxyToken(token)).isTrue();
     assertThat(jsonWebTokenService.isEditionAccessToken(claims)).isFalse();
     assertThat(jsonWebTokenService.isMobileProxyAccessToken(claims)).isFalse();
+    assertThat(jsonWebTokenService.getAuthTimeMillis(token)).isNull();
+    assertThat(jsonWebTokenService.isSessionWithinCap(token, 28_800_000L)).isFalse();
+  }
+
+  @Test
+  @DisplayName("Copied auth_time does not reset on refresh")
+  void copiedAuthTimeDoesNotReset() {
+    Date authTime = Date.from(FIXED_NOW.minusSeconds(3_600));
+    String previous =
+        jsonWebTokenService.generateToken(
+            testUser.getUsername(), Date.from(FIXED_NOW), lastPasswordChange, 900_000, authTime);
+    String refreshed =
+        jsonWebTokenService.generateTokenCopyingAuthTime(testUser, lastPasswordChange, previous);
+    assertThat(jsonWebTokenService.getAuthTimeMillis(refreshed))
+        .isEqualTo(authTime.toInstant().toEpochMilli());
+    assertThat(jsonWebTokenService.isSessionWithinCap(refreshed, 28_800_000L)).isTrue();
+  }
+
+  @Test
+  @DisplayName("Session cap refuses auth_time older than the configured limit")
+  void sessionCapRejectsOldAuthTime() {
+    Date authTime = Date.from(FIXED_NOW.minusSeconds(9 * 3_600));
+    String token =
+        jsonWebTokenService.generateToken(
+            testUser.getUsername(), Date.from(FIXED_NOW), lastPasswordChange, 900_000, authTime);
+    assertThat(jsonWebTokenService.isSessionWithinCap(token, 28_800_000L)).isFalse();
   }
 }

@@ -13,6 +13,7 @@ import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.authentication.service.CookieService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.domain.user.UserRepository;
+import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.security.core.Rfc9457ResponseWriter;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
 import org.sitmun.infrastructure.web.dto.ProblemDetail;
@@ -35,6 +36,7 @@ class AuthenticationControllerFailedLoginTest {
             mock(UserDetailsService.class),
             mock(JsonWebTokenService.class),
             mock(UserRepository.class),
+            mock(UserPositionRepository.class),
             mock(CookieService.class),
             new Rfc9457ResponseWriter(new ObjectMapper()),
             mock(MobileEditionAccessService.class));

@@ -13,14 +13,14 @@ public class CookieService {
   @Value("${sitmun.authentication.http-only-cookie:true}")
   private Boolean tokenCookieHttpOnly;
 
-  @Value("${sitmun.user.token-validity-in-milliseconds:36000000}")
-  private int tokenValidityInMillis;
+  @Value("${sitmun.user.cookie-max-age-in-seconds:900}")
+  private int cookieMaxAgeSeconds;
 
   @Value("${sitmun.authentication.same-site-cookie:Strict}")
   private String sameSiteCookie;
 
   public void customizeAccessTokenCookie(Cookie cookie, boolean isSecure, Integer maxAge) {
-    addCookieConfig(cookie, isSecure, maxAge != null ? maxAge : tokenValidityInMillis / 1000);
+    addCookieConfig(cookie, isSecure, maxAge != null ? maxAge : cookieMaxAgeSeconds);
   }
 
   public void addCookieConfig(Cookie cookie, boolean isSecure, int maxAge) {

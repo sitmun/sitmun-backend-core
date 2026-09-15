@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **Auth**: Viewer and admin session JWT is 15 minutes (`sitmun.user.token-validity-in-milliseconds: 900000`). Cookie Max-Age is `sitmun.user.cookie-max-age-in-seconds` (900). `POST /api/authenticate/refresh` copies `auth_time` until `sitmun.user.max-session-duration-milliseconds` (8h). Viewer refresh requires a live `UserPosition`; admin cookie refresh does not. Edition Bearer, `/proxy`, and `/mobile` are unchanged ([#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
+
 ### Added
 
 - **Tests**: `UserPositionActiveGrantTest` covers hide/block interval, parent expansion, `public`/`admin` exemption, and `findByUser` empty when every grant is expired. `MobileEditionAccessServiceTest` covers edition login true/false from that list ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
