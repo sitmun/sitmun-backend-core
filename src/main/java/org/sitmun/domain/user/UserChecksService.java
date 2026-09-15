@@ -1,6 +1,10 @@
 package org.sitmun.domain.user;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +53,7 @@ public class UserChecksService {
       checkPasswordSet(user, warnings);
       checkPositionsForUserRole(user, warnings);
       checkRoleWithoutPosition(user, warnings);
+      checkInvertedInterval(user, warnings);
       return warnings;
     } catch (Exception e) {
       log.warn("Could not compute user warnings", e);
@@ -141,6 +146,27 @@ public class UserChecksService {
         positions.add(newPosition);
       }
     }
+  }
+
+  private void checkInvertedInterval(User user, List<String> warnings) {
+    if (skipsPositionChecks(user)) {
+      return;
+    }
+    for (UserPosition position : userPositionRepository.findByUser(user)) {
+      LocalDate alta = toLocalDate(position.getCreatedDate());
+      LocalDate baja = toLocalDate(position.getExpirationDate());
+      if (alta != null && baja != null && alta.isAfter(baja)) {
+        warnings.add("entity.user.warning.position-inverted-interval");
+        return;
+      }
+    }
+  }
+
+  private static LocalDate toLocalDate(Date date) {
+    if (date == null) {
+      return null;
+    }
+    return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
   }
 
   private boolean skipsPositionChecks(User user) {

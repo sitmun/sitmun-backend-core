@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Tests**: `UserPositionActiveGrantTest` covers hide/block interval, parent expansion, `public`/`admin` exemption, and `findByUser` empty when every grant is expired. `MobileEditionAccessServiceTest` covers edition login true/false from that list ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
 - **Templates / Export**: Secured `POST /api/tasks/template/export` accepts XML and returns PDF (`TemplateExportService`). USER/ADMIN/PUBLIC; non-admin must send `applicationId`/`territoryId` and may only use accessible document-export (type 17) and Plantilla tasks. Map Image task type 18 (`mapImage`, Liquibase `21_add_map_image_task_type`). Client profile publishes document-export tasks via `TaskDocumentExportService` ([#259](https://github.com/sitmun/sitmun-backend-core/pull/259)).
 - **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
 - **Trees** / **Images**: Tree and tree-node `image` fields accept SVG (`sitmun.ui.image.supportedFormats` includes `svg`). SVG is stored as `data:image/svg+xml;base64,...` without ImageIO raster scaling so vector icons stay sharp ([sitmun-admin-app#330](https://github.com/sitmun/sitmun-admin-app/issues/330)).
@@ -15,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
-- **Users**: Saving a `UserConfiguration` no longer auto-creates a `UserPosition` for built-in `admin` or `public`. Direct `POST /api/user-positions` is unchanged.
+- **Authorization**: Client-config lists, profile, and roles omit grants whose `UserPosition` interval does not cover today. Inclusive last civil day. Usernames `public` and `admin` are exempt. `/api/authenticate/proxy` is unchanged ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
+- **Users**: Warning `entity.user.warning.position-inverted-interval` when Alta is after Baja.
 
 - **Templates / Preview**: Known unresolved system vars (`{{#APP_NAME}}`) and unresolved task placeholders no longer inject highlight `<span>` chrome into HTML **attributes** (that broke quoting and spilled `APP_NAME">` into the document). Text nodes keep `.sitmun-template-known` / `.sitmun-template-error` spans; attributes get opaque bare text.
 

@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -343,6 +346,66 @@ class UserChecksServiceTest {
     assertEquals(2, warnings.size());
     assertTrue(warnings.contains("entity.user.warning.position-without-details"));
     assertTrue(warnings.contains("entity.user.warning.role-without-position"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When Alta is after Baja, inverted-interval warning is added")
+  void getWarningsWhenAltaAfterBajaAddsInvertedIntervalWarning() {
+    User user = mockCheckableUser("testUser", true);
+    Territory territory = mock(Territory.class);
+    UserConfiguration userConfig = mock(UserConfiguration.class);
+    when(userConfig.getTerritory()).thenReturn(territory);
+
+    UserPosition position = mock(UserPosition.class);
+    when(position.getUser()).thenReturn(user);
+    when(position.getTerritory()).thenReturn(territory);
+    when(position.getName()).thenReturn("Valid Name");
+    when(position.getOrganization()).thenReturn("Valid Org");
+    when(position.getCreatedDate()).thenReturn(atStartOfDay(1));
+    when(position.getExpirationDate()).thenReturn(atStartOfDay(-1));
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertTrue(warnings.contains("entity.user.warning.position-inverted-interval"));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DisplayName("When Alta or Baja is null, inverted-interval warning is not added")
+  void getWarningsWhenOpenIntervalNoInvertedWarning() {
+    User user = mockCheckableUser("testUser", true);
+    Territory territory = mock(Territory.class);
+    UserConfiguration userConfig = mock(UserConfiguration.class);
+    when(userConfig.getTerritory()).thenReturn(territory);
+
+    UserPosition position = mock(UserPosition.class);
+    when(position.getUser()).thenReturn(user);
+    when(position.getTerritory()).thenReturn(territory);
+    when(position.getName()).thenReturn("Valid Name");
+    when(position.getOrganization()).thenReturn("Valid Org");
+    when(position.getCreatedDate()).thenReturn(null);
+    when(position.getExpirationDate()).thenReturn(atStartOfDay(-1));
+
+    when(userConfigurationRepository.findByUser(user)).thenReturn(List.of(userConfig));
+    when(userPositionRepository.findByUser(user)).thenReturn(List.of(position));
+
+    List<String> warnings = userChecksService.getWarnings(user);
+
+    assertNotNull(warnings);
+    assertFalse(warnings.contains("entity.user.warning.position-inverted-interval"));
+  }
+
+  private static Date atStartOfDay(int dayOffset) {
+    return Date.from(
+        LocalDate.now(ZoneId.systemDefault())
+            .plusDays(dayOffset)
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant());
   }
 
   @Test
