@@ -22,10 +22,7 @@ public class TemplateExportAuthorizationService {
   private final TaskRepository taskRepository;
 
   public AuthorizedTasks authorize(
-      Integer exportTaskId,
-      Integer templateTaskId,
-      Integer applicationId,
-      Integer territoryId) {
+      Integer exportTaskId, Integer templateTaskId, Integer applicationId, Integer territoryId) {
     if (SecurityRole.isAdmin()) {
       Task exportTask = findTask(exportTaskId);
       Task templateTask = findTask(templateTaskId);

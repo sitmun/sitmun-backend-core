@@ -3,6 +3,7 @@ package org.sitmun.domain.application;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
+import org.sitmun.domain.user.position.UserPositionActiveGrant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -50,11 +51,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
   """)
   Page<Application> findByUser(String username, Pageable pageable);
 
@@ -63,11 +73,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       and app.appPrivate = false
   """)
   Page<Application> findByPublicUser(String username, Pageable pageable);
@@ -77,11 +96,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
       """)
   Page<Application> findByRestrictedUserAndTerritory(
       String username, Integer territoryId, Pageable pageable);
@@ -91,11 +119,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
     select distinct app from Application app
     where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
+      where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = false)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?2 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where uc.role member of app.availableRoles and uc.user.username = ?1 and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and ?2 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
     and app.appPrivate = false
     """)
   Page<Application> findByPublicUserAndTerritory(
@@ -106,11 +143,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
+        where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)
       """)
   Optional<Application> findByRestrictedUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId);
@@ -120,11 +166,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
     select distinct app from Application app
     where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = false)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory.id = ?3 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
     or app.id in (select distinct app.id from Application app, UserConfiguration uc
-      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1 and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+      where app.id = ?2 and uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and ?3 in (select childTerritory.id from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
     and app.appPrivate = false
     """)
   Optional<Application> findByPublicUserApplicationAndTerritory(
@@ -135,11 +190,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       and (lower(coalesce(app.title, app.name)) like lower(concat('%', ?2, '%'))
         or lower(coalesce(app.description, '')) like lower(concat('%', ?2, '%'))
         or lower(app.name) like lower(concat('%', ?2, '%')))
@@ -151,11 +215,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
       """
       select distinct app from Application app
       where (app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = false)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = false)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
       or app.id in (select distinct app.id from Application app, UserConfiguration uc
-        where uc.role member of app.availableRoles and uc.user.username = ?1 and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+        where uc.role member of app.availableRoles and uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         and uc.territory in (select childTerritory from Territory childTerritory where childTerritory member of uc.territory.members) and uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       and app.appPrivate = false
       and (lower(coalesce(app.title, app.name)) like lower(concat('%', ?2, '%'))
         or lower(coalesce(app.description, '')) like lower(concat('%', ?2, '%'))

@@ -8,8 +8,7 @@ import lombok.Data;
 
 @Data
 public class MapImageRenderRequestDto {
-  @NotNull
-  private Integer taskId;
+  @NotNull private Integer taskId;
 
   @NotNull
   @Size(min = 4, max = 4)

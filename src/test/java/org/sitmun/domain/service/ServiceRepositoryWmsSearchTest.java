@@ -15,10 +15,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @AutoConfigureTestDatabase
-@TestPropertySource(properties = {
-    "spring.liquibase.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
+@TestPropertySource(
+    properties = {"spring.liquibase.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
 @DisplayName("Service Repository WMS search test")
 class ServiceRepositoryWmsSearchTest {
 
@@ -27,13 +25,34 @@ class ServiceRepositoryWmsSearchTest {
   @Test
   @DisplayName("findWms returns only WMS services")
   void findWmsReturnsOnlyWmsServices() {
-    serviceRepository.save(Service.builder().name("WMS Mountains").type("WMS").serviceURL("https://example.com/wms").blocked(false).build());
-    serviceRepository.save(Service.builder().name("WMTS Hills").type("WMTS").serviceURL("https://example.com/wmts").blocked(false).build());
-    serviceRepository.save(Service.builder().name("WFS Rivers").type("WFS").serviceURL("https://example.com/wfs").blocked(false).build());
+    serviceRepository.save(
+        Service.builder()
+            .name("WMS Mountains")
+            .type("WMS")
+            .serviceURL("https://example.com/wms")
+            .blocked(false)
+            .build());
+    serviceRepository.save(
+        Service.builder()
+            .name("WMTS Hills")
+            .type("WMTS")
+            .serviceURL("https://example.com/wmts")
+            .blocked(false)
+            .build());
+    serviceRepository.save(
+        Service.builder()
+            .name("WFS Rivers")
+            .type("WFS")
+            .serviceURL("https://example.com/wfs")
+            .blocked(false)
+            .build());
 
     List<Service> services = serviceRepository.findWms();
 
-    assertThat(services).extracting(Service::getName).contains("WMS Mountains").doesNotContain("WMTS Hills", "WFS Rivers");
+    assertThat(services)
+        .extracting(Service::getName)
+        .contains("WMS Mountains")
+        .doesNotContain("WMTS Hills", "WFS Rivers");
     assertThat(services).extracting(Service::getType).containsOnly("WMS");
   }
 

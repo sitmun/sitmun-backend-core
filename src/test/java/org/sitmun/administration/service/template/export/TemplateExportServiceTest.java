@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayInputStream;
-import java.net.InetAddress;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +49,7 @@ class TemplateExportServiceTest {
   @DisplayName("exportHtml normalizes output before dispatch")
   void exportHtmlNormalizesOutputBeforeDispatch() {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(101, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    Task task = buildTask(101, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
 
     byte[] content = service.exportHtml("<html><body>PDF</body></html>", " PDF ", task);
 
@@ -88,8 +87,7 @@ class TemplateExportServiceTest {
     assertThat(css)
         .contains("@bottom-center { content: element(sitmunPdfFooter); vertical-align: bottom; }");
     assertThat(css)
-        .contains(
-            ".sitmun-pdf-running-footer .sitmun-pdf-page-number { margin: 0; font-size: 0; }")
+        .contains(".sitmun-pdf-running-footer .sitmun-pdf-page-number { margin: 0; font-size: 0; }")
         .contains(
             ".sitmun-pdf-running-footer .sitmun-pdf-page-number::before { content: counter(page); font-size: 10pt; }");
     assertThat(css)
@@ -159,8 +157,7 @@ class TemplateExportServiceTest {
             new TemplateExportService.PdfPageConfig("A4", "portrait"),
             new PdfDocumentPreparer.PdfRegionDimensions(20, 10));
 
-    assertThat(document.selectFirst(".sitmun-pdf-running-header").text())
-        .isEqualTo("Root header");
+    assertThat(document.selectFirst(".sitmun-pdf-running-header").text()).isEqualTo("Root header");
     assertThat(document.selectFirst(".sitmun-pdf-running-footer").text())
         .isEqualTo("Nested footer");
   }
@@ -190,8 +187,9 @@ class TemplateExportServiceTest {
             new TemplateExportService.PdfPageConfig("A4", "portrait"));
 
     assertThat(measurement.document().body().className()).isEqualTo("report");
-    assertThat(measurement.document().head().select("style").stream()
-            .anyMatch(style -> style.data().contains("font-size: 30px")))
+    assertThat(
+            measurement.document().head().select("style").stream()
+                .anyMatch(style -> style.data().contains("font-size: 30px")))
         .isTrue();
   }
 
@@ -205,8 +203,7 @@ class TemplateExportServiceTest {
                 + "</td></tr></tbody></table>",
             new TemplateExportService.PdfPageConfig("A3", "portrait"));
 
-    Element measurementBox =
-        measurement.document().selectFirst("[data-sitmun-pdf-measure=header]");
+    Element measurementBox = measurement.document().selectFirst("[data-sitmun-pdf-measure=header]");
     Element runningWrapper = measurement.document().selectFirst(".sitmun-pdf-running-header");
     String css = measurement.document().selectFirst("style[data-sitmun-pdf-layout]").data();
 
@@ -383,18 +380,15 @@ class TemplateExportServiceTest {
             .headerHeightMm();
     double a4Portrait =
         service
-            .measurePdfRegions(
-                html, new TemplateExportService.PdfPageConfig("A4", "portrait"))
+            .measurePdfRegions(html, new TemplateExportService.PdfPageConfig("A4", "portrait"))
             .headerHeightMm();
     double a3Portrait =
         service
-            .measurePdfRegions(
-                html, new TemplateExportService.PdfPageConfig("A3", "portrait"))
+            .measurePdfRegions(html, new TemplateExportService.PdfPageConfig("A3", "portrait"))
             .headerHeightMm();
     double a3Landscape =
         service
-            .measurePdfRegions(
-                html, new TemplateExportService.PdfPageConfig("A3", "landscape"))
+            .measurePdfRegions(html, new TemplateExportService.PdfPageConfig("A3", "landscape"))
             .headerHeightMm();
 
     assertThat(a4Portrait).isBetween(baseline - 0.1, baseline + 0.1);
@@ -421,8 +415,7 @@ class TemplateExportServiceTest {
                 baselineHtml, new TemplateExportService.PdfPageConfig("A3", "landscape"))
             .footerHeightMm();
     PdfDocumentPreparer.PdfRegionDimensions dimensions =
-        service.measurePdfRegions(
-            html, new TemplateExportService.PdfPageConfig("A3", "landscape"));
+        service.measurePdfRegions(html, new TemplateExportService.PdfPageConfig("A3", "landscape"));
 
     assertThat(dimensions.footerHeightMm()).isBetween(baseline - 0.1, baseline + 0.1);
   }
@@ -437,8 +430,7 @@ class TemplateExportServiceTest {
             + "</div>";
 
     PdfDocumentPreparer.PdfRegionDimensions dimensions =
-        service.measurePdfRegions(
-            html, new TemplateExportService.PdfPageConfig("A3", "portrait"));
+        service.measurePdfRegions(html, new TemplateExportService.PdfPageConfig("A3", "portrait"));
 
     assertThat(dimensions.headerHeightMm()).isBetween(54.9, 55.1);
   }
@@ -491,8 +483,7 @@ class TemplateExportServiceTest {
       "exportHtml allows pdf task without configured download source when runtime HTML exists")
   void exportHtmlAllowsPdfTaskWithoutConfiguredDownloadSourceWhenRuntimeHtmlExists() {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(402, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    Task task = buildTask(402, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
 
     byte[] content = service.exportHtml("<html><body>pdf</body></html>", "pdf", task);
 
@@ -503,8 +494,7 @@ class TemplateExportServiceTest {
   @DisplayName("exportHtml repeats PDF header and footer on every page")
   void exportHtmlRepeatsHeaderAndFooterOnEveryPage() throws Exception {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(402, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    Task task = buildTask(402, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
     byte[] content =
         service.exportHtml(
             "<p class=\"sitmun-pdf-header\">Repeated header</p>"
@@ -531,8 +521,7 @@ class TemplateExportServiceTest {
   @DisplayName("exportHtml rejects XML output")
   void exportHtmlRejectsXmlOutput() {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(401, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    Task task = buildTask(401, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
 
     assertThatThrownBy(() -> service.exportHtml("<xml/>", "xml", task))
         .isInstanceOf(ResponseStatusException.class)
@@ -586,10 +575,8 @@ class TemplateExportServiceTest {
   @DisplayName("exportHtml rejects documents above the DOM complexity limit")
   void exportHtmlRejectsExcessiveDomComplexity() {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(406, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
-    String html =
-        "<i></i>".repeat(DomainConstants.Tasks.MAX_TEMPLATE_EXPORT_DOM_ELEMENTS + 1);
+    Task task = buildTask(406, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    String html = "<i></i>".repeat(DomainConstants.Tasks.MAX_TEMPLATE_EXPORT_DOM_ELEMENTS + 1);
 
     assertThatThrownBy(() -> service.exportHtml(html, "pdf", task))
         .isInstanceOf(ResponseStatusException.class)
@@ -635,9 +622,7 @@ class TemplateExportServiceTest {
     PdfExternalResourceLoader mixedService =
         serviceWith(
             host ->
-                List.of(
-                    InetAddress.getByName("93.184.216.34"),
-                    InetAddress.getByName("10.0.0.1")),
+                List.of(InetAddress.getByName("93.184.216.34"), InetAddress.getByName("10.0.0.1")),
             request -> {
               requests.incrementAndGet();
               return successResponse(request, "blocked");
@@ -712,15 +697,19 @@ class TemplateExportServiceTest {
         .isFalse();
     assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("192.0.2.1")))
         .isFalse();
-    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("2001:4860:4860::8888")))
+    assertThat(
+            PdfExternalResourceLoader.isPubliclyRoutable(
+                InetAddress.getByName("2001:4860:4860::8888")))
         .isTrue();
     assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("fc00::1")))
         .isFalse();
     assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("2001:db8::1")))
         .isFalse();
-    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b::a00:1")))
+    assertThat(
+            PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b::a00:1")))
         .isFalse();
-    assertThat(PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b:1::a00:1")))
+    assertThat(
+            PdfExternalResourceLoader.isPubliclyRoutable(InetAddress.getByName("64:ff9b:1::a00:1")))
         .isFalse();
 
     byte[] mapped = new byte[16];
@@ -738,8 +727,7 @@ class TemplateExportServiceTest {
   @DisplayName("exportHtml rejects PDFs above the page limit")
   void exportHtmlRejectsPdfAbovePageLimit() {
     TemplateExportService service = newService();
-    Task task =
-        buildTask(405, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
+    Task task = buildTask(405, Map.of(DomainConstants.Tasks.PROPERTY_DOWNLOAD_FORMAT, "pdf"));
     String page = "<p style=\"page-break-before: always\">Page</p>";
     String html = page.repeat(DomainConstants.Tasks.MAX_TEMPLATE_EXPORT_PDF_PAGES + 1);
 

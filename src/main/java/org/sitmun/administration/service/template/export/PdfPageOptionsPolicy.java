@@ -19,8 +19,12 @@ final class PdfPageOptionsPolicy {
     }
     Map<String, Object> properties = exportTask.getProperties();
     return new PdfPageConfig(
-        normalizePageSize(properties == null ? null : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_SIZE)),
-        normalizeOrientation(properties == null ? null : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION)));
+        normalizePageSize(
+            properties == null ? null : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_SIZE)),
+        normalizeOrientation(
+            properties == null
+                ? null
+                : properties.get(DomainConstants.Tasks.PROPERTY_PAGE_ORIENTATION)));
   }
 
   static PdfPageConfig defaults() {

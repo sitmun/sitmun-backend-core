@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -136,9 +135,7 @@ public class TemplateExportService {
 
   PdfDocumentPreparer.PdfRegionDimensions measurePdfRegions(String html, PdfPageConfig pageConfig) {
     return measurePdfRegions(
-        Jsoup.parse(html == null ? "" : html),
-        pageConfig,
-        externalResourceLoader.newSession());
+        Jsoup.parse(html == null ? "" : html), pageConfig, externalResourceLoader.newSession());
   }
 
   private static void validateOutput(String output) {
@@ -232,7 +229,8 @@ public class TemplateExportService {
     org.w3c.dom.Document w3cDoc = new W3CDom().fromJsoup(jsoupDoc);
     PdfRendererBuilder builder = new PdfRendererBuilder();
     builder.useFastMode();
-    builder.useHttpStreamImplementation(uri -> new ByteArrayResourceStream(resourceLoader.fetch(uri)));
+    builder.useHttpStreamImplementation(
+        uri -> new ByteArrayResourceStream(resourceLoader.fetch(uri)));
     builder.useExternalResourceAccessControl(
         (uri, resourceType) -> externalResourceLoader.isAllowed(uri),
         ExternalResourceControlPriority.RUN_AFTER_RESOLVING_URI);

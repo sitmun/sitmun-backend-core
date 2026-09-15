@@ -30,15 +30,12 @@ final class PdfDocumentPreparer {
 
   private PdfDocumentPreparer() {}
 
-  static Document prepare(
-      String html, PdfPageConfig pageConfig, PdfRegionDimensions dimensions) {
+  static Document prepare(String html, PdfPageConfig pageConfig, PdfRegionDimensions dimensions) {
     return prepare(Jsoup.parse(html == null ? "" : html), pageConfig, dimensions);
   }
 
   static Document prepare(
-      Document document,
-      PdfPageConfig pageConfig,
-      PdfRegionDimensions dimensions) {
+      Document document, PdfPageConfig pageConfig, PdfRegionDimensions dimensions) {
     PdfPageConfig effectivePageConfig = effectivePageConfig(pageConfig);
     PdfRegionDimensions effectiveDimensions =
         dimensions == null ? new PdfRegionDimensions(0, 0) : dimensions;
@@ -48,13 +45,11 @@ final class PdfDocumentPreparer {
     return document;
   }
 
-  static MeasurementDocument prepareForMeasurement(
-      String html, PdfPageConfig pageConfig) {
+  static MeasurementDocument prepareForMeasurement(String html, PdfPageConfig pageConfig) {
     return prepareForMeasurement(Jsoup.parse(html == null ? "" : html), pageConfig);
   }
 
-  static MeasurementDocument prepareForMeasurement(
-      Document document, PdfPageConfig pageConfig) {
+  static MeasurementDocument prepareForMeasurement(Document document, PdfPageConfig pageConfig) {
     RunningRegions regions = extractRunningRegions(document);
     document.body().select("style, link[rel=stylesheet]").stream()
         .map(Element::clone)
@@ -78,8 +73,8 @@ final class PdfDocumentPreparer {
 
   private static PdfPageConfig effectivePageConfig(PdfPageConfig pageConfig) {
     return pageConfig == null
-        ? new PdfPageConfig(PdfPageOptionsPolicy.DEFAULT_PAGE_SIZE,
-            PdfPageOptionsPolicy.DEFAULT_ORIENTATION)
+        ? new PdfPageConfig(
+            PdfPageOptionsPolicy.DEFAULT_PAGE_SIZE, PdfPageOptionsPolicy.DEFAULT_ORIENTATION)
         : pageConfig;
   }
 
@@ -197,10 +192,13 @@ final class PdfDocumentPreparer {
       return null;
     }
 
-    List<Element> rootCandidates = candidates.stream()
-        .filter(candidate -> PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE.equals(
-            candidate.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE)))
-        .toList();
+    List<Element> rootCandidates =
+        candidates.stream()
+            .filter(
+                candidate ->
+                    PdfRegionHtmlContract.ROOT_TEMPLATE_SCOPE.equals(
+                        candidate.attr(PdfRegionHtmlContract.TEMPLATE_SCOPE_ATTRIBUTE)))
+            .toList();
     if (rootCandidates.size() > 1) {
       throw duplicateRegionException(regionName);
     }
@@ -241,8 +239,7 @@ final class PdfDocumentPreparer {
         .appendChild(new DataNode(css));
   }
 
-  private static String buildMeasurementCss(
-      PdfPageConfig pageConfig, RunningRegions regions) {
+  private static String buildMeasurementCss(PdfPageConfig pageConfig, RunningRegions regions) {
     return "@page { size: %s %s; margin: 0; }%n"
             .formatted(pageConfig.pageSize(), pageConfig.pageOrientation())
         + "html, body { margin: 0 !important; padding: 0 !important; }\n"
@@ -251,9 +248,7 @@ final class PdfDocumentPreparer {
   }
 
   private static String buildFinalCss(
-      PdfPageConfig pageConfig,
-      PdfRegionDimensions dimensions,
-      RunningRegions regions) {
+      PdfPageConfig pageConfig, PdfRegionDimensions dimensions, RunningRegions regions) {
     if (regions.header() == null && regions.footer() == null) {
       return "@page { size: %s %s; margin: 0; }%n"
               .formatted(pageConfig.pageSize(), pageConfig.pageOrientation())

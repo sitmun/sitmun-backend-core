@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ class MapImageTaskExecutionServiceTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final SystemVariableResolver systemVariableResolver =
-      new SystemVariableResolver(new SystemVariableProperties());
+      new SystemVariableResolver(new SystemVariableProperties(), Clock.systemUTC());
 
   @Test
   @DisplayName("renderMapImage composes WMS images in configured order")
@@ -60,7 +61,8 @@ class MapImageTaskExecutionServiceTest {
 
     when(taskRepository.findById(33)).thenReturn(Optional.of(task));
     when(serviceRepository.findById(5)).thenReturn(Optional.of(wmsService));
-    when(serviceRepository.findById(6)).thenReturn(Optional.of(buildWmsService(6, "https://maps.example.com/wms2")));
+    when(serviceRepository.findById(6))
+        .thenReturn(Optional.of(buildWmsService(6, "https://maps.example.com/wms2")));
     when(httpClientFactory.executeRequest(org.mockito.ArgumentMatchers.any(Request.class)))
         .thenReturn(successResponse(png(Color.RED)))
         .thenReturn(successResponse(png(new Color(0, 0, 255, 128))));
@@ -98,7 +100,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getStatusCode())
+                    .isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @Test
@@ -112,8 +117,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
-            .isEqualTo(HttpStatus.NOT_FOUND));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getStatusCode())
+                    .isEqualTo(HttpStatus.NOT_FOUND));
   }
 
   @Test
@@ -129,8 +136,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("Task is not a map image task"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("Task is not a map image task"));
   }
 
   @Test
@@ -146,8 +155,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("Task has no map sources configured"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("Task has no map sources configured"));
   }
 
   @Test
@@ -163,8 +174,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("Only png output is supported for map image tasks"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("Only png output is supported for map image tasks"));
   }
 
   @Test
@@ -178,8 +191,11 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("bbox must contain exactly four finite values ordered as minX, minY, maxX, maxY"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo(
+                        "bbox must contain exactly four finite values ordered as minX, minY, maxX, maxY"));
   }
 
   @Test
@@ -188,14 +204,15 @@ class MapImageTaskExecutionServiceTest {
     MapImageTaskExecutionService service = buildService();
     when(taskRepository.findById(33)).thenReturn(Optional.of(buildMapImageTask()));
 
-    List<List<Double>> invalidBboxes = List.of(
-        List.of(1d, 2d, 3d),
-        List.of(1d, 2d, 3d, 4d, 5d),
-        Arrays.asList(1d, null, 3d, 4d),
-        List.of(1d, 2d, Double.NaN, 4d),
-        List.of(1d, 2d, Double.POSITIVE_INFINITY, 4d),
-        List.of(3d, 2d, 1d, 4d),
-        List.of(1d, 4d, 3d, 2d));
+    List<List<Double>> invalidBboxes =
+        List.of(
+            List.of(1d, 2d, 3d),
+            List.of(1d, 2d, 3d, 4d, 5d),
+            Arrays.asList(1d, null, 3d, 4d),
+            List.of(1d, 2d, Double.NaN, 4d),
+            List.of(1d, 2d, Double.POSITIVE_INFINITY, 4d),
+            List.of(3d, 2d, 1d, 4d),
+            List.of(1d, 4d, 3d, 2d));
 
     for (List<Double> bbox : invalidBboxes) {
       MapImageRenderRequestDto request = new MapImageRenderRequestDto();
@@ -204,8 +221,10 @@ class MapImageTaskExecutionServiceTest {
 
       assertThatThrownBy(() -> service.renderMapImage(request))
           .isInstanceOf(ResponseStatusException.class)
-          .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
-              .isEqualTo(HttpStatus.BAD_REQUEST));
+          .satisfies(
+              exception ->
+                  assertThat(((ResponseStatusException) exception).getStatusCode())
+                      .isEqualTo(HttpStatus.BAD_REQUEST));
     }
   }
 
@@ -225,11 +244,12 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> {
-          ResponseStatusException response = (ResponseStatusException) exception;
-          assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-          assertThat(response.getReason()).isEqualTo("Service 5 is blocked");
-        });
+        .satisfies(
+            exception -> {
+              ResponseStatusException response = (ResponseStatusException) exception;
+              assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+              assertThat(response.getReason()).isEqualTo("Service 5 is blocked");
+            });
     verifyNoInteractions(renderer);
   }
 
@@ -238,7 +258,10 @@ class MapImageTaskExecutionServiceTest {
   void renderMapImageRejectsOverlaySourceWithoutServiceId() {
     MapImageTaskExecutionService service = buildService();
     Task task = buildMapImageTask();
-    task.setProperties(Map.of(DomainConstants.Tasks.PROPERTY_MAP_SOURCES, List.of(Map.of("layerNames", List.of("layer_a")))));
+    task.setProperties(
+        Map.of(
+            DomainConstants.Tasks.PROPERTY_MAP_SOURCES,
+            List.of(Map.of("layerNames", List.of("layer_a")))));
     when(taskRepository.findById(33)).thenReturn(Optional.of(task));
 
     MapImageRenderRequestDto request = new MapImageRenderRequestDto();
@@ -247,8 +270,10 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("Map source lacks serviceId"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("Map source lacks serviceId"));
   }
 
   @Test
@@ -264,21 +289,21 @@ class MapImageTaskExecutionServiceTest {
 
     assertThatThrownBy(() -> service.renderMapImage(request))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
-            .isEqualTo(HttpStatus.NOT_FOUND));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getStatusCode())
+                    .isEqualTo(HttpStatus.NOT_FOUND));
   }
 
   private MapImageTaskExecutionService buildService() {
-    MapImageWmsRenderer wmsRenderer = new MapImageWmsRenderer(httpClientFactory, systemVariableResolver);
+    MapImageWmsRenderer wmsRenderer =
+        new MapImageWmsRenderer(httpClientFactory, systemVariableResolver);
     return buildService(wmsRenderer);
   }
 
   private MapImageTaskExecutionService buildService(MapImageWmsRenderer wmsRenderer) {
     return new MapImageTaskExecutionService(
-        taskRepository,
-        serviceRepository,
-        wmsRenderer,
-        objectMapper);
+        taskRepository, serviceRepository, wmsRenderer, objectMapper);
   }
 
   private static Task buildMapImageTask() {

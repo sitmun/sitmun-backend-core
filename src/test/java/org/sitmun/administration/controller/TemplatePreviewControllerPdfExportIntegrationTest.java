@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.controller.dto.MoreInfoAdvancedRenderResponseDto;
 import org.sitmun.administration.service.template.TemplateExecutionService;
@@ -67,16 +67,20 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
         </templateExportRequest>
         """;
 
-    when(templateExportService.exportHtml(eq("\n    <html>\n      <body>\n        <h1>Informe</h1>\n        <p>Contingut renderitzat</p>\n      </body>\n    </html>\n  "), eq("pdf"), any()))
+    when(templateExportService.exportHtml(
+            eq(
+                "\n    <html>\n      <body>\n        <h1>Informe</h1>\n        <p>Contingut renderitzat</p>\n      </body>\n    </html>\n  "),
+            eq("pdf"),
+            any()))
         .thenReturn("ok".getBytes());
     when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
         .thenReturn("report.pdf");
 
     mvc.perform(
-        post("/api/tasks/template/export")
-          .with(SecurityMockMvcRequestPostProcessors.csrf())
-          .contentType(APPLICATION_XML)
-          .content(xml))
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
         .andExpect(status().isOk())
         .andExpect(header().string("Content-Disposition", "attachment; filename=\"report.pdf\""))
         .andExpect(content().bytes("ok".getBytes()));
@@ -98,18 +102,21 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
         </templateExportRequest>
         """;
 
-    when(templateExportService.exportHtml(eq("\n    <html><body><h1>Informe</h1></body></html>\n  "), eq("pdf"), any()))
+    when(templateExportService.exportHtml(
+            eq("\n    <html><body><h1>Informe</h1></body></html>\n  "), eq("pdf"), any()))
         .thenReturn("ok".getBytes());
     when(templateExportService.resolveExportFilename(any(), any(), eq("pdf")))
         .thenReturn("Plantilla territori.pdf");
 
     mvc.perform(
-        post("/api/tasks/template/export")
-          .with(SecurityMockMvcRequestPostProcessors.csrf())
-          .contentType(APPLICATION_XML)
-          .content(xml))
+            post("/api/tasks/template/export")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(APPLICATION_XML)
+                .content(xml))
         .andExpect(status().isOk())
-        .andExpect(header().string("Content-Disposition", "attachment; filename=\"Plantilla territori.pdf\""))
+        .andExpect(
+            header()
+                .string("Content-Disposition", "attachment; filename=\"Plantilla territori.pdf\""))
         .andExpect(content().bytes("ok".getBytes()));
   }
 
@@ -135,7 +142,8 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
   @DisplayName("POST /api/tasks/template/export returns pdf media type for pdf output")
   @WithMockUser(roles = "ADMIN")
   void exportReturnsPdfMediaTypeForPdfOutput() throws Exception {
-    String xml = "<templateExportRequest><output>pdf</output><template><![CDATA[<html><body>ok</body></html>]]></template></templateExportRequest>";
+    String xml =
+        "<templateExportRequest><output>pdf</output><template><![CDATA[<html><body>ok</body></html>]]></template></templateExportRequest>";
 
     when(templateExportService.exportHtml(eq("<html><body>ok</body></html>"), eq("pdf"), any()))
         .thenReturn("ok".getBytes());
@@ -220,7 +228,8 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
   @DisplayName("POST /api/tasks/template/export rejects missing output")
   @WithMockUser(roles = "ADMIN")
   void exportRejectsMissingOutput() throws Exception {
-    String xml = "<templateExportRequest><template><![CDATA[<html/>]]></template></templateExportRequest>";
+    String xml =
+        "<templateExportRequest><template><![CDATA[<html/>]]></template></templateExportRequest>";
 
     mvc.perform(
             post("/api/tasks/template/export")
@@ -251,7 +260,8 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
   @Test
   @DisplayName("POST /api/tasks/template/export requires task and profile context for public")
   void exportRequiresTaskAndProfileContextForPublic() throws Exception {
-    String xml = "<templateExportRequest><output>pdf</output><template><![CDATA[<html/>]]></template></templateExportRequest>";
+    String xml =
+        "<templateExportRequest><output>pdf</output><template><![CDATA[<html/>]]></template></templateExportRequest>";
     when(templateExportAuthorizationService.authorize(null, null, null, null))
         .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
 

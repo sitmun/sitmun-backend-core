@@ -36,7 +36,8 @@ class MapImageWmsRenderer {
 
   BufferedImage render(Service service, List<String> layerNames, MapImageRenderContext context) {
     if (!DomainConstants.Services.TYPE_WMS.equalsIgnoreCase(service.getType())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Service " + service.getId() + " is not WMS");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Service " + service.getId() + " is not WMS");
     }
     if (layerNames == null
         || layerNames.isEmpty()
@@ -47,12 +48,14 @@ class MapImageWmsRenderer {
     String requestUrl = buildGetMapUrl(service, layerNames, context);
     Request.Builder requestBuilder = new Request.Builder().url(requestUrl).get();
     if (StringUtils.hasText(service.getUser()) && Boolean.TRUE.equals(service.getPasswordSet())) {
-      requestBuilder.header("Authorization", Credentials.basic(service.getUser(), service.getPassword()));
+      requestBuilder.header(
+          "Authorization", Credentials.basic(service.getUser(), service.getPassword()));
     }
 
     try (Response response = httpClientFactory.executeRequest(requestBuilder.build())) {
       if (!response.isSuccessful()) {
-        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WMS request failed with HTTP " + response.code());
+        throw new ResponseStatusException(
+            HttpStatus.BAD_GATEWAY, "WMS request failed with HTTP " + response.code());
       }
 
       okhttp3.ResponseBody body = response.body();
@@ -69,7 +72,8 @@ class MapImageWmsRenderer {
       }
       BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
       if (image == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WMS response is not a valid image");
+        throw new ResponseStatusException(
+            HttpStatus.BAD_GATEWAY, "WMS response is not a valid image");
       }
       return image;
     } catch (IOException e) {
@@ -78,7 +82,8 @@ class MapImageWmsRenderer {
     }
   }
 
-  private String buildGetMapUrl(Service service, List<String> layerNames, MapImageRenderContext context) {
+  private String buildGetMapUrl(
+      Service service, List<String> layerNames, MapImageRenderContext context) {
     String baseUrl = systemVariableResolver.resolve(service.getServiceURL(), null);
     HttpUrl parsedUrl = HttpUrl.parse(baseUrl);
     if (parsedUrl == null) {
@@ -89,14 +94,20 @@ class MapImageWmsRenderer {
         .addQueryParameter("SERVICE", "WMS")
         .addQueryParameter("VERSION", WMS_VERSION)
         .addQueryParameter("REQUEST", "GetMap")
-        .addQueryParameter("LAYERS", layerNames.stream().map(String::trim).filter(StringUtils::hasText).collect(Collectors.joining(",")))
+        .addQueryParameter(
+            "LAYERS",
+            layerNames.stream()
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(",")))
         .addQueryParameter("STYLES", "")
         .addQueryParameter("FORMAT", "image/png")
         .addQueryParameter("TRANSPARENT", "true")
         .addQueryParameter("WIDTH", String.valueOf(context.width()))
         .addQueryParameter("HEIGHT", String.valueOf(context.height()))
         .addQueryParameter("SRS", context.srs())
-        .addQueryParameter("BBOX", context.bbox().stream().map(String::valueOf).collect(Collectors.joining(",")))
+        .addQueryParameter(
+            "BBOX", context.bbox().stream().map(String::valueOf).collect(Collectors.joining(",")))
         .build()
         .toString();
   }

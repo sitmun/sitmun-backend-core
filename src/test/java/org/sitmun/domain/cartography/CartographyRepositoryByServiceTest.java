@@ -17,10 +17,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @AutoConfigureTestDatabase
-@TestPropertySource(properties = {
-    "spring.liquibase.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
+@TestPropertySource(
+    properties = {"spring.liquibase.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
 @DisplayName("Cartography Repository by-service test")
 class CartographyRepositoryByServiceTest {
 
@@ -37,7 +35,10 @@ class CartographyRepositoryByServiceTest {
 
     List<Cartography> cartographies = cartographyRepository.findByService(firstService.getId());
 
-    assertThat(cartographies).extracting(Cartography::getName).contains(first.getName()).doesNotContain("Layer B");
+    assertThat(cartographies)
+        .extracting(Cartography::getName)
+        .contains(first.getName())
+        .doesNotContain("Layer B");
   }
 
   @Test
@@ -49,7 +50,13 @@ class CartographyRepositoryByServiceTest {
   }
 
   private Service saveService(String name) {
-    return serviceRepository.save(Service.builder().name(name).type("WMS").serviceURL("https://example.com/" + name.replace(" ", "-")).blocked(false).build());
+    return serviceRepository.save(
+        Service.builder()
+            .name(name)
+            .type("WMS")
+            .serviceURL("https://example.com/" + name.replace(" ", "-"))
+            .blocked(false)
+            .build());
   }
 
   private Cartography saveCartography(String name, Service service) {

@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.List;
 import javax.imageio.ImageIO;
 import okhttp3.Protocol;
@@ -37,7 +38,7 @@ class MapImageWmsRendererTest {
   @Mock private HttpClientFactory httpClientFactory;
 
   private final SystemVariableResolver systemVariableResolver =
-      new SystemVariableResolver(new SystemVariableProperties());
+      new SystemVariableResolver(new SystemVariableProperties(), Clock.systemUTC());
 
   @Test
   @DisplayName("render rejects invalid service URL")
@@ -47,11 +48,12 @@ class MapImageWmsRendererTest {
 
     assertThatThrownBy(() -> renderer.render(service, List.of("layer_a"), context()))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> {
-          ResponseStatusException response = (ResponseStatusException) exception;
-          assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-          assertThat(response.getReason()).isEqualTo("Invalid service URL: not-a-url");
-        });
+        .satisfies(
+            exception -> {
+              ResponseStatusException response = (ResponseStatusException) exception;
+              assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assertThat(response.getReason()).isEqualTo("Invalid service URL: not-a-url");
+            });
   }
 
   @Test
@@ -59,12 +61,15 @@ class MapImageWmsRendererTest {
   void renderRejectsUpstreamNonSuccessStatus() throws Exception {
     MapImageWmsRenderer renderer = buildRenderer();
     Service service = buildService(1, "https://maps.example.com/wms");
-    when(httpClientFactory.executeRequest(any(Request.class))).thenReturn(response(502, null, "text/plain"));
+    when(httpClientFactory.executeRequest(any(Request.class)))
+        .thenReturn(response(502, null, "text/plain"));
 
     assertThatThrownBy(() -> renderer.render(service, List.of("layer_a"), context()))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("WMS request failed with HTTP 502"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("WMS request failed with HTTP 502"));
   }
 
   @Test
@@ -77,8 +82,10 @@ class MapImageWmsRendererTest {
 
     assertThatThrownBy(() -> renderer.render(service, List.of("layer_a"), context()))
         .isInstanceOf(ResponseStatusException.class)
-        .satisfies(exception -> assertThat(((ResponseStatusException) exception).getReason())
-            .isEqualTo("WMS response is not a valid image"));
+        .satisfies(
+            exception ->
+                assertThat(((ResponseStatusException) exception).getReason())
+                    .isEqualTo("WMS response is not a valid image"));
   }
 
   @Test
@@ -88,7 +95,8 @@ class MapImageWmsRendererTest {
     Service service = buildService(1, "https://maps.example.com/wms");
     service.setUser("demo");
     service.setPassword("secret");
-    when(httpClientFactory.executeRequest(any(Request.class))).thenReturn(response(200, png(Color.RED), "image/png"));
+    when(httpClientFactory.executeRequest(any(Request.class)))
+        .thenReturn(response(200, png(Color.RED), "image/png"));
 
     renderer.render(service, List.of("layer_a"), context());
 
@@ -119,7 +127,9 @@ class MapImageWmsRendererTest {
         .protocol(Protocol.HTTP_1_1)
         .code(code)
         .message(code == 200 ? "OK" : "Error")
-        .body(ResponseBody.create(okhttp3.MediaType.parse(mediaType), body == null ? new byte[0] : body))
+        .body(
+            ResponseBody.create(
+                okhttp3.MediaType.parse(mediaType), body == null ? new byte[0] : body))
         .build();
   }
 

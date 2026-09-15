@@ -39,8 +39,7 @@ class TemplateExportAuthorizationServiceTest {
     when(authorizationService.findTasksByUserApplicationAndTerritory("user", 7, 11))
         .thenReturn(List.of(exportTask, templateTask));
 
-    TemplateExportAuthorizationService.AuthorizedTasks result =
-        service.authorize(17, 15, 7, 11);
+    TemplateExportAuthorizationService.AuthorizedTasks result = service.authorize(17, 15, 7, 11);
 
     assertThat(result.exportTask()).isSameAs(exportTask);
     assertThat(result.templateTask()).isSameAs(templateTask);
@@ -66,8 +65,7 @@ class TemplateExportAuthorizationServiceTest {
     when(authorizationService.findTasksByUserApplicationAndTerritory("public", 7, 11))
         .thenReturn(List.of(exportTask));
 
-    TemplateExportAuthorizationService.AuthorizedTasks result =
-        service.authorize(17, null, 7, 11);
+    TemplateExportAuthorizationService.AuthorizedTasks result = service.authorize(17, null, 7, 11);
 
     assertThat(result.exportTask()).isSameAs(exportTask);
     verify(authorizationService).findTasksByUserApplicationAndTerritory("public", 7, 11);

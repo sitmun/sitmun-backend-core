@@ -12,6 +12,7 @@ public class MoreInfoAdvancedRenderRequestDto {
   @Positive private Integer appId;
   @Positive private Integer terId;
   private Map<String, Object> parameters;
+
   @Size(min = 4, max = 4)
   private List<Double> featureBbox;
 }
