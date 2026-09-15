@@ -153,9 +153,9 @@ public class UserChecksService {
       return;
     }
     for (UserPosition position : userPositionRepository.findByUser(user)) {
-      LocalDate alta = toLocalDate(position.getCreatedDate());
-      LocalDate baja = toLocalDate(position.getExpirationDate());
-      if (alta != null && baja != null && alta.isAfter(baja)) {
+      LocalDate createdDate = toLocalDate(position.getCreatedDate());
+      LocalDate expirationDate = toLocalDate(position.getExpirationDate());
+      if (createdDate != null && expirationDate != null && createdDate.isAfter(expirationDate)) {
         warnings.add("entity.user.warning.position-inverted-interval");
         return;
       }

@@ -350,8 +350,8 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When Alta is after Baja, inverted-interval warning is added")
-  void getWarningsWhenAltaAfterBajaAddsInvertedIntervalWarning() {
+  @DisplayName("When createdDate is after expirationDate, inverted-interval warning is added")
+  void getWarningsWhenCreatedDateAfterExpirationDateAddsInvertedIntervalWarning() {
     User user = mockCheckableUser("testUser", true);
     Territory territory = mock(Territory.class);
     UserConfiguration userConfig = mock(UserConfiguration.class);
@@ -376,7 +376,7 @@ class UserChecksServiceTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("When Alta or Baja is null, inverted-interval warning is not added")
+  @DisplayName("When createdDate or expirationDate is null, inverted-interval warning is not added")
   void getWarningsWhenOpenIntervalNoInvertedWarning() {
     User user = mockCheckableUser("testUser", true);
     Territory territory = mock(Territory.class);

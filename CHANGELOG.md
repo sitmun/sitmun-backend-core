@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - **Authorization**: Client-config lists, profile, and roles omit grants whose `UserPosition` interval does not cover today. Inclusive last civil day. Usernames `public` and `admin` are exempt. `/api/authenticate/proxy` is unchanged ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
-- **Users**: Warning `entity.user.warning.position-inverted-interval` when Alta is after Baja.
+- **Users**: Warning `entity.user.warning.position-inverted-interval` when `createdDate` is after `expirationDate`.
 
 - **Templates / Preview**: Known unresolved system vars (`{{#APP_NAME}}`) and unresolved task placeholders no longer inject highlight `<span>` chrome into HTML **attributes** (that broke quoting and spilled `APP_NAME">` into the document). Text nodes keep `.sitmun-template-known` / `.sitmun-template-error` spans; attributes get opaque bare text.
 

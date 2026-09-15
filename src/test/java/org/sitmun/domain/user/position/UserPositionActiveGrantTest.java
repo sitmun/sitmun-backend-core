@@ -91,8 +91,8 @@ class UserPositionActiveGrantTest {
   }
 
   @Test
-  @DisplayName("Baja equal to today is listed; next calendar day is omitted")
-  void bajaTodayInclusiveNextDayOmitted() {
+  @DisplayName("expirationDate equal to today is listed; next calendar day is omitted")
+  void expirationTodayInclusiveNextDayOmitted() {
     Fixture fx = persistTwoTerritories();
     persistPosition(fx.user, fx.live, null, atStartOfDay(0));
     persistPosition(fx.user, fx.expired, null, atStartOfDay(-1));
@@ -103,8 +103,8 @@ class UserPositionActiveGrantTest {
   }
 
   @Test
-  @DisplayName("Null Alta is open left; future Alta is omitted")
-  void nullAltaOpenLeftFutureAltaOmitted() {
+  @DisplayName("Null createdDate is open left; future createdDate is omitted")
+  void nullCreatedDateOpenLeftFutureCreatedDateOmitted() {
     Fixture fx = persistTwoTerritories();
     persistPosition(fx.user, fx.live, null, null);
     persistPosition(fx.user, fx.expired, atStartOfDay(1), null);
@@ -252,19 +252,19 @@ class UserPositionActiveGrantTest {
             .build());
   }
 
-  private void persistPosition(User user, Territory territory, Date alta, Date baja) {
+  private void persistPosition(User user, Territory territory, Date createdDate, Date expirationDate) {
     UserPosition position =
         UserPosition.builder()
             .user(user)
             .territory(territory)
             .name("cargo")
             .organization("org")
-            .createdDate(alta)
-            .expirationDate(baja)
+            .createdDate(createdDate)
+            .expirationDate(expirationDate)
             .build();
     position = userPositionRepository.save(position);
-    position.setCreatedDate(alta);
-    position.setExpirationDate(baja);
+    position.setCreatedDate(createdDate);
+    position.setExpirationDate(expirationDate);
     userPositionRepository.save(position);
   }
 
