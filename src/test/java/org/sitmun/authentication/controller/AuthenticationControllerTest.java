@@ -7,8 +7,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.SitmunClientTypes;
@@ -48,6 +51,19 @@ class AuthenticationControllerTest {
   @Autowired private UserPositionRepository userPositionRepository;
   @Autowired private TerritoryRepository territoryRepository;
   @Autowired private PasswordEncoder passwordEncoder;
+
+  private final List<User> persistedLoginUsers = new ArrayList<>();
+
+  @AfterEach
+  void deletePersistedLoginUsers() {
+    for (User user : persistedLoginUsers) {
+      if (user.getId() != null) {
+        userPositionRepository.deleteAll(userPositionRepository.findByUser(user));
+        userRepository.deleteById(user.getId());
+      }
+    }
+    persistedLoginUsers.clear();
+  }
 
   @Test
   @DisplayName("POST /authenticate: viewer login issues viewer_access_token cookie")
@@ -369,6 +385,8 @@ class AuthenticationControllerTest {
     user.setFirstName("Refresh");
     user.setLastName("Test");
     user.setEmail(id + "@ex.com");
-    return userRepository.save(user);
+    User saved = userRepository.save(user);
+    persistedLoginUsers.add(saved);
+    return saved;
   }
 }

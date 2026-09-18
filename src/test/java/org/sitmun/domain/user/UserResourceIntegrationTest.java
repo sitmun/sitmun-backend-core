@@ -39,6 +39,7 @@ class UserResourceIntegrationTest {
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
   @Autowired HypermediaRestTemplateConfigurer configurer;
+  @Autowired private UserRepository userRepository;
   @LocalServerPort private int port;
   private RestTemplate restTemplate;
   private User organizacionAdmin;
@@ -121,6 +122,9 @@ class UserResourceIntegrationTest {
             port);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
+    assertThat(userRepository.findAll())
+        .extracting(User::getUsername)
+        .containsExactlyInAnyOrder("admin", "public", "blocked", "internal", "user12");
     assertThat(response.getBody().getContent()).hasSize(5);
   }
 }

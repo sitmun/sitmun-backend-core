@@ -52,7 +52,7 @@ class OidcAuthenticationSuccessHandlerTest {
   void setUp() {
     cookieService = new CookieService();
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", false);
-    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 3_600_000);
+    ReflectionTestUtils.setField(cookieService, "cookieMaxAgeSeconds", 3600);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Strict");
     handler =
         new OidcAuthenticationSuccessHandler(
