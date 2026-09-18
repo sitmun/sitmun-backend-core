@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.9] - 2026-09-18
+
 ### Changed
 
 - **Auth**: Viewer and admin session JWT is 15 minutes (`sitmun.user.token-validity-in-milliseconds: 900000`). Cookie Max-Age is `sitmun.user.cookie-max-age-in-seconds` (900). `POST /api/authenticate/refresh` copies `auth_time` until `sitmun.user.max-session-duration-milliseconds` (8h). Viewer refresh requires a live `UserPosition`; admin cookie refresh does not. Edition Bearer, `/proxy`, and `/mobile` are unchanged ([#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
@@ -383,7 +385,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.9...HEAD
+[1.2.9]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...sitmun-backend-core/1.2.9
 [1.2.8]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...sitmun-backend-core/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...sitmun-backend-core/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6
