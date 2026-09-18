@@ -68,11 +68,13 @@ management:
 
 sitmun:
   module: SITMUN 3 Backend Core
-  version: 1.2.8
+  version: 1.2.9
   language: en
   user:
     secret: ${SITMUN_USER_SECRET}
-    token-validity-in-milliseconds: 36000000
+    token-validity-in-milliseconds: 900000
+    cookie-max-age-in-seconds: 900
+    max-session-duration-milliseconds: 28800000
   mobile:
     token-validity-in-milliseconds: 3600000
   proxy-middleware:
@@ -95,6 +97,7 @@ sitmun:
         - png
         - jpg
         - jpeg
+        - svg
       defaultWidth: 125
       defaultHeight: 125
       sizes:
@@ -288,9 +291,10 @@ sitmun:
     code-otp:
       max-attempt: 3
   variables:
-    # System variables resolved by backend using SpEL expressions
-    # These are backend-only variables evaluated from User, Territory, Application context
+    # System variables resolved by backend using SpEL expressions.
     # Syntax in task properties: #{VARIABLE_NAME}
+    # Bound context: #user, #territory, #application, #now (Clock), #language (LocaleContextHolder).
+    # Names appear on GET /api/config/system/variables (admin autocomplete).
     system:
       USER_ID: "#{#user.id}"
       USER_NAME: "#{#user.username}"
@@ -299,6 +303,20 @@ sitmun:
       TERR_NAME: "#{#territory.name}"
       APP_ID: "#{#application.id}"
       APP_NAME: "#{#application.name}"
+      APP_CODIGO: "#{#application.id}"
+      TER_CODIGO: "#{#territory.id}"
+      USU_CODIGO: "#{#user.id}"
+      USUARIO: "#{#user.username}"
+      MUN_INE: "#{#territory.code}"
+      MUN_INES: "#{T(org.sitmun.infrastructure.variables.SystemVariableSupport).munInes(#application, #territory)}"
+      PROYECCION: "#{#application.srs}"
+      EXTENSION_MAX_X0: "#{#territory.extent.minX}"
+      EXTENSION_MAX_Y0: "#{#territory.extent.minY}"
+      EXTENSION_MAX_X1: "#{#territory.extent.maxX}"
+      EXTENSION_MAX_Y1: "#{#territory.extent.maxY}"
+      DATE: "#{#now.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm:ss'))}"
+      LANG: "#{#language}"
+      LANGUAGE: "#{#language}"
 
 # ===================================================================
 # Server properties

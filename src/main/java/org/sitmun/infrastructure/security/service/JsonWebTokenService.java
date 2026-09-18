@@ -23,6 +23,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class JsonWebTokenService {
 
+  public static final String AUTH_TIME = "auth_time";
+
+  private static final String LAST_PASSWORD_CHANGE = "lastPasswordChange";
+
   @Value("${sitmun.user.secret}")
   private String secret;
 
@@ -34,8 +38,6 @@ public class JsonWebTokenService {
 
   @Value("${sitmun.proxy-middleware.token-validity-in-milliseconds}")
   private int proxyValidity;
-
-  private static final String LAST_PASSWORD_CHANGE = "lastPasswordChange";
 
   private final Clock clock;
 
@@ -54,11 +56,13 @@ public class JsonWebTokenService {
   }
 
   public String generateToken(UserDetails userDetails, Date lastPasswordChange) {
-    return generateToken(userDetails.getUsername(), now(), lastPasswordChange, validity);
+    Date issued = now();
+    return generateToken(userDetails.getUsername(), issued, lastPasswordChange, validity, issued);
   }
 
   public String generateToken(UserDetails userDetails) {
-    return generateToken(userDetails.getUsername(), now(), null, validity);
+    Date issued = now();
+    return generateToken(userDetails.getUsername(), issued, null, validity, issued);
   }
 
   public String generateToken(String username, Date date) {
@@ -70,6 +74,11 @@ public class JsonWebTokenService {
   }
 
   public String generateToken(String username, Date date, Date lastPasswordChange, int validity) {
+    return generateToken(username, date, lastPasswordChange, validity, null);
+  }
+
+  public String generateToken(
+      String username, Date date, Date lastPasswordChange, int validity, Date authTime) {
     long currentTimeMillis = date.getTime();
     JwtBuilder builder =
         Jwts.builder()
@@ -81,7 +90,37 @@ public class JsonWebTokenService {
     if (lastPasswordChange != null) {
       builder.claim(LAST_PASSWORD_CHANGE, lastPasswordChange.toInstant().toEpochMilli());
     }
+    if (authTime != null) {
+      builder.claim(AUTH_TIME, authTime.toInstant().toEpochMilli());
+    }
     return builder.compact();
+  }
+
+  public String generateTokenCopyingAuthTime(
+      UserDetails userDetails, Date lastPasswordChange, String previousToken) {
+    Long authTimeMillis = getAuthTimeMillis(previousToken);
+    Date authTime = authTimeMillis == null ? now() : new Date(authTimeMillis);
+    return generateToken(userDetails.getUsername(), now(), lastPasswordChange, validity, authTime);
+  }
+
+  public Long getAuthTimeMillis(String token) {
+    return getClaimFromToken(token, JsonWebTokenService::readAuthTime);
+  }
+
+  public boolean isSessionWithinCap(String token, long maxSessionDurationMillis) {
+    Long authTime = getAuthTimeMillis(token);
+    if (authTime == null) {
+      return false;
+    }
+    return now().getTime() - authTime <= maxSessionDurationMillis;
+  }
+
+  private static Long readAuthTime(Claims claims) {
+    Object raw = claims.get(AUTH_TIME);
+    if (raw instanceof Number number) {
+      return number.longValue();
+    }
+    return null;
   }
 
   public String generateEditionAccessToken(String username, Date lastPasswordChange) {

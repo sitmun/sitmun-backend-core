@@ -1,5 +1,6 @@
 package org.sitmun.domain.task;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -14,8 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.i18n.LiteralTranslationEnsureService;
+import org.sitmun.domain.DomainConstants;
+import org.sitmun.domain.task.type.TaskType;
 
-@DisplayName("TaskEventHandler literal ensure")
 class TaskEventHandlerTest {
 
   private LiteralTranslationEnsureService literalTranslationEnsureService;
@@ -25,6 +27,40 @@ class TaskEventHandlerTest {
   void setUp() {
     literalTranslationEnsureService = mock(LiteralTranslationEnsureService.class);
     handler = new TaskEventHandler(Collections.emptyList(), literalTranslationEnsureService);
+  }
+
+  @Test
+  void removesDeprecatedPdfRegionHeightsBeforePersistence() {
+    Map<String, Object> properties =
+        new HashMap<>(
+            Map.of(
+                "templateHtml", "<p>Template</p>",
+                "pdfHeaderHeightMm", 25,
+                "pdfFooterHeightMm", 15));
+    Task task =
+        Task.builder()
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_TEMPLATE).build())
+            .properties(properties)
+            .build();
+
+    handler.handleTaskCreate(task);
+
+    assertThat(task.getProperties())
+        .containsEntry("templateHtml", "<p>Template</p>")
+        .doesNotContainKeys("pdfHeaderHeightMm", "pdfFooterHeightMm");
+  }
+
+  @Test
+  void preservesSamePropertyNamesOnOtherTaskTypes() {
+    Task task =
+        Task.builder()
+            .type(TaskType.builder().id(DomainConstants.Tasks.TASK_TYPE_ID_QUERY).build())
+            .properties(Map.of("pdfHeaderHeightMm", 25))
+            .build();
+
+    handler.handleTaskCreate(task);
+
+    assertThat(task.getProperties()).containsEntry("pdfHeaderHeightMm", 25);
   }
 
   @Test

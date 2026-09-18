@@ -118,6 +118,13 @@ dependencies {
   // Rate limiting
   implementation libs.bucket4j.core
 
+  // HTML parsing (used by template export to convert HTML to W3C DOM)
+  implementation libs.jsoup
+
+  // PDF generation from HTML (template export)
+  implementation libs.openhtmltopdf.core
+  implementation libs.openhtmltopdf.pdfbox
+
   // URI Templates
   implementation libs.handyUriTemplates
   implementation libs.handlebars
@@ -186,6 +193,8 @@ tasks.named('processTestResources', Copy).configure {
     include '17_more_info_advanced_e2e.yaml'
     include '18_literal_translations_varchar.yaml'
     include '19_mia_chrome_literals.yaml'
+    include '21_align_schema_dialects.yaml'
+    include '22_align_nullability.yaml'
     into 'db/changelog'
   }
 }
@@ -331,7 +340,7 @@ scmVersion {
   versionIncrementer('incrementPatch')
 }
 
-project.version = '1.2.8'
+project.version = '1.2.9'
 
 // Git hooks setup
 tasks.register('setupGitHooks') {

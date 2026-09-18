@@ -51,7 +51,6 @@ databaseChangeLog:
             UPDATE STM_SEQUENCE
             SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
             WHERE SEQ_NAME = 'LTV_ID'
-
   - changeSet:
       id: 17-seed-mia-chrome-error-executing-task
       author: sitmun
@@ -355,4 +354,3 @@ databaseChangeLog:
             UPDATE STM_SEQUENCE
             SET SEQ_COUNT = (SELECT COALESCE(MAX(LTV_ID), 0) + 1 FROM STM_LITERAL_TRANSLATION_VALUE)
             WHERE SEQ_NAME = 'LTV_ID'
-

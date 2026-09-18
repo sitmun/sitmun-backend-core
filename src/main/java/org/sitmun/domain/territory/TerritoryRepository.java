@@ -1,6 +1,7 @@
 package org.sitmun.domain.territory;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sitmun.domain.user.position.UserPositionActiveGrant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,13 +31,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE childTerritory member of uc.territory.members AND  app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
+                     WHERE childTerritory member of uc.territory.members AND  app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
   Page<Territory> findByRestrictedUserAndApplication(
       String username, Integer appId, Pageable pageable);
 
@@ -47,13 +57,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE app.appPrivate = false AND app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE app.appPrivate = false AND app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND  app.id = ?2 AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
+                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND  app.id = ?2 AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
   Page<Territory> findByPublicUserAndApplication(String username, Integer appId, Pageable pageable);
 
   @RestResource(exported = false)
@@ -63,13 +82,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
+                     WHERE childTerritory member of uc.territory.members AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
   Page<Territory> findByRestrictedUser(String username, Pageable pageable);
 
   @RestResource(exported = false)
@@ -79,13 +107,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE app.appPrivate = false AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE app.appPrivate = false AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
+                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true)""")
   Page<Territory> findByPublicUser(String username, Pageable pageable);
 
   @RestResource(exported = false)
@@ -95,13 +132,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE (t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+                     WHERE childTerritory member of uc.territory.members AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       AND lower(t.name) like lower(concat('%', ?2, '%'))""")
   Page<Territory> findByRestrictedUserAndKeywords(
       String username, String keywords, Pageable pageable);
@@ -113,13 +159,22 @@ public interface TerritoryRepository extends JpaRepository<Territory, Integer> {
       FROM Territory t
       WHERE (t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
+                     WHERE app.appPrivate = false AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = false)
          OR t.id IN (SELECT uc.territory.id
                      FROM UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
+                     WHERE app.appPrivate = false AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessParentTerritory = true)
          OR t.id IN (SELECT childTerritory.id
                      FROM Territory childTerritory, UserConfiguration uc, Application app
-                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1 AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
+                     WHERE app.appPrivate = false AND childTerritory member of uc.territory.members AND uc.user.username = ?1"""
+          + UserPositionActiveGrant.ON_GRANT
+          + """
+         AND uc.role member of app.availableRoles AND uc.appliesToChildrenTerritories = true and app.accessChildrenTerritory = true))
       AND lower(t.name) like lower(concat('%', ?2, '%'))""")
   Page<Territory> findByPublicUserAndKeywords(String username, String keywords, Pageable pageable);
 }

@@ -2,12 +2,17 @@ package org.sitmun.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
-import liquibase.integration.spring.SpringLiquibase;
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.DirectoryResourceAccessor;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,12 +20,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ApplicationContactMigrationTest")
 class ApplicationContactMigrationTest {
 
-  private static SpringLiquibase buildLiquibase(DataSource ds) throws Exception {
-    var liquibase = new SpringLiquibase();
-    liquibase.setDataSource(ds);
-    liquibase.setChangeLog("file:./config/db/changelog/db.changelog-master.yaml");
-    return liquibase;
-  }
+  private static final Path PROJECT_ROOT = Path.of(".").toAbsolutePath().normalize();
+  private static final String CHANGELOG = "config/db/changelog/db.changelog-master.yaml";
 
   private static DataSource createFreshDataSource() {
     var ds = new JdbcDataSource();
@@ -34,9 +35,7 @@ class ApplicationContactMigrationTest {
   void migrationIsIdempotentAndColumnExists() throws Exception {
     var ds = createFreshDataSource();
 
-    var lb = buildLiquibase(ds);
-    lb.setDropFirst(true);
-    lb.afterPropertiesSet();
+    applyLiquibase(ds, true);
 
     Integer normalUserId;
     Integer appId;
@@ -57,8 +56,7 @@ class ApplicationContactMigrationTest {
       assertThat(columnExists(conn, "STM_APP", "APP_RESPONSIBLE_INSTITUTION")).isTrue();
     }
 
-    var lb2 = buildLiquibase(ds);
-    lb2.afterPropertiesSet();
+    applyLiquibase(ds, false);
 
     try (var conn = ds.getConnection()) {
       if (appId != null) {
@@ -73,8 +71,7 @@ class ApplicationContactMigrationTest {
       assertThat(columnExists(conn, "STM_APP", "APP_RESPONSIBLE_INSTITUTION")).isTrue();
     }
 
-    var lb3 = buildLiquibase(ds);
-    lb3.afterPropertiesSet();
+    applyLiquibase(ds, false);
 
     try (var conn = ds.getConnection()) {
       assertThat(columnExists(conn, "STM_APP", "APP_RESPONSIBLE_INSTITUTION")).isTrue();
@@ -86,6 +83,21 @@ class ApplicationContactMigrationTest {
         .execute(
             "INSERT INTO STM_USER (USE_ID, USE_USER, USE_ADM, USE_BLOCKED) "
                 + "VALUES (77777, 'migration-test-user', TRUE, FALSE)");
+  }
+
+  private static void applyLiquibase(DataSource ds, boolean dropFirst) throws Exception {
+    try (var connection = ds.getConnection()) {
+      var database =
+          DatabaseFactory.getInstance()
+              .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      try (var liquibase =
+          new Liquibase(CHANGELOG, new DirectoryResourceAccessor(PROJECT_ROOT), database)) {
+        if (dropFirst) {
+          liquibase.dropAll();
+        }
+        liquibase.update(new Contexts());
+      }
+    }
   }
 
   private Integer selectNormalUserId(Connection conn) throws SQLException {

@@ -1,6 +1,7 @@
 package org.sitmun.domain.user.position;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -226,5 +227,36 @@ class UserPositionRepositoryDataRestTest {
         userPositionRepository.findByUserAndTerritory(user, territory);
     Assertions.assertThat(foundPosition).isNotEmpty();
     Assertions.assertThat(foundPosition.get(0).getId()).isEqualTo(existingPosition.getId());
+  }
+
+  @Test
+  @DisplayName("PUT /user-positions: null createdDate stays null")
+  void putNullCreatedDatePersists() throws Exception {
+    UserPosition existingPosition =
+        UserPosition.builder()
+            .user(user)
+            .territory(territory)
+            .name("Cargo")
+            .organization("Org")
+            .email("cargo@example.com")
+            .createdDate(new Date())
+            .build();
+    existingPosition = userPositionRepository.save(existingPosition);
+    createdUserPositions.add(existingPosition);
+
+    String positionJson =
+        "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\",\"name\":\"Cargo\",\"organization\":\"Org\",\"email\":\"cargo@example.com\",\"createdDate\":null}"
+            .formatted(user.getId(), territory.getId());
+
+    mockMvc
+        .perform(
+            put("/api/user-positions/%d".formatted(existingPosition.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(positionJson))
+        .andExpect(status().isOk());
+
+    userPositionRepository.flush();
+    UserPosition reloaded = userPositionRepository.findById(existingPosition.getId()).orElseThrow();
+    Assertions.assertThat(reloaded.getCreatedDate()).isNull();
   }
 }

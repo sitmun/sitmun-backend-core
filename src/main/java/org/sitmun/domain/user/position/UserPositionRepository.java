@@ -25,4 +25,14 @@ public interface UserPositionRepository extends JpaRepository<UserPosition, Inte
   List<UserPosition> findByUserAndTerritory(User user, Territory territory);
 
   List<UserPosition> findByUser(User user);
+
+  @RestResource(exported = false)
+  @Query(
+      """
+      select (count(pos.id) > 0) from UserPosition pos
+      where pos.user.username = ?1
+        and (pos.createdDate is null or cast(pos.createdDate as date) <= current_date)
+        and (pos.expirationDate is null or current_date <= cast(pos.expirationDate as date))
+      """)
+  boolean hasAnyActivePosition(String username);
 }

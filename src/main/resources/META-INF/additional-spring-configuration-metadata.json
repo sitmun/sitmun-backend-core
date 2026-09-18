@@ -16,6 +16,11 @@
       "description": "Default language for the application."
     },
     {
+      "name": "sitmun.variables.system",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "System variable names to SpEL expressions. Placeholders #{NAME} in proxied SQL/HTTP resolve from user, territory, application, request clock (#now), and locale (#language)."
+    },
+    {
       "name": "sitmun.user.secret",
       "type": "java.lang.String",
       "description": "Secret key for user authentication."
@@ -23,7 +28,20 @@
     {
       "name": "sitmun.user.token-validity-in-milliseconds",
       "type": "java.lang.Long",
-      "description": "Token validity duration in milliseconds."
+      "description": "User session JWT validity duration in milliseconds.",
+      "defaultValue": 900000
+    },
+    {
+      "name": "sitmun.user.cookie-max-age-in-seconds",
+      "type": "java.lang.Integer",
+      "description": "Max-Age in seconds for viewer and admin session cookies. Must not exceed the user JWT TTL.",
+      "defaultValue": 900
+    },
+    {
+      "name": "sitmun.user.max-session-duration-milliseconds",
+      "type": "java.lang.Long",
+      "description": "Hard cap from auth_time after which POST /api/authenticate/refresh is refused.",
+      "defaultValue": 28800000
     },
     {
       "name": "sitmun.mobile.token-validity-in-milliseconds",
@@ -106,7 +124,7 @@
     {
       "name": "sitmun.ui.image.supported-formats",
       "type": "java.util.List<java.lang.String>",
-      "description": "Supported image formats for UI."
+      "description": "Supported image formats for UI (png, jpg, jpeg, svg). SVG is stored as a data URI without raster scaling."
     },
     {
       "name": "sitmun.ui.image.default-width",

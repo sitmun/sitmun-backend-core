@@ -20,7 +20,7 @@ class CookieServiceTest {
   void setUp() {
     cookieService = new CookieService();
     ReflectionTestUtils.setField(cookieService, "tokenCookieHttpOnly", true);
-    ReflectionTestUtils.setField(cookieService, "tokenValidityInMillis", 3_600_000);
+    ReflectionTestUtils.setField(cookieService, "cookieMaxAgeSeconds", 3600);
     ReflectionTestUtils.setField(cookieService, "sameSiteCookie", "Lax");
   }
 
@@ -38,7 +38,7 @@ class CookieServiceTest {
   }
 
   @Test
-  @DisplayName("customizeAccessTokenCookie with null maxAge uses token validity seconds")
+  @DisplayName("customizeAccessTokenCookie with null maxAge uses cookie max-age seconds")
   void customizeAccessTokenCookie_nullMaxAge_usesConfiguredValidity() {
     Cookie cookie = new Cookie(AuthenticationController.VIEWER_ACCESS_TOKEN_COOKIE_NAME, "jwt");
     cookieService.customizeAccessTokenCookie(cookie, false, null);

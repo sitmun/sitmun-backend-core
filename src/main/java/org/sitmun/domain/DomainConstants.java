@@ -22,6 +22,21 @@ public class DomainConstants {
     public static final String PROPERTY_SCOPE = "scope";
     public static final String PROPERTY_TEMPLATE_HTML = "templateHtml";
     public static final String PROPERTY_TEMPLATE_EDITOR_STATE = "templateEditorState";
+    public static final String PROPERTY_EXPORT_ENGINE = "exportEngine";
+    public static final String PROPERTY_FORMAT = "format";
+    public static final String PROPERTY_WIDTH = "width";
+    public static final String PROPERTY_HEIGHT = "height";
+    public static final String PROPERTY_SRS = "srs";
+    public static final String PROPERTY_BBOX_MARGIN_PERCENT = "bboxMarginPercent";
+    public static final String PROPERTY_MAP_SOURCES = "mapSources";
+    public static final String PROPERTY_DOWNLOAD_FORMAT = "downloadFormat";
+    public static final String PROPERTY_PAGE_SIZE = "pageSize";
+    public static final String PROPERTY_PAGE_ORIENTATION = "pageOrientation";
+
+    public static final int MAX_TEMPLATE_EXPORT_SOURCE_CHARACTERS = 2_000_000;
+    public static final int MAX_TEMPLATE_EXPORT_SOURCE_BYTES = 8_000_000;
+    public static final int MAX_TEMPLATE_EXPORT_DOM_ELEMENTS = 50_000;
+    public static final int MAX_TEMPLATE_EXPORT_PDF_PAGES = 100;
 
     // Parameter properties
     public static final String PARAMETERS_NAME = "name";
@@ -128,6 +143,8 @@ public class DomainConstants {
     public static final int TASK_TYPE_ID_MORE_INFO = 6;
     public static final int TASK_TYPE_ID_TEMPLATE = 15;
     public static final int TASK_TYPE_ID_MORE_INFO_ADVANCED = 16;
+    public static final int TASK_TYPE_ID_DOCUMENT_EXPORT = 17;
+    public static final int TASK_TYPE_ID_MAP_IMAGE = 18;
 
     private static Integer taskTypeId(Task task) {
       if (task == null || task.getType() == null) {
@@ -162,6 +179,18 @@ public class DomainConstants {
 
     public static boolean isMoreInfoAdvancedTask(Task task) {
       return Integer.valueOf(TASK_TYPE_ID_MORE_INFO_ADVANCED).equals(taskTypeId(task));
+    }
+
+    public static boolean isTemplateTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_TEMPLATE).equals(taskTypeId(task));
+    }
+
+    public static boolean isDocumentExportTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_DOCUMENT_EXPORT).equals(taskTypeId(task));
+    }
+
+    public static boolean isMapImageTask(Task task) {
+      return Integer.valueOf(TASK_TYPE_ID_MAP_IMAGE).equals(taskTypeId(task));
     }
 
     /** Any task whose type id is {@link #TASK_TYPE_ID_QUERY} (scope/FK rules use other helpers). */
@@ -240,7 +269,7 @@ public class DomainConstants {
       if (properties != null) {
         Object scope = properties.get(PROPERTY_SCOPE);
         String scopeStr = String.valueOf(scope);
-        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr);
+        return SCOPE_URL_QUERY.equalsIgnoreCase(scopeStr) || SCOPE_URL.equalsIgnoreCase(scopeStr);
       }
       return false;
     }

@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.9] - 2026-09-18
+
+### Changed
+
+- **Auth**: Viewer and admin session JWT is 15 minutes (`sitmun.user.token-validity-in-milliseconds: 900000`). Cookie Max-Age is `sitmun.user.cookie-max-age-in-seconds` (900). `POST /api/authenticate/refresh` copies `auth_time` until `sitmun.user.max-session-duration-milliseconds` (8h). Viewer refresh requires a live `UserPosition`; admin cookie refresh does not. Edition Bearer, `/proxy`, and `/mobile` are unchanged ([#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
+
+### Added
+
+- **Tests**: `UserPositionActiveGrantTest` covers hide/block interval, parent expansion, `public`/`admin` exemption, and `findByUser` empty when every grant is expired. `MobileEditionAccessServiceTest` covers edition login true/false from that list ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
+- **Templates / Export**: Secured `POST /api/tasks/template/export` accepts XML and returns PDF (`TemplateExportService`). USER/ADMIN/PUBLIC; non-admin must send `applicationId`/`territoryId` and may only use accessible document-export (type 17) and Plantilla tasks. Map Image task type 18 (`mapImage`, Liquibase `21_add_map_image_task_type`). Client profile publishes document-export tasks via `TaskDocumentExportService` ([#259](https://github.com/sitmun/sitmun-backend-core/pull/259)).
+- **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
+- **Trees** / **Images**: Tree and tree-node `image` fields accept SVG (`sitmun.ui.image.supportedFormats` includes `svg`). SVG is stored as `data:image/svg+xml;base64,...` without ImageIO raster scaling so vector icons stay sharp ([sitmun-admin-app#330](https://github.com/sitmun/sitmun-admin-app/issues/330)).
+- **Variables**: YAML `sitmun.variables.system` publishes SITMUN 2 session aliases (`APP_CODIGO`, `TER_CODIGO`, `USU_CODIGO`, `USUARIO`, `MUN_INE`, `MUN_INES`, `PROYECCION`, `EXTENSION_MAX_*`) plus `DATE` (server `Clock`, `dd/MM/yyyy HH:mm:ss`) and `LANG`/`LANGUAGE` (`LocaleContextHolder`). `#{NAME}` placeholders allow digits. `MUN_INES` joins member codes only when `accessChildrenTerritory` is true. Proxy config requests now preload locale so `#{LANG}` can resolve. Admin `GET /api/config/system/variables` lists the new names ([#212](https://github.com/sitmun/sitmun-backend-core/issues/212)).
+
+### Fixed
+
+- **Authorization**: Client-config lists, profile, and roles omit grants whose `UserPosition` interval does not cover today. Inclusive last civil day. Usernames `public` and `admin` are exempt. `/api/authenticate/proxy` is unchanged ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
+- **Users**: Warning `entity.user.warning.position-inverted-interval` when `createdDate` is after `expirationDate`.
+- **Users**: `PUT /api/user-positions/{id}` with `createdDate: null` keeps the start open-left; Spring `@CreatedDate` does not restamp on that update ([sitmun-admin-app#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
+
+- **Templates / Preview**: Known unresolved system vars (`{{#APP_NAME}}`) and unresolved task placeholders no longer inject highlight `<span>` chrome into HTML **attributes** (that broke quoting and spilled `APP_NAME">` into the document). Text nodes keep `.sitmun-template-known` / `.sitmun-template-error` spans; attributes get opaque bare text.
+
 ## [1.2.8] - 2026-07-30
 
 ### Added
@@ -363,7 +385,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.9...HEAD
+[1.2.9]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.8...sitmun-backend-core/1.2.9
 [1.2.8]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.7...sitmun-backend-core/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.6...sitmun-backend-core/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-backend-core/compare/sitmun-backend-core/1.2.5...sitmun-backend-core/1.2.6

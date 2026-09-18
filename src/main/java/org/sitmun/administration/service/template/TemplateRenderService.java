@@ -2,8 +2,12 @@ package org.sitmun.administration.service.template;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.HandlebarsException;
+import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -13,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import org.sitmun.administration.controller.dto.TemplatePreviewResponseDto;
 import org.sitmun.administration.service.i18n.CurrentRequestLanguageResolver;
 import org.sitmun.administration.service.i18n.TemplateLiteralProcessor;
@@ -25,13 +28,12 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 
 @Service
-@RequiredArgsConstructor
 public class TemplateRenderService {
 
   private static final String HANDLEBARS_OPEN = "&#123;&#123;";
   private static final String HANDLEBARS_CLOSE = "&#125;&#125;";
 
-  private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z_]+)}}");
+  private static final Pattern BACKEND_VARIABLE_PATTERN = Pattern.compile("\\{\\{#([A-Z0-9_]+)}}");
   private static final Pattern PARAMETER_LOOKUP_PATTERN =
       Pattern.compile("\\{\\{([A-Za-z_][\\w]*)\\.(\\$[\\w]+)}}");
   private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{([^{}]+)}}");
@@ -54,13 +56,34 @@ public class TemplateRenderService {
       Pattern.compile("\\{\\{#each\\s+([A-Za-z_][\\w]*)\\s*}}");
   private static final String TEMPLATE_ERROR_CLASS = "sitmun-template-error";
   private static final String TEMPLATE_KNOWN_CLASS = "sitmun-template-known";
+  private static final DateTimeFormatter CURRENT_DATE_FORMAT =
+      DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
   private final SystemVariableResolver systemVariableResolver;
   private final TemplateRequestCoordinatesService templateRequestCoordinatesService;
   private final TemplateContextNormalizer templateContextNormalizer;
   private final TemplateLiteralProcessor templateLiteralProcessor;
   private final CurrentRequestLanguageResolver currentRequestLanguageResolver;
+  private final Clock clock;
   private final Handlebars handlebars = new Handlebars();
+
+  public TemplateRenderService(
+      SystemVariableResolver systemVariableResolver,
+      TemplateRequestCoordinatesService templateRequestCoordinatesService,
+      TemplateContextNormalizer templateContextNormalizer,
+      TemplateLiteralProcessor templateLiteralProcessor,
+      CurrentRequestLanguageResolver currentRequestLanguageResolver,
+      Clock clock) {
+    this.systemVariableResolver = systemVariableResolver;
+    this.templateRequestCoordinatesService = templateRequestCoordinatesService;
+    this.templateContextNormalizer = templateContextNormalizer;
+    this.templateLiteralProcessor = templateLiteralProcessor;
+    this.currentRequestLanguageResolver = currentRequestLanguageResolver;
+    this.clock = clock;
+    handlebars.registerHelper(
+        "currentDate",
+        (Helper<Object>) (context, options) -> CURRENT_DATE_FORMAT.format(LocalDate.now(clock)));
+  }
 
   public TemplatePreviewResponseDto renderPreview(
       String templateHtml, Map<String, Object> context) {
@@ -234,22 +257,21 @@ public class TemplateRenderService {
   }
 
   private String replaceBackendVariables(String templateHtml, RequestCoordinates coordinates) {
-    Matcher matcher = BACKEND_VARIABLE_PATTERN.matcher(templateHtml);
+    String html = templateHtml == null ? "" : templateHtml;
+    Matcher matcher = BACKEND_VARIABLE_PATTERN.matcher(html);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String variableName = matcher.group(1);
+      boolean attributeOrComment = isHtmlAttributeOrCommentContext(html, matcher.start());
       String replacement = systemVariableResolver.resolve("#{" + variableName + "}", coordinates);
       if (Objects.equals(replacement, "#{" + variableName + "}")) {
         if (isKnownSystemVariable(variableName)) {
           // Recognized var but no coords/value: bare name proves recognition.
-          replacement =
-              "<span class=\""
-                  + TEMPLATE_KNOWN_CLASS
-                  + "\">"
-                  + opaqueInline(variableName)
-                  + "</span>";
+          replacement = annotateForPreview(variableName, TEMPLATE_KNOWN_CLASS, attributeOrComment);
         } else {
-          replacement = markUnknownPlaceholder("#" + variableName);
+          replacement =
+              annotateForPreview(
+                  "{{#" + variableName + "}}", TEMPLATE_ERROR_CLASS, attributeOrComment);
         }
       } else {
         replacement = opaqueInline(replacement);
@@ -272,20 +294,74 @@ public class TemplateRenderService {
       knownRoots.addAll(knownTaskReferences);
     }
 
-    Matcher matcher = PLACEHOLDER_PATTERN.matcher(templateHtml == null ? "" : templateHtml);
+    String html = templateHtml == null ? "" : templateHtml;
+    Matcher matcher = PLACEHOLDER_PATTERN.matcher(html);
     StringBuilder sb = new StringBuilder();
     while (matcher.find()) {
       String placeholderContent = matcher.group(1).trim();
       if (isKnownTaskPlaceholder(placeholderContent, knownRoots)
           && !isTaskPlaceholderResolved(placeholderContent, context)) {
         matcher.appendReplacement(
-            sb, Matcher.quoteReplacement(markUnknownPlaceholder(placeholderContent)));
+            sb,
+            Matcher.quoteReplacement(
+                markUnknownPlaceholder(
+                    placeholderContent, isHtmlAttributeOrCommentContext(html, matcher.start()))));
         continue;
       }
       matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group(0)));
     }
     matcher.appendTail(sb);
     return sb.toString();
+  }
+
+  /**
+   * True when {@code index} lies inside an HTML attribute value or comment. Highlight spans must
+   * not be spliced there — nested quotes terminate the attribute and spill markup into the
+   * document.
+   */
+  static boolean isHtmlAttributeOrCommentContext(String html, int index) {
+    if (html == null || index <= 0 || index > html.length()) {
+      return false;
+    }
+
+    boolean inComment = false;
+    boolean inTag = false;
+    char attrQuote = 0;
+
+    for (int i = 0; i < index; i++) {
+      char c = html.charAt(i);
+      if (inComment) {
+        if (c == '-' && i + 2 < html.length() && html.startsWith("-->", i)) {
+          inComment = false;
+          i += 2;
+        }
+        continue;
+      }
+      if (!inTag) {
+        if (c == '<' && i + 3 < html.length() && html.startsWith("<!--", i)) {
+          inComment = true;
+          i += 3;
+        } else if (c == '<') {
+          inTag = true;
+        }
+        continue;
+      }
+      if (attrQuote != 0) {
+        if (c == attrQuote) {
+          attrQuote = 0;
+        }
+        continue;
+      }
+      if (c == '"' || c == '\'') {
+        attrQuote = c;
+        continue;
+      }
+      if (c == '>') {
+        inTag = false;
+      }
+    }
+
+    return inComment || attrQuote != 0;
   }
 
   private boolean isKnownTaskPlaceholder(String placeholderContent, Set<String> knownRoots) {
@@ -349,13 +425,22 @@ public class TemplateRenderService {
     return placeholderContent.substring(0, endIndex);
   }
 
-  private String markUnknownPlaceholder(String placeholderContent) {
+  private String markUnknownPlaceholder(String placeholderContent, boolean attributeOrComment) {
     String content = placeholderContent == null ? "" : placeholderContent;
-    return "<span class=\""
-        + TEMPLATE_ERROR_CLASS
-        + "\">"
-        + opaqueInline("{{" + content + "}}")
-        + "</span>";
+    return annotateForPreview("{{" + content + "}}", TEMPLATE_ERROR_CLASS, attributeOrComment);
+  }
+
+  /**
+   * Preview highlight span for text nodes; attribute/comment contexts get opaque text only (nested
+   * quotes in spans break HTML attributes).
+   */
+  private static String annotateForPreview(
+      String displayText, String cssClass, boolean attributeOrComment) {
+    String opaque = opaqueInline(displayText);
+    if (attributeOrComment) {
+      return opaque;
+    }
+    return "<span class=\"" + cssClass + "\">" + opaque + "</span>";
   }
 
   /** HTML-escape and neutralize Handlebars delimiters for safe splice into compileInline source. */

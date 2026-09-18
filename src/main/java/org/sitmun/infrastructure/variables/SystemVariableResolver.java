@@ -1,6 +1,9 @@
 package org.sitmun.infrastructure.variables;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.service.RequestCoordinates;
 import org.sitmun.infrastructure.config.SystemVariableProperties;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -17,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service for resolving system variables using Spring Expression Language (SpEL). System variables
- * use #{} syntax and are resolved from User, Territory, and Application entities.
+ * use #{} syntax and are resolved from User, Territory, Application, plus request clock and locale.
  *
  * <p>Example configuration in application.yml:
  *
@@ -25,10 +29,9 @@ import org.springframework.stereotype.Service;
  * sitmun:
  *   variables:
  *     system:
- *       USER_ID: "#{user.id}"
- *       TERR_ID: "#{territory.id}"
- *       TERR_COD: "#{territory.code}"
- *       APP_ID: "#{application.id}"
+ *       USER_ID: "#{#user.id}"
+ *       DATE: "#{#now.format(...)}"
+ *       LANG: "#{#language}"
  * </pre>
  */
 @Service
@@ -37,10 +40,11 @@ import org.springframework.stereotype.Service;
 public class SystemVariableResolver {
 
   private final SystemVariableProperties properties;
+  private final Clock clock;
   private final ExpressionParser parser = new SpelExpressionParser();
 
-  /** Pattern to match system variable placeholders: #{VARIABLE_NAME} */
-  private static final Pattern SYSTEM_VAR_PATTERN = Pattern.compile("#\\{([A-Z_]+)\\}");
+  /** Pattern to match system variable placeholders: #{VARIABLE_NAME} (digits allowed, e.g. X0). */
+  private static final Pattern SYSTEM_VAR_PATTERN = Pattern.compile("#\\{([A-Z0-9_]+)\\}");
 
   /**
    * Resolves all system variables using {@link RequestCoordinates} (user, territory, application).
@@ -104,15 +108,18 @@ public class SystemVariableResolver {
   }
 
   /**
-   * Creates a SpEL evaluation context with the provided entities.
+   * Creates a SpEL evaluation context with the provided entities plus request clock and locale.
    *
    * @param coordinates user, territory, and application to expose as SpEL variables; {@code null}
-   *     yields an empty context
+   *     still binds {@code now} and {@code language}
    * @return evaluation context with non-null entities registered as {@code user}, {@code
-   *     territory}, and {@code application}
+   *     territory}, and {@code application}, plus {@code now} and {@code language}
    */
   private EvaluationContext createEvaluationContext(RequestCoordinates coordinates) {
     StandardEvaluationContext context = new StandardEvaluationContext();
+    context.setVariable("now", LocalDateTime.ofInstant(clock.instant(), clock.getZone()));
+    Locale locale = LocaleContextHolder.getLocale();
+    context.setVariable("language", locale != null ? locale.toLanguageTag() : "");
     if (coordinates == null) {
       return context;
     }

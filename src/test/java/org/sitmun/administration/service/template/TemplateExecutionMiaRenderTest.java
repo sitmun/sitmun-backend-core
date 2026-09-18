@@ -1773,6 +1773,10 @@ class TemplateExecutionMiaRenderTest extends TemplateExecutionServiceTestFixture
             literalTranslationResolver,
             currentRequestLanguageResolver,
             new MiaHtmlRenderer(),
+            new MapImageTemplateTaskExecutor(
+                new MapImageFeatureBboxResolver(),
+                mock(
+                    org.sitmun.administration.service.mapimage.MapImageTaskExecutionService.class)),
             new ObjectMapper());
 
     SecurityContextHolder.getContext()

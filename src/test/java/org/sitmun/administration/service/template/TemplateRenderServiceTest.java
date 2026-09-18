@@ -8,6 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -72,7 +75,17 @@ class TemplateRenderServiceTest {
         coordinatesService,
         new TemplateContextNormalizer(),
         literalProcessor,
-        languageResolver);
+        languageResolver,
+        Clock.fixed(Instant.parse("2026-08-31T12:00:00Z"), ZoneOffset.UTC));
+  }
+
+  @Test
+  void renderPreviewResolvesCurrentDateHelper() {
+    TemplateRenderService service = createService(mock(SystemVariableResolver.class));
+
+    TemplatePreviewResponseDto response = service.renderPreview("<p>{{currentDate}}</p>", Map.of());
+
+    assertThat(response.getHtml()).isEqualTo("<p>31/08/2026</p>");
   }
 
   @Test
@@ -294,6 +307,40 @@ class TemplateRenderServiceTest {
         .doesNotContain("{{#APP_ID}}")
         .doesNotContain("sitmun-template-error")
         .doesNotContain("sitmun-template-placeholder");
+  }
+
+  @Test
+  void renderPreviewKeepsKnownUnresolvedSystemVariableAttributeSafe() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    when(resolver.resolve(eq("#{APP_NAME}"), any())).thenReturn("#{APP_NAME}");
+
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview(
+            "<img src=\"https://example.test/x.png\" title=\"{{#APP_NAME}}\" alt=\"{{#APP_NAME}}\">",
+            Map.of());
+
+    assertThat(response.getHtml())
+        .contains("title=\"APP_NAME\"")
+        .contains("alt=\"APP_NAME\"")
+        .doesNotContain("title=\"<span")
+        .doesNotContain("sitmun-template-known")
+        .doesNotContain("{{#APP_NAME}}");
+  }
+
+  @Test
+  void renderPreviewKeepsUnresolvedTaskPlaceholderAttributeSafe() {
+    SystemVariableResolver resolver = mock(SystemVariableResolver.class);
+    TemplateRenderService service = createService(resolver);
+
+    TemplatePreviewResponseDto response =
+        service.renderPreview("<img src=\"{{foto.url}}\">", Map.of(), List.of("foto"));
+
+    assertThat(response.getHtml())
+        .contains("src=\"&#123;&#123;foto.url&#125;&#125;\"")
+        .doesNotContain("src=\"<span")
+        .doesNotContain("sitmun-template-error");
   }
 
   @Test

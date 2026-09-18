@@ -1,0 +1,2822 @@
+databaseChangeLog:
+  # Align backend-core nullability with JPA-required / production-stricter columns.
+  # Selective NOT NULL: JPA validated_not_null + @NotNull associations.
+  # Idempotent via sqlCheck (column currently nullable). No JDBC metadata preconditions.
+  # FK nulls: DELETE orphans. bool/varchar/double: backfill then addNotNullConstraint.
+
+  # ── h2 ─────────────────────────────────────────────────────────────
+  - changeSet:
+      id: 22-nn-app-bckg-abc-appid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_APP_BCKG'
+              AND UPPER(COLUMN_NAME) = 'ABC_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_APPID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-bckg-abc-backid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_APP_BCKG'
+              AND UPPER(COLUMN_NAME) = 'ABC_BACKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_BACKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_BACKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-appid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_APP_TER'
+              AND UPPER(COLUMN_NAME) = 'ATE_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_APPID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_APP_TER'
+              AND UPPER(COLUMN_NAME) = 'ATE_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-giid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_AVAIL_GI'
+              AND UPPER(COLUMN_NAME) = 'AGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_AVAIL_GI'
+              AND UPPER(COLUMN_NAME) = 'AGI_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-taskid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_AVAIL_TSK'
+              AND UPPER(COLUMN_NAME) = 'ATS_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TASKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_AVAIL_TSK'
+              AND UPPER(COLUMN_NAME) = 'ATS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-comment-com-coord-y-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_COMMENT'
+              AND UPPER(COLUMN_NAME) = 'COM_COORD_Y'
+      changes:
+        - sql:
+            sql: UPDATE STM_COMMENT SET COM_COORD_Y = 0 WHERE COM_COORD_Y IS NULL
+        - addNotNullConstraint:
+            tableName: STM_COMMENT
+            columnName: COM_COORD_Y
+            columnDataType: DOUBLE
+
+  - changeSet:
+      id: 22-nn-conf-cnf-name-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_CONF'
+              AND UPPER(COLUMN_NAME) = 'CNF_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONF SET CNF_NAME = '' WHERE CNF_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONF
+            columnName: CNF_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-connect-con-driver-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_CONNECT'
+              AND UPPER(COLUMN_NAME) = 'CON_DRIVER'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONNECT SET CON_DRIVER = '' WHERE CON_DRIVER IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONNECT
+            columnName: CON_DRIVER
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-giid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_FIL_GI'
+              AND UPPER(COLUMN_NAME) = 'FGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_FIL_GI WHERE FGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-required-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_FIL_GI'
+              AND UPPER(COLUMN_NAME) = 'FGI_REQUIRED'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_REQUIRED = FALSE WHERE FGI_REQUIRED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_REQUIRED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_FIL_GI'
+              AND UPPER(COLUMN_NAME) = 'FGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_TYPE = '' WHERE FGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-blocked-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_GEOINFO'
+              AND UPPER(COLUMN_NAME) = 'GEO_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_BLOCKED = FALSE WHERE GEO_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-queryact-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_GEOINFO'
+              AND UPPER(COLUMN_NAME) = 'GEO_QUERYACT'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_QUERYACT = FALSE WHERE GEO_QUERYACT IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_QUERYACT
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-gter-typ-gtt-name-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_GTER_TYP'
+              AND UPPER(COLUMN_NAME) = 'GTT_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_GTER_TYP SET GTT_NAME = '' WHERE GTT_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GTER_TYP
+            columnName: GTT_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_APP'
+              AND UPPER(COLUMN_NAME) = 'PAP_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_TYPE = '' WHERE PAP_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-value-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_APP'
+              AND UPPER(COLUMN_NAME) = 'PAP_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_VALUE = '' WHERE PAP_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-giid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_GI'
+              AND UPPER(COLUMN_NAME) = 'PGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_GI WHERE PGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_GI'
+              AND UPPER(COLUMN_NAME) = 'PGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_TYPE = '' WHERE PGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-value-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_GI'
+              AND UPPER(COLUMN_NAME) = 'PGI_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_VALUE = '' WHERE PGI_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-serid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SER'
+              AND UPPER(COLUMN_NAME) = 'PSE_SERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SER WHERE PSE_SERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_SERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SER'
+              AND UPPER(COLUMN_NAME) = 'PSE_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_TYPE = '' WHERE PSE_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-value-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SER'
+              AND UPPER(COLUMN_NAME) = 'PSE_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_VALUE = '' WHERE PSE_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-giid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SGI'
+              AND UPPER(COLUMN_NAME) = 'PSG_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SGI WHERE PSG_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SGI'
+              AND UPPER(COLUMN_NAME) = 'PSG_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_TYPE = '' WHERE PSG_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-value-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_PAR_SGI'
+              AND UPPER(COLUMN_NAME) = 'PSG_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_VALUE = '' WHERE PSG_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-post-pos-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_POST'
+              AND UPPER(COLUMN_NAME) = 'POS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-post-pos-userid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_POST'
+              AND UPPER(COLUMN_NAME) = 'POS_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_USERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-role-rol-name-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_ROLE'
+              AND UPPER(COLUMN_NAME) = 'ROL_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_ROLE SET ROL_NAME = '' WHERE ROL_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_ROLE
+            columnName: ROL_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-service-ser-blocked-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_SERVICE'
+              AND UPPER(COLUMN_NAME) = 'SER_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_BLOCKED = FALSE WHERE SER_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-service-ser-url-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_SERVICE'
+              AND UPPER(COLUMN_NAME) = 'SER_URL'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_URL = '' WHERE SER_URL IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_URL
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_TASKREL'
+              AND UPPER(COLUMN_NAME) = 'TAR_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskrelid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_TASKREL'
+              AND UPPER(COLUMN_NAME) = 'TAR_TASKRELID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKRELID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKRELID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-type-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_TASKREL'
+              AND UPPER(COLUMN_NAME) = 'TAR_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_TASKREL SET TAR_TYPE = '' WHERE TAR_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-territory-ter-name-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_TERRITORY'
+              AND UPPER(COLUMN_NAME) = 'TER_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_TERRITORY SET TER_NAME = '' WHERE TER_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TERRITORY
+            columnName: TER_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-tree-nod-tno-treeid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_TREE_NOD'
+              AND UPPER(COLUMN_NAME) = 'TNO_TREEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TREE_NOD WHERE TNO_TREEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TREE_NOD
+            columnName: TNO_TREEID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-user-use-blocked-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_USER'
+              AND UPPER(COLUMN_NAME) = 'USE_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_USER SET USE_BLOCKED = FALSE WHERE USE_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USER
+            columnName: USE_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-roleid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_USR_CONF'
+              AND UPPER(COLUMN_NAME) = 'UCO_ROLEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_ROLEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_ROLEID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-terid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_USR_CONF'
+              AND UPPER(COLUMN_NAME) = 'UCO_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-userid-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'YES' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_USR_CONF'
+              AND UPPER(COLUMN_NAME) = 'UCO_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_USERID
+            columnDataType: INTEGER
+
+  # ── postgresql ─────────────────────────────────────────────────────────────
+  - changeSet:
+      id: 22-nn-app-bckg-abc-appid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_APP_BCKG'
+              AND upper(column_name) = 'ABC_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_APPID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-bckg-abc-backid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_APP_BCKG'
+              AND upper(column_name) = 'ABC_BACKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_BACKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_BACKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-appid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_APP_TER'
+              AND upper(column_name) = 'ATE_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_APPID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_APP_TER'
+              AND upper(column_name) = 'ATE_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-giid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_AVAIL_GI'
+              AND upper(column_name) = 'AGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_AVAIL_GI'
+              AND upper(column_name) = 'AGI_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-taskid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_AVAIL_TSK'
+              AND upper(column_name) = 'ATS_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TASKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_AVAIL_TSK'
+              AND upper(column_name) = 'ATS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-comment-com-coord-y-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_COMMENT'
+              AND upper(column_name) = 'COM_COORD_Y'
+      changes:
+        - sql:
+            sql: UPDATE STM_COMMENT SET COM_COORD_Y = 0 WHERE COM_COORD_Y IS NULL
+        - addNotNullConstraint:
+            tableName: STM_COMMENT
+            columnName: COM_COORD_Y
+            columnDataType: DOUBLE PRECISION
+
+  - changeSet:
+      id: 22-nn-conf-cnf-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_CONF'
+              AND upper(column_name) = 'CNF_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONF SET CNF_NAME = '' WHERE CNF_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONF
+            columnName: CNF_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-connect-con-driver-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_CONNECT'
+              AND upper(column_name) = 'CON_DRIVER'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONNECT SET CON_DRIVER = '' WHERE CON_DRIVER IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONNECT
+            columnName: CON_DRIVER
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-giid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_FIL_GI'
+              AND upper(column_name) = 'FGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_FIL_GI WHERE FGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-required-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_FIL_GI'
+              AND upper(column_name) = 'FGI_REQUIRED'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_REQUIRED = FALSE WHERE FGI_REQUIRED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_REQUIRED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_FIL_GI'
+              AND upper(column_name) = 'FGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_TYPE = '' WHERE FGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-blocked-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_GEOINFO'
+              AND upper(column_name) = 'GEO_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_BLOCKED = FALSE WHERE GEO_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-queryact-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_GEOINFO'
+              AND upper(column_name) = 'GEO_QUERYACT'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_QUERYACT = FALSE WHERE GEO_QUERYACT IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_QUERYACT
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-gter-typ-gtt-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_GTER_TYP'
+              AND upper(column_name) = 'GTT_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_GTER_TYP SET GTT_NAME = '' WHERE GTT_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GTER_TYP
+            columnName: GTT_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_APP'
+              AND upper(column_name) = 'PAP_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_TYPE = '' WHERE PAP_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-value-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_APP'
+              AND upper(column_name) = 'PAP_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_VALUE = '' WHERE PAP_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-giid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_GI'
+              AND upper(column_name) = 'PGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_GI WHERE PGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_GI'
+              AND upper(column_name) = 'PGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_TYPE = '' WHERE PGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-value-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_GI'
+              AND upper(column_name) = 'PGI_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_VALUE = '' WHERE PGI_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-serid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SER'
+              AND upper(column_name) = 'PSE_SERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SER WHERE PSE_SERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_SERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SER'
+              AND upper(column_name) = 'PSE_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_TYPE = '' WHERE PSE_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-value-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SER'
+              AND upper(column_name) = 'PSE_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_VALUE = '' WHERE PSE_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-giid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SGI'
+              AND upper(column_name) = 'PSG_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SGI WHERE PSG_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_GIID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SGI'
+              AND upper(column_name) = 'PSG_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_TYPE = '' WHERE PSG_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-value-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_PAR_SGI'
+              AND upper(column_name) = 'PSG_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_VALUE = '' WHERE PSG_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_VALUE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-post-pos-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_POST'
+              AND upper(column_name) = 'POS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-post-pos-userid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_POST'
+              AND upper(column_name) = 'POS_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_USERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-role-rol-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_ROLE'
+              AND upper(column_name) = 'ROL_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_ROLE SET ROL_NAME = '' WHERE ROL_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_ROLE
+            columnName: ROL_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-service-ser-blocked-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_SERVICE'
+              AND upper(column_name) = 'SER_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_BLOCKED = FALSE WHERE SER_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-service-ser-url-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_SERVICE'
+              AND upper(column_name) = 'SER_URL'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_URL = '' WHERE SER_URL IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_URL
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_TASKREL'
+              AND upper(column_name) = 'TAR_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskrelid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_TASKREL'
+              AND upper(column_name) = 'TAR_TASKRELID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKRELID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKRELID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-type-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_TASKREL'
+              AND upper(column_name) = 'TAR_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_TASKREL SET TAR_TYPE = '' WHERE TAR_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TYPE
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-territory-ter-name-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_TERRITORY'
+              AND upper(column_name) = 'TER_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_TERRITORY SET TER_NAME = '' WHERE TER_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TERRITORY
+            columnName: TER_NAME
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 22-nn-tree-nod-tno-treeid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_TREE_NOD'
+              AND upper(column_name) = 'TNO_TREEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TREE_NOD WHERE TNO_TREEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TREE_NOD
+            columnName: TNO_TREEID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-user-use-blocked-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_USER'
+              AND upper(column_name) = 'USE_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_USER SET USE_BLOCKED = FALSE WHERE USE_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USER
+            columnName: USE_BLOCKED
+            columnDataType: BOOLEAN
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-roleid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_USR_CONF'
+              AND upper(column_name) = 'UCO_ROLEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_ROLEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_ROLEID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-terid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_USR_CONF'
+              AND upper(column_name) = 'UCO_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_TERID
+            columnDataType: INTEGER
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-userid-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'YES' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_USR_CONF'
+              AND upper(column_name) = 'UCO_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_USERID
+            columnDataType: INTEGER
+
+  # ── oracle ─────────────────────────────────────────────────────────────
+  - changeSet:
+      id: 22-nn-app-bckg-abc-appid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_APP_BCKG'
+              AND COLUMN_NAME = 'ABC_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_APPID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-app-bckg-abc-backid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_APP_BCKG'
+              AND COLUMN_NAME = 'ABC_BACKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_BCKG WHERE ABC_BACKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_BCKG
+            columnName: ABC_BACKID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-appid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_APP_TER'
+              AND COLUMN_NAME = 'ATE_APPID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_APPID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_APPID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-app-ter-ate-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_APP_TER'
+              AND COLUMN_NAME = 'ATE_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_APP_TER WHERE ATE_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_APP_TER
+            columnName: ATE_TERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-giid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_AVAIL_GI'
+              AND COLUMN_NAME = 'AGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_GIID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-avail-gi-agi-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_AVAIL_GI'
+              AND COLUMN_NAME = 'AGI_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_GI WHERE AGI_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_GI
+            columnName: AGI_TERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-taskid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_AVAIL_TSK'
+              AND COLUMN_NAME = 'ATS_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TASKID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-avail-tsk-ats-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_AVAIL_TSK'
+              AND COLUMN_NAME = 'ATS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_AVAIL_TSK WHERE ATS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_AVAIL_TSK
+            columnName: ATS_TERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-comment-com-coord-y-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_COMMENT'
+              AND COLUMN_NAME = 'COM_COORD_Y'
+      changes:
+        - sql:
+            sql: UPDATE STM_COMMENT SET COM_COORD_Y = 0 WHERE COM_COORD_Y IS NULL
+        - addNotNullConstraint:
+            tableName: STM_COMMENT
+            columnName: COM_COORD_Y
+            columnDataType: NUMBER
+
+  - changeSet:
+      id: 22-nn-conf-cnf-name-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_CONF'
+              AND COLUMN_NAME = 'CNF_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONF SET CNF_NAME = '' WHERE CNF_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONF
+            columnName: CNF_NAME
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-connect-con-driver-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_CONNECT'
+              AND COLUMN_NAME = 'CON_DRIVER'
+      changes:
+        - sql:
+            sql: UPDATE STM_CONNECT SET CON_DRIVER = '' WHERE CON_DRIVER IS NULL
+        - addNotNullConstraint:
+            tableName: STM_CONNECT
+            columnName: CON_DRIVER
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-giid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_FIL_GI'
+              AND COLUMN_NAME = 'FGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_FIL_GI WHERE FGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_GIID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-required-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_FIL_GI'
+              AND COLUMN_NAME = 'FGI_REQUIRED'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_REQUIRED = 0 WHERE FGI_REQUIRED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_REQUIRED
+            columnDataType: NUMBER(1, 0)
+
+  - changeSet:
+      id: 22-nn-fil-gi-fgi-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_FIL_GI'
+              AND COLUMN_NAME = 'FGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_FIL_GI SET FGI_TYPE = '' WHERE FGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_FIL_GI
+            columnName: FGI_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-blocked-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_GEOINFO'
+              AND COLUMN_NAME = 'GEO_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_BLOCKED = 0 WHERE GEO_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_BLOCKED
+            columnDataType: NUMBER(1, 0)
+
+  - changeSet:
+      id: 22-nn-geoinfo-geo-queryact-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_GEOINFO'
+              AND COLUMN_NAME = 'GEO_QUERYACT'
+      changes:
+        - sql:
+            sql: UPDATE STM_GEOINFO SET GEO_QUERYACT = 0 WHERE GEO_QUERYACT IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GEOINFO
+            columnName: GEO_QUERYACT
+            columnDataType: NUMBER(1, 0)
+
+  - changeSet:
+      id: 22-nn-gter-typ-gtt-name-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_GTER_TYP'
+              AND COLUMN_NAME = 'GTT_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_GTER_TYP SET GTT_NAME = '' WHERE GTT_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_GTER_TYP
+            columnName: GTT_NAME
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_APP'
+              AND COLUMN_NAME = 'PAP_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_TYPE = '' WHERE PAP_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-app-pap-value-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_APP'
+              AND COLUMN_NAME = 'PAP_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_APP SET PAP_VALUE = '' WHERE PAP_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_APP
+            columnName: PAP_VALUE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-giid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_GI'
+              AND COLUMN_NAME = 'PGI_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_GI WHERE PGI_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_GIID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_GI'
+              AND COLUMN_NAME = 'PGI_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_TYPE = '' WHERE PGI_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-gi-pgi-value-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_GI'
+              AND COLUMN_NAME = 'PGI_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_GI SET PGI_VALUE = '' WHERE PGI_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_GI
+            columnName: PGI_VALUE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-serid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SER'
+              AND COLUMN_NAME = 'PSE_SERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SER WHERE PSE_SERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_SERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SER'
+              AND COLUMN_NAME = 'PSE_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_TYPE = '' WHERE PSE_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-ser-pse-value-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SER'
+              AND COLUMN_NAME = 'PSE_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SER SET PSE_VALUE = '' WHERE PSE_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SER
+            columnName: PSE_VALUE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-giid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SGI'
+              AND COLUMN_NAME = 'PSG_GIID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_PAR_SGI WHERE PSG_GIID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_GIID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SGI'
+              AND COLUMN_NAME = 'PSG_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_TYPE = '' WHERE PSG_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-par-sgi-psg-value-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_PAR_SGI'
+              AND COLUMN_NAME = 'PSG_VALUE'
+      changes:
+        - sql:
+            sql: UPDATE STM_PAR_SGI SET PSG_VALUE = '' WHERE PSG_VALUE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_PAR_SGI
+            columnName: PSG_VALUE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-post-pos-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_POST'
+              AND COLUMN_NAME = 'POS_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_TERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-post-pos-userid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_POST'
+              AND COLUMN_NAME = 'POS_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_POST WHERE POS_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_POST
+            columnName: POS_USERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-role-rol-name-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_ROLE'
+              AND COLUMN_NAME = 'ROL_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_ROLE SET ROL_NAME = '' WHERE ROL_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_ROLE
+            columnName: ROL_NAME
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-service-ser-blocked-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE'
+              AND COLUMN_NAME = 'SER_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_BLOCKED = 0 WHERE SER_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_BLOCKED
+            columnDataType: NUMBER(1, 0)
+
+  - changeSet:
+      id: 22-nn-service-ser-url-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE'
+              AND COLUMN_NAME = 'SER_URL'
+      changes:
+        - sql:
+            sql: UPDATE STM_SERVICE SET SER_URL = '' WHERE SER_URL IS NULL
+        - addNotNullConstraint:
+            tableName: STM_SERVICE
+            columnName: SER_URL
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_TASKREL'
+              AND COLUMN_NAME = 'TAR_TASKID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-taskrelid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_TASKREL'
+              AND COLUMN_NAME = 'TAR_TASKRELID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TASKREL WHERE TAR_TASKRELID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TASKRELID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-taskrel-tar-type-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_TASKREL'
+              AND COLUMN_NAME = 'TAR_TYPE'
+      changes:
+        - sql:
+            sql: UPDATE STM_TASKREL SET TAR_TYPE = '' WHERE TAR_TYPE IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TASKREL
+            columnName: TAR_TYPE
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-territory-ter-name-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_TERRITORY'
+              AND COLUMN_NAME = 'TER_NAME'
+      changes:
+        - sql:
+            sql: UPDATE STM_TERRITORY SET TER_NAME = '' WHERE TER_NAME IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TERRITORY
+            columnName: TER_NAME
+            columnDataType: VARCHAR2(4000 CHAR)
+
+  - changeSet:
+      id: 22-nn-tree-nod-tno-treeid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_TREE_NOD'
+              AND COLUMN_NAME = 'TNO_TREEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_TREE_NOD WHERE TNO_TREEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_TREE_NOD
+            columnName: TNO_TREEID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-user-use-blocked-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_USER'
+              AND COLUMN_NAME = 'USE_BLOCKED'
+      changes:
+        - sql:
+            sql: UPDATE STM_USER SET USE_BLOCKED = 0 WHERE USE_BLOCKED IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USER
+            columnName: USE_BLOCKED
+            columnDataType: NUMBER(1, 0)
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-roleid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_USR_CONF'
+              AND COLUMN_NAME = 'UCO_ROLEID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_ROLEID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_ROLEID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-terid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_USR_CONF'
+              AND COLUMN_NAME = 'UCO_TERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_TERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_TERID
+            columnDataType: NUMBER(10)
+
+  - changeSet:
+      id: 22-nn-usr-conf-uco-userid-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'Y' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_USR_CONF'
+              AND COLUMN_NAME = 'UCO_USERID'
+      changes:
+        - sql:
+            sql: DELETE FROM STM_USR_CONF WHERE UCO_USERID IS NULL
+        - addNotNullConstraint:
+            tableName: STM_USR_CONF
+            columnName: UCO_USERID
+            columnDataType: NUMBER(10)
