@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.2.9] - 2026-09-18
+## [1.2.9] - 2026-09-19
 
 ### Changed
 
@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - **Tests**: `UserPositionActiveGrantTest` covers hide/block interval, parent expansion, `public`/`admin` exemption, and `findByUser` empty when every grant is expired. `MobileEditionAccessServiceTest` covers edition login true/false from that list ([#184](https://github.com/sitmun/sitmun-backend-core/issues/184)).
+- **Tests**: `DashboardMetricsQueryTest` (248 lines) covers users-per-application and user-activity queries. `GenericDashboardMetricsContributorTest` (76 lines) covers the shared metric row helpers.
 - **Templates / Export**: Secured `POST /api/tasks/template/export` accepts XML and returns PDF (`TemplateExportService`). USER/ADMIN/PUBLIC; non-admin must send `applicationId`/`territoryId` and may only use accessible document-export (type 17) and Plantilla tasks. Map Image task type 18 (`mapImage`, Liquibase `21_add_map_image_task_type`). Client profile publishes document-export tasks via `TaskDocumentExportService` ([#259](https://github.com/sitmun/sitmun-backend-core/pull/259)).
 - **Services / Capabilities**: `POST /api/helpers/capabilities` takes a form overlay DTO (`id?`, `url`, `type`, `authenticationMode?`, `user?`, `password?`), builds the WMS GetCapabilities URL server-side, and sends origin HTTP Basic when the mode is `HTTP Basic authentication`. GET is removed. Null password on Service PUT keeps `SER_PWD`; authentication other than `None` forces `isProxied` ([#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
 - **Trees** / **Images**: Tree and tree-node `image` fields accept SVG (`sitmun.ui.image.supportedFormats` includes `svg`). SVG is stored as `data:image/svg+xml;base64,...` without ImageIO raster scaling so vector icons stay sharp ([sitmun-admin-app#330](https://github.com/sitmun/sitmun-admin-app/issues/330)).
@@ -27,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Users**: `PUT /api/user-positions/{id}` with `createdDate: null` keeps the start open-left; Spring `@CreatedDate` does not restamp on that update ([sitmun-admin-app#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
 
 - **Templates / Preview**: Known unresolved system vars (`{{#APP_NAME}}`) and unresolved task placeholders no longer inject highlight `<span>` chrome into HTML **attributes** (that broke quoting and spilled `APP_NAME">` into the document). Text nodes keep `.sitmun-template-known` / `.sitmun-template-error` spans; attributes get opaque bare text.
+- **Dashboard**: Users-per-application counts no longer dropped by date-series parsing (`DashboardMetricsContributor`). User activity is bucketed by day; per-application count excludes expired `UserPosition` grants and children-only configurations (`application.yml` dashboard queries).
 
 ## [1.2.8] - 2026-07-30
 
