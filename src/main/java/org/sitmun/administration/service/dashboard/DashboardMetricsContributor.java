@@ -33,6 +33,14 @@ public interface DashboardMetricsContributor extends Runnable {
     return null;
   }
 
+  default MultiGauge.Row<Number> getNameCountRow(Object[] entry) {
+    if (entry == null || entry.length != 2 || entry[0] == null || entry[1] == null) {
+      return null;
+    }
+    return MultiGauge.Row.of(
+        Tags.of(DashboardInfoContributor.TAG, entry[0].toString()), (Number) entry[1]);
+  }
+
   /**
    * This method is used to convert the result of a query to a MultiGauge.Row&lt;Number> object. The
    * expected format of the query result is an array of 3 elements:
@@ -65,6 +73,13 @@ public interface DashboardMetricsContributor extends Runnable {
     }
   }
 
+  default MultiGauge.Row<Number> toGaugeRow(Object[] entry) {
+    if (entry != null && entry.length == 2) {
+      return getNameCountRow(entry);
+    }
+    return getDateNumberRow(entry);
+  }
+
   default void runQuery(
       MultiGauge gauge,
       EntityManager entityManager,
@@ -75,7 +90,7 @@ public interface DashboardMetricsContributor extends Runnable {
       List<Object[]> results = query.getResultList();
       Iterable<MultiGauge.Row<?>> list =
           results.stream()
-              .map(this::getDateNumberRow)
+              .map(this::toGaugeRow)
               .filter(Objects::nonNull)
               .collect(Collectors.toUnmodifiableList());
       gauge.register(list);
