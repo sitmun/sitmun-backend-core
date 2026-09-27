@@ -19,6 +19,7 @@ import org.sitmun.authorization.client.service.TaskMapper;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.cartography.parameter.CartographyParameter;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
@@ -82,7 +83,41 @@ public abstract class ProfileMapper {
         .metadataURL(cartography.getMetadataURL())
         .datasetURL(cartography.getDatasetURL())
         .queryableFeatureEnabled(cartography.getQueryableFeatureEnabled())
+        .featureInfoFields(mapFeatureInfoFields(cartography))
         .build();
+  }
+
+  private List<FeatureInfoFieldDto> mapFeatureInfoFields(Cartography cartography) {
+    if (cartography.getParameters() == null || cartography.getParameters().isEmpty()) {
+      return null;
+    }
+    List<FeatureInfoFieldDto> fields =
+        cartography.getParameters().stream()
+            .filter(parameter -> "INFO".equals(parameter.getType()))
+            .sorted(
+                Comparator.comparing(
+                    CartographyParameter::getOrder,
+                    Comparator.nullsLast(Comparator.naturalOrder())))
+            .map(
+                parameter ->
+                    FeatureInfoFieldDto.builder()
+                        .name(parameter.getName())
+                        .label(parameter.getValue())
+                        .format(blankToNull(parameter.getFormat()))
+                        .order(parameter.getOrder())
+                        .fractionDigits(parameter.getFractionDigits())
+                        .padFractionDigits(parameter.getPadFractionDigits())
+                        .dateStyle(blankToNull(parameter.getDateStyle()))
+                        .build())
+            .toList();
+    return fields.isEmpty() ? null : fields;
+  }
+
+  private static String blankToNull(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return value;
   }
 
   /**

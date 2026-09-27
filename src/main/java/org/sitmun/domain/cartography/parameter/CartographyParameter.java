@@ -12,9 +12,12 @@ import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
 /** Geographic Information parameter. */
 @Entity
+@EntityListeners(I18nListener.class)
 @Table(name = "STM_PAR_GI")
 @Builder
 @Getter
@@ -41,9 +44,10 @@ public class CartographyParameter {
   @NotBlank
   private String name;
 
-  /** Value. */
+  /** Default-language label. Other languages come from STM_TRANSLATION. */
   @Column(name = "PGI_VALUE", length = PersistenceConstants.VALUE)
   @NotNull
+  @I18n
   private String value;
 
   /** Format. */
@@ -68,6 +72,19 @@ public class CartographyParameter {
   @Column(name = "PGI_ORDER")
   @Min(0)
   private Integer order;
+
+  /** Fraction digits for N and P. Empty means 7. */
+  @Column(name = "PGI_DIGITS")
+  @Min(0)
+  private Integer fractionDigits;
+
+  /** When true, N and P pad missing fraction digits with zeros. */
+  @Column(name = "PGI_PAD")
+  private Boolean padFractionDigits;
+
+  /** Date style for F: date, or datetime. Empty means date and time. */
+  @Column(name = "PGI_DATESTYLE", length = 20)
+  private String dateStyle;
 
   @Override
   public boolean equals(Object obj) {

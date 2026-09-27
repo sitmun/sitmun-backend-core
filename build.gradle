@@ -195,6 +195,7 @@ tasks.named('processTestResources', Copy).configure {
     include '19_mia_chrome_literals.yaml'
     include '21_align_schema_dialects.yaml'
     include '22_align_nullability.yaml'
+    include '23_feature_info_field_format.yaml'
     into 'db/changelog'
   }
 }

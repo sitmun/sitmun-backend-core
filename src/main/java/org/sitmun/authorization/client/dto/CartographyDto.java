@@ -23,4 +23,5 @@ public class CartographyDto {
   String metadataURL;
   String datasetURL;
   Boolean queryableFeatureEnabled;
+  List<FeatureInfoFieldDto> featureInfoFields;
 }

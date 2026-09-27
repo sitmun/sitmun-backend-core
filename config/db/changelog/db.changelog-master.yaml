@@ -74,3 +74,6 @@ databaseChangeLog:
   - include:
       file: 21_add_map_image_task_type.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 23_feature_info_field_format.yaml
+      relativeToChangelogFile: true
