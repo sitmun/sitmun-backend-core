@@ -50,15 +50,23 @@ public class SimpleFeatureTypeExtractor implements FeatureTypeExtractor {
           return;
         }
         builder.asJson(json.toMap());
-
-        json.toMap().keySet().stream()
-            .filter(it -> it.endsWith(":schema"))
-            .findFirst()
-            .ifPresentOrElse(
-                node -> processRootNode(builder, json, node),
-                () -> builder.success(false).reason("Unmanaged XML response"));
+        acceptDocument(builder, json);
       }
     }
+  }
+
+  /** DescribeLayer is not a GML schema. The admin uses it to discover the WFS feature type. */
+  static void acceptDocument(ExtractedMetadataBuilder builder, JSONObject json) {
+    if (json.keySet().stream().anyMatch(key -> key.endsWith("DescribeLayerResponse"))) {
+      builder.type("DescribeLayer").success(true);
+      return;
+    }
+    json.toMap().keySet().stream()
+        .filter(it -> it.endsWith(":schema"))
+        .findFirst()
+        .ifPresentOrElse(
+            node -> processRootNode(builder, json, node),
+            () -> builder.success(false).reason("Unmanaged XML response"));
   }
 
   private static void processRootNode(

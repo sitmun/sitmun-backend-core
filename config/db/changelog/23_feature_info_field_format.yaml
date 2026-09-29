@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 23-feature-info-field-columns-h2
+      id: 23-feature-info-options-h2
       author: sitmun
       dbms: h2
       changes:
@@ -8,16 +8,10 @@ databaseChangeLog:
             tableName: STM_PAR_GI
             columns:
               - column:
-                  name: PGI_DIGITS
-                  type: INTEGER
-              - column:
-                  name: PGI_PAD
-                  type: BOOLEAN
-              - column:
-                  name: PGI_DATESTYLE
-                  type: VARCHAR(20)
+                  name: PGI_OPTIONS
+                  type: CLOB
   - changeSet:
-      id: 23-feature-info-field-columns-postgresql
+      id: 23-feature-info-options-postgresql
       author: sitmun
       dbms: postgresql
       changes:
@@ -25,16 +19,10 @@ databaseChangeLog:
             tableName: STM_PAR_GI
             columns:
               - column:
-                  name: PGI_DIGITS
-                  type: INTEGER
-              - column:
-                  name: PGI_PAD
-                  type: BOOLEAN
-              - column:
-                  name: PGI_DATESTYLE
-                  type: VARCHAR(20)
+                  name: PGI_OPTIONS
+                  type: TEXT
   - changeSet:
-      id: 23-feature-info-field-columns-oracle
+      id: 23-feature-info-options-oracle
       author: sitmun
       dbms: oracle
       changes:
@@ -42,14 +30,8 @@ databaseChangeLog:
             tableName: STM_PAR_GI
             columns:
               - column:
-                  name: PGI_DIGITS
-                  type: NUMBER(10)
-              - column:
-                  name: PGI_PAD
-                  type: NUMBER(1)
-              - column:
-                  name: PGI_DATESTYLE
-                  type: VARCHAR2(20 CHAR)
+                  name: PGI_OPTIONS
+                  type: CLOB
   - changeSet:
       id: 23-feature-info-auto-h2
       author: sitmun

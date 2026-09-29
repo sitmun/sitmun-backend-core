@@ -1,11 +1,13 @@
 package org.sitmun.domain.cartography.parameter;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.*;
+import org.hibernate.Length;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.domain.CodeListsConstants;
@@ -73,18 +75,11 @@ public class CartographyParameter {
   @Min(0)
   private Integer order;
 
-  /** Fraction digits for N and P. Empty means 7. */
-  @Column(name = "PGI_DIGITS")
-  @Min(0)
-  private Integer fractionDigits;
-
-  /** When true, N and P pad missing fraction digits with zeros. */
-  @Column(name = "PGI_PAD")
-  private Boolean padFractionDigits;
-
-  /** Date style for F: date, or datetime. Empty means date and time. */
-  @Column(name = "PGI_DATESTYLE", length = 20)
-  private String dateStyle;
+  /** Format options for N, P, and F. Empty means the format defaults. */
+  @Column(name = "PGI_OPTIONS", length = Length.LONG32)
+  @Convert(converter = FeatureInfoFormatOptionsConverter.class)
+  @Valid
+  private FeatureInfoFormatOptions options;
 
   @Override
   public boolean equals(Object obj) {

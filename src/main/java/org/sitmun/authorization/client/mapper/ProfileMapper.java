@@ -20,6 +20,7 @@ import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.parameter.CartographyParameter;
+import org.sitmun.domain.cartography.parameter.FeatureInfoFormatOptions;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
 import org.sitmun.domain.service.Service;
@@ -99,16 +100,18 @@ public abstract class ProfileMapper {
                     CartographyParameter::getOrder,
                     Comparator.nullsLast(Comparator.naturalOrder())))
             .map(
-                parameter ->
-                    FeatureInfoFieldDto.builder()
-                        .name(parameter.getName())
-                        .label(parameter.getValue())
-                        .format(blankToNull(parameter.getFormat()))
-                        .order(parameter.getOrder())
-                        .fractionDigits(parameter.getFractionDigits())
-                        .padFractionDigits(parameter.getPadFractionDigits())
-                        .dateStyle(blankToNull(parameter.getDateStyle()))
-                        .build())
+                parameter -> {
+                  FeatureInfoFormatOptions options = parameter.getOptions();
+                  return FeatureInfoFieldDto.builder()
+                      .name(parameter.getName())
+                      .label(parameter.getValue())
+                      .format(blankToNull(parameter.getFormat()))
+                      .order(parameter.getOrder())
+                      .fractionDigits(options == null ? null : options.getFractionDigits())
+                      .padFractionDigits(options == null ? null : options.getPadFractionDigits())
+                      .dateStyle(options == null ? null : blankToNull(options.getDateStyle()))
+                      .build();
+                })
             .toList();
     return fields.isEmpty() ? null : fields;
   }
