@@ -3,17 +3,33 @@ package org.sitmun.administration.service.extractor.featuretype;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
+import org.sitmun.administration.service.extractor.LocalHtmlServer;
 
 @DisplayName("Simple Feature Type Extractor test")
 class SimpleFeatureTypeExtractorTest {
 
+  private static LocalHtmlServer html;
+
   private final HttpClientFactory factory = new HttpClientFactory(List.of("*"));
 
   private final SimpleFeatureTypeExtractor extractor = new SimpleFeatureTypeExtractor(factory);
+
+  @BeforeAll
+  static void startHtml() throws IOException {
+    html = LocalHtmlServer.start();
+  }
+
+  @AfterAll
+  static void stopHtml() {
+    html.close();
+  }
 
   @Test
   @DisplayName("Extract from a DescribeFeatureType request to a WFS 2.0")
@@ -63,7 +79,7 @@ class SimpleFeatureTypeExtractorTest {
   @Test
   @DisplayName("Extract from a request to HTML page")
   void extractHtmlPage() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/");
+    ExtractedMetadata doc = extractor.extract(html.url("/"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Unmanaged XML response", doc.getReason());
@@ -74,7 +90,7 @@ class SimpleFeatureTypeExtractorTest {
   @Test
   @DisplayName("Extract from a request to a not found page")
   void extract404Page() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/not-found");
+    ExtractedMetadata doc = extractor.extract(html.url("/not-found"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Not a well formed XML", doc.getReason());

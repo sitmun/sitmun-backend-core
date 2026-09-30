@@ -196,6 +196,7 @@ tasks.named('processTestResources', Copy).configure {
     include '21_align_schema_dialects.yaml'
     include '22_align_nullability.yaml'
     include '23_feature_info_field_format.yaml'
+    include '24_add_tree_node_default.yaml'
     into 'db/changelog'
   }
 }

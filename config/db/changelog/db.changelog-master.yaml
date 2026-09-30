@@ -77,3 +77,6 @@ databaseChangeLog:
   - include:
       file: 23_feature_info_field_format.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 24_add_tree_node_default.yaml
+      relativeToChangelogFile: true

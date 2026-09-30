@@ -271,7 +271,8 @@ class UserPositionActiveGrantTest {
             .build());
   }
 
-  private void persistPosition(User user, Territory territory, Date createdDate, Date expirationDate) {
+  private void persistPosition(
+      User user, Territory territory, Date createdDate, Date expirationDate) {
     UserPosition position =
         UserPosition.builder()
             .user(user)
