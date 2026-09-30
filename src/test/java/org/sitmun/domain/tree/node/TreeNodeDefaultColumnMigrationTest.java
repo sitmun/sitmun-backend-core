@@ -23,8 +23,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 @DisplayName("TreeNode TNO_DEFAULT column migration")
 class TreeNodeDefaultColumnMigrationTest {
 
-  private static final Path MIGRATION_CHANGELOG_ROOT =
-      Path.of("../../../profiles/development/backend/liquibase").toAbsolutePath().normalize();
+  private static final Path PROJECT_ROOT = Path.of(".").toAbsolutePath().normalize();
 
   @Test
   @DisplayName("adds TNO_DEFAULT column with NOT NULL DEFAULT FALSE; TNO_VISIBLE absent")
@@ -114,8 +113,8 @@ class TreeNodeDefaultColumnMigrationTest {
             .findCorrectDatabaseImplementation(new JdbcConnection(connection));
     try (Liquibase liquibase =
         new Liquibase(
-            "changelog/52_add_tree_node_default.yaml",
-            new DirectoryResourceAccessor(MIGRATION_CHANGELOG_ROOT),
+            "config/db/changelog/24_add_tree_node_default.yaml",
+            new DirectoryResourceAccessor(PROJECT_ROOT),
             database)) {
       liquibase.update(new Contexts("dev"));
     }

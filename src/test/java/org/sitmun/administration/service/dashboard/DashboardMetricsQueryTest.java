@@ -34,14 +34,22 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnableConfigurationProperties(DashboardProperties.class)
 @DisplayName("Dashboard metric queries")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class DashboardMetricsQueryTest {
+
+  private static final String DATABASE_URL =
+      "jdbc:h2:mem:dashboard-metrics;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+
+  @DynamicPropertySource
+  static void isolateDatabase(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", () -> DATABASE_URL);
+  }
 
   @Autowired private EntityManager entityManager;
   @Autowired private DashboardProperties dashboardProperties;

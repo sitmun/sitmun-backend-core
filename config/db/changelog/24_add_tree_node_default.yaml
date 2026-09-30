@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 24-add-tno-default-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              tableName: STM_TREE_NOD
+              columnName: TNO_DEFAULT
+      changes:
+        - addColumn:
+            tableName: STM_TREE_NOD
+            columns:
+              - column:
+                  name: TNO_DEFAULT
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 24-add-tno-default-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              tableName: STM_TREE_NOD
+              columnName: TNO_DEFAULT
+      changes:
+        - addColumn:
+            tableName: STM_TREE_NOD
+            columns:
+              - column:
+                  name: TNO_DEFAULT
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 24-add-tno-default-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              tableName: STM_TREE_NOD
+              columnName: TNO_DEFAULT
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_TREE_NOD ADD TNO_DEFAULT NUMBER(1,0) DEFAULT 0 NOT NULL
