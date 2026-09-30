@@ -4,9 +4,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.service.extractor.LocalHtmlServer;
 import org.sitmun.test.BaseTest;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -14,6 +18,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 class FeatureTypeExtractorControllerTest extends BaseTest {
 
   private static final String URI_TEMPLATE = "/api/helpers/feature-type?url={0}";
+  private static LocalHtmlServer html;
+
+  @BeforeAll
+  static void startHtml() throws IOException {
+    html = LocalHtmlServer.start();
+  }
+
+  @AfterAll
+  static void stopHtml() {
+    html.close();
+  }
 
   @Test
   @WithMockUser(roles = "ADMIN")
@@ -61,7 +76,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("GET: Extract from a request to HTML page")
   void extractHtmlPage() throws Exception {
-    mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/"))
+    mvc.perform(get(URI_TEMPLATE, html.url("/")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("Unmanaged XML response"))
@@ -72,7 +87,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("GET: Extract from a request to a not found page")
   void extract404Page() throws Exception {
-    mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/not-found"))
+    mvc.perform(get(URI_TEMPLATE, html.url("/not-found")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("Not a well formed XML"))
