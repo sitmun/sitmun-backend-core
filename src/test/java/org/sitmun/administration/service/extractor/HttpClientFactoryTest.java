@@ -1,6 +1,7 @@
 package org.sitmun.administration.service.extractor;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -9,20 +10,32 @@ import javax.net.ssl.SSLHandshakeException;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("HttpClientFactory tests")
 class HttpClientFactoryTest {
 
+  private static LocalTlsServer tls;
+
+  @BeforeAll
+  static void startTls() throws Exception {
+    tls = LocalTlsServer.start();
+  }
+
+  @AfterAll
+  static void stopTls() throws IOException {
+    tls.close();
+  }
+
   @Test
   @DisplayName("Fail with SSLHandshakeException")
   void failWithASSLHandhakeException() {
-    String url = "https://untrusted-root.badssl.com/";
-    List<String> unsafeAllowedHosts = Lists.list();
-    HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
+    HttpClientFactory client = new HttpClientFactory(Lists.list());
 
-    Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
+    Request request = new Request.Builder().url(tls.url()).header("Accept", "*/*").build();
 
     assertThrows(
         SSLHandshakeException.class,
@@ -37,32 +50,21 @@ class HttpClientFactoryTest {
   @Test
   @DisplayName("Any request use the unsafe client")
   void anyRequestUseTheUnsafeClient() {
-    String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
-    List<String> unsafeAllowedHosts = Lists.list("*");
-    HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
-
-    Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
-
-    //noinspection EmptyTryBlock
-    try (Response ignored = client.executeRequest(request)) {
-      // Do nothing
-    } catch (IOException e) {
-      fail(e);
-    }
+    assertCompletes(Lists.list("*"));
   }
 
   @Test
   @DisplayName("Use unsafe client when domain matches")
   void useUnsafeClientWhenDomainMatches() {
-    String url = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx";
-    List<String> unsafeAllowedHosts = Lists.list("ovc.catastro.meh.es");
+    assertCompletes(Lists.list(tls.host()));
+  }
+
+  private static void assertCompletes(List<String> unsafeAllowedHosts) {
     HttpClientFactory client = new HttpClientFactory(unsafeAllowedHosts);
+    Request request = new Request.Builder().url(tls.url()).header("Accept", "*/*").build();
 
-    Request request = new Request.Builder().url(url).header("Accept", "*/*").build();
-
-    //noinspection EmptyTryBlock
-    try (Response ignored = client.executeRequest(request)) {
-      // Do nothing
+    try (Response response = client.executeRequest(request)) {
+      assertTrue(response.isSuccessful());
     } catch (IOException e) {
       fail(e);
     }
