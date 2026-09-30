@@ -5,9 +5,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import java.io.IOException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sitmun.administration.service.extractor.LocalHtmlServer;
 import org.sitmun.test.BaseTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -18,6 +22,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
 
   private static final String CAPABILITIES_URI = "/api/helpers/capabilities";
+  private static LocalHtmlServer html;
+
+  @BeforeAll
+  static void startHtml() throws IOException {
+    html = LocalHtmlServer.start();
+  }
+
+  @AfterAll
+  static void stopHtml() {
+    html.close();
+  }
 
   @Test
   @WithMockUser(roles = "ADMIN")
@@ -85,7 +100,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("HTML: Extract from a request to HTML page")
   void extractHtmlPage() throws Exception {
-    postCapabilities(body("https://www.ign.es/", "WMS"))
+    postCapabilities(body(html.url("/"), "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
@@ -96,7 +111,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("HTML: Extract from a request to a not found page")
   void extract404Page() throws Exception {
-    postCapabilities(body("https://www.ign.es/not-found", "WMS"))
+    postCapabilities(body(html.url("/not-found"), "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("Not a well formed XML"))
