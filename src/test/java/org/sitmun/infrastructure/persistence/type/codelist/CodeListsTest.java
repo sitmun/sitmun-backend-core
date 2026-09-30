@@ -110,7 +110,7 @@ class CodeListsTest {
   @DisplayName("Verify cartographyParameter.format code list values")
   void checkCartographyParameterFormat() {
     assertThat(select(CARTOGRAPHY_PARAMETER_FORMAT))
-        .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F");
+        .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F", "AUTO");
   }
 
   @Test

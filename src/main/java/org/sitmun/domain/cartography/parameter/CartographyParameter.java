@@ -1,20 +1,25 @@
 package org.sitmun.domain.cartography.parameter;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.*;
+import org.hibernate.Length;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.PersistenceConstants;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.infrastructure.persistence.type.codelist.CodeList;
+import org.sitmun.infrastructure.persistence.type.i18n.I18n;
+import org.sitmun.infrastructure.persistence.type.i18n.I18nListener;
 
 /** Geographic Information parameter. */
 @Entity
+@EntityListeners(I18nListener.class)
 @Table(name = "STM_PAR_GI")
 @Builder
 @Getter
@@ -41,9 +46,10 @@ public class CartographyParameter {
   @NotBlank
   private String name;
 
-  /** Value. */
+  /** Default-language label. Other languages come from STM_TRANSLATION. */
   @Column(name = "PGI_VALUE", length = PersistenceConstants.VALUE)
   @NotNull
+  @I18n
   private String value;
 
   /** Format. */
@@ -68,6 +74,12 @@ public class CartographyParameter {
   @Column(name = "PGI_ORDER")
   @Min(0)
   private Integer order;
+
+  /** Format options for N, P, and F. Empty means the format defaults. */
+  @Column(name = "PGI_OPTIONS", length = Length.LONG32)
+  @Convert(converter = FeatureInfoFormatOptionsConverter.class)
+  @Valid
+  private FeatureInfoFormatOptions options;
 
   @Override
   public boolean equals(Object obj) {

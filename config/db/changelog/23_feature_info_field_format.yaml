@@ -1,0 +1,92 @@
+databaseChangeLog:
+  - changeSet:
+      id: 23-feature-info-options-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - addColumn:
+            tableName: STM_PAR_GI
+            columns:
+              - column:
+                  name: PGI_OPTIONS
+                  type: CLOB
+  - changeSet:
+      id: 23-feature-info-options-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - addColumn:
+            tableName: STM_PAR_GI
+            columns:
+              - column:
+                  name: PGI_OPTIONS
+                  type: TEXT
+  - changeSet:
+      id: 23-feature-info-options-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - addColumn:
+            tableName: STM_PAR_GI
+            columns:
+              - column:
+                  name: PGI_OPTIONS
+                  type: CLOB
+  - changeSet:
+      id: 23-feature-info-auto-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'AUTO', FALSE, FALSE, 'Automatic'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'AUTO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: 23-feature-info-auto-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'AUTO', FALSE, FALSE, 'Automatic'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'AUTO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: 23-feature-info-auto-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'AUTO', 0, 0, 'Automatic'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'AUTO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';

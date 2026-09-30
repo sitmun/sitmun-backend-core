@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Profile**: Client profile layers publish ordered `featureInfoFields` for `INFO` cartography parameters (`name`, translated `label`, `format`, `order`, `fractionDigits`, `padFractionDigits`, `dateStyle`). The list is omitted when the layer has no INFO rows. `CartographyParameter.value` is overlaid from `STM_TRANSLATION`. Liquibase `23_feature_info_field_format` adds `PGI_OPTIONS` and format code `AUTO` ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
+
 ## [1.2.9] - 2026-09-19
 
 ### Changed
