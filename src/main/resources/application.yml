@@ -85,6 +85,10 @@ sitmun:
     url: ${SITMUN_PROXY_MIDDLEWARE_URL:http://localhost:8080/middleware}
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true
+  short-url:
+    provider: none
+    tinyurl-legacy:
+      endpoint: https://tinyurl.com/api-create.php
   authentication:
     http-only-cookie: true
     same-site-cookie: Strict

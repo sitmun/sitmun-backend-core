@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Map**: `POST /api/config/client/short-url` accepts a viewer map URL on this host. The caller must be able to open that application and territory, including a public visitor with no cookie. A foreign URL is rejected before any shortener runs. `sitmun.short-url.provider` defaults to `none` and returns the submitted URL. `tinyurl-legacy` calls TinyURL from the server. A provider I/O failure returns the detail `Short URL provider failed` and keeps the exception text in the server log ([#272](https://github.com/sitmun/sitmun-backend-core/issues/272)).
 - **Profile**: Client profile layers publish ordered `featureInfoFields` for `INFO` cartography parameters (`name`, translated `label`, `format`, `order`, `fractionDigits`, `padFractionDigits`, `dateStyle`). The list is omitted when the layer has no INFO rows. `CartographyParameter.value` is overlaid from `STM_TRANSLATION`. Liquibase `23_feature_info_field_format` adds `PGI_OPTIONS` and format code `AUTO` ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 
 ## [1.2.9] - 2026-09-19
