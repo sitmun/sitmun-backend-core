@@ -105,6 +105,9 @@ bucket4j-core = { module = "com.bucket4j:bucket4j-core", version.ref = "bucket4j
 # HTML parsing
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
+# Restart the running app when compiled classes change. Not packaged in the production jar.
+spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
+
 # PDF generation
 openhtmltopdf-core = { module = "com.openhtmltopdf:openhtmltopdf-core", version.ref = "openhtmltopdf" }
 openhtmltopdf-pdfbox = { module = "com.openhtmltopdf:openhtmltopdf-pdfbox", version.ref = "openhtmltopdf" }

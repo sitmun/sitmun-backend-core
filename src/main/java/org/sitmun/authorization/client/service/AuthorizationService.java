@@ -35,6 +35,7 @@ import org.sitmun.domain.configuration.ConfigurationParameterRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.ServiceBlockPolicy;
+import org.sitmun.domain.service.usage.ViewerUsage;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.task.TaskRepository;
 import org.sitmun.domain.territory.Territory;
@@ -75,6 +76,7 @@ public class AuthorizationService {
   private final TreeNodeRepository treeNodeRepository;
   private final TranslationService translationService;
   private final UserApplicationAccessPolicy userApplicationAccessPolicy;
+  private final ViewerUsage viewerUsage;
 
   public AuthorizationService(
       ApplicationRepository applicationRepository,
@@ -88,7 +90,8 @@ public class AuthorizationService {
       ApplicationTreeRepository applicationTreeRepository,
       TreeNodeRepository treeNodeRepository,
       TranslationService translationService,
-      UserApplicationAccessPolicy userApplicationAccessPolicy) {
+      UserApplicationAccessPolicy userApplicationAccessPolicy,
+      ViewerUsage viewerUsage) {
     this.applicationRepository = applicationRepository;
     this.territoryRepository = territoryRepository;
     this.roleRepository = roleRepository;
@@ -101,6 +104,7 @@ public class AuthorizationService {
     this.treeNodeRepository = treeNodeRepository;
     this.translationService = translationService;
     this.userApplicationAccessPolicy = userApplicationAccessPolicy;
+    this.viewerUsage = viewerUsage;
   }
 
   /**
@@ -441,6 +445,7 @@ public class AuthorizationService {
             .filter(ServiceBlockPolicy::isAccessibleInClientProfile)
             .filter(distinctByKey(org.sitmun.domain.service.Service::getId))
             .toList();
+    viewerUsage.record(context.getAppId(), filteredServices);
 
     return Optional.of(
         Profile.builder()

@@ -85,6 +85,23 @@ sitmun:
     url: ${SITMUN_PROXY_MIDDLEWARE_URL:http://localhost:8080/middleware}
     # When enabled, validates user permissions and enforces role-based access control
     validate-user-access: true
+  service-check:
+    enabled: true
+    interval: 15m
+    dispatch-interval: 1s
+    max-in-flight: 4
+    max-per-host: 1
+    timeout: 10s
+    connect-timeout: 10s
+    read-timeout: 10s
+    sample-retention: 24h
+    usage-retention: 400d
+    retention-interval: 1h
+    overdue-warn-factor: 2
+    viewer-flush-interval: 1m
+    detail-max-length: 500
+    exception-text-max-length: 200
+    scan-max-bytes: 65536
   short-url:
     provider: none
     tinyurl-legacy:

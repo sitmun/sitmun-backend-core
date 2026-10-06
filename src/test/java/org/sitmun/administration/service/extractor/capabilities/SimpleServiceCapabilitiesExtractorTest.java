@@ -91,14 +91,15 @@ class SimpleServiceCapabilitiesExtractorTest {
   }
 
   @Test
-  @DisplayName("Extract from a request to a not found page")
+  @DisplayName("A non-XML 404 reports the HTTP status")
   void extract404Page() {
     ExtractedMetadata doc = extractor.extract(request(html.url("/not-found")));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
-    assertEquals("Not a well formed XML", doc.getReason());
+    assertEquals("HTTP 404", doc.getReason());
     assertNotNull(doc.getAsText());
     assertThat(doc.getAsText()).startsWith("<html");
+    assertNull(doc.getAsJson());
   }
 
   @Test

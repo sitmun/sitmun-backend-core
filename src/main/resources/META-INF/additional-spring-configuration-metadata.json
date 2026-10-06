@@ -213,6 +213,86 @@
       "name": "sitmun.startup.built-in-users.admin-password",
       "type": "java.lang.String",
       "description": "Optional bootstrap password used only to create a missing built-in admin user or restore an empty admin password at startup. Inject via SITMUN_BOOTSTRAP_ADMIN_PASSWORD. No default. Remove after /api/dashboard/health is UP and rotate via the admin UI."
+    },
+    {
+      "name": "sitmun.service-check.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Periodic service-check dispatcher. The access-check button stays available when this is false."
+    },
+    {
+      "name": "sitmun.service-check.interval",
+      "type": "java.time.Duration",
+      "description": "Age after which a service is due for a periodic probe."
+    },
+    {
+      "name": "sitmun.service-check.dispatch-interval",
+      "type": "java.time.Duration",
+      "description": "How often the dispatcher looks for a free slot."
+    },
+    {
+      "name": "sitmun.service-check.max-in-flight",
+      "type": "java.lang.Integer",
+      "description": "Probe slots shared by the dispatcher and the access-check button."
+    },
+    {
+      "name": "sitmun.service-check.max-per-host",
+      "type": "java.lang.Integer",
+      "description": "In-flight probes per upstream host."
+    },
+    {
+      "name": "sitmun.service-check.timeout",
+      "type": "java.time.Duration",
+      "description": "TimeLimiter duration for one probe. A timed-out call is timeout."
+    },
+    {
+      "name": "sitmun.service-check.connect-timeout",
+      "type": "java.time.Duration",
+      "description": "OkHttp connect timeout for a probe."
+    },
+    {
+      "name": "sitmun.service-check.read-timeout",
+      "type": "java.time.Duration",
+      "description": "OkHttp read timeout for a probe."
+    },
+    {
+      "name": "sitmun.service-check.sample-retention",
+      "type": "java.time.Duration",
+      "description": "Delete check samples older than this."
+    },
+    {
+      "name": "sitmun.service-check.usage-retention",
+      "type": "java.time.Duration",
+      "description": "Delete usage rows older than this."
+    },
+    {
+      "name": "sitmun.service-check.retention-interval",
+      "type": "java.time.Duration",
+      "description": "How often retention runs."
+    },
+    {
+      "name": "sitmun.service-check.overdue-warn-factor",
+      "type": "java.lang.Integer",
+      "description": "Log when the oldest due age reaches this multiple of interval."
+    },
+    {
+      "name": "sitmun.service-check.viewer-flush-interval",
+      "type": "java.time.Duration",
+      "description": "Flush in-memory viewer configuration counters."
+    },
+    {
+      "name": "sitmun.service-check.detail-max-length",
+      "type": "java.lang.Integer",
+      "description": "Cut the stored detail line."
+    },
+    {
+      "name": "sitmun.service-check.exception-text-max-length",
+      "type": "java.lang.Integer",
+      "description": "Cut OGC exception text before the captures see it."
+    },
+    {
+      "name": "sitmun.service-check.scan-max-bytes",
+      "type": "java.lang.Integer",
+      "description": "Maximum bytes passed into the shared StAX scan."
     }
   ],
   "hints": [

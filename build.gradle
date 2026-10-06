@@ -66,6 +66,8 @@ dependencies {
   
   // Development and testing database
   implementation libs.h2
+
+  developmentOnly libs.spring.boot.devtools
   
   // Production databases
   implementation libs.postgresql
@@ -93,6 +95,9 @@ dependencies {
   implementation platform(libs.okhttp.bom)
   implementation libs.okhttp
   implementation libs.okhttp.logging
+  implementation 'org.sitmun:sitmun-spring-upstream:1.2.9'
+  implementation 'org.sitmun:sitmun-proxy-contract:1.2.9'
+  implementation 'io.github.resilience4j:resilience4j-timelimiter:2.3.0'
 
   // JSON processing
   implementation libs.json
@@ -156,6 +161,7 @@ dependencies {
   
   // LDAP testing (embedded LDAP server)
   testImplementation libs.unboundid.ldapsdk
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
 
 }
 
@@ -197,6 +203,7 @@ tasks.named('processTestResources', Copy).configure {
     include '22_align_nullability.yaml'
     include '23_feature_info_field_format.yaml'
     include '24_add_tree_node_default.yaml'
+    include '25_service_check.yaml'
     into 'db/changelog'
   }
 }

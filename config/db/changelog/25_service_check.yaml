@@ -1,0 +1,165 @@
+databaseChangeLog:
+  - changeSet:
+      id: 25-service-check-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK (
+                SEC_ID INTEGER NOT NULL,
+                SEC_SERID INTEGER NOT NULL,
+                SEC_OBSERVER VARCHAR(16) NOT NULL,
+                SEC_STATUS VARCHAR(50) NOT NULL,
+                SEC_RANK INTEGER NOT NULL,
+                SEC_OBSERVED TIMESTAMP NOT NULL,
+                SEC_ELAPSED BIGINT NOT NULL,
+                SEC_DETAIL VARCHAR(4000) NOT NULL,
+                CONSTRAINT STM_SEC_PK PRIMARY KEY (SEC_ID),
+                CONSTRAINT STM_SEC_UK UNIQUE (SEC_SERID, SEC_OBSERVER),
+                CONSTRAINT STM_SEC_FK_SER FOREIGN KEY (SEC_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK_SAMPLE (
+                SCS_ID INTEGER NOT NULL,
+                SCS_SERID INTEGER NOT NULL,
+                SCS_OBSERVER VARCHAR(16) NOT NULL,
+                SCS_STATUS VARCHAR(50) NOT NULL,
+                SCS_RANK INTEGER NOT NULL,
+                SCS_ELAPSED BIGINT NOT NULL,
+                SCS_OBSERVED TIMESTAMP NOT NULL,
+                CONSTRAINT STM_SCS_PK PRIMARY KEY (SCS_ID),
+                CONSTRAINT STM_SCS_FK_SER FOREIGN KEY (SCS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: CREATE INDEX STM_SCS_IX_SER_OBS ON STM_SERVICE_CHECK_SAMPLE (SCS_SERID, SCS_OBSERVED)
+
+  - changeSet:
+      id: 25-service-check-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK (
+                SEC_ID INT4 NOT NULL,
+                SEC_SERID INT4 NOT NULL,
+                SEC_OBSERVER VARCHAR(16) NOT NULL,
+                SEC_STATUS VARCHAR(50) NOT NULL,
+                SEC_RANK INT4 NOT NULL,
+                SEC_OBSERVED TIMESTAMP NOT NULL,
+                SEC_ELAPSED BIGINT NOT NULL,
+                SEC_DETAIL VARCHAR(4000) NOT NULL,
+                CONSTRAINT STM_SEC_PK PRIMARY KEY (SEC_ID),
+                CONSTRAINT STM_SEC_UK UNIQUE (SEC_SERID, SEC_OBSERVER),
+                CONSTRAINT STM_SEC_FK_SER FOREIGN KEY (SEC_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK_SAMPLE (
+                SCS_ID INT4 NOT NULL,
+                SCS_SERID INT4 NOT NULL,
+                SCS_OBSERVER VARCHAR(16) NOT NULL,
+                SCS_STATUS VARCHAR(50) NOT NULL,
+                SCS_RANK INT4 NOT NULL,
+                SCS_ELAPSED BIGINT NOT NULL,
+                SCS_OBSERVED TIMESTAMP NOT NULL,
+                CONSTRAINT STM_SCS_PK PRIMARY KEY (SCS_ID),
+                CONSTRAINT STM_SCS_FK_SER FOREIGN KEY (SCS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: CREATE INDEX STM_SCS_IX_SER_OBS ON STM_SERVICE_CHECK_SAMPLE (SCS_SERID, SCS_OBSERVED)
+
+  - changeSet:
+      id: 25-service-check-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK (
+                SEC_ID NUMBER(10, 0) NOT NULL,
+                SEC_SERID NUMBER(10, 0) NOT NULL,
+                SEC_OBSERVER VARCHAR2(16 CHAR) NOT NULL,
+                SEC_STATUS VARCHAR2(50 CHAR) NOT NULL,
+                SEC_RANK NUMBER(10, 0) NOT NULL,
+                SEC_OBSERVED TIMESTAMP(6) NOT NULL,
+                SEC_ELAPSED NUMBER(19, 0) NOT NULL,
+                SEC_DETAIL VARCHAR2(4000 CHAR) NOT NULL,
+                CONSTRAINT STM_SEC_PK PRIMARY KEY (SEC_ID),
+                CONSTRAINT STM_SEC_UK UNIQUE (SEC_SERID, SEC_OBSERVER),
+                CONSTRAINT STM_SEC_FK_SER FOREIGN KEY (SEC_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_CHECK_SAMPLE (
+                SCS_ID NUMBER(10, 0) NOT NULL,
+                SCS_SERID NUMBER(10, 0) NOT NULL,
+                SCS_OBSERVER VARCHAR2(16 CHAR) NOT NULL,
+                SCS_STATUS VARCHAR2(50 CHAR) NOT NULL,
+                SCS_RANK NUMBER(10, 0) NOT NULL,
+                SCS_ELAPSED NUMBER(19, 0) NOT NULL,
+                SCS_OBSERVED TIMESTAMP(6) NOT NULL,
+                CONSTRAINT STM_SCS_PK PRIMARY KEY (SCS_ID),
+                CONSTRAINT STM_SCS_FK_SER FOREIGN KEY (SCS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE
+              )
+        - sql:
+            sql: CREATE INDEX STM_SCS_IX_SER_OBS ON STM_SERVICE_CHECK_SAMPLE (SCS_SERID, SCS_OBSERVED)
+
+  - changeSet:
+      id: 25-service-usage-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_USAGE (
+                SUS_SERID INTEGER NOT NULL,
+                SUS_APPID INTEGER NOT NULL,
+                SUS_DAY DATE NOT NULL,
+                SUS_OPERATION VARCHAR(32) NOT NULL,
+                SUS_REQUESTS BIGINT NOT NULL,
+                SUS_FAILED BIGINT NOT NULL,
+                CONSTRAINT STM_SUS_PK PRIMARY KEY (SUS_SERID, SUS_APPID, SUS_DAY, SUS_OPERATION),
+                CONSTRAINT STM_SUS_FK_SER FOREIGN KEY (SUS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE,
+                CONSTRAINT STM_SUS_FK_APP FOREIGN KEY (SUS_APPID) REFERENCES STM_APP (APP_ID) ON DELETE CASCADE
+              )
+
+  - changeSet:
+      id: 25-service-usage-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_USAGE (
+                SUS_SERID INT4 NOT NULL,
+                SUS_APPID INT4 NOT NULL,
+                SUS_DAY DATE NOT NULL,
+                SUS_OPERATION VARCHAR(32) NOT NULL,
+                SUS_REQUESTS BIGINT NOT NULL,
+                SUS_FAILED BIGINT NOT NULL,
+                CONSTRAINT STM_SUS_PK PRIMARY KEY (SUS_SERID, SUS_APPID, SUS_DAY, SUS_OPERATION),
+                CONSTRAINT STM_SUS_FK_SER FOREIGN KEY (SUS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE,
+                CONSTRAINT STM_SUS_FK_APP FOREIGN KEY (SUS_APPID) REFERENCES STM_APP (APP_ID) ON DELETE CASCADE
+              )
+
+  - changeSet:
+      id: 25-service-usage-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_SERVICE_USAGE (
+                SUS_SERID NUMBER(10, 0) NOT NULL,
+                SUS_APPID NUMBER(10, 0) NOT NULL,
+                SUS_DAY DATE NOT NULL,
+                SUS_OPERATION VARCHAR2(32 CHAR) NOT NULL,
+                SUS_REQUESTS NUMBER(19, 0) NOT NULL,
+                SUS_FAILED NUMBER(19, 0) NOT NULL,
+                CONSTRAINT STM_SUS_PK PRIMARY KEY (SUS_SERID, SUS_APPID, SUS_DAY, SUS_OPERATION),
+                CONSTRAINT STM_SUS_FK_SER FOREIGN KEY (SUS_SERID) REFERENCES STM_SERVICE (SER_ID) ON DELETE CASCADE,
+                CONSTRAINT STM_SUS_FK_APP FOREIGN KEY (SUS_APPID) REFERENCES STM_APP (APP_ID) ON DELETE CASCADE
+              )

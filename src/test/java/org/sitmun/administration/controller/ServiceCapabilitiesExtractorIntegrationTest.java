@@ -109,12 +109,12 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("HTML: Extract from a request to a not found page")
+  @DisplayName("HTML: a non-XML 404 reports the HTTP status")
   void extract404Page() throws Exception {
     postCapabilities(body(html.url("/not-found"), "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
-        .andExpect(jsonPath("$.reason").value("Not a well formed XML"))
+        .andExpect(jsonPath("$.reason").value("HTTP 404"))
         .andExpect(jsonPath("$.asText", startsWith("<html")));
   }
 

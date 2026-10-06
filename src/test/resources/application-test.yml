@@ -55,6 +55,8 @@ logging:
 
 sitmun:
   language: en
+  service-check:
+    enabled: false
   backend:
     url: http://localhost:8080/api
   proxy-middleware:

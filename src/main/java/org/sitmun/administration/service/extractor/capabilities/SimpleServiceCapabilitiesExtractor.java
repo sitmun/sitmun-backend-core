@@ -47,7 +47,8 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
       }
       return;
     }
-    builder.success(response.code() == 200 && response.body() != null);
+    int status = response.code();
+    builder.success(status == 200 && response.body() != null);
     ResponseBody body = response.body();
     if (body != null) {
       String text = body.string();
@@ -55,14 +56,23 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
         builder.success(false).reason("Empty response");
       } else {
         builder.asText(text);
+        if (status != 200) {
+          builder.success(false).reason("HTTP " + status);
+        }
         JSONObject json;
         try {
           json = XML.toJSONObject(text);
         } catch (Exception ignored) {
-          builder.success(false).reason("Not a well formed XML");
+          builder.success(false);
+          if (status == 200) {
+            builder.reason("Not a well formed XML");
+          }
           return;
         }
         builder.asJson(json.toMap());
+        if (status != 200) {
+          return;
+        }
         if (json.has(WMS_CAPABILITIES) && json.getJSONObject(WMS_CAPABILITIES).has(VERSION)) {
           builder.type("OGC:WMS " + json.getJSONObject(WMS_CAPABILITIES).get(VERSION));
         } else if (json.has(WMT_MS_CAPABILITIES)
