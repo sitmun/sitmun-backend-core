@@ -20,5 +20,12 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      - uses: actions/checkout@v5
+        with:
+          repository: sitmun/sitmun-shared
+          ref: "${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}"
+          path: sitmun-shared
+      - run: chmod +x gradlew && ./gradlew publishToMavenLocal
+        working-directory: sitmun-shared
       - run: chmod +x gradlew
       - run: ./gradlew build
