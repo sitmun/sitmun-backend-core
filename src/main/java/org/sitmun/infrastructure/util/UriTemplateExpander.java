@@ -6,12 +6,6 @@ import java.util.*;
 import lombok.Value;
 
 /**
- * Utility class for expanding URI templates using RFC 6570 standard. ONLY handles {variable} syntax
- * for URIs.
- *
- * <p>This class provides methods to expand URI templates according to RFC 6570 specification using
- * the Handy URI Templates library.
- *
  * @see <a href="https://tools.ietf.org/html/rfc6570">RFC 6570: URI Template</a>
  */
 public final class UriTemplateExpander {
@@ -95,7 +89,6 @@ public final class UriTemplateExpander {
     if (template == null || template.isEmpty()) {
       return false;
     }
-    // Simple check for {variable} pattern
     return template.contains("{") && template.contains("}");
   }
 

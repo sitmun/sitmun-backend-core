@@ -111,7 +111,7 @@ public class Service {
   @Column(name = "SER_BLOCKED")
   private Boolean blocked;
 
-  /** <code>true</code> if the service is blocked and cannot be used. */
+  /** <code>true</code> if the service is proxied. */
   @NotNull
   @Column(name = "SER_PROXIED", nullable = false)
   @Builder.Default

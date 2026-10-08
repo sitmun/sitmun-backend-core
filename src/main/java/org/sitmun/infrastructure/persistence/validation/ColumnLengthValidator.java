@@ -37,7 +37,6 @@ public class ColumnLengthValidator implements Validator {
    * Constructs a new ColumnLengthValidator with the specified validator factory.
    *
    * @param validatorFactory The Spring validator factory used for standard validation
-   * @throws IllegalArgumentException if validatorFactory is null
    */
   public ColumnLengthValidator(LocalValidatorFactoryBean validatorFactory) {
     this.validatorFactory = validatorFactory;
@@ -49,7 +48,6 @@ public class ColumnLengthValidator implements Validator {
    *
    * @param clazz The class to check for validation support
    * @return true for all classes
-   * @throws IllegalArgumentException if clazz is null
    */
   @Override
   public boolean supports(@NotNull Class<?> clazz) {
@@ -66,7 +64,6 @@ public class ColumnLengthValidator implements Validator {
    *
    * @param target The object to validate
    * @param errors The {@code Errors} object to store validation errors
-   * @throws IllegalArgumentException if target or errors is null
    */
   @Override
   public void validate(@NotNull Object target, @NotNull Errors errors) {
@@ -92,7 +89,6 @@ public class ColumnLengthValidator implements Validator {
    * @param beanWrapper The Spring BeanWrapper for property access
    * @param propertyName The name of the property to process
    * @return A consumer that truncates the field if needed
-   * @throws IllegalArgumentException if beanWrapper or propertyName is null
    */
   private static @NotNull Consumer<Field> getFieldConsumer(
       BeanWrapper beanWrapper, String propertyName) {
@@ -119,7 +115,6 @@ public class ColumnLengthValidator implements Validator {
    * @param clazz The class to search in
    * @param fieldName The name of the field to find
    * @return Optional containing the field if found, empty otherwise
-   * @throws IllegalArgumentException if clazz or fieldName is null
    */
   private Optional<Field> getField(Class<?> clazz, String fieldName) {
     try {

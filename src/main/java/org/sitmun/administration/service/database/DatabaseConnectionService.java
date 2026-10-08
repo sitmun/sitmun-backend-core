@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DatabaseConnectionService {
 
-  /** Test if the connection parameters is correct. */
   public List<Map<String, Object>> executeQuery(
       @NotNull DatabaseConnection connection, @NotNull String query) throws DatabaseSQLException {
     return executeQuery(connection, query, List.of());
