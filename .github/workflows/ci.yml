@@ -20,5 +20,12 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+      - name: Publish sitmun-shared to the local Maven repository
+        env:
+          SHARED_REF: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+        run: |
+          git clone --depth 1 --branch "$SHARED_REF" https://github.com/sitmun/sitmun-shared.git "$RUNNER_TEMP/sitmun-shared"
+          chmod +x "$RUNNER_TEMP/sitmun-shared/gradlew"
+          "$RUNNER_TEMP/sitmun-shared/gradlew" -p "$RUNNER_TEMP/sitmun-shared" publishToMavenLocal
       - run: chmod +x gradlew
       - run: ./gradlew build
