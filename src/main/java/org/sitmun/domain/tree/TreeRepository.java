@@ -11,9 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @Tag(name = "tree")
-@RepositoryRestResource(
-    collectionResourceRel = "trees",
-    path = "trees" /*, excerptProjection = TreeProjection.class*/)
+@RepositoryRestResource(collectionResourceRel = "trees", path = "trees")
 public interface TreeRepository extends JpaRepository<Tree, Integer> {
   @Query("select tree from Tree tree left join fetch tree.allNodes where tree.id = ?1")
   Tree findOneWithEagerRelationships(Integer id);

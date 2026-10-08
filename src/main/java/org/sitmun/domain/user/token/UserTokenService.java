@@ -47,8 +47,6 @@ public class UserTokenService {
     userToken.setActive(userTokenDTO.isActive());
 
     this.userTokenRepository.save(userToken);
-
-    toUserDTO(userToken);
   }
 
   private UserTokenDTO toUserDTO(UserToken userToken) {
