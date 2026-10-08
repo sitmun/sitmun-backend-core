@@ -36,7 +36,7 @@ public class ConfigurationParameter {
   @Column(name = "CNF_ID")
   private Integer id;
 
-  /** Application parameter name. */
+  /** Parameter name. */
   @Column(name = "CNF_NAME", length = PersistenceConstants.IDENTIFIER)
   @NotBlank
   @JsonView({

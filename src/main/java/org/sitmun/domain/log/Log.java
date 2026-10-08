@@ -57,7 +57,7 @@ public class Log {
   @JoinColumn(name = "LOG_APPID")
   private Application application;
 
-  /** Originated in this application. */
+  /** Originated in this territory. */
   @ManyToOne
   @JoinColumn(name = "LOG_TERID")
   private Territory territory;

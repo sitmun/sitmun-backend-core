@@ -77,13 +77,13 @@ public class Tree {
   @JoinColumn(name = "TRE_USERID", foreignKey = @ForeignKey(name = "STM_TRE_FK_USE"))
   private User owner;
 
-  /** All three nodes. */
+  /** All tree nodes. */
   @OneToMany(mappedBy = "tree", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   private Set<TreeNode> allNodes = new HashSet<>();
 
-  /** Roles that can access to this three. */
+  /** Roles that can access this tree. */
   @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinTable(
       name = "STM_TREE_ROL",
