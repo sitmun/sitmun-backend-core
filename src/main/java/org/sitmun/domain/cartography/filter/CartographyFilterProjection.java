@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-/** Projections for REST views of an application. */
 @Projection(name = "view", types = CartographyFilter.class)
 public interface CartographyFilterProjection {
 
