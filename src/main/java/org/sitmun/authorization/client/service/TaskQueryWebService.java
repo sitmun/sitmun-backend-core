@@ -73,18 +73,15 @@ public class TaskQueryWebService implements TaskMapper {
 
       // Scope-only proxy gating: web-api-query always proxied, web-api-query-no-proxy always direct
       if (isNoProxy) {
-        // Direct execution for no-proxy scope
         if (properties.get(PROPERTY_COMMAND) != null) {
           url = properties.get(PROPERTY_COMMAND).toString();
         }
-        // No-proxy: RESOURCE if mimeType present, URL otherwise
         Object mimeTypeObj = properties.get(PROPERTY_MIME_TYPE);
         scope =
             (mimeTypeObj != null && !mimeTypeObj.toString().trim().isEmpty())
                 ? SCOPE_RESOURCE
                 : SCOPE_URL;
       } else {
-        // Proxied execution for web-api-query scope
         url = ProxyUrlBuilder.forWebApiTask(proxyUrl, application, territory, task);
         scope = SCOPE_API;
       }

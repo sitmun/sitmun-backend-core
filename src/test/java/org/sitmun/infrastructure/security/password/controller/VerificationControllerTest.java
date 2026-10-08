@@ -200,8 +200,6 @@ class VerificationControllerTest {
       "POST: Verify password with BadCredentialsException should return false with OK status")
   @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithBadCredentialsExceptionReturnsFalseWithOkStatus() throws Exception {
-    // This test verifies the improved exception handling where BadCredentialsException
-    // returns false with HTTP 200 OK instead of HTTP 400 Bad Request
     PasswordVerificationRequest request = new PasswordVerificationRequest();
     request.setPassword("wrongpassword");
 
@@ -209,7 +207,7 @@ class VerificationControllerTest {
             post("/api/user-verification/verify-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isOk()) // Should be OK, not Bad Request
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$").value(false));
   }
 }

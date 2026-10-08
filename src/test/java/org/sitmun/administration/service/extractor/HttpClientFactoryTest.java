@@ -41,9 +41,7 @@ class HttpClientFactoryTest {
         SSLHandshakeException.class,
         () -> {
           //noinspection EmptyTryBlock
-          try (Response ignored = client.executeRequest(request)) {
-            // Do nothing
-          }
+          try (Response ignored = client.executeRequest(request)) {}
         });
   }
 

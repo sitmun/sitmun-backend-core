@@ -60,10 +60,8 @@ public class TaskMoreInfoService implements TaskMapper {
       // When properties is null, return empty map for backward compatibility
       parametersDto = new HashMap<>();
     } else {
-      // When properties exist, parse and convert to viewer profile
       List<TaskParameter> parameters = taskParameterProcessor.parse(task);
       parametersDto = convertToViewerProfile(parameters);
-      // If no valid parameters, convertToViewerProfile returns null
     }
 
     if (isMoreInfoAdvancedTask(task) && task.getProperties() != null) {

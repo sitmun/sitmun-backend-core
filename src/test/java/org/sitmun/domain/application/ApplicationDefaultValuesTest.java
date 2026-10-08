@@ -90,18 +90,15 @@ class ApplicationDefaultValuesTest {
 
     Map<String, Object> headerParams = app.getHeaderParams();
 
-    // Check headerLeftSection
     assertThat(headerParams).containsKey("headerLeftSection");
     @SuppressWarnings("unchecked")
     Map<String, Object> leftSection = (Map<String, Object>) headerParams.get("headerLeftSection");
     assertThat(leftSection).containsKey("logoSitmun");
 
-    // Check logoSitmun
     @SuppressWarnings("unchecked")
     Map<String, Object> logoSitmun = (Map<String, Object>) leftSection.get("logoSitmun");
     assertThat(logoSitmun).containsEntry("visible", true);
 
-    // Check headerRightSection
     assertThat(headerParams).containsKey("headerRightSection");
     @SuppressWarnings("unchecked")
     Map<String, Object> rightSection = (Map<String, Object>) headerParams.get("headerRightSection");
@@ -111,7 +108,6 @@ class ApplicationDefaultValuesTest {
     assertThat(rightSection).containsKey("profileButton");
     assertThat(rightSection).containsKey("logoutButton");
 
-    // Check that all right section elements are visible by default
     assertThat(rightSection.get("switchApplication")).isInstanceOf(Map.class);
     assertThat(rightSection.get("homeMenu")).isInstanceOf(Map.class);
     assertThat(rightSection.get("switchLanguage")).isInstanceOf(Map.class);
