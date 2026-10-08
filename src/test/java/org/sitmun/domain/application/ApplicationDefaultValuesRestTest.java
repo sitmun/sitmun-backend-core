@@ -190,7 +190,6 @@ class ApplicationDefaultValuesRestTest {
     // Then
     assertThat(createdApp).isNotNull();
 
-    // Verify the response via REST API
     mockMvc
         .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
         .andExpect(status().isOk())
@@ -248,7 +247,6 @@ class ApplicationDefaultValuesRestTest {
     // Then
     assertThat(createdApp).isNotNull();
 
-    // Verify the response via REST API
     mockMvc
         .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
         .andExpect(status().isOk())
@@ -272,7 +270,6 @@ class ApplicationDefaultValuesRestTest {
     // Then
     assertThat(createdApp).isNotNull();
 
-    // Verify the response via REST API
     mockMvc
         .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
         .andExpect(status().isOk())
@@ -293,7 +290,6 @@ class ApplicationDefaultValuesRestTest {
     // Then
     assertThat(createdApp).isNotNull();
 
-    // Verify the response via REST API
     mockMvc
         .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
         .andExpect(status().isOk())
@@ -348,7 +344,6 @@ class ApplicationDefaultValuesRestTest {
     // Then
     assertThat(createdApp).isNotNull();
 
-    // Verify the response via REST API
     mockMvc
         .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
         .andExpect(status().isOk())

@@ -202,14 +202,12 @@ public class ProxyConfigurationService {
   private WmsPayloadDto getHttpApiConfiguration(Task task, RequestCoordinates coordinates) {
     final Map<String, Object> taskProps = task.getProperties();
 
-    //  Check for null properties
     if (taskProps == null) {
       return null;
     }
 
     String url = (String) taskProps.get(PROPERTY_COMMAND);
 
-    // Check for null or blank URL
     if (!StringUtils.hasText(url)) {
       return null;
     }
@@ -223,7 +221,6 @@ public class ProxyConfigurationService {
     List<TaskParameter> parameters = taskParameterProcessor.parse(task);
     Map<String, String> backendOnlyParameters =
         taskParameterProcessor.buildEffectiveParameters(parameters, null, coordinates);
-    // Filter to only backend-only (LOCKED + PROVIDED) parameters
     Map<String, String> filteredBackendOnly = new LinkedHashMap<>();
     for (TaskParameter param : parameters) {
       if (taskParameterProcessor.classify(param).isBackendOnly()) {
@@ -268,7 +265,6 @@ public class ProxyConfigurationService {
    * without any checks.
    */
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
-    // Check if validation is enabled via configuration
     if (!validateUserAccessEnabled) {
       log.debug("User access validation is disabled via configuration");
       return true;
@@ -296,7 +292,6 @@ public class ProxyConfigurationService {
         configProxyRequestDto.getAppId(),
         configProxyRequestDto.getTerId());
 
-    // Find appropriate validator using strategy pattern
     return accessValidators.stream()
         .filter(validator -> validator.supports(resourceType))
         .findFirst()
@@ -398,7 +393,6 @@ public class ProxyConfigurationService {
 
     PayloadDto payload = configProxyDto.getPayload();
 
-    // Wrap client parameters in value object
     ClientRequestParameters clientParams =
         ClientRequestParameters.of(configProxyRequestDto.getParameters());
 
@@ -411,16 +405,13 @@ public class ProxyConfigurationService {
     // processing, to prevent injection of system variable expressions.
     clientParams.rejectSystemVariables(taskParameterProcessor);
 
-    // Strip pagination parameters before filtering
     ClientRequestParameters.PaginationExtractionResult paginationResult =
         clientParams.takePagination();
     Pagination pagination = paginationResult.pagination();
     ClientRequestParameters paramsWithoutPagination = paginationResult.remainingParameters();
 
-    // Update the original request to reflect stripped pagination parameters
     configProxyRequestDto.setParameters(new LinkedHashMap<>(paramsWithoutPagination.asMap()));
 
-    // Parse task parameters and filter/build effective parameters
     List<TaskParameter> taskParameters = getTaskParametersForRequest(configProxyRequestDto);
 
     ClientRequestParameters filteredClientParameters;

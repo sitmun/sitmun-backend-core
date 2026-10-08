@@ -132,26 +132,22 @@ public class TaskEditCartographyService implements TaskMapper {
                 ? String.valueOf(field.get(PARAMETERS_VALUE))
                 : null;
 
-        // Handle listValues - either from query or direct value
         List<Map<String, Object>> listValues = null;
         if (field.containsKey(FIELDS_QUERY) && (connection != null)) {
           listValues =
               dbConService.executeQuery(connection, String.valueOf(field.get(FIELDS_QUERY)));
         } else if (field.containsKey(FIELDS_LIST_VALUES)) {
-          // Preserve direct listValues (could be String or List)
           Object listValuesObj = field.get(FIELDS_LIST_VALUES);
           if (listValuesObj instanceof List) {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> castList = (List<Map<String, Object>>) listValuesObj;
             listValues = castList;
           }
-          // If it's a String, we'll pass it as-is through the field values
         }
 
         Map<String, Object> values =
             getFieldObject(name, label, type, required, selectable, editable, value, listValues);
 
-        // If listValues is a String, preserve it directly
         if (field.containsKey(FIELDS_LIST_VALUES)
             && field.get(FIELDS_LIST_VALUES) instanceof String) {
           values.put(FIELDS_LIST_VALUES, field.get(FIELDS_LIST_VALUES));

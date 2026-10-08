@@ -42,8 +42,7 @@ public interface DashboardMetricsContributor extends Runnable {
   }
 
   /**
-   * This method is used to convert the result of a query to a MultiGauge.Row&lt;Number> object. The
-   * expected format of the query result is an array of 3 elements:
+   * The expected format of the query result is an array of 3 elements:
    *
    * <ul>
    *   <li>the first element is the key of the row, that must be unique.

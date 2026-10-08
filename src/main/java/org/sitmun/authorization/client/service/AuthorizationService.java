@@ -413,15 +413,12 @@ public class AuthorizationService {
     layers.forEach(layer -> services.add(layer.getService()));
     tasks.forEach(task -> services.add(task.getService()));
 
-    // Add situation-map group, layers, and services if application has one
     CartographyPermission situationMap = application.get().getSituationMap();
     if (situationMap != null) {
       translationService.updateInternationalization(situationMap);
-      // Add situation-map group if not already present
       if (!cartographyPermissions.contains(situationMap)) {
         cartographyPermissions.add(situationMap);
       }
-      // Add situation-map layers (members) if not already present
       if (situationMap.getMembers() != null) {
         Set<Integer> existingLayerIds =
             layers.stream().map(Cartography::getId).collect(Collectors.toUnmodifiableSet());
@@ -431,7 +428,6 @@ public class AuthorizationService {
                 .toList();
         situationMapLayers.forEach(translationService::updateInternationalization);
         layers.addAll(situationMapLayers);
-        // Add services from situation-map layers
         situationMapLayers.stream()
             .map(Cartography::getService)
             .filter(Objects::nonNull)

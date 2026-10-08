@@ -5,18 +5,12 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
 
-/**
- * Utility class for building consistent proxy URLs across the application. Centralizes the proxy
- * URL construction logic to ensure consistency and maintainability.
- */
 public class ProxyUrlBuilder {
 
   private static final String PROXY_PATH = "/proxy/";
   private static final String SEPARATOR = "/";
 
-  private ProxyUrlBuilder() {
-    // Utility class - prevent instantiation
-  }
+  private ProxyUrlBuilder() {}
 
   /**
    * Builds a proxy URL for SQL-based tasks. Pattern:
