@@ -50,7 +50,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ImportAutoConfiguration(LiquibaseAutoConfiguration.class)
 @Transactional
 @DisplayName("Affected applications")
