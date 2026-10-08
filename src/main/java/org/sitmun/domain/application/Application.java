@@ -218,11 +218,7 @@ public class Application {
   @JsonView(ClientConfigurationViews.Base.class)
   private List<String> warnings;
 
-  /**
-   * Header params for maps sections.
-   *
-   * @param obj
-   */
+  /** Header params for maps sections. */
   @Column(name = "APP_HEADERPARAMS", length = Length.LONG32)
   @Convert(converter = HashMapConverter.class)
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)

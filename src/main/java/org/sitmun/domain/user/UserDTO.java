@@ -26,10 +26,8 @@ public class UserDTO {
   @Size(min = 1, max = 50, message = "Username must be between 1 and 50 characters")
   private String username;
 
-  /** User password hash. */
   private String password;
 
-  /** User password hash. */
   private Boolean passwordSet;
 
   /** User's first name. */

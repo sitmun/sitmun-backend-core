@@ -298,20 +298,6 @@ public class WebSecurityConfigurer {
         .permitAll();
   }
 
-  /**
-   * Configures authorization for user-specific endpoints. These endpoints require USER role
-   * authentication and include:
-   *
-   * <ul>
-   *   <li>/api/account: (GET, POST) User account management
-   *   <li>/api/account/** (GET): User account information retrieval
-   *   <li>/api/user-verification/** (POST): User verification processes
-   *   <li>/api/config/client/territory/position (POST): Territory position updates
-   * </ul>
-   *
-   * @param authz The authorization configuration
-   * @return The updated authorization configuration
-   */
   private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
       configureUser(
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
