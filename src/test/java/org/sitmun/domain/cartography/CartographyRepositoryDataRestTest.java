@@ -223,14 +223,12 @@ class CartographyRepositoryDataRestTest {
   }
 
   /**
-   * Test values are null.
-   *
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
   @DisplayName("GET: filters are available in projections")
   @WithMockUser(roles = "ADMIN")
-  void applyFilterTestDataIsNull() throws Exception {
+  void applyFilterFlagsAreTrue() throws Exception {
     mvc.perform(get(CARTOGRAPHY_URI, 1).contentType(APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applyFilterToGetFeatureInfo", is(true)))

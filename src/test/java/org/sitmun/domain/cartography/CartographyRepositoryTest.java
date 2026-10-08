@@ -71,7 +71,10 @@ class CartographyRepositoryTest {
     cartographyRepository.save(cartography);
     Assertions.assertThat(cartography.getId()).isNotZero();
 
-    Assertions.assertThat(cartographyRepository.findById(cartography.getId())).isNotNull();
+    Assertions.assertThat(cartographyRepository.findById(cartography.getId()))
+        .isPresent()
+        .hasValueSatisfying(
+            found -> Assertions.assertThat(found.getId()).isEqualTo(cartography.getId()));
   }
 
   @Test

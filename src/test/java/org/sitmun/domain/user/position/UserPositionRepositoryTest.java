@@ -72,6 +72,9 @@ class UserPositionRepositoryTest {
     userPositionRepository.save(userPosition);
     Assertions.assertThat(userPosition.getId()).isNotZero();
 
-    Assertions.assertThat(userPositionRepository.findById(userPosition.getId())).isNotNull();
+    Assertions.assertThat(userPositionRepository.findById(userPosition.getId()))
+        .isPresent()
+        .hasValueSatisfying(
+            found -> Assertions.assertThat(found.getId()).isEqualTo(userPosition.getId()));
   }
 }

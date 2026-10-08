@@ -58,6 +58,8 @@ class UserRepositoryTest {
     userRepository.save(user);
     Assertions.assertThat(user.getId()).isNotZero();
 
-    Assertions.assertThat(userRepository.findById(user.getId())).isNotNull();
+    Assertions.assertThat(userRepository.findById(user.getId()))
+        .isPresent()
+        .hasValueSatisfying(found -> Assertions.assertThat(found.getId()).isEqualTo(user.getId()));
   }
 }

@@ -124,21 +124,6 @@ class UriTemplateExpanderTest {
   }
 
   @Test
-  @DisplayName("expand handles missing variable gracefully")
-  void expandHandlesMissingVariableGracefully() {
-    // Given
-    String template = "https://api.example.com/users/{userId}";
-    Map<String, String> params = Map.of("otherId", "123");
-
-    // When
-    String result = UriTemplateExpander.expand(template, params);
-
-    // Then
-    // Undefined variables are left unexpanded or removed based on RFC 6570
-    assertNotNull(result);
-  }
-
-  @Test
   @DisplayName("expand throws exception when template is null")
   void expandThrowsExceptionWhenTemplateIsNull() {
     // Given

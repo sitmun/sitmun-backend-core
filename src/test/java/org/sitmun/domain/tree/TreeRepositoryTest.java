@@ -39,7 +39,7 @@ class TreeRepositoryTest {
 
   @Test
   @DisplayName("Save a new tree to database")
-  void saveTerritory() {
+  void saveTree() {
     Assertions.assertThat(tree.getId()).isNull();
     treeRepository.save(tree);
     Assertions.assertThat(tree.getId()).isNotZero();
@@ -47,12 +47,14 @@ class TreeRepositoryTest {
 
   @Test
   @DisplayName("Find a tree by its ID")
-  void findOneTerritoryById() {
+  void findOneTreeById() {
     Assertions.assertThat(tree.getId()).isNull();
     treeRepository.save(tree);
     Assertions.assertThat(tree.getId()).isNotZero();
 
-    Assertions.assertThat(treeRepository.findById(tree.getId())).isNotNull();
+    Assertions.assertThat(treeRepository.findById(tree.getId()))
+        .isPresent()
+        .hasValueSatisfying(found -> Assertions.assertThat(found.getId()).isEqualTo(tree.getId()));
   }
 
   @Test
