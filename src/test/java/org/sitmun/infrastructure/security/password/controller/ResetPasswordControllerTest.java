@@ -256,6 +256,7 @@ class ResetPasswordControllerTest {
     request.setCodeOTP(expiredToken);
     request.setNewPassword("newpassword123");
     request.setEmail(testUser.getEmail());
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     mvc.perform(
             post(API_URL + "confirm")
@@ -263,11 +264,9 @@ class ResetPasswordControllerTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isGone());
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -290,6 +289,7 @@ class ResetPasswordControllerTest {
     request.setCodeOTP(counterLimitToken);
     request.setNewPassword("newpassword123");
     request.setEmail(testUser.getEmail());
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     mvc.perform(
             post(API_URL + "confirm")
@@ -297,11 +297,9 @@ class ResetPasswordControllerTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isGone());
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -319,6 +317,7 @@ class ResetPasswordControllerTest {
             .attemptCounter(3)
             .build();
     userTokenRepository.save(notActiveUserToken);
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(notActiveToken);
@@ -335,11 +334,9 @@ class ResetPasswordControllerTest {
         .andExpect(jsonPath("$.title").value("Gone"))
         .andExpect(jsonPath("$.detail").value("Token has been deactivated"));
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -356,6 +353,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP("12345678"); // Invalid OTP
@@ -369,11 +367,9 @@ class ResetPasswordControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(content().string("2")); // 3 max attempts - 1 current attempt = 2 remaining
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -390,6 +386,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
@@ -402,11 +399,9 @@ class ResetPasswordControllerTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -466,6 +461,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
@@ -478,10 +474,9 @@ class ResetPasswordControllerTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
 
-    // Verify password was not updated due to validation failure
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Password should not be updated due to validation failure
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test
@@ -498,6 +493,7 @@ class ResetPasswordControllerTest {
             .active(true)
             .build();
     userTokenRepository.save(validUserToken);
+    String storedPassword = userRepository.findById(testUser.getId()).orElseThrow().getPassword();
 
     ResetPasswordRequest request = new ResetPasswordRequest();
     request.setCodeOTP(validToken);
@@ -510,11 +506,9 @@ class ResetPasswordControllerTest {
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
 
-    // Verify password was not updated
-    Optional<User> updatedUser = userRepository.findById(testUser.getId());
-    assertThat(updatedUser).isPresent();
-    // Don't check password encoding in tests as it may not be properly encoded
-    assertThat(updatedUser.get().getPassword()).isNotNull();
+    assertThat(userRepository.findById(testUser.getId()))
+        .isPresent()
+        .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
   }
 
   @Test

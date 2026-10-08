@@ -39,7 +39,10 @@ class ServiceRepositoryTest {
     serviceRepository.save(service);
     Assertions.assertThat(service.getId()).isNotZero();
 
-    Assertions.assertThat(serviceRepository.findById(service.getId())).isNotNull();
+    Assertions.assertThat(serviceRepository.findById(service.getId()))
+        .isPresent()
+        .hasValueSatisfying(
+            found -> Assertions.assertThat(found.getId()).isEqualTo(service.getId()));
   }
 
   @TestConfiguration
