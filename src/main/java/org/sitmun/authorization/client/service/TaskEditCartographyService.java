@@ -50,7 +50,7 @@ public class TaskEditCartographyService implements TaskMapper {
   }
 
   /**
-   * Maps a cartography query task to a TaskDto. Constructs the proxy URL and includes service
+   * Maps a cartography edition task to a TaskDto. Constructs the proxy URL and includes service
    * parameters and layer information.
    *
    * @param task The task to map
