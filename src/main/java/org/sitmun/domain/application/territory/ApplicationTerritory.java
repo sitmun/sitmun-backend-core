@@ -49,7 +49,7 @@ public class ApplicationTerritory {
   @NotNull
   private Application application;
 
-  /** Background. */
+  /** Territory. */
   @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "ATE_TERID", foreignKey = @ForeignKey(name = "STM_ATE_FK_TER"))

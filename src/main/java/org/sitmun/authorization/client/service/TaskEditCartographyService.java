@@ -23,11 +23,6 @@ import org.sitmun.domain.territory.Territory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Maps cartography query tasks to DTOs for authorization purposes. Handles the transformation of
- * cartography query tasks into a standardized format that includes service parameters, layer
- * information, and proxy URLs.
- */
 @Slf4j
 @Component
 public class TaskEditCartographyService implements TaskMapper {
