@@ -46,14 +46,6 @@ public class TestUtils {
     return headers;
   }
 
-  /**
-   * Authenticates as admin via the admin login endpoint and returns the raw JWT token value from
-   * the {@code admin_access_token} cookie.
-   */
-  public static String requestAuthorization(RestTemplate restTemplate, Integer port) {
-    return requestAdminToken(restTemplate, port);
-  }
-
   private static String requestAdminToken(RestTemplate restTemplate, Integer port) {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername(ADMIN_USERNAME);

@@ -310,7 +310,7 @@ public class DomainConstants {
     public static boolean isTouristicApplication(Application app) {
       if (app == null || app.getType() == null) return false;
       String t = app.getType();
-      return TYPE_TOURISTIC_CODE.equalsIgnoreCase(t) || "Touristic".equalsIgnoreCase(t);
+      return TYPE_TOURISTIC_CODE.equalsIgnoreCase(t);
     }
 
     public static boolean isEditionApplication(Application app) {

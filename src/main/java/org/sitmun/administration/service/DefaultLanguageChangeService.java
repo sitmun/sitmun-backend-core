@@ -183,7 +183,7 @@ public class DefaultLanguageChangeService {
     translationRepository.flush();
 
     // Restore target language translations to main tables
-    int restoredValues = restoreTargetValues(targetLang, !missingTranslations.isEmpty());
+    int restoredValues = restoreTargetValues(targetLang);
 
     int literalContinuitySeeds = seedLiteralContinuityValues(sourceLang, targetLang);
 
@@ -339,7 +339,7 @@ public class DefaultLanguageChangeService {
     return count;
   }
 
-  private int restoreTargetValues(Language targetLang, boolean preserveMissing) {
+  private int restoreTargetValues(Language targetLang) {
     int count = 0;
 
     for (TranslatableField field : TRANSLATABLE_CATALOG) {
