@@ -39,7 +39,10 @@ class TreeNodeRepositoryTest {
     treeNodeRepository.save(treeNode);
     Assertions.assertThat(treeNode.getId()).isNotZero();
 
-    Assertions.assertThat(treeNodeRepository.findById(treeNode.getId())).isNotNull();
+    Assertions.assertThat(treeNodeRepository.findById(treeNode.getId()))
+        .isPresent()
+        .hasValueSatisfying(
+            found -> Assertions.assertThat(found.getId()).isEqualTo(treeNode.getId()));
   }
 
   @TestConfiguration

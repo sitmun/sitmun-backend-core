@@ -48,7 +48,9 @@ class TaskRepositoryTest {
     taskRepository.save(task);
     Assertions.assertThat(task.getId()).isNotZero();
 
-    Assertions.assertThat(taskRepository.findById(task.getId())).isNotNull();
+    Assertions.assertThat(taskRepository.findById(task.getId()))
+        .isPresent()
+        .hasValueSatisfying(found -> Assertions.assertThat(found.getId()).isEqualTo(task.getId()));
   }
 
   @Test

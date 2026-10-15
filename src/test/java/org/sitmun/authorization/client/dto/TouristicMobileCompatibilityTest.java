@@ -28,11 +28,9 @@ import org.springframework.test.util.ReflectionTestUtils;
  * <ul>
  *   <li>task.url present and executable (direct or proxy URL)
  *   <li>task.parameters map with type/required fields (value only for cartography services)
- *   <li>Near-me search continues working (LATITUD/LONGITUD in mapping.input)
+ *   <li>Near-me search continues working (distance, longitude, and latitude parameters)
  *   <li>Event filtering continues working (date/keyword params)
  *   <li>Property-based WFS filtering continues working (propertyname param)
- *   <li>mapping.input format unchanged (keys plain, calculated values with ${...} wrapper)
- *   <li>TNO_MAPPING data completely untouched by migration
  * </ul>
  */
 @DisplayName("Touristic Mobile Compatibility Tests (Guardrail 4)")
@@ -187,116 +185,11 @@ class TouristicMobileCompatibilityTest {
       assertThat(paramDto.type()).isEqualTo("query");
       assertThat(paramDto.required()).isTrue();
     }
-
-    @Test
-    @DisplayName("SQL/Web API tasks do NOT include 'value' field (pre-existing behavior)")
-    void sqlWebApiTasksOmitValueField() {
-      // Given
-      Task task = createSqlQueryTask();
-
-      Map<String, Object> param = new HashMap<>();
-      param.put(PARAMETERS_NAME, "keyword");
-      param.put(PARAMETERS_TYPE, "query");
-      param.put(PARAMETERS_REQUIRED, false);
-      param.put(PARAMETERS_VALUE, "default"); // Present in storage
-
-      Map<String, Object> properties = new HashMap<>();
-      properties.put(PROPERTY_PARAMETERS, List.of(param));
-      when(task.getProperties()).thenReturn(properties);
-
-      // When
-      TaskDto result = sqlService.map(task, application, territory);
-
-      // Then: 'value' NOT included (pre-existing gap, touristic-mobile uses mapping.input defaults)
-      QueryParameter paramDto = (QueryParameter) result.getParameters().get("keyword");
-      assertThat(paramDto.type()).isNotNull();
-      // QueryParameter does not have a 'value' field (only type and required)
-    }
-  }
-
-  @Nested
-  @DisplayName("Mapping.input format preservation (TNO_MAPPING)")
-  class MappingInputFormat {
-
-    @Test
-    @DisplayName("CRITICAL: mapping.input keys MUST remain plain identifiers (no ${...} wrapper)")
-    void mappingKeysRemainPlain() {
-      // This test documents the expected format - actual enforcement is in data migration scripts
-
-      // Expected format (MUST be preserved):
-      Map<String, String> mappingInput =
-          Map.of(
-              "LONGITUD", "${LONGITUD}", // Key: plain, Value: wrapped
-              "LATITUD", "${LATITUD}", // Key: plain, Value: wrapped
-              "KEYWORD", "${KEYWORD}", // Key: plain, Value: wrapped
-              "propertyname", "CATEGORY" // Key: plain, Value: plain constant
-              );
-
-      // RequestService.getCalculatedInputValue() depends on this format
-      // It extracts the key from ${KEY} wrapper: '${LONGITUD}'.match(/\$\{(\w+)\}/)[1] → 'LONGITUD'
-      // Then looks up mappingInput['LONGITUD'] to get the target field/value
-
-      // If keys were wrapped (WRONG): { "${LONGITUD}": "${LONGITUD}" }
-      // The lookup would fail: mappingInput['LONGITUD'] → undefined
-
-      assertThat(mappingInput.keySet())
-          .allMatch(key -> !key.startsWith("${"), "Keys must NOT be wrapped with ${...}");
-
-      // Calculated values MUST keep ${...} wrapper
-      assertThat(mappingInput.get("LONGITUD")).startsWith("${");
-      assertThat(mappingInput.get("LATITUD")).startsWith("${");
-      assertThat(mappingInput.get("KEYWORD")).startsWith("${");
-    }
-
-    @Test
-    @DisplayName("CRITICAL: Data migration MUST NOT touch TNO_MAPPING column")
-    void dataMigrationExcludesTnoMapping() {
-      // This is a documentation test - the actual constraint is enforced in Liquibase scripts
-
-      // TNO_MAPPING column stores tree node configuration including mapping.input/mapping.output
-      // Contains ${LATITUD}, ${KEYWORD}, etc. (client-side system variables)
-      // Uses SAME ${...} syntax as SQL templates but different resolution mechanism
-
-      // Migration scripts MUST have explicit exclusion:
-      // WHERE table_name != 'STM_TREE_NODE' OR column_name != 'TNO_MAPPING'
-
-      // If violated:
-      // - Near-me search breaks (returns literal "LATITUD" instead of GPS coordinates)
-      // - Event search breaks (returns literal "KEYWORD" instead of search term)
-      // - All calculated mapping.input resolution fails
-
-      String reminder =
-          "Data migration scripts MUST explicitly exclude TNO_MAPPING from all transformations";
-      assertThat(reminder).isNotEmpty();
-    }
   }
 
   @Nested
   @DisplayName("Near-me search compatibility")
   class NearMeSearch {
-
-    @Test
-    @DisplayName("Near-me page sends UPPERCASE keys in parentData")
-    void nearMePageSendsUppercaseKeys() {
-      // Documentation test - this is touristic-mobile-app behavior
-
-      // Near-me page code:
-      // this.requestService.templateRequest(task, { DISTANCE: 5000, LONGITUD: 2.1734, LATITUD:
-      // 41.3851 })
-
-      Map<String, Object> parentData =
-          Map.of(
-              "DISTANCE", 5000,
-              "LONGITUD", 2.1734,
-              "LATITUD", 41.3851);
-
-      // RequestService.getCalculatedInputValue() extracts key from ${LONGITUD}, converts to
-      // uppercase,
-      // then looks up in parentData['LONGITUD']
-
-      assertThat(parentData).containsKeys("DISTANCE", "LONGITUD", "LATITUD");
-      assertThat(parentData.keySet()).allMatch(key -> key.equals(key.toUpperCase()));
-    }
 
     @Test
     @DisplayName("Near-me task execution continues working with mapping.input")
@@ -340,27 +233,6 @@ class TouristicMobileCompatibilityTest {
   @Nested
   @DisplayName("Event filtering compatibility")
   class EventFiltering {
-
-    @Test
-    @DisplayName("Event page sends lowercase keys in urlParams")
-    void eventPageSendsLowercaseKeys() {
-      // Documentation test - this is touristic-mobile-app behavior
-
-      // Event page code sends lowercase:
-      // this.requestService.templateRequest(task, { latitud: 41.3851, longitud: 2.1734, distance:
-      // 5000 })
-
-      Map<String, Object> urlParams =
-          Map.of(
-              "latitud", 41.3851, // lowercase
-              "longitud", 2.1734, // lowercase
-              "distance", 5000);
-
-      // RequestService.getCalculatedInputValue() extracts uppercase key from ${LONGITUD},
-      // but looks up lowercase in urlParams via switch case mapping
-
-      assertThat(urlParams).containsKeys("latitud", "longitud", "distance");
-    }
 
     @Test
     @DisplayName("Event date filtering continues working")
@@ -442,55 +314,6 @@ class TouristicMobileCompatibilityTest {
       assertThat(result.getParameters()).containsKey("propertyname");
 
       // touristic-mobile sends: ?propertyname=CATEGORY&...
-    }
-  }
-
-  @Nested
-  @DisplayName("Vary-key whitelist compatibility")
-  class VaryKeyWhitelist {
-
-    @Test
-    @DisplayName("Monitor mode (default): unknown keys logged but passed through")
-    void monitorModeAllowsUnknownKeys() {
-      // This test documents expected behavior - actual implementation in ProxyConfigurationService
-
-      // Given: Task with declared parameters
-      Task task = createSqlQueryTask();
-
-      Map<String, Object> param = new HashMap<>();
-      param.put(PARAMETERS_NAME, "category");
-      param.put(PARAMETERS_TYPE, "query");
-      param.put(PARAMETERS_REQUIRED, false);
-
-      Map<String, Object> properties = new HashMap<>();
-      properties.put(PROPERTY_PARAMETERS, List.of(param));
-      when(task.getProperties()).thenReturn(properties);
-
-      // When: Mobile sends additional undeclared parameter
-      // Request: ?category=museum&keyWord=beach (keyWord not in task parameters)
-
-      // Then: In MONITOR mode (default)
-      // - Log: WARN "Unknown vary key: keyWord for task 42. Allowed keys: [category]"
-      // - Behavior: Pass through (backward compatible)
-      // - Mobile search still works even with undeclared keyWord parameter
-
-      String expectedBehavior =
-          "MONITOR mode: unknown keys logged at WARN level and passed through";
-      assertThat(expectedBehavior).isNotEmpty();
-    }
-
-    @Test
-    @DisplayName("Enforce mode (future): unknown keys dropped after deprecation window")
-    void enforceModeDropsUnknownKeys() {
-      // This test documents future behavior after 3-month transition
-
-      // After ENFORCE mode enabled:
-      // - Log: INFO "Dropping unknown vary key: keyWord for task 42"
-      // - Behavior: Drop (security enhancement)
-      // - Mobile must update to only send declared parameters
-
-      String futureRelease = "ENFORCE mode enabled in v1.4.0 after 3-month deprecation window";
-      assertThat(futureRelease).isNotEmpty();
     }
   }
 

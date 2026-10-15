@@ -208,13 +208,10 @@ class ViewerCompatibilityTest {
       // When
       TaskDto result = service.map(task, application, territory);
 
-      // Then: Command might be hidden OR contain unresolved #{...} (depends on provided flag)
-      // But NEVER contains resolved value like "territory=5"
-      if (result.getCommand() != null) {
-        // If command is exposed, it must still have #{...} placeholder (not resolved)
-        assertThat(result.getCommand()).doesNotContain("territory=5");
-        assertThat(result.getCommand()).doesNotContain("territory=10");
-      }
+      assertThat(result.getCommand())
+          .satisfiesAnyOf(
+              command -> assertThat(command).isNull(),
+              command -> assertThat(command).contains("#{TERR_ID}"));
     }
   }
 

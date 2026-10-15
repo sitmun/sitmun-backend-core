@@ -283,20 +283,12 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("POST: Validate non-touristic tree with multi-tree touristic app - returns 422")
+  @DisplayName("POST: Validate cartography tree on touristic app 6 returns 422")
   @WithMockUser(roles = "ADMIN")
-  void validateNonTouristicTypeWithMultiTreeTouristicApp() throws Exception {
-    // This test would need setup where App 6 is linked to multiple touristic trees
-    // For now, test the rejection of a touristic app that's incompatible
-
+  void validateCartographyTreeOnTouristicAppReturns422() throws Exception {
     TreeTypeValidationRequest request =
-        TreeTypeValidationRequest.builder()
-            .type("cartography")
-            .applicationIds(Set.of(6)) // App 6 touristic
-            .build();
+        TreeTypeValidationRequest.builder().type("cartography").applicationIds(Set.of(6)).build();
 
-    // The actual validation depends on how many touristic trees App 6 has
-    // This is a placeholder - adjust based on actual TreeEventHandler logic
     mvc.perform(
             post("/api/trees/4/validate-type-change")
                 .contentType(MediaType.APPLICATION_JSON)

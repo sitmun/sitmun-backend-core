@@ -259,8 +259,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should handle null header parameters in REST API")
-  void shouldHandleNullHeaderParametersInRestApi() throws Exception {
+  @DisplayName("Should return non-empty default header parameters when the request omits them")
+  void shouldReturnNonEmptyHeaderParamsWhenOmitted() throws Exception {
     // Given
     String applicationJson =
         createApplicationJsonWithHeaders(

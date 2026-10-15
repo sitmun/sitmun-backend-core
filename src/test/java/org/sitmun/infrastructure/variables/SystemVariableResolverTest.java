@@ -202,13 +202,11 @@ class SystemVariableResolverTest {
   }
 
   @Test
-  void resolve_withAccessToNullEntity_returnsEmptyString() {
+  void resolve_withAccessToNullEntity_keepsPlaceholder() {
     String template = "App ID: #{APP_ID}";
 
     String result = resolver.resolve(template, coords(user, territory, null));
 
-    // Since application is null, SpEL evaluation will fail gracefully
-    // and return the placeholder unchanged
     assertThat(result).isEqualTo("App ID: #{APP_ID}");
   }
 
@@ -286,7 +284,7 @@ class SystemVariableResolverTest {
   }
 
   @Test
-  void resolve_sqlInjectionInVariable_isHandledSafely() {
+  void resolve_sqlInjectionInVariable_substitutesVerbatim() {
     // Even if territory code contains SQL injection attempt, it's just a string substitution
     when(territory.getCode()).thenReturn("'; DROP TABLE users; --");
 

@@ -73,7 +73,9 @@ class TerritoryRepositoryTest {
     territoryRepository.save(territory);
     assertThat(territory.getId()).isNotZero();
 
-    assertThat(territoryRepository.findById(territory.getId())).isNotNull();
+    assertThat(territoryRepository.findById(territory.getId()))
+        .isPresent()
+        .hasValueSatisfying(found -> assertThat(found.getId()).isEqualTo(territory.getId()));
   }
 
   @Test

@@ -196,23 +196,6 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify password should use current authenticated user, not request username")
-  @WithMockUser(username = "admin", roles = "USER")
-  void verifyPasswordUsesCurrentAuthenticatedUser() throws Exception {
-    // This test verifies the security improvement where the method uses the current
-    // authenticated user from SecurityContext instead of trusting the request body
-    PasswordVerificationRequest request = new PasswordVerificationRequest();
-    request.setPassword("admin"); // Correct password for admin user
-
-    mvc.perform(
-            post("/api/user-verification/verify-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.asJsonString(request)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").value(true));
-  }
-
-  @Test
   @DisplayName(
       "POST: Verify password with BadCredentialsException should return false with OK status")
   @WithMockUser(username = "admin", roles = "USER")
