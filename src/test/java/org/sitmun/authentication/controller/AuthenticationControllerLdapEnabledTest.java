@@ -1,5 +1,6 @@
 package org.sitmun.authentication.controller;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,13 +16,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.infrastructure.config.Profiles;
+import org.sitmun.infrastructure.security.core.LdapUserAuthoritiesPopulator;
+import org.sitmun.infrastructure.security.core.userdetails.UserDetailsServiceImplementation;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -43,6 +48,8 @@ class AuthenticationControllerLdapEnabledTest {
   private String schema;
 
   @Autowired private MockMvc mvc;
+
+  @MockitoSpyBean private UserDetailsServiceImplementation userDetailsService;
 
   private InMemoryDirectoryServer directoryServer;
 
@@ -104,5 +111,32 @@ class AuthenticationControllerLdapEnabledTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @DisplayName("POST: role lookup failure for an LDAP user must not issue a session cookie")
+  void roleLookupDataAccessFailureReturnsUnauthorized() throws Exception {
+    doAnswer(
+            invocation -> {
+              for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {
+                if (LdapUserAuthoritiesPopulator.class.getName().equals(frame.getClassName())) {
+                  throw new DataAccessResourceFailureException("database unavailable");
+                }
+              }
+              return invocation.callRealMethod();
+            })
+        .when(userDetailsService)
+        .loadUserByUsername("internal");
+
+    UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
+    login.setUsername("internal");
+    login.setPassword("password12");
+
+    mvc.perform(
+            post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(login)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(cookie().doesNotExist(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
   }
 }
