@@ -31,7 +31,6 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getContent();
   }
 
-  /** Total pages. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
@@ -39,7 +38,6 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getTotalPages();
   }
 
-  /** Returns the size of this page. */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull
@@ -47,7 +45,6 @@ public class JsonViewPage<T> extends org.springframework.data.domain.PageImpl<T>
     return super.getSize();
   }
 
-  /** Return the number of the slice */
   @Override
   @JsonView(ClientConfigurationViews.ApplicationTerritory.class)
   @NonNull

@@ -159,14 +159,12 @@ public class DefaultLanguageChangeService {
             .orElseThrow(
                 () -> new IllegalArgumentException("Target language not found: " + request.to()));
 
-    // Lock the configuration parameter
     ConfigurationParameter defaultLangParam =
         configurationParameterRepository
             .findByNameForUpdate("language.default")
             .orElseThrow(
                 () -> new IllegalStateException("language.default configuration not found"));
 
-    // Check for missing translations
     List<MissingTranslationDto> missingTranslations = checkMissingTranslations(targetLang);
 
     if (!missingTranslations.isEmpty() && !request.continueOnMissingTranslations()) {
@@ -176,18 +174,15 @@ public class DefaultLanguageChangeService {
               + " missing translations found. Set continueOnMissingTranslations=true to preserve current values.");
     }
 
-    // Backup current main-table values to source language translations
     int backupUpserts = backupCurrentValues(sourceLang);
 
     // Flush to ensure backups are persisted before updating main tables
     translationRepository.flush();
 
-    // Restore target language translations to main tables
     int restoredValues = restoreTargetValues(targetLang);
 
     int literalContinuitySeeds = seedLiteralContinuityValues(sourceLang, targetLang);
 
-    // Update configuration
     defaultLangParam.setValue(request.to());
     configurationParameterRepository.save(defaultLangParam);
 
@@ -306,7 +301,6 @@ public class DefaultLanguageChangeService {
     int count = 0;
 
     for (TranslatableField field : TRANSLATABLE_CATALOG) {
-      // Upsert current main-table values into source language translations
       String sql =
           String.format(
               """
@@ -382,7 +376,6 @@ public class DefaultLanguageChangeService {
 
   private void upsertTranslation(
       Integer elementId, String column, Language language, String value) {
-    // Check if translation exists
     List<Translation> existing =
         translationRepository.findByElementAndColumnStartingWith(elementId, column);
 

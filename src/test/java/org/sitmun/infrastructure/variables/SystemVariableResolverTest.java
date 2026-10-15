@@ -22,7 +22,6 @@ import org.sitmun.infrastructure.config.SystemVariableProperties;
 import org.sitmun.infrastructure.persistence.type.envelope.Envelope;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-/** Tests for SystemVariableResolver ensuring proper SpEL-based variable resolution. */
 class SystemVariableResolverTest {
 
   private static final Instant FIXED_INSTANT = Instant.parse("2026-09-13T16:54:00Z");

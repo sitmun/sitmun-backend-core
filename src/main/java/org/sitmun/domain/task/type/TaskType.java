@@ -68,7 +68,6 @@ public class TaskType {
   @Column(name = "TTY_ORDER")
   private Integer order;
 
-  /** */
   @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private Set<TaskType> children = new HashSet<>();

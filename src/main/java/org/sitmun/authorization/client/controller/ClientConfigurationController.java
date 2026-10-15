@@ -62,12 +62,6 @@ public class ClientConfigurationController {
   @Value("${sitmun.backend.url:}")
   private String backendUrl;
 
-  /**
-   * Constructor for ClientConfigurationController.
-   *
-   * @param authorizationService the authorization service
-   * @param profileMapper the profile mapper
-   */
   public ClientConfigurationController(
       AuthorizationService authorizationService,
       ProfileMapper profileMapper,
@@ -228,7 +222,6 @@ public class ClientConfigurationController {
                   dto.setTerritoryCount(count);
                   dto.setHasTerritories(count > 0);
                   if (count == 1) {
-                    // Find the single territory ID
                     Page<Territory> terrs =
                         authorizationService.findTerritoriesByUserAndApplication(
                             username, app.getId(), Pageable.unpaged());
@@ -391,7 +384,6 @@ public class ClientConfigurationController {
         return Optional.of(Integer.parseInt(matcher.group(1)));
       } catch (NumberFormatException e) {
         log.error("Error parsing node from filter: {}", input);
-        // Log the exception if necessary
       }
     }
     return Optional.empty();

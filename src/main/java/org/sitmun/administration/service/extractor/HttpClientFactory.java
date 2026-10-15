@@ -51,10 +51,8 @@ public class HttpClientFactory {
             }
           };
 
-      // Install the all-trusting trust manager
       final SSLContext sslContext = SSLContext.getInstance("SSL");
       sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-      // Create a ssl socket factory with our all-trusting manager
       final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
       builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);

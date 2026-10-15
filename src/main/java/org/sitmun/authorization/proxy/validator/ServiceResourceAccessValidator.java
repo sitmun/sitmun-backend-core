@@ -91,7 +91,6 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
         request.getType(),
         request.getTypeId());
 
-    // Fetch service and check if blocked
     var serviceOpt = serviceRepository.findById(request.getTypeId());
     if (serviceOpt.isEmpty()) {
       log.warn("Service not found: {}", request.getTypeId());
@@ -107,14 +106,12 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
       return false;
     }
 
-    // Check if user exists
     var userOpt = userRepository.findByUsername(userName);
     if (userOpt.isEmpty()) {
       log.warn("User not found: {}", userName);
       return false;
     }
 
-    // Check if application exists
     var applicationExists = applicationRepository.existsById(request.getAppId());
     if (!applicationExists) {
       log.warn("Application not found: {}", request.getAppId());
@@ -130,8 +127,6 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
       }
     }
 
-    //  Role-based access control: Check if user has roles that grant access to this service
-    // Services are accessed through cartographies which have permissions (groups) with roles
     var user = userOpt.get();
     var userRoles =
         user.getPermissions().stream()
@@ -151,11 +146,9 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
       return false;
     }
 
-    // Get all accessible cartographies for this user/territory
     var accessibleCartographies =
         cartographyRepository.findByRolesAndTerritory(userRoles, request.getTerId());
 
-    // Filter to cartographies for this specific service
     var serviceCartographies =
         accessibleCartographies.stream()
             .filter(

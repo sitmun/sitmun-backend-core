@@ -36,7 +36,6 @@ public class UserController {
   private final ApplicationEventPublisher publisher;
   private final Rfc9457ResponseWriter responseWriter;
 
-  /** Constructor. */
   public UserController(
       Validator validator,
       UserRepository userRepository,
@@ -112,7 +111,6 @@ public class UserController {
     return ResponseEntity.notFound().build();
   }
 
-  /** Get accounts. */
   @GetMapping
   public ResponseEntity<UserDTO> getAccount() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -147,7 +145,6 @@ public class UserController {
     return storedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  /** Get all accounts */
   @GetMapping("/all")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<List<UserDTO>> getAllAccounts() {

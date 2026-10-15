@@ -58,10 +58,8 @@ public class SystemVariableResolver {
       return template;
     }
 
-    // Build the evaluation context with available entities
     EvaluationContext context = createEvaluationContext(coordinates);
 
-    // Find all system variable references
     Matcher matcher = SYSTEM_VAR_PATTERN.matcher(template);
     StringBuilder result = new StringBuilder();
 

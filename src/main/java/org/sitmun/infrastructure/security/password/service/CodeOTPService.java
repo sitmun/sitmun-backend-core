@@ -22,7 +22,6 @@ public class CodeOTPService {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hashedBytes = digest.digest(codeOTP.getBytes());
-      // Encodage en base64 pour rendre le hash lisible
       return Base64.getEncoder().encodeToString(hashedBytes);
     } catch (NoSuchAlgorithmException e) {
       log.error("Erreur lors du hashing du OTP", e);

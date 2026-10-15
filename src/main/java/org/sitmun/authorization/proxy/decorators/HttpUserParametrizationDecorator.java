@@ -33,7 +33,6 @@ public class HttpUserParametrizationDecorator implements Decorator<Map<String, S
 
     String uri = http.getUri();
 
-    // Use UriTemplateExpander to expand {variable} in URIs
     UriTemplateExpander.ExpandedResult result =
         UriTemplateExpander.expandWithUsedVariables(uri, target);
     uri = result.getUri();

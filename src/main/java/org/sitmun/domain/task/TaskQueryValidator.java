@@ -46,7 +46,6 @@ public class TaskQueryValidator implements TaskValidator {
     Object scopeObj = properties.get(PROPERTY_SCOPE);
     String scope = String.valueOf(scopeObj);
 
-    // Strict validation for direct execution scopes (no-proxy and external-link)
     if (SCOPE_WEB_API_QUERY_NO_PROXY.equalsIgnoreCase(scope)
         || SCOPE_URL_QUERY.equalsIgnoreCase(scope)) {
       validateDirectExecutionScope(task, properties, scope);
@@ -61,27 +60,22 @@ public class TaskQueryValidator implements TaskValidator {
       Task task, Map<String, Object> properties, String scope) {
     List<String> violations = new ArrayList<>();
 
-    // Parse parameters using TaskParameterProcessor
     List<TaskParameter> parameters = taskParameterProcessor.parse(task);
 
-    // Check for provided parameters
     if (ParameterValidator.hasProvidedVariables(parameters)) {
       violations.add("Tasks with direct execution cannot have provided parameters");
     }
 
-    // Check for system variables in command
     Object commandObj = properties.get(PROPERTY_COMMAND);
     if (commandObj != null
         && ParameterValidator.containsSystemVariables(String.valueOf(commandObj))) {
       violations.add("Command URL cannot contain system variables #{...}");
     }
 
-    // Check for system variables in parameter values
     if (ParameterValidator.containsSystemVariablesInParameters(parameters)) {
       violations.add("Parameter values cannot contain system variables #{...}");
     }
 
-    // Check for system variables in headers
     @SuppressWarnings("unchecked")
     Map<String, Object> headers =
         (Map<String, Object>) properties.getOrDefault(PROPERTY_HEADERS, Collections.emptyMap());
@@ -92,7 +86,6 @@ public class TaskQueryValidator implements TaskValidator {
       }
     }
 
-    // Check for system variables in queryParams
     @SuppressWarnings("unchecked")
     Map<String, Object> queryParams =
         (Map<String, Object>)
@@ -104,7 +97,6 @@ public class TaskQueryValidator implements TaskValidator {
       }
     }
 
-    // Check for authentication mode (must be null or "None")
     Object authModeObj = properties.get(PROPERTY_AUTHENTICATION_MODE);
     if (authModeObj != null
         && !AUTHENTICATION_MODE_NONE.equalsIgnoreCase(String.valueOf(authModeObj))
@@ -112,7 +104,6 @@ public class TaskQueryValidator implements TaskValidator {
       violations.add("Authentication is not supported (requires proxy execution)");
     }
 
-    // If there are any violations, throw exception
     if (!violations.isEmpty()) {
       var errors = init(task);
       String message =

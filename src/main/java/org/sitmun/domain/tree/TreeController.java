@@ -66,7 +66,6 @@ public class TreeController {
       @Valid @RequestBody TreeTypeValidationRequest request,
       HttpServletRequest httpRequest) {
 
-    // Verify tree exists
     Tree tree =
         treeRepository
             .findById(treeId)
@@ -75,12 +74,10 @@ public class TreeController {
                     new BusinessRuleException(
                         ProblemTypes.NOT_FOUND, "Tree with ID " + treeId + " not found"));
 
-    // Fetch candidate applications
     Set<Integer> appIds =
         request.getApplicationIds() != null ? request.getApplicationIds() : Set.of();
     List<Application> candidateApps = fetchApplications(appIds);
 
-    // Validate the type change
     TreeRadioTypePolicy.validateRadioFoldersBeforeLeavingCartography(
         tree, request.getType(), treeNodeRepository);
     validateTypeAgainstApplications(request.getType(), candidateApps, tree);
@@ -102,7 +99,6 @@ public class TreeController {
 
     List<Application> apps = applicationRepository.findAllById(appIds);
 
-    // Verify all requested applications were found
     if (apps.size() != appIds.size()) {
       Set<Integer> foundIds = apps.stream().map(Application::getId).collect(Collectors.toSet());
       Set<Integer> missingIds =
@@ -148,10 +144,10 @@ public class TreeController {
    */
   private void validateTouristicTreeType(List<Application> apps) {
     if (apps.isEmpty()) {
-      return; // No applications linked, valid case
+      return;
     }
     if (apps.size() == 1 && DomainConstants.Applications.isTouristicApplication(apps.get(0))) {
-      return; // Valid case with one touristic application
+      return;
     }
     throw new BusinessRuleException(
         ProblemTypes.TREE_TYPE_CHANGE_CONSTRAINT,
@@ -194,7 +190,7 @@ public class TreeController {
     if (DomainConstants.Applications.isTouristicApplication(app)) {
       return validateTouristicApp(app, currentTree);
     }
-    return true; // Non-touristic apps are always valid
+    return true;
   }
 
   /**
@@ -225,7 +221,6 @@ public class TreeController {
   public ResponseEntity<ProblemDetail> handleBusinessRuleException(
       BusinessRuleException exception, HttpServletRequest request) {
 
-    // Determine HTTP status based on problem type
     HttpStatus status;
     String title;
     if (ProblemTypes.NOT_FOUND.equals(exception.getProblemType())) {

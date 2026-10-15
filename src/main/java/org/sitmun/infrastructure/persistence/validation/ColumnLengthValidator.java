@@ -67,10 +67,8 @@ public class ColumnLengthValidator implements Validator {
    */
   @Override
   public void validate(@NotNull Object target, @NotNull Errors errors) {
-    // First validate using standard validators
     validatorFactory.validate(target, errors);
 
-    // Then handle string truncation using Spring's BeanWrapper
     BeanWrapper beanWrapper = new BeanWrapperImpl(target);
     PropertyDescriptor[] propertyDescriptors = beanWrapper.getPropertyDescriptors();
 

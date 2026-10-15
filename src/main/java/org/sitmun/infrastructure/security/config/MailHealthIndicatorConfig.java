@@ -25,11 +25,8 @@ public class MailHealthIndicatorConfig {
   @ConditionalOnEnabledHealthIndicator("mail")
   @ConditionalOnProperty(name = "management.health.mail.enabled", havingValue = "true")
   public HealthIndicator mailHealthIndicator(JavaMailSender mailSender) {
-    // Spring Boot 2.7 doesn't have a built-in MailHealthIndicator
-    // We'll create a simple health indicator that checks if mail sender is available
     return () -> {
       try {
-        // Simple check to see if mail sender is configured
         if (mailSender != null) {
           return org.springframework.boot.actuate.health.Health.up()
               .withDetail("mail", "Mail service is available")

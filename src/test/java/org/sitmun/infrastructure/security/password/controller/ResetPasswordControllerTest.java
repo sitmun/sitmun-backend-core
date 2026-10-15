@@ -240,7 +240,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with expired token")
   @Transactional
   void resetPasswordWithExpiredToken() throws Exception {
-    // Create expired token for this test
     userTokenRepository.deleteAll();
     UserToken expiredUserToken =
         UserToken.builder()
@@ -273,7 +272,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with token attempt counter exceeded limit")
   @Transactional
   void resetPasswordWithTokenCounterExceedLimit() throws Exception {
-    // Create counter limit exceeded token for this test
     userTokenRepository.deleteAll();
     UserToken counterLimitExcedUserToken =
         UserToken.builder()
@@ -306,7 +304,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with token not active")
   @Transactional
   void resetPasswordWithTokenNotActive() throws Exception {
-    // Create inactive token for this test
     userTokenRepository.deleteAll();
     UserToken notActiveUserToken =
         UserToken.builder()
@@ -343,7 +340,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with invalid token - tests 400 Bad Request response")
   @Transactional
   void resetPasswordWithInvalidToken() throws Exception {
-    // Create a valid token for this test
     UserToken validUserToken =
         UserToken.builder()
             .codeOTP(validToken)
@@ -376,7 +372,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with empty password")
   @Transactional
   void resetPasswordWithEmptyPassword() throws Exception {
-    // Create a valid token for this test
     UserToken validUserToken =
         UserToken.builder()
             .codeOTP(validToken)
@@ -408,7 +403,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with null password")
   @Transactional
   void resetPasswordWithNullPassword() throws Exception {
-    // Create a valid token for this test
     UserToken validUserToken =
         UserToken.builder()
             .codeOTP(validToken)
@@ -451,7 +445,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with very short password")
   @Transactional
   void resetPasswordWithVeryShortPassword() throws Exception {
-    // Create a valid token for this test
     UserToken validUserToken =
         UserToken.builder()
             .codeOTP(validToken)
@@ -483,7 +476,6 @@ class ResetPasswordControllerTest {
   @DisplayName("POST: Reset password with very long password")
   @Transactional
   void resetPasswordWithVeryLongPassword() throws Exception {
-    // Create a valid token for this test
     UserToken validUserToken =
         UserToken.builder()
             .codeOTP(validToken)

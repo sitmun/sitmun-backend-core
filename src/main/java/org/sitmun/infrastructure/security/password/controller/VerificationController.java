@@ -40,12 +40,10 @@ public class VerificationController {
   @SecurityRequirements
   public ResponseEntity<Boolean> verifyPassword(
       @Valid @RequestBody PasswordVerificationRequest request) {
-    // Get current username from authentication
     Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
     String currentUsername = currentAuth.getName();
     try {
 
-      // Check if the password is correct
       Authentication authentication =
           this.authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(currentUsername, request.getPassword()));
@@ -59,7 +57,6 @@ public class VerificationController {
   /** Verify is this email is already used */
   @PostMapping("/verify-email")
   public ResponseEntity<Boolean> verifyEmail(@RequestBody(required = false) String email) {
-    // Handle null or empty email
     if (email == null || email.trim().isEmpty()) {
       return ResponseEntity.ok(false);
     }

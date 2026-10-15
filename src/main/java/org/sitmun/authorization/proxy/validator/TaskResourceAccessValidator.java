@@ -64,22 +64,18 @@ public class TaskResourceAccessValidator implements ResourceAccessValidator {
         request.getTerId(),
         request.getTypeId());
 
-    // For now, implement basic validation - can be enhanced based on business rules
-    // Check if task exists
     var taskExists = taskRepository.existsById(request.getTypeId());
     if (!taskExists) {
       log.warn("Task not found: {}", request.getTypeId());
       return false;
     }
 
-    // Check if user exists
     var userOpt = userRepository.findByUsername(userName);
     if (userOpt.isEmpty()) {
       log.warn("User not found: {}", userName);
       return false;
     }
 
-    // Check if application exists
     var applicationExists = applicationRepository.existsById(request.getAppId());
     if (!applicationExists) {
       log.warn("Application not found: {}", request.getAppId());
@@ -95,8 +91,6 @@ public class TaskResourceAccessValidator implements ResourceAccessValidator {
       }
     }
 
-    // Role-based access control: Check if user has roles that grant access to this task
-    // This follows the same logic as AuthorizationService.buildProfile()
     var user = userOpt.get();
     var userRoles =
         user.getPermissions().stream()
@@ -116,8 +110,6 @@ public class TaskResourceAccessValidator implements ResourceAccessValidator {
       return false;
     }
 
-    // Check if user has access to this task via roles and territory
-    // Uses the same query as AuthorizationService: findByRolesAndTerritory
     var accessibleTasks = taskRepository.findByRolesAndTerritory(userRoles, request.getTerId());
     var hasAccess =
         accessibleTasks.stream().anyMatch(task -> task.getId().equals(request.getTypeId()));
@@ -131,8 +123,6 @@ public class TaskResourceAccessValidator implements ResourceAccessValidator {
       return false;
     }
 
-    // Role-based access control implemented
-    // Task permissions validated via roles and territory availabilities
     log.debug("Task access validation passed for user: {}", userName);
     return true;
   }

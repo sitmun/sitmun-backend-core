@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SqlUserParametrizationDecorator implements Decorator<Map<String, String>> {
 
-  // Case-insensitive WHERE detector
   private static final Pattern HAS_WHERE = Pattern.compile("\\bwhere\\b", Pattern.CASE_INSENSITIVE);
   // Supports both ${var} and '${var}' patterns to avoid quoted '?' placeholders.
   private static final Pattern SQL_TEMPLATE_VAR = Pattern.compile("'\\$\\{(\\w+)}'|\\$\\{(\\w+)}");
@@ -57,7 +56,6 @@ public class SqlUserParametrizationDecorator implements Decorator<Map<String, St
     matcher.appendTail(expandedSql);
     sql = expandedSql.toString();
 
-    // Remove used variables from remaining
     usedVariables.forEach(remaining::remove);
 
     // 2) Append leftover properties as WHERE ... AND ...
