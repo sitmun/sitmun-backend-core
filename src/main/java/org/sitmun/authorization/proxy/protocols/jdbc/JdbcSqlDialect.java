@@ -1,8 +1,8 @@
 package org.sitmun.authorization.proxy.protocols.jdbc;
 
 /**
- * Appends a row limit to proxy SQL. PostgreSQL, Oracle 12c and later, and H2 accept {@code OFFSET n
- * ROWS FETCH NEXT m ROWS ONLY}.
+ * Appends a row limit to proxy SQL. PostgreSQL 8.4 and later and Oracle 12.1 and later accept
+ * {@code OFFSET n ROWS FETCH NEXT m ROWS ONLY}.
  */
 public final class JdbcSqlDialect {
 
