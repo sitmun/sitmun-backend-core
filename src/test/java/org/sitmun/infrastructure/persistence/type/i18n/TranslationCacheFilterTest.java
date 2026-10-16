@@ -21,7 +21,6 @@ import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -43,7 +42,6 @@ class TranslationCacheFilterTest {
     filter =
         new TranslationCacheFilter(
             translationRepository, requestLocaleResolutionService, databaseDefaultLanguageResolver);
-    ReflectionTestUtils.setField(filter, "defaultLanguage", "ca");
     request = new MockHttpServletRequest();
     response = new MockHttpServletResponse();
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
