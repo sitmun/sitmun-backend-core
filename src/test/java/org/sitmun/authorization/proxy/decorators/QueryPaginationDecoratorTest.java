@@ -1,79 +1,49 @@
 package org.sitmun.authorization.proxy.decorators;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.sitmun.authorization.proxy.exception.BadRequestException;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 
 class QueryPaginationDecoratorTest {
 
   private final QueryPaginationDecorator decorator = new QueryPaginationDecorator();
 
-  @Test
-  @DisplayName("addBehavior appends LIMIT OFFSET for PostgreSQL URL")
-  void postgresqlUrlUsesLimitOffset() {
-    JdbcPayloadDto payload =
-        JdbcPayloadDto.builder()
-            .uri("jdbc:postgresql://localhost/sitmun")
-            .driver("org.postgresql.Driver")
-            .sql("SELECT * FROM t")
-            .build();
-    Map<String, String> target = new HashMap<>();
-    target.put(QueryPaginationDecorator.SQL_LIMIT, "10");
-    target.put(QueryPaginationDecorator.SQL_OFFSET, "20");
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "jdbc:postgresql://localhost/sitmun",
+        "jdbc:h2:mem:test",
+        "jdbc:oracle:thin:@//localhost:1521/xe"
+      })
+  @DisplayName("addBehavior appends the same clause for PostgreSQL, H2, and Oracle")
+  void sameClauseForEveryTarget(String uri) {
+    JdbcPayloadDto payload = JdbcPayloadDto.builder().uri(uri).sql("SELECT * FROM t").build();
 
-    decorator.addBehavior(target, payload);
-
-    assertThat(payload.getSql()).isEqualTo("SELECT * FROM t LIMIT 10 OFFSET 20");
-  }
-
-  @Test
-  @DisplayName("addBehavior appends LIMIT OFFSET for H2 URL")
-  void h2UrlUsesLimitOffset() {
-    JdbcPayloadDto payload =
-        JdbcPayloadDto.builder().uri("jdbc:h2:mem:test").sql("SELECT * FROM t").build();
-    Map<String, String> target = Map.of(QueryPaginationDecorator.SQL_LIMIT, "5");
-
-    decorator.addBehavior(target, payload);
-
-    assertThat(payload.getSql()).isEqualTo("SELECT * FROM t LIMIT 5");
-  }
-
-  @Test
-  @DisplayName("addBehavior appends Oracle FETCH for Oracle URL")
-  void oracleUrlUsesFetch() {
-    JdbcPayloadDto payload =
-        JdbcPayloadDto.builder()
-            .uri("jdbc:oracle:thin:@//localhost:1521/xe")
-            .sql("SELECT * FROM t")
-            .build();
-    Map<String, String> target = new HashMap<>();
-    target.put(QueryPaginationDecorator.SQL_LIMIT, "10");
-    target.put(QueryPaginationDecorator.SQL_OFFSET, "20");
-
-    decorator.addBehavior(target, payload);
+    decorator.addBehavior(
+        Map.of(QueryPaginationDecorator.SQL_LIMIT, "10", QueryPaginationDecorator.SQL_OFFSET, "20"),
+        payload);
 
     assertThat(payload.getSql())
         .isEqualTo("SELECT * FROM t OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY");
   }
 
   @Test
-  @DisplayName("addBehavior uses Oracle syntax when driver class indicates Oracle")
-  void oracleDriverUsesFetch() {
-    JdbcPayloadDto payload =
-        JdbcPayloadDto.builder()
-            .uri("")
-            .driver("oracle.jdbc.OracleDriver")
-            .sql("SELECT 1 FROM dual")
-            .build();
-    Map<String, String> target = Map.of(QueryPaginationDecorator.SQL_LIMIT, "1");
+  @DisplayName("addBehavior appends only the part the client sent")
+  void appendsOnlyThePartTheClientSent() {
+    JdbcPayloadDto limitOnly = JdbcPayloadDto.builder().sql("SELECT * FROM t").build();
+    decorator.addBehavior(Map.of(QueryPaginationDecorator.SQL_LIMIT, "5"), limitOnly);
+    assertThat(limitOnly.getSql()).isEqualTo("SELECT * FROM t FETCH NEXT 5 ROWS ONLY");
 
-    decorator.addBehavior(target, payload);
-
-    assertThat(payload.getSql()).isEqualTo("SELECT 1 FROM dual FETCH NEXT 1 ROWS ONLY");
+    JdbcPayloadDto offsetOnly = JdbcPayloadDto.builder().sql("SELECT * FROM t").build();
+    decorator.addBehavior(Map.of(QueryPaginationDecorator.SQL_OFFSET, "5"), offsetOnly);
+    assertThat(offsetOnly.getSql()).isEqualTo("SELECT * FROM t OFFSET 5 ROWS");
   }
 
   @Test
@@ -84,5 +54,18 @@ class QueryPaginationDecoratorTest {
     decorator.addBehavior(Map.of(), payload);
 
     assertThat(payload.getSql()).isEqualTo("SELECT 1");
+  }
+
+  @Test
+  @DisplayName("addBehavior rejects a non-integer and leaves the SQL unchanged")
+  void rejectsNonInteger() {
+    JdbcPayloadDto payload = JdbcPayloadDto.builder().sql("SELECT * FROM t").build();
+
+    assertThatThrownBy(
+            () ->
+                decorator.addBehavior(
+                    Map.of(QueryPaginationDecorator.SQL_LIMIT, "10; DROP TABLE t"), payload))
+        .isInstanceOf(BadRequestException.class);
+    assertThat(payload.getSql()).isEqualTo("SELECT * FROM t");
   }
 }

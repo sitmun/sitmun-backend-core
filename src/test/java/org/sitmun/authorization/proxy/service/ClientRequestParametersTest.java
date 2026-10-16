@@ -12,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
@@ -86,8 +88,8 @@ class ClientRequestParametersTest {
       ClientRequestParameters params = ClientRequestParameters.of(input);
       ClientRequestParameters.PaginationExtractionResult result = params.takePagination();
 
-      assertThat(result.pagination().limit()).isEqualTo("100");
-      assertThat(result.pagination().offset()).isEqualTo("50");
+      assertThat(result.pagination().limit()).isEqualTo(100);
+      assertThat(result.pagination().offset()).isEqualTo(50);
       assertThat(result.remainingParameters().asMap()).containsOnly(Map.entry("other", "param"));
     }
 
@@ -102,8 +104,7 @@ class ClientRequestParametersTest {
       ClientRequestParameters params = ClientRequestParameters.of(input);
       ClientRequestParameters.PaginationExtractionResult result = params.takePagination();
 
-      // Last one wins (insertion order)
-      assertThat(result.pagination().limit()).isEqualTo("30");
+      assertThat(result.pagination().limit()).isEqualTo(30);
       assertThat(result.remainingParameters().asMap()).isEmpty();
     }
 
@@ -133,6 +134,23 @@ class ClientRequestParametersTest {
       ClientRequestParameters.PaginationExtractionResult result = params.takePagination();
 
       assertThat(result.remainingParameters().asMap().keySet()).containsExactly("a", "b", "c");
+    }
+
+    @Test
+    @DisplayName("reads a leading-zero count as its integer value")
+    void readsLeadingZeroAsInteger() {
+      ClientRequestParameters params = ClientRequestParameters.of(Map.of("LIMIT", "010"));
+
+      assertThat(params.takePagination().pagination().limit()).isEqualTo(10);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"10; DROP TABLE t", "-1", "1.2", " 10", "+8", "9999999999"})
+    @DisplayName("rejects a count that is not a non-negative integer")
+    void rejectsNonInteger(String raw) {
+      ClientRequestParameters params = ClientRequestParameters.of(Map.of("LIMIT", raw));
+
+      assertThatThrownBy(params::takePagination).isInstanceOf(BadRequestException.class);
     }
   }
 

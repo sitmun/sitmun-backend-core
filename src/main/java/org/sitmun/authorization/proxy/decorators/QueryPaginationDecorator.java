@@ -4,6 +4,7 @@ import java.util.Map;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcSqlDialect;
+import org.sitmun.authorization.proxy.service.Pagination;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,15 +22,11 @@ public class QueryPaginationDecorator implements Decorator<Map<String, String>> 
   @Override
   public void addBehavior(Map<String, String> target, PayloadDto payload) {
     if (payload instanceof JdbcPayloadDto jdbcPayloadDto) {
+      Integer limit = Pagination.parseCount(target.get(SQL_LIMIT));
+      Integer offset = Pagination.parseCount(target.get(SQL_OFFSET));
       String sql = jdbcPayloadDto.getSql();
-      if (sql != null && !sql.isEmpty()) {
-        String limit = target.get(SQL_LIMIT);
-        String offset = target.get(SQL_OFFSET);
-        if (limit != null || offset != null) {
-          JdbcSqlDialect dialect =
-              JdbcSqlDialect.fromJdbcMetadata(jdbcPayloadDto.getDriver(), jdbcPayloadDto.getUri());
-          jdbcPayloadDto.setSql(dialect.appendPagination(sql, limit, offset));
-        }
+      if (sql != null && !sql.isEmpty() && (limit != null || offset != null)) {
+        jdbcPayloadDto.setSql(JdbcSqlDialect.appendPagination(sql, limit, offset));
       }
     }
   }

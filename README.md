@@ -1049,6 +1049,8 @@ The Backend Core supports different service types that can be configured:
 }
 ```
 
+Client `LIMIT` and `OFFSET` on a JDBC task are appended as `OFFSET n ROWS FETCH NEXT m ROWS ONLY`. PostgreSQL has accepted that clause since 8.4. Oracle has accepted it since 12.1.
+
 ### Troubleshooting Integration
 
 #### Common Issues

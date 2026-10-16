@@ -489,13 +489,13 @@ public class ProxyConfigurationService {
     httpUserParametrizationDecorator.apply(parameters, payload);
   }
 
-  private void addPagination(String limit, String offset, PayloadDto payload) {
+  private void addPagination(Integer limit, Integer offset, PayloadDto payload) {
     Map<String, String> pagination = new HashMap<>();
-    if (StringUtils.hasText(limit)) {
-      pagination.put(SQL_LIMIT, limit);
+    if (limit != null) {
+      pagination.put(SQL_LIMIT, Integer.toString(limit));
     }
-    if (StringUtils.hasText(offset)) {
-      pagination.put(SQL_OFFSET, offset);
+    if (offset != null) {
+      pagination.put(SQL_OFFSET, Integer.toString(offset));
     }
     queryPaginationDecorator.apply(pagination, payload);
   }
