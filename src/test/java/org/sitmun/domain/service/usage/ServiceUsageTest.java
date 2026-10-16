@@ -445,8 +445,16 @@ class ServiceUsageTest {
   }
 
   private static String nullField(Integer serviceId, Integer applicationId, String field) {
-    String json = hourJson(serviceId == null ? 1 : serviceId, applicationId == null ? 1 : applicationId, "2026-10-05T12:00:00Z", 1, 0);
-    return "[" + json.replaceFirst("\"" + field + "\"\\s*:\\s*[^,\\n]+", "\"" + field + "\": null") + "]";
+    String json =
+        hourJson(
+            serviceId == null ? 1 : serviceId,
+            applicationId == null ? 1 : applicationId,
+            "2026-10-05T12:00:00Z",
+            1,
+            0);
+    return "["
+        + json.replaceFirst("\"" + field + "\"\\s*:\\s*[^,\\n]+", "\"" + field + "\": null")
+        + "]";
   }
 
   private static String body(

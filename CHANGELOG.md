@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 
+### Security
+
+- **Auth**: A session cookie accepts only a session JWT. An `edition_access` or `mobile_proxy_access` token sent as `viewer_access_token` or the admin cookie is rejected, so it no longer receives that user's database roles, including `ROLE_ADMIN` ([#282](https://github.com/sitmun/sitmun-backend-core/issues/282)).
+
 ### Fixed
 
 - **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.

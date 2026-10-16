@@ -200,6 +200,10 @@ public class JsonWebTokenService {
       return false;
     }
 
+    if (getClaimFromToken(token, claims -> claims.get(TOKEN_USE, String.class)) != null) {
+      return false;
+    }
+
     if (lastPasswordChange == null) return true;
     Long tokenTimestamp = getClaimFromToken(token, c -> c.get(LAST_PASSWORD_CHANGE, Long.class));
     return tokenTimestamp != null
