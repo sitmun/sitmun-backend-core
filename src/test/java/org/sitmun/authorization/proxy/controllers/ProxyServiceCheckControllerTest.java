@@ -93,7 +93,9 @@ class ProxyServiceCheckControllerTest {
             post("/api/config/proxy/service-checks")
                 .contentType(APPLICATION_JSON)
                 .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
-                .content(body(service.getId(), 500).replace("\"exchangeSignals\":", "\"ignoredSignals\":")))
+                .content(
+                    body(service.getId(), 500)
+                        .replace("\"exchangeSignals\":", "\"ignoredSignals\":")))
         .andExpect(status().isBadRequest());
   }
 
