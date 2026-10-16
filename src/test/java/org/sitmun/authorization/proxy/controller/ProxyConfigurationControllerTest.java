@@ -201,7 +201,7 @@ class ProxyConfigurationControllerTest {
         .andExpect(
             jsonPath("$.payload.sql")
                 .value(
-                    "SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=? LIMIT 100 OFFSET 100"));
+                    "SELECT * FROM EXAMPLE WHERE 1=1 AND columnA=? AND columnB=? OFFSET 100 ROWS FETCH NEXT 100 ROWS ONLY"));
   }
 
   @Test

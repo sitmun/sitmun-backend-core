@@ -80,7 +80,8 @@ public final class ClientRequestParameters {
     keysToRemove.forEach(remaining::remove);
 
     return new PaginationExtractionResult(
-        new Pagination(limit, offset), new ClientRequestParameters(remaining));
+        new Pagination(Pagination.parseCount(limit), Pagination.parseCount(offset)),
+        new ClientRequestParameters(remaining));
   }
 
   /**
