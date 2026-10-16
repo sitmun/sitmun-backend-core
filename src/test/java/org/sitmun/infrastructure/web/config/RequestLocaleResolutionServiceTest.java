@@ -43,7 +43,6 @@ class RequestLocaleResolutionServiceTest {
   @Mock private DatabaseDefaultLanguageResolver databaseDefaultLanguageResolver;
 
   private RequestLocaleResolutionService service;
-  private static final String DEFAULT_LANGUAGE = "en";
 
   private List<Language> supportedLanguages;
 
@@ -96,7 +95,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getParameter("lang")).thenReturn("ca");
       when(request.getMethod()).thenReturn("GET");
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("ca");
       verify(localeResolver).setLocale(eq(request), eq(response), any(Locale.class));
@@ -108,7 +107,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getParameter("lang")).thenReturn("oc-aranes");
       when(request.getMethod()).thenReturn("GET");
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("oc-aranes");
     }
@@ -119,7 +118,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getParameter("lang")).thenReturn("fr-FR");
       when(request.getMethod()).thenReturn("GET");
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("fr");
     }
@@ -130,7 +129,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getParameter("lang")).thenReturn("oc-aranes-ES");
       when(request.getMethod()).thenReturn("GET");
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("oc-aranes");
     }
@@ -146,7 +145,7 @@ class RequestLocaleResolutionServiceTest {
       Locale previousLocale = LocaleContextHolder.getLocale();
       try {
         LocaleContextHolder.setLocale(Locale.GERMANY);
-        String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+        String result = service.resolveLanguage(request, response, null);
 
         // Should fallback to sitmun.language since de is not supported
         assertThat(result).isEqualTo("en");
@@ -168,7 +167,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(null);
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("en");
       verify(localeResolver, never()).setLocale(any(), any(), any());
@@ -187,7 +186,7 @@ class RequestLocaleResolutionServiceTest {
           .thenReturn(
               Collections.enumeration(Collections.singletonList(Locale.forLanguageTag("es"))));
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("es");
       verify(localeResolver, never()).setLocale(any(), any(), any());
@@ -200,7 +199,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getLocales())
           .thenReturn(Collections.enumeration(Collections.singletonList(Locale.FRANCE)));
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("fr");
     }
@@ -214,7 +213,7 @@ class RequestLocaleResolutionServiceTest {
               Collections.enumeration(
                   Collections.singletonList(Locale.forLanguageTag("oc-aranes"))));
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("oc-aranes");
     }
@@ -231,7 +230,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.ENGLISH);
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("en");
     }
@@ -243,7 +242,7 @@ class RequestLocaleResolutionServiceTest {
       when(request.getLocales()).thenReturn(Collections.emptyEnumeration());
       when(localeResolver.resolveLocale(request)).thenReturn(Locale.forLanguageTag("ca"));
 
-      String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+      String result = service.resolveLanguage(request, response, null);
 
       assertThat(result).isEqualTo("ca");
     }
@@ -267,7 +266,7 @@ class RequestLocaleResolutionServiceTest {
       Locale previousLocale = LocaleContextHolder.getLocale();
       try {
         LocaleContextHolder.setLocale(Locale.GERMANY); // "de" not in supported list
-        String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+        String result = service.resolveLanguage(request, response, null);
         assertThat(result).isEqualTo("es");
       } finally {
         LocaleContextHolder.setLocale(previousLocale);
@@ -284,7 +283,7 @@ class RequestLocaleResolutionServiceTest {
       Locale previousLocale = LocaleContextHolder.getLocale();
       try {
         LocaleContextHolder.setLocale(Locale.GERMANY);
-        String result = service.resolveLanguage(request, response, null, DEFAULT_LANGUAGE);
+        String result = service.resolveLanguage(request, response, null);
 
         assertThat(result).isEqualTo("en");
       } finally {

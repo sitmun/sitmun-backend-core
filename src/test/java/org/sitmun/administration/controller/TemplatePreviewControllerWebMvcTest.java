@@ -105,8 +105,7 @@ class TemplatePreviewControllerWebMvcTest {
   @WithMockUser(username = "public", roles = "PUBLIC")
   @DisplayName("PUBLIC principal can reach more-info-advanced/render")
   void publicPrincipalCanReachRender() throws Exception {
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("ca");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("ca");
     when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
@@ -126,8 +125,7 @@ class TemplatePreviewControllerWebMvcTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("ADMIN principal can reach more-info-advanced/render")
   void adminPrincipalCanReachRender() throws Exception {
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("ca");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("ca");
     when(templateExecutionService.renderMoreInfoAdvanced(any(), any()))
         .thenReturn(MoreInfoAdvancedRenderResponseDto.builder().tasks(List.of()).build());
 
@@ -147,8 +145,7 @@ class TemplatePreviewControllerWebMvcTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("preview does not require appId/terId")
   void previewDoesNotRequireCoordinates() throws Exception {
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("ca");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("ca");
     when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<p>ok</p>").build());
 
@@ -170,8 +167,7 @@ class TemplatePreviewControllerWebMvcTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("preview forwards optional appId/terId")
   void previewForwardsOptionalCoordinates() throws Exception {
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("ca");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("ca");
     when(templateRenderService.renderPreview(any(), any(), any(), any(), any(), any()))
         .thenReturn(TemplatePreviewResponseDto.builder().html("<p>ok</p>").build());
 

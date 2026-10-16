@@ -32,34 +32,28 @@ public enum SecurityRole {
   }
 
   public static boolean isAdmin() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return auth != null
-        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(ADMIN.authority()));
+    return hasAuthority(ADMIN);
   }
 
   public static boolean isUser() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return auth != null
-        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(USER.authority()));
+    return hasAuthority(USER);
   }
 
   public static boolean isPublic() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return auth != null
-        && auth.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals(PUBLIC.authority()));
+    return hasAuthority(PUBLIC);
   }
 
   public static boolean isProxy() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return auth != null
-        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(PROXY.authority()));
+    return hasAuthority(PROXY);
   }
 
   public static boolean isMobileEdition() {
+    return hasAuthority(MOBILE_EDITION);
+  }
+
+  private static boolean hasAuthority(SecurityRole role) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return auth != null
-        && auth.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals(MOBILE_EDITION.authority()));
+        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role.authority()));
   }
 }

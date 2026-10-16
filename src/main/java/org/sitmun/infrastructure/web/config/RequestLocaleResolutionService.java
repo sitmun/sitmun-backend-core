@@ -53,14 +53,10 @@ public class RequestLocaleResolutionService {
    * @param request current HTTP request
    * @param response current HTTP response
    * @param handler current handler object
-   * @param defaultLanguage unused fallback kept for interface compatibility
    * @return resolved language tag for DB lookup (e.g. en, fr, oc-aranes)
    */
   public String resolveLanguage(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      Object handler,
-      String defaultLanguage) {
+      HttpServletRequest request, HttpServletResponse response, Object handler) {
     String uri = request != null ? request.getRequestURI() : "null";
     String query = request != null ? request.getQueryString() : "null";
     String langParam = request != null ? request.getParameter("lang") : null;

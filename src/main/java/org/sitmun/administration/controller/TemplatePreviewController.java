@@ -50,7 +50,7 @@ public class TemplatePreviewController {
       @RequestBody @Valid MoreInfoAdvancedRenderRequestDto requestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
-    String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
+    String language = requestLocaleResolutionService.resolveLanguage(request, response, this);
     return ResponseEntity.ok(templateExecutionService.renderMoreInfoAdvanced(requestDto, language));
   }
 
@@ -85,7 +85,7 @@ public class TemplatePreviewController {
       @RequestBody TemplatePreviewRequestDto requestDto,
       HttpServletRequest request,
       HttpServletResponse response) {
-    String language = requestLocaleResolutionService.resolveLanguage(request, response, this, null);
+    String language = requestLocaleResolutionService.resolveLanguage(request, response, this);
     return ResponseEntity.ok(
         templateRenderService.renderPreview(
             requestDto.getTemplateHtml(),

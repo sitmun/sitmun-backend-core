@@ -9,7 +9,6 @@ import java.util.Locale;
 import org.sitmun.infrastructure.web.config.RequestLocaleResolutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -27,9 +26,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class TranslationCacheFilter extends OncePerRequestFilter {
 
   private static final Logger log = LoggerFactory.getLogger(TranslationCacheFilter.class);
-
-  @Value("${sitmun.language}")
-  private String defaultLanguage;
 
   private final TranslationRepository translationRepository;
   private final RequestLocaleResolutionService requestLocaleResolutionService;
@@ -56,8 +52,7 @@ public class TranslationCacheFilter extends OncePerRequestFilter {
         preload);
 
     if (preload) {
-      String locale =
-          requestLocaleResolutionService.resolveLanguage(request, response, this, defaultLanguage);
+      String locale = requestLocaleResolutionService.resolveLanguage(request, response, this);
       log.debug("TranslationCacheFilter.preload locale={}", locale);
       if (locale != null && !locale.isBlank()) {
         LocaleContextHolder.setLocale(Locale.forLanguageTag(locale));

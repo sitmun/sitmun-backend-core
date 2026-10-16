@@ -21,6 +21,6 @@ public class CurrentRequestLanguageResolver {
     }
     HttpServletRequest request = attributes.getRequest();
     HttpServletResponse response = attributes.getResponse();
-    return requestLocaleResolutionService.resolveLanguage(request, response, handler, null);
+    return requestLocaleResolutionService.resolveLanguage(request, response, handler);
   }
 }

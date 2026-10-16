@@ -61,8 +61,7 @@ class TranslationCacheFilterTest {
   @DisplayName("clears LocaleContextHolder after preload request with lang parameter")
   void clearsLocaleAfterPreloadRequest() throws Exception {
     request.setParameter("lang", "es");
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("es");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("es");
     when(databaseDefaultLanguageResolver.resolveShortnameFromDatabase()).thenReturn("ca");
     when(translationRepository.findAllByLocaleRows("es")).thenReturn(Collections.emptyList());
     doAnswer(
@@ -94,8 +93,7 @@ class TranslationCacheFilterTest {
   @DisplayName("preload stores default language shortname on request translation cache")
   void preloadStoresDefaultLanguageOnCache() throws Exception {
     request.setParameter("lang", "es");
-    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any(), any()))
-        .thenReturn("es");
+    when(requestLocaleResolutionService.resolveLanguage(any(), any(), any())).thenReturn("es");
     when(databaseDefaultLanguageResolver.resolveShortnameFromDatabase()).thenReturn("ca");
     when(translationRepository.findAllByLocaleRows("es")).thenReturn(Collections.emptyList());
     AtomicReference<String> cachedDefault = new AtomicReference<>();

@@ -139,7 +139,7 @@ public class AuthorizationService {
    */
   public Page<Application> findApplicationsByUser(String username, Pageable pageable) {
     Page<Application> page;
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       page = applicationRepository.findByPublicUser(username, pageable);
     } else {
       page = applicationRepository.findByUser(username, pageable);
@@ -153,7 +153,7 @@ public class AuthorizationService {
       return findApplicationsByUser(username, pageable);
     }
     String normalizedKeywords = keywords.trim();
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       return applicationRepository.findByPublicUserAndKeywords(
           username, normalizedKeywords, pageable);
     }
@@ -176,7 +176,7 @@ public class AuthorizationService {
   public Page<Territory> findTerritoriesByUser(String username, Pageable pageable) {
     Page<Territory> page;
 
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       page = territoryRepository.findByPublicUser(username, pageable);
     } else {
       page = territoryRepository.findByRestrictedUser(username, pageable);
@@ -190,7 +190,7 @@ public class AuthorizationService {
       return findTerritoriesByUser(username, pageable);
     }
     String normalizedKeywords = keywords.trim();
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       return territoryRepository.findByPublicUserAndKeywords(
           username, normalizedKeywords, pageable);
     }
@@ -211,7 +211,7 @@ public class AuthorizationService {
   public Page<Territory> findTerritoriesByUserAndApplication(
       String username, Integer appId, Pageable pageable) {
     Page<Territory> page;
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       page = territoryRepository.findByPublicUserAndApplication(username, appId, pageable);
     } else {
       page = territoryRepository.findByRestrictedUserAndApplication(username, appId, pageable);
@@ -232,7 +232,7 @@ public class AuthorizationService {
   public Page<Application> findApplicationsByUserAndTerritory(
       String username, Integer territoryId, Pageable pageable) {
     Page<Application> page;
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       page = applicationRepository.findByPublicUserAndTerritory(username, territoryId, pageable);
     } else {
       page =
@@ -245,7 +245,7 @@ public class AuthorizationService {
   public Optional<Application> findApplicationByUserApplicationAndTerritory(
       String username, Integer appId, Integer territoryId) {
     Optional<Application> application;
-    if (isPublic() || isPublicPrincipal(username)) {
+    if (usesPublicCatalog(username)) {
       application =
           applicationRepository.findByPublicUserApplicationAndTerritory(
               username, appId, territoryId);
@@ -721,6 +721,10 @@ public class AuthorizationService {
     profile.setGroups(groupsFiltered);
     profile.setServices(servicesFiltered);
     return profile;
+  }
+
+  private static boolean usesPublicCatalog(String username) {
+    return isPublic() || isPublicPrincipal(username);
   }
 
   public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

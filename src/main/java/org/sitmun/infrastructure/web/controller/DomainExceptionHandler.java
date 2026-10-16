@@ -79,14 +79,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     this.userApplicationAccessPolicy = userApplicationAccessPolicy;
   }
 
-  // ============================================================================
-  // BUSINESS RULE VIOLATIONS
-  // ============================================================================
-
-  /**
-   * Handles {@link BusinessRuleException} - domain business rules violations with specific problem
-   * types.
-   */
   @ExceptionHandler(BusinessRuleException.class)
   public ResponseEntity<ProblemDetail> handleBusinessRuleException(
       BusinessRuleException exception, HttpServletRequest request) {
@@ -116,7 +108,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link IllegalArgumentException} - invalid argument passed to an operation. */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ProblemDetail> handleIllegalArgumentException(
       IllegalArgumentException exception, HttpServletRequest request) {
@@ -136,10 +127,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /**
-   * Handles generic {@link RequirementException} - fallback for requirement violations without
-   * specific problem types.
-   */
   @ExceptionHandler(RequirementException.class)
   public ResponseEntity<ProblemDetail> handleRequirementException(
       RequirementException exception, HttpServletRequest request) {
@@ -159,13 +146,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // VALIDATION ERRORS
-  // ============================================================================
-
-  /**
-   * Handles {@link RepositoryConstraintViolationException} - Spring Data REST validation errors.
-   */
   @ExceptionHandler(RepositoryConstraintViolationException.class)
   public ResponseEntity<ValidationProblemDetail> handleRepositoryConstraintViolationException(
       RepositoryConstraintViolationException exception, HttpServletRequest request) {
@@ -200,11 +180,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // JPA/HIBERNATE PERSISTENCE EXCEPTIONS
-  // ============================================================================
-
-  /** Handles {@link EntityNotFoundException} - requested entity not found. */
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleEntityNotFoundException(
       EntityNotFoundException exception, HttpServletRequest request) {
@@ -224,7 +199,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link OptimisticLockException} - concurrent modification detected. */
   @ExceptionHandler(OptimisticLockException.class)
   public ResponseEntity<ProblemDetail> handleOptimisticLockException(
       OptimisticLockException exception, HttpServletRequest request) {
@@ -244,7 +218,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link PessimisticLockException} - resource is locked. */
   @ExceptionHandler(PessimisticLockException.class)
   public ResponseEntity<ProblemDetail> handlePessimisticLockException(
       PessimisticLockException exception, HttpServletRequest request) {
@@ -647,7 +620,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
     return null; // No mapping found - fallback to generic message
   }
 
-  /** Handles Hibernate {@link jakarta.validation.ConstraintViolationException}. */
   @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
   public ResponseEntity<ProblemDetail> handleConstraintViolationException(
       jakarta.validation.ConstraintViolationException exception, HttpServletRequest request) {
@@ -667,7 +639,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link NonUniqueResultException} - query returned multiple results. */
   @ExceptionHandler(NonUniqueResultException.class)
   public ResponseEntity<ProblemDetail> handleNonUniqueResultException(
       NonUniqueResultException exception, HttpServletRequest request) {
@@ -687,7 +658,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link TransactionRequiredException} - no transaction context. */
   @ExceptionHandler(TransactionRequiredException.class)
   public ResponseEntity<ProblemDetail> handleTransactionRequiredException(
       TransactionRequiredException exception, HttpServletRequest request) {
@@ -707,11 +677,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // DOMAIN-SPECIFIC EXCEPTIONS
-  // ============================================================================
-
-  /** Handles {@link MailNotImplementedException} - mail service not available. */
   @ExceptionHandler(MailNotImplementedException.class)
   public ResponseEntity<ProblemDetail> handleMailNotImplementedException(
       MailNotImplementedException exception, HttpServletRequest request) {
@@ -731,7 +696,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link EmailTemplateException} - email template rendering error. */
   @ExceptionHandler(EmailTemplateException.class)
   public ResponseEntity<ProblemDetail> handleEmailTemplateException(
       EmailTemplateException exception, HttpServletRequest request) {
@@ -751,7 +715,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  /** Handles {@link ImmutableSystemCodeListValueException} - cannot modify a system code list. */
   @ExceptionHandler(ImmutableSystemCodeListValueException.class)
   public ResponseEntity<ProblemDetail> handleImmutableSystemCodeListValueException(
       ImmutableSystemCodeListValueException exception, HttpServletRequest request) {
@@ -770,10 +733,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
-
-  // ============================================================================
-  // SPRING FRAMEWORK EXCEPTIONS - Override parent class methods
-  // ============================================================================
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -986,14 +945,7 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // SPRING SECURITY EXCEPTIONS
-  // ============================================================================
-
-  /**
-   * Handles {@link org.springframework.security.access.AccessDeniedException} - Spring Security
-   * access denied. Blocked principals receive 401; resource authorization denials receive 403.
-   */
+  /** Blocked principals receive 401; resource authorization denials receive 403. */
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
   public ResponseEntity<ProblemDetail> handleAccessDeniedException(
       org.springframework.security.access.AccessDeniedException exception,
@@ -1024,14 +976,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // SPRING DATA REST EXCEPTIONS
-  // ============================================================================
-
-  /**
-   * Handles {@link org.springframework.data.rest.webmvc.ResourceNotFoundException} - Spring Data
-   * REST resource not found.
-   */
   @ExceptionHandler(org.springframework.data.rest.webmvc.ResourceNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleResourceNotFoundException(
       org.springframework.data.rest.webmvc.ResourceNotFoundException exception,
@@ -1052,11 +996,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .body(problem);
   }
 
-  // ============================================================================
-  // GENERIC EXCEPTION HANDLER (Fallback)
-  // ============================================================================
-
-  /** Fallback handler for any unhandled exceptions. */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ProblemDetail> handleAnyException(
       Exception exception, HttpServletRequest request) {
@@ -1085,10 +1024,6 @@ public class DomainExceptionHandler extends ResponseEntityExceptionHandler {
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
         .body(problem);
   }
-
-  // ============================================================================
-  // HELPER METHODS
-  // ============================================================================
 
   private static String formatRequestContext(HttpServletRequest request) {
     return "method=" + request.getMethod() + " uri=" + request.getRequestURI();
