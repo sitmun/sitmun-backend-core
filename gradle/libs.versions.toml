@@ -18,7 +18,7 @@ jsoup = "1.18.3"
 # Dependency versions
 jjwt = "0.12.6"
 springdoc-openapi-lib = "2.8.9"
-okhttp = "5.1.0"
+okhttp = "5.5.0"
 guava = "33.4.8-jre"
 json = "20250517"
 mapstruct = "1.6.3"

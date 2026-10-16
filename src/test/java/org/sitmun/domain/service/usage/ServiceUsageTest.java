@@ -102,6 +102,59 @@ class ServiceUsageTest {
   }
 
   @Test
+  @DisplayName("Rejects a usage row with a null hourStart")
+  void rejectsANullHourStart() throws Exception {
+    Service service = saveService("Null hour WMS", true);
+    Application application = saveApplication("null-hour-app");
+
+    mvc.perform(
+            post("/api/config/proxy/service-usage")
+                .contentType(APPLICATION_JSON)
+                .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
+                .content(nullField(service.getId(), application.getId(), "hourStart")))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("Rejects a usage row with a null service id")
+  void rejectsANullServiceId() throws Exception {
+    Application application = saveApplication("null-service-app");
+
+    mvc.perform(
+            post("/api/config/proxy/service-usage")
+                .contentType(APPLICATION_JSON)
+                .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
+                .content(nullField(null, application.getId(), "serviceId")))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("Rejects a usage row with a null application id")
+  void rejectsANullApplicationId() throws Exception {
+    Service service = saveService("Null application WMS", true);
+
+    mvc.perform(
+            post("/api/config/proxy/service-usage")
+                .contentType(APPLICATION_JSON)
+                .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
+                .content(nullField(service.getId(), null, "applicationId")))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("An explicit zero service id still binds")
+  void explicitZeroServiceIdBinds() throws Exception {
+    Application application = saveApplication("zero-service-app");
+
+    mvc.perform(
+            post("/api/config/proxy/service-usage")
+                .contentType(APPLICATION_JSON)
+                .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
+                .content(body(0, application.getId(), "2026-10-05T12:00:00Z", 1, 0)))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
   @DisplayName("Two posts for the same service, application, day, and operation add")
   void twoPostsAdd() throws Exception {
     Service service = saveService("Counted WMS", true);
@@ -391,6 +444,11 @@ class ServiceUsageTest {
     return layer;
   }
 
+  private static String nullField(Integer serviceId, Integer applicationId, String field) {
+    String json = hourJson(serviceId == null ? 1 : serviceId, applicationId == null ? 1 : applicationId, "2026-10-05T12:00:00Z", 1, 0);
+    return "[" + json.replaceFirst("\"" + field + "\"\\s*:\\s*[^,\\n]+", "\"" + field + "\": null") + "]";
+  }
+
   private static String body(
       Integer serviceId, Integer applicationId, String hour, long requests, long failed) {
     return "[" + hourJson(serviceId, applicationId, hour, requests, failed) + "]";
@@ -414,6 +472,11 @@ class ServiceUsageTest {
   private static org.sitmun.proxy.contract.ServiceUsage hour(
       Integer serviceId, Integer applicationId, String hour, long requests, long failed) {
     return new org.sitmun.proxy.contract.ServiceUsage(
-        serviceId, applicationId, Instant.parse(hour), "GetMap", requests, failed);
+        serviceId.longValue(),
+        applicationId.longValue(),
+        Instant.parse(hour),
+        "GetMap",
+        requests,
+        failed);
   }
 }

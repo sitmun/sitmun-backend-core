@@ -1,5 +1,6 @@
 package org.sitmun.authorization.proxy.controllers;
 
+import jakarta.validation.Valid;
 import java.util.Optional;
 import org.sitmun.administration.service.access.ServiceAccessCheckExecutor;
 import org.sitmun.administration.service.access.ServiceCheckProperties;
@@ -37,7 +38,7 @@ public class ProxyServiceCheckController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> ingest(@RequestBody ServiceCheckReport report) {
+  public ResponseEntity<Void> ingest(@Valid @RequestBody ServiceCheckReport report) {
     Optional<Classification> classification =
         classifier.classify(report.requestContext(), report.exchangeSignals());
     if (classification.isEmpty()) {

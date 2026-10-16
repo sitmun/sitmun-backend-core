@@ -145,7 +145,7 @@ public class ServiceAccessCheckExecutor {
     try (Response response = httpClient.execute(request)) {
       return new Attempt(uri, read(response, plan.interpretBody()));
     } catch (IOException ex) {
-      return new Attempt(uri, ExchangeSignals.transport(ex));
+      return new Attempt(uri, ExchangeSignals.transport(ex, properties.exceptionTextMaxLength()));
     }
   }
 

@@ -1,5 +1,6 @@
 package org.sitmun.authorization.proxy.controllers;
 
+import jakarta.validation.Valid;
 import java.time.ZoneId;
 import org.sitmun.domain.service.usage.ServiceUsageStore;
 import org.sitmun.proxy.contract.ServiceUsageReport;
@@ -28,7 +29,7 @@ public class ProxyServiceUsageController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> ingest(@RequestBody ServiceUsageReport report) {
+  public ResponseEntity<Void> ingest(@Valid @RequestBody ServiceUsageReport report) {
     store.addReport(report, zone);
     return ResponseEntity.noContent().build();
   }

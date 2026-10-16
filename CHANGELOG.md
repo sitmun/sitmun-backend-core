@@ -11,6 +11,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Map**: `POST /api/config/client/short-url` accepts a viewer map URL on this host. The caller must be able to open that application and territory, including a public visitor with no cookie. A foreign URL is rejected before any shortener runs. `sitmun.short-url.provider` defaults to `none` and returns the submitted URL. `tinyurl-legacy` calls TinyURL from the server. A provider I/O failure returns the detail `Short URL provider failed` and keeps the exception text in the server log ([#272](https://github.com/sitmun/sitmun-backend-core/issues/272)).
 - **Profile**: Client profile layers publish ordered `featureInfoFields` for `INFO` cartography parameters (`name`, translated `label`, `format`, `order`, `fractionDigits`, `padFractionDigits`, `dateStyle`). The list is omitted when the layer has no INFO rows. `CartographyParameter.value` is overlaid from `STM_TRANSLATION`. Liquibase `23_feature_info_field_format` adds `PGI_OPTIONS` and format code `AUTO` ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 
+### Changed
+
+- **HTTP**: OkHttp is 5.5.0.
+- **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
+
+### Fixed
+
+- **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.
+- **Service checks**: Service-check ingest returns HTTP 400 when `requestContext` or `exchangeSignals` is missing.
+
 ## [1.2.9] - 2026-09-19
 
 ### Changed
