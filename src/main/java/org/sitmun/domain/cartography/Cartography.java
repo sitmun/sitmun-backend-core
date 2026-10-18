@@ -16,6 +16,7 @@ import org.sitmun.domain.CodeListsConstants;
 import org.sitmun.domain.cartography.availability.CartographyAvailability;
 import org.sitmun.domain.cartography.filter.CartographyFilter;
 import org.sitmun.domain.cartography.parameter.CartographyParameter;
+import org.sitmun.domain.cartography.parameter.CartographyServiceParameter;
 import org.sitmun.domain.cartography.parameter.CartographySpatialSelectionParameter;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.cartography.style.CartographyStyle;
@@ -281,6 +282,12 @@ public class Cartography {
   @BatchSize(size = 50)
   @Builder.Default
   private Set<CartographyParameter> parameters = new HashSet<>();
+
+  /** Fixed OGC parameters applied when this cartography is requested through the proxy. */
+  @OneToMany(mappedBy = "cartography", cascade = CascadeType.ALL, orphanRemoval = true)
+  @BatchSize(size = 50)
+  @Builder.Default
+  private Set<CartographyServiceParameter> serviceParameters = new HashSet<>();
 
   /**
    * Spatial selection parameters.

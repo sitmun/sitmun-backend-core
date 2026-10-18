@@ -34,6 +34,7 @@ class CodeListsTest {
             CARTOGRAPHY_LEGEND_TYPE,
             CARTOGRAPHY_PARAMETER_FORMAT,
             CARTOGRAPHY_PARAMETER_TYPE,
+            CARTOGRAPHY_SERVICE_PARAMETER_TYPE,
             CARTOGRAPHY_PERMISSION_TYPE,
             CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_FORMAT,
             CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE,
@@ -162,10 +163,17 @@ class CodeListsTest {
   }
 
   @Test
+  @DisplayName("Verify cartographyServiceParameter.type code list values")
+  void checkCartographyServiceParameterType() {
+    assertThat(select(CARTOGRAPHY_SERVICE_PARAMETER_TYPE))
+        .containsExactlyInAnyOrder("WMS", "WMTS", "WFS", "OLPARAM", "GETMAP", "INFO");
+  }
+
+  @Test
   @DisplayName("Verify service.parameterType code list values")
   void checkServiceParameterType() {
     assertThat(select(SERVICE_PARAMETER_TYPE))
-        .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM", "WMTS");
+        .containsExactlyInAnyOrder("INFO", "WMS", "OLPARAM", "WMTS", "GETMAP", "WFS");
   }
 
   @Test

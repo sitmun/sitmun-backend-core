@@ -75,7 +75,10 @@ class ProxyValidateUserAccessGateTest {
             userRepository,
             applicationRepository,
             territoryRepository,
-            cartographyRepository);
+            cartographyRepository,
+            mock(
+                org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
+                    .class));
 
     TaskParameterProcessor taskParameterProcessor =
         new TaskParameterProcessor(systemVariableResolver);
@@ -93,7 +96,11 @@ class ProxyValidateUserAccessGateTest {
             systemVariableResolver,
             moreInfoTaskResolver,
             taskParameterProcessor,
-            new UserApplicationAccessPolicy(userRepository, applicationRepository));
+            new UserApplicationAccessPolicy(userRepository, applicationRepository),
+            cartographyRepository,
+            mock(
+                org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
+                    .class));
     ReflectionTestUtils.setField(proxyConfigurationService, "validateUserAccessEnabled", true);
 
     accessibleService = Service.builder().id(SERVICE_ID).blocked(false).build();

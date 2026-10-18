@@ -18,6 +18,7 @@ import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
+import org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
@@ -35,6 +36,7 @@ class ServiceResourceAccessValidatorTest {
   @Mock private ApplicationRepository applicationRepository;
   @Mock private TerritoryRepository territoryRepository;
   @Mock private CartographyRepository cartographyRepository;
+  @Mock private CartographyServiceParameterRepository cartographyServiceParameterRepository;
 
   private ServiceResourceAccessValidator validator;
 
@@ -46,7 +48,8 @@ class ServiceResourceAccessValidatorTest {
             userRepository,
             applicationRepository,
             territoryRepository,
-            cartographyRepository);
+            cartographyRepository,
+            cartographyServiceParameterRepository);
   }
 
   @Test
@@ -860,5 +863,189 @@ class ServiceResourceAccessValidatorTest {
 
     // Then
     assertTrue(result);
+  }
+
+  @Test
+  @DisplayName("GetFeatureInfo across two cartographies is allowed when neither has parameters")
+  void getFeatureInfoAcrossCartographiesAllowedWithoutParameters() {
+    Cartography first = cartography(1, List.of("id1"));
+    Cartography second = cartography(2, List.of("id3"));
+    stubAccess(List.of(first, second));
+
+    boolean result =
+        validator.validate(
+            request(Map.of("REQUEST", "GetFeatureInfo", "LAYERS", "id1,id3"), null, null),
+            "testuser");
+
+    assertTrue(result);
+  }
+
+  @Test
+  @DisplayName("GetMap is denied when the matched cartography has service parameters")
+  void getMapDeniedWhenMatchedCartographyHasParameters() {
+    Cartography cartography = cartography(7, List.of("id1", "id2"));
+    when(cartographyServiceParameterRepository.existsByCartography_Id(7)).thenReturn(true);
+    stubAccess(List.of(cartography));
+
+    boolean result =
+        validator.validate(
+            request(Map.of("REQUEST", "GetMap", "LAYERS", "id1,id2"), null, null), "testuser");
+
+    assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("Service path denies a WFS transaction")
+  void servicePathDeniesTransaction() {
+    stubAccess(List.of(cartography(7, List.of("roads"))));
+
+    boolean result =
+        validator.validate(
+            request(
+                Map.of("REQUEST", "Transaction"),
+                null,
+                "<wfs:Transaction xmlns:wfs=\"http://www.opengis.net/wfs\"><wfs:Delete typeName=\"roads\"/></wfs:Transaction>"),
+            "testuser");
+
+    assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("Service path denies a layer or feature type the caller cannot use")
+  void servicePathDeniesUnownedLayerAndTypeName() {
+    stubAccess(List.of(cartography(7, List.of("roads"))));
+
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetLegendGraphic", "LAYER", "secret"), null, null),
+            "testuser"));
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetFeature", "typename", "secret"), null, null),
+            "testuser"));
+  }
+
+  @Test
+  @DisplayName("Cartography path allows GetMap for the exact layer set")
+  void cartographyPathAllowsExactGetMap() {
+    stubAccess(List.of(cartography(42, List.of("id1", "id2"))));
+
+    boolean result =
+        validator.validate(
+            request(Map.of("REQUEST", "GetMap", "LAYERS", "id1,id2"), 42, null), "testuser");
+
+    assertTrue(result);
+  }
+
+  @Test
+  @DisplayName("Cartography path denies a GetMap subset and allows it for GetFeatureInfo")
+  void cartographyPathSubsetDependsOnOperation() {
+    stubAccess(List.of(cartography(42, List.of("id1", "id2"))));
+
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetMap", "LAYERS", "id1"), 42, null), "testuser"));
+    assertTrue(
+        validator.validate(
+            request(Map.of("REQUEST", "GetFeatureInfo", "LAYERS", "id1"), 42, null), "testuser"));
+  }
+
+  @Test
+  @DisplayName("Cartography path denies a query layer outside the cartography")
+  void cartographyPathDeniesForeignQueryLayer() {
+    stubAccess(List.of(cartography(42, List.of("id1", "id2"))));
+
+    boolean result =
+        validator.validate(
+            request(
+                Map.of("REQUEST", "GetFeatureInfo", "LAYERS", "id1", "QUERY_LAYERS", "other"),
+                42,
+                null),
+            "testuser");
+
+    assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("Cartography path denies a legend layer or feature type outside the cartography")
+  void cartographyPathDeniesForeignLegendLayerAndTypeName() {
+    stubAccess(List.of(cartography(42, List.of("roads"))));
+
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetLegendGraphic", "LAYER", "secret"), 42, null),
+            "testuser"));
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetFeature", "typename", "secret"), 42, null), "testuser"));
+  }
+
+  @Test
+  @DisplayName("Cartography path allows a transaction whose type name it owns and denies the rest")
+  void cartographyPathChecksTransactionTypeNames() {
+    stubAccess(List.of(cartography(42, List.of("ns:roads"))));
+    String inside =
+        "<wfs:Transaction xmlns:wfs=\"http://www.opengis.net/wfs\" xmlns:ns=\"http://example.com\"><wfs:Update typeName=\"ns:roads\"/></wfs:Transaction>";
+    String outside =
+        "<wfs:Transaction xmlns:wfs=\"http://www.opengis.net/wfs\"><wfs:Delete typeName=\"ns:other\"/></wfs:Transaction>";
+
+    assertTrue(validator.validate(request(Map.of(), 42, inside), "testuser"));
+    assertFalse(validator.validate(request(Map.of(), 42, outside), "testuser"));
+    assertFalse(validator.validate(request(Map.of(), 42, "<not-xml"), "testuser"));
+  }
+
+  @Test
+  @DisplayName("Cartography path denies an unknown, foreign, or inaccessible cartography")
+  void cartographyPathDeniesCartographyNotOnThisService() {
+    Cartography otherService = cartography(9, List.of("id1"));
+    Service foreign = Service.builder().id(999).blocked(false).build();
+    when(otherService.getService()).thenReturn(foreign);
+    stubAccess(List.of(cartography(42, List.of("id1")), otherService));
+
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetMap", "LAYERS", "id1"), 9, null), "testuser"));
+    assertFalse(
+        validator.validate(
+            request(Map.of("REQUEST", "GetMap", "LAYERS", "id1"), 404, null), "testuser"));
+  }
+
+  private ConfigProxyRequestDto request(
+      Map<String, String> parameters, Integer cartographyId, String body) {
+    return ConfigProxyRequestDto.builder()
+        .appId(1)
+        .terId(1)
+        .type("WMS")
+        .typeId(153)
+        .parameters(parameters)
+        .cartographyId(cartographyId)
+        .requestBody(body)
+        .build();
+  }
+
+  private Cartography cartography(int id, List<String> layers) {
+    Cartography cartography = mock(Cartography.class);
+    Service service = Service.builder().id(153).blocked(false).build();
+    lenient().when(cartography.getId()).thenReturn(id);
+    lenient().when(cartography.getService()).thenReturn(service);
+    lenient().when(cartography.getLayers()).thenReturn(layers);
+    return cartography;
+  }
+
+  private void stubAccess(List<Cartography> cartographies) {
+    Service service = Service.builder().id(153).blocked(false).build();
+    User user = mock(User.class);
+    Role role = mock(Role.class);
+    UserConfiguration config = mock(UserConfiguration.class);
+    Territory territory = mock(Territory.class);
+    when(territory.getId()).thenReturn(1);
+    when(config.getTerritory()).thenReturn(territory);
+    when(config.getRole()).thenReturn(role);
+    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(serviceRepository.findById(153)).thenReturn(Optional.of(service));
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+    when(applicationRepository.existsById(1)).thenReturn(true);
+    when(territoryRepository.existsById(1)).thenReturn(true);
+    when(cartographyRepository.findByRolesAndTerritory(anyList(), eq(1))).thenReturn(cartographies);
   }
 }

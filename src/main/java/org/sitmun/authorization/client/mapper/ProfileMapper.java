@@ -16,10 +16,12 @@ import org.sitmun.authorization.client.service.ApplicationBackgroundView;
 import org.sitmun.authorization.client.service.ApplicationTreeView;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.TaskMapper;
+import org.sitmun.authorization.proxy.parameter.ParameterScopes;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.territory.ApplicationTerritory;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.parameter.CartographyParameter;
+import org.sitmun.domain.cartography.parameter.CartographyServiceParameter;
 import org.sitmun.domain.cartography.parameter.FeatureInfoFormatOptions;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.configuration.ConfigurationParameter;
@@ -85,7 +87,25 @@ public abstract class ProfileMapper {
         .datasetURL(cartography.getDatasetURL())
         .queryableFeatureEnabled(cartography.getQueryableFeatureEnabled())
         .featureInfoFields(mapFeatureInfoFields(cartography))
+        .parameters(mapServiceParameters(cartography))
         .build();
+  }
+
+  private Map<String, String> mapServiceParameters(Cartography cartography) {
+    Service service = cartography.getService();
+    if (service == null
+        || !Boolean.TRUE.equals(service.getIsProxied())
+        || cartography.getServiceParameters() == null
+        || cartography.getServiceParameters().isEmpty()) {
+      return null;
+    }
+    Map<String, String> parameters = new LinkedHashMap<>();
+    for (CartographyServiceParameter parameter : cartography.getServiceParameters()) {
+      if (ParameterScopes.publishedOnLayer(service.getType(), parameter.getType())) {
+        parameters.put(parameter.getName(), parameter.getValue());
+      }
+    }
+    return parameters.isEmpty() ? null : parameters;
   }
 
   private List<FeatureInfoFieldDto> mapFeatureInfoFields(Cartography cartography) {
@@ -167,7 +187,7 @@ public abstract class ProfileMapper {
         .isProxied(service.getIsProxied())
         .parameters(
             service.getParameters().stream()
-                .filter(it -> Objects.equals(it.getType(), service.getType()))
+                .filter(it -> ParameterScopes.publishedOnService(service.getType(), it.getType()))
                 .map(it -> new String[] {it.getName(), it.getValue()})
                 .collect(Collectors.toMap(it -> it[0], it -> it[1])))
         .crs(service.getSupportedSRS())

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_LIMIT;
 import static org.sitmun.authorization.proxy.decorators.QueryPaginationDecorator.SQL_OFFSET;
@@ -86,7 +87,11 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
             systemVariableResolver,
             moreInfoTaskResolver,
             taskParameterProcessor,
-            new UserApplicationAccessPolicy(userRepository, applicationRepository));
+            new UserApplicationAccessPolicy(userRepository, applicationRepository),
+            mock(org.sitmun.domain.cartography.CartographyRepository.class),
+            mock(
+                org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
+                    .class));
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
     ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }

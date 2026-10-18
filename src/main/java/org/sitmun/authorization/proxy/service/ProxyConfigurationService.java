@@ -17,10 +17,15 @@ import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
 import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
 import org.sitmun.authorization.proxy.dto.PayloadDto;
 import org.sitmun.authorization.proxy.exception.BadRequestException;
+import org.sitmun.authorization.proxy.ogc.OgcRequestNames;
+import org.sitmun.authorization.proxy.parameter.NamedParameter;
+import org.sitmun.authorization.proxy.parameter.ParameterScopes;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import org.sitmun.authorization.proxy.validator.ResourceAccessValidator;
 import org.sitmun.domain.application.ApplicationRepository;
+import org.sitmun.domain.cartography.CartographyRepository;
+import org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
@@ -77,6 +82,10 @@ public class ProxyConfigurationService {
 
   private final UserApplicationAccessPolicy userApplicationAccessPolicy;
 
+  private final CartographyRepository cartographyRepository;
+
+  private final CartographyServiceParameterRepository cartographyServiceParameterRepository;
+
   @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
@@ -96,7 +105,9 @@ public class ProxyConfigurationService {
       SystemVariableResolver systemVariableResolver,
       MoreInfoTaskResolver moreInfoTaskResolver,
       TaskParameterProcessor taskParameterProcessor,
-      UserApplicationAccessPolicy userApplicationAccessPolicy) {
+      UserApplicationAccessPolicy userApplicationAccessPolicy,
+      CartographyRepository cartographyRepository,
+      CartographyServiceParameterRepository cartographyServiceParameterRepository) {
     this.serviceRepository = serviceRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -110,6 +121,8 @@ public class ProxyConfigurationService {
     this.moreInfoTaskResolver = moreInfoTaskResolver;
     this.taskParameterProcessor = taskParameterProcessor;
     this.userApplicationAccessPolicy = userApplicationAccessPolicy;
+    this.cartographyRepository = cartographyRepository;
+    this.cartographyServiceParameterRepository = cartographyServiceParameterRepository;
   }
 
   private WmsPayloadDto getOgcWmsConfiguration(
@@ -132,21 +145,36 @@ public class ProxyConfigurationService {
               .build();
     }
 
-    Map<String, String> parameters = configProxyRequestDto.getParameters();
-    if (parameters == null) {
-      parameters = new HashMap<>();
+    Map<String, String> requestParameters = configProxyRequestDto.getParameters();
+    if (requestParameters == null) {
+      requestParameters = new HashMap<>();
+      configProxyRequestDto.setParameters(requestParameters);
     }
+    final Map<String, String> parameters = requestParameters;
     Set<ServiceParameter> servParams = service.getParameters();
     List<String> varyParameters = new ArrayList<>();
-    for (ServiceParameter parameter : servParams) {
-      if (PARAM_TYPE_VARY.equalsIgnoreCase(parameter.getType())) {
-        varyParameters.add(parameter.getName());
-      } else {
-        final String resolvedValue =
-            systemVariableResolver.resolve(parameter.getValue(), coordinates);
-        parameters.put(parameter.getName(), resolvedValue);
+    List<NamedParameter> serviceRows = new ArrayList<>();
+    if (servParams != null) {
+      for (ServiceParameter parameter : servParams) {
+        ParameterScopes.Rule rule = ParameterScopes.of(service.getType(), parameter.getType());
+        if (rule != null && rule.kind() == ParameterScopes.Kind.CACHE_VARY) {
+          varyParameters.add(parameter.getName());
+        } else {
+          serviceRows.add(
+              new NamedParameter(
+                  parameter.getType(),
+                  parameter.getName(),
+                  systemVariableResolver.resolve(parameter.getValue(), coordinates)));
+        }
       }
     }
+    Map<String, String> fixed =
+        ParameterScopes.fixedParameters(
+            service.getType(),
+            OgcRequestNames.parse(parameters, configProxyRequestDto.getRequestBody()).operation(),
+            serviceRows,
+            layerParameters(service, configProxyRequestDto, coordinates));
+    fixed.forEach((name, value) -> ParameterMaps.put(parameters, name, value));
 
     final String resolvedUrl = systemVariableResolver.resolve(service.getServiceURL(), coordinates);
     WmsPayloadDto ogcPayload =
@@ -164,6 +192,33 @@ public class ProxyConfigurationService {
         configProxyRequestDto.getMethod(),
         security == null ? "none" : security.describeForLog());
     return ogcPayload;
+  }
+
+  private List<NamedParameter> layerParameters(
+      Service service, ConfigProxyRequestDto request, RequestCoordinates coordinates) {
+    Integer cartographyId = request.getCartographyId();
+    if (cartographyId == null || service.getType() == null || service.getId() == null) {
+      return List.of();
+    }
+    return cartographyRepository
+        .findById(cartographyId)
+        .filter(
+            cartography ->
+                cartography.getService() != null
+                    && service.getId().equals(cartography.getService().getId()))
+        .map(
+            cartography ->
+                cartographyServiceParameterRepository
+                    .findByCartography_Id(cartography.getId())
+                    .stream()
+                    .map(
+                        parameter ->
+                            new NamedParameter(
+                                parameter.getType(),
+                                parameter.getName(),
+                                systemVariableResolver.resolve(parameter.getValue(), coordinates)))
+                    .toList())
+        .orElseGet(List::of);
   }
 
   private static String getSqlByTask(Task task) {

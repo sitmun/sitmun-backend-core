@@ -153,8 +153,8 @@ class ProxyConfigurationControllerTest {
         .andExpect(
             jsonPath("$.payload.uri")
                 .value("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wmts/service"))
-        .andExpect(jsonPath("$.payload.parameters.format").value("image/jpeg"))
-        .andExpect(jsonPath("$.payload.parameters.matrixSet").value("UTM25831"));
+        .andExpect(jsonPath("$.payload.parameters.format").doesNotExist())
+        .andExpect(jsonPath("$.payload.parameters.matrixSet").doesNotExist());
   }
 
   @Test

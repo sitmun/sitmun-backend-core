@@ -204,6 +204,9 @@ tasks.named('processTestResources', Copy).configure {
     include '23_feature_info_field_format.yaml'
     include '24_add_tree_node_default.yaml'
     include '25_service_check.yaml'
+    include '26_cartography_service_parameter.yaml'
+    include '27_parameter_operation_scope.yaml'
+    include '28_parameter_type_translations.yaml'
     into 'db/changelog'
   }
 }

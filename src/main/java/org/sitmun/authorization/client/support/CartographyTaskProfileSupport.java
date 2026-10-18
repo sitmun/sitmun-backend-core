@@ -38,8 +38,7 @@ public final class CartographyTaskProfileSupport {
       String parameterTypeForSlots) {
 
     Service service = cartography.getService();
-    String url =
-        ProxyUrlBuilder.forCartographyService(proxyBaseUrl, application, territory, service);
+    String url = ProxyUrlBuilder.forCartography(proxyBaseUrl, application, territory, cartography);
     parametersDto.put(
         PARAMETER_SERVICE,
         new ServiceParameter(parameterTypeForSlots, /* required */ true, service.getType()));

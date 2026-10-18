@@ -1,6 +1,7 @@
 package org.sitmun.authorization.client.support;
 
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
@@ -56,6 +57,17 @@ public class ProxyUrlBuilder {
         + service.getType()
         + SEPARATOR
         + service.getId();
+  }
+
+  /**
+   * Builds a proxy URL for one cartography of a service. Pattern:
+   * {baseUrl}/proxy/{applicationId}/{territoryId}/{serviceType}/{serviceId}/{cartographyId}
+   */
+  public static String forCartography(
+      String baseUrl, Application application, Territory territory, Cartography cartography) {
+    return forCartographyService(baseUrl, application, territory, cartography.getService())
+        + SEPARATOR
+        + cartography.getId();
   }
 
   /**

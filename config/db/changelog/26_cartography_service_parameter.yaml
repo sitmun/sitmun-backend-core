@@ -1,0 +1,196 @@
+databaseChangeLog:
+  - changeSet:
+      id: 26-cartography-service-parameter-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_PAR_GS (
+                GS_ID INTEGER NOT NULL,
+                GS_GEOID INTEGER NOT NULL,
+                GS_NAME VARCHAR(50) NOT NULL,
+                GS_VALUE VARCHAR(250),
+                GS_TYPE VARCHAR(50) NOT NULL,
+                CONSTRAINT STM_GS_PK PRIMARY KEY (GS_ID),
+                CONSTRAINT STM_GS_FK_GEO FOREIGN KEY (GS_GEOID) REFERENCES STM_GEOINFO (GEO_ID) ON DELETE CASCADE
+              )
+
+  - changeSet:
+      id: 26-cartography-service-parameter-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_PAR_GS (
+                GS_ID INT4 NOT NULL,
+                GS_GEOID INT4 NOT NULL,
+                GS_NAME VARCHAR(50) NOT NULL,
+                GS_VALUE VARCHAR(250),
+                GS_TYPE VARCHAR(50) NOT NULL,
+                CONSTRAINT STM_GS_PK PRIMARY KEY (GS_ID),
+                CONSTRAINT STM_GS_FK_GEO FOREIGN KEY (GS_GEOID) REFERENCES STM_GEOINFO (GEO_ID) ON DELETE CASCADE
+              )
+
+  - changeSet:
+      id: 26-cartography-service-parameter-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE STM_PAR_GS (
+                GS_ID NUMBER(10, 0) NOT NULL,
+                GS_GEOID NUMBER(10, 0) NOT NULL,
+                GS_NAME VARCHAR2(50 CHAR) NOT NULL,
+                GS_VALUE VARCHAR2(250 CHAR),
+                GS_TYPE VARCHAR2(50 CHAR) NOT NULL,
+                CONSTRAINT STM_GS_PK PRIMARY KEY (GS_ID),
+                CONSTRAINT STM_GS_FK_GEO FOREIGN KEY (GS_GEOID) REFERENCES STM_GEOINFO (GEO_ID) ON DELETE CASCADE
+              )
+
+  - changeSet:
+      id: 26-cartography-service-parameter-types-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMS', FALSE, FALSE, 'WMS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMTS', FALSE, FALSE, 'WMTS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMTS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WFS', FALSE, FALSE, 'WFS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'OLPARAM', FALSE, FALSE, 'OpenLayers'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'OLPARAM'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 26-cartography-service-parameter-types-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMS', FALSE, FALSE, 'WMS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMTS', FALSE, FALSE, 'WMTS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMTS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WFS', FALSE, FALSE, 'WFS'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'OLPARAM', FALSE, FALSE, 'OpenLayers'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'OLPARAM'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 26-cartography-service-parameter-types-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMS', 0, 0, 'WMS'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WMTS', 0, 0, 'WMTS'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WMTS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'WFS', 0, 0, 'WFS'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'OLPARAM', 0, 0, 'OpenLayers'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'OLPARAM'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';

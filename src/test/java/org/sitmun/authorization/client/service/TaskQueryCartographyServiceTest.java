@@ -79,7 +79,7 @@ class TaskQueryCartographyServiceTest {
     assertEquals("77", result.getCartographyId());
     assertEquals(PROFILE_LAYER_ID_PREFIX + "77", result.getLayer());
     assertEquals(
-        "http://proxy.test/proxy/2/3/WMS/15",
+        "http://proxy.test/proxy/2/3/WMS/15/77",
         result.getUrl(),
         "WMS cartography uses service type and id in proxy path");
 

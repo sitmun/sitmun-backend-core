@@ -8,11 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Proxy**: A proxied cartography has its own path `/proxy/{app}/{ter}/{type}/{serviceId}/{cartographyId}`. Fixed parameters in `STM_PAR_GS` replace service parameters by name, ignoring case, after the client values. The service path still authorizes `LAYERS`, `QUERY_LAYERS`, `LAYER`, and `TYPENAME`, and it refuses `GetMap`, `GetFeatureInfo`, `GetFeature`, and `DescribeLayer` when one of those cartographies has parameter rows. Transactions are refused on the service path. Parameter rows require a proxied service ([sitmun-application-stack#90](https://github.com/sitmun/sitmun-application-stack/issues/90), [#285](https://github.com/sitmun/sitmun-backend-core/issues/285)).
+- **Profile**: A proxied layer publishes `url` and the parameters whose type matches the service. Query and edition task URLs include the cartography id.
 - **Map**: `POST /api/config/client/short-url` accepts a viewer map URL on this host. The caller must be able to open that application and territory, including a public visitor with no cookie. A foreign URL is rejected before any shortener runs. `sitmun.short-url.provider` defaults to `none` and returns the submitted URL. `tinyurl-legacy` calls TinyURL from the server. A provider I/O failure returns the detail `Short URL provider failed` and keeps the exception text in the server log ([#272](https://github.com/sitmun/sitmun-backend-core/issues/272)).
 - **Profile**: Client profile layers publish ordered `featureInfoFields` for `INFO` cartography parameters (`name`, translated `label`, `format`, `order`, `fractionDigits`, `padFractionDigits`, `dateStyle`). The list is omitted when the layer has no INFO rows. `CartographyParameter.value` is overlaid from `STM_TRANSLATION`. Liquibase `23_feature_info_field_format` adds `PGI_OPTIONS` and format code `AUTO` ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 
 ### Changed
 
+- **Proxy**: `INFO` parameters are sent only on GetFeatureInfo. `GETMAP` parameters are sent only on GetMap. `WMS` and `WFS` parameters stay on every operation of that protocol. `WMTS` parameters stay on the service profile and are not sent upstream, so a `format` row on a WMS service no longer replaces the client `FORMAT`. `OLPARAM` parameters are not sent upstream. A parameter code must be allowed for the service protocol; changing the protocol is rejected while a stored row is outside that set. Liquibase `27_parameter_operation_scope` adds `GETMAP` and `WFS` to `serviceParameter.type`, and `GETMAP` and `INFO` to `cartographyServiceParameter.type`. Stored rows are not rewritten.
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 

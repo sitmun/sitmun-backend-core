@@ -7,6 +7,7 @@ import static org.sitmun.domain.DomainConstants.Tasks.*;
 
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.Application;
+import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.task.Task;
 import org.sitmun.domain.territory.Territory;
@@ -49,6 +50,27 @@ class ProxyUrlBuilderTest {
     String url = ProxyUrlBuilder.forCartographyService(BASE_URL, app, territory, service);
 
     assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/WFS/42");
+  }
+
+  @Test
+  void forCartography_appendsCartographyId() {
+    Application app = mock(Application.class);
+    when(app.getId()).thenReturn(APP_ID);
+
+    Territory territory = mock(Territory.class);
+    when(territory.getId()).thenReturn(TERRITORY_ID);
+
+    Service service = mock(Service.class);
+    when(service.getType()).thenReturn("WFS");
+    when(service.getId()).thenReturn(42);
+
+    Cartography cartography = mock(Cartography.class);
+    when(cartography.getId()).thenReturn(7);
+    when(cartography.getService()).thenReturn(service);
+
+    String url = ProxyUrlBuilder.forCartography(BASE_URL, app, territory, cartography);
+
+    assertThat(url).isEqualTo("http://proxy.example.com/proxy/100/200/WFS/42/7");
   }
 
   @Test

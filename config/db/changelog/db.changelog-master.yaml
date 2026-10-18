@@ -83,3 +83,12 @@ databaseChangeLog:
   - include:
       file: 25_service_check.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 26_cartography_service_parameter.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 27_parameter_operation_scope.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 28_parameter_type_translations.yaml
+      relativeToChangelogFile: true

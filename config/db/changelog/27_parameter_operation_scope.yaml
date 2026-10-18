@@ -1,0 +1,175 @@
+databaseChangeLog:
+  - changeSet:
+      id: 27-parameter-operation-scope-codes-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'GETMAP', FALSE, FALSE, 'GetMap'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'WFS', FALSE, FALSE, 'All WFS operations'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'GETMAP', FALSE, FALSE, 'GetMap'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'INFO', FALSE, FALSE, 'GetFeatureInfo'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'INFO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 27-parameter-operation-scope-codes-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'GETMAP', FALSE, FALSE, 'GetMap'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'WFS', FALSE, FALSE, 'All WFS operations'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'GETMAP', FALSE, FALSE, 'GetMap'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'INFO', FALSE, FALSE, 'GetFeatureInfo'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'INFO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 27-parameter-operation-scope-codes-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'GETMAP', 0, 0, 'GetMap'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'serviceParameter.type', 'WFS', 0, 0, 'All WFS operations'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'serviceParameter.type' AND COD_VALUE = 'WFS'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'GETMAP', 0, 0, 'GetMap'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'GETMAP'
+              );
+        - sql:
+            sql: >
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyServiceParameter.type', 'INFO', 0, 0, 'GetFeatureInfo'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyServiceParameter.type' AND COD_VALUE = 'INFO'
+              );
+        - sql:
+            sql: >
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+
+  - changeSet:
+      id: 27-parameter-operation-scope-descriptions
+      author: sitmun
+      changes:
+        - sql:
+            sql: >
+              UPDATE STM_CODELIST SET COD_DESCRIPTION = 'All WMS operations'
+              WHERE COD_VALUE = 'WMS'
+                AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type');
+        - sql:
+            sql: >
+              UPDATE STM_CODELIST SET COD_DESCRIPTION = 'GetFeatureInfo'
+              WHERE COD_VALUE = 'INFO'
+                AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type');
+        - sql:
+            sql: >
+              UPDATE STM_CODELIST SET COD_DESCRIPTION = 'Viewer tile settings'
+              WHERE COD_VALUE = 'WMTS'
+                AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type');
+        - sql:
+            sql: >
+              UPDATE STM_CODELIST SET COD_DESCRIPTION = 'OpenLayers'
+              WHERE COD_VALUE = 'OLPARAM'
+                AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type');
+        - sql:
+            sql: >
+              UPDATE STM_CODELIST SET COD_DESCRIPTION = 'All WFS operations'
+              WHERE COD_VALUE = 'WFS'
+                AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type');

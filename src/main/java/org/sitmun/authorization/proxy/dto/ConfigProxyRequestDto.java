@@ -23,6 +23,9 @@ public class ConfigProxyRequestDto {
   @JsonProperty("typeId")
   private int typeId;
 
+  @JsonProperty("cartographyId")
+  private Integer cartographyId;
+
   @JsonProperty("method")
   private String method;
 

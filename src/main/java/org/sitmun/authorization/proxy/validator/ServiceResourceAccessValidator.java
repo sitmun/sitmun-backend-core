@@ -2,17 +2,20 @@ package org.sitmun.authorization.proxy.validator;
 
 import static org.sitmun.domain.DomainConstants.Services.*;
 
-import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sitmun.authorization.proxy.dto.ConfigProxyRequestDto;
+import org.sitmun.authorization.proxy.ogc.CartographyGrant;
+import org.sitmun.authorization.proxy.ogc.OgcLayerAccess;
+import org.sitmun.authorization.proxy.ogc.OgcRequestNames;
 import org.sitmun.domain.application.ApplicationRepository;
+import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
+import org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
@@ -33,17 +36,14 @@ import org.springframework.stereotype.Component;
  *       accessible cartographies based on roles and territory
  * </ul>
  *
- * <h3>Layer-Level Authorization (WMS)</h3>
+ * <h3>Layer-Level Authorization</h3>
  *
  * <ul>
- *   <li>When LAYERS parameter is present, validates exact match against cartography layer lists
- *   <li>Requested layers must match <strong>exactly</strong> the complete {@code layers} list from
- *       one accessible cartography (no subsets, no mixing from multiple cartographies)
- *   <li>Example: If cartography L1 has layers=[id1,id2] and L2 has layers=[id3], valid requests are
- *       "id1,id2" or "id3", but NOT "id1" or "id1,id3"
- *   <li>Uses the same permission logic as {@link
- *       org.sitmun.authorization.client.service.AuthorizationService} to ensure consistency with
- *       client configuration
+ *   <li>A request with {@code cartographyId} may name only that cartography's layers
+ *   <li>GetMap requires the full layer set. GetFeatureInfo and DescribeLayer may name a subset
+ *   <li>On the service path, each name must belong to some accessible cartography. A transaction is
+ *       denied. GetMap, GetFeatureInfo, GetFeature, and DescribeLayer are denied when a cartography
+ *       involved has its own service parameters
  * </ul>
  *
  * <p>The authorization model follows this hierarchy:
@@ -75,6 +75,7 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
   private final ApplicationRepository applicationRepository;
   private final TerritoryRepository territoryRepository;
   private final CartographyRepository cartographyRepository;
+  private final CartographyServiceParameterRepository cartographyServiceParameterRepository;
 
   @Override
   public boolean supports(String type) {
@@ -166,77 +167,48 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
       return false;
     }
 
-    // WMS layer-level authorization
-    // Validate that requested layers exactly match one accessible cartography's layer list
-    // WMS parameter names are case-insensitive, so lookup LAYERS key ignoring case
-    String layersParam = null;
-    if (request.getParameters() != null) {
-      layersParam =
-          request.getParameters().entrySet().stream()
-              .filter(e -> "LAYERS".equalsIgnoreCase(e.getKey()))
-              .map(Map.Entry::getValue)
-              .findFirst()
-              .orElse(null);
-    }
-
-    if (layersParam != null && !layersParam.isBlank()) {
-      Set<String> requestedLayerSet =
-          Arrays.stream(layersParam.split(","))
-              .map(String::trim)
-              .filter(layer -> !layer.isEmpty())
-              .collect(Collectors.toSet());
-
-      log.debug(
-          "Validating layer access for user {}: requested={}, serviceId={}",
+    List<CartographyGrant> grants = serviceCartographies.stream().map(this::grant).toList();
+    OgcRequestNames.View names =
+        OgcRequestNames.parse(request.getParameters(), request.getRequestBody());
+    boolean allowed =
+        request.getCartographyId() == null
+            ? OgcLayerAccess.allowService(names, grants)
+            : allowCartography(request.getCartographyId(), grants, names);
+    if (!allowed) {
+      log.warn(
+          "Access denied: user {} service {} cartography {} operation {}",
           userName,
-          requestedLayerSet,
-          service.getId());
-
-      // Check if requested layers exactly match any accessible cartography's layers
-      // No subsets, no mixing layers from different cartographies
-      boolean matchesAnyCartography =
-          serviceCartographies.stream()
-              .filter(
-                  cartography ->
-                      cartography.getLayers() != null && !cartography.getLayers().isEmpty())
-              .anyMatch(
-                  cartography -> {
-                    Set<String> cartographyLayers =
-                        cartography.getLayers().stream()
-                            .filter(Objects::nonNull)
-                            .map(String::trim)
-                            .collect(Collectors.toSet());
-                    return requestedLayerSet.equals(cartographyLayers);
-                  });
-
-      if (!matchesAnyCartography) {
-        List<Set<String>> availableLayerSets =
-            serviceCartographies.stream()
-                .filter(cartography -> cartography.getLayers() != null)
-                .map(
-                    cartography ->
-                        cartography.getLayers().stream()
-                            .filter(Objects::nonNull)
-                            .map(String::trim)
-                            .collect(Collectors.toSet()))
-                .toList();
-
-        log.warn(
-            "Access denied: User {} requested layers {} do not match any accessible cartography for service {} in territory {}. Available layer sets: {}",
-            userName,
-            requestedLayerSet,
-            request.getTypeId(),
-            request.getTerId(),
-            availableLayerSets);
-        return false;
-      }
-
-      log.debug(
-          "Layer validation passed: requested layers match an accessible cartography for user {}",
-          userName);
+          request.getTypeId(),
+          request.getCartographyId(),
+          names.operation());
+      return false;
     }
 
     log.debug("Service access validation passed for user: {}", userName);
     return true;
+  }
+
+  private boolean allowCartography(
+      Integer cartographyId, List<CartographyGrant> grants, OgcRequestNames.View names) {
+    return grants.stream()
+        .filter(grant -> Objects.equals(grant.id(), cartographyId))
+        .findFirst()
+        .map(grant -> OgcLayerAccess.allowCartography(names, grant))
+        .orElse(false);
+  }
+
+  private CartographyGrant grant(Cartography cartography) {
+    Set<String> layers = new LinkedHashSet<>();
+    if (cartography.getLayers() != null) {
+      cartography.getLayers().stream()
+          .filter(Objects::nonNull)
+          .map(String::trim)
+          .filter(layer -> !layer.isEmpty())
+          .forEach(layers::add);
+    }
+    Integer id = cartography.getId();
+    boolean hasParameters =
+        id != null && cartographyServiceParameterRepository.existsByCartography_Id(id);
+    return new CartographyGrant(id, layers, hasParameters);
   }
 }

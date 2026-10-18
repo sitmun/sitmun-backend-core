@@ -76,7 +76,7 @@ class EditionMobileCompatibilityTest {
 
       // Then: URL present (edition-mobile uses this to execute edit operations)
       assertThat(result.getUrl()).isNotNull();
-      assertThat(result.getUrl()).isEqualTo("http://localhost:8080/middleware/proxy/10/5/WFS/42");
+      assertThat(result.getUrl()).isEqualTo("http://localhost:8080/middleware/proxy/10/5/WFS/42/9");
     }
 
     @Test
@@ -521,6 +521,7 @@ class EditionMobileCompatibilityTest {
     org.sitmun.domain.service.Service service = mock(org.sitmun.domain.service.Service.class);
     when(service.getId()).thenReturn(42);
     when(service.getType()).thenReturn("WFS");
+    when(cartography.getId()).thenReturn(9);
     when(cartography.getService()).thenReturn(service);
     when(cartography.getLayers()).thenReturn(java.util.List.of("layer1"));
     when(task.getCartography()).thenReturn(cartography);

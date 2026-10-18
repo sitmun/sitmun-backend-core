@@ -1,0 +1,898 @@
+databaseChangeLog:
+  - changeSet:
+      id: 28-parameter-type-translations
+      author: sitmun
+      changes:
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Todas las operaciones WMS'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Todas las operaciones WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Todas las operaciones WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Totes les operacions WMS'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Totes les operacions WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Totes les operacions WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Totes es operacions WMS'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Totes es operacions WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Totes es operacions WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Toutes les opérations WMS'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Toutes les opérations WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Toutes les opérations WMS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Todas las operaciones WFS'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WFS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Todas las operaciones WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Todas las operaciones WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Totes les operacions WFS'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WFS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Totes les operacions WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Totes les operacions WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Totes es operacions WFS'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WFS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Totes es operacions WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Totes es operacions WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Toutes les opérations WFS'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WFS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Toutes les opérations WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Toutes les opérations WFS'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WFS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Ajustes de teselas del visor'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMTS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Ajustes de teselas del visor'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Ajustes de teselas del visor'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Ajustos de tessel·les del visor'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMTS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Ajustos de tessel·les del visor'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Ajustos de tessel·les del visor'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Ajustaments de tessèls deth visualizador'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMTS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Ajustaments de tessèls deth visualizador'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Ajustaments de tessèls deth visualizador'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Réglages de tuiles du visualiseur'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'WMTS'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Réglages de tuiles du visualiseur'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Réglages de tuiles du visualiseur'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'WMTS'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetMap'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'GETMAP'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetMap'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'GETMAP'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetMap'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'GETMAP'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetMap'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'GETMAP'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'GetMap'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'GETMAP'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetFeatureInfo'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'INFO'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetFeatureInfo'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'INFO'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetFeatureInfo'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'INFO'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'GetFeatureInfo'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'INFO'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'GetFeatureInfo'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'INFO'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'OpenLayers'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'OLPARAM'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'OpenLayers'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'OLPARAM'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'OpenLayers'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'OLPARAM'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'OpenLayers'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'OLPARAM'
+                    AND COD_LIST IN ('serviceParameter.type', 'cartographyServiceParameter.type')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'serviceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'OpenLayers'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyServiceParameter.type' AND c.COD_VALUE = 'OLPARAM'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION)
+              WHERE SEQ_NAME = 'TRA_ID'
