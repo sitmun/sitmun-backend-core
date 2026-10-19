@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.parameter.CartographyParameter;
 import org.sitmun.domain.cartography.parameter.CartographyParameterRepository;
+import org.sitmun.domain.cartography.parameter.FeatureInfoFormatOptions;
 import org.sitmun.infrastructure.persistence.type.i18n.LanguageRepository;
 import org.sitmun.infrastructure.persistence.type.i18n.Translation;
 import org.sitmun.infrastructure.persistence.type.i18n.TranslationRepository;
@@ -93,6 +94,41 @@ class FeatureInfoFieldProfileTest {
       translationRepository.delete(translation);
       cartographyParameterRepository.delete(season);
       cartographyParameterRepository.delete(code);
+    }
+  }
+
+  @Test
+  @DisplayName("GET: image field publishes max width and max height")
+  void imageLimitsArePublished() throws Exception {
+    var cartography = cartographyRepository.findById(1).orElseThrow();
+    var options = new FeatureInfoFormatOptions();
+    options.setMaxWidth(240);
+    options.setMaxHeight(160);
+    var photo =
+        cartographyParameterRepository.saveAndFlush(
+            CartographyParameter.builder()
+                .cartography(cartography)
+                .name("lnkimatge")
+                .value("Image")
+                .type("INFO")
+                .format("I")
+                .order(0)
+                .options(options)
+                .build());
+    try {
+      mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1).param("lang", "es"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath(
+                  "$.layers[?(@.id=='layer/1')].featureInfoFields[0].name", hasItem("lnkimatge")))
+          .andExpect(
+              jsonPath("$.layers[?(@.id=='layer/1')].featureInfoFields[0].maxWidth", hasItem(240)))
+          .andExpect(
+              jsonPath("$.layers[?(@.id=='layer/1')].featureInfoFields[0].maxHeight", hasItem(160)))
+          .andExpect(
+              jsonPath("$.layers[?(@.id=='layer/1')].featureInfoFields[0].format", hasItem("I")));
+    } finally {
+      cartographyParameterRepository.delete(photo);
     }
   }
 }

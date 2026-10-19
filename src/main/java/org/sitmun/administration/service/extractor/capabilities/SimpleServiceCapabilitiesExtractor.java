@@ -15,6 +15,8 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
 
   public static final String WMS_CAPABILITIES = "WMS_Capabilities";
   public static final String WMT_MS_CAPABILITIES = "WMT_MS_Capabilities";
+  public static final String WFS_CAPABILITIES = "WFS_Capabilities";
+  public static final String WFS_CAPABILITIES_PREFIXED = "wfs:WFS_Capabilities";
   public static final String VERSION = "version";
   private final HttpClientFactory httpClientFactory;
 
@@ -78,8 +80,14 @@ public class SimpleServiceCapabilitiesExtractor implements ServiceCapabilitiesEx
         } else if (json.has(WMT_MS_CAPABILITIES)
             && json.getJSONObject(WMT_MS_CAPABILITIES).has(VERSION)) {
           builder.type("OGC:WMS " + json.getJSONObject(WMT_MS_CAPABILITIES).get(VERSION));
+        } else if (json.has(WFS_CAPABILITIES)
+            && json.getJSONObject(WFS_CAPABILITIES).has(VERSION)) {
+          builder.type("OGC:WFS " + json.getJSONObject(WFS_CAPABILITIES).get(VERSION));
+        } else if (json.has(WFS_CAPABILITIES_PREFIXED)
+            && json.getJSONObject(WFS_CAPABILITIES_PREFIXED).has(VERSION)) {
+          builder.type("OGC:WFS " + json.getJSONObject(WFS_CAPABILITIES_PREFIXED).get(VERSION));
         } else {
-          builder.success(false).reason("Not a standard OGC:WMS Capabilities response");
+          builder.success(false).reason("Not a standard OGC:WMS or OGC:WFS Capabilities response");
         }
       }
     }

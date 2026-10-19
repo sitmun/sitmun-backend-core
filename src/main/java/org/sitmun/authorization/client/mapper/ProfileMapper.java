@@ -130,6 +130,8 @@ public abstract class ProfileMapper {
                       .fractionDigits(options == null ? null : options.getFractionDigits())
                       .padFractionDigits(options == null ? null : options.getPadFractionDigits())
                       .dateStyle(options == null ? null : blankToNull(options.getDateStyle()))
+                      .maxWidth(options == null ? null : positiveOrNull(options.getMaxWidth()))
+                      .maxHeight(options == null ? null : positiveOrNull(options.getMaxHeight()))
                       .build();
                 })
             .toList();

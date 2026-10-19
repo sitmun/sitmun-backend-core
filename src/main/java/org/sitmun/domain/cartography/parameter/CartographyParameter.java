@@ -75,7 +75,7 @@ public class CartographyParameter {
   @Min(0)
   private Integer order;
 
-  /** Format options for N, P, and F. Empty means the format defaults. */
+  /** Format options for N, P, F, and I. Empty means the format defaults. */
   @Column(name = "PGI_OPTIONS", length = Length.LONG32)
   @Convert(converter = FeatureInfoFormatOptionsConverter.class)
   @Valid

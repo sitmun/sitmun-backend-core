@@ -27,6 +27,14 @@ public class FeatureInfoFormatOptions {
   /** Date style for F: date, or datetime. Empty means date and time. */
   private String dateStyle;
 
+  /** Maximum image width in pixels for format I. */
+  @Min(1)
+  private Integer maxWidth;
+
+  /** Maximum image height in pixels for format I. */
+  @Min(1)
+  private Integer maxHeight;
+
   @JsonIgnore
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
@@ -47,6 +55,12 @@ public class FeatureInfoFormatOptions {
     return fractionDigits == null
         && !Boolean.TRUE.equals(padFractionDigits)
         && (dateStyle == null || dateStyle.isBlank())
+        && !positive(maxWidth)
+        && !positive(maxHeight)
         && additionalProperties.isEmpty();
+  }
+
+  private static boolean positive(Integer value) {
+    return value != null && value > 0;
   }
 }

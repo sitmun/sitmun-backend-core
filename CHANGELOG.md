@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Profile**: `featureInfoFields` publishes `maxWidth` and `maxHeight` from `PGI_OPTIONS` for an Image field.
 - **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.
 - **Service checks**: Service-check ingest returns HTTP 400 when `requestContext` or `exchangeSignals` is missing.
 

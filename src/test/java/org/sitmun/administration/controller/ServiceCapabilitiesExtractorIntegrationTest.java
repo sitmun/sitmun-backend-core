@@ -103,7 +103,8 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
     postCapabilities(body(html.url("/"), "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
-        .andExpect(jsonPath("$.reason").value("Not a standard OGC:WMS Capabilities response"))
+        .andExpect(
+            jsonPath("$.reason").value("Not a standard OGC:WMS or OGC:WFS Capabilities response"))
         .andExpect(jsonPath("$.asText", startsWith("<!DOCTYPE")));
   }
 

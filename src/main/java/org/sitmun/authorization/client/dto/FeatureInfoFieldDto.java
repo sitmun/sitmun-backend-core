@@ -17,4 +17,6 @@ public class FeatureInfoFieldDto {
   Integer fractionDigits;
   Boolean padFractionDigits;
   String dateStyle;
+  Integer maxWidth;
+  Integer maxHeight;
 }

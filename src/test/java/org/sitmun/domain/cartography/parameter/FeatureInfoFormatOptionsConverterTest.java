@@ -58,6 +58,27 @@ class FeatureInfoFormatOptionsConverterTest {
   }
 
   @Test
+  @DisplayName("image limits round-trip and a non-positive side is omitted")
+  void imageLimitsRoundTrip() {
+    FeatureInfoFormatOptions options = new FeatureInfoFormatOptions();
+    options.setMaxWidth(240);
+    options.setMaxHeight(160);
+
+    assertThat(converter.convertToDatabaseColumn(options))
+        .isEqualTo("{\"maxWidth\":240,\"maxHeight\":160}");
+
+    FeatureInfoFormatOptions read =
+        converter.convertToEntityAttribute("{\"maxWidth\":240,\"maxHeight\":160}");
+    assertThat(read.getMaxWidth()).isEqualTo(240);
+    assertThat(read.getMaxHeight()).isEqualTo(160);
+    assertThat(read.additionalProperties()).isEmpty();
+
+    FeatureInfoFormatOptions zero = new FeatureInfoFormatOptions();
+    zero.setMaxWidth(0);
+    assertThat(converter.convertToDatabaseColumn(zero)).isNull();
+  }
+
+  @Test
   @DisplayName("unknown keys survive a round-trip")
   void unknownKeysSurvive() {
     FeatureInfoFormatOptions options =

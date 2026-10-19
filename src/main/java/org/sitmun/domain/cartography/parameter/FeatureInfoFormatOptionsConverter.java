@@ -54,7 +54,17 @@ public class FeatureInfoFormatOptionsConverter
     if (source.getDateStyle() != null && !source.getDateStyle().isBlank()) {
       copy.setDateStyle(source.getDateStyle());
     }
+    if (positive(source.getMaxWidth())) {
+      copy.setMaxWidth(source.getMaxWidth());
+    }
+    if (positive(source.getMaxHeight())) {
+      copy.setMaxHeight(source.getMaxHeight());
+    }
     source.additionalProperties().forEach(copy::putAdditionalProperty);
     return copy;
+  }
+
+  private static boolean positive(Integer value) {
+    return value != null && value > 0;
   }
 }
