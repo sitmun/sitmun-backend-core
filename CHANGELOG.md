@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - **Build**: `setupGitHooks` is no longer a dependency of `build` (submodule-safe / opt-in via `./gradlew setupGitHooks`).
+- **Build**: Gradle wrapper is 8.14.6.
 - **Proxy**: `INFO` parameters are sent only on GetFeatureInfo. `GETMAP` parameters are sent only on GetMap. `WMS` and `WFS` parameters stay on every operation of that protocol. `WMTS` parameters stay on the service profile and are not sent upstream, so a `format` row on a WMS service no longer replaces the client `FORMAT`. `OLPARAM` parameters are not sent upstream. A parameter code must be allowed for the service protocol; changing the protocol is rejected while a stored row is outside that set. Liquibase `27_parameter_operation_scope` adds `GETMAP` and `WFS` to `serviceParameter.type`, and `GETMAP` and `INFO` to `cartographyServiceParameter.type`. Stored rows are not rewritten.
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
