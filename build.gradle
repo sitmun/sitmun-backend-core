@@ -354,11 +354,24 @@ scmVersion {
 
 project.version = '1.2.9'
 
-// Git hooks setup
+def resolveGitHooksDir = {
+  def gitMarker = new File(project.rootDir, '.git')
+  if (gitMarker.isFile()) {
+    def text = gitMarker.getText('UTF-8').trim()
+    def prefix = 'gitdir:'
+    if (text.startsWith(prefix)) {
+      def gitDir = new File(project.rootDir, text.substring(prefix.length()).trim())
+      return new File(gitDir, 'hooks')
+    }
+  }
+  new File(gitMarker, 'hooks')
+}
+
+// Git hooks setup (opt-in: ./gradlew setupGitHooks)
 tasks.register('setupGitHooks') {
   group = 'git hooks'
   description = 'Install Git hooks for commit message validation and pre-commit checks'
-  def hookDir = new File(project.rootDir, '.git/hooks')
+  def hookDir = resolveGitHooksDir()
   def commitMsgHook = new File(hookDir, 'commit-msg')
   def preCommitHook = new File(hookDir, 'pre-commit')
 
@@ -465,7 +478,7 @@ tasks.register('setupGitHooks') {
 tasks.register('removeGitHooks') {
   group = 'git hooks'
   description = 'Remove Git hooks'
-  def hookDir = new File(project.rootDir, '.git/hooks')
+  def hookDir = resolveGitHooksDir()
 
   doLast {
     ['pre-commit', 'commit-msg'].each { hookName ->
@@ -477,9 +490,4 @@ tasks.register('removeGitHooks') {
     }
     println "✅ Git hooks removed successfully!"
   }
-}
-
-// Make setupGitHooks available as a dependency for build
-tasks.named('build') {
-  dependsOn 'setupGitHooks'
 }

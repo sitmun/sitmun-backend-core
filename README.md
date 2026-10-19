@@ -1151,7 +1151,7 @@ git commit -m "style: format code with Google Java Format"
 #### Managing Git Hooks
 
 ```bash
-# Install Git hooks (automatic with build)
+# Install Git hooks (opt-in)
 ./gradlew setupGitHooks
 
 # Remove Git hooks
