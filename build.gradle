@@ -360,7 +360,11 @@ def resolveGitHooksDir = {
     def text = gitMarker.getText('UTF-8').trim()
     def prefix = 'gitdir:'
     if (text.startsWith(prefix)) {
-      def gitDir = new File(project.rootDir, text.substring(prefix.length()).trim())
+      def path = text.substring(prefix.length()).trim()
+      def gitDir = new File(path)
+      if (!gitDir.isAbsolute()) {
+        gitDir = new File(project.rootDir, path)
+      }
       return new File(gitDir, 'hooks')
     }
   }
