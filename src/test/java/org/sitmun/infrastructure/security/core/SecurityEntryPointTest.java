@@ -3,7 +3,6 @@ package org.sitmun.infrastructure.security.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +12,7 @@ import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.DelegatingServletOutputStream;
 import org.springframework.security.authentication.BadCredentialsException;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
 class SecurityEntryPointTest {

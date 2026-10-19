@@ -2,15 +2,16 @@ package org.sitmun.authorization.proxy.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class HttpSecurityDtoTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private final ObjectMapper objectMapper = new JsonMapper();
 
   @Test
   @DisplayName("Builder creates HttpSecurityDto with all fields")
@@ -42,7 +43,7 @@ class HttpSecurityDtoTest {
 
   @Test
   @DisplayName("Serializes to JSON correctly")
-  void serializesToJson() throws JsonProcessingException {
+  void serializesToJson() throws JacksonException {
     HttpSecurityDto dto =
         HttpSecurityDto.builder()
             .type("http")
@@ -62,7 +63,7 @@ class HttpSecurityDtoTest {
 
   @Test
   @DisplayName("Deserializes from JSON correctly")
-  void deserializesFromJson() throws JsonProcessingException {
+  void deserializesFromJson() throws JacksonException {
     String json =
         """
         {
@@ -83,7 +84,7 @@ class HttpSecurityDtoTest {
 
   @Test
   @DisplayName("Handles null values in JSON")
-  void handlesNullValuesInJson() throws JsonProcessingException {
+  void handlesNullValuesInJson() throws JacksonException {
     String json =
         """
         {
@@ -208,7 +209,7 @@ class HttpSecurityDtoTest {
 
   @Test
   @DisplayName("Deserializes apiKey security with headers map from JSON")
-  void deserializesApiKeyWithHeaders() throws JsonProcessingException {
+  void deserializesApiKeyWithHeaders() throws JacksonException {
     String json =
         """
         {

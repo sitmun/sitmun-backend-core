@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -108,7 +108,7 @@ class ApplicationRepositoryDataRestTest {
 
     mvc.perform(put(location).content(putContent))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.createdDate").value("2020-01-01T00:00:00.000+00:00"));
+        .andExpect(jsonPath("$.createdDate").value("2020-01-01T00:00:00.000Z"));
   }
 
   @Test

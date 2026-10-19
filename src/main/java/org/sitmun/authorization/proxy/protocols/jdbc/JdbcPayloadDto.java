@@ -20,6 +20,8 @@ public class JdbcPayloadDto extends PayloadDto {
   private String sql;
   private List<String> parameters;
 
+  public JdbcPayloadDto() {}
+
   @Builder
   public JdbcPayloadDto(
       List<String> vary,

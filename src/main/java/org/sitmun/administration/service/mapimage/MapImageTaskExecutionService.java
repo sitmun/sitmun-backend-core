@@ -1,7 +1,5 @@
 package org.sitmun.administration.service.mapimage;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -21,6 +19,8 @@ import org.sitmun.domain.task.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor

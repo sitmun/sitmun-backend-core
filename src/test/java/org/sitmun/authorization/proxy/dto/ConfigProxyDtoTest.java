@@ -2,10 +2,6 @@ package org.sitmun.authorization.proxy.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,13 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class ConfigProxyDtoTest {
 
   private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .findAndRegisterModules()
-          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
   @Test
   @DisplayName("Builder creates ConfigProxyDto with OgcWmsPayloadDto")
@@ -79,7 +78,7 @@ class ConfigProxyDtoTest {
 
   @Test
   @DisplayName("Serializes to JSON with OgcWmsPayloadDto correctly")
-  void serializesWithOgcWmsPayload() throws JsonProcessingException {
+  void serializesWithOgcWmsPayload() throws JacksonException {
     WmsPayloadDto payload =
         WmsPayloadDto.builder().uri("https://example.com/wms").method("GET").build();
 
@@ -99,7 +98,7 @@ class ConfigProxyDtoTest {
 
   @Test
   @DisplayName("Serializes to JSON with DatasourcePayloadDto correctly")
-  void serializesWithDatasourcePayload() throws JsonProcessingException {
+  void serializesWithDatasourcePayload() throws JacksonException {
     JdbcPayloadDto payload =
         JdbcPayloadDto.builder()
             .uri("jdbc:postgresql://localhost:5432/testdb")

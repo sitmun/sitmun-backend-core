@@ -1,8 +1,5 @@
 package org.sitmun.administration.service.template;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -49,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -732,7 +732,7 @@ public class TemplateExecutionService {
         case DomainConstants.Tasks.TYPE_NULL -> null;
         default -> stringValue == null ? "" : stringValue;
       };
-    } catch (IOException exception) {
+    } catch (JacksonException exception) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "Invalid MIA parameter value", exception);
     }

@@ -14,6 +14,8 @@ import org.sitmun.authorization.proxy.dto.HttpSecurityDto;
 @JsonTypeName("OgcWmsPayload")
 public class WmsPayloadDto extends HttpPayloadDto {
 
+  public WmsPayloadDto() {}
+
   @Builder
   public WmsPayloadDto(
       List<String> vary,

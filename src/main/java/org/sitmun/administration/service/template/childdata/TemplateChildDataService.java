@@ -1,7 +1,5 @@
 package org.sitmun.administration.service.template.childdata;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +43,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -431,7 +431,7 @@ public class TemplateChildDataService {
     }
   }
 
-  private Map<String, Object> normalizeBodyToContext(String body) throws IOException {
+  private Map<String, Object> normalizeBodyToContext(String body) {
     if (!StringUtils.hasText(body)) {
       return Collections.emptyMap();
     }

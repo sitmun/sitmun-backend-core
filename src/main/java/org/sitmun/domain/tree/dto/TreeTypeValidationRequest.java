@@ -2,9 +2,13 @@ package org.sitmun.domain.tree.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
  * Request DTO for validating a tree type change against candidate applications.
@@ -24,7 +28,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@JsonDeserialize(builder = TreeTypeValidationRequest.TreeTypeValidationRequestBuilder.class)
 public class TreeTypeValidationRequest {
 
   /** The intended tree type after the change. Must not be blank. */
@@ -36,4 +43,7 @@ public class TreeTypeValidationRequest {
    * to an empty set (no applications).
    */
   @Builder.Default private Set<Integer> applicationIds = Set.of();
+
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class TreeTypeValidationRequestBuilder {}
 }

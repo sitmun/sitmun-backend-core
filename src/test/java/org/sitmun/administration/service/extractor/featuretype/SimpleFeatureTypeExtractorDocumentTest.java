@@ -17,7 +17,7 @@ class SimpleFeatureTypeExtractorDocumentTest {
         classify(
             """
             <sld:DescribeLayerResponse>
-              <sld:LayerDescription name="roads" owsURL="https://example.test/wfs" owsType="WFS">
+              <sld:LayerDescription name="roads" owsURL="https://example.com/wfs" owsType="WFS">
                 <sld:Query typeName="app:roads"/>
               </sld:LayerDescription>
             </sld:DescribeLayerResponse>

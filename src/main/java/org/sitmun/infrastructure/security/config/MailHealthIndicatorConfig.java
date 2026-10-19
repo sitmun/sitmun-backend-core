@@ -1,9 +1,9 @@
 package org.sitmun.infrastructure.security.config;
 
 import org.sitmun.infrastructure.config.Profiles;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.health.autoconfigure.contributor.ConditionalOnEnabledHealthIndicator;
+import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,16 +28,16 @@ public class MailHealthIndicatorConfig {
     return () -> {
       try {
         if (mailSender != null) {
-          return org.springframework.boot.actuate.health.Health.up()
+          return org.springframework.boot.health.contributor.Health.up()
               .withDetail("mail", "Mail service is available")
               .build();
         } else {
-          return org.springframework.boot.actuate.health.Health.down()
+          return org.springframework.boot.health.contributor.Health.down()
               .withDetail("mail", "Mail service is not available")
               .build();
         }
       } catch (Exception e) {
-        return org.springframework.boot.actuate.health.Health.down()
+        return org.springframework.boot.health.contributor.Health.down()
             .withDetail("mail", "Mail service error: " + e.getMessage())
             .build();
       }

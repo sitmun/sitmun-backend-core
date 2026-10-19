@@ -65,7 +65,8 @@ class FeatureInfoFormatOptionsConverterTest {
     options.setMaxHeight(160);
 
     assertThat(converter.convertToDatabaseColumn(options))
-        .isEqualTo("{\"maxWidth\":240,\"maxHeight\":160}");
+        .contains("\"maxWidth\":240")
+        .contains("\"maxHeight\":160");
 
     FeatureInfoFormatOptions read =
         converter.convertToEntityAttribute("{\"maxWidth\":240,\"maxHeight\":160}");

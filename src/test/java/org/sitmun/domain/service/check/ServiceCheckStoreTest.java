@@ -12,9 +12,9 @@ import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.sitmun.upstream.signal.ServiceStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 
@@ -37,7 +37,7 @@ class ServiceCheckStoreTest {
             Service.builder()
                 .name("Blocked WMS")
                 .type("WMS")
-                .serviceURL("http://example.test/wms")
+                .serviceURL("http://example.com/wms")
                 .blocked(true)
                 .isProxied(false)
                 .build());
@@ -49,7 +49,7 @@ class ServiceCheckStoreTest {
             ServiceCheckStore.BACKEND,
             new ServiceStatus("maintenance", 55),
             40L,
-            "GetCapabilities example.test/wms | maintenance",
+            "GetCapabilities example.com/wms | maintenance",
             firstSeen);
 
     Instant secondSeen = Instant.parse("2026-10-05T12:05:00Z");

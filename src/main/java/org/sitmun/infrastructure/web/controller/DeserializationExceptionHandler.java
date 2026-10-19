@@ -1,8 +1,5 @@
 package org.sitmun.infrastructure.web.controller;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.ArrayList;
 import java.util.List;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
@@ -15,6 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Exception handler for JSON deserialization errors.
@@ -37,28 +37,28 @@ public class DeserializationExceptionHandler {
     Throwable cause = ex.getCause();
 
     if (cause instanceof InvalidFormatException ife) {
-      for (JsonMappingException.Reference ref : ife.getPath()) {
+      for (JacksonException.Reference ref : ife.getPath()) {
         errors.add(
             ValidationProblemDetail.FieldError.builder()
-                .field(ref.getFieldName())
+                .field(ref.getPropertyName())
                 .rejectedValue(String.valueOf(ife.getValue()))
                 .expectedType(
                     ife.getTargetType() != null ? ife.getTargetType().getSimpleName() : null)
                 .message(
                     String.format(
-                        "Invalid value '%s' for field '%s'", ife.getValue(), ref.getFieldName()))
+                        "Invalid value '%s' for field '%s'", ife.getValue(), ref.getPropertyName()))
                 .messageCode("InvalidFormat")
                 .build());
       }
     } else if (cause instanceof MismatchedInputException mie) {
-      for (JsonMappingException.Reference ref : mie.getPath()) {
+      for (JacksonException.Reference ref : mie.getPath()) {
         errors.add(
             ValidationProblemDetail.FieldError.builder()
-                .field(ref.getFieldName())
+                .field(ref.getPropertyName())
                 .rejectedValue(null)
                 .expectedType(
                     mie.getTargetType() != null ? mie.getTargetType().getSimpleName() : null)
-                .message(String.format("Mismatched input for field '%s'", ref.getFieldName()))
+                .message(String.format("Mismatched input for field '%s'", ref.getPropertyName()))
                 .messageCode("MismatchedInput")
                 .build());
       }

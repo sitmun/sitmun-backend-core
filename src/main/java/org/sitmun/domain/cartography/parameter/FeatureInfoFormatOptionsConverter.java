@@ -1,12 +1,11 @@
 package org.sitmun.domain.cartography.parameter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Converter
 public class FeatureInfoFormatOptionsConverter
@@ -24,7 +23,7 @@ public class FeatureInfoFormatOptionsConverter
     }
     try {
       return objectMapper.writeValueAsString(stored(attribute));
-    } catch (final JsonProcessingException e) {
+    } catch (final JacksonException e) {
       LOGGER.error("JSON writing error", e);
     }
     return null;
@@ -39,7 +38,7 @@ public class FeatureInfoFormatOptionsConverter
       FeatureInfoFormatOptions options =
           objectMapper.readValue(dbData, FeatureInfoFormatOptions.class);
       return options == null || options.isEmpty() ? null : options;
-    } catch (final IOException e) {
+    } catch (final JacksonException e) {
       LOGGER.error("JSON reading error", e);
     }
     return null;

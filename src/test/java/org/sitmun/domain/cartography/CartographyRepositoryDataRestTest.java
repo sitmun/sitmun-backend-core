@@ -28,8 +28,8 @@ import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -139,7 +139,7 @@ class CartographyRepositoryDataRestTest {
 
     mvc.perform(get(location))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(CARTOGRAPHY_NAME)))
         .andExpect(jsonPath("$.createdDate", isIso8601DateAndTime()));
 

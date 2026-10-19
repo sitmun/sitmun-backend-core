@@ -318,7 +318,7 @@ class TemplateRenderServiceTest {
 
     TemplatePreviewResponseDto response =
         service.renderPreview(
-            "<img src=\"https://example.test/x.png\" title=\"{{#APP_NAME}}\" alt=\"{{#APP_NAME}}\">",
+            "<img src=\"https://example.com/x.png\" title=\"{{#APP_NAME}}\" alt=\"{{#APP_NAME}}\">",
             Map.of());
 
     assertThat(response.getHtml())

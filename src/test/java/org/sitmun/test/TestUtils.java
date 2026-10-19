@@ -1,7 +1,6 @@
 package org.sitmun.test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import org.assertj.core.api.Assertions;
 import org.sitmun.authentication.SitmunClientTypes;
@@ -12,17 +11,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TestUtils {
 
   private static final String ADMIN_USERNAME = "admin";
   private static final String ADMIN_PASSWORD = "admin";
-  private static final ObjectMapper mapper;
-
-  static {
-    mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
-  }
+  private static final ObjectMapper mapper =
+      JsonMapper.builder()
+          .changeDefaultPropertyInclusion(
+              incl ->
+                  JsonInclude.Value.construct(
+                      JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS))
+          .build();
 
   public static String asJsonString(Object obj) {
     try {

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.CARTOGRAPHY_QUERY_WITH_VALUE_STRING_DEFAULT;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.sitmun.domain.task.parameter.TaskParameter;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
 import org.springframework.core.io.ClassPathResource;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Snapshot tests for ServiceParameter shape (cartography query/edition tasks).

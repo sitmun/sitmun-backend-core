@@ -2,7 +2,6 @@ package org.sitmun.authorization.client.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,7 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @DisplayName("ProfileMapper Cartography mapping")

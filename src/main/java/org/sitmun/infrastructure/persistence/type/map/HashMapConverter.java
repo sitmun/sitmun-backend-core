@@ -1,15 +1,15 @@
 package org.sitmun.infrastructure.persistence.type.map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import java.io.IOException;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Converter
 public class HashMapConverter implements AttributeConverter<Map<String, Object>, String> {
@@ -19,8 +19,13 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
   private final ObjectMapper objectMapper;
 
   public HashMapConverter() {
-    objectMapper = new ObjectMapper();
-    objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+    objectMapper =
+        JsonMapper.builder()
+            .changeDefaultPropertyInclusion(
+                incl ->
+                    JsonInclude.Value.construct(
+                        JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS))
+            .build();
   }
 
   @Override
@@ -30,7 +35,7 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
     }
     try {
       return objectMapper.writeValueAsString(attribute);
-    } catch (final JsonProcessingException e) {
+    } catch (final JacksonException e) {
       LOGGER.error("JSON writing error", e);
     }
     return null;
@@ -50,7 +55,7 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
             .constructParametricType(Map.class, String.class, Object.class);
     try {
       return objectMapper.readValue(dbData, type);
-    } catch (final IOException e) {
+    } catch (final JacksonException e) {
       LOGGER.error("JSON reading error", e);
     }
     return null;

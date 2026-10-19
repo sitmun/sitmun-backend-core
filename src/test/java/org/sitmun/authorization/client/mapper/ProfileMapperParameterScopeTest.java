@@ -37,7 +37,7 @@ class ProfileMapperParameterScopeTest {
             .blocked(false)
             .type("WMTS")
             .name("Tiles")
-            .serviceURL("https://example.test/wmts")
+            .serviceURL("https://example.com/wmts")
             .parameters(
                 new HashSet<>(
                     List.of(

@@ -17,7 +17,7 @@ class AccessProbePlannerTest {
   @Test
   @DisplayName("WMS plan is GetCapabilities and ignores blocked and proxied")
   void wmsPlanIsGetCapabilities() {
-    Service service = service("WMS", "http://example.test/wms");
+    Service service = service("WMS", "http://example.com/wms");
     service.setBlocked(true);
     service.setIsProxied(false);
 
@@ -28,7 +28,7 @@ class AccessProbePlannerTest {
     assertThat(plan.interpretBody()).isTrue();
     assertThat(plan.fallbackUrl()).isNull();
     assertThat(plan.url())
-        .hasToString("http://example.test/wms?request=GetCapabilities&service=WMS");
+        .hasToString("http://example.com/wms?request=GetCapabilities&service=WMS");
     assertThat(plan.authorization()).isInstanceOf(Authorization.None.class);
   }
 
@@ -36,56 +36,56 @@ class AccessProbePlannerTest {
   @DisplayName("WMS plan keeps an existing GetCapabilities URL")
   void wmsPlanKeepsExistingGetCapabilitiesUrl() {
     Service service =
-        service("WMS", "http://example.test/wms?request=GetCapabilities&version=1.3.0");
+        service("WMS", "http://example.com/wms?request=GetCapabilities&version=1.3.0");
 
     AccessProbePlan plan = AccessProbePlanner.plan(service);
 
     assertThat(plan.url())
-        .hasToString("http://example.test/wms?request=GetCapabilities&version=1.3.0");
+        .hasToString("http://example.com/wms?request=GetCapabilities&version=1.3.0");
   }
 
   @Test
   @DisplayName("WFS plan is GetCapabilities on the service URL")
   void wfsPlanIsGetCapabilities() {
-    AccessProbePlan plan = AccessProbePlanner.plan(service("WFS", "http://example.test/wfs"));
+    AccessProbePlan plan = AccessProbePlanner.plan(service("WFS", "http://example.com/wfs"));
 
     assertThat(plan.request()).isEqualTo("GetCapabilities");
     assertThat(plan.interpretBody()).isTrue();
     assertThat(plan.fallbackUrl()).isNull();
     assertThat(plan.url())
-        .hasToString("http://example.test/wfs?request=GetCapabilities&service=WFS");
+        .hasToString("http://example.com/wfs?request=GetCapabilities&service=WFS");
   }
 
   @Test
   @DisplayName("WMTS plan carries the fallback URL and does not open a socket")
   void wmtsPlanCarriesFallbackUrl() {
-    AccessProbePlan plan = AccessProbePlanner.plan(service("WMTS", "http://example.test/wmts"));
+    AccessProbePlan plan = AccessProbePlanner.plan(service("WMTS", "http://example.com/wmts"));
 
     assertThat(plan.request()).isEqualTo("GetCapabilities");
     assertThat(plan.interpretBody()).isTrue();
     assertThat(plan.url())
-        .hasToString("http://example.test/wmts?request=GetCapabilities&service=WMTS");
+        .hasToString("http://example.com/wmts?request=GetCapabilities&service=WMTS");
     assertThat(plan.fallbackUrl())
-        .hasToString("http://example.test/wmts/1.0.0/WMTSCapabilities.xml");
+        .hasToString("http://example.com/wmts/1.0.0/WMTSCapabilities.xml");
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"AIMS", "FME", "TC"})
   @DisplayName("AIMS, FME, and TC plans are GET with body interpretation off")
   void nonOgcPlanIsGet(String type) {
-    AccessProbePlan plan = AccessProbePlanner.plan(service(type, "http://example.test/service"));
+    AccessProbePlan plan = AccessProbePlanner.plan(service(type, "http://example.com/service"));
 
     assertThat(plan.protocol()).isEqualTo(type);
     assertThat(plan.request()).isEqualTo("GET");
     assertThat(plan.interpretBody()).isFalse();
     assertThat(plan.fallbackUrl()).isNull();
-    assertThat(plan.url()).hasToString("http://example.test/service");
+    assertThat(plan.url()).hasToString("http://example.com/service");
   }
 
   @Test
   @DisplayName("Basic auth is planned only when the password is set")
   void basicAuthOnlyWhenPasswordSet() {
-    Service withPassword = service("WMS", "http://alice:s3cret@example.test/wms");
+    Service withPassword = service("WMS", "http://alice:s3cret@example.com/wms");
     withPassword.setUser("alice");
     withPassword.setPassword("s3cret");
     withPassword.setAuthenticationMode("none");
@@ -93,11 +93,11 @@ class AccessProbePlannerTest {
     AccessProbePlan planned = AccessProbePlanner.plan(withPassword);
 
     assertThat(planned.url())
-        .hasToString("http://example.test/wms?request=GetCapabilities&service=WMS");
+        .hasToString("http://example.com/wms?request=GetCapabilities&service=WMS");
     assertThat(planned.authorization()).isEqualTo(new Authorization.Basic("alice", "s3cret"));
     assertThat(planned.toString()).doesNotContain("s3cret");
 
-    Service withoutPassword = service("WMS", "http://example.test/wms");
+    Service withoutPassword = service("WMS", "http://example.com/wms");
     withoutPassword.setUser("alice");
     withoutPassword.setPassword("");
     withoutPassword.setAuthenticationMode("basic");
@@ -109,7 +109,7 @@ class AccessProbePlannerTest {
   @Test
   @DisplayName("A non-WMS type is not sent through the WMS capabilities builder")
   void lowercaseWmsIsRejected() {
-    assertThatThrownBy(() -> AccessProbePlanner.plan(service("wms", "http://example.test/wms")))
+    assertThatThrownBy(() -> AccessProbePlanner.plan(service("wms", "http://example.com/wms")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Unsupported service type for access check: wms");
   }
