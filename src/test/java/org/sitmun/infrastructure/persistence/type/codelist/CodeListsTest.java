@@ -179,8 +179,7 @@ class CodeListsTest {
   @Test
   @DisplayName("Verify service.type code list values")
   void checkServiceType() {
-    assertThat(select(SERVICE_TYPE))
-        .containsExactlyInAnyOrder("AIMS", "FME", "TC", "WFS", "WMS", "WMTS");
+    assertThat(select(SERVICE_TYPE)).containsExactlyInAnyOrder("WFS", "WMS", "WMTS");
   }
 
   @Test
