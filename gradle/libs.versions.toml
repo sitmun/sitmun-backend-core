@@ -1,6 +1,6 @@
 [versions]
 # Spring Boot and related
-spring-boot = "3.5.4"
+spring-boot = "4.1.1"
 spring-dependency-management = "1.1.7"
 
 # Plugin versions
@@ -17,7 +17,7 @@ jsoup = "1.18.3"
 
 # Dependency versions
 jjwt = "0.12.6"
-springdoc-openapi-lib = "2.8.9"
+springdoc-openapi-lib = "3.1.1"
 okhttp = "5.5.0"
 guava = "33.4.8-jre"
 json = "20250517"
@@ -32,6 +32,7 @@ opencsv = "5.9"
 
 [libraries]
 # Spring Boot starters
+spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
 spring-boot-starter-data-rest = { module = "org.springframework.boot:spring-boot-starter-data-rest" }
 spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
@@ -40,6 +41,10 @@ spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf" }
 spring-boot-starter-mail = { module = "org.springframework.boot:spring-boot-starter-mail" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+spring-boot-starter-data-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
+spring-boot-starter-jackson-test = { module = "org.springframework.boot:spring-boot-starter-jackson-test" }
+spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor" }
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat" }
 
@@ -47,7 +52,7 @@ spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-st
 spring-security-test = { module = "org.springframework.security:spring-security-test" }
 spring-ldap-core = { module = "org.springframework.ldap:spring-ldap-core" }
 spring-security-ldap = { module = "org.springframework.security:spring-security-ldap" }
-spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-oauth2-client" }
+spring-boot-starter-security-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-client" }
 
 # Databases
 h2 = { module = "com.h2database:h2" }
@@ -56,7 +61,7 @@ oracle-jdbc = { module = "com.oracle.database.jdbc:ojdbc11-production" }
 mssql-jdbc = { module = "com.microsoft.sqlserver:mssql-jdbc" }
 
 # Database migration
-liquibase-core = { module = "org.liquibase:liquibase-core" }
+spring-boot-starter-liquibase = { module = "org.springframework.boot:spring-boot-starter-liquibase" }
 
 # Query building
 querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }

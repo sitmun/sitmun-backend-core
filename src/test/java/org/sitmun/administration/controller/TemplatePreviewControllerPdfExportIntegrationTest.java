@@ -21,12 +21,12 @@ import org.sitmun.administration.service.template.TemplateRenderService;
 import org.sitmun.administration.service.template.export.TemplateExportAuthorizationService;
 import org.sitmun.administration.service.template.export.TemplateExportService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,10 +37,10 @@ class TemplatePreviewControllerPdfExportIntegrationTest {
 
   @Autowired private MockMvc mvc;
 
-  @MockBean private TemplateExecutionService templateExecutionService;
-  @MockBean private TemplateRenderService templateRenderService;
-  @MockBean private TemplateExportAuthorizationService templateExportAuthorizationService;
-  @MockBean private TemplateExportService templateExportService;
+  @MockitoBean private TemplateExecutionService templateExecutionService;
+  @MockitoBean private TemplateRenderService templateRenderService;
+  @MockitoBean private TemplateExportAuthorizationService templateExportAuthorizationService;
+  @MockitoBean private TemplateExportService templateExportService;
 
   @BeforeEach
   void authorizeExport() {

@@ -4,14 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@JsonDeserialize(builder = HttpSecurityDto.HttpSecurityDtoBuilder.class)
 public class HttpSecurityDto {
 
   private static final String OPENAPI_TYPE_HTTP = "http";
@@ -148,4 +155,7 @@ public class HttpSecurityDto {
     warns.sort(String::compareTo);
     return base + ", warn=[" + String.join(", ", warns) + "]";
   }
+
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class HttpSecurityDtoBuilder {}
 }

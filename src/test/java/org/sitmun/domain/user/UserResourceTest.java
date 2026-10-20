@@ -24,8 +24,8 @@ import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -236,7 +236,7 @@ class UserResourceTest {
     mockMvc
         .perform(get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.username", CoreMatchers.equalTo(username)))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
@@ -273,7 +273,7 @@ class UserResourceTest {
     mockMvc
         .perform(get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withNullPassword =
@@ -291,7 +291,7 @@ class UserResourceTest {
     mockMvc
         .perform(put(uri).content(withNullPassword))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withoutField =
@@ -308,7 +308,7 @@ class UserResourceTest {
     mockMvc
         .perform(put(uri).content(withoutField))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     String withEmptyPassword =
@@ -345,7 +345,7 @@ class UserResourceTest {
     mockMvc
         .perform(put(uri).content(withNonEmptyPassword))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     mockMvc.perform(delete(uri)).andExpect(status().isNoContent());
@@ -388,7 +388,7 @@ class UserResourceTest {
     mockMvc
         .perform(get(USER_URI + "/" + organizacionAdmin.getId()))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.firstName", CoreMatchers.equalTo(USER_CHANGEDFIRSTNAME)))
         .andExpect(jsonPath("$.lastName", CoreMatchers.equalTo(USER_CHANGEDLASTNAME)))
         .andExpect(jsonPath("$.passwordSet").value(true));
@@ -401,7 +401,7 @@ class UserResourceTest {
     mockMvc
         .perform(get(USER_URI + "?size=100"))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(
             jsonPath(
                 "$._embedded.users[*].username",

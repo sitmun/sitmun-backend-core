@@ -173,7 +173,7 @@ class TaskRepositoryDataRestTest extends BaseTest {
     mvc.perform(get(location))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(content().contentType(MediaTypes.VND_HAL_JSON))
         .andExpect(jsonPath("$.name", equalTo(TASK_NAME)))
         .andExpect(jsonPath("$.properties.parameters[0].name", equalTo(TYPE_STRING)));
 

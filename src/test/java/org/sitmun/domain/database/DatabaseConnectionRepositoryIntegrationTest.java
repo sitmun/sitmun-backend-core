@@ -15,7 +15,11 @@ import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -215,7 +219,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
   private void updateCartographiesSpatialSelectionConnection(
       int id, List<String> newValue, HttpHeaders auth) {
     HttpHeaders headers = new HttpHeaders(auth);
-    headers.setContentType(MediaType.parseMediaType("text/uri-list"));
+    headers.setContentType(org.springframework.http.MediaType.parseMediaType("text/uri-list"));
     restTemplate.exchange(
         "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
         HttpMethod.PUT,
@@ -225,7 +229,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   private void updateConnectionCartograhies(int id, List<String> newValue, HttpHeaders auth) {
     HttpHeaders headers = new HttpHeaders(auth);
-    headers.setContentType(MediaType.parseMediaType("text/uri-list"));
+    headers.setContentType(org.springframework.http.MediaType.parseMediaType("text/uri-list"));
     restTemplate.exchange(
         "http://localhost:" + port + "/api/connections/" + id + "/cartographies",
         HttpMethod.PUT,
@@ -235,7 +239,7 @@ class DatabaseConnectionRepositoryIntegrationTest {
 
   private void updateConnection(int id, JSONObject newValue, HttpHeaders auth) {
     HttpHeaders headers = new HttpHeaders(auth);
-    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
     restTemplate.exchange(
         "http://localhost:" + port + "/api/connections/" + id,
         HttpMethod.PUT,

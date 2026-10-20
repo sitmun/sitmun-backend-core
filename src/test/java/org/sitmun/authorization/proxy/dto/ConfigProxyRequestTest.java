@@ -2,21 +2,20 @@ package org.sitmun.authorization.proxy.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class ConfigProxyRequestTest {
 
   private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .findAndRegisterModules()
-          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
   @Test
   @DisplayName("Deserializes proxy request without JWT fields")
@@ -47,7 +46,7 @@ class ConfigProxyRequestTest {
 
   @Test
   @DisplayName("Serializes without id_token or token fields")
-  void serializesWithoutTokenFields() throws JsonProcessingException {
+  void serializesWithoutTokenFields() throws JacksonException {
     Map<String, String> params = new HashMap<>();
     params.put("X", "9");
     String requestBody = "{\"Y\":\"8\"}";

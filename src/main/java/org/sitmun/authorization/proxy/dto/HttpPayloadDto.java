@@ -15,6 +15,8 @@ public abstract class HttpPayloadDto extends PayloadDto {
   private HttpSecurityDto security;
   private String body;
 
+  protected HttpPayloadDto() {}
+
   protected HttpPayloadDto(
       List<String> vary,
       String uri,

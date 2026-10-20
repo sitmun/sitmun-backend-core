@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.sitmun.authorization.client.dto.profile.ServiceParameter;
 import org.sitmun.domain.task.parameter.TaskParameter;
 import org.sitmun.domain.task.parameter.TaskParameterProcessor;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Consumer contract tests for profile parameter JSON wire format.

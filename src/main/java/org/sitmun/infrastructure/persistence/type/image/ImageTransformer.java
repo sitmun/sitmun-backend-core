@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.Locale;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +82,9 @@ public class ImageTransformer {
   }
 
   private BufferedImage scaleImageFromURL(URL url, int width, int height) {
-    try {
-      BufferedImage originalImage = ImageIO.read(url);
+    try (InputStream inputStream = url.openStream();
+        ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+      BufferedImage originalImage = readSubsampled(imageInputStream, width, height);
       if (originalImage == null) {
         log.error("No registered image reader for {}", url);
         throw new IllegalImageException("No registered image reader for " + url);
@@ -91,6 +93,28 @@ public class ImageTransformer {
     } catch (IOException e) {
       log.error("Failed to read image from URL {}", url, e);
       throw new IllegalImageException("IOException: " + e.getMessage());
+    }
+  }
+
+  private static BufferedImage readSubsampled(
+      ImageInputStream imageInputStream, int width, int height) throws IOException {
+    if (imageInputStream == null) {
+      return null;
+    }
+    Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+    if (!readers.hasNext()) {
+      return null;
+    }
+    ImageReader reader = readers.next();
+    try {
+      reader.setInput(imageInputStream, true, true);
+      int subsampleX = Math.max(1, reader.getWidth(0) / Math.max(width, 1));
+      int subsampleY = Math.max(1, reader.getHeight(0) / Math.max(height, 1));
+      ImageReadParam param = reader.getDefaultReadParam();
+      param.setSourceSubsampling(subsampleX, subsampleY, 0, 0);
+      return reader.read(0, param);
+    } finally {
+      reader.dispose();
     }
   }
 

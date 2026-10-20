@@ -52,7 +52,8 @@ dependencies {
     providedRuntime libs.spring.boot.starter.tomcat
   }
 
-  // Data persistence and REST API
+  // Web + data persistence and REST API
+  implementation libs.spring.boot.starter.webmvc
   implementation libs.spring.boot.starter.data.jpa
   implementation libs.spring.boot.starter.data.rest
   
@@ -75,7 +76,7 @@ dependencies {
   implementation libs.mssql.jdbc
 
   // Database migration
-  implementation libs.liquibase.core
+  implementation libs.spring.boot.starter.liquibase
   
   // Query building
   implementation variantOf(libs.querydsl.jpa) { classifier('jakarta') }
@@ -108,7 +109,7 @@ dependencies {
   implementation libs.jjwt.jackson
 
   // OIDC support
-  implementation libs.spring.boot.starter.oauth2.client
+  implementation libs.spring.boot.starter.security.oauth2.client
 
   // OpenAPI/Swagger documentation
   implementation libs.springdoc.openapi.starter.webmvc.ui
@@ -152,6 +153,10 @@ dependencies {
   testImplementation(libs.spring.boot.starter.test) {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
+  testImplementation libs.spring.boot.starter.webmvc.test
+  testImplementation libs.spring.boot.starter.data.jpa.test
+  testImplementation libs.spring.boot.starter.jackson.test
+  testImplementation libs.spring.boot.starter.security.test
   
   // Security testing
   testImplementation libs.spring.security.test
@@ -214,15 +219,13 @@ tasks.named('processTestResources', Copy).configure {
 // Test configuration
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
-  maxHeapSize = '2G'
-  minHeapSize = '512m'
-
-  // Reduce forking to improve performance - only fork when necessary
+  maxHeapSize = '1024m'
+  minHeapSize = '64m'
+  maxParallelForks = 1
   forkEvery = 0
-  
-  // Memory settings for test JVM
-  jvmArgs '-Xmx2g', '-Xms512m', '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=200', '-XX:+UseStringDeduplication'
-  
+
+  jvmArgs '-Xmx1024m', '-Xms64m', '-XX:+UseSerialGC'
+
   // Set system properties for test JVM
   systemProperty 'spring.profiles.active', 'test,h2'
   systemProperty 'java.awt.headless', 'true'
@@ -230,7 +233,10 @@ tasks.withType(Test).configureEach {
   systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   // Forward opt-in Liquibase seed sequence canary (exact STM_SEQUENCE baselines)
   systemProperty 'sitmun.seed-canary.sequences', System.getProperty('sitmun.seed-canary.sequences', '')
-  
+
+  reports.junitXml.includeSystemOutLog = false
+  reports.junitXml.includeSystemErrLog = false
+
   // Test logging
   testLogging {
     events "passed", "skipped", "failed"

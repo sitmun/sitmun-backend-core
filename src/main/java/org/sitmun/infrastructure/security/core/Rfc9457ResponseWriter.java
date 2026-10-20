@@ -1,6 +1,5 @@
 package org.sitmun.infrastructure.security.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -9,6 +8,7 @@ import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 /** Writes generic RFC 9457 authentication and authorization failures. */
 @Component

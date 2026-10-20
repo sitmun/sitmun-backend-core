@@ -29,8 +29,8 @@ import org.sitmun.domain.tree.node.TreeNodeRepository;
 import org.sitmun.infrastructure.web.dto.ProblemTypes;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -79,7 +79,7 @@ class CartographyDeleteResourceTest {
     Integer id = TestUtils.extractId(location);
     // Accept header makes default SDR return a HAL body after DELETE; that path previously
     // LazyInitializationException'd on Cartography associations.
-    mvc.perform(delete(CARTOGRAPHIES_URI + "/{id}", id).accept(MediaTypes.HAL_JSON))
+    mvc.perform(delete(CARTOGRAPHIES_URI + "/{id}", id).accept(MediaTypes.VND_HAL_JSON))
         .andExpect(status().isNoContent());
   }
 

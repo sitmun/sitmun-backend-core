@@ -2,10 +2,6 @@ package org.sitmun.authorization.proxy.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,13 +9,16 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class WmsPayloadDtoTest {
 
   private final ObjectMapper objectMapper =
-      new ObjectMapper()
-          .findAndRegisterModules()
-          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
   @Test
   @DisplayName("Builder creates OgcWmsPayloadDto with all fields")
@@ -55,7 +54,7 @@ class WmsPayloadDtoTest {
 
   @Test
   @DisplayName("Serializes to JSON with correct type name")
-  void serializesWithCorrectTypeName() throws JsonProcessingException {
+  void serializesWithCorrectTypeName() throws JacksonException {
     WmsPayloadDto dto =
         WmsPayloadDto.builder().uri("https://example.com/wms").method("GET").build();
 
@@ -70,7 +69,7 @@ class WmsPayloadDtoTest {
 
   @Test
   @DisplayName("Deserializes from JSON correctly")
-  void deserializesFromJson() throws JsonProcessingException {
+  void deserializesFromJson() throws JacksonException {
     String json =
         """
         {

@@ -1,14 +1,14 @@
 package org.sitmun.authorization.client.service.support;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Converter for basic task parameter values.
@@ -61,7 +61,7 @@ public class BasicParameterValueConverter {
         case OBJECT -> objectMapper.readValue(rawValue, OBJECT_TYPE_REFERENCE);
         case NULL -> null;
       };
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("Error processing {} type for value {}", type.getTypeString(), rawValue, e);
       return null;
     } catch (NumberFormatException e) {
@@ -113,7 +113,7 @@ public class BasicParameterValueConverter {
     }
     try {
       objectMapper.readValue(stringValue, objectMapper.constructType(jsonTarget));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       errors.rejectValue(
           ERRORS_PROPERTIES_FIELD,
           errorCode,

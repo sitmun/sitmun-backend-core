@@ -14,8 +14,8 @@ import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest

@@ -10,8 +10,8 @@ import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 @DataJpaTest
 @DisplayName("User Position Repository JPA Test")
