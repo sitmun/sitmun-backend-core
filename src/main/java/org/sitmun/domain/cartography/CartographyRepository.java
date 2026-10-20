@@ -21,14 +21,14 @@ import org.springframework.lang.NonNull;
     path = "cartographies")
 public interface CartographyRepository extends JpaRepository<Cartography, Integer> {
 
+  /**
+   * Do not include {@code styles} in this graph. Hibernate 7 paged load with the styles bag threw
+   * {@code FetchNotFoundException} for an existing Service and 500'd {@code GET
+   * /api/cartographies}. Styles still load via {@code @BatchSize} when accessed.
+   */
   @Override
   @EntityGraph(
-      attributePaths = {
-        "service",
-        "spatialSelectionService",
-        "spatialSelectionConnection",
-        "styles"
-      })
+      attributePaths = {"service", "spatialSelectionService", "spatialSelectionConnection"})
   @NonNull
   Page<Cartography> findAll(@NonNull Pageable pageable);
 
