@@ -66,7 +66,7 @@ class SimpleFeatureTypeExtractorTest {
   @Test
   @DisplayName("Extract from a bad request to a WFS")
   void extractFailedService() {
-    ExtractedMetadata doc = extractor.extract("https://www.ign.es/wfs/redes-geodesicas?");
+    ExtractedMetadata doc = extractor.extract(html.url("/wfs-exception"));
     assertNotNull(doc);
     assertFalse(doc.getSuccess());
     assertEquals("Unmanaged XML response", doc.getReason());
