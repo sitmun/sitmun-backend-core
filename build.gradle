@@ -219,13 +219,12 @@ tasks.named('processTestResources', Copy).configure {
 // Test configuration
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
-  maxHeapSize = '384m'
+  maxHeapSize = '1024m'
   minHeapSize = '64m'
   maxParallelForks = 1
   forkEvery = 0
 
-  // Serial GC + modest heap so pre-commit survives ~hundreds-of-MB free hosts
-  jvmArgs '-Xmx384m', '-Xms64m', '-XX:+UseSerialGC'
+  jvmArgs '-Xmx1024m', '-Xms64m', '-XX:+UseSerialGC'
 
   // Set system properties for test JVM
   systemProperty 'spring.profiles.active', 'test,h2'
