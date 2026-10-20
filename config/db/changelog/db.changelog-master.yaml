@@ -92,3 +92,6 @@ databaseChangeLog:
   - include:
       file: 28_parameter_type_translations.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 29_restrict_service_types.yaml
+      relativeToChangelogFile: true
