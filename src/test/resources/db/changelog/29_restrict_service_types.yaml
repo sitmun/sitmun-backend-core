@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 29-restrict-service-types
+      author: sitmun
+      changes:
+        - delete:
+            tableName: STM_CODELIST
+            where: "COD_LIST = 'service.type' AND COD_VALUE NOT IN ('WMS', 'WFS', 'WMTS')"

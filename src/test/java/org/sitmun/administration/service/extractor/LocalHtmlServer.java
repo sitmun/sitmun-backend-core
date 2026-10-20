@@ -10,6 +10,12 @@ public final class LocalHtmlServer implements AutoCloseable {
   private static final byte[] HOME =
       "<!DOCTYPE html><html><head></head><body>home</body></html>".getBytes(StandardCharsets.UTF_8);
   private static final byte[] MISSING = "<html><<not-xml".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] WFS_EXCEPTION =
+      ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+              + "<ows:ExceptionReport xmlns:ows=\"http://www.opengis.net/ows/1.1\" version=\"2.0.0\">"
+              + "<ows:Exception exceptionCode=\"MissingParameterValue\" locator=\"request\"/>"
+              + "</ows:ExceptionReport>")
+          .getBytes(StandardCharsets.UTF_8);
 
   private final HttpServer server;
 
@@ -22,10 +28,20 @@ public final class LocalHtmlServer implements AutoCloseable {
     server.createContext(
         "/",
         exchange -> {
-          boolean missing = "/not-found".equals(exchange.getRequestURI().getPath());
-          byte[] body = missing ? MISSING : HOME;
-          exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-          exchange.sendResponseHeaders(missing ? 404 : 200, body.length);
+          String path = exchange.getRequestURI().getPath();
+          byte[] body = HOME;
+          int status = 200;
+          String contentType = "text/html; charset=UTF-8";
+          if ("/not-found".equals(path)) {
+            body = MISSING;
+            status = 404;
+          } else if ("/wfs-exception".equals(path)) {
+            body = WFS_EXCEPTION;
+            status = 400;
+            contentType = "application/xml; charset=UTF-8";
+          }
+          exchange.getResponseHeaders().set("Content-Type", contentType);
+          exchange.sendResponseHeaders(status, body.length);
           exchange.getResponseBody().write(body);
           exchange.close();
         });

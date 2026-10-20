@@ -64,7 +64,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("GET: Extract from a bad request to a WFS")
   void extractFailedService() throws Exception {
-    mvc.perform(get(URI_TEMPLATE, "https://www.ign.es/wfs/redes-geodesicas?"))
+    mvc.perform(get(URI_TEMPLATE, html.url("/wfs-exception")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("Unmanaged XML response"))

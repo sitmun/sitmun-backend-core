@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.sitmun.authorization.access.UserApplicationAccessPolicy;
+import org.sitmun.domain.DomainConstants;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.application.tree.ApplicationTreeRepository;
@@ -277,7 +278,7 @@ public class AuthorizationService {
   private List<Task> findProfileTasks(List<Role> roles, Integer territoryId) {
     return taskRepository.findByRolesAndTerritory(roles, territoryId).stream()
         .filter(task -> task.getRoles() != null)
-        .filter(task -> ServiceBlockPolicy.isAccessibleInClientProfileOrNull(task.getService()))
+        .filter(task -> taskServiceAllowedInProfile(task.getService()))
         .toList();
   }
 
@@ -383,7 +384,7 @@ public class AuthorizationService {
         new ArrayList<>(
             cartographyRepository.findByRolesAndTerritory(roles, context.getTerritoryId()).stream()
                 .filter(CartographyBlockPolicy::isNotDirectlyBlocked)
-                .filter(l -> ServiceBlockPolicy.isAccessibleInClientProfile(l.getService()))
+                .filter(l -> serviceAllowedInProfile(l.getService()))
                 .toList());
     layers.forEach(translationService::updateInternationalization);
 
@@ -438,7 +439,7 @@ public class AuthorizationService {
     List<org.sitmun.domain.service.Service> filteredServices =
         services.stream()
             .filter(Objects::nonNull)
-            .filter(ServiceBlockPolicy::isAccessibleInClientProfile)
+            .filter(AuthorizationService::serviceAllowedInProfile)
             .filter(distinctByKey(org.sitmun.domain.service.Service::getId))
             .toList();
     viewerUsage.record(context.getAppId(), filteredServices);
@@ -476,7 +477,16 @@ public class AuthorizationService {
       Cartography member, Set<Integer> existingLayerIds) {
     return CartographyBlockPolicy.isNotDirectlyBlocked(member)
         && !existingLayerIds.contains(member.getId())
-        && ServiceBlockPolicy.isAccessibleInClientProfile(member.getService());
+        && serviceAllowedInProfile(member.getService());
+  }
+
+  private static boolean serviceAllowedInProfile(org.sitmun.domain.service.Service service) {
+    return ServiceBlockPolicy.isAccessibleInClientProfile(service)
+        && DomainConstants.Services.isSupported(service.getType());
+  }
+
+  private static boolean taskServiceAllowedInProfile(org.sitmun.domain.service.Service service) {
+    return service == null || serviceAllowedInProfile(service);
   }
 
   private static boolean treeHasAnyNodes(Tree tree, Map<Tree, List<TreeNode>> treeNodes) {

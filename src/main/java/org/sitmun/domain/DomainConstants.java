@@ -294,6 +294,12 @@ public class DomainConstants {
       return service != null && TYPE_WFS.equalsIgnoreCase(service.getType());
     }
 
+    public static boolean isSupported(String type) {
+      return TYPE_WMS.equalsIgnoreCase(type)
+          || TYPE_WMTS.equalsIgnoreCase(type)
+          || TYPE_WFS.equalsIgnoreCase(type);
+    }
+
     private Services() {
       // Utility class
     }
