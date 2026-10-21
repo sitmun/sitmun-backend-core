@@ -30,6 +30,7 @@ import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.task.TaskRepository;
@@ -56,6 +57,7 @@ class ProxyValidateUserAccessGateTest {
   @Mock private ApplicationRepository applicationRepository;
   @Mock private TerritoryRepository territoryRepository;
   @Mock private CartographyRepository cartographyRepository;
+  @Mock private RoleRepository roleRepository;
   @Mock private TaskRepository taskRepository;
   @Mock private SqlUserParametrizationDecorator sqlUserParametrizationDecorator;
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
@@ -77,7 +79,8 @@ class ProxyValidateUserAccessGateTest {
             cartographyRepository,
             mock(
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
-                    .class));
+                    .class),
+            roleRepository);
 
     TaskParameterProcessor taskParameterProcessor =
         new TaskParameterProcessor(systemVariableResolver);
@@ -165,6 +168,8 @@ class ProxyValidateUserAccessGateTest {
 
   private void stubWmsAccessFor(String username, User user) {
     when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory(username, APP_ID, TER_ID))
+        .thenReturn(List.of(mock(Role.class)));
     when(cartographyRepository.findByRolesAndTerritory(anyList(), eq(TER_ID)))
         .thenReturn(List.of(Cartography.builder().service(accessibleService).build()));
   }

@@ -25,6 +25,7 @@ import org.sitmun.authorization.proxy.validator.ServiceResourceAccessValidator;
 import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.task.TaskRepository;
@@ -52,6 +53,7 @@ class ProxyRbacBlockedUserTest {
   @Mock private ApplicationRepository applicationRepository;
   @Mock private TerritoryRepository territoryRepository;
   @Mock private CartographyRepository cartographyRepository;
+  @Mock private RoleRepository roleRepository;
   @Mock private TaskRepository taskRepository;
   @Mock private SqlUserParametrizationDecorator sqlUserParametrizationDecorator;
   @Mock private HttpUserParametrizationDecorator httpUserParametrizationDecorator;
@@ -74,7 +76,8 @@ class ProxyRbacBlockedUserTest {
             cartographyRepository,
             mock(
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
-                    .class));
+                    .class),
+            roleRepository);
 
     TaskParameterProcessor taskParameterProcessor =
         new TaskParameterProcessor(systemVariableResolver);
