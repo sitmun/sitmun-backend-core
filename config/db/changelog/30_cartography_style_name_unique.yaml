@@ -1,0 +1,45 @@
+databaseChangeLog:
+  # STM_STY_GI (SGI_GIID, SGI_NAME) only. Null SGI_GIID stays allowed.
+  - changeSet:
+      id: 30-cartography-style-name-uk-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM information_schema.table_constraints
+              WHERE UPPER(table_name) = 'STM_STY_GI'
+              AND UPPER(constraint_name) = 'STM_SGI_UK'
+      changes:
+        - addUniqueConstraint:
+            tableName: STM_STY_GI
+            columnNames: SGI_GIID, SGI_NAME
+            constraintName: STM_SGI_UK
+      rollback:
+        - dropUniqueConstraint:
+            tableName: STM_STY_GI
+            constraintName: STM_SGI_UK
+
+  - changeSet:
+      id: 30-cartography-style-name-uk-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM user_constraints
+              WHERE table_name = 'STM_STY_GI'
+              AND constraint_name = 'STM_SGI_UK'
+      changes:
+        - addUniqueConstraint:
+            tableName: STM_STY_GI
+            columnNames: SGI_GIID, SGI_NAME
+            constraintName: STM_SGI_UK
+      rollback:
+        - dropUniqueConstraint:
+            tableName: STM_STY_GI
+            constraintName: STM_SGI_UK

@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Cartography**: A cartography rejects a second style with the same name. Renaming a style updates only the tree nodes that stored the previous name. Saving or deleting a style with no cartography no longer fails. Liquibase `30_cartography_style_name_unique` adds unique `(SGI_GIID, SGI_NAME)` on PostgreSQL and Oracle ([#292](https://github.com/sitmun/sitmun-backend-core/issues/292)).
 - **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
 - **Cartography**: Create and save of a cartography style both report `defaultStyle` when another default already exists. Saving the style that is already the default still succeeds. The error field is `defaultStyle` on `CartographyStyle` ([#289](https://github.com/sitmun/sitmun-backend-core/issues/289)).
