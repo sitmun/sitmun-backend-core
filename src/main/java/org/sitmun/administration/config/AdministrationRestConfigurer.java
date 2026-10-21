@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
@@ -54,6 +55,15 @@ public class AdministrationRestConfigurer implements RepositoryRestConfigurer {
 
     Map<String, Validator> validators = beanFactory.getBeansOfType(Validator.class);
     for (Map.Entry<String, Validator> entry : validators.entrySet()) {
+      ValidatesRepositoryEvents declared =
+          AnnotationUtils.findAnnotation(
+              entry.getValue().getClass(), ValidatesRepositoryEvents.class);
+      if (declared != null) {
+        for (String event : declared.value()) {
+          validatingListener.addValidator(event, entry.getValue());
+        }
+        continue;
+      }
       EVENTS.stream()
           .filter(p -> entry.getKey().startsWith(p))
           .findFirst()
