@@ -26,51 +26,67 @@ class ClientConfigurationTerritoryApplicationsControllerTest {
   @Autowired private MockMvc mvc;
 
   @Test
-  @DisplayName("GET: Page with public user")
+  @DisplayName("GET: Page with public user in territory 2")
   void readPublicUser() throws Exception {
-    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1))
+    mvc.perform(get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 2))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(4)))
-        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(
+            jsonPath(
+                "$.content[*].title",
+                contains(
+                    "SITMUN - Externa",
+                    "SITMUN - Municipal",
+                    "SITMUN - Provincial",
+                    "SITMUN - Supramunicipal")));
   }
 
   @Test
-  @DisplayName("GET: Page with authenticated user")
+  @DisplayName("GET: Territory 2 omits the application granted only on territory 1")
   void readOtherUser() throws Exception {
     mvc.perform(
-            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 1).with(user("internal")))
+            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI, 2).with(user("internal")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content", hasSize(5)))
+        .andExpect(jsonPath("$.content", hasSize(4)))
         .andExpect(jsonPath("$.page.size", is(pageSize)))
         .andExpect(jsonPath("$.page.number", is(0)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
         .andExpect(jsonPath("$.page.totalPages", is(1)))
-        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
+        .andExpect(
+            jsonPath(
+                "$.content[*].title",
+                contains(
+                    "SITMUN - Externa",
+                    "SITMUN - Municipal",
+                    "SITMUN - Provincial",
+                    "SITMUN - Supramunicipal")));
   }
 
   @Test
   @DisplayName("GET: Get specific page")
   void readOtherUserWithPagination() throws Exception {
     mvc.perform(
-            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=1", 1)
+            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=1", 2)
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(1)))
         .andExpect(jsonPath("$.page.size", is(1)))
         .andExpect(jsonPath("$.page.number", is(1)))
-        .andExpect(jsonPath("$.page.totalPages", is(5)))
-        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Externa protegida")));
+        .andExpect(jsonPath("$.page.totalPages", is(4)))
+        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
   }
 
   @Test
   @DisplayName("GET: Request out of bounds")
   void readOtherUserWithPaginationOutOfBounds() throws Exception {
     mvc.perform(
-            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=5", 1)
+            get(URIConstants.CONFIG_CLIENT_TERRITORY_APPLICATIONS_URI + "?size=1&page=5", 2)
                 .with(user("internal")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty())
         .andExpect(jsonPath("$.page.size", is(1)))
         .andExpect(jsonPath("$.page.number", is(5)))
-        .andExpect(jsonPath("$.page.totalPages", is(5)));
+        .andExpect(jsonPath("$.page.totalPages", is(4)));
   }
 }

@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tests**: `SequenceMigrationTest` checks the `ATR_ID` generator on `STM_APP_TREE` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 - **Tests**: `UserResourceTest` stores a fixed bcrypt hash in setup. The password update still asserts the stored hash changes ([#321](https://github.com/sitmun/sitmun-backend-core/issues/321)).
 - **Tests**: `DashboardMetricsQueryTest` uses the suite database. Its connections do not autocommit, so the transactional slice removes its rows. The day bucket still checks year, month, and day, and its count rises by one. Per-application counts stay `1` or `0` on an `app-` plus UUID name, including the built-in public user ([#322](https://github.com/sitmun/sitmun-backend-core/issues/322)).
+- **Tests**: Application and territory seed filters assert a smaller result than the unfiltered list. `internal` on territory 2 omits `SITMUN - Externa protegida`. `internal` on application 5 returns only `Provincia A` ([#312](https://github.com/sitmun/sitmun-backend-core/issues/312)).
 
 ### Security
 

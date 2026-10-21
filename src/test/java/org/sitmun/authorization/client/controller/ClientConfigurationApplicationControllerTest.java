@@ -31,7 +31,15 @@ class ClientConfigurationApplicationControllerTest {
     mvc.perform(get(URIConstants.CONFIG_CLIENT_APPLICATION_URI))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content", hasSize(4)))
-        .andExpect(jsonPath("$.content[*].title", hasItem("SITMUN - Municipal")));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(
+            jsonPath(
+                "$.content[*].title",
+                contains(
+                    "SITMUN - Externa",
+                    "SITMUN - Municipal",
+                    "SITMUN - Provincial",
+                    "SITMUN - Supramunicipal")));
   }
 
   @Test
@@ -47,12 +55,12 @@ class ClientConfigurationApplicationControllerTest {
         .andExpect(
             jsonPath(
                 "$.content[*].title",
-                hasItems(
+                contains(
+                    "SITMUN - Externa",
+                    "SITMUN - Externa protegida",
                     "SITMUN - Municipal",
                     "SITMUN - Provincial",
-                    "SITMUN - Supramunicipal",
-                    "SITMUN - Externa",
-                    "SITMUN - Externa protegida")));
+                    "SITMUN - Supramunicipal")));
   }
 
   @Test
