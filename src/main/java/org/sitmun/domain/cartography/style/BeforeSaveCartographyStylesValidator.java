@@ -25,7 +25,7 @@ public class BeforeSaveCartographyStylesValidator implements Validator {
     if (Boolean.TRUE.equals(style.getDefaultStyle())
         && repository.countDefaultStylesButThis(style.getCartography(), style) > 0) {
       errors.rejectValue(
-          "styles",
+          "defaultStyle",
           "cartography.styles.invalid",
           "Already a default style exists for the cartography.");
     }

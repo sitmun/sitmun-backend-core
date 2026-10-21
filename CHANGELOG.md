@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
+- **Cartography**: Create and save of a cartography style both report `defaultStyle` when another default already exists. Saving the style that is already the default still succeeds. The error field is `defaultStyle` on `CartographyStyle` ([#289](https://github.com/sitmun/sitmun-backend-core/issues/289)).
 - **Services**: `service.type` keeps `WMS`, `WFS`, and `WMTS`. A stored service of another type stays in the database and is left out of the client profile, along with layers and tasks that use it ([sitmun-application-stack#101](https://github.com/sitmun/sitmun-application-stack/issues/101)).
 - **Cartography**: `GET /api/cartographies` with a large page size no longer 500s under Hibernate 7. The paged `findAll` EntityGraph no longer joins the `styles` bag (styles still load via `@BatchSize`).
 
