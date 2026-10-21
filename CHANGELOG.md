@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **I18n**: Concurrent template saves that introduce the same new literal keep one row. Liquibase `31_literal_translation_literal_unique` merges duplicate `LTR_LITERAL` values onto the lowest id, then rejects a second insert. H2 unique-constrains the column. PostgreSQL unique-indexes `md5(LTR_LITERAL)` and Oracle unique-indexes `STANDARD_HASH(LTR_LITERAL, 'SHA256')`, because a btree key cannot cover `VARCHAR(4000)`. The losing ensure reads the stored literal after the failed insert rolls back to a savepoint, so the task save can still commit ([#294](https://github.com/sitmun/sitmun-backend-core/issues/294)).
 - **Cartography**: A cartography rejects a second style with the same name. Renaming a style updates only the tree nodes that stored the previous name. Saving or deleting a style with no cartography no longer fails. Liquibase `30_cartography_style_name_unique` adds unique `(SGI_GIID, SGI_NAME)` on PostgreSQL and Oracle ([#292](https://github.com/sitmun/sitmun-backend-core/issues/292)).
 - **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).

@@ -1,0 +1,166 @@
+databaseChangeLog:
+  # LTR_LITERAL is VARCHAR(4000) / VARCHAR2(4000 CHAR). A btree unique key on the
+  # column exceeds Oracle's index key limit and PostgreSQL's ~2704-byte btree
+  # entry, so those dialects unique-index a hash. H2 unique-constrains the column.
+  # Dedupe keeps the lowest LTR_ID. Seed changelog 19 inserts each literal once;
+  # this pass is for databases that already stored two rows for one key.
+  # Conflicting translation values stay on the keeper. Other values move onto it.
+
+  - changeSet:
+      id: 31-literal-translation-literal-uk-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            indexExists:
+              tableName: STM_LITERAL_TRANSLATION
+              indexName: STM_LTR_LITERAL_UK
+      changes:
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION_VALUE
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                INNER JOIN STM_LITERAL_TRANSLATION_VALUE kv
+                  ON kv.LTV_LTRID = k.LTR_ID
+                 AND kv.LTV_LANID = STM_LITERAL_TRANSLATION_VALUE.LTV_LANID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              UPDATE STM_LITERAL_TRANSLATION_VALUE
+              SET LTV_LTRID = (
+                SELECT MIN(k.LTR_ID)
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION k
+                WHERE k.LTR_LITERAL = STM_LITERAL_TRANSLATION.LTR_LITERAL
+                  AND k.LTR_ID < STM_LITERAL_TRANSLATION.LTR_ID
+              )
+        - sql:
+            sql: ALTER TABLE STM_LITERAL_TRANSLATION ADD CONSTRAINT STM_LTR_LITERAL_UK UNIQUE (LTR_LITERAL)
+
+  - changeSet:
+      id: 31-literal-translation-literal-uk-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            indexExists:
+              tableName: STM_LITERAL_TRANSLATION
+              indexName: STM_LTR_LITERAL_UK
+      changes:
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION_VALUE
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                INNER JOIN STM_LITERAL_TRANSLATION_VALUE kv
+                  ON kv.LTV_LTRID = k.LTR_ID
+                 AND kv.LTV_LANID = STM_LITERAL_TRANSLATION_VALUE.LTV_LANID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              UPDATE STM_LITERAL_TRANSLATION_VALUE
+              SET LTV_LTRID = (
+                SELECT MIN(k.LTR_ID)
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION k
+                WHERE k.LTR_LITERAL = STM_LITERAL_TRANSLATION.LTR_LITERAL
+                  AND k.LTR_ID < STM_LITERAL_TRANSLATION.LTR_ID
+              )
+        - sql:
+            sql: CREATE UNIQUE INDEX STM_LTR_LITERAL_UK ON STM_LITERAL_TRANSLATION (md5(LTR_LITERAL))
+
+  - changeSet:
+      id: 31-literal-translation-literal-uk-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            indexExists:
+              tableName: STM_LITERAL_TRANSLATION
+              indexName: STM_LTR_LITERAL_UK
+      changes:
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION_VALUE
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                INNER JOIN STM_LITERAL_TRANSLATION_VALUE kv
+                  ON kv.LTV_LTRID = k.LTR_ID
+                 AND kv.LTV_LANID = STM_LITERAL_TRANSLATION_VALUE.LTV_LANID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              UPDATE STM_LITERAL_TRANSLATION_VALUE
+              SET LTV_LTRID = (
+                SELECT MIN(k.LTR_ID)
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION d
+                INNER JOIN STM_LITERAL_TRANSLATION k
+                  ON k.LTR_LITERAL = d.LTR_LITERAL AND k.LTR_ID < d.LTR_ID
+                WHERE d.LTR_ID = STM_LITERAL_TRANSLATION_VALUE.LTV_LTRID
+              )
+        - sql:
+            sql: |
+              DELETE FROM STM_LITERAL_TRANSLATION
+              WHERE EXISTS (
+                SELECT 1
+                FROM STM_LITERAL_TRANSLATION k
+                WHERE k.LTR_LITERAL = STM_LITERAL_TRANSLATION.LTR_LITERAL
+                  AND k.LTR_ID < STM_LITERAL_TRANSLATION.LTR_ID
+              )
+        - sql:
+            sql: CREATE UNIQUE INDEX STM_LTR_LITERAL_UK ON STM_LITERAL_TRANSLATION (STANDARD_HASH(LTR_LITERAL, 'SHA256'))
