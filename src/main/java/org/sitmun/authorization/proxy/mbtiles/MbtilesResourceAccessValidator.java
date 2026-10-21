@@ -12,13 +12,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.MobileEditionAccessService;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.authorization.client.service.ProfileContext;
 import org.sitmun.domain.application.Application;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.cartography.CartographyBlockPolicy;
 import org.sitmun.domain.service.Service;
+import org.sitmun.domain.service.ServiceBlockPolicy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,9 +36,13 @@ public class MbtilesResourceAccessValidator {
   }
 
   private final AuthorizationService authorizationService;
+  private final UserApplicationAccessPolicy userApplicationAccessPolicy;
 
-  public MbtilesResourceAccessValidator(AuthorizationService authorizationService) {
+  public MbtilesResourceAccessValidator(
+      AuthorizationService authorizationService,
+      UserApplicationAccessPolicy userApplicationAccessPolicy) {
     this.authorizationService = authorizationService;
+    this.userApplicationAccessPolicy = userApplicationAccessPolicy;
   }
 
   @Transactional(readOnly = true)
@@ -43,6 +50,9 @@ public class MbtilesResourceAccessValidator {
       MbtilesProxyRequestDto request, String username, long expirationTimeMillis) {
     if (!StringUtils.hasText(username) || isPublicPrincipal(username)) {
       return new Outcome.Denied("Public principal cannot access MBTiles configuration");
+    }
+    if (userApplicationAccessPolicy.isBlockedAccount(username)) {
+      return new Outcome.Denied("User account is blocked");
     }
     if (forMbtilesAction(request.action()) == null) {
       return new Outcome.Denied("Unsupported MBTiles action");
@@ -128,7 +138,8 @@ public class MbtilesResourceAccessValidator {
     List<CanonicalTileRequestDto.CanonicalMapServiceDto> mapServices = new ArrayList<>();
     for (MbtilesServiceRefDto ref : request.services()) {
       Service service = servicesById.get(ref.serviceId());
-      if (service == null || !StringUtils.hasText(service.getServiceURL())) {
+      if (!ServiceBlockPolicy.isAccessibleInClientProfile(service)
+          || !StringUtils.hasText(service.getServiceURL())) {
         throw new IllegalArgumentException("Unauthorized or unknown service reference");
       }
       if (service.getServiceURL().contains("..")) {
@@ -138,7 +149,7 @@ public class MbtilesResourceAccessValidator {
       Set<String> layerNames = new HashSet<>();
       for (Integer layerId : ref.layerIds()) {
         Cartography cartography = layersById.get(layerId);
-        if (cartography == null
+        if (!CartographyBlockPolicy.isNotDirectlyBlocked(cartography)
             || cartography.getService() == null
             || !Objects.equals(cartography.getService().getId(), service.getId())
             || cartography.getLayers() == null
