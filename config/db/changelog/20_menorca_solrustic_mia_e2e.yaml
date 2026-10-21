@@ -675,3 +675,11 @@ databaseChangeLog:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(TAR_ID), 0) + 1 FROM STM_TASKREL) WHERE SEQ_NAME = 'TAR_ID'
         - sql:
             sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(CON_ID), 0) + 1 FROM STM_CONNECT) WHERE SEQ_NAME = 'CON_ID'
+
+  # Application-tree id 120 is seeded above; keep ATR_ID ahead of it.
+  - changeSet:
+      id: 20_menorca_ccavalls_sync_atr_sequence
+      author: sitmun
+      changes:
+        - sql:
+            sql: UPDATE STM_SEQUENCE SET SEQ_COUNT = (SELECT COALESCE(MAX(ATR_ID), 0) + 1 FROM STM_APP_TREE) WHERE SEQ_NAME = 'ATR_ID'
