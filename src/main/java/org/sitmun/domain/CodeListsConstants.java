@@ -18,15 +18,12 @@ public final class CodeListsConstants {
       "cartographySpatialSelectionParameter.type";
   public static final String CARTOGRAPHY_PERMISSION_TYPE = "cartographyPermission.type";
   public static final String DATABASE_CONNECTION_DRIVER = "databaseConnection.driver";
-  public static final String DOCUMENT_EXPORT_ENGINE = "documentExport.engine";
-  public static final String DOCUMENT_EXPORT_OUTPUT = "documentExport.output";
   public static final String DOWNLOAD_TASK_SCOPE = "downloadTask.scope";
   public static final String SERVICE_NATIVE_PROTOCOL = "service.nativeProtocol";
   public static final String SERVICE_AUTHENTICATION_MODE = "service.authenticationMode";
   public static final String SERVICE_PARAMETER_TYPE = "serviceParameter.type";
   public static final String SERVICE_TYPE = "service.type";
   public static final String TERRITORY_SCOPE = "territory.scope";
-  public static final String QUERY_TASK_MIME_TYPE = "queryTask.mimeType";
   public static final String QUERY_TASK_SCOPE = "queryTask.scope";
   public static final String QUERY_TASK_PARAMETER_TYPE = "queryTask.parameterType";
   public static final String TASK_ENTITY_JSON_PARAM_TYPE = "taskEntity.jsonParamType";
