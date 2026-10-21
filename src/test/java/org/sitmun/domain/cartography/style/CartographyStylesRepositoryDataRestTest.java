@@ -58,6 +58,13 @@ class CartographyStylesRepositoryDataRestTest {
         "defaultStyle":true,
         "cartography":"http://localhost/api/cartographies/1"
         }""";
+    String duplicateDefault =
+        """
+        {
+        "name":"test-other",
+        "defaultStyle":true,
+        "cartography":"http://localhost/api/cartographies/1"
+        }""";
 
     String location1 =
         mvc.perform(post(URIConstants.CARTOGRAPHY_STYLES_URI).content(content))
@@ -69,7 +76,7 @@ class CartographyStylesRepositoryDataRestTest {
 
     assertNotNull(location1);
 
-    mvc.perform(post(URIConstants.CARTOGRAPHY_STYLES_URI).content(content))
+    mvc.perform(post(URIConstants.CARTOGRAPHY_STYLES_URI).content(duplicateDefault))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.errors[0].field").value("defaultStyle"))
         .andExpect(
