@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Proxy**: `POST /api/config/proxy` allows a task or service only when the caller holds a role of that application in the territory. The check uses the same link as the client profile ([#298](https://github.com/sitmun/sitmun-backend-core/issues/298)).
 - **Auth**: `POST /api/config/client/territory/position` keeps the stored `expirationDate` and `type`. The owner can still update name, organization, and email ([#296](https://github.com/sitmun/sitmun-backend-core/issues/296)).
 - **Auth**: `POST /api/password-reset/confirm` returns the same HTTP 400 and attempts-remaining body for an unknown email, a known email with no reset code, and a wrong code. The reset code is drawn from `SecureRandom`. Confirm allows 5 calls per address each 15 minutes, the same limit as request ([#291](https://github.com/sitmun/sitmun-backend-core/issues/291)).
 - **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
