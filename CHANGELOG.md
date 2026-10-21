@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Auth**: `POST /api/config/client/territory/position` keeps the stored `expirationDate` and `type`. The owner can still update name, organization, and email ([#296](https://github.com/sitmun/sitmun-backend-core/issues/296)).
 - **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
 - **Proxy**: `sitmun.proxy-middleware.validate-user-access` is removed. `POST /api/config/proxy` and template child execution always run the account, privacy, and resource checks ([#286](https://github.com/sitmun/sitmun-backend-core/issues/286)).
 - **Proxy**: `LIMIT` and `OFFSET` on `POST /api/config/proxy` must be non-negative integers. Any other value returns HTTP 400 before the SQL is built. The appended clause is `OFFSET n ROWS FETCH NEXT m ROWS ONLY`. PostgreSQL has accepted it since 8.4. Oracle has accepted it since 12.1 ([#284](https://github.com/sitmun/sitmun-backend-core/issues/284)).
