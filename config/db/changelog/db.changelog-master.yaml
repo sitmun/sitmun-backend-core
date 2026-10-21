@@ -98,3 +98,6 @@ databaseChangeLog:
   - include:
       file: 30_cartography_style_name_unique.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 31_literal_translation_literal_unique.yaml
+      relativeToChangelogFile: true
