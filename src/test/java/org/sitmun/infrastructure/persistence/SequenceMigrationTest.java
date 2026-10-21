@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.nio.file.Path;
@@ -26,6 +27,7 @@ class SequenceMigrationTest {
   private static final List<Generator> GENERATORS =
       List.of(
           new Generator("ABC_ID", "STM_APP_BCKG", "ABC_ID"),
+          new Generator("ATR_ID", "STM_APP_TREE", "ATR_ID"),
           new Generator("AGI_ID", "STM_AVAIL_GI", "AGI_ID"),
           new Generator("APP_ID", "STM_APP", "APP_ID"),
           new Generator("ATE_ID", "STM_APP_TER", "ATE_ID"),
@@ -65,6 +67,10 @@ class SequenceMigrationTest {
 
   @Test
   void productionChangelogInitializesEveryTableGeneratorAboveSeededIds() throws Exception {
+    assertThat(GENERATORS)
+        .extracting(Generator::sequenceName, Generator::tableName, Generator::idColumn)
+        .contains(tuple("ATR_ID", "STM_APP_TREE", "ATR_ID"));
+
     var dataSource = createDataSource();
 
     applyLiquibase(dataSource);
