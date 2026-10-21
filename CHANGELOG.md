@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 - **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
+- **Tests**: `UserResourceTest` stores a fixed bcrypt hash in setup. The password update still asserts the stored hash changes ([#321](https://github.com/sitmun/sitmun-backend-core/issues/321)).
 
 ### Security
 

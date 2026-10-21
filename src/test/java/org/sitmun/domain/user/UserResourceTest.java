@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -42,7 +41,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("User Resource Test")
 class UserResourceTest {
 
-  private static final String USER_PASSWORD = "admin";
+  /** BCrypt ({@code $2a$}, cost 10) of {@code admin}. */
+  private static final String USER_PASSWORD_HASH =
+      "$2a$10$hJNDCDoNWPAaTJT.gDDwJeyA.0ceHSFR9TRwJU54iByWk8yDE7vDW";
+
   private static final String USER_FIRSTNAME = "Admin";
   private static final String USER_CHANGEDFIRSTNAME = "Administrator";
   private static final String USER_LASTNAME = "Admin";
@@ -53,7 +55,6 @@ class UserResourceTest {
   @Autowired UserConfigurationRepository userConfigurationRepository;
   @Autowired RoleRepository roleRepository;
   @Autowired TerritoryRepository territoryRepository;
-  @Autowired PasswordEncoder passwordEncoder;
   @Autowired private MockMvc mockMvc;
   private User organizacionAdmin;
 
@@ -74,7 +75,6 @@ class UserResourceTest {
     territory1AdminUsername = "territory1-admin-" + suffix;
     territory1UserUsername = "territory1-user-" + suffix;
     territory2UserUsername = "territory2-user-" + suffix;
-    String encodedPassword = passwordEncoder.encode(USER_PASSWORD);
 
     organizacionAdminRole = Role.builder().name("ADMIN_ORGANIZACION-" + suffix).build();
     roleRepository.save(organizacionAdminRole);
@@ -108,7 +108,7 @@ class UserResourceTest {
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(encodedPassword)
+            .password(USER_PASSWORD_HASH)
             .username(territory1AdminUsername)
             .build();
 
@@ -121,7 +121,7 @@ class UserResourceTest {
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(encodedPassword)
+            .password(USER_PASSWORD_HASH)
             .username(territory1UserUsername)
             .build();
 
@@ -134,7 +134,7 @@ class UserResourceTest {
             .blocked(USER_BLOCKED)
             .firstName(USER_FIRSTNAME)
             .lastName(USER_LASTNAME)
-            .password(encodedPassword)
+            .password(USER_PASSWORD_HASH)
             .username(territory2UserUsername)
             .build();
     territory2User = userRepository.save(territory2User);
