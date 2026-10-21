@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 - **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
+- **API**: Public types `LanguageDTO` and `TerritoryDtoLittle` are removed. Unread `CodeListsConstants` names `DOCUMENT_EXPORT_ENGINE`, `DOCUMENT_EXPORT_OUTPUT`, and `QUERY_TASK_MIME_TYPE` are removed. `GET /api/languages` still returns `Language`. The code lists `documentExport.engine`, `documentExport.output`, and `queryTask.mimeType` stay ([#300](https://github.com/sitmun/sitmun-backend-core/issues/300)).
 
 ### Security
 
