@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Trees**: `PUT /api/trees/{id}` applies the touristic application-link rule to the tree's current links, so a type change to `touristic` is rejected when the tree is linked to several applications or to a non-touristic application ([#288](https://github.com/sitmun/sitmun-backend-core/issues/288)).
 - **Cartography**: A cartography rejects a second style with the same name. Renaming a style updates only the tree nodes that stored the previous name. Saving or deleting a style with no cartography no longer fails. Liquibase `30_cartography_style_name_unique` adds unique `(SGI_GIID, SGI_NAME)` on PostgreSQL and Oracle ([#292](https://github.com/sitmun/sitmun-backend-core/issues/292)).
 - **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).

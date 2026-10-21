@@ -56,6 +56,9 @@ public class TreeEventHandler {
               priorType ->
                   TreeRadioTypePolicy.validateRadioFoldersBeforeLeavingCartography(
                       priorType, tree.getType(), tree.getId(), treeNodeRepository));
+      List<Application> apps =
+          tree.getAvailableApplications().stream().map(ApplicationTree::getApplication).toList();
+      TreeApplicationLinkPolicy.validateTreeApplications(tree, apps);
     } finally {
       entityManager.setFlushMode(previousFlushMode);
     }
