@@ -120,8 +120,9 @@ public class ImageTransformer {
 
   private BufferedImage scaleImageFromBase64(String base64String, int width, int height) {
     byte[] imageBytes = Base64.getDecoder().decode(base64String);
-    try (InputStream is = new ByteArrayInputStream(imageBytes)) {
-      BufferedImage originalImage = ImageIO.read(is);
+    try (InputStream is = new ByteArrayInputStream(imageBytes);
+        ImageInputStream imageInputStream = ImageIO.createImageInputStream(is)) {
+      BufferedImage originalImage = readSubsampled(imageInputStream, width, height);
       if (originalImage == null) {
         log.error("Failed to read image from decoded Base64");
         throw new IllegalImageException("Image file not valid");
