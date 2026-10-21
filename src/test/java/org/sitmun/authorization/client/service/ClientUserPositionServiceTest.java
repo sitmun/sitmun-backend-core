@@ -33,6 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 class ClientUserPositionServiceTest {
 
   private static final String USERNAME = "alice";
+  private static final Date ADMINISTRATOR_EXPIRATION = new Date(0L);
 
   @Mock private UserApplicationAccessPolicy userApplicationAccessPolicy;
   @Mock private UserPositionRepository userPositionRepository;
@@ -58,6 +59,7 @@ class ClientUserPositionServiceTest {
             .name("Old name")
             .organization("Old org")
             .email("old@example.com")
+            .expirationDate(ADMINISTRATOR_EXPIRATION)
             .type("ADMIN")
             .user(owner)
             .territory(territory)
@@ -69,7 +71,7 @@ class ClientUserPositionServiceTest {
             .name("New name")
             .organization("New org")
             .email("new@example.com")
-            .expirationDate(new Date())
+            .expirationDate(new Date(System.currentTimeMillis() + 86_400_000L))
             .type("USER")
             .userId(99)
             .territoryId(99)
@@ -129,8 +131,8 @@ class ClientUserPositionServiceTest {
   }
 
   @Test
-  @DisplayName("persists only mutable fields for owner")
-  void updateOwnedPositionPersistsOnlyMutableFields() {
+  @DisplayName("updates contact fields and keeps administrator expiration and type")
+  void updateOwnedPositionKeepsAdministratorExpirationAndType() {
     when(userApplicationAccessPolicy.mayUseClientConfigEndpoints(USERNAME)).thenReturn(true);
     when(userPositionRepository.findById(1)).thenReturn(Optional.of(position));
     when(userPositionRepository.save(any(UserPosition.class)))
@@ -160,10 +162,29 @@ class ClientUserPositionServiceTest {
     assertThat(saved.getName()).isEqualTo("New name");
     assertThat(saved.getOrganization()).isEqualTo("New org");
     assertThat(saved.getEmail()).isEqualTo("new@example.com");
-    assertThat(saved.getExpirationDate()).isEqualTo(requestDto.getExpirationDate());
-    assertThat(saved.getType()).isEqualTo("USER");
+    assertThat(saved.getExpirationDate()).isEqualTo(ADMINISTRATOR_EXPIRATION);
+    assertThat(saved.getType()).isEqualTo("ADMIN");
     assertThat(saved.getUser().getId()).isEqualTo(10);
     assertThat(saved.getTerritory().getId()).isEqualTo(20);
+    assertThat(result.getExpirationDate()).isEqualTo(ADMINISTRATOR_EXPIRATION);
+    assertThat(result.getType()).isEqualTo("ADMIN");
     assertThat(result.getName()).isEqualTo("New name");
+  }
+
+  @Test
+  @DisplayName("keeps a past expiration when the owner sends null")
+  void updateOwnedPositionKeepsExpirationWhenOwnerSendsNull() {
+    requestDto.setExpirationDate(null);
+    when(userApplicationAccessPolicy.mayUseClientConfigEndpoints(USERNAME)).thenReturn(true);
+    when(userPositionRepository.findById(1)).thenReturn(Optional.of(position));
+    when(userPositionRepository.save(any(UserPosition.class)))
+        .thenAnswer(inv -> inv.getArgument(0));
+
+    clientUserPositionService.updateOwnedPosition(USERNAME, requestDto);
+
+    ArgumentCaptor<UserPosition> captor = ArgumentCaptor.forClass(UserPosition.class);
+    verify(userPositionRepository).save(captor.capture());
+    assertThat(captor.getValue().getExpirationDate()).isEqualTo(ADMINISTRATOR_EXPIRATION);
+    assertThat(captor.getValue().getType()).isEqualTo("ADMIN");
   }
 }

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.sun.net.httpserver.HttpServer;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -58,6 +59,44 @@ class ImageTransformerTest {
     BufferedImage image = ImageIO.read(new ByteArrayInputStream(payload));
     assertThat(image.getWidth()).isEqualTo(125);
     assertThat(image.getHeight()).isEqualTo(125);
+  }
+
+  @Test
+  @DisplayName("Large PNG data URI is subsampled to the type size")
+  void largePngDataUriIsSubsampledBeforeScale() throws Exception {
+    int target = 125;
+    int factor = 8;
+    int source = target * factor;
+    int sample = 0xFF0000;
+    int other = 0x0000FF;
+    BufferedImage raw = new BufferedImage(source, source, BufferedImage.TYPE_INT_RGB);
+    for (int y = 0; y < source; y++) {
+      for (int x = 0; x < source; x++) {
+        boolean onGrid = x % factor == 0 && y % factor == 0;
+        raw.setRGB(x, y, onGrid ? sample : other);
+      }
+    }
+    ByteArrayOutputStream encoded = new ByteArrayOutputStream();
+    ImageIO.write(raw, "png", encoded);
+    String dataUri =
+        "data:image/png;base64," + Base64.getEncoder().encodeToString(encoded.toByteArray());
+
+    String stored = transformer.scaleImage(dataUri, "");
+
+    assertThat(stored).startsWith("data:image/png;base64,");
+    byte[] payload = Base64.getDecoder().decode(ImageDataUri.parse(stored).getData());
+    BufferedImage image = ImageIO.read(new ByteArrayInputStream(payload));
+    assertThat(image.getWidth()).isEqualTo(target);
+    assertThat(image.getHeight()).isEqualTo(target);
+    int blended = 0;
+    for (int y = 0; y < target; y++) {
+      for (int x = 0; x < target; x++) {
+        if ((image.getRGB(x, y) & 0xFFFFFF) != sample) {
+          blended++;
+        }
+      }
+    }
+    assertThat(blended).isZero();
   }
 
   @Test

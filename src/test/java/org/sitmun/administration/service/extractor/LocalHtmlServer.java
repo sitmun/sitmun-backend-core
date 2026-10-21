@@ -16,6 +16,25 @@ public final class LocalHtmlServer implements AutoCloseable {
               + "<ows:Exception exceptionCode=\"MissingParameterValue\" locator=\"request\"/>"
               + "</ows:ExceptionReport>")
           .getBytes(StandardCharsets.UTF_8);
+  private static final byte[] WMS_130 =
+      ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+              + "<WMS_Capabilities version=\"1.3.0\">"
+              + "<Service><Title>local</Title></Service>"
+              + "</WMS_Capabilities>")
+          .getBytes(StandardCharsets.UTF_8);
+  private static final byte[] WMS_111 =
+      ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+              + "<WMT_MS_Capabilities version=\"1.1.1\">"
+              + "<Service><Title>local</Title></Service>"
+              + "</WMT_MS_Capabilities>")
+          .getBytes(StandardCharsets.UTF_8);
+  private static final byte[] GML_SCHEMA =
+      ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+              + "<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\""
+              + " xmlns:gml=\"http://www.opengis.net/gml/3.2\">"
+              + "<xsd:element name=\"RED_REGENTE\"/>"
+              + "</xsd:schema>")
+          .getBytes(StandardCharsets.UTF_8);
 
   private final HttpServer server;
 
@@ -38,6 +57,15 @@ public final class LocalHtmlServer implements AutoCloseable {
           } else if ("/wfs-exception".equals(path)) {
             body = WFS_EXCEPTION;
             status = 400;
+            contentType = "application/xml; charset=UTF-8";
+          } else if ("/wms-130".equals(path)) {
+            body = WMS_130;
+            contentType = "application/xml; charset=UTF-8";
+          } else if ("/wms-111".equals(path)) {
+            body = WMS_111;
+            contentType = "application/xml; charset=UTF-8";
+          } else if ("/gml-schema".equals(path)) {
+            body = GML_SCHEMA;
             contentType = "application/xml; charset=UTF-8";
           }
           exchange.getResponseHeaders().set("Content-Type", contentType);

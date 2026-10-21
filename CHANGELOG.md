@@ -21,10 +21,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Proxy**: `INFO` parameters are sent only on GetFeatureInfo. `GETMAP` parameters are sent only on GetMap. `WMS` and `WFS` parameters stay on every operation of that protocol. `WMTS` parameters stay on the service profile and are not sent upstream, so a `format` row on a WMS service no longer replaces the client `FORMAT`. `OLPARAM` parameters are not sent upstream. A parameter code must be allowed for the service protocol; changing the protocol is rejected while a stored row is outside that set. Liquibase `27_parameter_operation_scope` adds `GETMAP` and `WFS` to `serviceParameter.type`, and `GETMAP` and `INFO` to `cartographyServiceParameter.type`. Stored rows are not rewritten.
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
+- **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
 
 ### Security
 
 - **Proxy**: `POST /api/config/proxy` allows a task or service only when the caller holds a role of that application in the territory. The check uses the same link as the client profile ([#298](https://github.com/sitmun/sitmun-backend-core/issues/298)).
+- **Auth**: `POST /api/config/client/territory/position` keeps the stored `expirationDate` and `type`. The owner can still update name, organization, and email ([#296](https://github.com/sitmun/sitmun-backend-core/issues/296)).
 - **Auth**: `POST /api/password-reset/confirm` returns the same HTTP 400 and attempts-remaining body for an unknown email, a known email with no reset code, and a wrong code. The reset code is drawn from `SecureRandom`. Confirm allows 5 calls per address each 15 minutes, the same limit as request ([#291](https://github.com/sitmun/sitmun-backend-core/issues/291)).
 - **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
 - **Proxy**: `sitmun.proxy-middleware.validate-user-access` is removed. `POST /api/config/proxy` and template child execution always run the account, privacy, and resource checks ([#286](https://github.com/sitmun/sitmun-backend-core/issues/286)).
@@ -33,13 +35,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
+- **Cartography**: Create and save of a cartography style both report `defaultStyle` when another default already exists. Saving the style that is already the default still succeeds. The error field is `defaultStyle` on `CartographyStyle` ([#289](https://github.com/sitmun/sitmun-backend-core/issues/289)).
 - **Services**: `service.type` keeps `WMS`, `WFS`, and `WMTS`. A stored service of another type stays in the database and is left out of the client profile, along with layers and tasks that use it ([sitmun-application-stack#101](https://github.com/sitmun/sitmun-application-stack/issues/101)).
 - **Cartography**: `GET /api/cartographies` with a large page size no longer 500s under Hibernate 7. The paged `findAll` EntityGraph no longer joins the `styles` bag (styles still load via `@BatchSize`).
 
 - **Profile**: `featureInfoFields` publishes `maxWidth` and `maxHeight` from `PGI_OPTIONS` for an Image field.
 - **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.
 - **Service checks**: Service-check ingest returns HTTP 400 when `requestContext` or `exchangeSignals` is missing.
+- **Images**: A PNG data URI is source-subsampled to the configured size before scaling, matching URL images, so a large bitmap is not decoded at full size. SVG data URIs stay `image/svg+xml` ([#309](https://github.com/sitmun/sitmun-backend-core/issues/309)).
 - **Config**: `ConfigurationParameter` equality follows its id. Two rows with the same id compare equal and share a hash code, including in a `HashSet`. A configuration parameter is not equal to an application parameter with the same id ([#295](https://github.com/sitmun/sitmun-backend-core/issues/295)).
 
 ## [1.2.9] - 2026-09-19
