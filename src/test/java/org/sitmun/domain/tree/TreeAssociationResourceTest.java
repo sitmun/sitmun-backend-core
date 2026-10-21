@@ -1,7 +1,10 @@
 package org.sitmun.domain.tree;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.sitmun.test.URIConstants.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
@@ -98,6 +101,10 @@ class TreeAssociationResourceTest {
     String content = USER_ITEM_URI.replace("{0}", owner.getId().toString());
     mvc.perform(put(TREE_URI_OWNER, tree.getId()).content(content).contentType("text/uri-list"))
         .andExpect(status().isNoContent());
+
+    mvc.perform(get(TREE_URI_OWNER, tree.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username").value("tree-assoc-owner"));
   }
 
   @Test
@@ -110,5 +117,9 @@ class TreeAssociationResourceTest {
                 .content(content)
                 .contentType("text/uri-list"))
         .andExpect(status().isNoContent());
+
+    mvc.perform(get(TREE_URI_AVAILABLE_ROLES, tree.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.roles[*].name", hasItem("tree-assoc-role")));
   }
 }

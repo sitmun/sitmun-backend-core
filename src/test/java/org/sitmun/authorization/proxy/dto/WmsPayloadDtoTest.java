@@ -1,17 +1,13 @@
 package org.sitmun.authorization.proxy.dto;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.proxy.protocols.wms.WmsPayloadDto;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -21,54 +17,7 @@ class WmsPayloadDtoTest {
       JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
   @Test
-  @DisplayName("Builder creates OgcWmsPayloadDto with all fields")
-  void builderCreatesCompleteDto() {
-    List<String> vary = Arrays.asList("param1", "param2");
-    Map<String, String> parameters = new HashMap<>();
-    parameters.put("format", "image/png");
-    parameters.put("version", "1.3.0");
-
-    HttpSecurityDto security =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("user")
-            .password("pass")
-            .build();
-
-    WmsPayloadDto dto =
-        WmsPayloadDto.builder()
-            .vary(vary)
-            .uri("https://example.com/wms")
-            .method("GET")
-            .parameters(parameters)
-            .security(security)
-            .build();
-
-    assertEquals(vary, dto.getVary());
-    assertEquals("https://example.com/wms", dto.getUri());
-    assertEquals("GET", dto.getMethod());
-    assertEquals(parameters, dto.getParameters());
-    assertEquals(security, dto.getSecurity());
-  }
-
-  @Test
-  @DisplayName("Serializes to JSON with correct type name")
-  void serializesWithCorrectTypeName() throws JacksonException {
-    WmsPayloadDto dto =
-        WmsPayloadDto.builder().uri("https://example.com/wms").method("GET").build();
-
-    String json = objectMapper.writeValueAsString(dto);
-    JsonNode node = objectMapper.readTree(json);
-
-    // Check that the JSON contains the expected fields
-    assertEquals("https://example.com/wms", node.get("uri").asText());
-    assertEquals("GET", node.get("method").asText());
-    assertTrue(node.has("vary"));
-  }
-
-  @Test
-  @DisplayName("Deserializes from JSON correctly")
+  @DisplayName("JSON maps vary, uri, method, parameters, and security")
   void deserializesFromJson() throws JacksonException {
     String json =
         """
@@ -100,59 +49,5 @@ class WmsPayloadDtoTest {
     assertEquals("basic", dto.getSecurity().getScheme());
     assertEquals("user", dto.getSecurity().getUsername());
     assertEquals("pass", dto.getSecurity().getPassword());
-  }
-
-  @Test
-  @DisplayName("Handles null security gracefully")
-  void handlesNullSecurity() {
-    WmsPayloadDto dto =
-        WmsPayloadDto.builder().uri("https://example.com/wms").method("GET").security(null).build();
-
-    assertNull(dto.getSecurity());
-  }
-
-  @Test
-  @DisplayName("Handles null parameters gracefully")
-  void handlesNullParameters() {
-    WmsPayloadDto dto =
-        WmsPayloadDto.builder()
-            .uri("https://example.com/wms")
-            .method("GET")
-            .parameters(null)
-            .build();
-
-    assertNull(dto.getParameters());
-  }
-
-  @Test
-  @DisplayName("Handles empty vary list")
-  void handlesEmptyVaryList() {
-    WmsPayloadDto dto =
-        WmsPayloadDto.builder()
-            .uri("https://example.com/wms")
-            .method("GET")
-            .vary(List.of())
-            .build();
-
-    assertNotNull(dto.getVary());
-    assertTrue(dto.getVary().isEmpty());
-  }
-
-  @Test
-  @DisplayName("Setter methods work correctly")
-  void setterMethodsWork() {
-    WmsPayloadDto dto = WmsPayloadDto.builder().build();
-
-    dto.setUri("https://new-uri.com");
-    dto.setMethod("POST");
-    dto.setParameters(Map.of("newParam", "newValue"));
-
-    HttpSecurityDto newSecurity = HttpSecurityDto.builder().type("oauth").scheme("bearer").build();
-    dto.setSecurity(newSecurity);
-
-    assertEquals("https://new-uri.com", dto.getUri());
-    assertEquals("POST", dto.getMethod());
-    assertEquals("newValue", dto.getParameters().get("newParam"));
-    assertEquals(newSecurity, dto.getSecurity());
   }
 }

@@ -20,7 +20,7 @@ class DefaultLanguageChangeDtoTest {
   @Autowired private JacksonTester<MissingTranslationDto> missingTester;
 
   @Test
-  void shouldSerializeAndDeserializeRequest() throws Exception {
+  void serializesAndDeserializesRequest() throws Exception {
     var request = new DefaultLanguageChangeRequest("en", "ca", false);
 
     var json = requestTester.write(request);
@@ -37,7 +37,7 @@ class DefaultLanguageChangeDtoTest {
   }
 
   @Test
-  void shouldSerializeAndDeserializePreview() throws Exception {
+  void serializesAndDeserializesPreview() throws Exception {
     var missing =
         List.of(
             new MissingTranslationDto("Application", 1, "Application.name", "Test App"),
@@ -65,7 +65,7 @@ class DefaultLanguageChangeDtoTest {
   }
 
   @Test
-  void shouldSerializeAndDeserializeResult() throws Exception {
+  void serializesAndDeserializesResult() throws Exception {
     var preserved =
         List.of(new MissingTranslationDto("Service", 5, "Service.description", "WMS Service"));
 
@@ -89,7 +89,7 @@ class DefaultLanguageChangeDtoTest {
   }
 
   @Test
-  void shouldSerializeAndDeserializeMissingTranslation() throws Exception {
+  void serializesAndDeserializesMissingTranslation() throws Exception {
     var missing = new MissingTranslationDto("Territory", 10, "Territory.name", "Catalonia");
 
     var json = missingTester.write(missing);

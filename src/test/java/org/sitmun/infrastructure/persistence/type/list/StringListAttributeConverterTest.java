@@ -51,18 +51,8 @@ class StringListAttributeConverterTest {
     assertEquals("one,two", converter.convertToDatabaseColumn(Arrays.asList("one", "two")));
   }
 
-  /**
-   * Lists with more than one element converted to strings where elements are joined with commas.
-   */
   @Test
-  @DisplayName("Convert multiple values from database column")
-  void convertNullFromDatabaseColumn() {
-    assertEquals("one,two", converter.convertToDatabaseColumn(Arrays.asList("one", "two")));
-  }
-
-  /** <code>null</code> values in lists are converted to the <code>null</code> literal. */
-  @Test
-  @DisplayName("Convert multiple values from database column (with nulls and whitespace)")
+  @DisplayName("Null and surrounding spaces become the literal null in the column")
   void convertMultipleValuesFromDatabaseColumnWithNullsAndWhitespace() {
     assertEquals(
         "one,null,two", converter.convertToDatabaseColumn(Arrays.asList(" one ", null, " two ")));
@@ -77,7 +67,7 @@ class StringListAttributeConverterTest {
 
   /** Null strings are converted to null values. */
   @Test
-  @DisplayName("Convert single value from database column")
+  @DisplayName("A null column becomes null")
   void convertSingleValueFromDatabaseColumn() {
     assertNull(converter.convertToEntityAttribute(null));
   }

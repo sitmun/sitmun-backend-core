@@ -363,7 +363,7 @@ class UserResourceTest {
   }
 
   @Test
-  @DisplayName("POST: User update")
+  @DisplayName("PUT updates first and last name and leaves passwordSet true")
   @WithMockUser(roles = "ADMIN")
   void updateUser() throws Exception {
     String content =

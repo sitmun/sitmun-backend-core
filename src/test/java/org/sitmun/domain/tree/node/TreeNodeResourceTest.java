@@ -2,7 +2,6 @@ package org.sitmun.domain.tree.node;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sitmun.test.URIConstants.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.cartography.Cartography;
@@ -28,7 +26,6 @@ import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
-import org.sitmun.test.Fixtures;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -122,23 +119,6 @@ class TreeNodeResourceTest {
     nodes.add(treeNode2);
 
     treeNodeRepository.saveAll(nodes);
-  }
-
-  @DisplayName("POST: Tree nodes cannot be created with non existent styles")
-  @Disabled("Requires additional test data")
-  @Test
-  void nodesCantBeCreatedWithNonExistentStyles() throws Exception {
-    TreeNode node = nodes.get(0);
-    JSONObject json = new JSONObject();
-    json.put("name", node.getName());
-    json.put("tree", "/" + node.getTree().getId());
-    json.put("cartography", "/" + cartography.getId());
-    json.put("style", "Style D");
-    mvc.perform(post(TREE_NODES_URI).content(json.toString()).with(user(Fixtures.admin())))
-        .andExpect(status().isBadRequest())
-        .andExpect(
-            jsonPath("$.message")
-                .value("Tree node style not found in the tree node cartography's styles"));
   }
 
   @Test

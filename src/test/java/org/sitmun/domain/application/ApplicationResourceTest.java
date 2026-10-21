@@ -47,6 +47,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Data REST association PUTs need committed fixtures visible outside the test method transaction.
@@ -383,12 +384,20 @@ class ApplicationResourceTest {
   @DisplayName("PUT: situationMap association succeeds when application has trees")
   @WithMockUser(roles = "ADMIN")
   void putSituationMapAssociationWhenApplicationHasTrees() throws Exception {
+    Application stored = applicationRepository.findById(publicApplicationId).orElseThrow();
+    stored.setSituationMap(null);
+    applicationRepository.save(stored);
+
     String content = CARTOGRAPHY_PERMISSION_URI.replace("{0}", publicSituationMapId.toString());
     mvc.perform(
             put(APPLICATION_URI_SITUATION_MAP, publicApplicationId)
                 .content(content)
                 .contentType("text/uri-list"))
         .andExpect(status().isNoContent());
+
+    mvc.perform(get(APPLICATION_URI_SITUATION_MAP, publicApplicationId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(publicSituationMapId));
   }
 
   @Test
@@ -401,18 +410,31 @@ class ApplicationResourceTest {
                 .content(content)
                 .contentType("text/uri-list"))
         .andExpect(status().isNoContent());
+
+    mvc.perform(get(APPLICATION_URI_CREATOR, publicApplicationId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username").value(eligibleCreator.getUsername()));
   }
 
   @Test
+  @Transactional
   @DisplayName("PUT: availableRoles association succeeds when application has trees")
   @WithMockUser(roles = "ADMIN")
   void putAvailableRolesAssociationWhenApplicationHasTrees() throws Exception {
+    Application stored = applicationRepository.findById(publicApplicationId).orElseThrow();
+    stored.getAvailableRoles().clear();
+    applicationRepository.save(stored);
+
     String content = ROLE_URI.replace("{0}", publicRoleId.toString());
     mvc.perform(
             put(APPLICATION_URI_AVAILABLE_ROLES, publicApplicationId)
                 .content(content)
                 .contentType("text/uri-list"))
         .andExpect(status().isNoContent());
+
+    mvc.perform(get(APPLICATION_URI_AVAILABLE_ROLES, publicApplicationId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.roles[*].name", hasItems(publicRole.getName())));
   }
 
   @Test

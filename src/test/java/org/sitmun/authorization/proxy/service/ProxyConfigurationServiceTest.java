@@ -1931,8 +1931,7 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName(
-      "getConfiguration normalizes non-String parameter values (expected to fail before fix)")
+  @DisplayName("getConfiguration stores integer and double parameter values as strings")
   void getConfigurationNormalizesNonStringParameterValues() {
     // Given
     Map<String, Object> param1 = new HashMap<>();
@@ -1976,8 +1975,7 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName(
-      "getConfiguration handles duplicate parameter labels with last-wins strategy (expected to fail before fix)")
+  @DisplayName("Duplicate parameter labels keep the last value")
   void getConfigurationHandlesDuplicateParameterLabels() {
     // Given
     Map<String, Object> param1 = new HashMap<>();

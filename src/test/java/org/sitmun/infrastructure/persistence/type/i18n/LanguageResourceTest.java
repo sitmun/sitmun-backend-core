@@ -148,8 +148,8 @@ class LanguageResourceTest {
   @Test
   @Transactional
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("PATCH disable non-default language succeeds")
-  void patchDisableNonDefaultLanguageSucceeds() throws Exception {
+  @DisplayName("PATCH of a non-default language stores enabled false")
+  void patchDisablesNonDefaultLanguage() throws Exception {
     mvc.perform(
             patch(URIConstants.LANGUAGES_URI + "/2")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -161,12 +161,13 @@ class LanguageResourceTest {
   @Test
   @Transactional
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("PATCH disable current default language fails")
-  void patchDisableDefaultLanguageFails() throws Exception {
+  @DisplayName("PATCH cannot disable the database default language")
+  void patchCannotDisableDatabaseDefaultLanguage() throws Exception {
     mvc.perform(
             patch(URIConstants.LANGUAGES_URI + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"enabled\": false}"))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Cannot disable the database default language"));
   }
 }

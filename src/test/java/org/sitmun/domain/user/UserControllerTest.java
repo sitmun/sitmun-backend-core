@@ -94,7 +94,7 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Read user account without token should fail")
+  @DisplayName("GET account without a token returns 401")
   void readAccountWithoutToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI))
         .andExpect(status().isUnauthorized())
@@ -104,7 +104,7 @@ class UserControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Read user account with expired token should fail")
+  @DisplayName("GET account with an expired token returns 401")
   void readAccountWithExpiredToken() throws Exception {
     mvc.perform(get(URIConstants.ACCOUNT_URI).cookie(new Cookie(ACCESS_TOKEN, expiredToken)))
         .andExpect(status().isUnauthorized());
@@ -174,7 +174,8 @@ class UserControllerTest {
   void getAccountByIdAsAdminReturnsOk() throws Exception {
     String adminToken = tokenProvider.generateToken("admin", new Date());
     mvc.perform(get("/api/account/" + user.getId()).cookie(new Cookie(ACCESS_TOKEN, adminToken)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username", equalTo(username)));
   }
 
   @Test
@@ -208,15 +209,17 @@ class UserControllerTest {
         """
             .formatted(username);
 
+    String previousPassword = user.getPassword();
     mvc.perform(
             post(URIConstants.ACCOUNT_URI)
                 .cookie(new Cookie(ACCESS_TOKEN, validToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Password cannot be empty"));
 
     Optional<User> unchangedUser = userRepository.findById(user.getId());
     assertTrue(unchangedUser.isPresent());
-    assertNotNull(unchangedUser.get().getPassword());
+    assertEquals(previousPassword, unchangedUser.get().getPassword());
   }
 }

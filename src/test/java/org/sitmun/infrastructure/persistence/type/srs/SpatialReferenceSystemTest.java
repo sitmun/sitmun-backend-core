@@ -34,23 +34,21 @@ class SpatialReferenceSystemTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Single projection pass")
+  @DisplayName("POST stores a single EPSG code")
   @WithMockUser(roles = "ADMIN")
-  void singleProjectionPass() throws Exception {
+  void postStoresASingleEpsgCode() throws Exception {
     mvc.perform(
             post(URIConstants.SERVICES_URI)
                 .contentType(APPLICATION_JSON)
                 .content(serviceFixture("EPSG:1")))
         .andExpect(status().isCreated())
-        .andReturn()
-        .getResponse()
-        .getHeader("Location");
+        .andExpect(jsonPath("$.supportedSRS[0]").value("EPSG:1"));
   }
 
   @Test
-  @DisplayName("Single other value fail")
+  @DisplayName("POST rejects a non-EPSG code")
   @WithMockUser(roles = "ADMIN")
-  void singleOtherValueFail() throws Exception {
+  void postRejectsNonEpsgCode() throws Exception {
     mvc.perform(
             post(URIConstants.SERVICES_URI)
                 .contentType(APPLICATION_JSON)
@@ -61,20 +59,22 @@ class SpatialReferenceSystemTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("Multiple projections pass")
+  @DisplayName("POST stores two EPSG codes")
   @WithMockUser(roles = "ADMIN")
-  void multipleProjectionPass() throws Exception {
+  void postStoresTwoEpsgCodes() throws Exception {
     mvc.perform(
             post(URIConstants.SERVICES_URI)
                 .contentType(APPLICATION_JSON)
                 .content(serviceFixture("EPSG:1", "EPSG:2")))
-        .andExpect(status().isCreated());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.supportedSRS[0]").value("EPSG:1"))
+        .andExpect(jsonPath("$.supportedSRS[1]").value("EPSG:2"));
   }
 
   @Test
-  @DisplayName("Multiple projections with other value fail")
+  @DisplayName("POST rejects a mix of EPSG and a non-EPSG code")
   @WithMockUser(roles = "ADMIN")
-  void multipleProjectionsWithOtherValueFail() throws Exception {
+  void postRejectsMixedEpsgAndOtherCode() throws Exception {
     mvc.perform(
             post(URIConstants.SERVICES_URI)
                 .contentType(APPLICATION_JSON)

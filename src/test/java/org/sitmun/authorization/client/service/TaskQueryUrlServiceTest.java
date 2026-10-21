@@ -252,8 +252,8 @@ class TaskQueryUrlServiceTest {
   }
 
   @Test
-  @DisplayName("map handles null properties gracefully")
-  void mapHandlesNullPropertiesGracefully() {
+  @DisplayName("map of a task with null properties returns the profile id and a null URL")
+  void mapWithNullPropertiesReturnsProfileIdAndNullUrl() {
     // Given
     Task task = mock(Task.class);
     Application application = mock(Application.class);

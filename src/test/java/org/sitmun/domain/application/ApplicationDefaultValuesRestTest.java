@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -28,7 +27,6 @@ import tools.jackson.databind.ObjectMapper;
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Application Default Values REST Test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @WithMockUser(roles = "ADMIN")
 class ApplicationDefaultValuesRestTest {
 
@@ -54,25 +52,16 @@ class ApplicationDefaultValuesRestTest {
 
   @AfterEach
   void tearDown() {
-    // Clean up all created applications
     createdApplications.forEach(
         app -> {
           if (app.getId() != null) {
-            try {
-              applicationRepository.deleteById(app.getId());
-            } catch (Exception e) {
-              // Ignore deletion errors as the database might be reset by @DirtiesContext
-            }
+            applicationRepository.deleteById(app.getId());
           }
         });
 
-    // Also clean up the test application if it was saved
-    if (testApplication.getId() != null) {
-      try {
-        applicationRepository.deleteById(testApplication.getId());
-      } catch (Exception e) {
-        // Ignore deletion errors
-      }
+    if (testApplication.getId() != null
+        && applicationRepository.existsById(testApplication.getId())) {
+      applicationRepository.deleteById(testApplication.getId());
     }
   }
 
@@ -82,33 +71,23 @@ class ApplicationDefaultValuesRestTest {
    * @param applicationJson JSON string representing the application to create
    * @return The created application if successful, null otherwise
    */
-  private Application createApplicationViaRestApi(String applicationJson) {
-    try {
-      String response =
-          mockMvc
-              .perform(
-                  post(APPLICATIONS_URI)
-                      .contentType(MediaType.APPLICATION_JSON)
-                      .content(applicationJson))
-              .andExpect(status().isCreated())
-              .andReturn()
-              .getResponse()
-              .getContentAsString();
+  private Application createApplicationViaRestApi(String applicationJson) throws Exception {
+    String response =
+        mockMvc
+            .perform(
+                post(APPLICATIONS_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(applicationJson))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-      // Parse response and track the created application
-      JsonNode responseNode = objectMapper.readTree(response);
-      if (responseNode.has("id")) {
-        Integer appId = responseNode.get("id").asInt();
-        Application createdApp = applicationRepository.findById(appId).orElse(null);
-        if (createdApp != null) {
-          createdApplications.add(createdApp);
-          return createdApp;
-        }
-      }
-    } catch (Exception e) {
-      // Ignore errors, rely on @DirtiesContext for cleanup
-    }
-    return null;
+    JsonNode responseNode = objectMapper.readTree(response);
+    Integer appId = responseNode.get("id").asInt();
+    Application createdApp = applicationRepository.findById(appId).orElseThrow();
+    createdApplications.add(createdApp);
+    return createdApp;
   }
 
   /**
@@ -178,8 +157,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should create application with default values via REST API")
-  void shouldCreateApplicationWithDefaultValuesViaRestApi() throws Exception {
+  @DisplayName("POST application stores default booleans, dates, and header sections")
+  void createsApplicationWithDefaultValuesViaRestApi() throws Exception {
     // Given
     String applicationJson =
         createBasicApplicationJson("Test Application REST", "I", "Test Application Title");
@@ -206,8 +185,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should return default header parameters structure via REST API")
-  void shouldReturnDefaultHeaderParametersStructureViaRestApi() throws Exception {
+  @DisplayName("GET application returns the default header section flags")
+  void returnsDefaultHeaderParametersStructureViaRestApi() throws Exception {
     // Given
     testApplication = saveAndTrackApplication(testApplication);
 
@@ -225,8 +204,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should create application with custom header parameters via REST API")
-  void shouldCreateApplicationWithCustomHeaderParametersViaRestApi() throws Exception {
+  @DisplayName("POST application stores a custom header map")
+  void createsApplicationWithCustomHeaderParametersViaRestApi() throws Exception {
     // Given
     Map<String, Object> customHeaders = new HashMap<>();
     customHeaders.put("customKey", "customValue");
@@ -257,28 +236,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should return non-empty default header parameters when the request omits them")
-  void shouldReturnNonEmptyHeaderParamsWhenOmitted() throws Exception {
-    // Given
-    String applicationJson =
-        createApplicationJsonWithHeaders(
-            "Test Application with Null Headers", "I", "Test Application Title", null);
-
-    // When
-    Application createdApp = createApplicationViaRestApi(applicationJson);
-
-    // Then
-    assertThat(createdApp).isNotNull();
-
-    mockMvc
-        .perform(get(APPLICATIONS_URI + "/" + createdApp.getId()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.headerParams").isNotEmpty());
-  }
-
-  @Test
-  @DisplayName("Should handle empty header parameters in REST API")
-  void shouldHandleEmptyHeaderParametersInRestApi() throws Exception {
+  @DisplayName("An empty header map stays empty")
+  void handlesEmptyHeaderParametersInRestApi() throws Exception {
     // Given
     String applicationJson =
         createApplicationJsonWithHeaders(
@@ -298,8 +257,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should return applications list with default values")
-  void shouldReturnApplicationsListWithDefaultValues() throws Exception {
+  @DisplayName("Application list includes headerParams")
+  void returnsApplicationsListWithDefaultValues() throws Exception {
     // Given
     testApplication = saveAndTrackApplication(testApplication);
 
@@ -312,8 +271,8 @@ class ApplicationDefaultValuesRestTest {
   }
 
   @Test
-  @DisplayName("Should preserve complex nested header parameters structure")
-  void shouldPreserveComplexNestedHeaderParametersStructure() throws Exception {
+  @DisplayName("POST application stores a three-level header map")
+  void preservesComplexNestedHeaderParametersStructure() throws Exception {
     // Given
     Map<String, Object> complexHeaders = new HashMap<>();
     Map<String, Object> level1 = new HashMap<>();

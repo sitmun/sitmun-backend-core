@@ -30,7 +30,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @Import(MockMailConfig.class)
 @DisplayName("Password Recovery Controller Tests")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AdditiveActiveProfiles(Profiles.MAIL)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ResetPasswordControllerTest {
@@ -120,7 +118,7 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with invalid email")
+  @DisplayName("Unknown address returns 200 and creates no token")
   @Transactional
   void sendRecoveryEmailWithInvalidLogin() throws Exception {
     checkService("nonexistent@example.com", false);
@@ -149,7 +147,7 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with empty mail")
+  @DisplayName("Empty email returns 400")
   @Transactional
   void sendRecoveryEmailWithEmptyLogin() throws Exception {
     RequestNewPassword request = new RequestNewPassword();
@@ -163,7 +161,7 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Send recovery email with null mail")
+  @DisplayName("Null email returns 400")
   @Transactional
   void sendRecoveryEmailWithNullLogin() throws Exception {
     RequestNewPassword request = new RequestNewPassword();
@@ -177,10 +175,8 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Await error 429 after 5 request")
-  @DirtiesContext
+  @DisplayName("Sixth password-reset request from one address returns 429")
   void sendRequestTooManyTime() throws Exception {
-    // Clean up any existing tokens for this test
     userTokenRepository.deleteAll();
 
     RequestNewPassword request = new RequestNewPassword();
@@ -190,6 +186,11 @@ class ResetPasswordControllerTest {
     for (int i = 0; i < maxRequest; i++) {
       mvc.perform(
               post(API_URL + "request")
+                  .with(
+                      httpRequest -> {
+                        httpRequest.setRemoteAddr("10.0.0.1");
+                        return httpRequest;
+                      })
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(TestUtils.asJsonString(request)))
           .andExpect(status().isOk());
@@ -197,6 +198,11 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "request")
+                .with(
+                    httpRequest -> {
+                      httpRequest.setRemoteAddr("10.0.0.1");
+                      return httpRequest;
+                    })
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isTooManyRequests());
@@ -337,7 +343,7 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Reset password with invalid token - tests 400 Bad Request response")
+  @DisplayName("Wrong OTP returns 400, body 2, and leaves the password unchanged")
   @Transactional
   void resetPasswordWithInvalidToken() throws Exception {
     UserToken validUserToken =
@@ -534,10 +540,8 @@ class ResetPasswordControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Await error 429 after 3 request")
-  @DirtiesContext
+  @DisplayName("Fourth resend from one address returns 429")
   void sendResendTooManyTime() throws Exception {
-    // Clean up any existing tokens for this test
     userTokenRepository.deleteAll();
 
     RequestNewPassword request = new RequestNewPassword();
@@ -548,6 +552,11 @@ class ResetPasswordControllerTest {
     for (int i = 0; i < maxRequest; i++) {
       mvc.perform(
               post(API_URL + "resend")
+                  .with(
+                      httpRequest -> {
+                        httpRequest.setRemoteAddr("10.0.0.2");
+                        return httpRequest;
+                      })
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(TestUtils.asJsonString(request)))
           .andExpect(status().isOk());
@@ -555,6 +564,11 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "resend")
+                .with(
+                    httpRequest -> {
+                      httpRequest.setRemoteAddr("10.0.0.2");
+                      return httpRequest;
+                    })
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isTooManyRequests());

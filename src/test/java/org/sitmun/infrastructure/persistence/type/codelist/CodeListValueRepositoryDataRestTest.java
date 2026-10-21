@@ -150,7 +150,7 @@ class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("POST: System codes can't be created")
+  @DisplayName("POST of a system code returns 400 and System field cannot be set true")
   @WithMockUser(roles = "ADMIN")
   void cantCreateSystemCodeListValue() throws Exception {
     String body =
@@ -160,7 +160,9 @@ class CodeListValueRepositoryDataRestTest {
       "codeListName":"B",
       "system":true
       }""";
-    mvc.perform(post(CODELIST_VALUES_URI).content(body)).andExpect(status().isBadRequest());
+    mvc.perform(post(CODELIST_VALUES_URI).content(body))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("System field cannot be set true"));
   }
 
   @Test
@@ -202,24 +204,59 @@ class CodeListValueRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("PUT: System codes can't be modified (value/codeListName)")
+  @DisplayName("PUT of a system code rejects a system flip, a new value, and a new code list name")
   @WithMockUser(roles = "ADMIN")
   void cantModifySystemCodeListValue() throws Exception {
-    String body =
-        """
-      {
-      "value":"A",
-      "codeListName":"B",
-      "system":false
-      }""";
-    mvc.perform(put(CODELIST_VALUE_URI, 24).content(body)).andExpect(status().isBadRequest());
+    mvc.perform(
+            put(CODELIST_VALUE_URI, 24)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                    "value":"F",
+                    "codeListName":"cartographyPermission.type",
+                    "system":false
+                    }"""))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("System field cannot be changed"));
+
+    mvc.perform(
+            put(CODELIST_VALUE_URI, 24)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                    "value":"A",
+                    "codeListName":"cartographyPermission.type",
+                    "system":true
+                    }"""))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Value cannot be changed in system property"));
+
+    mvc.perform(
+            put(CODELIST_VALUE_URI, 24)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                    "value":"F",
+                    "codeListName":"B",
+                    "system":true
+                    }"""))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.detail").value("Code list name cannot be changed in system property"));
   }
 
   @Test
-  @DisplayName("DELETE: System codes can't be deleted")
+  @DisplayName("DELETE of a system code returns 400 and System field cannot be deleted")
   @WithMockUser(roles = "ADMIN")
   void cantDeleteCodeListValue() throws Exception {
-    mvc.perform(delete(CODELIST_VALUE_URI, 24)).andExpect(status().isBadRequest());
+    mvc.perform(delete(CODELIST_VALUE_URI, 24))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("System field cannot be deleted"));
+
+    mvc.perform(get(CODELIST_VALUE_URI, 24)).andExpect(status().isOk());
   }
 
   /**
@@ -230,7 +267,7 @@ class CodeListValueRepositoryDataRestTest {
    * COD_ID collision between startup-created rows and hardcoded translation rows from migration 44.
    */
   @Test
-  @DisplayName("GET: databaseConnection.driver descriptions are correctly translated in ES")
+  @DisplayName("GET databaseConnection.driver descriptions in Spanish")
   @WithMockUser(roles = "ADMIN")
   void driverCodelistTranslationsCorrectInSpanish() throws Exception {
     mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=es", DATABASE_CONNECTION_DRIVER))
@@ -258,7 +295,7 @@ class CodeListValueRepositoryDataRestTest {
    * <p>Same check in Catalan (lang=ca).
    */
   @Test
-  @DisplayName("GET: databaseConnection.driver descriptions are correctly translated in CA")
+  @DisplayName("GET databaseConnection.driver descriptions in Catalan")
   @WithMockUser(roles = "ADMIN")
   void driverCodelistTranslationsCorrectInCatalan() throws Exception {
     mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=ca", DATABASE_CONNECTION_DRIVER))

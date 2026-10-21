@@ -31,8 +31,8 @@ class HttpClientFactoryTest {
   }
 
   @Test
-  @DisplayName("Fail with SSLHandshakeException")
-  void failWithASSLHandhakeException() {
+  @DisplayName("HTTPS request without a trust store throws SSLHandshakeException")
+  void httpsRequestWithoutTrustStoreThrowsSslHandshakeException() {
     HttpClientFactory client = new HttpClientFactory(Lists.list());
 
     Request request = new Request.Builder().url(tls.url()).header("Accept", "*/*").build();
@@ -46,8 +46,8 @@ class HttpClientFactoryTest {
   }
 
   @Test
-  @DisplayName("Any request use the unsafe client")
-  void anyRequestUseTheUnsafeClient() {
+  @DisplayName("Host * completes the TLS request")
+  void starHostCompletesTlsRequest() {
     assertCompletes(Lists.list("*"));
   }
 

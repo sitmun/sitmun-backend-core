@@ -89,7 +89,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldMigrateLanguageNamesLosslessly() {
+  void migratesLanguageNamesLosslessly() {
     // Given: English is default, Catalan translation exists
     translationRepository.save(
         Translation.builder()
@@ -127,7 +127,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldBlockWhenTargetTranslationsMissingAndContinueFalse() {
+  void blocksWhenTargetTranslationsMissingAndContinueFalse() {
     // Given: No Catalan translation for English language name
     // When/Then: Migration blocked
     DefaultLanguageChangeRequest request = new DefaultLanguageChangeRequest("en", "ca", false);
@@ -143,7 +143,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldPreserveCurrentValuesWhenTargetMissingAndContinueTrue() {
+  void preservesCurrentValuesWhenTargetMissingAndContinueTrue() {
     // Given: No Catalan translation for English language name
     // Read the raw database value before migration
     String originalEnglishName =
@@ -167,7 +167,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldNotDeleteExistingTranslationsDuringMigration() {
+  void doesNotDeleteExistingTranslationsDuringMigration() {
     // Given: Existing French translation
     Language french =
         languageRepository
@@ -205,7 +205,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldSeedLiteralContinuityValueForNewDefaultWithoutChangingSourceLanguage() {
+  void seedsLiteralContinuityValueForNewDefaultWithoutChangingSourceLanguage() {
     String key = "continuity-" + System.nanoTime();
     LiteralTranslation literal =
         literalTranslationRepository.save(
@@ -245,7 +245,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldMigrateTaskNameAndServiceNameFromCatalog() {
+  void migratesTaskNameAndServiceNameFromCatalog() {
     long stamp = System.nanoTime();
     String taskEn = "Task EN " + stamp;
     String serviceEn = "Svc EN " + stamp;
@@ -313,7 +313,7 @@ class DefaultLanguageChangeServiceIntegrationTest extends BaseTest {
   }
 
   @Test
-  void shouldPreviewWithoutModifyingData() {
+  void previewsWithoutModifyingData() {
     // Given
     String originalDefaultValue = defaultLangParam.getValue();
 

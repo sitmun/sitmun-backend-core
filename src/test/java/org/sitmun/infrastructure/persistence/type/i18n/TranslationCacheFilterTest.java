@@ -114,7 +114,7 @@ class TranslationCacheFilterTest {
 
   @Test
   @DisplayName("preloads locale for proxy configuration requests")
-  void shouldPreload_clientConfigAndProxyAndLangParam() {
+  void preloads_clientConfigAndProxyAndLangParam() {
     assertThat(TranslationCacheFilter.shouldPreload("/api/config/client/profile", null)).isTrue();
     assertThat(TranslationCacheFilter.shouldPreload("/api/config/proxy", null)).isTrue();
     assertThat(TranslationCacheFilter.shouldPreload("/api/config/proxy", "ca")).isTrue();

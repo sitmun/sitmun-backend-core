@@ -66,7 +66,8 @@ class UserRepositoryDataRestTest {
                     "blocked":false,
                     "password":""
                     }"""))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Password cannot be empty"));
   }
 
   @Test
@@ -101,6 +102,7 @@ class UserRepositoryDataRestTest {
                         "email":"false@false.com"
                         }"""))
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.email").value("false@false.com"))
             .andReturn()
             .getResponse();
   }

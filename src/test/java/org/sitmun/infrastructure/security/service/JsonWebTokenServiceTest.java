@@ -77,7 +77,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should generate token from UserDetails")
+  @DisplayName("Generates token from UserDetails")
   void generateTokenFromUserDetails() {
     // When
     String token = jsonWebTokenService.generateToken(testUser);
@@ -90,7 +90,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should generate token from username and date")
+  @DisplayName("Generates token from username and date")
   void generateTokenFromUsernameAndDate() {
     // Given
     String username = "testuser";
@@ -106,7 +106,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should extract username from valid token")
+  @DisplayName("Extracts username from valid token")
   void getUsernameFromValidToken() {
     // When
     String username = jsonWebTokenService.getUsernameFromToken(validToken);
@@ -116,7 +116,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should extract username from future token")
+  @DisplayName("Extracts username from future token")
   void getUsernameFromFutureToken() {
     // When
     String username = jsonWebTokenService.getUsernameFromToken(futureToken);
@@ -126,7 +126,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw exception when extracting username from invalid token")
+  @DisplayName("Throws exception when extracting username from invalid token")
   void getUsernameFromInvalidToken() {
     // Given
     String invalidToken = "invalid.token.here";
@@ -137,7 +137,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should extract claim from token")
+  @DisplayName("Extracts claim from token")
   void getClaimFromToken() {
     // Given
     Function<Claims, String> subjectResolver = Claims::getSubject;
@@ -157,7 +157,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should extract expiration date from token")
+  @DisplayName("Extracts expiration date from token")
   void getExpirationDateFromToken() {
     // When
     Date expiration = jsonWebTokenService.getExpirationDateFromToken(validToken);
@@ -168,7 +168,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw exception when extracting expiration date from expired token")
+  @DisplayName("Throws exception when extracting expiration date from expired token")
   void getExpirationDateFromExpiredToken() {
     // When & Then
     assertThrows(
@@ -177,7 +177,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should validate token with correct user details")
+  @DisplayName("Validates token with correct user details")
   void validateTokenWithCorrectUserDetails() {
     // When
     boolean isValid = jsonWebTokenService.validateToken(validToken, testUser);
@@ -187,7 +187,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should validate future token with correct user details")
+  @DisplayName("Validates future token with correct user details")
   void validateFutureTokenWithCorrectUserDetails() {
     // When
     boolean isValid = jsonWebTokenService.validateToken(futureToken, testUser);
@@ -197,7 +197,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should not validate expired token")
+  @DisplayName("Does not validate expired token")
   void validateExpiredToken() {
     // When & Then
     assertThrows(
@@ -205,7 +205,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should not validate token with wrong username")
+  @DisplayName("Does not validate token with wrong username")
   void validateTokenWithWrongUsername() {
     // Given
     UserDetails wrongUser =
@@ -219,7 +219,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should not validate invalid token")
+  @DisplayName("Does not validate invalid token")
   void validateInvalidToken() {
     // Given
     String invalidToken = "invalid.token.here";
@@ -231,7 +231,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should not validate null token")
+  @DisplayName("Does not validate null token")
   void validateNullToken() {
     // When & Then
     assertThrows(
@@ -239,7 +239,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should not validate empty token")
+  @DisplayName("Does not validate empty token")
   void validateEmptyToken() {
     // When & Then
     assertThrows(
@@ -247,7 +247,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should handle token with different username case")
+  @DisplayName("Handles token with different username case")
   void handleTokenWithDifferentUsernameCase() {
     // Given
     UserDetails upperCaseUser =
@@ -261,7 +261,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should generate tokens with different usernames")
+  @DisplayName("Generates tokens with different usernames")
   void generateTokensWithDifferentUsernames() {
     // Given
     String username1 = "user1";
@@ -279,7 +279,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should generate tokens with different dates")
+  @DisplayName("Generates tokens with different dates")
   void generateTokensWithDifferentDates() {
     // Given
     String username = "testuser";
@@ -297,7 +297,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should handle malformed JWT token")
+  @DisplayName("Handles malformed JWT token")
   void handleMalformedJwtToken() {
     // Given
     String malformedToken = "not.a.valid.jwt.token";
@@ -309,7 +309,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should handle unsupported JWT token")
+  @DisplayName("Handles unsupported JWT token")
   void handleUnsupportedJwtToken() {
     // Given
     String unsupportedToken = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ0ZXN0dXNlciJ9.";
@@ -321,7 +321,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw exception when extracting claim from expired token")
+  @DisplayName("Throws exception when extracting claim from expired token")
   void handleExpiredJwtTokenForClaimExtraction() {
     // Given
     Function<Claims, String> subjectResolver = Claims::getSubject;
@@ -333,7 +333,7 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw exception when extracting expiration from expired token")
+  @DisplayName("Throws exception when extracting expiration from expired token")
   void handleExpiredJwtTokenForExpirationExtraction() {
     // When & Then
     assertThrows(

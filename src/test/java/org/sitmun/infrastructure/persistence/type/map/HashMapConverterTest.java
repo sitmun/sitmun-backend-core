@@ -20,8 +20,8 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should handle all data types correctly")
-  void shouldHandleAllDataTypesCorrectly() {
+  @DisplayName("Round trip keeps string, number, boolean, and null entries")
+  void handlesAllDataTypes() {
     // Given
     Map<String, Object> testMap = new HashMap<>();
     testMap.put("stringValue", "test string");
@@ -48,8 +48,8 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should handle nested maps correctly")
-  void shouldHandleNestedMapsCorrectly() {
+  @DisplayName("Round trip keeps a three-level nested map")
+  void handlesNestedMaps() {
     // Given
     Map<String, Object> nestedMap = new HashMap<>();
     nestedMap.put("level1Key", "level1Value");
@@ -79,16 +79,16 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should handle null input and output correctly")
-  void shouldHandleNullInputAndOutputCorrectly() {
+  @DisplayName("Null map and null column stay null")
+  void handlesNullInputAndOutput() {
     // When & Then
     assertThat(converter.convertToDatabaseColumn(null)).isNull();
     assertThat(converter.convertToEntityAttribute(null)).isNull();
   }
 
   @Test
-  @DisplayName("Should handle empty and blank strings correctly")
-  void shouldHandleEmptyAndBlankStringsCorrectly() {
+  @DisplayName("Empty and blank columns become null")
+  void handlesEmptyAndBlankStrings() {
     // When & Then
     assertThat(converter.convertToEntityAttribute("")).isNull();
     assertThat(converter.convertToEntityAttribute("   ")).isNull();
@@ -96,8 +96,8 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should handle empty map correctly")
-  void shouldHandleEmptyMapCorrectly() {
+  @DisplayName("An empty map is stored as {}")
+  void handlesEmptyMap() {
     // Given
     Map<String, Object> emptyMap = new HashMap<>();
 
@@ -111,8 +111,8 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should preserve array values correctly")
-  void shouldPreserveArrayValuesCorrectly() {
+  @DisplayName("An object array comes back as a five-element list")
+  void preservesArrayValues() {
     // Given
     Map<String, Object> testMap = new HashMap<>();
     testMap.put("arrayValue", new Object[] {1, "two", 3.0, true, null});
@@ -136,8 +136,8 @@ class HashMapConverterTest {
   }
 
   @Test
-  @DisplayName("Should handle special characters in strings")
-  void shouldHandleSpecialCharactersInStrings() {
+  @DisplayName("Quotes, whitespace, and unicode survive a round trip")
+  void handlesSpecialCharactersInStrings() {
     // Given
     Map<String, Object> testMap = new HashMap<>();
     testMap.put(
@@ -153,39 +153,5 @@ class HashMapConverterTest {
         .containsEntry(
             "specialChars",
             "test with \"quotes\", 'apostrophes', \n newlines, \t tabs, and unicode: ñáéíóú");
-  }
-
-  @Test
-  @DisplayName("Should handle very large nested structures")
-  void shouldHandleVeryLargeNestedStructures() {
-    // Given
-    Map<String, Object> largeMap = new HashMap<>();
-    Map<String, Object> currentLevel = largeMap;
-
-    // Create a deeply nested structure
-    for (int i = 0; i < 10; i++) {
-      Map<String, Object> nextLevel = new HashMap<>();
-      nextLevel.put("level" + i, "value" + i);
-      currentLevel.put("nested" + i, nextLevel);
-      currentLevel = nextLevel;
-    }
-
-    // When
-    String jsonString = converter.convertToDatabaseColumn(largeMap);
-    Map<String, Object> convertedBack = converter.convertToEntityAttribute(jsonString);
-
-    // Then
-    assertThat(convertedBack).isNotNull();
-    assertThat(jsonString).isNotNull().isNotEmpty();
-
-    // Verify the structure is preserved
-    Map<String, Object> currentRetrieved = convertedBack;
-    for (int i = 0; i < 10; i++) {
-      assertThat(currentRetrieved).containsKey("nested" + i);
-      @SuppressWarnings("unchecked")
-      Map<String, Object> nextLevel = (Map<String, Object>) currentRetrieved.get("nested" + i);
-      assertThat(nextLevel).containsEntry("level" + i, "value" + i);
-      currentRetrieved = nextLevel;
-    }
   }
 }

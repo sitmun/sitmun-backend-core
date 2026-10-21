@@ -26,7 +26,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -143,27 +142,6 @@ class DatabaseConnectionRepositoryIntegrationTest {
     assertThat(updatedList).containsExactlyInAnyOrderElementsOf(oldList);
   }
 
-  @Test
-  @DisplayName("PUT: Can update cartography spatial selection connection")
-  @Disabled("Requires additional test data")
-  void putCanUpdateCartographySpatialSelectionConnection() throws JSONException {
-    HttpHeaders auth = getAuthorization();
-    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
-    JSONObject cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
-
-    deleteCartographiesSpatialSelectionConnection(1, auth);
-    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isFalse();
-    cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(6);
-
-    updateCartographiesSpatialSelectionConnection(
-        1, Collections.singletonList("http://localhost:" + port + "/api/connections/2"), auth);
-    assertThat(hasCartographiesSpatialSelectionConnection(1, auth)).isTrue();
-    cartographies = getConnectionCartographies(2);
-    assertThat(getListOfCartographies(Objects.requireNonNull(cartographies))).hasSize(7);
-  }
-
   private HttpHeaders getAuthorization() {
     return TestUtils.adminAuthHeaders(restTemplate, port);
   }
@@ -190,41 +168,6 @@ class DatabaseConnectionRepositoryIntegrationTest {
       return null;
     }
     return new JSONObject(oldValue);
-  }
-
-  private boolean hasCartographiesSpatialSelectionConnection(int id, HttpHeaders auth) {
-    try {
-      restTemplate.exchange(
-          "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-          HttpMethod.GET,
-          new HttpEntity<>(auth),
-          String.class);
-      return true;
-    } catch (HttpClientErrorException e) {
-      if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-        return false;
-      }
-      throw e;
-    }
-  }
-
-  private void deleteCartographiesSpatialSelectionConnection(int id, HttpHeaders auth) {
-    restTemplate.exchange(
-        "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-        HttpMethod.DELETE,
-        new HttpEntity<>(auth),
-        Void.class);
-  }
-
-  private void updateCartographiesSpatialSelectionConnection(
-      int id, List<String> newValue, HttpHeaders auth) {
-    HttpHeaders headers = new HttpHeaders(auth);
-    headers.setContentType(org.springframework.http.MediaType.parseMediaType("text/uri-list"));
-    restTemplate.exchange(
-        "http://localhost:" + port + "/api/cartographies/" + id + "/spatialSelectionConnection",
-        HttpMethod.PUT,
-        new HttpEntity<>(String.join("\n", newValue), headers),
-        String.class);
   }
 
   private void updateConnectionCartograhies(int id, List<String> newValue, HttpHeaders auth) {

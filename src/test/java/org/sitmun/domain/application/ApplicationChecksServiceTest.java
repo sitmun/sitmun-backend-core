@@ -27,9 +27,9 @@ class ApplicationChecksServiceTest {
   @Autowired private ApplicationChecksService applicationChecksService;
 
   @Test
-  @DisplayName("Should return warning when private application has PUBLIC user")
+  @DisplayName("Returns warning when private application has PUBLIC user")
   @WithMockUser(roles = "ADMIN")
-  void shouldReturnWarningWhenPrivateAppHasPublicUserRoles() {
+  void returnsWarningWhenPrivateAppHasPublicUserRoles() {
     // Given
     Application app =
         Application.builder()
@@ -53,9 +53,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should return no warnings when private application has no PUBLIC user")
+  @DisplayName("Returns no warnings when private application has no PUBLIC user")
   @WithMockUser(roles = "ADMIN")
-  void shouldReturnNoWarningsWhenPrivateAppHasNoPublicUserRoles() {
+  void returnsNoWarningsWhenPrivateAppHasNoPublicUserRoles() {
     // Given
     Application app =
         Application.builder()
@@ -77,9 +77,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should return no warnings in public applications")
+  @DisplayName("Returns no warnings in public applications")
   @WithMockUser(roles = "ADMIN")
-  void shouldReturnNoWarningsWhenPublicAppHasPublicUserRoles() {
+  void returnsNoWarningsWhenPublicAppHasPublicUserRoles() {
     // Given
     Application app =
         Application.builder()
@@ -97,9 +97,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should return warning when external application has no URL")
+  @DisplayName("Returns warning when external application has no URL")
   @WithMockUser(roles = "ADMIN")
-  void shouldReturnWarningWhenExternalAppHasNoUrl() {
+  void returnsWarningWhenExternalAppHasNoUrl() {
     Application app =
         Application.builder().id(1).name("External App").type("E").jspTemplate(null).build();
 
@@ -109,9 +109,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should warn when creator is built-in public (ineligible PoC)")
+  @DisplayName("Warns when creator is built-in public (ineligible PoC)")
   @WithMockUser(roles = "ADMIN")
-  void shouldWarnWhenCreatorIsBuiltInPublic() {
+  void warnsWhenCreatorIsBuiltInPublic() {
     User publicUser =
         User.builder().id(1).username("public").blocked(false).administrator(false).build();
     Application app =
@@ -123,9 +123,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should warn when creator is blocked (ineligible PoC)")
+  @DisplayName("Warns when creator is blocked (ineligible PoC)")
   @WithMockUser(roles = "ADMIN")
-  void shouldWarnWhenCreatorIsBlocked() {
+  void warnsWhenCreatorIsBlocked() {
     User blocked =
         User.builder()
             .id(5)
@@ -143,9 +143,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should warn when eligible creator has no email")
+  @DisplayName("Warns when eligible creator has no email")
   @WithMockUser(roles = "ADMIN")
-  void shouldWarnWhenEligibleCreatorHasNoEmail() {
+  void warnsWhenEligibleCreatorHasNoEmail() {
     User noEmail =
         User.builder().id(5).username("alice").blocked(false).administrator(true).build();
     Application app =
@@ -157,9 +157,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should not warn about PoC when creator is null")
+  @DisplayName("Does not warn about PoC when creator is null")
   @WithMockUser(roles = "ADMIN")
-  void shouldNotWarnAboutPocWhenCreatorIsNull() {
+  void doesNotWarnAboutPocWhenCreatorIsNull() {
     Application app = Application.builder().id(1).name("App").appPrivate(false).build();
 
     List<String> warnings = applicationChecksService.getWarnings(app);
@@ -170,9 +170,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should not warn about PoC when eligible creator has email")
+  @DisplayName("Does not warn about PoC when eligible creator has email")
   @WithMockUser(roles = "ADMIN")
-  void shouldNotWarnAboutPocWhenEligibleCreatorHasEmail() {
+  void doesNotWarnAboutPocWhenEligibleCreatorHasEmail() {
     User user =
         User.builder()
             .id(5)
@@ -192,9 +192,9 @@ class ApplicationChecksServiceTest {
   }
 
   @Test
-  @DisplayName("Should return no warnings when user is not admin")
+  @DisplayName("Non-admin getWarnings returns null")
   @WithMockUser(roles = "USER")
-  void shouldReturnNullWhenUserIsNotAdmin() {
+  void returnsNullWhenUserIsNotAdmin() {
     // Given
     Application app =
         Application.builder()

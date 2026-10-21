@@ -213,26 +213,6 @@ class TaskRepositoryDataRestTest extends BaseTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("GET: Access enabled to the cartography of a task")
-  @Disabled("Requires additional test data")
-  void getCartographyView() throws Exception {
-    mvc.perform(get(URIConstants.TASK_PROJECTION_CARTOGRAPHY_VIEW, 1))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(88)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("GET: Tasks can be filtered")
-  @Disabled("Requires additional test data")
-  void getTaskFilteredByTypeAsSitmunAdmin() throws Exception {
-    mvc.perform(get(URIConstants.TASKS_URI_FILTER, "type.id", "2", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.tasks", hasSize(10)));
-  }
-
-  @Test
   @DisplayName("POST: This endpoint is disabled for anonymous creation")
   @Transactional
   void postTaskAsPublicUserFails() throws Exception {

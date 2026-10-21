@@ -1,5 +1,6 @@
 package org.sitmun.administration.controller;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +37,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("GET leftovers are gone")
+  @DisplayName("GET /api/helpers/capabilities returns 405")
   void getIsNotSupported() throws Exception {
     mvc.perform(get(CAPABILITIES_URI).param("url", "https://example.com/wms"))
         .andExpect(MockMvcResultMatchers.status().isMethodNotAllowed());
@@ -98,7 +99,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("HTML: Extract from a request to HTML page")
+  @DisplayName("POST of an HTML page returns 400 and the non-capabilities reason")
   void extractHtmlPage() throws Exception {
     postCapabilities(body(html.url("/"), "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -116,17 +117,20 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.reason").value("HTTP 404"))
-        .andExpect(jsonPath("$.asText", startsWith("<html")));
+        .andExpect(jsonPath("$.asText", startsWith("<html")))
+        .andExpect(jsonPath("$.asJson").value(nullValue()));
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("DNS: Extract from a request to an nonexistent domain")
+  @DisplayName("POST to an unknown host returns 400 and UnknownHostException")
   void extractNonExistentDomain() throws Exception {
     postCapabilities(body("https://fake", "WMS"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(jsonPath("$.success").value(false))
-        .andExpect(jsonPath("$.reason", startsWith("UnknownHostException: fake")));
+        .andExpect(jsonPath("$.reason", startsWith("UnknownHostException: fake")))
+        .andExpect(jsonPath("$.asText").value(nullValue()))
+        .andExpect(jsonPath("$.asJson").value(nullValue()));
   }
 
   private ResultActions postCapabilities(String json) throws Exception {

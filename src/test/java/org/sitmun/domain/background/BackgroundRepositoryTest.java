@@ -9,10 +9,10 @@ import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import(I18nTestConfiguration.class)
 @DisplayName("Background Repository JPA test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BackgroundRepositoryTest {
@@ -26,8 +26,4 @@ class BackgroundRepositoryTest {
     assertThat(backgrounds).hasSize(1);
     assertThat(backgrounds.get(0).background()).isNotNull();
   }
-
-  @TestConfiguration
-  @Import(I18nTestConfiguration.class)
-  static class Configuration {}
 }

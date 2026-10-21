@@ -27,13 +27,11 @@ import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.DirtiesContext;
 
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Import(I18nTestConfiguration.class)
 @DisplayName("UserPosition active grant interval")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserPositionActiveGrantTest {
@@ -298,8 +296,4 @@ class UserPositionActiveGrantTest {
 
   private record Fixture(
       User user, Territory live, Territory expired, Role role, Application application) {}
-
-  @TestConfiguration
-  @Import(I18nTestConfiguration.class)
-  static class Configuration {}
 }

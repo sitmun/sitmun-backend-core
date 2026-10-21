@@ -92,7 +92,7 @@ class ProfileMapperTest {
   }
 
   @Test
-  @DisplayName("One-sided positive scale maps correctly")
+  @DisplayName("A positive min or max is kept and the other side stays null")
   void oneSidedScale() {
     CartographyDto minOnly = profileMapper.map(cartography(100, null));
     assertThat(minOnly.getMinScaleDenominator()).isEqualTo(100);

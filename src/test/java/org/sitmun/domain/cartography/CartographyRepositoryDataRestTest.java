@@ -32,13 +32,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Cartography Repository Data REST test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class CartographyRepositoryDataRestTest {
 
   private static final String CARTOGRAPHY_NAME = "Cartography Name";
@@ -148,7 +146,7 @@ class CartographyRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("POST: fail as public user")
+  @DisplayName("Anonymous cartography POST returns 4xx")
   void postCartographyAsPublicUserFails() throws Exception {
     mvc.perform(
             post(CARTOGRAPHIES_URI)
@@ -179,12 +177,12 @@ class CartographyRepositoryDataRestTest {
   }
 
   /**
-   * This request must be rejected because applyFilterXXX should be a boolean instead of a number.
+   * The apply-filter flags are the strings "0" and "1".
    *
    * @see <a href="https://github.com/sitmun/sitmun-admin-app/issues/41"/>Github</a>
    */
   @Test
-  @DisplayName("PUT: applyFilterXXX must not use integers as use booleans")
+  @DisplayName("String 0 and 1 for apply-filter flags return 422")
   @WithMockUser(roles = "ADMIN")
   void checkIssueSitmunAdminApp41() throws Exception {
     String badRequest =
