@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -13,16 +14,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,27 +32,29 @@ import org.sitmun.domain.service.check.ServiceCheck;
 import org.sitmun.domain.service.check.ServiceCheckRepository;
 import org.sitmun.domain.service.check.ServiceCheckSample;
 import org.sitmun.domain.service.check.ServiceCheckSampleRepository;
+import org.sitmun.domain.service.check.ServiceCheckSliceConfiguration;
+import org.sitmun.domain.service.check.ServiceCheckSliceConfiguration.ProbeExecutor;
 import org.sitmun.domain.service.check.ServiceCheckStore;
 import org.sitmun.domain.service.usage.ServiceUsage;
 import org.sitmun.domain.service.usage.ServiceUsageRepository;
 import org.sitmun.domain.service.usage.ServiceUsageStore;
-import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ImportAutoConfiguration(LiquibaseAutoConfiguration.class)
-@TestPropertySource(properties = "sitmun.service-check.enabled=true")
+@Import(ServiceCheckSliceConfiguration.class)
+@TestPropertySource(
+    properties = {
+      "sitmun.service-check.enabled=true",
+      "spring.datasource.hikari.auto-commit=false"
+    })
 @DisplayName("Service check dispatcher")
 class ServiceCheckDispatcherTest {
 
@@ -71,12 +70,13 @@ class ServiceCheckDispatcherTest {
   @Autowired private ServiceCheckSampleRepository sampleRepository;
   @Autowired private ServiceUsageRepository usageRepository;
   @Autowired private ApplicationRepository applicationRepository;
-  @MockitoBean private ServiceAccessCheckExecutor checks;
+  @Autowired private ServiceAccessCheckExecutor checks;
 
   private CountDownLatch releaseProbe;
 
   @BeforeEach
   void resetWorkers() {
+    reset(checks);
     workers.async(false);
     releaseProbe = new CountDownLatch(1);
     Instant fresh = clock.instant();
@@ -325,62 +325,5 @@ class ServiceCheckDispatcherTest {
         .elapsedMs(1L)
         .observedAt(observedAt)
         .build();
-  }
-
-  @TestConfiguration
-  @EnableConfigurationProperties(ServiceCheckProperties.class)
-  @Import({
-    I18nTestConfiguration.class,
-    ServiceCheckStore.class,
-    ServiceUsageStore.class,
-    ServiceCheckDueQuery.class,
-    ServiceCheckDispatcher.class
-  })
-  static class Configuration {
-
-    @Bean
-    Clock serviceCheckClock() {
-      return Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC);
-    }
-
-    @Bean
-    ServiceCheckInFlight serviceCheckInFlight(ServiceCheckProperties properties) {
-      return new ServiceCheckInFlight(properties.maxInFlight());
-    }
-
-    @Bean(destroyMethod = "close")
-    ProbeExecutor serviceCheckExecutor() {
-      return new ProbeExecutor();
-    }
-  }
-
-  static final class ProbeExecutor implements Executor, AutoCloseable {
-
-    private final ExecutorService pool =
-        Executors.newCachedThreadPool(
-            runnable -> {
-              Thread thread = new Thread(runnable, "service-check-test");
-              thread.setDaemon(true);
-              return thread;
-            });
-    private final AtomicBoolean async = new AtomicBoolean();
-
-    void async(boolean enabled) {
-      async.set(enabled);
-    }
-
-    @Override
-    public void execute(Runnable command) {
-      if (async.get()) {
-        pool.execute(command);
-      } else {
-        command.run();
-      }
-    }
-
-    @Override
-    public void close() {
-      pool.shutdownNow();
-    }
   }
 }

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sitmun.test.TestUtils.asJsonString;
 import static org.sitmun.test.URIConstants.USER_URI;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -45,24 +43,6 @@ class UserResourceIntegrationTest {
     organizacionAdmin.setLastName(USER_LASTNAME);
     organizacionAdmin.setPassword(USER_PASSWORD);
     organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
-  }
-
-  @Test
-  @DisplayName("POST: Create new user and delete")
-  @WithMockUser(roles = "ADMIN")
-  void createNewUserAndDelete() throws Exception {
-    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
-
-    MvcResult created =
-        mvc.perform(post(USER_URI).contentType(APPLICATION_JSON).content(asJsonString(newUser)))
-            .andExpect(status().isCreated())
-            .andReturn();
-    String location = created.getResponse().getHeader("Location");
-    assertThat(location).isNotNull();
-
-    mvc.perform(get(location)).andExpect(status().isOk());
-    mvc.perform(delete(location)).andExpect(status().is2xxSuccessful());
-    mvc.perform(get(location)).andExpect(status().isNotFound());
   }
 
   @Test

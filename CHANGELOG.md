@@ -27,6 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tests**: `SequenceMigrationTest` checks the `ATR_ID` generator on `STM_APP_TREE` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 - **Tests**: `UserResourceTest` stores a fixed bcrypt hash in setup. The password update still asserts the stored hash changes ([#321](https://github.com/sitmun/sitmun-backend-core/issues/321)).
 - **Tests**: `DashboardMetricsQueryTest` uses the suite database. Its connections do not autocommit, so the transactional slice removes its rows. The day bucket still checks year, month, and day, and its count rises by one. Per-application counts stay `1` or `0` on an `app-` plus UUID name, including the built-in public user ([#322](https://github.com/sitmun/sitmun-backend-core/issues/322)).
+- **Tests**: `UserResourceTest.createUser` checks that GET after delete returns 404. `UserResourceIntegrationTest` no longer repeats that create and delete on a real server ([#313](https://github.com/sitmun/sitmun-backend-core/issues/313)).
+- **Tests**: `ServiceCheckStoreTest`, `AffectedApplicationsTest`, `ServiceHealthFilterTest`, `ServiceAccessSummaryTest`, and `ServiceCheckDispatcherTest` load `ServiceCheckSliceConfiguration` on the suite database, so Liquibase runs once for that slice. Connections do not autocommit, so the transactional slice removes its rows ([#317](https://github.com/sitmun/sitmun-backend-core/issues/317)).
 - **Tests**: Database connection, role, territory, territory group type, and user repository tests use MockMvc on the shared context. They no longer boot an embedded server ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)).
 
 ### Security
