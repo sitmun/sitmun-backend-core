@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tests**: `ServiceCheckStoreTest`, `AffectedApplicationsTest`, `ServiceHealthFilterTest`, `ServiceAccessSummaryTest`, and `ServiceCheckDispatcherTest` load `ServiceCheckSliceConfiguration` on the suite database, so Liquibase runs once for that slice. Connections do not autocommit, so the transactional slice removes its rows ([#317](https://github.com/sitmun/sitmun-backend-core/issues/317)).
 - **Tests**: `AuthenticationControllerLdapEnabledTest` starts the in-memory LDAP directory once for the class. The role-lookup case still returns HTTP 401 and no cookie only when `LdapUserAuthoritiesPopulator` rejects the user ([#319](https://github.com/sitmun/sitmun-backend-core/issues/319)).
 - **Tests**: Application and territory seed filters assert a smaller result than the unfiltered list. `internal` on territory 2 omits `SITMUN - Externa protegida`. `internal` on application 5 returns only `Provincia A` ([#312](https://github.com/sitmun/sitmun-backend-core/issues/312)).
+- **Tests**: Database connection, role, territory, territory group type, and user repository tests use MockMvc on the shared context. They no longer boot an embedded server ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)).
 
 ### Security
 
