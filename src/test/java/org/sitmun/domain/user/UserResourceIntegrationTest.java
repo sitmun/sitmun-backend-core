@@ -1,33 +1,28 @@
 package org.sitmun.domain.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.sitmun.test.TestUtils.asJsonString;
+import static org.sitmun.test.URIConstants.USER_URI;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
+import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
-import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.config.HypermediaRestTemplateConfigurer;
-import org.springframework.hateoas.server.core.TypeReferences;
-import org.springframework.http.*;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 @DisplayName("User Resource Integration Test")
 class UserResourceIntegrationTest {
 
@@ -38,24 +33,11 @@ class UserResourceIntegrationTest {
   private static final String USER_LASTNAME = "Admin";
   private static final Boolean USER_BLOCKED = false;
   private static final Boolean USER_ADMINISTRATOR = true;
-  @Autowired HypermediaRestTemplateConfigurer configurer;
-  @LocalServerPort private int port;
-  private RestTemplate restTemplate;
+  @Autowired private MockMvc mvc;
   private User organizacionAdmin;
 
   @BeforeEach
   void init() {
-    ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
-    restTemplate = new RestTemplate(factory);
-    List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-    if (CollectionUtils.isEmpty(interceptors)) {
-      interceptors = new ArrayList<>();
-    }
-    interceptors.add(new ClientHttpLoggerRequestInterceptor());
-    restTemplate.setInterceptors(interceptors);
-    configurer.registerHypermediaTypes(restTemplate);
-
     organizacionAdmin = new User();
     organizacionAdmin.setAdministrator(USER_ADMINISTRATOR);
     organizacionAdmin.setBlocked(USER_BLOCKED);
@@ -67,62 +49,43 @@ class UserResourceIntegrationTest {
 
   @Test
   @DisplayName("POST: Create new user and delete")
-  void createNewUserAndDelete() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
-
+  @WithMockUser(roles = "ADMIN")
+  void createNewUserAndDelete() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
-    HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
 
-    ResponseEntity<User> createdUser =
-        restTemplate.postForEntity("http://localhost:{port}/api/users", entity, User.class, port);
+    MvcResult created =
+        mvc.perform(post(USER_URI).contentType(APPLICATION_JSON).content(asJsonString(newUser)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String location = created.getResponse().getHeader("Location");
+    assertThat(location).isNotNull();
 
-    assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    assertThat(createdUser.getHeaders().getLocation()).isNotNull();
-    final URI location = createdUser.getHeaders().getLocation();
-    final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
-
-    Function<HttpMethod, ResponseEntity<User>> exchangeFunction =
-        method -> restTemplate.exchange(location, method, entityHeaders, User.class);
-
-    ResponseEntity<User> exists = exchangeFunction.apply(HttpMethod.GET);
-    assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-    ResponseEntity<User> deleted = exchangeFunction.apply(HttpMethod.DELETE);
-    assertThat(deleted.getStatusCode().is2xxSuccessful()).isTrue();
-
-    HttpClientErrorException thrown =
-        assertThrows(HttpClientErrorException.class, () -> exchangeFunction.apply(HttpMethod.GET));
-    assertThat(thrown.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    mvc.perform(get(location)).andExpect(status().isOk());
+    mvc.perform(delete(location)).andExpect(status().is2xxSuccessful());
+    mvc.perform(get(location)).andExpect(status().isNotFound());
   }
 
   @Test
   @DisplayName("POST: Create new user without login")
-  void cannotPostWithoutLogin() {
+  void cannotPostWithoutLogin() throws Exception {
     User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
 
-    assertThrows(
-        HttpClientErrorException.Unauthorized.class,
-        () ->
-            restTemplate.postForEntity(
-                "http://localhost:{port}/api/users", newUser, User.class, port));
+    mvc.perform(post(USER_URI).contentType(APPLICATION_JSON).content(asJsonString(newUser)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   @DisplayName("GET: Get all users")
-  void getAllUsers() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
+  @WithMockUser(roles = "ADMIN")
+  void getAllUsers() throws Exception {
+    String body =
+        mvc.perform(get(USER_URI))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-    ResponseEntity<CollectionModel<User>> response =
-        restTemplate.exchange(
-            "http://localhost:{port}/api/users",
-            HttpMethod.GET,
-            new HttpEntity<CollectionModel<User>>(headers),
-            new TypeReferences.CollectionModelType<>() {},
-            port);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().getContent())
-        .extracting(User::getUsername)
+    assertThat(JsonPath.parse(body).read("$._embedded.users[*].username", JSONArray.class))
         .containsExactlyInAnyOrder("admin", "public", "blocked", "internal", "user12");
   }
 }
