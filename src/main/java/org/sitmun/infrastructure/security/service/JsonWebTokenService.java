@@ -251,11 +251,16 @@ public class JsonWebTokenService {
   }
 
   public boolean validateLegacyProxyToken(String token) {
+    return validateLegacyProxyToken(token, null);
+  }
+
+  public boolean validateLegacyProxyToken(String token, Date lastPasswordChange) {
     Claims claims = getAllClaimsFromToken(token);
     return isLegacyProxyToken(claims)
         && claims.getSubject() != null
         && !claims.getSubject().isBlank()
-        && !isTokenExpired(claims);
+        && !isTokenExpired(claims)
+        && matchesPasswordChange(claims, lastPasswordChange);
   }
 
   public List<String> getScopes(Claims claims) {

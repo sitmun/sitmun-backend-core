@@ -403,6 +403,17 @@ class JsonWebTokenServiceTest {
   }
 
   @Test
+  @DisplayName("Legacy proxy token rejects a later password change")
+  void legacyProxyTokenRejectsPasswordChangeMismatch() {
+    String token =
+        jsonWebTokenService.generateToken(
+            "admin", Date.from(FIXED_NOW), lastPasswordChange, 900_000);
+    Date otherChange = Date.from(FIXED_NOW.minusSeconds(10));
+    assertThat(jsonWebTokenService.validateLegacyProxyToken(token, otherChange)).isFalse();
+    assertThat(jsonWebTokenService.validateLegacyProxyToken(token, lastPasswordChange)).isTrue();
+  }
+
+  @Test
   @DisplayName("Copied auth_time does not reset on refresh")
   void copiedAuthTimeDoesNotReset() {
     Date authTime = Date.from(FIXED_NOW.minusSeconds(3_600));
