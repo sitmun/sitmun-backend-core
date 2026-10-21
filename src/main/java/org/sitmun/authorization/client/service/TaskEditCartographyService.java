@@ -5,7 +5,7 @@ import static org.sitmun.domain.DomainConstants.Tasks.*;
 import static org.sitmun.domain.task.parameter.TaskParameterProcessor.ProfileParameterShape.EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,7 +64,7 @@ public class TaskEditCartographyService implements TaskMapper {
         taskParameterProcessor.toProfileParameterMap(
             parameters, EDIT_CARTOGRAPHY_WITH_VALUE_QUERY_DEFAULT, false);
 
-    Map<String, Object> fields = new HashMap<>();
+    Map<String, Object> fields = new LinkedHashMap<>();
     Map<String, Object> properties = task.getProperties();
     if (properties != null) {
       fields = convertFieldsToJsonObject(properties, task.getConnection());
@@ -101,7 +101,7 @@ public class TaskEditCartographyService implements TaskMapper {
    */
   private Map<String, Object> convertFieldsToJsonObject(
       Map<String, Object> properties, DatabaseConnection connection) {
-    Map<String, Object> fields = new HashMap<>();
+    Map<String, Object> fields = new LinkedHashMap<>();
 
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> listOfFields =
@@ -182,7 +182,7 @@ public class TaskEditCartographyService implements TaskMapper {
       Boolean editable,
       String value,
       List<Map<String, Object>> listValues) {
-    Map<String, Object> values = new HashMap<>();
+    Map<String, Object> values = new LinkedHashMap<>();
     values.put(FIELDS_NAME, name); // CRITICAL: edition-mobile needs this to identify fields
     values.put(FIELDS_TYPE, type);
     values.put(FIELDS_LABEL, label);

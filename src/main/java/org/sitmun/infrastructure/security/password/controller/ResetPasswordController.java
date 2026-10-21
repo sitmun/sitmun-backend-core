@@ -132,14 +132,15 @@ public class ResetPasswordController {
   @SecurityRequirements
   public ResponseEntity<String> resetPassword(
       @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-    User user =
-        this.userRepository
-            .findByEmail(resetPasswordRequest.getEmail())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    Optional<User> optionalUser = this.userRepository.findByEmail(resetPasswordRequest.getEmail());
+    if (optionalUser.isEmpty()) {
+      return rejectedCode(this.maxAttempt - 1);
+    }
+    User user = optionalUser.get();
 
     UserTokenDTO userToken = userTokenService.getUserTokenByUserId(user.getId());
     if (userToken == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token not found");
+      return rejectedCode(this.maxAttempt - 1);
     }
 
     if (!userToken.isActive()) {
@@ -163,8 +164,7 @@ public class ResetPasswordController {
       this.userTokenService.updateUserToken(userToken);
       int attemptsRemaining = maxAttempt - userToken.getAttemptCounter();
 
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(Integer.toString(attemptsRemaining));
+      return rejectedCode(attemptsRemaining);
     }
 
     String newPassword = resetPasswordRequest.getNewPassword();
@@ -191,5 +191,9 @@ public class ResetPasswordController {
   public ResponseEntity<String> resendCodeOTP(
       @Valid @RequestBody RequestNewPassword requestNewPassword) {
     return this.requestNewPassword(requestNewPassword);
+  }
+
+  private ResponseEntity<String> rejectedCode(int attemptsRemaining) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Integer.toString(attemptsRemaining));
   }
 }
