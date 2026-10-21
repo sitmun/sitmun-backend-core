@@ -35,7 +35,6 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
-import org.springframework.test.util.ReflectionTestUtils;
 
 /** Proxy {@code validateUserAccess} must deny blocked accounts and honor service blocked flag. */
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +97,6 @@ class ProxyRbacBlockedUserTest {
             mock(
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
                     .class));
-    ReflectionTestUtils.setField(proxyConfigurationService, "validateUserAccessEnabled", true);
 
     blockedUser =
         User.builder().id(42).username(BLOCKED_USERNAME).blocked(true).administrator(false).build();
