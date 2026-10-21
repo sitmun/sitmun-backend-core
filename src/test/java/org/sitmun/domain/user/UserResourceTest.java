@@ -207,7 +207,7 @@ class UserResourceTest {
   }
 
   @Test
-  @DisplayName("POST: Create a new user")
+  @DisplayName("POST: Create a new user and GET after delete returns 404")
   @WithMockUser(roles = "ADMIN")
   void createUser() throws Exception {
     String username = "new-user-" + UUID.randomUUID().toString().substring(0, 8);
@@ -241,6 +241,8 @@ class UserResourceTest {
         .andExpect(jsonPath("$.passwordSet").value(true));
 
     mockMvc.perform(delete(uri)).andExpect(status().isNoContent());
+
+    mockMvc.perform(get(uri)).andExpect(status().isNotFound());
   }
 
   @Test
