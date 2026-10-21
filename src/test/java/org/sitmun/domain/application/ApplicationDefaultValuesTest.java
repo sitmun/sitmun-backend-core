@@ -2,8 +2,8 @@ package org.sitmun.domain.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.administration.config.AdministrationRestConfigurer;
 import org.sitmun.infrastructure.config.Profiles;
-import org.sitmun.infrastructure.persistence.type.map.HashMapConverter;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -26,15 +25,13 @@ import org.springframework.context.annotation.Import;
 class ApplicationDefaultValuesTest {
 
   @Autowired private ApplicationRepository applicationRepository;
+  @Autowired private EntityManager entityManager;
 
   private Application application;
   private Application savedApplication;
-  private HashMapConverter hashMapConverter;
 
   @BeforeEach
   void setUp() {
-    hashMapConverter = new HashMapConverter();
-
     application =
         Application.builder()
             .name("Test Application")
@@ -48,22 +45,15 @@ class ApplicationDefaultValuesTest {
   void tearDown() {
     // Clean up any applications created during the test
     if (savedApplication != null && savedApplication.getId() != null) {
-      try {
-        applicationRepository.deleteById(savedApplication.getId());
-      } catch (Exception e) {
-        // Ignore deletion errors as the database might be reset by @Transactional
-      }
+      applicationRepository.deleteById(savedApplication.getId());
     }
   }
 
-  /**
-   * Helper method to save and track an application for cleanup.
-   *
-   * @param app The application to save
-   * @return The saved application
-   */
+  /** Detached so a later findById reads the row instead of this instance. */
   private Application saveAndTrackApplication(Application app) {
     savedApplication = applicationRepository.save(app);
+    entityManager.flush();
+    entityManager.detach(savedApplication);
     return savedApplication;
   }
 
@@ -172,62 +162,8 @@ class ApplicationDefaultValuesTest {
   }
 
   @Test
-  @DisplayName("Should have default values for boolean fields when created")
-  void shouldHaveDefaultValuesForBooleanFields() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    validateDefaultBooleanValues(savedApp);
-  }
-
-  @Test
-  @DisplayName("Should have default header parameters when created")
-  void shouldHaveDefaultHeaderParameters() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    validateDefaultHeaderParameters(savedApp);
-  }
-
-  @Test
-  @DisplayName("Should persist and retrieve custom header parameters")
-  void shouldPersistAndRetrieveCustomHeaderParameters() {
-    // Given
-    Map<String, Object> customHeaderParams = new HashMap<>();
-    customHeaderParams.put("customKey", "customValue");
-    customHeaderParams.put("numericValue", 42);
-    customHeaderParams.put("booleanValue", true);
-
-    Map<String, Object> nestedObject = new HashMap<>();
-    nestedObject.put("nestedKey", "nestedValue");
-    customHeaderParams.put("nestedObject", nestedObject);
-
-    application.setHeaderParams(customHeaderParams);
-
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-    Application retrievedApplication =
-        applicationRepository.findById(savedApp.getId()).orElse(null);
-
-    // Then
-    assertThat(retrievedApplication).isNotNull();
-    assertThat(retrievedApplication.getHeaderParams()).isNotNull();
-    assertThat(retrievedApplication.getHeaderParams()).containsEntry("customKey", "customValue");
-    assertThat(retrievedApplication.getHeaderParams()).containsEntry("numericValue", 42);
-    assertThat(retrievedApplication.getHeaderParams()).containsEntry("booleanValue", true);
-    assertThat(retrievedApplication.getHeaderParams()).containsKey("nestedObject");
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> retrievedNestedObject =
-        (Map<String, Object>) retrievedApplication.getHeaderParams().get("nestedObject");
-    assertThat(retrievedNestedObject).containsEntry("nestedKey", "nestedValue");
-  }
-
-  @Test
-  @DisplayName("Should handle null header parameters")
-  void shouldHandleNullHeaderParameters() {
+  @DisplayName("A stored null header map stays null")
+  void handlesNullHeaderParameters() {
     // Given
     application.setHeaderParams(null);
 
@@ -242,112 +178,16 @@ class ApplicationDefaultValuesTest {
   }
 
   @Test
-  @DisplayName("Should handle empty header parameters")
-  void shouldHandleEmptyHeaderParameters() {
-    // Given
-    application.setHeaderParams(new HashMap<>());
-
+  @DisplayName(
+      "A created application stores default booleans, headers, empty collections, and dates")
+  void hasAllDefaultValuesWhenCreated() {
     // When
     Application savedApp = saveAndTrackApplication(application);
-    Application retrievedApplication =
-        applicationRepository.findById(savedApp.getId()).orElse(null);
+    Application reloaded = applicationRepository.findById(savedApp.getId()).orElseThrow();
 
-    // Then
-    assertThat(retrievedApplication).isNotNull();
-    assertThat(retrievedApplication.getHeaderParams()).isNotNull();
-    assertThat(retrievedApplication.getHeaderParams()).isEmpty();
-  }
-
-  @Test
-  @DisplayName("Should have created date when saved")
-  void shouldHaveCreatedDateWhenSaved() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    assertThat(savedApp.getCreatedDate()).isNotNull();
-    assertThat(savedApp.getCreatedDate()).isInstanceOf(Date.class);
-  }
-
-  @Test
-  @DisplayName("Should have last update date when saved")
-  void shouldHaveLastUpdateDateWhenSaved() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    assertThat(savedApp.getLastUpdate()).isNotNull();
-    assertThat(savedApp.getLastUpdate()).isInstanceOf(Date.class);
-  }
-
-  @Test
-  @DisplayName("Should have empty collections as defaults")
-  void shouldHaveEmptyCollectionsAsDefaults() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    validateEmptyCollections(savedApp);
-  }
-
-  @Test
-  @DisplayName("Should convert header parameters to JSON and back correctly")
-  void shouldConvertHeaderParametersToJsonAndBack() {
-    // Given
-    Map<String, Object> testParams = new HashMap<>();
-    testParams.put("stringValue", "test");
-    testParams.put("intValue", 123);
-    testParams.put("doubleValue", 45.67);
-    testParams.put("booleanValue", true);
-    testParams.put("nullValue", null);
-
-    Map<String, Object> nestedMap = new HashMap<>();
-    nestedMap.put("nestedString", "nested");
-    nestedMap.put("nestedNumber", 789);
-    testParams.put("nestedMap", nestedMap);
-
-    // When
-    String jsonString = hashMapConverter.convertToDatabaseColumn(testParams);
-    Map<String, Object> convertedBack = hashMapConverter.convertToEntityAttribute(jsonString);
-
-    // Then
-    assertThat(jsonString).isNotNull().isNotEmpty();
-    assertThat(convertedBack)
-        .isNotNull()
-        .containsEntry("stringValue", "test")
-        .containsEntry("intValue", 123)
-        .containsEntry("doubleValue", 45.67)
-        .containsEntry("booleanValue", true)
-        .containsEntry("nullValue", null)
-        .containsKey("nestedMap");
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> retrievedNestedMap = (Map<String, Object>) convertedBack.get("nestedMap");
-    assertThat(retrievedNestedMap)
-        .containsEntry("nestedString", "nested")
-        .containsEntry("nestedNumber", 789);
-  }
-
-  @Test
-  @DisplayName("Should handle null and empty string in converter")
-  void shouldHandleNullAndEmptyStringInConverter() {
-    // When & Then
-    assertThat(hashMapConverter.convertToDatabaseColumn(null)).isNull();
-    assertThat(hashMapConverter.convertToEntityAttribute(null)).isNull();
-    assertThat(hashMapConverter.convertToEntityAttribute("")).isNull();
-    assertThat(hashMapConverter.convertToEntityAttribute("   ")).isNull();
-  }
-
-  @Test
-  @DisplayName("Should have all default values when created")
-  void shouldHaveAllDefaultValuesWhenCreated() {
-    // When
-    Application savedApp = saveAndTrackApplication(application);
-
-    // Then
-    validateDefaultBooleanValues(savedApp);
-    validateDefaultHeaderParameters(savedApp);
-    validateEmptyCollections(savedApp);
-    validateDateFields(savedApp);
+    validateDefaultBooleanValues(reloaded);
+    validateDefaultHeaderParameters(reloaded);
+    validateEmptyCollections(reloaded);
+    validateDateFields(reloaded);
   }
 }

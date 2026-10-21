@@ -1,7 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.basic;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.test.URIConstants.CARTOGRAPHIES_URI;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -18,7 +17,6 @@ import org.springframework.test.web.servlet.ResultActions;
 @DisplayName("MinMax validation test")
 class MinMaxTest extends BaseTest {
 
-  private static final Integer VALID_VALUE = 50;
   private static final Integer INVALID_BELOW_MIN = -1;
   private static final Integer INVALID_UPPER_MAX = 101;
   private static final String ENTITY_WITH_MIN_MAX_URI = CARTOGRAPHIES_URI;
@@ -26,8 +24,8 @@ class MinMaxTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail if value is below min")
-  void failIfValueIsBelowMin() throws Exception {
+  @DisplayName("POST cartography transparency -1 returns a field error")
+  void transparencyBelowMinReturnsFieldError() throws Exception {
     postEntityWithMinMaxValue(INVALID_BELOW_MIN)
         .andExpect(status().is4xxClientError())
         .andExpect(
@@ -38,24 +36,14 @@ class MinMaxTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail if value is above max")
-  void failIfValueIsAboveMax() throws Exception {
+  @DisplayName("POST cartography transparency 101 returns a field error")
+  void transparencyAboveMaxReturnsFieldError() throws Exception {
     postEntityWithMinMaxValue(INVALID_UPPER_MAX)
         .andExpect(status().is4xxClientError())
         .andExpect(
             jsonPath(
                 "$.errors[?(@.field=='" + PROPERTY_WITH_MIN_MAX + "')].rejectedValue",
                 hasItem(INVALID_UPPER_MAX)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("Pass if value is in range")
-  void passIfValueIsInRange() throws Exception {
-    postEntityWithMinMaxValue(VALID_VALUE)
-        .andExpect(status().is4xxClientError())
-        .andExpect(
-            jsonPath("$.errors[?(@.property=='" + PROPERTY_WITH_MIN_MAX + "')]", hasSize(0)));
   }
 
   private ResultActions postEntityWithMinMaxValue(Integer value) throws Exception {

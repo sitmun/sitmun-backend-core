@@ -1,5 +1,6 @@
 package org.sitmun.domain.territory;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.sitmun.test.DateTimeMatchers.isIso8601DateAndTime;
 import static org.sitmun.test.TestUtils.*;
 import static org.sitmun.test.URIConstants.*;
@@ -79,10 +80,12 @@ class TerritoryRepositoryDataRestTest {
   }
 
   @Test
-  @DisplayName("GET: can list as admin")
+  @DisplayName("GET lists seed territory Provincia A")
   @WithMockUser(roles = "ADMIN")
   void getTerritoriesAsPublic() throws Exception {
-    mvc.perform(get(TERRITORIES_URI)).andExpect(status().isOk());
+    mvc.perform(get(TERRITORIES_URI))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.territories[*].name", hasItem("Provincia A")));
   }
 
   @Test

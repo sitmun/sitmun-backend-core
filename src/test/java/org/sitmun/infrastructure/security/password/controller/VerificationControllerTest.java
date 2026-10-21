@@ -49,21 +49,21 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify password with valid credentials should return true")
+  @DisplayName("POST: Verify password with valid credentials returns true")
   @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithValidCredentials() throws Exception {
     checkPassword("admin", true);
   }
 
   @Test
-  @DisplayName("POST: Verify password with invalid credentials should return false")
+  @DisplayName("POST: Verify password with invalid credentials returns false")
   @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithInvalidCredentials() throws Exception {
     checkPassword("wrongpassword", false);
   }
 
   @Test
-  @DisplayName("POST: Verify password with empty password should return false")
+  @DisplayName("POST: Verify password with empty password returns false")
   @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithEmptyPassword() throws Exception {
     checkPassword("", false);
@@ -82,7 +82,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify password with null password should return bad request")
+  @DisplayName("POST: Verify password with null password returns bad request")
   @WithMockUser(username = "admin", roles = "USER")
   void verifyPasswordWithNullPassword() throws Exception {
     PasswordVerificationRequest request = new PasswordVerificationRequest();
@@ -96,7 +96,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify email with existing email should return true")
+  @DisplayName("POST: Verify email with existing email returns true")
   @WithMockUser(roles = "USER")
   void verifyEmailWithExistingEmail() throws Exception {
     // Unique email/username (≤50 chars) to avoid NonUniqueResultException when other tests leave
@@ -122,7 +122,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify email with non-existing email should return false")
+  @DisplayName("POST: Verify email with non-existing email returns false")
   @WithMockUser(roles = "USER")
   void verifyEmailWithNonExistingEmail() throws Exception {
     String email = "nonexistent@example.com";
@@ -136,7 +136,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify email with empty email should return false")
+  @DisplayName("POST: Verify email with empty email returns false")
   @WithMockUser(roles = "USER")
   void verifyEmailWithEmptyEmail() throws Exception {
     mvc.perform(
@@ -148,7 +148,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify email with null email should return false")
+  @DisplayName("POST: Verify email with null email returns false")
   @WithMockUser(roles = "USER")
   void verifyEmailWithNullEmail() throws Exception {
     mvc.perform(
@@ -160,7 +160,7 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Verify email should be case insensitive")
+  @DisplayName("POST: Verify email is case insensitive")
   @WithMockUser(roles = "USER")
   void verifyEmailCaseInsensitive() throws Exception {
     // Unique email/username (≤50 chars) to avoid conflict with other tests
@@ -183,8 +183,8 @@ class VerificationControllerTest {
   }
 
   @Test
-  @DisplayName("POST: Unauthenticated requests should be rejected")
-  void unauthenticatedRequestsShouldBeRejected() throws Exception {
+  @DisplayName("POST verify-password without credentials returns 401")
+  void unauthenticatedRequestsReturn401() throws Exception {
     PasswordVerificationRequest request = new PasswordVerificationRequest();
     request.setPassword("admin");
 

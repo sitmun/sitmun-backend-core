@@ -253,8 +253,8 @@ class UriTemplateExpanderTest {
   }
 
   @Test
-  @DisplayName("expand handles URL encoding correctly")
-  void expandHandlesUrlEncodingCorrectly() {
+  @DisplayName("expand percent-encodes the space in a query value")
+  void expandPercentEncodesSpaceInQueryValue() {
     // Given
     String template = "https://api.example.com/search{?query}";
     Map<String, String> params = Map.of("query", "hello world & goodbye");
@@ -262,8 +262,6 @@ class UriTemplateExpanderTest {
     // When
     String result = UriTemplateExpander.expand(template, params);
 
-    // Then
-    // The library should properly encode special characters
     assertTrue(result.contains("hello%20world"));
   }
 

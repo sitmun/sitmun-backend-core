@@ -20,24 +20,15 @@ class DashboardInfoSecurityTest {
   @Autowired private MockMvc mvc;
 
   @Test
-  @DisplayName("GET: /api/dashboard/info should require admin authentication")
-  void dashboardInfoShouldRequireAdminAuthentication() throws Exception {
+  @DisplayName("Anonymous GET /api/dashboard/info returns 401")
+  void anonymousGetReturns401() throws Exception {
     mvc.perform(get("/api/dashboard/info")).andExpect(status().isUnauthorized());
   }
 
   @Test
-  @DisplayName("GET: /api/dashboard/info should be accessible with admin role")
+  @DisplayName("GET /api/dashboard/info returns dashboard.total for an admin")
   @WithMockUser(authorities = "ROLE_ADMIN")
-  void dashboardInfoShouldBeAccessibleWithAdminRole() throws Exception {
-    mvc.perform(get("/api/dashboard/info"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.dashboard").exists());
-  }
-
-  @Test
-  @DisplayName("GET: /api/dashboard/info should contain SITMUN metrics for admin")
-  @WithMockUser(authorities = "ROLE_ADMIN")
-  void dashboardInfoShouldContainSitmunMetricsForAdmin() throws Exception {
+  void dashboardInfoReturnsTotalForAdmin() throws Exception {
     mvc.perform(get("/api/dashboard/info"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.dashboard").exists())
@@ -45,9 +36,9 @@ class DashboardInfoSecurityTest {
   }
 
   @Test
-  @DisplayName("GET: /api/dashboard/info should be forbidden for standard user")
+  @DisplayName("GET /api/dashboard/info returns 403 for a standard user")
   @WithMockUser(authorities = "ROLE_USER")
-  void dashboardInfoShouldBeForbiddenForStandardUser() throws Exception {
+  void dashboardInfoReturns403ForStandardUser() throws Exception {
     mvc.perform(get("/api/dashboard/info")).andExpect(status().isForbidden());
   }
 }

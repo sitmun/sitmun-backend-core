@@ -119,6 +119,11 @@ class CartographyPermissionsRepositoryDataRestTest {
 
     mvc.perform(put(location).content(changedContent)).andExpect(status().isOk());
 
+    mvc.perform(get(location))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("test2"))
+        .andExpect(jsonPath("$.type").value("M"));
+
     mvc.perform(delete(location)).andExpect(status().isNoContent());
   }
 
@@ -134,7 +139,10 @@ class CartographyPermissionsRepositoryDataRestTest {
       }""";
     mvc.perform(put(CARTOGRAPHY_PERMISSION_URI, 3).content(changedContent))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].field").value("type"))
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"))
+        .andExpect(
+            jsonPath("$.errors[0].message").value("In use in an application, can't be modified"));
   }
 
   @Test
@@ -150,7 +158,10 @@ class CartographyPermissionsRepositoryDataRestTest {
       """;
     mvc.perform(put(CARTOGRAPHY_PERMISSION_URI, 2).content(changedContent))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"));
+        .andExpect(jsonPath("$.errors[0].field").value("type"))
+        .andExpect(jsonPath("$.errors[0].rejectedValue").value("C"))
+        .andExpect(
+            jsonPath("$.errors[0].message").value("In use in a background, can't be modified"));
   }
 
   @Test

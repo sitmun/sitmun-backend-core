@@ -25,26 +25,7 @@ class CodeListTest extends BaseTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Pass if code list value exists")
-  void passIfCodeListValueIsValid() throws Exception {
-
-    when(codeListValueRepository.existsByCodeListNameAndValue(
-            CodeListsConstants.CARTOGRAPHY_LEGEND_TYPE, "LINK"))
-        .thenReturn(true);
-
-    String content = new JSONObject().put("legendType", "LINK").toString();
-
-    mvc.perform(
-            post(URIConstants.CARTOGRAPHIES_URI)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content))
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors.[?(@.property == 'legendType')]", hasSize(0)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail if code list value does not exist")
+  @DisplayName("An unknown legend type is rejected")
   void failIfCodeListValueIsWrong() throws Exception {
 
     when(codeListValueRepository.existsByCodeListNameAndValue(

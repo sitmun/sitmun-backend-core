@@ -181,8 +181,8 @@ class SqlUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles null SQL gracefully")
-  void addBehaviorHandlesNullSql() {
+  @DisplayName("addBehavior with null SQL leaves SQL null and parameters empty")
+  void addBehaviorLeavesNullSql() {
     // Given
     Map<String, String> target = Map.of("category", "electronics");
 
@@ -198,8 +198,8 @@ class SqlUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles empty SQL gracefully")
-  void addBehaviorHandlesEmptySql() {
+  @DisplayName("addBehavior with empty SQL leaves SQL empty and parameters empty")
+  void addBehaviorLeavesEmptySql() {
     // Given
     Map<String, String> target = Map.of("category", "electronics");
 
@@ -214,8 +214,8 @@ class SqlUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles null target gracefully")
-  void addBehaviorHandlesNullTarget() {
+  @DisplayName("addBehavior with a null SQL target keeps the SQL")
+  void addBehaviorKeepsSqlWhenTargetIsNull() {
     // Given
     JdbcPayloadDto payload = JdbcPayloadDto.builder().sql("SELECT * FROM products").build();
 
@@ -228,8 +228,8 @@ class SqlUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles empty target gracefully")
-  void addBehaviorHandlesEmptyTarget() {
+  @DisplayName("addBehavior with an empty SQL target keeps the SQL")
+  void addBehaviorKeepsSqlWhenTargetIsEmpty() {
     // Given
     Map<String, String> target = Map.of();
     JdbcPayloadDto payload = JdbcPayloadDto.builder().sql("SELECT * FROM products").build();
@@ -243,8 +243,8 @@ class SqlUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles null payload gracefully")
-  void addBehaviorHandlesNullPayload() {
+  @DisplayName("addBehavior with a null payload does not throw")
+  void addBehaviorAcceptsNullPayload() {
     // Given
     Map<String, String> target = Map.of("category", "electronics");
 

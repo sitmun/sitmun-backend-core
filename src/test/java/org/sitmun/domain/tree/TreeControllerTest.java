@@ -79,7 +79,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("PUT: Fail 400 when try save touristic tree with non touristic application")
+  @DisplayName("POST linking touristic tree 4 to application 1 returns 400")
   @WithMockUser(roles = "ADMIN")
   void saveTouristicTreeWithNonTouristicApplication() throws Exception {
     mockMvc
@@ -98,7 +98,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("PUT: Fail 400 when try save non touristic tree with touristic application")
+  @DisplayName("POST linking tree 1 to touristic application 6 returns 400")
   @WithMockUser(roles = "ADMIN")
   void saveNoTouristicTreeWithTouristicApplication() throws Exception {
     mockMvc
@@ -118,7 +118,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("PUT: Check that updating and removing standard trees works as expected")
+  @DisplayName("DELETE and POST move tree 1 from application 1 to application 2 and back")
   @WithMockUser(roles = "ADMIN")
   void updateAndRemoveATree() throws Exception {
     String treeUri = TREE_URI + "/1";
@@ -448,7 +448,7 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
-  @DisplayName("POST: Validation errors return proper RFC 9457 format")
+  @DisplayName("POST validation errors return RFC 9457 type, status, title, detail, and instance")
   @WithMockUser(roles = "ADMIN")
   void validateRfc9457Format() throws Exception {
     TreeTypeValidationRequest request =

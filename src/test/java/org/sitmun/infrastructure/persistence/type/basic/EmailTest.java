@@ -1,7 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.basic;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,23 +17,13 @@ import org.springframework.test.web.servlet.ResultActions;
 @DisplayName("Email validation test")
 class EmailTest extends BaseTest {
 
-  private static final String VALID_EMAIL = "fake@example.com";
   private static final String INVALID_EMAIL = "fake @ example.com";
   private static final String ENTITY_WITH_EMAIL_URI = URIConstants.TERRITORIES_URI;
   private static final String PROPERTY_WITH_EMAIL = "territorialAuthorityEmail";
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Pass if email value is valid")
-  void passIfEmailValueIsValid() throws Exception {
-    postEntityWithEmailValue(VALID_EMAIL)
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors.[?(@.property == 'legendType')]", hasSize(0)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail if email value is wrong")
+  @DisplayName("A bad email is rejected on territorialAuthorityEmail")
   void failIfEmailValueIsWrong() throws Exception {
     postEntityWithEmailValue(INVALID_EMAIL)
         .andExpect(status().is4xxClientError())

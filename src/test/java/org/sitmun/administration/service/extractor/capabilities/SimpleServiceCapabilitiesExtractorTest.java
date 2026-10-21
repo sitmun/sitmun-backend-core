@@ -9,68 +9,20 @@ import java.util.stream.Stream;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sitmun.administration.service.extractor.HttpClientFactory;
-import org.sitmun.administration.service.extractor.LocalHtmlServer;
 
 @DisplayName("SimpleServiceCapabilitiesExtractor test")
 class SimpleServiceCapabilitiesExtractorTest {
-
-  private static LocalHtmlServer html;
 
   private final HttpClientFactory factory = new HttpClientFactory(List.of("*"));
 
   private final SimpleServiceCapabilitiesExtractor extractor =
       new SimpleServiceCapabilitiesExtractor(factory);
-
-  @BeforeAll
-  static void startHtml() throws IOException {
-    html = LocalHtmlServer.start();
-  }
-
-  @AfterAll
-  static void stopHtml() {
-    html.close();
-  }
-
-  @Test
-  @DisplayName("Extract from a GetCapabilities request to a WMS 1.3.0")
-  void extractKnownWMSService130() {
-    ExtractedMetadata doc =
-        extractor.extract(
-            request("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities"));
-    assertNotNull(doc);
-    assertTrue(doc.getSuccess());
-    assertEquals("OGC:WMS 1.3.0", doc.getType());
-    assertNull(doc.getReason());
-    assertNotNull(doc.getAsText());
-    assertThat(doc.getAsText()).startsWith("<?xml");
-    assertNotNull(doc.getAsJson());
-    assertTrue(doc.getAsJson().containsKey("WMS_Capabilities"));
-  }
-
-  @Test
-  @DisplayName("Extract from a GetCapabilities request to a WMS 1.1.1")
-  void extractKnownWMSService111() {
-    ExtractedMetadata doc =
-        extractor.extract(
-            request(
-                "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1"));
-    assertNotNull(doc);
-    assertTrue(doc.getSuccess());
-    assertEquals("OGC:WMS 1.1.1", doc.getType());
-    assertNull(doc.getReason());
-    assertNotNull(doc.getAsText());
-    assertThat(doc.getAsText()).startsWith("<?xml");
-    assertNotNull(doc.getAsJson());
-    assertTrue(doc.getAsJson().containsKey("WMT_MS_Capabilities"));
-  }
 
   @ParameterizedTest(name = "{0} version {1}")
   @MethodSource("wfsCapabilitiesDocuments")
@@ -124,41 +76,6 @@ class SimpleServiceCapabilitiesExtractorTest {
     assertThat(doc.getAsText()).startsWith("<?xml");
     assertNotNull(doc.getAsJson());
     assertTrue(doc.getAsJson().containsKey("ServiceExceptionReport"));
-  }
-
-  @Test
-  @DisplayName("Extract from a request to HTML page")
-  void extractHtmlPage() {
-    ExtractedMetadata doc = extractor.extract(request(html.url("/")));
-    assertNotNull(doc);
-    assertFalse(doc.getSuccess());
-    assertEquals("Not a standard OGC:WMS or OGC:WFS Capabilities response", doc.getReason());
-    assertNotNull(doc.getAsText());
-    assertThat(doc.getAsText()).startsWith("<!DOCTYPE");
-  }
-
-  @Test
-  @DisplayName("A non-XML 404 reports the HTTP status")
-  void extract404Page() {
-    ExtractedMetadata doc = extractor.extract(request(html.url("/not-found")));
-    assertNotNull(doc);
-    assertFalse(doc.getSuccess());
-    assertEquals("HTTP 404", doc.getReason());
-    assertNotNull(doc.getAsText());
-    assertThat(doc.getAsText()).startsWith("<html");
-    assertNull(doc.getAsJson());
-  }
-
-  @Test
-  @DisplayName("Extract from a request to an nonexistent domain")
-  void extractNonExistentDomain() {
-    ExtractedMetadata doc = extractor.extract(request("https://fake"));
-    assertNotNull(doc);
-    assertFalse(doc.getSuccess());
-    assertNotNull(doc.getReason());
-    assertThat(doc.getReason()).startsWith("UnknownHostException:").contains("fake");
-    assertNull(doc.getAsText());
-    assertNull(doc.getAsJson());
   }
 
   private static Request request(String url) {

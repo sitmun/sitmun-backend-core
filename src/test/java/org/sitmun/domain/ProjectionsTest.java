@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ class ProjectionsTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.serviceId").value(1))
         .andExpect(jsonPath("$.serviceName").value("ICC Mapesmultibase"))
-        .andExpect(jsonPath("$.serviceId").value(1))
         .andExpect(jsonPath("$.useAllStyles").value(false));
   }
 
@@ -56,20 +54,6 @@ class ProjectionsTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.stylesNames", hasSize(3)))
         .andExpect(jsonPath("$.stylesNames", containsInAnyOrder("Style A", "Style B", "Style C")));
-  }
-
-  @Test
-  @Disabled("Requires additional test data")
-  @DisplayName("GET: Retrieve cartography availability projection with detailed information")
-  @WithMockUser(roles = "ADMIN")
-  void cartographyAvailabiltiesProjectionView() throws Exception {
-    mvc.perform(get(CARTOGRAPHY_AVAILABILITY_PROJECTION_VIEW, 1))
-        .andExpect(jsonPath("$.cartographyId").value(1208))
-        .andExpect(jsonPath("$.cartographyName").value("NGE50 - Noms geogràfics (edificis) (ICGC)"))
-        .andExpect(jsonPath("$.cartographyLayers").value(contains("NGE50_111P_EDI")))
-        .andExpect(jsonPath("$.territoryId").value(35))
-        .andExpect(jsonPath("$.territoryName").value("Aguilar de Segarra"))
-        .andExpect(jsonPath("$.territoryCode").value("08002"));
   }
 
   @Test
@@ -106,29 +90,6 @@ class ProjectionsTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.territoryName").value("Provincia A"))
         .andExpect(jsonPath("$.userId").value(4));
-  }
-
-  @Test
-  @Disabled("Requires additional test data")
-  @DisplayName("GET: Retrieve user configuration projection with filtered results")
-  @WithMockUser(roles = "ADMIN")
-  void userConfigurationProjectionView() throws Exception {
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "territoryId", "41"))
-        .andExpect(status().isOk())
-        .andExpect(
-            jsonPath("$._embedded.user-configurations[?(@.territoryId == 41)]", hasSize(34)));
-
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "userId", "1777"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.user-configurations[?(@.userId == 1777)]", hasSize(2)));
-
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW_PROPERTY_VALUE, "roleId", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.user-configurations[?(@.roleId == 10)]", hasSize(7)));
-
-    mvc.perform(get(USER_CONFIGURATION_PROJECTION_VIEW, "0"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.appliesToChildrenTerritories").value(false));
   }
 
   @Test

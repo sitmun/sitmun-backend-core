@@ -3,31 +3,27 @@ package org.sitmun.domain.database;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.sitmun.domain.CodeListsConstants.*;
 import static org.sitmun.test.URIConstants.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueRepository;
 import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("DatabaseConnection Repository Data REST test")
 class DatabaseConnectionRepositoryDataRestTest {
 
@@ -35,19 +31,12 @@ class DatabaseConnectionRepositoryDataRestTest {
 
   @Autowired private MockMvc mvc;
 
-  @Autowired private CodeListValueRepository codeListValueRepository;
+  private final List<Integer> createdConnectionIds = new ArrayList<>();
 
-  @BeforeEach
-  void setUp() {
-    // Timeout 90s: Postgres/Oracle context startup + ApplicationRunner can exceed 30s
-    // when @DirtiesContext(AFTER_EACH_TEST_METHOD) triggers repeated restarts
-    Awaitility.await()
-        .atMost(90, TimeUnit.SECONDS)
-        .pollInterval(500, TimeUnit.MILLISECONDS)
-        .until(
-            () ->
-                codeListValueRepository.existsByCodeListNameAndValue(
-                    DATABASE_CONNECTION_DRIVER, "org.h2.Driver"));
+  @AfterEach
+  void deleteCreatedConnections() {
+    createdConnectionIds.forEach(repository::deleteById);
+    createdConnectionIds.clear();
   }
 
   @Test
@@ -87,6 +76,7 @@ class DatabaseConnectionRepositoryDataRestTest {
 
     String[] parts = uri.split("/");
     Integer id = Integer.parseInt(parts[parts.length - 1]);
+    createdConnectionIds.add(id);
     Optional<DatabaseConnection> databaseConnection = repository.findById(id);
     assertTrue(databaseConnection.isPresent());
     final String[] oldPassword = new String[1];
@@ -106,8 +96,6 @@ class DatabaseConnectionRepositoryDataRestTest {
     databaseConnection = repository.findById(id);
     assertTrue(databaseConnection.isPresent());
     assertNotEquals(oldPassword[0], databaseConnection.get().getPassword());
-
-    mvc.perform(delete(uri).contentType(APPLICATION_JSON)).andExpect(status().isNoContent());
   }
 
   @Test
@@ -135,6 +123,7 @@ class DatabaseConnectionRepositoryDataRestTest {
     assertThat(uri).isNotNull();
 
     Integer id = TestUtils.extractId(uri);
+    createdConnectionIds.add(id);
     Optional<DatabaseConnection> databaseConnection = repository.findById(id);
     assertTrue(databaseConnection.isPresent());
     final String[] oldPassword = new String[1];
@@ -154,8 +143,6 @@ class DatabaseConnectionRepositoryDataRestTest {
     databaseConnection = repository.findById(id);
     assertTrue(databaseConnection.isPresent());
     assertEquals(oldPassword[0], databaseConnection.get().getPassword());
-
-    mvc.perform(delete(uri).contentType(APPLICATION_JSON)).andExpect(status().isNoContent());
   }
 
   @Test
@@ -184,6 +171,7 @@ class DatabaseConnectionRepositoryDataRestTest {
 
     String[] parts = uri.split("/");
     Integer id = Integer.parseInt(parts[parts.length - 1]);
+    createdConnectionIds.add(id);
 
     String content =
         """
@@ -200,7 +188,5 @@ class DatabaseConnectionRepositoryDataRestTest {
     Optional<DatabaseConnection> databaseConnection = repository.findById(id);
     assertTrue(databaseConnection.isPresent());
     assertNull(databaseConnection.get().getPassword());
-
-    mvc.perform(delete(uri).contentType(APPLICATION_JSON)).andExpect(status().isNoContent());
   }
 }

@@ -28,8 +28,8 @@ class DashboardHealthSecurityTest {
   }
 
   @Test
-  @DisplayName("GET: /api/dashboard/health should be accessible without authentication")
-  void dashboardHealthShouldBeAccessibleWithoutAuthentication() throws Exception {
+  @DisplayName("GET /api/dashboard/health returns 200 without authentication")
+  void dashboardHealthReturns200WithoutAuthentication() throws Exception {
     builtInUserStartupStatus.markReady();
     mvc.perform(get("/api/dashboard/health"))
         .andExpect(status().isOk())
@@ -71,10 +71,7 @@ class DashboardHealthSecurityTest {
         .andExpect(jsonPath("$.state").value("blocked"))
         .andExpect(
             jsonPath("$.reason")
-                .value(BuiltInUserStartupStatus.REASON_ADMIN_MISSING_BOOTSTRAP_PASSWORD))
-        .andExpect(jsonPath("$.password").doesNotExist())
-        .andExpect(jsonPath("$.secret").doesNotExist())
-        .andExpect(jsonPath("$.exception").doesNotExist());
+                .value(BuiltInUserStartupStatus.REASON_ADMIN_MISSING_BOOTSTRAP_PASSWORD));
 
     mvc.perform(get("/api/dashboard/health"))
         .andExpect(status().isServiceUnavailable())

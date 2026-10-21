@@ -69,8 +69,8 @@ class HttpUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles null target for HTTP URL gracefully")
-  void addBehaviorHandlesNullTargetForHttpUrl() {
+  @DisplayName("addBehavior with a null HTTP target keeps the URI")
+  void addBehaviorKeepsUriWhenHttpTargetIsNull() {
     // Given
     WmsPayloadDto payload =
         WmsPayloadDto.builder()
@@ -87,8 +87,8 @@ class HttpUserParametrizationDecoratorTest {
   }
 
   @Test
-  @DisplayName("addBehavior handles empty target for HTTP URL gracefully")
-  void addBehaviorHandlesEmptyTargetForHttpUrl() {
+  @DisplayName("addBehavior with an empty HTTP target keeps the URI")
+  void addBehaviorKeepsUriWhenHttpTargetIsEmpty() {
     // Given
     Map<String, String> target = Map.of();
     WmsPayloadDto payload =
@@ -105,10 +105,8 @@ class HttpUserParametrizationDecoratorTest {
     assertEquals("https://api.example.com/endpoint", payload.getUri());
   }
 
-  // Defect test for parameter cleanup
   @Test
-  @DisplayName(
-      "addBehavior removes plain key from parameters after inlining in URL (expected to fail before fix)")
+  @DisplayName("addBehavior drops inlined userId and action from parameters")
   void addBehaviorRemovesPlainKeyFromParametersAfterInlining() {
     // Given
     Map<String, String> target = new HashMap<>();
@@ -131,7 +129,6 @@ class HttpUserParametrizationDecoratorTest {
 
     // Then
     assertEquals("https://api.example.com/users/123/search", payload.getUri());
-    // After inlining, the plain keys should be removed from parameters
     assertFalse(payload.getParameters().containsKey("userId"));
     assertFalse(payload.getParameters().containsKey("action"));
   }

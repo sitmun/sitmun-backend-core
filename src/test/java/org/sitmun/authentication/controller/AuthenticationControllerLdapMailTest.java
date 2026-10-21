@@ -63,8 +63,8 @@ class AuthenticationControllerLdapMailTest {
   }
 
   @Test
-  @DisplayName("POST: Test authentication with LDAP + Mail profiles enabled")
-  void testAuthenticationWithLdapAndMail() throws Exception {
+  @DisplayName("POST /api/authenticate with LDAP and Mail returns 200 and an access-token cookie")
+  void postAuthenticateWithLdapAndMailReturnsAccessToken() throws Exception {
     UserPasswordAuthenticationRequest login = new UserPasswordAuthenticationRequest();
     login.setUsername("admin");
     login.setPassword("admin");

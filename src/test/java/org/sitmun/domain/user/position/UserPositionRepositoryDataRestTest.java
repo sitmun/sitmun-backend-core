@@ -25,7 +25,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest
 @AutoConfigureWebMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Transactional(rollbackFor = Exception.class)
 @DisplayName("User Position Repository Data REST Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -134,7 +132,7 @@ class UserPositionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Create user position when user configuration is created via REST")
-  void shouldCreateUserPositionWhenUserConfigurationIsCreatedViaRest() throws Exception {
+  void createsUserPositionWhenUserConfigurationIsCreatedViaRest() throws Exception {
     // Ensure no UserPosition exists initially
     List<UserPosition> existingPosition =
         userPositionRepository.findByUserAndTerritory(user, territory);
@@ -164,7 +162,7 @@ class UserPositionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST /user-positions: Duplicate (user, territory) is allowed")
-  void shouldAllowDuplicateUserPositionViaRestEndpoint() throws Exception {
+  void allowsDuplicateUserPositionViaRestEndpoint() throws Exception {
     String positionJson =
         "{\"user\":\"http://localhost/api/users/%d\",\"territory\":\"http://localhost/api/territories/%d\"}"
             .formatted(user.getId(), territory.getId());
@@ -189,8 +187,7 @@ class UserPositionRepositoryDataRestTest {
 
   @Test
   @DisplayName("POST: Prevent duplicate user position when user configuration is updated via REST")
-  void shouldNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest()
-      throws Exception {
+  void doesNotCreateDuplicateUserPositionWhenUserConfigurationIsUpdatedViaRest() throws Exception {
     // Create a UserPosition manually first
     UserPosition existingPosition =
         UserPosition.builder()

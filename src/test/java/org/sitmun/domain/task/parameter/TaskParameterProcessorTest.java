@@ -148,8 +148,8 @@ class TaskParameterProcessorTest {
     }
 
     @Test
-    @DisplayName("parses provided flag correctly")
-    void parsesProvidedFlagCorrectly() {
+    @DisplayName("Parses the provided flag")
+    void parsesProvidedFlag() {
       Map<String, Object> providedTrue = new HashMap<>();
       providedTrue.put(PARAMETERS_VARIABLE, "p1");
       providedTrue.put(PARAMETERS_PROVIDED, true);

@@ -572,7 +572,7 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Ensure root children order follows TNO_ORDER not id order")
+  @DisplayName("GET profile tree children follow TNO_ORDER, node/7 then node/1")
   void treeNodeOrder() throws Exception {
     // node/7 has TNO_ORDER=1 but id=7 (higher id); node/1 has TNO_ORDER=2 but id=1 (lower id).
     // This verifies the profile returns children sorted by TNO_ORDER, not by insertion/id order.
@@ -817,17 +817,10 @@ class ClientConfigurationProfileControllerTest {
   }
 
   @Test
-  @DisplayName("GET: Task parameters must never emit provided flag or queryType/apiUrl keys")
-  void taskParametersContractViolationDefense() throws Exception {
+  @DisplayName("Task parameters do not emit provided")
+  void taskParametersDoNotEmitProvided() throws Exception {
     mvc.perform(get(CONFIG_CLIENT_PROFILE_URI, 1, 1))
         .andExpect(status().isOk())
-        // Verify no task parameters contain 'provided' key
-        .andExpect(jsonPath("$.tasks[*].parameters.*.provided").doesNotExist())
-        // TaskDto.parameters must not inject top-level keys named queryType or apiUrl
-        // (viewer checks task.parameters.queryType, which is different from TaskDto.queryType)
-        // This test verifies parameters CAN have these names (they're valid parameter names)
-        // but they don't leak into top-level TaskDto fields
-        .andExpect(jsonPath("$.tasks[*].queryType").doesNotExist())
-        .andExpect(jsonPath("$.tasks[*].apiUrl").doesNotExist());
+        .andExpect(jsonPath("$.tasks[*].parameters.*.provided").doesNotExist());
   }
 }

@@ -66,7 +66,7 @@ class OidcLoginUnitTest {
 
   @Test
   @DisplayName("OIDC with no client_type session attribute issues viewer_access_token")
-  void testDefaultClientTypeIssuesViewerCookie() throws Exception {
+  void defaultClientTypeIssuesViewerCookie() throws Exception {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     final OidcUser oidcUser = mock(OidcUser.class);
@@ -111,7 +111,7 @@ class OidcLoginUnitTest {
 
   @Test
   @DisplayName("OIDC with client_type=viewer issues viewer_access_token")
-  void testViewerClientTypeIssuesViewerCookie() throws Exception {
+  void viewerClientTypeIssuesViewerCookie() throws Exception {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     request.getSession(true).setAttribute(OidcRedirectService.CLIENT_TYPE, OidcClientTypes.VIEWER);
     final MockHttpServletResponse response = new MockHttpServletResponse();
@@ -148,7 +148,7 @@ class OidcLoginUnitTest {
 
   @Test
   @DisplayName("OIDC with client_type=admin issues admin_access_token")
-  void testAdminClientTypeIssuesAdminCookie() throws Exception {
+  void adminClientTypeIssuesAdminCookie() throws Exception {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     request.getSession(true).setAttribute(OidcRedirectService.CLIENT_TYPE, OidcClientTypes.ADMIN);
     final MockHttpServletResponse response = new MockHttpServletResponse();

@@ -1,11 +1,8 @@
 package org.sitmun.authorization.proxy.dto;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.proxy.protocols.jdbc.JdbcPayloadDto;
@@ -22,62 +19,7 @@ class ConfigProxyDtoTest {
       JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
   @Test
-  @DisplayName("Builder creates ConfigProxyDto with OgcWmsPayloadDto")
-  void builderCreatesWithOgcWmsPayload() {
-    Map<String, String> parameters = new HashMap<>();
-    parameters.put("format", "image/png");
-    parameters.put("version", "1.3.0");
-
-    HttpSecurityDto security =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("user")
-            .password("pass")
-            .build();
-
-    WmsPayloadDto payload =
-        WmsPayloadDto.builder()
-            .vary(Arrays.asList("param1", "param2"))
-            .uri("https://example.com/wms")
-            .method("GET")
-            .parameters(parameters)
-            .security(security)
-            .build();
-
-    ConfigProxyDto dto =
-        ConfigProxyDto.builder().type("WMS").exp(1234567890L).payload(payload).build();
-
-    assertEquals("WMS", dto.getType());
-    assertEquals(1234567890L, dto.getExp());
-    assertEquals(payload, dto.getPayload());
-    assertInstanceOf(WmsPayloadDto.class, dto.getPayload());
-  }
-
-  @Test
-  @DisplayName("Builder creates ConfigProxyDto with DatasourcePayloadDto")
-  void builderCreatesWithDatasourcePayload() {
-    JdbcPayloadDto payload =
-        JdbcPayloadDto.builder()
-            .vary(List.of("param1"))
-            .uri("jdbc:postgresql://localhost:5432/testdb")
-            .user("dbuser")
-            .password("dbpass")
-            .driver("org.postgresql.Driver")
-            .sql("SELECT * FROM test_table")
-            .build();
-
-    ConfigProxyDto dto =
-        ConfigProxyDto.builder().type("SQL").exp(1234567890L).payload(payload).build();
-
-    assertEquals("SQL", dto.getType());
-    assertEquals(1234567890L, dto.getExp());
-    assertEquals(payload, dto.getPayload());
-    assertInstanceOf(JdbcPayloadDto.class, dto.getPayload());
-  }
-
-  @Test
-  @DisplayName("Serializes to JSON with OgcWmsPayloadDto correctly")
+  @DisplayName("WMS proxy JSON sets payload.type to OgcWmsPayload")
   void serializesWithOgcWmsPayload() throws JacksonException {
     WmsPayloadDto payload =
         WmsPayloadDto.builder().uri("https://example.com/wms").method("GET").build();
@@ -94,10 +36,11 @@ class ConfigProxyDtoTest {
     JsonNode payloadNode = node.get("payload");
     assertEquals("https://example.com/wms", payloadNode.get("uri").asText());
     assertEquals("GET", payloadNode.get("method").asText());
+    assertEquals("OgcWmsPayload", payloadNode.get("type").asText());
   }
 
   @Test
-  @DisplayName("Serializes to JSON with DatasourcePayloadDto correctly")
+  @DisplayName("SQL proxy JSON sets payload.type to DatasourcePayload")
   void serializesWithDatasourcePayload() throws JacksonException {
     JdbcPayloadDto payload =
         JdbcPayloadDto.builder()
@@ -123,31 +66,6 @@ class ConfigProxyDtoTest {
     assertEquals("dbpass", payloadNode.get("password").asText());
     assertEquals("org.postgresql.Driver", payloadNode.get("driver").asText());
     assertEquals("SELECT * FROM test_table", payloadNode.get("sql").asText());
-  }
-
-  @Test
-  @DisplayName("Setter methods work correctly")
-  void setterMethodsWork() {
-    ConfigProxyDto dto = ConfigProxyDto.builder().build();
-
-    dto.setType("CUSTOM");
-    dto.setExp(987654321L);
-
-    WmsPayloadDto payload =
-        WmsPayloadDto.builder().uri("https://new-uri.com").method("POST").build();
-    dto.setPayload(payload);
-
-    assertEquals("CUSTOM", dto.getType());
-    assertEquals(987654321L, dto.getExp());
-    assertEquals(payload, dto.getPayload());
-  }
-
-  @Test
-  @DisplayName("Handles null payload gracefully")
-  void handlesNullPayload() {
-    ConfigProxyDto dto =
-        ConfigProxyDto.builder().type("WMS").exp(1234567890L).payload(null).build();
-
-    assertNull(dto.getPayload());
+    assertEquals("DatasourcePayload", payloadNode.get("type").asText());
   }
 }

@@ -21,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import(I18nTestConfiguration.class)
 @DisplayName("TaskRelation Repository JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TaskRelationRepositoryTest {
@@ -103,8 +103,4 @@ class TaskRelationRepositoryTest {
     assertThat(related.getConnection().getId()).isEqualTo(connection.getId());
     assertThat(related.getConnection().getDriver()).isEqualTo("org.h2.Driver");
   }
-
-  @TestConfiguration
-  @Import(I18nTestConfiguration.class)
-  static class Configuration {}
 }

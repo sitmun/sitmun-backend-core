@@ -3,8 +3,6 @@ package org.sitmun.domain.tree;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.application.tree.ApplicationTreeRepository;
@@ -15,47 +13,17 @@ import org.sitmun.infrastructure.security.core.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import(I18nTestConfiguration.class)
 @DisplayName("Tree Repository JPA Test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TreeRepositoryTest {
 
-  @Autowired private TreeRepository treeRepository;
-
   @Autowired private ApplicationTreeRepository applicationTreeRepository;
 
   @Autowired private RoleRepository roleRepository;
-
-  private Tree tree;
-
-  @BeforeEach
-  void init() {
-    tree = new Tree();
-    tree.setName("Test");
-  }
-
-  @Test
-  @DisplayName("Save a new tree to database")
-  void saveTree() {
-    Assertions.assertThat(tree.getId()).isNull();
-    treeRepository.save(tree);
-    Assertions.assertThat(tree.getId()).isNotZero();
-  }
-
-  @Test
-  @DisplayName("Find a tree by its ID")
-  void findOneTreeById() {
-    Assertions.assertThat(tree.getId()).isNull();
-    treeRepository.save(tree);
-    Assertions.assertThat(tree.getId()).isNotZero();
-
-    Assertions.assertThat(treeRepository.findById(tree.getId()))
-        .isPresent()
-        .hasValueSatisfying(found -> Assertions.assertThat(found.getId()).isEqualTo(tree.getId()));
-  }
 
   @Test
   @DisplayName("Find trees by roles and territory")
@@ -71,8 +39,4 @@ class TreeRepositoryTest {
     // class; do not weaken this assert.
     assertThat(tr).hasSize(2);
   }
-
-  @TestConfiguration
-  @Import(I18nTestConfiguration.class)
-  static class Configuration {}
 }

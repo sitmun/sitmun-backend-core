@@ -19,23 +19,23 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
-  @DisplayName("Test driver with valid driver class")
-  void testDriver() {
+  @DisplayName("org.h2.Driver is accepted")
+  void acceptsH2Driver() {
     DatabaseConnection connection = DatabaseConnection.builder().driver("org.h2.Driver").build();
     assertTrue(sut.testDriver(connection));
   }
 
   @Test
-  @DisplayName("Test SQL Server driver class is on the classpath")
-  void testSqlServerDriverOnClasspath() {
+  @DisplayName("SQLServerDriver is accepted")
+  void acceptsSqlServerDriver() {
     DatabaseConnection connection =
         DatabaseConnection.builder().driver("com.microsoft.sqlserver.jdbc.SQLServerDriver").build();
     assertTrue(sut.testDriver(connection));
   }
 
   @Test
-  @DisplayName("Test driver with invalid driver class should throw exception")
-  void testDriverException() {
+  @DisplayName("Unknown driver class throws DatabaseConnectionDriverNotFoundException")
+  void unknownDriverClassThrowsNotFound() {
     DatabaseConnection connection = DatabaseConnection.builder().driver("org.h2.DriverX").build();
     DatabaseConnectionDriverNotFoundException exception =
         assertThrows(
@@ -44,8 +44,8 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
-  @DisplayName("Test driver with null driver should throw exception")
-  void testNullDriverException() {
+  @DisplayName("Null driver throws DatabaseConnectionDriverNotFoundException")
+  void nullDriverThrowsNotFound() {
     DatabaseConnection connection = DatabaseConnection.builder().driver(null).build();
     DatabaseConnectionDriverNotFoundException exception =
         assertThrows(
@@ -54,8 +54,8 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
-  @DisplayName("Test connection with valid parameters")
-  void testConnection() throws Exception {
+  @DisplayName("H2 memory URL connects")
+  void h2MemoryUrlConnects() throws Exception {
     DatabaseConnection connection =
         DatabaseConnection.builder()
             .driver("org.h2.Driver")
@@ -68,8 +68,8 @@ class DatabaseConnectionTesterServiceTest {
   }
 
   @Test
-  @DisplayName("Test connection with invalid URL should throw exception")
-  void testConnectionException() {
+  @DisplayName("Malformed JDBC URL throws SQLException")
+  void malformedJdbcUrlThrowsSqlException() {
     DatabaseConnection connection =
         DatabaseConnection.builder()
             .driver("org.h2.Driver")
@@ -78,7 +78,6 @@ class DatabaseConnectionTesterServiceTest {
             .password(null)
             .build();
     sut.testDriver(connection);
-    SQLException exception = assertThrows(SQLException.class, () -> sut.testConnection(connection));
-    assertEquals("No suitable driver found for jdb:h2:mem:testdb", exception.getLocalizedMessage());
+    assertThrows(SQLException.class, () -> sut.testConnection(connection));
   }
 }

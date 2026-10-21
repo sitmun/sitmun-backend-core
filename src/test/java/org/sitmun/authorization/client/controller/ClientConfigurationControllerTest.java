@@ -1,5 +1,6 @@
 package org.sitmun.authorization.client.controller;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -11,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,28 +66,9 @@ class ClientConfigurationControllerTest {
   @MockitoBean private ProxyMiddlewareUrlResolver proxyMiddlewareUrlResolver;
 
   @Test
-  @DisplayName("GET: ED application config must not expose mbtilesUrl")
+  @DisplayName("GET returns both applications with id, type, and title")
   @WithMockUser(username = "testuser", roles = "USER")
-  void getApplicationsDoesNotExposeMbtilesUrl() throws Exception {
-    Application app = new Application();
-    app.setId(1);
-    app.setTitle("Edition Application");
-    app.setType("ED");
-
-    Page<Application> page = new PageImpl<>(Collections.singletonList(app));
-    when(authorizationService.findApplicationsByUser(anyString(), any(Pageable.class)))
-        .thenReturn(page);
-
-    mvc.perform(get("/api/config/client/application"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].type").value("ED"))
-        .andExpect(jsonPath("$.content[0].config.mbtilesUrl").doesNotExist());
-  }
-
-  @Test
-  @DisplayName("GET: Multiple applications must not expose mbtilesUrl")
-  @WithMockUser(username = "testuser", roles = "USER")
-  void getApplicationsDoesNotExposeMbtilesUrlForMultipleApps() throws Exception {
+  void getReturnsBothApplicationsWithIdTypeAndTitle() throws Exception {
     Application app1 = new Application();
     app1.setId(1);
     app1.setTitle("Test Application 1");
@@ -104,8 +85,13 @@ class ClientConfigurationControllerTest {
 
     mvc.perform(get("/api/config/client/application"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].config.mbtilesUrl").doesNotExist())
-        .andExpect(jsonPath("$.content[1].config.mbtilesUrl").doesNotExist());
+        .andExpect(jsonPath("$.content", hasSize(2)))
+        .andExpect(jsonPath("$.content[0].id").value(1))
+        .andExpect(jsonPath("$.content[0].type").value("T"))
+        .andExpect(jsonPath("$.content[0].title").value("Test Application 1"))
+        .andExpect(jsonPath("$.content[1].id").value(2))
+        .andExpect(jsonPath("$.content[1].type").value("ED"))
+        .andExpect(jsonPath("$.content[1].title").value("Test Application 2"));
   }
 
   @Test

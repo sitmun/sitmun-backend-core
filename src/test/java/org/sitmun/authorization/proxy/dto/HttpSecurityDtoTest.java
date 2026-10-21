@@ -14,35 +14,7 @@ class HttpSecurityDtoTest {
   private final ObjectMapper objectMapper = new JsonMapper();
 
   @Test
-  @DisplayName("Builder creates HttpSecurityDto with all fields")
-  void builderCreatesCompleteDto() {
-    HttpSecurityDto dto =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("testuser")
-            .password("testpass")
-            .build();
-
-    assertEquals("http", dto.getType());
-    assertEquals("basic", dto.getScheme());
-    assertEquals("testuser", dto.getUsername());
-    assertEquals("testpass", dto.getPassword());
-  }
-
-  @Test
-  @DisplayName("Builder creates HttpSecurityDto with partial fields")
-  void builderCreatesPartialDto() {
-    HttpSecurityDto dto = HttpSecurityDto.builder().type("oauth").scheme("bearer").build();
-
-    assertEquals("oauth", dto.getType());
-    assertEquals("bearer", dto.getScheme());
-    assertNull(dto.getUsername());
-    assertNull(dto.getPassword());
-  }
-
-  @Test
-  @DisplayName("Serializes to JSON correctly")
+  @DisplayName("JSON writes type, scheme, username, and password")
   void serializesToJson() throws JacksonException {
     HttpSecurityDto dto =
         HttpSecurityDto.builder()
@@ -62,7 +34,7 @@ class HttpSecurityDtoTest {
   }
 
   @Test
-  @DisplayName("Deserializes from JSON correctly")
+  @DisplayName("JSON reads type, scheme, username, and password")
   void deserializesFromJson() throws JacksonException {
     String json =
         """
@@ -149,7 +121,7 @@ class HttpSecurityDtoTest {
   }
 
   @Test
-  @DisplayName("describeForLog for other OpenAPI types lists all dimensions without secrets")
+  @DisplayName("oauth2 bearer log line marks username and password unset")
   void describeForLogOAuthBearer() {
     HttpSecurityDto dto = HttpSecurityDto.builder().type("oauth2").scheme("bearer").build();
     assertEquals(
@@ -221,65 +193,5 @@ class HttpSecurityDtoTest {
     assertEquals("apiKey", dto.getType());
     assertEquals("k", dto.getHeaders().get("X-API-Key"));
     assertEquals("Bearer t", dto.getHeaders().get("Authorization"));
-  }
-
-  @Test
-  @DisplayName("Setter methods work correctly")
-  void setterMethodsWork() {
-    HttpSecurityDto dto = HttpSecurityDto.builder().build();
-
-    dto.setType("custom");
-    dto.setScheme("digest");
-    dto.setUsername("newuser");
-    dto.setPassword("newpass");
-
-    assertEquals("custom", dto.getType());
-    assertEquals("digest", dto.getScheme());
-    assertEquals("newuser", dto.getUsername());
-    assertEquals("newpass", dto.getPassword());
-  }
-
-  @Test
-  @DisplayName("Equals and hashCode use default Object implementation")
-  void equalsAndHashCodeUseDefaultImplementation() {
-    HttpSecurityDto dto1 =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("user")
-            .password("pass")
-            .build();
-
-    HttpSecurityDto dto2 =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("user")
-            .password("pass")
-            .build();
-
-    // Since no @EqualsAndHashCode annotation, uses default Object.equals() (reference equality)
-    assertNotEquals(dto1, dto2);
-
-    // hashCode should also be different since they're different objects
-    assertNotEquals(dto1.hashCode(), dto2.hashCode());
-  }
-
-  @Test
-  @DisplayName("ToString uses default Object implementation")
-  void toStringUsesDefaultImplementation() {
-    HttpSecurityDto dto =
-        HttpSecurityDto.builder()
-            .type("http")
-            .scheme("basic")
-            .username("user")
-            .password("pass")
-            .build();
-
-    String toString = dto.toString();
-
-    // Default Object.toString() format: className@hashCode
-    assertTrue(toString.contains("HttpSecurityDto"));
-    assertTrue(toString.contains("@"));
   }
 }

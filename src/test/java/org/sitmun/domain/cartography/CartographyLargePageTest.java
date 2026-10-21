@@ -1,6 +1,8 @@
 package org.sitmun.domain.cartography;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
@@ -24,9 +26,12 @@ class CartographyLargePageTest {
   @Autowired private MockMvc mvc;
 
   @Test
-  @DisplayName("GET /api/cartographies?size=10000 returns 200 with liquibase seed")
+  @DisplayName("GET size 10000 includes seed cartography WMTS Bases - ICGC- Topo")
   @WithMockUser(roles = "ADMIN")
-  void listWithSize10000() throws Exception {
-    mvc.perform(get("/api/cartographies").param("size", "10000")).andExpect(status().isOk());
+  void getSize10000IncludesSeedWmtsBases() throws Exception {
+    mvc.perform(get("/api/cartographies").param("size", "10000"))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$._embedded.cartographies[*].name", hasItem("WMTS Bases - ICGC- Topo")));
   }
 }

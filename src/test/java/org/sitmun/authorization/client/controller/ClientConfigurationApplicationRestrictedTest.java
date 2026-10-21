@@ -37,8 +37,8 @@ class ClientConfigurationApplicationRestrictedTest {
   @MockitoBean private ApplicationRepository applicationRepository;
 
   @Test
-  @DisplayName("Should filter out private applications for public USER in applications list")
-  void shouldFilterOutPrivateApplicationsForPublicUserInApplicationsList() throws Exception {
+  @DisplayName("Filters out private applications for public USER in applications list")
+  void filtersOutPrivateApplicationsForPublicUserInApplicationsList() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).title("Private App").appPrivate(true).build();
@@ -61,9 +61,9 @@ class ClientConfigurationApplicationRestrictedTest {
   }
 
   @Test
-  @DisplayName("Should not filter applications for non-public USER in applications list")
+  @DisplayName("Does not filter applications for non-public USER in applications list")
   @WithMockUser(username = "user", roles = "USER")
-  void shouldNotFilterApplicationsForNonPublicUserInApplicationsList() throws Exception {
+  void doesNotFilterApplicationsForNonPublicUserInApplicationsList() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).title("Private App").appPrivate(true).build();
@@ -88,8 +88,8 @@ class ClientConfigurationApplicationRestrictedTest {
   }
 
   @Test
-  @DisplayName("Should return RFC 9457 403 when public user accesses private application")
-  void shouldReturn403WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
+  @DisplayName("Returns RFC 9457 403 when public user accesses private application")
+  void returns403WhenPublicUserTriesToAccessPrivateApplication() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).name("Private App").appPrivate(true).build();
@@ -108,9 +108,9 @@ class ClientConfigurationApplicationRestrictedTest {
   }
 
   @Test
-  @DisplayName("Should work when a non-public user tries to access private application")
+  @DisplayName("Non-public user GET of a private application's territories returns 200")
   @WithMockUser(roles = "USER")
-  void shouldWorkWhenAdminUserTriesToAccessPrivateApplication() throws Exception {
+  void nonPublicUserGetOfPrivateApplicationTerritoriesReturns200() throws Exception {
     // Given
     Application privateApp =
         Application.builder().id(1).name("Private App").appPrivate(true).build();

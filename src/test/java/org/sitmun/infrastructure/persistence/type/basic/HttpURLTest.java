@@ -1,7 +1,6 @@
 package org.sitmun.infrastructure.persistence.type.basic;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -18,33 +17,13 @@ import org.springframework.test.web.servlet.ResultActions;
 @DisplayName("Http validation test")
 class HttpURLTest extends BaseTest {
 
-  private static final String VALID_HTTP_URL = "http://example.com/somefile";
-  private static final String VALID_HTTPS_URL = "https://example.com/somefile";
   private static final String INVALID_URL = "ftp://example.com/somefile";
   private static final String ENTITY_WITH_URL_URI = "http://localhost/api/territories";
   private static final String PROPERTY_WITH_URL = "territorialAuthorityLogo";
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("Pass if URL value is http")
-  void passIfURLValueIsHttp() throws Exception {
-    postEntityWithUrlValue(VALID_HTTP_URL)
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_URL + "')]", hasSize(0)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("Pass if URL value is https")
-  void passIfURLValueIsHttps() throws Exception {
-    postEntityWithUrlValue(VALID_HTTPS_URL)
-        .andExpect(status().is4xxClientError())
-        .andExpect(jsonPath("$.errors.[?(@.property == '" + PROPERTY_WITH_URL + "')]", hasSize(0)));
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName("Fail if URL value is wrong")
+  @DisplayName("An ftp URL is rejected on territorialAuthorityLogo")
   void failIfURLValueIsWrong() throws Exception {
     postEntityWithUrlValue(INVALID_URL)
         .andDo(print())
