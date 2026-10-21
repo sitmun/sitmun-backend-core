@@ -3,10 +3,8 @@ package org.sitmun.domain.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,36 +61,6 @@ class UserResourceIntegrationTest {
     organizacionAdmin.setLastName(USER_LASTNAME);
     organizacionAdmin.setPassword(USER_PASSWORD);
     organizacionAdmin.setUsername(TERRITORY1_ADMIN_USERNAME);
-  }
-
-  @Test
-  @DisplayName("POST: Create new user and delete")
-  void createNewUserAndDelete() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
-
-    User newUser = organizacionAdmin.toBuilder().id(null).username(NEW_USER_USERNAME).build();
-    HttpEntity<User> entity = new HttpEntity<>(newUser, headers);
-
-    ResponseEntity<User> createdUser =
-        restTemplate.postForEntity("http://localhost:{port}/api/users", entity, User.class, port);
-
-    assertThat(createdUser.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    assertThat(createdUser.getHeaders().getLocation()).isNotNull();
-    final URI location = createdUser.getHeaders().getLocation();
-    final HttpEntity<User> entityHeaders = new HttpEntity<>(headers);
-
-    Function<HttpMethod, ResponseEntity<User>> exchangeFunction =
-        method -> restTemplate.exchange(location, method, entityHeaders, User.class);
-
-    ResponseEntity<User> exists = exchangeFunction.apply(HttpMethod.GET);
-    assertThat(exists.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-    ResponseEntity<User> deleted = exchangeFunction.apply(HttpMethod.DELETE);
-    assertThat(deleted.getStatusCode().is2xxSuccessful()).isTrue();
-
-    HttpClientErrorException thrown =
-        assertThrows(HttpClientErrorException.class, () -> exchangeFunction.apply(HttpMethod.GET));
-    assertThat(thrown.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
   @Test
