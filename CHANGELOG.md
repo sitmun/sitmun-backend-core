@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 - **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
+- **Tests**: The tree-node JPEG case posts local `tree-node-8x8.jpg` as a data URI, still expects `data:image/jpeg` at 125 by 125, and reads that stored image back. It no longer downloads a GitHub JPEG ([#320](https://github.com/sitmun/sitmun-backend-core/issues/320)).
+- **Tests**: `SequenceMigrationTest` checks the `ATR_ID` generator on `STM_APP_TREE` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 - **Tests**: `UserResourceTest` stores a fixed bcrypt hash in setup. The password update still asserts the stored hash changes ([#321](https://github.com/sitmun/sitmun-backend-core/issues/321)).
 
 ### Security
@@ -37,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Database**: The Menorca application-tree seed advances `ATR_ID` to one past the highest `STM_APP_TREE` id, including row `120` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 - **I18n**: Concurrent template saves that introduce the same new literal keep one row. Liquibase `31_literal_translation_literal_unique` merges duplicate `LTR_LITERAL` values onto the lowest id, then rejects a second insert. H2 unique-constrains the column. PostgreSQL unique-indexes `md5(LTR_LITERAL)` and Oracle unique-indexes `STANDARD_HASH(LTR_LITERAL, 'SHA256')`, because a btree key cannot cover `VARCHAR(4000)`. The losing ensure reads the stored literal after the failed insert rolls back to a savepoint, so the task save can still commit ([#294](https://github.com/sitmun/sitmun-backend-core/issues/294)).
 - **Trees**: `PUT /api/trees/{id}` applies the touristic application-link rule to the tree's current links, so a type change to `touristic` is rejected when the tree is linked to several applications or to a non-touristic application ([#288](https://github.com/sitmun/sitmun-backend-core/issues/288)).
 - **Cartography**: A cartography rejects a second style with the same name. Renaming a style updates only the tree nodes that stored the previous name. Saving or deleting a style with no cartography no longer fails. Liquibase `30_cartography_style_name_unique` adds unique `(SGI_GIID, SGI_NAME)` on PostgreSQL and Oracle ([#292](https://github.com/sitmun/sitmun-backend-core/issues/292)).
