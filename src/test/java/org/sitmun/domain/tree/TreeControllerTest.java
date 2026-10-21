@@ -429,6 +429,52 @@ class TreeControllerTest extends BaseTest {
   }
 
   @Test
+  @DisplayName("PUT: cartography to touristic while linked to several applications - returns 400")
+  @WithMockUser(roles = "ADMIN")
+  void putCartographyToTouristicWithSeveralApplicationsRejected() throws Exception {
+    try {
+      rejectTouristicTypeChange(2);
+    } finally {
+      restoreSeedTreeTypes();
+    }
+  }
+
+  @Test
+  @DisplayName(
+      "PUT: cartography to touristic while linked to a non-touristic application - returns 400")
+  @WithMockUser(roles = "ADMIN")
+  void putCartographyToTouristicWithNonTouristicApplicationRejected() throws Exception {
+    try {
+      rejectTouristicTypeChange(3);
+    } finally {
+      restoreSeedTreeTypes();
+    }
+  }
+
+  private void rejectTouristicTypeChange(int treeId) throws Exception {
+    String treeJson =
+        mvc.perform(get("/api/trees/" + treeId))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    mvc.perform(
+            put("/api/trees/" + treeId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(withTreeType(treeJson, "touristic")))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.type").value(ProblemTypes.TOURISTIC_TREE_CONSTRAINT))
+        .andExpect(
+            jsonPath("$.detail")
+                .value("Touristic tree can only be linked with 0 or 1 tourist application"));
+
+    mvc.perform(get("/api/trees/" + treeId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.type").value("cartography"));
+  }
+
+  @Test
   @DisplayName("POST: cartography to edition with radio folders - returns 422")
   @WithMockUser(roles = "ADMIN")
   void validateCartographyToEditionWithRadioFoldersRejected() throws Exception {

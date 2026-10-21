@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Trees**: `PUT /api/trees/{id}` applies the touristic application-link rule to the tree's current links, so a type change to `touristic` is rejected when the tree is linked to several applications or to a non-touristic application ([#288](https://github.com/sitmun/sitmun-backend-core/issues/288)).
 - **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
 - **Cartography**: Create and save of a cartography style both report `defaultStyle` when another default already exists. Saving the style that is already the default still succeeds. The error field is `defaultStyle` on `CartographyStyle` ([#289](https://github.com/sitmun/sitmun-backend-core/issues/289)).
