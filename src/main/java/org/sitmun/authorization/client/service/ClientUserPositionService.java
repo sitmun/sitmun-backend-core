@@ -44,8 +44,6 @@ public class ClientUserPositionService {
     position.setName(positionDTO.getName());
     position.setOrganization(positionDTO.getOrganization());
     position.setEmail(positionDTO.getEmail());
-    position.setExpirationDate(positionDTO.getExpirationDate());
-    position.setType(positionDTO.getType());
 
     return userPositionMapper.toDto(userPositionRepository.save(position));
   }
