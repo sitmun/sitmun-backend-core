@@ -12,8 +12,11 @@ import com.jayway.jsonpath.JsonPath;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +53,7 @@ class TreeNodeRepositoryDataRestTest {
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAAB9AQAAAACn+1GIAAAAIElEQVR4XmP4jwp+MIwKjAqMCowKjAqMCowKjAqQIAAAMVDFL8q1f5EAAAAASUVORK5CYII=";
   private static final String SVG_10X10 =
       "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjAwIi8+PC9zdmc+";
+  private static final String JPEG_8X8 = jpegDataUri();
 
   @Autowired private MockMvc mvc;
 
@@ -283,15 +287,14 @@ class TreeNodeRepositoryDataRestTest {
   void newTreeNodesWithImageWithExtensionUriCanBePosted() throws Exception {
     // Unique name to avoid shared-DB issues when suite runs in parallel or multiple contexts
     String uniqueName = "test-img-" + System.nanoTime();
-    // %% in URL so .formatted() does not interpret %20 as format specifiers
     String content =
         """
         {
         "name":"%s",
         "tree":"http://localhost/api/trees/1",
-        "image":"https://raw.githubusercontent.com/sitmun/community/master/logotip%%20SITMUN%%20JPG/horitzontal/01.principal-horit-normal.jpg"
+        "image":"%s"
         }"""
-            .formatted(uniqueName);
+            .formatted(uniqueName, JPEG_8X8);
 
     MvcResult result =
         mvc.perform(post(TREE_NODES_URI).content(content))
@@ -304,12 +307,17 @@ class TreeNodeRepositoryDataRestTest {
     String response = result.getResponse().getContentAsString();
     validateSizeOfResponseImage(response, 125, 125);
 
-    mvc.perform(get(TREE_NODE_TREE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
-        .andExpect(status().isOk());
+    Integer id = JsonPath.parse(response).read("$.id", Integer.class);
+    MvcResult stored =
+        mvc.perform(get(TREE_NODE_URI, id))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$.image").value(startsWith("data:image/jpeg;base64,/9j/4AAQSkZJRg")))
+            .andExpect(jsonPath("$.name").value(uniqueName))
+            .andReturn();
+    validateSizeOfResponseImage(stored.getResponse().getContentAsString(), 125, 125);
 
-    mvc.perform(delete(TREE_NODE_URI, JsonPath.parse(response).read("$.id", Integer.class)))
-        .andExpect(status().isNoContent())
-        .andReturn();
+    mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
   }
 
   @Test
@@ -932,6 +940,17 @@ class TreeNodeRepositoryDataRestTest {
         .andExpect(jsonPath("$.type").value(ProblemTypes.TREE_NODE_RADIO_DEFAULT_CONFLICT));
 
     mvc.perform(delete(TREE_NODE_URI, id)).andExpect(status().isNoContent());
+  }
+
+  private static String jpegDataUri() {
+    try (InputStream in =
+        Objects.requireNonNull(
+            TreeNodeRepositoryDataRestTest.class.getResourceAsStream("/images/tree-node-8x8.jpg"),
+            "/images/tree-node-8x8.jpg")) {
+      return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(in.readAllBytes());
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 
   private void validateSizeOfResponseImage(String response, int expectedWidth, int expectedHeight) {
