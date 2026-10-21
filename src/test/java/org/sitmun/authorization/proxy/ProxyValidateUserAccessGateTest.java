@@ -40,7 +40,6 @@ import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.infrastructure.variables.SystemVariableResolver;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -101,7 +100,6 @@ class ProxyValidateUserAccessGateTest {
             mock(
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
                     .class));
-    ReflectionTestUtils.setField(proxyConfigurationService, "validateUserAccessEnabled", true);
 
     accessibleService = Service.builder().id(SERVICE_ID).blocked(false).build();
     when(serviceRepository.findById(SERVICE_ID)).thenReturn(Optional.of(accessibleService));
@@ -160,15 +158,6 @@ class ProxyValidateUserAccessGateTest {
   void allowsAuthenticatedUserOnPrivateApplication() {
     User activeUser = userWithRoles(ACTIVE_USERNAME, false);
     stubWmsAccessFor(ACTIVE_USERNAME, activeUser);
-
-    assertThat(proxyConfigurationService.validateUserAccess(wmsRequest(), ACTIVE_USERNAME))
-        .isTrue();
-  }
-
-  @Test
-  @DisplayName("still allows blocked user when validate-user-access config is disabled")
-  void stillAllowsBlockedUserWhenValidateUserAccessConfigDisabled() {
-    ReflectionTestUtils.setField(proxyConfigurationService, "validateUserAccessEnabled", false);
 
     assertThat(proxyConfigurationService.validateUserAccess(wmsRequest(), ACTIVE_USERNAME))
         .isTrue();

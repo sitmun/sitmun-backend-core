@@ -83,8 +83,6 @@ sitmun:
     token-validity-in-milliseconds: 900000
     force: false
     url: ${SITMUN_PROXY_MIDDLEWARE_URL:http://localhost:8080/middleware}
-    # When enabled, validates user permissions and enforces role-based access control
-    validate-user-access: true
   service-check:
     enabled: true
     interval: 15m

@@ -56,8 +56,6 @@ import org.springframework.stereotype.Component;
  *       → CartographyAvailability (Territory)
  * </pre>
  *
- * <p>This validator is invoked when {@code sitmun.proxy-middleware.validate-user-access=true}.
- *
  * @see org.sitmun.authorization.client.service.AuthorizationService
  * @see org.sitmun.domain.cartography.CartographyRepository#findByRolesAndTerritory
  */

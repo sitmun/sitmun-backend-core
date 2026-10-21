@@ -101,7 +101,6 @@ class ProxyConfigurationServiceTest {
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
                     .class));
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
 
   private RequestCoordinates coordinatesFor(ConfigProxyRequestDto request) {
@@ -136,7 +135,6 @@ class ProxyConfigurationServiceTest {
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
                     .class));
     ReflectionTestUtils.setField(serviceWithValidator, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(serviceWithValidator, "validateUserAccessEnabled", true);
     return serviceWithValidator;
   }
 
@@ -332,7 +330,6 @@ class ProxyConfigurationServiceTest {
             cartographies,
             layerParameters);
     ReflectionTestUtils.setField(configured, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(configured, "validateUserAccessEnabled", false);
 
     Map<String, String> requestParams = new HashMap<>();
     requestParams.put("cql_filter", "1=1");
@@ -496,7 +493,6 @@ class ProxyConfigurationServiceTest {
             cartographies,
             layerParameters);
     ReflectionTestUtils.setField(configured, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(configured, "validateUserAccessEnabled", false);
 
     Map<String, String> requestParams = new HashMap<>();
     requestParams.put("REQUEST", requestName);
@@ -1407,6 +1403,41 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
+  @DisplayName("WMTS service URL expands tileSet from the request")
+  void wmtsServiceUrlExpandsTileSetFromTheRequest() {
+    doCallRealMethod().when(httpUserParametrizationDecorator).apply(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).accept(any(), any());
+    doCallRealMethod().when(httpUserParametrizationDecorator).addBehavior(any(), any());
+
+    Service wmts = mock(Service.class);
+    when(wmts.getServiceURL()).thenReturn("https://example.com/wmts/{tileSet}/service");
+    when(wmts.getType()).thenReturn("WMTS");
+    when(wmts.getPasswordSet()).thenReturn(false);
+    when(wmts.getParameters()).thenReturn(Set.of());
+    when(serviceRepository.findById(7)).thenReturn(Optional.of(wmts));
+
+    Map<String, String> requestParams = new HashMap<>();
+    requestParams.put("tileSet", "utm");
+    ConfigProxyRequestDto request =
+        ConfigProxyRequestDto.builder()
+            .appId(1)
+            .terId(1)
+            .type("WMTS")
+            .typeId(7)
+            .method("GET")
+            .parameters(requestParams)
+            .build();
+
+    RequestCoordinates coordinates = coordinatesFor(request);
+    ConfigProxyDto result = service.getConfiguration(request, 0L, coordinates);
+    service.applyDecorators(result, request, coordinates);
+
+    assertInstanceOf(WmsPayloadDto.class, result.getPayload());
+    assertEquals(
+        "https://example.com/wmts/utm/service", ((WmsPayloadDto) result.getPayload()).getUri());
+  }
+
+  @Test
   @DisplayName(
       "applyDecorators ignores unmatched incoming SQL params when task does not declare them")
   void applyDecoratorsIgnoresUnmatchedIncomingSqlParamsWhenTaskDoesNotDeclareThem() {
@@ -2018,24 +2049,8 @@ class ProxyConfigurationServiceTest {
   }
 
   @Test
-  @DisplayName("validateUserAccess returns true when validation is disabled (default behavior)")
-  void validateUserAccessReturnsTrueWhenDisabled() {
-    // Given: validation is disabled (default)
-    ConfigProxyRequestDto request =
-        ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
-
-    // When
-    boolean result = service.validateUserAccess(request, "admin");
-
-    // Then: access is granted regardless of validators
-    assertTrue(result);
-  }
-
-  @Test
   @DisplayName("validateUserAccess denies access when username is null")
   void validateUserAccessDeniesAccessWhenUsernameNull() {
-    // Given: validation is enabled
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
@@ -2049,8 +2064,6 @@ class ProxyConfigurationServiceTest {
   @Test
   @DisplayName("validateUserAccess denies access when username is blank")
   void validateUserAccessDeniesAccessWhenUsernameBlank() {
-    // Given: validation is enabled
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(1).type(TYPE_SQL).typeId(23).build();
 
@@ -2064,8 +2077,6 @@ class ProxyConfigurationServiceTest {
   @Test
   @DisplayName("validateUserAccess denies access for unknown resource type (no validator)")
   void validateUserAccessDeniesAccessForUnknownType() {
-    // Given: validation is enabled but no validators support "UNKNOWN" type
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", true);
     ConfigProxyRequestDto request =
         ConfigProxyRequestDto.builder().appId(1).terId(1).type("UNKNOWN").typeId(100).build();
 

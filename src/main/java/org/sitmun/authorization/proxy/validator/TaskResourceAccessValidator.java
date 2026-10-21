@@ -34,8 +34,6 @@ import org.springframework.stereotype.Component;
  * {@code taskRepository.findByRolesAndTerritory(roles, territoryId)} to ensure consistent
  * permissions. The SQL query guarantees that returned tasks have non-null roles collections through
  * JOIN constraints.
- *
- * <p>This validator is invoked when {@code sitmun.proxy-middleware.validate-user-access=true}.
  */
 @Slf4j
 @Component
