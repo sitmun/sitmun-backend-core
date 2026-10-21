@@ -16,6 +16,7 @@ import org.sitmun.domain.application.ApplicationRepository;
 import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.UserRepository;
@@ -30,10 +31,10 @@ import org.springframework.stereotype.Component;
  *
  * <ul>
  *   <li>Service must exist and not be blocked
- *   <li>User must have at least one role for the territory
+ *   <li>User must hold a role of this application in the territory
  *   <li>User must have access to at least one cartography using this service
- *   <li>Uses {@code cartographyRepository.findByRolesAndTerritory(roles, territoryId)} to determine
- *       accessible cartographies based on roles and territory
+ *   <li>Roles are {@code RoleRepository.findRolesByApplicationAndUserAndTerritory}. Accessible
+ *       cartographies are then {@code cartographyRepository.findByRolesAndTerritory}
  * </ul>
  *
  * <h3>Layer-Level Authorization</h3>
@@ -49,14 +50,16 @@ import org.springframework.stereotype.Component;
  * <p>The authorization model follows this hierarchy:
  *
  * <pre>
- * User → UserConfiguration (Territory + Role)
- *   → Role → CartographyPermission
- *     → Cartography (members)
- *       → Service + layers[]
- *       → CartographyAvailability (Territory)
+ * Application.availableRoles
+ *   → UserConfiguration (Territory + Role)
+ *     → Role → CartographyPermission
+ *       → Cartography (members)
+ *         → Service + layers[]
+ *         → CartographyAvailability (Territory)
  * </pre>
  *
  * @see org.sitmun.authorization.client.service.AuthorizationService
+ * @see org.sitmun.domain.role.RoleRepository#findRolesByApplicationAndUserAndTerritory
  * @see org.sitmun.domain.cartography.CartographyRepository#findByRolesAndTerritory
  */
 @Slf4j
@@ -74,6 +77,7 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
   private final TerritoryRepository territoryRepository;
   private final CartographyRepository cartographyRepository;
   private final CartographyServiceParameterRepository cartographyServiceParameterRepository;
+  private final RoleRepository roleRepository;
 
   @Override
   public boolean supports(String type) {
@@ -126,20 +130,15 @@ public class ServiceResourceAccessValidator implements ResourceAccessValidator {
       }
     }
 
-    var user = userOpt.get();
     var userRoles =
-        user.getPermissions().stream()
-            .filter(
-                config ->
-                    config.getTerritory() != null
-                        && config.getTerritory().getId().equals(request.getTerId()))
-            .map(config -> config.getRole())
-            .toList();
+        roleRepository.findRolesByApplicationAndUserAndTerritory(
+            userName, request.getAppId(), request.getTerId());
 
     if (userRoles.isEmpty()) {
       log.warn(
-          "Access denied: User {} has no roles for territory {} - serviceId={}",
+          "Access denied: User {} has no role of application {} in territory {} - serviceId={}",
           userName,
+          request.getAppId(),
           request.getTerId(),
           request.getTypeId());
       return false;
