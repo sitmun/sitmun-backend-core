@@ -1,52 +1,36 @@
 package org.sitmun.domain.territory.type;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.test.URIConstants.TERRITORY_GROUP_TYPES_URI;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
-import org.sitmun.test.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 @Deprecated
 class TerritoryGroupTypeRepositoryIntegrationTest {
 
   @Autowired TerritoryGroupTypeRepository territoryGroupTypeRepository;
-  private RestTemplate restTemplate;
+  @Autowired private MockMvc mvc;
   private ArrayList<TerritoryGroupType> territoryGroupTypes;
-  @LocalServerPort private int port;
 
   @BeforeEach
   @WithMockUser(roles = "ADMIN")
   void setup() {
-    ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
-    restTemplate = new RestTemplate(factory);
-    List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-    if (CollectionUtils.isEmpty(interceptors)) {
-      interceptors = new ArrayList<>();
-    }
-    interceptors.add(new ClientHttpLoggerRequestInterceptor());
-    restTemplate.setInterceptors(interceptors);
-
     territoryGroupTypes = new ArrayList<>();
     territoryGroupTypes.add(
         territoryGroupTypeRepository.save(
@@ -63,18 +47,15 @@ class TerritoryGroupTypeRepositoryIntegrationTest {
   }
 
   @Test
-  void requestRoles() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
-    HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-    ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/api/territory-group-types",
-            HttpMethod.GET,
-            entity,
-            String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    DocumentContext context = JsonPath.parse(response.getBody());
+  @WithMockUser(roles = "ADMIN")
+  void requestRoles() throws Exception {
+    String body =
+        mvc.perform(get(TERRITORY_GROUP_TYPES_URI))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    DocumentContext context = JsonPath.parse(body);
 
     assertThat(context.read("$._embedded.territory-group-types[*].id", JSONArray.class))
         .containsAll(
