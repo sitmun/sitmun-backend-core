@@ -67,21 +67,30 @@ class TerritoryRepositoryTest {
   }
 
   @Test
-  @DisplayName("Find territories for a user and an application")
+  @DisplayName("Application 5 returns only the territory that holds its role")
   void findTerritoriesByUserAndApplication() {
-    Page<Territory> territories =
-        territoryRepository.findByRestrictedUserAndApplication(
-            SecurityConstants.PUBLIC_PRINCIPAL, 1, PageRequest.of(0, 10));
-    assertThat(territories.getTotalElements()).isEqualTo(3);
+    assertThat(
+            names(
+                territoryRepository.findByRestrictedUserAndApplication(
+                    "internal", 5, PageRequest.of(0, 10))))
+        .containsExactly("Provincia A");
+    assertThat(
+            names(
+                territoryRepository.findByPublicUserAndApplication(
+                    "internal", 5, PageRequest.of(0, 10))))
+        .containsExactly("Provincia A");
   }
 
   @Test
   @DisplayName("Find territories for a user")
   void findTerritoriesOfAnUser() {
-    Page<Territory> territories =
-        territoryRepository.findByRestrictedUser(
-            SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10));
-    assertThat(territories.getTotalElements()).isEqualTo(3);
+    assertThat(
+            names(
+                territoryRepository.findByRestrictedUser(
+                    SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10))))
+        .containsExactlyInAnyOrder("Municipio B", "Otro C", "Provincia A");
+    assertThat(names(territoryRepository.findByRestrictedUser("internal", PageRequest.of(0, 10))))
+        .containsExactlyInAnyOrder("Municipio B", "Otro C", "Provincia A");
   }
 
   @Test
@@ -251,5 +260,9 @@ class TerritoryRepositoryTest {
     assertThat(computedView.getMaxX()).isGreaterThanOrEqualTo(200.0);
     assertThat(computedView.getMinY()).isLessThanOrEqualTo(50.0);
     assertThat(computedView.getMaxY()).isGreaterThanOrEqualTo(150.0);
+  }
+
+  private static Iterable<String> names(Page<Territory> territories) {
+    return territories.getContent().stream().map(Territory::getName).toList();
   }
 }

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 @DataJpaTest
@@ -123,18 +124,44 @@ class ApplicationRepositoryTest {
   @Test
   @DisplayName("Find applications filtered by username")
   void findApplicationsByUsername() {
-    assertThat(
-            applicationRepository.findByUser(
-                SecurityConstants.PUBLIC_PRINCIPAL, PageRequest.of(0, 10)))
-        .hasSize(4);
+    assertThat(titles(applicationRepository.findByUser(SecurityConstants.PUBLIC_PRINCIPAL, page())))
+        .containsExactlyInAnyOrder(
+            "SITMUN - Externa",
+            "SITMUN - Municipal",
+            "SITMUN - Provincial",
+            "SITMUN - Supramunicipal");
+    assertThat(titles(applicationRepository.findByUser("internal", page())))
+        .containsExactlyInAnyOrder(
+            "SITMUN - Externa",
+            "SITMUN - Externa protegida",
+            "SITMUN - Municipal",
+            "SITMUN - Provincial",
+            "SITMUN - Supramunicipal");
   }
 
   @Test
-  @DisplayName("Find applications filtered by username and territory")
+  @DisplayName("Territory 2 omits the application granted only on territory 1")
   void findApplicationsByUsernameAndTerritory() {
     assertThat(
-            applicationRepository.findByRestrictedUserAndTerritory(
-                SecurityConstants.PUBLIC_PRINCIPAL, 1, PageRequest.of(0, 10)))
-        .hasSize(4);
+            titles(applicationRepository.findByRestrictedUserAndTerritory("internal", 2, page())))
+        .containsExactlyInAnyOrder(
+            "SITMUN - Externa",
+            "SITMUN - Municipal",
+            "SITMUN - Provincial",
+            "SITMUN - Supramunicipal");
+    assertThat(titles(applicationRepository.findByPublicUserAndTerritory("internal", 2, page())))
+        .containsExactlyInAnyOrder(
+            "SITMUN - Externa",
+            "SITMUN - Municipal",
+            "SITMUN - Provincial",
+            "SITMUN - Supramunicipal");
+  }
+
+  private static PageRequest page() {
+    return PageRequest.of(0, 10);
+  }
+
+  private static Iterable<String> titles(Page<Application> applications) {
+    return applications.getContent().stream().map(Application::getTitle).toList();
   }
 }
