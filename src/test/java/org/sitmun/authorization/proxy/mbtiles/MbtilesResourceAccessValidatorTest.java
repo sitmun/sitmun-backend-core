@@ -2,6 +2,7 @@ package org.sitmun.authorization.proxy.mbtiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sitmun.authorization.access.UserApplicationAccessPolicy;
 import org.sitmun.authorization.client.service.AuthorizationService;
 import org.sitmun.authorization.client.service.Profile;
 import org.sitmun.domain.application.Application;
@@ -25,6 +27,7 @@ import org.sitmun.infrastructure.security.core.SecurityConstants;
 class MbtilesResourceAccessValidatorTest {
 
   @Mock AuthorizationService authorizationService;
+  @Mock UserApplicationAccessPolicy userApplicationAccessPolicy;
   @InjectMocks MbtilesResourceAccessValidator validator;
 
   private Application editionApp;
@@ -164,5 +167,97 @@ class MbtilesResourceAccessValidatorTest {
     var outcome = validator.authorize(request, "alice", 1L);
 
     assertThat(outcome).isInstanceOf(MbtilesResourceAccessValidator.Outcome.Denied.class);
+  }
+
+  @Test
+  @DisplayName("Denies a blocked account even when an edition profile exists")
+  void deniesBlockedAccount() {
+    when(userApplicationAccessPolicy.isBlockedAccount("blocked")).thenReturn(true);
+    lenient()
+        .when(authorizationService.findApplicationByUserApplicationAndTerritory("blocked", 10, 20))
+        .thenReturn(Optional.of(editionApp));
+    lenient()
+        .when(authorizationService.createProfile(any()))
+        .thenReturn(
+            Optional.of(
+                Profile.builder()
+                    .application(editionApp)
+                    .services(List.of(wmsService))
+                    .layers(List.of(layer))
+                    .build()));
+
+    var outcome = validator.authorize(tileRequest("status"), "blocked", 1L);
+
+    assertThat(outcome).isInstanceOf(MbtilesResourceAccessValidator.Outcome.Denied.class);
+    assertThat(((MbtilesResourceAccessValidator.Outcome.Denied) outcome).detail())
+        .isEqualTo("User account is blocked");
+  }
+
+  @Test
+  @DisplayName("Denies an estimate tile request that names a blocked service")
+  void deniesBlockedServiceOnTileRequest() {
+    wmsService.setBlocked(true);
+    when(authorizationService.findApplicationByUserApplicationAndTerritory("alice", 10, 20))
+        .thenReturn(Optional.of(editionApp));
+    when(authorizationService.createProfile(any()))
+        .thenReturn(
+            Optional.of(
+                Profile.builder()
+                    .application(editionApp)
+                    .services(List.of(wmsService))
+                    .layers(List.of(layer))
+                    .build()));
+
+    var outcome = validator.authorize(tileRequest("estimate"), "alice", 1L);
+
+    assertThat(outcome).isInstanceOf(MbtilesResourceAccessValidator.Outcome.Denied.class);
+  }
+
+  @Test
+  @DisplayName("Denies an estimate tile request that names a blocked layer")
+  void deniesBlockedLayerOnTileRequest() {
+    layer.setBlocked(true);
+    when(authorizationService.findApplicationByUserApplicationAndTerritory("alice", 10, 20))
+        .thenReturn(Optional.of(editionApp));
+    when(authorizationService.createProfile(any()))
+        .thenReturn(
+            Optional.of(
+                Profile.builder()
+                    .application(editionApp)
+                    .services(List.of(wmsService))
+                    .layers(List.of(layer))
+                    .build()));
+
+    var outcome = validator.authorize(tileRequest("create"), "alice", 1L);
+
+    assertThat(outcome).isInstanceOf(MbtilesResourceAccessValidator.Outcome.Denied.class);
+  }
+
+  @Test
+  @DisplayName("Allows status once the edition profile exists")
+  void allowsStatusWithoutTileRequest() {
+    when(authorizationService.findApplicationByUserApplicationAndTerritory("alice", 10, 20))
+        .thenReturn(Optional.of(editionApp));
+    when(authorizationService.createProfile(any()))
+        .thenReturn(Optional.of(Profile.builder().application(editionApp).build()));
+
+    var outcome = validator.authorize(tileRequest("status"), "alice", 1L);
+
+    assertThat(outcome).isInstanceOf(MbtilesResourceAccessValidator.Outcome.Allowed.class);
+    assertThat(((MbtilesResourceAccessValidator.Outcome.Allowed) outcome).response().tileRequest())
+        .isNull();
+  }
+
+  private static MbtilesProxyRequestDto tileRequest(String action) {
+    return new MbtilesProxyRequestDto(
+        10,
+        20,
+        action,
+        "status".equals(action) ? "job-1" : null,
+        new MbtilesBboxDto(0, 0, 1, 1),
+        0,
+        5,
+        "EPSG:25831",
+        List.of(new MbtilesServiceRefDto(5, List.of(7))));
   }
 }
