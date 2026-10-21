@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Proxy**: `POST /api/config/proxy` allows a task or service only when the caller holds a role of that application in the territory. The check uses the same link as the client profile ([#298](https://github.com/sitmun/sitmun-backend-core/issues/298)).
 - **Auth**: `POST /api/config/client/territory/position` keeps the stored `expirationDate` and `type`. The owner can still update name, organization, and email ([#296](https://github.com/sitmun/sitmun-backend-core/issues/296)).
 - **Auth**: `POST /api/password-reset/confirm` returns the same HTTP 400 and attempts-remaining body for an unknown email, a known email with no reset code, and a wrong code. The reset code is drawn from `SecureRandom`. Confirm allows 5 calls per address each 15 minutes, the same limit as request ([#291](https://github.com/sitmun/sitmun-backend-core/issues/291)).
 - **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
@@ -35,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - **Trees**: `PUT /api/trees/{id}` applies the touristic application-link rule to the tree's current links, so a type change to `touristic` is rejected when the tree is linked to several applications or to a non-touristic application ([#288](https://github.com/sitmun/sitmun-backend-core/issues/288)).
+- **Cartography**: A cartography rejects a second style with the same name. Renaming a style updates only the tree nodes that stored the previous name. Saving or deleting a style with no cartography no longer fails. Liquibase `30_cartography_style_name_unique` adds unique `(SGI_GIID, SGI_NAME)` on PostgreSQL and Oracle ([#292](https://github.com/sitmun/sitmun-backend-core/issues/292)).
 - **I18n**: A write with `?lang=` set to a language other than the database default persists the submitted values. The translation overlay still runs on read, where it marks the loaded entity read-only ([#293](https://github.com/sitmun/sitmun-backend-core/issues/293)).
 - **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
 - **Cartography**: Create and save of a cartography style both report `defaultStyle` when another default already exists. Saving the style that is already the default still succeeds. The error field is `defaultStyle` on `CartographyStyle` ([#289](https://github.com/sitmun/sitmun-backend-core/issues/289)).

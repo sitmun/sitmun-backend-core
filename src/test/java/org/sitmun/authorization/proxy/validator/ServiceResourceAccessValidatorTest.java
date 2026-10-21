@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,13 +19,12 @@ import org.sitmun.domain.cartography.Cartography;
 import org.sitmun.domain.cartography.CartographyRepository;
 import org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository;
 import org.sitmun.domain.role.Role;
+import org.sitmun.domain.role.RoleRepository;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
-import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.territory.TerritoryRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
-import org.sitmun.domain.user.configuration.UserConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceResourceAccessValidatorTest {
@@ -37,6 +35,7 @@ class ServiceResourceAccessValidatorTest {
   @Mock private TerritoryRepository territoryRepository;
   @Mock private CartographyRepository cartographyRepository;
   @Mock private CartographyServiceParameterRepository cartographyServiceParameterRepository;
+  @Mock private RoleRepository roleRepository;
 
   private ServiceResourceAccessValidator validator;
 
@@ -49,7 +48,8 @@ class ServiceResourceAccessValidatorTest {
             applicationRepository,
             territoryRepository,
             cartographyRepository,
-            cartographyServiceParameterRepository);
+            cartographyServiceParameterRepository,
+            roleRepository);
   }
 
   @Test
@@ -149,14 +149,8 @@ class ServiceResourceAccessValidatorTest {
     Service service = Service.builder().id(153).blocked(false).build();
 
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -248,10 +242,6 @@ class ServiceResourceAccessValidatorTest {
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
 
-    // For terId = 0, user should have empty permissions which will cause validation to fail
-    // This is expected behavior - terId=0 doesn't bypass role checks
-    when(user.getPermissions()).thenReturn(Set.of());
-
     when(serviceRepository.findById(153)).thenReturn(Optional.of(service));
     when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
     when(applicationRepository.existsById(1)).thenReturn(true);
@@ -274,14 +264,8 @@ class ServiceResourceAccessValidatorTest {
     Service service = Service.builder().id(153).blocked(false).build();
 
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -312,14 +296,8 @@ class ServiceResourceAccessValidatorTest {
     when(service.getBlocked()).thenReturn(null);
 
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -358,14 +336,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -401,14 +373,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -444,14 +410,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -487,14 +447,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography1 = mock(Cartography.class);
     when(cartography1.getService()).thenReturn(service);
@@ -534,14 +488,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography1 = mock(Cartography.class);
     when(cartography1.getService()).thenReturn(service);
@@ -581,14 +529,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -624,14 +566,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -667,14 +603,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -710,14 +640,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -752,14 +676,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -795,14 +713,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -838,14 +750,8 @@ class ServiceResourceAccessValidatorTest {
 
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
 
     Cartography cartography = mock(Cartography.class);
     when(cartography.getService()).thenReturn(service);
@@ -1035,13 +941,8 @@ class ServiceResourceAccessValidatorTest {
   private void stubAccess(List<Cartography> cartographies) {
     Service service = Service.builder().id(153).blocked(false).build();
     User user = mock(User.class);
-    Role role = mock(Role.class);
-    UserConfiguration config = mock(UserConfiguration.class);
-    Territory territory = mock(Territory.class);
-    when(territory.getId()).thenReturn(1);
-    when(config.getTerritory()).thenReturn(territory);
-    when(config.getRole()).thenReturn(role);
-    when(user.getPermissions()).thenReturn(Set.of(config));
+    when(roleRepository.findRolesByApplicationAndUserAndTerritory("testuser", 1, 1))
+        .thenReturn(List.of(mock(Role.class)));
     when(serviceRepository.findById(153)).thenReturn(Optional.of(service));
     when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
     when(applicationRepository.existsById(1)).thenReturn(true);

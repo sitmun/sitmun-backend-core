@@ -12,7 +12,12 @@ import org.sitmun.domain.cartography.Cartography;
 
 /** Geographic Information style. */
 @Entity
-@Table(name = "STM_STY_GI")
+@Table(
+    name = "STM_STY_GI",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "STM_SGI_UK",
+            columnNames = {"SGI_GIID", "SGI_NAME"}))
 @Builder
 @Getter
 @Setter
@@ -67,7 +72,6 @@ public class CartographyStyle {
   @ManyToOne(fetch = FetchType.LAZY)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "SGI_GIID", foreignKey = @ForeignKey(name = "STM_SGI_FK_GEO"))
-  @NotNull
   private Cartography cartography;
 
   @Override
