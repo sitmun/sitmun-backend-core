@@ -34,10 +34,7 @@ class FeatureTypeExtractorControllerTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("GET: Extract from a DescribeFeatureType request to a WFS 2.0")
   void extractKnownFeatureWFS20() throws Exception {
-    mvc.perform(
-            get(
-                URI_TEMPLATE,
-                "https://www.ign.es/wfs/redes-geodesicas?request=DescribeFeatureType&service=WFS&typeNames=RED_REGENTE"))
+    mvc.perform(get(URI_TEMPLATE, html.url("/gml-schema")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.type").value("GML Schema"))

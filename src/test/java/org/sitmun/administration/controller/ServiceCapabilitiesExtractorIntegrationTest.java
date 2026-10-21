@@ -58,10 +58,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("WMS GetCapabilties: A request with a percent-encoded ampersand succeeds")
   void usePercentEncodedAmpersand() throws Exception {
-    postCapabilities(
-            body(
-                "https://sitmun.diba.cat/wms/servlet/ACE1M?request=GetCapabilities%26service=WMS",
-                "WMS"))
+    postCapabilities(body(html.url("/wms-130") + "?request=GetCapabilities%26service=WMS", "WMS"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.type").value("OGC:WMS 1.3.0"))
@@ -74,7 +71,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("WMS GetCapabilties: Extract from a GetCapabilities request to a WMS 1.3.0")
   void extractKnownWMSService130() throws Exception {
-    postCapabilities(body("https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities", "WMS"))
+    postCapabilities(body(html.url("/wms-130") + "?request=GetCapabilities", "WMS"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.type").value("OGC:WMS 1.3.0"))
@@ -86,10 +83,7 @@ class ServiceCapabilitiesExtractorIntegrationTest extends BaseTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("WMS GetCapabilties: Extract from a GetCapabilities request to a WMS 1.1.1")
   void extractKnownWMSService111() throws Exception {
-    postCapabilities(
-            body(
-                "https://www.ign.es/wms-inspire/ign-base?request=GetCapabilities&version=1.1.1",
-                "WMS"))
+    postCapabilities(body(html.url("/wms-111") + "?request=GetCapabilities&version=1.1.1", "WMS"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.type").value("OGC:WMS 1.1.1"))

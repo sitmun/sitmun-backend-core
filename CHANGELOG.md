@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Proxy**: `INFO` parameters are sent only on GetFeatureInfo. `GETMAP` parameters are sent only on GetMap. `WMS` and `WFS` parameters stay on every operation of that protocol. `WMTS` parameters stay on the service profile and are not sent upstream, so a `format` row on a WMS service no longer replaces the client `FORMAT`. `OLPARAM` parameters are not sent upstream. A parameter code must be allowed for the service protocol; changing the protocol is rejected while a stored row is outside that set. Liquibase `27_parameter_operation_scope` adds `GETMAP` and `WFS` to `serviceParameter.type`, and `GETMAP` and `INFO` to `cartographyServiceParameter.type`. Stored rows are not rewritten.
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
+- **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
 
 ### Security
 
