@@ -93,7 +93,6 @@ class ProxyConfigurationServicePaginationParameterRegressionTest {
                 org.sitmun.domain.cartography.parameter.CartographyServiceParameterRepository
                     .class));
     ReflectionTestUtils.setField(service, "responseValidityTime", 3600);
-    ReflectionTestUtils.setField(service, "validateUserAccessEnabled", false);
   }
 
   private RequestCoordinates coordinates(ConfigProxyRequestDto request) {

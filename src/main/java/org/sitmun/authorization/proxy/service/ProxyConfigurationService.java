@@ -89,9 +89,6 @@ public class ProxyConfigurationService {
   @Value("${sitmun.proxy-middleware.config-response-validity-in-seconds:3600}")
   private int responseValidityTime;
 
-  @Value("${sitmun.proxy-middleware.validate-user-access:true}")
-  private boolean validateUserAccessEnabled;
-
   public ProxyConfigurationService(
       ServiceRepository serviceRepository,
       TaskRepository taskRepository,
@@ -313,18 +310,11 @@ public class ProxyConfigurationService {
   /**
    * Validates whether the user may obtain proxy configuration for the requested resource.
    *
-   * <p>When {@code sitmun.proxy-middleware.validate-user-access} is enabled (default), denies
-   * access for blocked user accounts (including the built-in {@code public} user), denies the
-   * public principal on private applications ({@code appPrivate}), then delegates to resource
-   * validators for role and service checks. When validation is disabled, returns {@code true}
-   * without any checks.
+   * <p>Denies a blank username, a blocked account (including the built-in {@code public} user), and
+   * the public principal on a private application. Then delegates to the resource validator for the
+   * request type. An unknown type is denied.
    */
   public boolean validateUserAccess(ConfigProxyRequestDto configProxyRequestDto, String userName) {
-    if (!validateUserAccessEnabled) {
-      log.debug("User access validation is disabled via configuration");
-      return true;
-    }
-
     if (userName == null || userName.isBlank()) {
       log.warn("Username is null or blank, denying access");
       return false;
