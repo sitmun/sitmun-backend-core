@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
 - **Tests**: Capabilities and feature-type extractor tests read local WMS 1.3.0, WMS 1.1.1, service-exception, and GML schema fixtures. They no longer call `www.ign.es` or `sitmun.diba.cat` ([#308](https://github.com/sitmun/sitmun-backend-core/issues/308)).
+- **Tests**: The tree-node JPEG case posts local `tree-node-8x8.jpg` as a data URI, still expects `data:image/jpeg` at 125 by 125, and reads that stored image back. It no longer downloads a GitHub JPEG ([#320](https://github.com/sitmun/sitmun-backend-core/issues/320)).
 - **Tests**: `SequenceMigrationTest` checks the `ATR_ID` generator on `STM_APP_TREE` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 
 ### Security
