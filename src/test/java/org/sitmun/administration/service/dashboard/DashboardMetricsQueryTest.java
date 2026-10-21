@@ -33,6 +33,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -43,15 +44,13 @@ import org.springframework.test.context.DynamicPropertySource;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class DashboardMetricsQueryTest {
 
-  private static final String DATABASE_URL =
-      "jdbc:h2:mem:dashboard-metrics;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
-
   @DynamicPropertySource
-  static void isolateDatabase(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", () -> DATABASE_URL);
+  static void rollBackOnSuiteDatabase(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.hikari.auto-commit", () -> "false");
   }
 
   @Autowired private EntityManager entityManager;
+  @Autowired private Environment environment;
   @Autowired private DashboardProperties dashboardProperties;
   @Autowired private TerritoryRepository territoryRepository;
   @Autowired private TerritoryTypeRepository territoryTypeRepository;
@@ -62,12 +61,22 @@ class DashboardMetricsQueryTest {
   @Autowired private UserPositionRepository userPositionRepository;
 
   @Test
+  @DisplayName("Uses the suite database")
+  void usesSuiteDatabase() {
+    String url = environment.getProperty("spring.datasource.url");
+    assertThat(url).doesNotContain("dashboard-metrics");
+    if (url != null && url.startsWith("jdbc:h2:")) {
+      assertThat(url).startsWith("jdbc:h2:mem:testdb");
+    }
+  }
+
+  @Test
   @DisplayName("Users created on a day are bucketed by year, month, and day")
   void publishesDayBucketForCreatedDate() {
+    LocalDate written = LocalDate.of(2011, 4, 9);
+    long before = bucketCount(written);
     User user = persistUser("dash-day");
-    Date created =
-        Date.from(
-            LocalDate.of(2011, 4, 9).atTime(12, 0).atZone(ZoneId.systemDefault()).toInstant());
+    Date created = Date.from(written.atTime(12, 0).atZone(ZoneId.systemDefault()).toInstant());
     user.setCreatedDate(created);
     user = userRepository.saveAndFlush(user);
     Date persisted = userRepository.findById(user.getId()).orElseThrow().getCreatedDate();
@@ -75,6 +84,7 @@ class DashboardMetricsQueryTest {
 
     List<Object[]> rows = run(dashboardProperties.getUsersByCreatedDate().getQuery());
 
+    assertThat(bucket).isEqualTo(written);
     assertThat(rows)
         .filteredOn(row -> row.length == 4 && row[0] != null && row[1] != null && row[2] != null)
         .anySatisfy(
@@ -82,7 +92,7 @@ class DashboardMetricsQueryTest {
               assertThat(number(row[0])).isEqualTo(bucket.getYear());
               assertThat(number(row[1])).isEqualTo(bucket.getMonthValue());
               assertThat(number(row[2])).isEqualTo(bucket.getDayOfMonth());
-              assertThat(number(row[3])).isGreaterThanOrEqualTo(1);
+              assertThat(number(row[3])).isEqualTo(before + 1);
             });
   }
 
@@ -151,6 +161,19 @@ class DashboardMetricsQueryTest {
     return run(dashboardProperties.getUsersPerApplication().getQuery()).stream()
         .filter(row -> applicationName.equals(String.valueOf(row[0])))
         .map(row -> ((Number) row[1]).longValue())
+        .findFirst()
+        .orElse(0L);
+  }
+
+  private long bucketCount(LocalDate bucket) {
+    return run(dashboardProperties.getUsersByCreatedDate().getQuery()).stream()
+        .filter(row -> row.length == 4 && row[0] != null && row[1] != null && row[2] != null)
+        .filter(
+            row ->
+                number(row[0]) == bucket.getYear()
+                    && number(row[1]) == bucket.getMonthValue()
+                    && number(row[2]) == bucket.getDayOfMonth())
+        .map(row -> number(row[3]))
         .findFirst()
         .orElse(0L);
   }
