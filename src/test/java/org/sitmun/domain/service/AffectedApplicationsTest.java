@@ -27,6 +27,7 @@ import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.sitmun.domain.cartography.permission.CartographyPermissionRepository;
 import org.sitmun.domain.role.Role;
 import org.sitmun.domain.role.RoleRepository;
+import org.sitmun.domain.service.check.ServiceCheckSliceConfiguration;
 import org.sitmun.domain.service.check.ServiceCheckStore;
 import org.sitmun.domain.service.usage.ServiceUsage;
 import org.sitmun.domain.service.usage.ServiceUsageKey;
@@ -38,21 +39,24 @@ import org.sitmun.domain.tree.Tree;
 import org.sitmun.domain.tree.TreeRepository;
 import org.sitmun.domain.tree.node.TreeNode;
 import org.sitmun.domain.tree.node.TreeNodeRepository;
-import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.sitmun.upstream.signal.ServiceStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ImportAutoConfiguration(LiquibaseAutoConfiguration.class)
-@Transactional
+@Import(ServiceCheckSliceConfiguration.class)
+@TestPropertySource(
+    properties = {
+      "sitmun.service-check.enabled=true",
+      "spring.datasource.hikari.auto-commit=false"
+    })
 @DisplayName("Affected applications")
 class AffectedApplicationsTest {
 
@@ -275,8 +279,4 @@ class AffectedApplicationsTest {
     row.setRequests(requests);
     usage.save(row);
   }
-
-  @TestConfiguration
-  @Import({I18nTestConfiguration.class, ServiceCheckStore.class, AffectedApplications.class})
-  static class Configuration {}
 }

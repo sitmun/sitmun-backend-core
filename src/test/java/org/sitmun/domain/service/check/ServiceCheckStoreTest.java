@@ -8,19 +8,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.domain.service.Service;
 import org.sitmun.domain.service.ServiceRepository;
-import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.sitmun.upstream.signal.ServiceStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.liquibase.autoconfigure.LiquibaseAutoConfiguration;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ImportAutoConfiguration(LiquibaseAutoConfiguration.class)
+@Import(ServiceCheckSliceConfiguration.class)
+@TestPropertySource(
+    properties = {
+      "sitmun.service-check.enabled=true",
+      "spring.datasource.hikari.auto-commit=false"
+    })
 @DisplayName("Service check store")
 class ServiceCheckStoreTest {
 
@@ -84,8 +89,4 @@ class ServiceCheckStoreTest {
     Service reloaded = serviceRepository.findById(service.getId()).orElseThrow();
     assertThat(reloaded.getBlocked()).isTrue();
   }
-
-  @TestConfiguration
-  @Import({I18nTestConfiguration.class, ServiceCheckStore.class})
-  static class Configuration {}
 }
