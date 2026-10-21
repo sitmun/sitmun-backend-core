@@ -94,7 +94,7 @@ public class ProxyDelegatedTokenAuthenticator {
 
       if (!requireMobileProxy
           && jsonWebTokenService.isLegacyProxyToken(claims)
-          && jsonWebTokenService.validateLegacyProxyToken(bearerToken)) {
+          && jsonWebTokenService.validateLegacyProxyToken(bearerToken, lastPasswordChange)) {
         return new Outcome.Success(
             new Result(
                 username, jsonWebTokenService.getExpirationDateFromToken(bearerToken).getTime()));

@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Security
 
+- **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
 - **Proxy**: `sitmun.proxy-middleware.validate-user-access` is removed. `POST /api/config/proxy` and template child execution always run the account, privacy, and resource checks ([#286](https://github.com/sitmun/sitmun-backend-core/issues/286)).
 - **Proxy**: `LIMIT` and `OFFSET` on `POST /api/config/proxy` must be non-negative integers. Any other value returns HTTP 400 before the SQL is built. The appended clause is `OFFSET n ROWS FETCH NEXT m ROWS ONLY`. PostgreSQL has accepted it since 8.4. Oracle has accepted it since 12.1 ([#284](https://github.com/sitmun/sitmun-backend-core/issues/284)).
 - **Auth**: A session cookie accepts only a session JWT. An `edition_access` or `mobile_proxy_access` token sent as `viewer_access_token` or the admin cookie is rejected, so it no longer receives that user's database roles, including `ROLE_ADMIN` ([#282](https://github.com/sitmun/sitmun-backend-core/issues/282)).
