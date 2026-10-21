@@ -67,15 +67,26 @@ class SimpleServiceCapabilitiesExtractorTest {
 
   @Test
   @DisplayName("Extract from a bad request to a WMS")
-  void extractFailedService() {
-    ExtractedMetadata doc = extractor.extract(request("https://www.ign.es/wms-inspire/ign-base?"));
-    assertNotNull(doc);
-    assertFalse(doc.getSuccess());
-    assertEquals("Not a standard OGC:WMS or OGC:WFS Capabilities response", doc.getReason());
-    assertNotNull(doc.getAsText());
-    assertThat(doc.getAsText()).startsWith("<?xml");
-    assertNotNull(doc.getAsJson());
-    assertTrue(doc.getAsJson().containsKey("ServiceExceptionReport"));
+  void extractFailedService() throws IOException {
+    String xml =
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <ServiceExceptionReport version="1.3.0">
+          <ServiceException code="MissingParameterValue">request</ServiceException>
+        </ServiceExceptionReport>
+        """;
+    try (MockWebServer server = new MockWebServer()) {
+      server.start();
+      server.enqueue(new MockResponse().setResponseCode(200).setBody(xml));
+      ExtractedMetadata doc = extractor.extract(request(server.url("/wms").toString()));
+      assertNotNull(doc);
+      assertFalse(doc.getSuccess());
+      assertEquals("Not a standard OGC:WMS or OGC:WFS Capabilities response", doc.getReason());
+      assertNotNull(doc.getAsText());
+      assertThat(doc.getAsText()).startsWith("<?xml");
+      assertNotNull(doc.getAsJson());
+      assertTrue(doc.getAsJson().containsKey("ServiceExceptionReport"));
+    }
   }
 
   private static Request request(String url) {
