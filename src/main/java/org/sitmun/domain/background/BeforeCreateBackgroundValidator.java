@@ -1,6 +1,7 @@
 package org.sitmun.domain.background;
 
 import java.util.Objects;
+import org.sitmun.administration.config.ValidatesRepositoryEvents;
 import org.sitmun.domain.cartography.permission.CartographyPermission;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
+@ValidatesRepositoryEvents({"beforeCreate", "beforeLinkSave"})
 public class BeforeCreateBackgroundValidator implements Validator {
   @Override
   public boolean supports(@NonNull Class<?> aClass) {
