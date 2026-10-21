@@ -1,6 +1,7 @@
 package org.sitmun.infrastructure.persistence.type.i18n;
 
 import jakarta.persistence.PostLoad;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -33,9 +34,11 @@ public class I18nListener implements ApplicationContextAware {
         String langParam = attributes.getRequest().getParameter("lang");
 
         // Apply translation when:
-        // 1. Explicit lang parameter is present
+        // 1. Explicit lang parameter is present on a read
         // e.g /api/code-list-values?lang=es&codeListName=territory.scope
-        if (langParam != null && !langParam.isEmpty()) {
+        if (langParam != null
+            && !langParam.isEmpty()
+            && !isMutating(attributes.getRequest().getMethod())) {
           return true;
         }
 
@@ -49,6 +52,16 @@ public class I18nListener implements ApplicationContextAware {
       log.debug("Could not determine request parameters, skipping internationalization", e);
     }
     return false;
+  }
+
+  private static boolean isMutating(String method) {
+    if (method == null) {
+      return false;
+    }
+    return switch (method.toUpperCase(Locale.ROOT)) {
+      case "POST", "PUT", "PATCH", "DELETE" -> true;
+      default -> false;
+    };
   }
 
   @Override
