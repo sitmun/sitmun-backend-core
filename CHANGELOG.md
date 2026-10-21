@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Profile**: `featureInfoFields` publishes `maxWidth` and `maxHeight` from `PGI_OPTIONS` for an Image field.
 - **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.
 - **Service checks**: Service-check ingest returns HTTP 400 when `requestContext` or `exchangeSignals` is missing.
+- **Images**: A PNG data URI is source-subsampled to the configured size before scaling, matching URL images, so a large bitmap is not decoded at full size. SVG data URIs stay `image/svg+xml` ([#309](https://github.com/sitmun/sitmun-backend-core/issues/309)).
 
 ## [1.2.9] - 2026-09-19
 
