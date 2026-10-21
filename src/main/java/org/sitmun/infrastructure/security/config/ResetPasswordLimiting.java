@@ -22,4 +22,12 @@ public class ResetPasswordLimiting {
     registrationBean.addUrlPatterns("/api/password-reset/request");
     return registrationBean;
   }
+
+  @Bean
+  public FilterRegistrationBean<RateLimitingFilter> passwordResetConfirmLimiting() {
+    FilterRegistrationBean<RateLimitingFilter> registrationBean = new FilterRegistrationBean<>();
+    registrationBean.setFilter(new RateLimitingFilter(5, 15));
+    registrationBean.addUrlPatterns("/api/password-reset/confirm");
+    return registrationBean;
+  }
 }
