@@ -1,5 +1,6 @@
 package org.sitmun.authentication.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -10,10 +11,12 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.net.URI;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.sitmun.authentication.dto.UserPasswordAuthenticationRequest;
 import org.sitmun.infrastructure.config.Profiles;
 import org.sitmun.infrastructure.security.core.LdapUserAuthoritiesPopulator;
@@ -32,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @AdditiveActiveProfiles(value = Profiles.LDAP)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Authentication Controller LDAP enabled tests")
 class AuthenticationControllerLdapEnabledTest {
 
@@ -53,7 +57,7 @@ class AuthenticationControllerLdapEnabledTest {
 
   private InMemoryDirectoryServer directoryServer;
 
-  @BeforeEach
+  @BeforeAll
   void setupLdapServer() throws LDAPException {
     InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(baseDN);
     int port = URI.create(url).getPort();
@@ -64,7 +68,7 @@ class AuthenticationControllerLdapEnabledTest {
     directoryServer.startListening();
   }
 
-  @AfterEach
+  @AfterAll
   void shutdownLdapServer() {
     directoryServer.shutDown(true);
   }
@@ -116,10 +120,12 @@ class AuthenticationControllerLdapEnabledTest {
   @Test
   @DisplayName("POST: role lookup failure for an LDAP user must not issue a session cookie")
   void roleLookupDataAccessFailureReturnsUnauthorized() throws Exception {
+    AtomicBoolean populatorRejectedLookup = new AtomicBoolean();
     doAnswer(
             invocation -> {
               for (StackTraceElement frame : Thread.currentThread().getStackTrace()) {
                 if (LdapUserAuthoritiesPopulator.class.getName().equals(frame.getClassName())) {
+                  populatorRejectedLookup.set(true);
                   throw new DataAccessResourceFailureException("database unavailable");
                 }
               }
@@ -138,5 +144,8 @@ class AuthenticationControllerLdapEnabledTest {
                 .content(TestUtils.asJsonString(login)))
         .andExpect(status().isUnauthorized())
         .andExpect(cookie().doesNotExist(AuthenticationController.ACCESS_TOKEN_COOKIE_NAME));
+    assertThat(populatorRejectedLookup.get())
+        .as("role lookup must fail inside LdapUserAuthoritiesPopulator")
+        .isTrue();
   }
 }
