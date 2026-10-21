@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -51,6 +54,7 @@ class ResetPasswordControllerTest {
   @Autowired private CodeOTPService codeOTPService;
 
   private static final String API_URL = "/api/password-reset/";
+  private static final AtomicInteger CONFIRM_CLIENTS = new AtomicInteger();
   private User testUser;
   private String validToken;
   private String expiredToken;
@@ -63,8 +67,11 @@ class ResetPasswordControllerTest {
    */
   private String testUserEmail;
 
+  private String confirmClientAddress;
+
   @BeforeEach
   void setUp() {
+    confirmClientAddress = "10.7.0." + (CONFIRM_CLIENTS.incrementAndGet() % 200 + 1);
     // Clean up any existing test data
     userTokenRepository.deleteAll();
 
@@ -231,6 +238,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isOk())
@@ -265,6 +273,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isGone());
@@ -297,6 +306,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isGone());
@@ -329,6 +339,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isGone())
@@ -364,6 +375,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest())
@@ -372,6 +384,48 @@ class ResetPasswordControllerTest {
     assertThat(userRepository.findById(testUser.getId()))
         .isPresent()
         .hasValueSatisfying(user -> assertThat(user.getPassword()).isEqualTo(storedPassword));
+  }
+
+  @Test
+  @DisplayName("Unknown email confirm matches a wrong code and a known user with no code")
+  @Transactional
+  void confirmUnknownEmailMatchesKnownUserFailure() throws Exception {
+    String hashedToken = codeOTPService.hashCodeOTP(validToken);
+    userTokenRepository.save(
+        UserToken.builder()
+            .codeOTP(hashedToken)
+            .userID(testUser.getId())
+            .expireAt(new Date(System.currentTimeMillis() + 300000))
+            .attemptCounter(0)
+            .active(true)
+            .build());
+
+    User userWithoutCode =
+        userRepository.save(
+            User.builder()
+                .username("testuser2")
+                .email("test2-" + System.nanoTime() + "@example.com")
+                .firstName("Test")
+                .lastName("Two")
+                .password("oldpassword")
+                .administrator(false)
+                .blocked(false)
+                .build());
+
+    MvcResult wrongCode = postConfirm(resetRequest(testUser.getEmail(), "12345678"));
+    MvcResult unknown =
+        postConfirm(resetRequest("missing-" + System.nanoTime() + "@example.com", "12345678"));
+    MvcResult noCode = postConfirm(resetRequest(userWithoutCode.getEmail(), "12345678"));
+
+    assertThat(wrongCode.getResponse().getStatus()).isEqualTo(400);
+    assertThat(wrongCode.getResponse().getContentAsString()).isEqualTo("2");
+    assertThat(unknown.getResponse().getStatus()).isEqualTo(wrongCode.getResponse().getStatus());
+    assertThat(unknown.getResponse().getContentAsString())
+        .isEqualTo(wrongCode.getResponse().getContentAsString());
+    assertThat(noCode.getResponse().getStatus()).isEqualTo(wrongCode.getResponse().getStatus());
+    assertThat(noCode.getResponse().getContentAsString())
+        .isEqualTo(wrongCode.getResponse().getContentAsString());
+    assertThat(userTokenRepository.findByUserID(userWithoutCode.getId())).isEmpty();
   }
 
   @Test
@@ -396,6 +450,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -426,6 +481,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -442,6 +498,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -469,6 +526,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -500,6 +558,7 @@ class ResetPasswordControllerTest {
 
     mvc.perform(
             post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isBadRequest());
@@ -572,5 +631,57 @@ class ResetPasswordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.asJsonString(request)))
         .andExpect(status().isTooManyRequests());
+  }
+
+  @Test
+  @DisplayName("Sixth password-reset confirm from one address returns 429")
+  void confirmTooManyTimes() throws Exception {
+    ResetPasswordRequest request =
+        resetRequest("missing-" + System.nanoTime() + "@example.com", "12345678");
+    RequestPostProcessor remote = remoteAddress("10.0.0.3");
+
+    for (int i = 0; i < 5; i++) {
+      int status =
+          mvc.perform(
+                  post(API_URL + "confirm")
+                      .with(remote)
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(TestUtils.asJsonString(request)))
+              .andReturn()
+              .getResponse()
+              .getStatus();
+      assertThat(status).isNotEqualTo(429);
+    }
+
+    mvc.perform(
+            post(API_URL + "confirm")
+                .with(remote)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andExpect(status().isTooManyRequests());
+  }
+
+  private MvcResult postConfirm(ResetPasswordRequest request) throws Exception {
+    return mvc.perform(
+            post(API_URL + "confirm")
+                .with(remoteAddress(confirmClientAddress))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.asJsonString(request)))
+        .andReturn();
+  }
+
+  private static ResetPasswordRequest resetRequest(String email, String code) {
+    ResetPasswordRequest request = new ResetPasswordRequest();
+    request.setEmail(email);
+    request.setCodeOTP(code);
+    request.setNewPassword("newpassword123");
+    return request;
+  }
+
+  private static RequestPostProcessor remoteAddress(String address) {
+    return httpRequest -> {
+      httpRequest.setRemoteAddr(address);
+      return httpRequest;
+    };
   }
 }

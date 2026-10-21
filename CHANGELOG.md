@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Security
 
 - **Auth**: `POST /api/config/client/territory/position` keeps the stored `expirationDate` and `type`. The owner can still update name, organization, and email ([#296](https://github.com/sitmun/sitmun-backend-core/issues/296)).
+- **Auth**: `POST /api/password-reset/confirm` returns the same HTTP 400 and attempts-remaining body for an unknown email, a known email with no reset code, and a wrong code. The reset code is drawn from `SecureRandom`. Confirm allows 5 calls per address each 15 minutes, the same limit as request ([#291](https://github.com/sitmun/sitmun-backend-core/issues/291)).
 - **Auth**: A legacy proxy JWT is rejected after the account password changes. The check uses the same `lastPasswordChange` claim as the session cookie and the mobile proxy token ([#283](https://github.com/sitmun/sitmun-backend-core/issues/283)).
 - **Proxy**: `sitmun.proxy-middleware.validate-user-access` is removed. `POST /api/config/proxy` and template child execution always run the account, privacy, and resource checks ([#286](https://github.com/sitmun/sitmun-backend-core/issues/286)).
 - **Proxy**: `LIMIT` and `OFFSET` on `POST /api/config/proxy` must be non-negative integers. Any other value returns HTTP 400 before the SQL is built. The appended clause is `OFFSET n ROWS FETCH NEXT m ROWS ONLY`. PostgreSQL has accepted it since 8.4. Oracle has accepted it since 12.1 ([#284](https://github.com/sitmun/sitmun-backend-core/issues/284)).
@@ -32,12 +33,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Edition**: Client profile `fields` for an edition task keeps the order of `properties.fields` ([#305](https://github.com/sitmun/sitmun-backend-core/issues/305)).
 - **Services**: `service.type` keeps `WMS`, `WFS`, and `WMTS`. A stored service of another type stays in the database and is left out of the client profile, along with layers and tasks that use it ([sitmun-application-stack#101](https://github.com/sitmun/sitmun-application-stack/issues/101)).
 - **Cartography**: `GET /api/cartographies` with a large page size no longer 500s under Hibernate 7. The paged `findAll` EntityGraph no longer joins the `styles` bag (styles still load via `@BatchSize`).
 
 - **Profile**: `featureInfoFields` publishes `maxWidth` and `maxHeight` from `PGI_OPTIONS` for an Image field.
 - **Usage**: Usage ingest returns HTTP 400 when `hourStart`, `serviceId`, or `applicationId` is null. An explicit `0` still binds.
 - **Service checks**: Service-check ingest returns HTTP 400 when `requestContext` or `exchangeSignals` is missing.
+- **Config**: `ConfigurationParameter` equality follows its id. Two rows with the same id compare equal and share a hash code, including in a `HashSet`. A configuration parameter is not equal to an application parameter with the same id ([#295](https://github.com/sitmun/sitmun-backend-core/issues/295)).
 
 ## [1.2.9] - 2026-09-19
 
