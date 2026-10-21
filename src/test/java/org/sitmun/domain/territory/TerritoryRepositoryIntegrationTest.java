@@ -1,75 +1,50 @@
 package org.sitmun.domain.territory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sitmun.test.URIConstants.TERRITORIES_URI;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import java.util.ArrayList;
-import java.util.List;
 import net.minidev.json.JSONArray;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sitmun.test.ClientHttpLoggerRequestInterceptor;
-import org.sitmun.test.TestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 class TerritoryRepositoryIntegrationTest {
 
-  private RestTemplate restTemplate;
-  @LocalServerPort private int port;
-
-  @BeforeEach
-  void setup() {
-    ClientHttpRequestFactory factory =
-        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
-    restTemplate = new RestTemplate(factory);
-    List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-    if (CollectionUtils.isEmpty(interceptors)) {
-      interceptors = new ArrayList<>();
-    }
-    interceptors.add(new ClientHttpLoggerRequestInterceptor());
-    restTemplate.setInterceptors(interceptors);
-  }
+  @Autowired private MockMvc mvc;
 
   @Test
-  void requestMembers() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
-    HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-    ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/api/territories/1/members",
-            HttpMethod.GET,
-            entity,
-            String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    DocumentContext context = JsonPath.parse(response.getBody());
+  @WithMockUser(roles = "ADMIN")
+  void requestMembers() throws Exception {
+    String body =
+        mvc.perform(get(TERRITORIES_URI + "/1/members"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    DocumentContext context = JsonPath.parse(body);
 
     assertThat(context.read("$._embedded.territories[*]", JSONArray.class)).hasSize(2);
   }
 
   @Test
-  void requestMemberOf() {
-    HttpHeaders headers = TestUtils.adminAuthHeaders(restTemplate, port);
-    HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-    ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/api/territories/2/memberOf",
-            HttpMethod.GET,
-            entity,
-            String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    DocumentContext context = JsonPath.parse(response.getBody());
+  @WithMockUser(roles = "ADMIN")
+  void requestMemberOf() throws Exception {
+    String body =
+        mvc.perform(get(TERRITORIES_URI + "/2/memberOf"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    DocumentContext context = JsonPath.parse(body);
 
     assertThat(context.read("$._embedded.territories[*]", JSONArray.class)).hasSize(1);
   }
