@@ -73,11 +73,12 @@ class DatabaseConnectionTesterServiceTest {
     DatabaseConnection connection =
         DatabaseConnection.builder()
             .driver("org.h2.Driver")
-            .url("jdb:h2:mem:testdb")
+            .url("jdbc:h2:mem:testdb;MODE=NOT_A_MODE")
             .user("sa")
             .password(null)
             .build();
     sut.testDriver(connection);
-    assertThrows(SQLException.class, () -> sut.testConnection(connection));
+    SQLException exception = assertThrows(SQLException.class, () -> sut.testConnection(connection));
+    assertTrue(exception.getMessage().contains("Unknown mode \"NOT_A_MODE\""));
   }
 }
