@@ -20,29 +20,29 @@ import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.infrastructure.config.Profiles;
-import org.sitmun.test.AdditiveActiveProfiles;
+import org.sitmun.test.UniqueContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@SpringBootTest
-@AdditiveActiveProfiles(Profiles.TEST)
-@Import(JsonWebTokenServiceTest.FixedClockConfig.class)
+@SpringBootTest(
+    classes = JsonWebTokenServiceTest.FixedClockConfig.class,
+    webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@UniqueContext(
+    "A fixed clock must not replace the suite clock. The context loads only JsonWebTokenService.")
 @DisplayName("JsonWebTokenService Tests")
 class JsonWebTokenServiceTest {
 
   private static final Instant FIXED_NOW = Instant.parse("2026-07-18T12:00:00Z");
 
-  @TestConfiguration
+  @Configuration
+  @Import(JsonWebTokenService.class)
   static class FixedClockConfig {
     @Bean
-    @Primary
     Clock fixedClock() {
       return Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
     }

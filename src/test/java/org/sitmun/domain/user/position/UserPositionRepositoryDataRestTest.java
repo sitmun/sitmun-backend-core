@@ -21,23 +21,21 @@ import org.sitmun.domain.territory.type.TerritoryTypeRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest
-@AutoConfigureWebMvc
+@AutoConfigureMockMvc
 @Transactional(rollbackFor = Exception.class)
 @DisplayName("User Position Repository Data REST Test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@WithMockUser(roles = "ADMIN")
 class UserPositionRepositoryDataRestTest {
 
-  @Autowired private WebApplicationContext webApplicationContext;
+  @Autowired private MockMvc mockMvc;
 
   @Autowired private UserPositionRepository userPositionRepository;
 
@@ -49,7 +47,6 @@ class UserPositionRepositoryDataRestTest {
 
   @Autowired private TerritoryTypeRepository territoryTypeRepository;
 
-  private MockMvc mockMvc;
   private User user;
   private Territory territory;
   private Role role;
@@ -58,8 +55,6 @@ class UserPositionRepositoryDataRestTest {
 
   @BeforeEach
   void setUp() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
     // Create test territory type
     territoryType =
         TerritoryType.builder()

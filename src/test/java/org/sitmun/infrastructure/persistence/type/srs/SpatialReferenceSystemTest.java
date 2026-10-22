@@ -1,7 +1,5 @@
 package org.sitmun.infrastructure.persistence.type.srs;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,28 +8,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sitmun.infrastructure.persistence.type.codelist.CodeListValidator;
-import org.sitmun.infrastructure.persistence.type.codelist.CodeListValueRepository;
 import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("SpatialReferenceSystem validation test")
-@Import(CodeListValidator.class)
 class SpatialReferenceSystemTest extends BaseTest {
-
-  @MockitoBean private CodeListValueRepository repository;
-
-  @BeforeEach
-  void mocks() {
-    when(repository.existsByCodeListNameAndValue(any(String.class), any(String.class)))
-        .thenReturn(true);
-  }
 
   @Test
   @DisplayName("POST stores a single EPSG code")

@@ -17,6 +17,7 @@ import org.sitmun.administration.controller.dto.TemplateTaskExecutionResponseDto
 import org.sitmun.administration.service.template.TemplateExecutionService;
 import org.sitmun.authentication.controller.AuthenticationController;
 import org.sitmun.infrastructure.security.service.JsonWebTokenService;
+import org.sitmun.test.UniqueContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -31,6 +32,8 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@UniqueContext(
+    "The real filter chain stays on, and the template service is mocked so a render or execute-child call is observable without running a template.")
 @DisplayName("MIA render SecurityFilterChain")
 class TemplateMoreInfoAdvancedRenderSecurityTest {
 

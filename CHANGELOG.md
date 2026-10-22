@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Tests**: Application and territory seed filters assert a smaller result than the unfiltered list. `internal` on territory 2 omits `SITMUN - Externa protegida`. `internal` on application 5 returns only `Provincia A` ([#312](https://github.com/sitmun/sitmun-backend-core/issues/312)).
 - **Tests**: A JDBC URL `jdbc:h2:mem:testdb;MODE=NOT_A_MODE` is rejected with an SQLException that names the unknown mode. `POST /api/connections/test` returns HTTP 400 for that URL. `GET /api/connections/{id}/test` no longer repeats the same rejection ([#314](https://github.com/sitmun/sitmun-backend-core/issues/314)).
 - **Tests**: Database connection, role, territory, territory group type, and user repository tests use MockMvc on the shared context. They no longer boot an embedded server ([#316](https://github.com/sitmun/sitmun-backend-core/issues/316)).
+- **Tests**: `UserChecksServiceTest` calls `getWarnings` without a Spring context. `JsonWebTokenServiceTest` loads only `JsonWebTokenService` with a fixed clock. `SpatialReferenceSystemTest`, `UserPositionBusinessLogicTest`, and `UserPositionRepositoryDataRestTest` reuse an existing suite context. Password reset, MIA render security, language change, task literal enrollment, and database connection tests name why their context stays unique ([#315](https://github.com/sitmun/sitmun-backend-core/issues/315)).
 
 ### Security
 

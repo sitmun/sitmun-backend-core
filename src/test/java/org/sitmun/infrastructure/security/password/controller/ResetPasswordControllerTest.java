@@ -24,6 +24,7 @@ import org.sitmun.infrastructure.security.password.dto.ResetPasswordRequest;
 import org.sitmun.infrastructure.security.password.service.CodeOTPService;
 import org.sitmun.test.AdditiveActiveProfiles;
 import org.sitmun.test.TestUtils;
+import org.sitmun.test.UniqueContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @Import(MockMailConfig.class)
 @DisplayName("Password Recovery Controller Tests")
+@UniqueContext(
+    "Password reset asserts mail sent through the mail profile and a mock JavaMailSender.")
 @AdditiveActiveProfiles(Profiles.MAIL)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ResetPasswordControllerTest {
