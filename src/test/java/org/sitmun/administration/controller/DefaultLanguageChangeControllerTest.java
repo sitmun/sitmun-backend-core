@@ -17,6 +17,7 @@ import org.sitmun.administration.dto.DefaultLanguageChangeResult;
 import org.sitmun.administration.dto.MissingTranslationDto;
 import org.sitmun.administration.service.DefaultLanguageChangeService;
 import org.sitmun.test.BaseTest;
+import org.sitmun.test.UniqueContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -24,6 +25,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
+@UniqueContext(
+    "The language-change service is mocked so preview and apply return a fixed body or a conflict without changing the default language.")
 class DefaultLanguageChangeControllerTest extends BaseTest {
 
   @Autowired private MockMvc mockMvc;

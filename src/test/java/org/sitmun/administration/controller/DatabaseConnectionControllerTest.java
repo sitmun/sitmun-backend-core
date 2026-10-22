@@ -13,11 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.sitmun.domain.database.DatabaseConnection;
 import org.sitmun.domain.database.DatabaseConnectionRepository;
 import org.sitmun.test.BaseTest;
+import org.sitmun.test.UniqueContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DisplayName("Database connection controller test")
+@UniqueContext(
+    "The connection repository is mocked so GET test can load a driver class the code list would reject on insert.")
 class DatabaseConnectionControllerTest extends BaseTest {
 
   @MockitoBean private DatabaseConnectionRepository repository;

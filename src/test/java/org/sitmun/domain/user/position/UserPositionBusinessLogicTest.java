@@ -18,28 +18,19 @@ import org.sitmun.domain.territory.type.TerritoryTypeRepository;
 import org.sitmun.domain.user.User;
 import org.sitmun.domain.user.UserRepository;
 import org.sitmun.domain.user.configuration.UserConfiguration;
-import org.sitmun.infrastructure.persistence.type.i18n.I18nTestConfiguration;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
+import org.sitmun.test.BaseTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Tests for UserPositionBusinessLogic. Positions for a user are updated (created) when
  * UserConfiguration is saved (via UserConfigurationEventHandler), not when a user is retrieved with
  * a projection; projections are read-only.
  */
-@DataJpaTest
-@Import({UserPositionBusinessLogic.class, I18nTestConfiguration.class})
 @DisplayName("User Position Business Logic JPA Test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class UserPositionBusinessLogicTest {
+@Transactional
+class UserPositionBusinessLogicTest extends BaseTest {
 
   @Autowired private UserPositionBusinessLogic userPositionBusinessLogic;
 
@@ -224,14 +215,5 @@ class UserPositionBusinessLogicTest {
     Assertions.assertThatCode(
             () -> userPositionBusinessLogic.createUserPositionIfNotExists(configWithNullTerritory))
         .doesNotThrowAnyException();
-  }
-
-  @TestConfiguration
-  static class Configuration {
-    @Bean
-    @Primary
-    TaskExecutor taskExecutor() {
-      return new SyncTaskExecutor();
-    }
   }
 }

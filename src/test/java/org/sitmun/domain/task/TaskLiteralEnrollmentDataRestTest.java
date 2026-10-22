@@ -17,6 +17,7 @@ import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationReposit
 import org.sitmun.infrastructure.persistence.type.i18n.LiteralTranslationValueRepository;
 import org.sitmun.test.BaseTest;
 import org.sitmun.test.URIConstants;
+import org.sitmun.test.UniqueContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -24,6 +25,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
 @DisplayName("Task Data REST literal enrollment")
+@UniqueContext(
+    "The ensure service is a spy that throws for one create and runs the real enroll path for the other.")
 class TaskLiteralEnrollmentDataRestTest extends BaseTest {
 
   @Autowired private TaskRepository taskRepository;

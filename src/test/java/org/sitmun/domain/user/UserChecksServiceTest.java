@@ -10,28 +10,55 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.sitmun.domain.territory.Territory;
 import org.sitmun.domain.user.configuration.UserConfiguration;
 import org.sitmun.domain.user.configuration.UserConfigurationRepository;
 import org.sitmun.domain.user.position.UserPosition;
 import org.sitmun.domain.user.position.UserPositionRepository;
 import org.sitmun.infrastructure.security.core.SecurityConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("UserChecksService Test")
 class UserChecksServiceTest {
 
-  @MockitoBean private UserConfigurationRepository userConfigurationRepository;
+  @Mock private UserConfigurationRepository userConfigurationRepository;
 
-  @MockitoBean private UserPositionRepository userPositionRepository;
+  @Mock private UserPositionRepository userPositionRepository;
 
-  @Autowired private UserChecksService userChecksService;
+  @InjectMocks private UserChecksService userChecksService;
+
+  @BeforeEach
+  void authenticateAsAdmin() {
+    authenticate("ADMIN");
+  }
+
+  @AfterEach
+  void clearAuthentication() {
+    SecurityContextHolder.clearContext();
+  }
+
+  private static void authenticate(String... roles) {
+    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    for (String role : roles) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+    }
+    SecurityContextHolder.getContext()
+        .setAuthentication(new UsernamePasswordAuthenticationToken("admin", "n/a", authorities));
+  }
 
   private static User mockCheckableUser(String username, boolean passwordSet) {
     User user = mock(User.class);
@@ -41,10 +68,9 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = {"USER", "PUBLIC", "PROXY"})
   @DisplayName("When user is not admin, getWarnings returns null")
   void getWarningsWhenUserIsNotAdminReturnsNull() {
-    // Arrange
+    authenticate("USER", "PUBLIC", "PROXY");
     User user = mock(User.class);
 
     // Act
@@ -56,7 +82,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName(
       "When user is admin, getWarnings returns a warning if any position is missing name or organization")
   void getWarningsWhenPositionDetailsAreMissingAddsWarning() {
@@ -89,7 +114,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName(
       "When user is admin, getWarnings returns a warning if the user has no positions for a territory in an user configuration")
   void getWarningsWhenRoleWithoutPositionAddsWarning() {
@@ -113,7 +137,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName(
       "When user is admin, getWarnings returns a warning if the user has no user configuration")
   void getWarningsWhenNoUserConfigurationPresentAddsWarning() {
@@ -131,7 +154,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user has no password, no-password warning is added")
   void getWarningsWhenNoPasswordAddsWarning() {
     User user = mockCheckableUser("testUser", false);
@@ -146,7 +168,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When built-in admin user has no passwordSet, no-password warning is skipped")
   void getWarningsWhenBuiltInAdminSkipsNoPasswordWarning() {
     User user = mockCheckableUser("admin", false);
@@ -161,7 +182,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When built-in admin user has no roles, no-roles warning is skipped")
   void getWarningsWhenBuiltInAdminSkipsNoRolesWarning() {
     User user = mockCheckableUser("admin", true);
@@ -176,7 +196,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When built-in admin has roles without positions, position warnings are skipped")
   void getWarningsWhenBuiltInAdminSkipsRoleWithoutPositionWarning() {
     User user = mockCheckableUser("admin", true);
@@ -196,7 +215,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user is public user, role and position checks are skipped")
   void getWarningsWhenPublicUserSkipsPositionChecks() {
     // Arrange
@@ -215,7 +233,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user is public user, enforce position checks are skipped")
   void getWarningsWhenPublicUserSkipsEnforcePositionChecks() {
     // Arrange
@@ -239,28 +256,24 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank organization, warning is added")
   void getWarningsWhenPositionHasBlankOrganizationAddsWarning() {
     assertPositionWarningWhen("Name", "   ");
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank name, warning is added")
   void getWarningsWhenPositionHasBlankNameAddsWarning() {
     assertPositionWarningWhen("", "Org");
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank email only, no position-details warning")
   void getWarningsWhenPositionHasBlankEmailOnlyNoPositionWarning() {
     assertNoPositionDetailsWarningWhen("Name", "Org", null, "");
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has blank type only, no position-details warning")
   void getWarningsWhenPositionHasBlankTypeOnlyNoPositionWarning() {
     assertNoPositionDetailsWarningWhen("Name", "Org", "email@example.com", null);
@@ -313,7 +326,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user has multiple issues, multiple warnings are returned")
   void getWarningsWhenMultipleIssuesReturnsMultipleWarnings() {
     // Arrange
@@ -349,7 +361,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When createdDate is after expirationDate, inverted-interval warning is added")
   void getWarningsWhenCreatedDateAfterExpirationDateAddsInvertedIntervalWarning() {
     User user = mockCheckableUser("testUser", true);
@@ -375,7 +386,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When createdDate or expirationDate is null, inverted-interval warning is not added")
   void getWarningsWhenOpenIntervalNoInvertedWarning() {
     User user = mockCheckableUser("testUser", true);
@@ -409,7 +419,6 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user has valid positions, no position warnings are returned")
   void getWarningsWhenValidPositionsNoPositionWarnings() {
     // Arrange
@@ -437,14 +446,12 @@ class UserChecksServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When position has name and organization only, no position-details warning")
   void getWarningsWhenNameAndOrganizationPresentNoPositionWarningDespiteBlankEmailAndType() {
     assertNoPositionDetailsWarningWhen("Valid Name", "Valid Org", null, null);
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
   @DisplayName("When user has positions for all territories, no role-without-position warning")
   void getWarningsWhenPositionsForAllTerritoriesNoRoleWarning() {
     // Arrange
