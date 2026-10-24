@@ -295,7 +295,8 @@ class CartographyRepositoryDataRestTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.cartographies", hasSize(1)))
         .andExpect(
-            jsonPath("$._embedded.cartographies[0].serviceName", is("Unique Search Service")));
+            jsonPath("$._embedded.cartographies[0].serviceName", is("Unique Search Service")))
+        .andExpect(jsonPath("$._embedded.cartographies[0].serviceType", is("service-type")));
   }
 
   @Test
