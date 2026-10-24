@@ -1,0 +1,2302 @@
+databaseChangeLog:
+  - changeSet:
+      id: geometry-code-lists-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Point', FALSE, FALSE, 'Point'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPoint', FALSE, FALSE, 'Multipoint'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'LineString', FALSE, FALSE, 'Line'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'LineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiLineString', FALSE, FALSE, 'Multiline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiLineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Curve', FALSE, FALSE, 'Curve'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Curve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiCurve', FALSE, FALSE, 'Multicurve'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiCurve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Polygon', FALSE, FALSE, 'Polygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPolygon', FALSE, FALSE, 'Multipolygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPolygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Surface', FALSE, FALSE, 'Surface'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Surface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiSurface', FALSE, FALSE, 'Multisurface'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiSurface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Geometry', FALSE, FALSE, 'Geometry'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'point', FALSE, FALSE, 'Point'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipoint', FALSE, FALSE, 'Multipoint'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polyline', FALSE, FALSE, 'Polyline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polygon', FALSE, FALSE, 'Polygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolyline', FALSE, FALSE, 'Multipolyline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolygon', FALSE, FALSE, 'Multipolygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolygon'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-code-lists-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Point', FALSE, FALSE, 'Point'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPoint', FALSE, FALSE, 'Multipoint'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'LineString', FALSE, FALSE, 'Line'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'LineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiLineString', FALSE, FALSE, 'Multiline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiLineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Curve', FALSE, FALSE, 'Curve'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Curve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiCurve', FALSE, FALSE, 'Multicurve'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiCurve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Polygon', FALSE, FALSE, 'Polygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPolygon', FALSE, FALSE, 'Multipolygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPolygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Surface', FALSE, FALSE, 'Surface'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Surface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiSurface', FALSE, FALSE, 'Multisurface'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiSurface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Geometry', FALSE, FALSE, 'Geometry'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'point', FALSE, FALSE, 'Point'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipoint', FALSE, FALSE, 'Multipoint'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polyline', FALSE, FALSE, 'Polyline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polygon', FALSE, FALSE, 'Polygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolyline', FALSE, FALSE, 'Multipolyline'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolygon', FALSE, FALSE, 'Multipolygon'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolygon'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-code-lists-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Point', 0, 0, 'Point'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPoint', 0, 0, 'Multipoint'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'LineString', 0, 0, 'Line'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'LineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiLineString', 0, 0, 'Multiline'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiLineString'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Curve', 0, 0, 'Curve'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Curve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiCurve', 0, 0, 'Multicurve'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiCurve'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Polygon', 0, 0, 'Polygon'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiPolygon', 0, 0, 'Multipolygon'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiPolygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Surface', 0, 0, 'Surface'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Surface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'MultiSurface', 0, 0, 'Multisurface'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'MultiSurface'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.geometryKind', 'Geometry', 0, 0, 'Geometry'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.geometryKind' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'point', 0, 0, 'Point'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'point'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipoint', 0, 0, 'Multipoint'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipoint'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polyline', 0, 0, 'Polyline'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'polygon', 0, 0, 'Polygon'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'polygon'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolyline', 0, 0, 'Multipolyline'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolyline'
+              );
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.preferredGeometryType', 'multipolygon', 0, 0, 'Multipolygon'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.preferredGeometryType' AND COD_VALUE = 'multipolygon'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-format-code-h2
+      author: sitmun
+      dbms: h2
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'Geometry', FALSE, FALSE, 'Geometry'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-format-code-postgresql
+      author: sitmun
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'Geometry', FALSE, FALSE, 'Geometry'
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-format-code-oracle
+      author: sitmun
+      dbms: oracle
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO STM_CODELIST (COD_ID, COD_LIST, COD_VALUE, COD_SYSTEM, COD_DEFAULT, COD_DESCRIPTION)
+              SELECT (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST),
+                     'cartographyParameter.format', 'Geometry', 0, 0, 'Geometry'
+              FROM DUAL
+              WHERE NOT EXISTS (
+                SELECT 1 FROM STM_CODELIST
+                WHERE COD_LIST = 'cartographyParameter.format' AND COD_VALUE = 'Geometry'
+              );
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(COD_ID), 0) + 1 FROM STM_CODELIST)
+              WHERE SEQ_NAME = 'COD_ID';
+  - changeSet:
+      id: geometry-code-list-translations
+      author: sitmun
+      changes:
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punto'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Point'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Punto'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punt'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Point'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Punt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punt'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Point'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Punt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Point'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Point'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Point'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunto'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPoint'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multipunto'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunt'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPoint'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multipunt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunt'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPoint'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multipunt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipoint'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPoint'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multipoint'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Línea'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'LineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Línea'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'LineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Línia'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'LineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Línia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'LineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Linha'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'LineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Linha'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'LineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Ligne'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'LineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Ligne'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'LineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multilínea'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiLineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multilínea'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiLineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multilínia'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiLineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multilínia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiLineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multilinha'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiLineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multilinha'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiLineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multiligne'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiLineString'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multiligne'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiLineString'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Curva'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Curve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Curva'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Curve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Corba'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Curve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Corba'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Curve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Corba'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Curve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Corba'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Curve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Courbe'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Curve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Courbe'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Curve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multicurva'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiCurve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multicurva'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiCurve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multicorba'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiCurve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multicorba'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiCurve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multicorba'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiCurve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multicorba'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiCurve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multicourbe'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiCurve'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multicourbe'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiCurve'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polígono'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Polygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Polígono'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polígon'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Polygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Polígon'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Poligòn'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Polygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Poligòn'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polygone'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Polygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Polygone'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolígono'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPolygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multipolígono'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolígon'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPolygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multipolígon'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipoligòn'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPolygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multipoligòn'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolygone'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiPolygon'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multipolygone'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiPolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Superficie'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Surface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Superficie'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Surface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Superfície'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Surface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Superfície'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Surface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Superfícia'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Surface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Superfícia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Surface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Surface'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Surface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Surface'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Surface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multisuperficie'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiSurface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multisuperficie'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiSurface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multisuperfície'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiSurface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multisuperfície'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiSurface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multisuperfícia'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiSurface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multisuperfícia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiSurface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multisurface'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'MultiSurface'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multisurface'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'MultiSurface'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometría'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Geometría'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometria'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Geometria'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometria'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Geometria'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Géométrie'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.geometryKind'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Géométrie'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.geometryKind' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punto'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'point'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Punto'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punt'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'point'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Punt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Punt'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'point'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Punt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Point'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'point'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Point'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'point'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunto'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipoint'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multipunto'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunt'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipoint'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multipunt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipunt'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipoint'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multipunt'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipoint'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipoint'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multipoint'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipoint'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polilínea'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Polilínea'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polilínia'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Polilínia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polilinha'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Polilinha'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polyligne'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Polyligne'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polígono'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Polígono'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polígon'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Polígon'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Poligòn'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Poligòn'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Polygone'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'polygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Polygone'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'polygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolilínea'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multipolilínea'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolilínia'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multipolilínia'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolilinha'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multipolilinha'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolyligne'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolyline'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multipolyligne'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolyline'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolígono'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Multipolígono'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolígon'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Multipolígon'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipoligòn'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Multipoligòn'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Multipolygone'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'multipolygon'
+                    AND COD_LIST = 'cartographyParameter.preferredGeometryType'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Multipolygone'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.preferredGeometryType' AND c.COD_VALUE = 'multipolygon'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometría'
+              WHERE TRA_LANID = 2
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.format'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 2, 'Geometría'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.format' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 2
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometria'
+              WHERE TRA_LANID = 3
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.format'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 3, 'Geometria'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.format' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 3
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Geometria'
+              WHERE TRA_LANID = 4
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.format'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 4, 'Geometria'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.format' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 4
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_TRANSLATION
+              SET TRA_NAME = 'Géométrie'
+              WHERE TRA_LANID = 5
+                AND TRA_COLUMN IN ('description', 'CodeListValue.description')
+                AND TRA_ELEID IN (
+                  SELECT COD_ID FROM STM_CODELIST
+                  WHERE COD_VALUE = 'Geometry'
+                    AND COD_LIST = 'cartographyParameter.format'
+                )
+        - sql:
+            sql: |
+              INSERT INTO STM_TRANSLATION (TRA_ID, TRA_ELEID, TRA_COLUMN, TRA_LANID, TRA_NAME)
+              SELECT (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION),
+                     c.COD_ID, 'CodeListValue.description', 5, 'Géométrie'
+              FROM STM_CODELIST c
+              WHERE c.COD_LIST = 'cartographyParameter.format' AND c.COD_VALUE = 'Geometry'
+                AND NOT EXISTS (
+                  SELECT 1 FROM STM_TRANSLATION t
+                  WHERE t.TRA_ELEID = c.COD_ID
+                    AND t.TRA_LANID = 5
+                    AND t.TRA_COLUMN IN ('description', 'CodeListValue.description')
+                )
+        - sql:
+            sql: |
+              UPDATE STM_SEQUENCE
+              SET SEQ_COUNT = (SELECT COALESCE(MAX(TRA_ID), 0) + 1 FROM STM_TRANSLATION)
+              WHERE SEQ_NAME = 'TRA_ID'

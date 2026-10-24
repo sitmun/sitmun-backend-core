@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sitmun.domain.CodeListsConstants.*;
 import static org.sitmun.domain.DomainConstants.Tasks.*;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,8 @@ class CodeListsTest {
             CARTOGRAPHY_GEOMETRY_TYPE,
             CARTOGRAPHY_LEGEND_TYPE,
             CARTOGRAPHY_PARAMETER_FORMAT,
+            CARTOGRAPHY_PARAMETER_GEOMETRY_KIND,
+            CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE,
             CARTOGRAPHY_PARAMETER_TYPE,
             CARTOGRAPHY_SERVICE_PARAMETER_TYPE,
             CARTOGRAPHY_PERMISSION_TYPE,
@@ -63,6 +66,15 @@ class CodeListsTest {
             false)
         .map(CodeListValue::getValue)
         .collect(Collectors.toList());
+  }
+
+  private Map<String, String> descriptions(String list) {
+    return StreamSupport.stream(
+            codeListValueRepository
+                .findAll(QCodeListValue.codeListValue.codeListName.eq(list))
+                .spliterator(),
+            false)
+        .collect(Collectors.toMap(CodeListValue::getValue, CodeListValue::getDescription));
   }
 
   @Test
@@ -108,7 +120,41 @@ class CodeListsTest {
   @DisplayName("Verify cartographyParameter.format code list values")
   void checkCartographyParameterFormat() {
     assertThat(select(CARTOGRAPHY_PARAMETER_FORMAT))
-        .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F", "AUTO");
+        .containsExactlyInAnyOrder("I", "N", "P", "T", "U", "F", "AUTO", "Geometry");
+    assertThat(descriptions(CARTOGRAPHY_PARAMETER_FORMAT)).containsEntry("Geometry", "Geometry");
+  }
+
+  @Test
+  @DisplayName("Verify cartographyParameter.geometryKind stored codes and English labels")
+  void checkCartographyParameterGeometryKind() {
+    assertThat(descriptions(CARTOGRAPHY_PARAMETER_GEOMETRY_KIND))
+        .containsExactlyInAnyOrderEntriesOf(
+            Map.ofEntries(
+                Map.entry("Point", "Point"),
+                Map.entry("MultiPoint", "Multipoint"),
+                Map.entry("LineString", "Line"),
+                Map.entry("MultiLineString", "Multiline"),
+                Map.entry("Curve", "Curve"),
+                Map.entry("MultiCurve", "Multicurve"),
+                Map.entry("Polygon", "Polygon"),
+                Map.entry("MultiPolygon", "Multipolygon"),
+                Map.entry("Surface", "Surface"),
+                Map.entry("MultiSurface", "Multisurface"),
+                Map.entry("Geometry", "Geometry")));
+  }
+
+  @Test
+  @DisplayName("Verify cartographyParameter.preferredGeometryType stored codes and English labels")
+  void checkCartographyParameterPreferredGeometryType() {
+    assertThat(descriptions(CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE))
+        .containsExactlyInAnyOrderEntriesOf(
+            Map.of(
+                "point", "Point",
+                "multipoint", "Multipoint",
+                "polyline", "Polyline",
+                "polygon", "Polygon",
+                "multipolyline", "Multipolyline",
+                "multipolygon", "Multipolygon"));
   }
 
   @Test

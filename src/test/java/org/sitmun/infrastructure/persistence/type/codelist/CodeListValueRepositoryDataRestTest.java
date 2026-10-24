@@ -3,6 +3,8 @@ package org.sitmun.infrastructure.persistence.type.codelist;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_PARAMETER_FORMAT;
+import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_PARAMETER_GEOMETRY_KIND;
+import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE;
 import static org.sitmun.domain.CodeListsConstants.CARTOGRAPHY_SPATIAL_SELECTION_PARAMETER_TYPE;
 import static org.sitmun.domain.CodeListsConstants.DATABASE_CONNECTION_DRIVER;
 import static org.sitmun.test.URIConstants.*;
@@ -11,6 +13,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.persistence.EntityManager;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 class CodeListValueRepositoryDataRestTest {
 
   @Autowired private MockMvc mvc;
+
+  @Autowired private EntityManager entityManager;
 
   @Test
   @DisplayName("GET: Check availability of databaseConnection.driver")
@@ -315,5 +321,144 @@ class CodeListValueRepositoryDataRestTest {
             jsonPath(
                     "$._embedded.codelist-values[?(@.value == 'com.microsoft.sqlserver.jdbc.SQLServerDriver')].description")
                 .value("Controlador JDBC Microsoft SQL Server"));
+  }
+
+  @Test
+  @DisplayName("GET cartographyParameter.geometryKind descriptions in es, ca, oc-aranes, and fr")
+  @WithMockUser(roles = "ADMIN")
+  void geometryKindDescriptionsInSpanishAndCatalan() throws Exception {
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_GEOMETRY_KIND,
+        "es",
+        Map.ofEntries(
+            Map.entry("Point", "Punto"),
+            Map.entry("MultiPoint", "Multipunto"),
+            Map.entry("LineString", "Línea"),
+            Map.entry("MultiLineString", "Multilínea"),
+            Map.entry("Curve", "Curva"),
+            Map.entry("MultiCurve", "Multicurva"),
+            Map.entry("Polygon", "Polígono"),
+            Map.entry("MultiPolygon", "Multipolígono"),
+            Map.entry("Surface", "Superficie"),
+            Map.entry("MultiSurface", "Multisuperficie"),
+            Map.entry("Geometry", "Geometría")));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_GEOMETRY_KIND,
+        "ca",
+        Map.ofEntries(
+            Map.entry("Point", "Punt"),
+            Map.entry("MultiPoint", "Multipunt"),
+            Map.entry("LineString", "Línia"),
+            Map.entry("MultiLineString", "Multilínia"),
+            Map.entry("Curve", "Corba"),
+            Map.entry("MultiCurve", "Multicorba"),
+            Map.entry("Polygon", "Polígon"),
+            Map.entry("MultiPolygon", "Multipolígon"),
+            Map.entry("Surface", "Superfície"),
+            Map.entry("MultiSurface", "Multisuperfície"),
+            Map.entry("Geometry", "Geometria")));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_GEOMETRY_KIND,
+        "oc-aranes",
+        Map.ofEntries(
+            Map.entry("Point", "Punt"),
+            Map.entry("MultiPoint", "Multipunt"),
+            Map.entry("LineString", "Linha"),
+            Map.entry("MultiLineString", "Multilinha"),
+            Map.entry("Curve", "Corba"),
+            Map.entry("MultiCurve", "Multicorba"),
+            Map.entry("Polygon", "Poligòn"),
+            Map.entry("MultiPolygon", "Multipoligòn"),
+            Map.entry("Surface", "Superfícia"),
+            Map.entry("MultiSurface", "Multisuperfícia"),
+            Map.entry("Geometry", "Geometria")));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_GEOMETRY_KIND,
+        "fr",
+        Map.ofEntries(
+            Map.entry("Point", "Point"),
+            Map.entry("MultiPoint", "Multipoint"),
+            Map.entry("LineString", "Ligne"),
+            Map.entry("MultiLineString", "Multiligne"),
+            Map.entry("Curve", "Courbe"),
+            Map.entry("MultiCurve", "Multicourbe"),
+            Map.entry("Polygon", "Polygone"),
+            Map.entry("MultiPolygon", "Multipolygone"),
+            Map.entry("Surface", "Surface"),
+            Map.entry("MultiSurface", "Multisurface"),
+            Map.entry("Geometry", "Géométrie")));
+  }
+
+  @Test
+  @DisplayName(
+      "GET cartographyParameter.preferredGeometryType descriptions in es, ca, oc-aranes, and fr")
+  @WithMockUser(roles = "ADMIN")
+  void preferredGeometryTypeDescriptionsInSpanishAndCatalan() throws Exception {
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE,
+        "es",
+        Map.of(
+            "point", "Punto",
+            "multipoint", "Multipunto",
+            "polyline", "Polilínea",
+            "polygon", "Polígono",
+            "multipolyline", "Multipolilínea",
+            "multipolygon", "Multipolígono"));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE,
+        "ca",
+        Map.of(
+            "point", "Punt",
+            "multipoint", "Multipunt",
+            "polyline", "Polilínia",
+            "polygon", "Polígon",
+            "multipolyline", "Multipolilínia",
+            "multipolygon", "Multipolígon"));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE,
+        "oc-aranes",
+        Map.of(
+            "point", "Punt",
+            "multipoint", "Multipunt",
+            "polyline", "Polilinha",
+            "polygon", "Poligòn",
+            "multipolyline", "Multipolilinha",
+            "multipolygon", "Multipoligòn"));
+    expectDescriptions(
+        CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE,
+        "fr",
+        Map.of(
+            "point", "Point",
+            "multipoint", "Multipoint",
+            "polyline", "Polyligne",
+            "polygon", "Polygone",
+            "multipolyline", "Multipolyligne",
+            "multipolygon", "Multipolygone"));
+  }
+
+  @Test
+  @DisplayName("GET cartographyParameter.format Geometry description in es, ca, oc-aranes, and fr")
+  @WithMockUser(roles = "ADMIN")
+  void geometryFormatDescriptionInSpanishAndCatalan() throws Exception {
+    expectDescriptions(CARTOGRAPHY_PARAMETER_FORMAT, "es", Map.of("Geometry", "Geometría"));
+    expectDescriptions(CARTOGRAPHY_PARAMETER_FORMAT, "ca", Map.of("Geometry", "Geometria"));
+    expectDescriptions(CARTOGRAPHY_PARAMETER_FORMAT, "oc-aranes", Map.of("Geometry", "Geometria"));
+    expectDescriptions(CARTOGRAPHY_PARAMETER_FORMAT, "fr", Map.of("Geometry", "Géométrie"));
+  }
+
+  private void expectDescriptions(String codeListName, String lang, Map<String, String> expected)
+      throws Exception {
+    // A previous request in this transaction already translated the managed rows.
+    entityManager.clear();
+    var result =
+        mvc.perform(get(CODELIST_VALUES_URI_FILTER + "&lang=" + lang, codeListName))
+            .andExpect(status().isOk());
+    for (Map.Entry<String, String> entry : expected.entrySet()) {
+      result.andExpect(
+          jsonPath(
+                  "$._embedded.codelist-values[?(@.value == '%s')].description"
+                      .formatted(entry.getKey()))
+              .value(entry.getValue()));
+    }
   }
 }
