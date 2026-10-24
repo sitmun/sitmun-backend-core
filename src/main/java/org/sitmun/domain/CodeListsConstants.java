@@ -9,6 +9,10 @@ public final class CodeListsConstants {
   public static final String CARTOGRAPHY_GEOMETRY_TYPE = "cartography.geometryType";
   public static final String CARTOGRAPHY_LEGEND_TYPE = "cartography.legendType";
   public static final String CARTOGRAPHY_PARAMETER_FORMAT = "cartographyParameter.format";
+  public static final String CARTOGRAPHY_PARAMETER_GEOMETRY_KIND =
+      "cartographyParameter.geometryKind";
+  public static final String CARTOGRAPHY_PARAMETER_PREFERRED_GEOMETRY_TYPE =
+      "cartographyParameter.preferredGeometryType";
   public static final String CARTOGRAPHY_PARAMETER_TYPE = "cartographyParameter.type";
   public static final String CARTOGRAPHY_SERVICE_PARAMETER_TYPE =
       "cartographyServiceParameter.type";

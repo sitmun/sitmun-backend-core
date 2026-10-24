@@ -123,6 +123,10 @@ public interface CartographyProjection {
   @Value("#{target.service?.name}")
   String getServiceName();
 
+  /** Portrayal service protocol. */
+  @Value("#{target.service?.type}")
+  String getServiceType();
+
   /** Selection service id. */
   @Value("#{target.spatialSelectionService?.id}")
   Integer getSpatialSelectionServiceId();

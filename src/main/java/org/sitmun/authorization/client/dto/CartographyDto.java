@@ -17,6 +17,16 @@ public class CartographyDto {
   String description;
   List<String> layers;
   String service;
+
+  /** Vector for WFS, raster for WMS and WMTS. Derived from the linked service type. */
+  String kind;
+
+  /** DescribeFeatureType property the viewer should use as the layer geometry. */
+  String geometryName;
+
+  /** Preferred geometry id when the chosen attribute is generic Geometry. */
+  String preferredGeometryType;
+
   Integer minScaleDenominator;
   Integer maxScaleDenominator;
   Integer transparency;

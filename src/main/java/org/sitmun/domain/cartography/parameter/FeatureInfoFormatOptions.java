@@ -35,6 +35,18 @@ public class FeatureInfoFormatOptions {
   @Min(1)
   private Integer maxHeight;
 
+  /** GML geometry kind. Present only on a geometry attribute. */
+  private String geometryKind;
+
+  /** True when the administrator chose this attribute as the layer geometry. */
+  private Boolean layerGeometry;
+
+  /**
+   * Preferred geometry id when {@code geometryKind} is generic Geometry. One of point, multipoint,
+   * polyline, polygon, multipolyline, multipolygon.
+   */
+  private String preferredGeometryType;
+
   @JsonIgnore
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
@@ -57,6 +69,9 @@ public class FeatureInfoFormatOptions {
         && (dateStyle == null || dateStyle.isBlank())
         && !positive(maxWidth)
         && !positive(maxHeight)
+        && (geometryKind == null || geometryKind.isBlank())
+        && !Boolean.TRUE.equals(layerGeometry)
+        && (preferredGeometryType == null || preferredGeometryType.isBlank())
         && additionalProperties.isEmpty();
   }
 

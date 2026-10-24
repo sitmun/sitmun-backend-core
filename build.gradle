@@ -214,6 +214,7 @@ tasks.named('processTestResources', Copy).configure {
     include '28_parameter_type_translations.yaml'
     include '30_cartography_style_name_unique.yaml'
     include '31_literal_translation_literal_unique.yaml'
+    include '30_geometry_code_lists.yaml'
     into 'db/changelog'
   }
 }

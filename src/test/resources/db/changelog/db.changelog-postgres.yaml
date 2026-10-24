@@ -92,3 +92,6 @@ databaseChangeLog:
   - include:
       file: 31_literal_translation_literal_unique.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 30_geometry_code_lists.yaml
+      relativeToChangelogFile: true
