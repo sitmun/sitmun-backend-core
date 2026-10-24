@@ -3,11 +3,14 @@ package org.sitmun.authorization.client.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sitmun.authorization.client.dto.CartographyDto;
 import org.sitmun.authorization.client.dto.NodeDto;
 import org.sitmun.domain.cartography.Cartography;
+import org.sitmun.domain.cartography.parameter.CartographyParameter;
+import org.sitmun.domain.cartography.parameter.FeatureInfoFormatOptions;
 import org.sitmun.domain.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -256,5 +259,112 @@ class ProfileMapperTest {
         profileMapper.map(cartography(null, null, null, null, null, "Some abstract"));
     String json = objectMapper.writeValueAsString(dto);
     assertThat(json).contains("\"description\":\"Some abstract\"");
+  }
+
+  @Test
+  @DisplayName("Publishes vector or raster from the linked service and omits a layer service type")
+  void publishesLayerKindFromServiceType() throws Exception {
+    CartographyDto pointLayer =
+        profileMapper.map(
+            cartographyWithService(
+                "WFS",
+                "POINT",
+                geometryParameter("the_geom", "Point", true, "polygon"),
+                textParameter("nom")));
+    assertThat(pointLayer.getKind()).isEqualTo("vector");
+    assertThat(pointLayer.getGeometryName()).isEqualTo("the_geom");
+    assertThat(pointLayer.getPreferredGeometryType()).isNull();
+    assertThat(pointLayer.getFeatureInfoFields())
+        .extracting("name")
+        .containsExactlyInAnyOrder("nom", "the_geom");
+    assertThat(pointLayer.getFeatureInfoFields())
+        .filteredOn(field -> "the_geom".equals(field.getName()))
+        .extracting("format")
+        .containsExactly("Geometry");
+    assertThat(pointLayer.getFeatureInfoFields())
+        .filteredOn(field -> "nom".equals(field.getName()))
+        .extracting("format")
+        .containsOnlyNulls();
+    assertThat(objectMapper.writeValueAsString(pointLayer)).doesNotContain("\"geometry\":");
+
+    CartographyDto generic =
+        profileMapper.map(
+            cartographyWithService(
+                "WFS", "POINT", geometryParameter("shape", "Geometry", true, "polygon")));
+    assertThat(generic.getGeometryName()).isEqualTo("shape");
+    assertThat(generic.getPreferredGeometryType()).isEqualTo("polygon");
+    String genericJson = objectMapper.writeValueAsString(generic);
+    assertThat(genericJson).contains("\"kind\":\"vector\"");
+    assertThat(genericJson).contains("\"geometryName\":\"shape\"");
+    assertThat(genericJson).contains("\"preferredGeometryType\":\"polygon\"");
+
+    CartographyDto codeListType =
+        profileMapper.map(
+            cartographyWithService(
+                "WFS", "POINT", geometryParameter("shape", "Geometry", true, "POINT")));
+    assertThat(codeListType.getPreferredGeometryType()).isNull();
+
+    CartographyParameter first = geometryParameter("geom_a", "Point", false, null);
+    first.setOrder(1);
+    CartographyParameter last = geometryParameter("shape", "Point", false, null);
+    last.setOrder(2);
+    CartographyDto unmarked = profileMapper.map(cartographyWithService("WFS", null, first, last));
+    assertThat(unmarked.getGeometryName()).isEqualTo("shape");
+    assertThat(unmarked.getPreferredGeometryType()).isNull();
+    assertThat(unmarked.getFeatureInfoFields())
+        .filteredOn(field -> "shape".equals(field.getName()))
+        .extracting("format")
+        .containsExactly("Geometry");
+
+    CartographyDto wms =
+        profileMapper.map(
+            cartographyWithService(
+                "WMS", "LINE", geometryParameter("the_geom", "Point", true, null)));
+    assertThat(wms.getKind()).isEqualTo("raster");
+    assertThat(wms.getGeometryName()).isNull();
+    assertThat(wms.getPreferredGeometryType()).isNull();
+
+    CartographyDto wmts = profileMapper.map(cartographyWithService("WMTS", null));
+    assertThat(wmts.getKind()).isEqualTo("raster");
+    assertThat(wmts.getGeometryName()).isNull();
+    assertThat(wmts.getPreferredGeometryType()).isNull();
+  }
+
+  private Cartography cartographyWithService(
+      String serviceType, String geometryType, CartographyParameter... parameters) {
+    return Cartography.builder()
+        .id(42)
+        .name("Test layer")
+        .layers(List.of("L1"))
+        .geometryType(geometryType)
+        .parameters(Set.of(parameters))
+        .service(Service.builder().id(99).type(serviceType).build())
+        .build();
+  }
+
+  private static CartographyParameter geometryParameter(
+      String name, String kind, boolean chosen, String preferredGeometryType) {
+    FeatureInfoFormatOptions options = new FeatureInfoFormatOptions();
+    options.setGeometryKind(kind);
+    if (chosen) {
+      options.setLayerGeometry(true);
+    }
+    options.setPreferredGeometryType(preferredGeometryType);
+    return CartographyParameter.builder()
+        .id(name.hashCode())
+        .name(name)
+        .value(name)
+        .type("INFO")
+        .options(options)
+        .build();
+  }
+
+  private static CartographyParameter textParameter(String name) {
+    return CartographyParameter.builder()
+        .id(name.hashCode())
+        .name(name)
+        .value(name)
+        .type("INFO")
+        .build();
   }
 }

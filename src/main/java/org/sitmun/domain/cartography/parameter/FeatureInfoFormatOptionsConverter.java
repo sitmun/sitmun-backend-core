@@ -59,6 +59,15 @@ public class FeatureInfoFormatOptionsConverter
     if (positive(source.getMaxHeight())) {
       copy.setMaxHeight(source.getMaxHeight());
     }
+    if (source.getGeometryKind() != null && !source.getGeometryKind().isBlank()) {
+      copy.setGeometryKind(source.getGeometryKind());
+    }
+    if (Boolean.TRUE.equals(source.getLayerGeometry())) {
+      copy.setLayerGeometry(true);
+    }
+    if (source.getPreferredGeometryType() != null && !source.getPreferredGeometryType().isBlank()) {
+      copy.setPreferredGeometryType(source.getPreferredGeometryType());
+    }
     source.additionalProperties().forEach(copy::putAdditionalProperty);
     return copy;
   }
