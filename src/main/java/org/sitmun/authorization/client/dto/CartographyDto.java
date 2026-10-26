@@ -24,7 +24,7 @@ public class CartographyDto {
   /** DescribeFeatureType property the viewer should use as the layer geometry. */
   String geometryName;
 
-  /** Geometry kind of {@link #geometryName}. Curve and surface kinds need GML 3.2. */
+  /** Geometry kind of {@link #geometryName}. */
   String geometryKind;
 
   /** Preferred geometry id when the chosen attribute is generic Geometry. */
