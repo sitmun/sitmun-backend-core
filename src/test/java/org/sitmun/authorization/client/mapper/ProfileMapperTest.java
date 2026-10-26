@@ -273,6 +273,7 @@ class ProfileMapperTest {
                 textParameter("nom")));
     assertThat(pointLayer.getKind()).isEqualTo("vector");
     assertThat(pointLayer.getGeometryName()).isEqualTo("the_geom");
+    assertThat(pointLayer.getGeometryKind()).isEqualTo("Point");
     assertThat(pointLayer.getPreferredGeometryType()).isNull();
     assertThat(pointLayer.getFeatureInfoFields())
         .extracting("name")
@@ -292,6 +293,7 @@ class ProfileMapperTest {
             cartographyWithService(
                 "WFS", "POINT", geometryParameter("shape", "Geometry", true, "polygon")));
     assertThat(generic.getGeometryName()).isEqualTo("shape");
+    assertThat(generic.getGeometryKind()).isEqualTo("Geometry");
     assertThat(generic.getPreferredGeometryType()).isEqualTo("polygon");
     String genericJson = objectMapper.writeValueAsString(generic);
     assertThat(genericJson).contains("\"kind\":\"vector\"");
@@ -316,12 +318,22 @@ class ProfileMapperTest {
         .extracting("format")
         .containsExactly("Geometry");
 
+    CartographyDto curve =
+        profileMapper.map(
+            cartographyWithService(
+                "WFS", "LINE", geometryParameter("centrelineGeometry", "Curve", true, null)));
+    assertThat(curve.getGeometryName()).isEqualTo("centrelineGeometry");
+    assertThat(curve.getGeometryKind()).isEqualTo("Curve");
+    assertThat(curve.getPreferredGeometryType()).isNull();
+    assertThat(objectMapper.writeValueAsString(curve)).contains("\"geometryKind\":\"Curve\"");
+
     CartographyDto wms =
         profileMapper.map(
             cartographyWithService(
                 "WMS", "LINE", geometryParameter("the_geom", "Point", true, null)));
     assertThat(wms.getKind()).isEqualTo("raster");
     assertThat(wms.getGeometryName()).isNull();
+    assertThat(wms.getGeometryKind()).isNull();
     assertThat(wms.getPreferredGeometryType()).isNull();
 
     CartographyDto wmts = profileMapper.map(cartographyWithService("WMTS", null));

@@ -24,6 +24,9 @@ public class CartographyDto {
   /** DescribeFeatureType property the viewer should use as the layer geometry. */
   String geometryName;
 
+  /** Geometry kind of {@link #geometryName}. */
+  String geometryKind;
+
   /** Preferred geometry id when the chosen attribute is generic Geometry. */
   String preferredGeometryType;
 
