@@ -71,7 +71,7 @@ public class ServiceCheck {
   @Column(name = "SEC_ELAPSED", nullable = false)
   private Long elapsedMs;
 
-  @Column(name = "SEC_DETAIL", length = PersistenceConstants.LONG_DESCRIPTION, nullable = false)
+  @Column(name = "SEC_DETAIL", length = PersistenceConstants.LONG_DESCRIPTION)
   private String detail;
 
   @Override

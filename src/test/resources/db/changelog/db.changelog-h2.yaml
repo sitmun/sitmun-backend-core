@@ -98,3 +98,6 @@ databaseChangeLog:
   - include:
       file: 32_service_check_observed_timestamptz.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 33_service_check_detail_nullable.yaml
+      relativeToChangelogFile: true

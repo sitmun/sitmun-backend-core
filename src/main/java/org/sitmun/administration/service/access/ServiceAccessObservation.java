@@ -18,6 +18,6 @@ public record ServiceAccessObservation(
         check.getObserver(),
         check.getElapsedMs(),
         check.getObservedAt(),
-        check.getDetail());
+        check.getDetail() == null ? "" : check.getDetail());
   }
 }
