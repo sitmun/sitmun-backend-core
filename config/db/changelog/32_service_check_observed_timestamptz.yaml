@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 32-service-check-sec-observed-timestamptz-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE_CHECK'
+              AND COLUMN_NAME = 'SEC_OBSERVED'
+              AND DATA_TYPE = 'TIMESTAMP(6) WITH TIME ZONE'
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_SERVICE_CHECK MODIFY (SEC_OBSERVED TIMESTAMP(6) WITH TIME ZONE)
+
+  - changeSet:
+      id: 32-service-check-scs-drop-observed-index-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE_CHECK_SAMPLE'
+              AND COLUMN_NAME = 'SCS_OBSERVED'
+              AND DATA_TYPE = 'TIMESTAMP(6) WITH TIME ZONE'
+        - indexExists:
+            indexName: STM_SCS_IX_SER_OBS
+            tableName: STM_SERVICE_CHECK_SAMPLE
+      changes:
+        - sql:
+            sql: DROP INDEX STM_SCS_IX_SER_OBS
+
+  - changeSet:
+      id: 32-service-check-scs-observed-timestamptz-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: >-
+              SELECT COUNT(*) FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE_CHECK_SAMPLE'
+              AND COLUMN_NAME = 'SCS_OBSERVED'
+              AND DATA_TYPE = 'TIMESTAMP(6) WITH TIME ZONE'
+      changes:
+        - sql:
+            sql: ALTER TABLE STM_SERVICE_CHECK_SAMPLE MODIFY (SCS_OBSERVED TIMESTAMP(6) WITH TIME ZONE)
+
+  - changeSet:
+      id: 32-service-check-scs-create-observed-index-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            indexExists:
+              indexName: STM_SCS_IX_SER_OBS
+              tableName: STM_SERVICE_CHECK_SAMPLE
+      changes:
+        - sql:
+            sql: CREATE INDEX STM_SCS_IX_SER_OBS ON STM_SERVICE_CHECK_SAMPLE (SCS_SERID, SCS_OBSERVED)

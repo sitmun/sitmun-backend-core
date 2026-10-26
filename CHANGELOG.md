@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Build**: Spring Boot is 4.1.1; springdoc-openapi is 3.1.1; Liquibase via `spring-boot-starter-liquibase`; OIDC via `spring-boot-starter-security-oauth2-client`.
 - **Build**: `setupGitHooks` is no longer a dependency of `build` (submodule-safe / opt-in via `./gradlew setupGitHooks`).
 - **Build**: Gradle wrapper is 8.14.6.
+- **CI**: Pull requests run `testPostgres` and `testOracle` in their own jobs. `./gradlew build` still tests on H2.
 - **Proxy**: `INFO` parameters are sent only on GetFeatureInfo. `GETMAP` parameters are sent only on GetMap. `WMS` and `WFS` parameters stay on every operation of that protocol. `WMTS` parameters stay on the service profile and are not sent upstream, so a `format` row on a WMS service no longer replaces the client `FORMAT`. `OLPARAM` parameters are not sent upstream. A parameter code must be allowed for the service protocol; changing the protocol is rejected while a stored row is outside that set. Liquibase `27_parameter_operation_scope` adds `GETMAP` and `WFS` to `serviceParameter.type`, and `GETMAP` and `INFO` to `cartographyServiceParameter.type`. Stored rows are not rewritten.
 - **HTTP**: OkHttp is 5.5.0.
 - **Service checks**: Transport text sent for classification is capped at `exceptionTextMaxLength`.
@@ -52,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **Service checks**: Oracle Liquibase widens `SEC_OBSERVED` and `SCS_OBSERVED` to `TIMESTAMP(6) WITH TIME ZONE`, so the health dashboard and the due-check query can read those instants ([sitmun-admin-app#516](https://github.com/sitmun/sitmun-admin-app/issues/516)).
 - **Database**: The Menorca application-tree seed advances `ATR_ID` to one past the highest `STM_APP_TREE` id, including row `120` ([#318](https://github.com/sitmun/sitmun-backend-core/issues/318)).
 - **I18n**: Concurrent template saves that introduce the same new literal keep one row. Liquibase `31_literal_translation_literal_unique` merges duplicate `LTR_LITERAL` values onto the lowest id, then rejects a second insert. H2 unique-constrains the column. PostgreSQL unique-indexes `md5(LTR_LITERAL)` and Oracle unique-indexes `STANDARD_HASH(LTR_LITERAL, 'SHA256')`, because a btree key cannot cover `VARCHAR(4000)`. The losing ensure reads the stored literal after the failed insert rolls back to a savepoint, so the task save can still commit ([#294](https://github.com/sitmun/sitmun-backend-core/issues/294)).
 - **Trees**: `PUT /api/trees/{id}` applies the touristic application-link rule to the tree's current links, so a type change to `touristic` is rejected when the tree is linked to several applications or to a non-touristic application ([#288](https://github.com/sitmun/sitmun-backend-core/issues/288)).
