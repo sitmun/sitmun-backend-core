@@ -84,6 +84,7 @@ public abstract class ProfileMapper {
         .service(PROFILE_SERVICE_ID_PREFIX + cartography.getService().getId())
         .kind(layerKind(cartography.getService()))
         .geometryName(publishedGeometryName(cartography))
+        .geometryKind(publishedGeometryKind(cartography))
         .preferredGeometryType(publishedPreferredGeometryType(cartography))
         .minScaleDenominator(positiveOrNull(cartography.getMinimumScale()))
         .maxScaleDenominator(positiveOrNull(cartography.getMaximumScale()))
@@ -175,6 +176,17 @@ public abstract class ProfileMapper {
     }
     CartographyParameter chosen = chosenGeometry(cartography);
     return chosen == null ? null : blankToNull(chosen.getName());
+  }
+
+  private static String publishedGeometryKind(Cartography cartography) {
+    if (!"vector".equals(layerKind(cartography.getService()))) {
+      return null;
+    }
+    CartographyParameter chosen = chosenGeometry(cartography);
+    if (chosen == null || chosen.getOptions() == null) {
+      return null;
+    }
+    return blankToNull(chosen.getOptions().getGeometryKind());
   }
 
   private static String publishedPreferredGeometryType(Cartography cartography) {
