@@ -72,3 +72,40 @@ COD_ID,COD_LIST,COD_VALUE,COD_SYSTEM,COD_DEFAULT,COD_DESCRIPTION
 74,service.nativeProtocol,NONE,FALSE,FALSE,No protocol
 75,tree.type,edition,TRUE,FALSE,Edition tree
 76,tree.type,touristic,TRUE,FALSE,Tourist application
+77,application.type,T,TRUE,FALSE,Tourist application
+78,application.type,ED,TRUE,FALSE,Edition application
+79,treenode.node.type,cartography,TRUE,FALSE,Cartography
+80,treenode.node.type,folder,TRUE,FALSE,Folder
+81,treenode.node.type,list,TRUE,FALSE,List
+82,treenode.node.type,menu,TRUE,FALSE,Menu
+83,treenode.node.type,task,TRUE,FALSE,Task
+84,treenode.node.type,fav,TRUE,FALSE,Favorites
+85,treenode.node.type,map,TRUE,FALSE,Map
+86,treenode.node.type,nm,TRUE,FALSE,Near me
+87,treenode.viewmode,dl,TRUE,FALSE,Detailed list
+88,treenode.viewmode,ne,TRUE,FALSE,Near elements
+89,treenode.viewmode,sch,TRUE,FALSE,Schedule
+90,treenode.viewmode,evtcat,TRUE,FALSE,Events categories
+91,treenode.viewmode,evt,TRUE,FALSE,Events
+92,treenode.viewmode,evtloc,TRUE,FALSE,Events locations
+93,treenode.viewmode,ms,TRUE,FALSE,Map search
+94,treenode.viewmode,rt,TRUE,FALSE,Routes list
+95,treenode.viewmode,gallery,TRUE,FALSE,Gallery
+96,taskEntity.jsonParamType,string,TRUE,FALSE,string
+97,taskEntity.jsonParamType,number,TRUE,FALSE,number
+98,taskEntity.jsonParamType,boolean,TRUE,FALSE,boolean
+99,taskEntity.jsonParamType,object,TRUE,FALSE,object
+100,taskEntity.jsonParamType,array,TRUE,FALSE,array
+101,queryTask.scope,sql-query,TRUE,FALSE,SQL Query
+102,queryTask.scope,web-api-query,TRUE,FALSE,Web API Query
+103,queryTask.scope,web-api-query-no-proxy,TRUE,FALSE,Web API Query (No Proxy)
+104,queryTask.scope,cartography-query,TRUE,FALSE,Cartography Query
+105,queryTask.parameterType,template,TRUE,FALSE,Template parameter
+106,queryTask.parameterType,query,TRUE,FALSE,Query parameter
+107,editTask.scope,feat-edit,TRUE,FALSE,Features service edition (WFS)
+108,editTask.scope,db-edit,TRUE,FALSE,Database edition
+109,editTask.fieldType,text,TRUE,FALSE,Text
+110,editTask.fieldType,date,TRUE,FALSE,Date
+111,editTask.fieldType,image,TRUE,FALSE,Image
+112,editTask.fieldType,number,TRUE,FALSE,Number
+113,editTask.fieldType,listbox,TRUE,FALSE,ListBox

@@ -27,5 +27,15 @@ databaseChangeLog:
               - column:
                   name: COD_DESCRIPTION
                   type: STRING
+        # Liquibase reads a plain "null" value as SQL NULL.
+        - insert:
+            tableName: STM_CODELIST
+            columns:
+              - column: { name: COD_ID, valueNumeric: 114 }
+              - column: { name: COD_LIST, value: taskEntity.jsonParamType }
+              - column: { name: COD_VALUE, valueComputed: "'null'" }
+              - column: { name: COD_SYSTEM, valueBoolean: true }
+              - column: { name: COD_DEFAULT, valueBoolean: false }
+              - column: { name: COD_DESCRIPTION, valueComputed: "'null'" }
         - sql:
             sql: INSERT INTO STM_SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES ('COD_ID', 116);

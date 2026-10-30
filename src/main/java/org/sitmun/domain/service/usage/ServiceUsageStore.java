@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import org.sitmun.domain.application.ApplicationRepository;
+import org.sitmun.domain.service.ServiceRepository;
 import org.sitmun.proxy.contract.ServiceUsageReport;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -13,13 +15,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServiceUsageStore {
 
   private final ServiceUsageRepository repository;
+  private final ServiceRepository services;
+  private final ApplicationRepository applications;
 
-  public ServiceUsageStore(ServiceUsageRepository repository) {
+  public ServiceUsageStore(
+      ServiceUsageRepository repository,
+      ServiceRepository services,
+      ApplicationRepository applications) {
     this.repository = repository;
+    this.services = services;
+    this.applications = applications;
   }
 
   @Transactional
   public void addReport(ServiceUsageReport report, ZoneId zone) {
+    // A failed insert aborts a PostgreSQL transaction, so reject unknown keys before writing.
+    for (org.sitmun.proxy.contract.ServiceUsage usage : report.usages()) {
+      int serviceId = Math.toIntExact(usage.serviceId());
+      int applicationId = Math.toIntExact(usage.applicationId());
+      if (!services.existsById(serviceId)) {
+        throw new IllegalArgumentException("Unknown service " + serviceId);
+      }
+      if (!applications.existsById(applicationId)) {
+        throw new IllegalArgumentException("Unknown application " + applicationId);
+      }
+    }
     for (org.sitmun.proxy.contract.ServiceUsage usage : report.usages()) {
       add(
           Math.toIntExact(usage.serviceId()),

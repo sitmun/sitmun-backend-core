@@ -23,18 +23,13 @@ spring:
       connection-timeout: 30000
       idle-timeout: 300000
       max-lifetime: 600000
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
       auto-commit: false
 
   # JPA Configuration for Oracle
   jpa:
     hibernate.ddl-auto: validate
     properties.hibernate:
-      dialect: org.hibernate.dialect.OracleDialect
+      dialect: org.sitmun.infrastructure.persistence.dialect.SitmunOracleDialect
       type.preferred_boolean_jdbc_type: SMALLINT
       connection.provider_disables_autocommit: true
 

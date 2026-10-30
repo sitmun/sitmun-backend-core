@@ -3,6 +3,7 @@ package org.sitmun.domain.service.usage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Duration;
@@ -142,8 +143,8 @@ class ServiceUsageTest {
   }
 
   @Test
-  @DisplayName("An explicit zero service id still binds")
-  void explicitZeroServiceIdBinds() throws Exception {
+  @DisplayName("An explicit zero service id binds and is rejected as an unknown service")
+  void explicitZeroServiceIdIsAnUnknownService() throws Exception {
     Application application = saveApplication("zero-service-app");
 
     mvc.perform(
@@ -151,7 +152,25 @@ class ServiceUsageTest {
                 .contentType(APPLICATION_JSON)
                 .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
                 .content(body(0, application.getId(), "2026-10-05T12:00:00Z", 1, 0)))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Unknown service 0"));
+  }
+
+  @Test
+  @DisplayName("Rejects a usage row for an unknown application")
+  void rejectsAnUnknownApplication() throws Exception {
+    Service service = saveService("Unknown application WMS", true);
+
+    mvc.perform(
+            post("/api/config/proxy/service-usage")
+                .contentType(APPLICATION_JSON)
+                .header(SecurityConstants.PROXY_MIDDLEWARE_KEY, proxySecret)
+                .content(body(service.getId(), 0, "2026-10-05T12:00:00Z", 1, 0)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("Unknown application 0"));
+
+    assertThat(usageRepository.findByIdServiceIdAndIdOperation(service.getId(), "GetMap"))
+        .isEmpty();
   }
 
   @Test
