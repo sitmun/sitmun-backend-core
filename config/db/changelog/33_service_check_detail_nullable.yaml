@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 33-service-check-sec-detail-nullable-h2
+      author: sitmun
+      dbms: h2
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN IS_NULLABLE = 'NO' THEN 1 ELSE 0 END
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE UPPER(TABLE_NAME) = 'STM_SERVICE_CHECK'
+              AND UPPER(COLUMN_NAME) = 'SEC_DETAIL'
+      changes:
+        - dropNotNullConstraint:
+            tableName: STM_SERVICE_CHECK
+            columnName: SEC_DETAIL
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 33-service-check-sec-detail-nullable-postgresql
+      author: sitmun
+      dbms: postgresql
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN is_nullable = 'NO' THEN 1 ELSE 0 END
+              FROM information_schema.columns
+              WHERE table_schema = 'public'
+              AND upper(table_name) = 'STM_SERVICE_CHECK'
+              AND upper(column_name) = 'SEC_DETAIL'
+      changes:
+        - dropNotNullConstraint:
+            tableName: STM_SERVICE_CHECK
+            columnName: SEC_DETAIL
+            columnDataType: VARCHAR(4000)
+
+  - changeSet:
+      id: 33-service-check-sec-detail-nullable-oracle
+      author: sitmun
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: >-
+              SELECT CASE WHEN NULLABLE = 'N' THEN 1 ELSE 0 END
+              FROM USER_TAB_COLUMNS
+              WHERE TABLE_NAME = 'STM_SERVICE_CHECK'
+              AND COLUMN_NAME = 'SEC_DETAIL'
+      changes:
+        - dropNotNullConstraint:
+            tableName: STM_SERVICE_CHECK
+            columnName: SEC_DETAIL
+            columnDataType: VARCHAR2(4000 CHAR)

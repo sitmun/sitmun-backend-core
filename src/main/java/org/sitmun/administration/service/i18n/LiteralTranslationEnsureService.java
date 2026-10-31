@@ -123,7 +123,8 @@ public class LiteralTranslationEnsureService {
               insert.setString(4, literal);
               insert.executeUpdate();
             }
-            connection.releaseSavepoint(savepoint);
+            // Not released: the Oracle driver rejects releaseSavepoint. It ends with the
+            // transaction.
           } catch (SQLException ex) {
             connection.rollback(savepoint);
             if (!isUniqueViolation(ex)) {

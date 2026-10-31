@@ -215,6 +215,9 @@ tasks.named('processTestResources', Copy).configure {
     include '30_cartography_style_name_unique.yaml'
     include '31_literal_translation_literal_unique.yaml'
     include '30_geometry_code_lists.yaml'
+    include '34_service_check_observed_timestamptz_rebuild.sql'
+    include '32_service_check_observed_timestamptz.yaml'
+    include '33_service_check_detail_nullable.yaml'
     into 'db/changelog'
   }
 }
@@ -265,7 +268,7 @@ tasks.register('testH2', Test) {
 tasks.register('testPostgres', Test) {
   group = 'verification'
   description = 'Run tests with PostgreSQL database using Docker Compose'
-  systemProperty 'spring.profiles.active', 'postgres'
+  systemProperty 'spring.profiles.active', 'test,postgres'
   systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
   systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
@@ -277,7 +280,7 @@ tasks.register('testPostgres', Test) {
 tasks.register('testOracle', Test) {
   group = 'verification'
   description = 'Run tests with OracleSQL database using Docker Compose'
-  systemProperty 'spring.profiles.active', 'oracle'
+  systemProperty 'spring.profiles.active', 'test,oracle'
   systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
   systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {

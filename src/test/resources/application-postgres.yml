@@ -15,7 +15,9 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       poolName: TestPostgresHikari
-      maximum-pool-size: 2
+      # A transaction holds one connection. TableGenerator takes a second. Service-check
+      # workers (max-in-flight 4) do the same, so a pool of 2 deadlocks the suite.
+      maximum-pool-size: 16
       minimum-idle: 1
       leak-detection-threshold: 15000
       connection-timeout: 10000
@@ -25,10 +27,6 @@ spring:
       connection-init-sql: "SET timezone = 'UTC'"
       data-source-properties:
         reWriteBatchedInserts: true
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
       auto-commit: false
 
   # JPA Configuration for PostgreSQL

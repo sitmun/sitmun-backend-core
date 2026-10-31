@@ -2,6 +2,7 @@ package org.sitmun.domain.service.check;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,7 @@ class ServiceCheckStoreTest {
   @Autowired private ServiceCheckStore store;
   @Autowired private ServiceCheckRepository checkRepository;
   @Autowired private ServiceCheckSampleRepository sampleRepository;
+  @Autowired private EntityManager entityManager;
 
   @Test
   @DisplayName("Upsert replaces the latest row, appends a sample, and leaves SER_BLOCKED unchanged")
@@ -72,7 +74,7 @@ class ServiceCheckStoreTest {
     assertThat(second.getStatusRank()).isEqualTo(0);
     assertThat(second.getObserver()).isEqualTo("backend");
     assertThat(second.getElapsedMs()).isEqualTo(12L);
-    assertThat(second.getDetail()).isEmpty();
+    assertThat(second.getDetail()).isNull();
     assertThat(second.getObservedAt()).isEqualTo(secondSeen);
 
     List<ServiceCheckSample> samples =
@@ -88,5 +90,37 @@ class ServiceCheckStoreTest {
 
     Service reloaded = serviceRepository.findById(service.getId()).orElseThrow();
     assertThat(reloaded.getBlocked()).isTrue();
+  }
+
+  @Test
+  @DisplayName("A blank detail is stored as null, not an empty string")
+  void blankDetailIsStoredAsNull() {
+    Service service =
+        serviceRepository.save(
+            Service.builder()
+                .name("Blank detail WMS")
+                .type("WMS")
+                .serviceURL("http://example.com/wms")
+                .blocked(false)
+                .isProxied(false)
+                .build());
+    Instant observedAt = Instant.parse("2026-10-05T12:00:00Z");
+
+    store.record(
+        service, ServiceCheckStore.BACKEND, new ServiceStatus("up", 0), 4L, "", observedAt);
+    store.record(
+        service, ServiceCheckStore.PROXY, new ServiceStatus("up", 0), 5L, null, observedAt);
+    entityManager.flush();
+    entityManager.clear();
+
+    assertThat(storedDetail(service.getId(), ServiceCheckStore.BACKEND)).isNull();
+    assertThat(storedDetail(service.getId(), ServiceCheckStore.PROXY)).isNull();
+  }
+
+  private String storedDetail(Integer serviceId, String observer) {
+    return checkRepository
+        .findByService_IdAndObserver(serviceId, observer)
+        .orElseThrow()
+        .getDetail();
   }
 }

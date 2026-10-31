@@ -36,7 +36,7 @@ public class ServiceCheckStore {
     latest.setStatus(status.code());
     latest.setStatusRank(status.rank());
     latest.setElapsedMs(elapsedMs);
-    latest.setDetail(detail == null ? "" : detail);
+    latest.setDetail(detail == null || detail.isEmpty() ? null : detail);
     latest.setObservedAt(observedAt);
     ServiceCheck saved = checkRepository.save(latest);
     sampleRepository.save(

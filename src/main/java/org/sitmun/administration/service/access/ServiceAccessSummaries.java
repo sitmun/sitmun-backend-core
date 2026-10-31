@@ -93,7 +93,7 @@ public class ServiceAccessSummaries {
               newer.getObserver(),
               newer.getElapsedMs(),
               newer.getObservedAt(),
-              newer.getDetail(),
+              newer.getDetail() == null ? "" : newer.getDetail(),
               hours(row),
               usage30.get(entry.getKey())));
     }
