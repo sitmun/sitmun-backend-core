@@ -268,7 +268,7 @@ tasks.register('testH2', Test) {
 tasks.register('testPostgres', Test) {
   group = 'verification'
   description = 'Run tests with PostgreSQL database using Docker Compose'
-  systemProperty 'spring.profiles.active', 'postgres'
+  systemProperty 'spring.profiles.active', 'test,postgres'
   systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
   systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {
@@ -280,7 +280,7 @@ tasks.register('testPostgres', Test) {
 tasks.register('testOracle', Test) {
   group = 'verification'
   description = 'Run tests with OracleSQL database using Docker Compose'
-  systemProperty 'spring.profiles.active', 'oracle'
+  systemProperty 'spring.profiles.active', 'test,oracle'
   systemProperty 'sitmun.user.secret', 'test-only-insecure-user-secret-32-bytes'
   systemProperty 'sitmun.proxy-middleware.secret', 'test-only-insecure-middleware-secret'
   testLogging {

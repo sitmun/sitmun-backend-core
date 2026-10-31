@@ -15,22 +15,30 @@ public class ViewerUsageScheduler {
   private static final Logger log = LoggerFactory.getLogger(ViewerUsageScheduler.class);
 
   private final ViewerUsage usage;
-  private final ScheduledExecutorService scheduler =
-      Executors.newSingleThreadScheduledExecutor(
-          runnable -> {
-            Thread thread = new Thread(runnable, "viewer-usage");
-            thread.setDaemon(true);
-            return thread;
-          });
+  private final ScheduledExecutorService scheduler;
 
   public ViewerUsageScheduler(ViewerUsage usage, ServiceCheckProperties properties) {
     this.usage = usage;
+    if (!Boolean.TRUE.equals(properties.enabled())) {
+      this.scheduler = null;
+      return;
+    }
+    this.scheduler =
+        Executors.newSingleThreadScheduledExecutor(
+            runnable -> {
+              Thread thread = new Thread(runnable, "viewer-usage");
+              thread.setDaemon(true);
+              return thread;
+            });
     long delay = properties.viewerFlushInterval().toMillis();
     scheduler.scheduleWithFixedDelay(this::flush, delay, delay, TimeUnit.MILLISECONDS);
   }
 
   @PreDestroy
   void shutdown() {
+    if (scheduler == null) {
+      return;
+    }
     flush();
     scheduler.shutdown();
   }
