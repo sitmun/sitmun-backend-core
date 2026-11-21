@@ -1,3 +1,5 @@
+> **Archived.** Since SITMUN 1.3.0 this code is maintained in [sitmun/sitmun](https://github.com/sitmun/sitmun), folder [`sitmun-backend`](https://github.com/sitmun/sitmun/tree/main/sitmun-backend), which imported this repository's history. This repository is read-only and receives no further changes. Documentation: [https://sitmun.github.io](https://sitmun.github.io).
+
 # SITMUN Backend Core
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
